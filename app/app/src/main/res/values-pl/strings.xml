@@ -286,7 +286,7 @@
     <string name="network_api_current_api">Bieżące API: %1$s</string>
     <string name="network_api_current_connect">Bieżący connect: %1$s</string>
     <string name="network_api_description">Wybierz domenę sieci używaną przez aplikację. Pozostaw adresy URL API i connect puste, aby wyprowadzić je z domeny.</string>
-    <string name="network_api_domain_help">Przykład: ur.network lub twoja własna domena.</string>
+    <string name="network_api_domain_help">Przykład: bringyour.com lub twoja własna domena.</string>
     <string name="network_api_domain_label">Domena sieci</string>
     <string name="network_api_enter_domain">Wprowadź domenę sieci</string>
     <string name="network_api_failed">Niepowodzenie: %1$s</string>

@@ -513,7 +513,7 @@
     <string name="network_api_current_api">当前 API：%1$s</string>
     <string name="network_api_current_connect">当前 connect：%1$s</string>
     <string name="network_api_description">选择应用使用的网络域名。将 API 和 connect URL 留空则从域名派生。</string>
-    <string name="network_api_domain_help">例如：ur.network 或您的自定义域名。</string>
+    <string name="network_api_domain_help">例如：bringyour.com 或您的自定义域名。</string>
     <string name="network_api_domain_label">网络域名</string>
     <string name="network_api_enter_domain">请输入网络域名</string>
     <string name="network_api_failed">失败：%1$s</string>

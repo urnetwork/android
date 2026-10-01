@@ -286,7 +286,7 @@
     <string name="network_api_current_api">現在のAPI: %1$s</string>
     <string name="network_api_current_connect">現在の Connect: %1$s</string>
     <string name="network_api_description">アプリが使用するネットワークドメインを選択します。API と connect の URL を空欄にすると、ドメインから導出されます。</string>
-    <string name="network_api_domain_help">例: ur.network またはカスタムドメイン。</string>
+    <string name="network_api_domain_help">例: bringyour.com またはカスタムドメイン。</string>
     <string name="network_api_domain_label">ネットワークドメイン</string>
     <string name="network_api_enter_domain">ネットワークドメインを入力してください</string>
     <string name="network_api_failed">失敗: %1$s</string>

@@ -527,7 +527,7 @@
     <string name="network_api_current_api">Current API: %1$s</string>
     <string name="network_api_current_connect">Current connect: %1$s</string>
     <string name="network_api_description">Choose the network domain used by the app. Leave the API and connect URLs blank to derive them from the domain.</string>
-    <string name="network_api_domain_help">Example: ur.network or your custom domain.</string>
+    <string name="network_api_domain_help">Example: bringyour.com or your custom domain.</string>
     <string name="network_api_domain_label">Network domain</string>
     <string name="network_api_enter_domain">Enter a network domain</string>
     <string name="network_api_failed">Failed: %1$s</string>

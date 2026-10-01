@@ -513,7 +513,7 @@
     <string name="network_api_current_api">Aktuelle API: %1$s</string>
     <string name="network_api_current_connect">Aktueller Connect: %1$s</string>
     <string name="network_api_description">Wähle die Netzwerkdomain, die die App verwendet. Lass die API- und Connect-URLs leer, um sie von der Domain abzuleiten.</string>
-    <string name="network_api_domain_help">Beispiel: ur.network oder deine eigene Domain.</string>
+    <string name="network_api_domain_help">Beispiel: bringyour.com oder deine eigene Domain.</string>
     <string name="network_api_domain_label">Netzwerkdomain</string>
     <string name="network_api_enter_domain">Gib eine Netzwerkdomain ein</string>
     <string name="network_api_failed">Fehlgeschlagen: %1$s</string>

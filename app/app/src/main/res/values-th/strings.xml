@@ -286,7 +286,7 @@
     <string name="network_api_current_api">API ปัจจุบัน: %1$s</string>
     <string name="network_api_current_connect">Connect ปัจจุบัน: %1$s</string>
     <string name="network_api_description">เลือกโดเมนเครือข่ายที่แอปใช้ เว้น URL ของ API และ connect ว่างไว้เพื่อให้ได้มาจากโดเมน</string>
-    <string name="network_api_domain_help">ตัวอย่าง: ur.network หรือโดเมนที่คุณกำหนดเอง</string>
+    <string name="network_api_domain_help">ตัวอย่าง: bringyour.com หรือโดเมนที่คุณกำหนดเอง</string>
     <string name="network_api_domain_label">โดเมนเครือข่าย</string>
     <string name="network_api_enter_domain">กรอกโดเมนเครือข่าย</string>
     <string name="network_api_failed">ล้มเหลว: %1$s</string>

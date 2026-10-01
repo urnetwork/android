@@ -513,7 +513,7 @@
     <string name="network_api_current_api">واجهة API الحالية: %1$s</string>
     <string name="network_api_current_connect">Connect الحالي: %1$s</string>
     <string name="network_api_description">اختر نطاق الشبكة الذي يستخدمه التطبيق. اترك عنواني API و connect فارغين ليتم اشتقاقهما من النطاق.</string>
-    <string name="network_api_domain_help">مثال: ur.network أو نطاقك المخصص.</string>
+    <string name="network_api_domain_help">مثال: bringyour.com أو نطاقك المخصص.</string>
     <string name="network_api_domain_label">نطاق الشبكة</string>
     <string name="network_api_enter_domain">أدخل نطاق شبكة</string>
     <string name="network_api_failed">فشل: %1$s</string>

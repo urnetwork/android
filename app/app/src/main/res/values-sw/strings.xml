@@ -286,7 +286,7 @@
     <string name="network_api_current_api">API ya sasa: %1$s</string>
     <string name="network_api_current_connect">Connect ya sasa: %1$s</string>
     <string name="network_api_description">Chagua kikoa cha mtandao kinachotumiwa na programu. Acha URL za API na connect wazi ili zitokane na kikoa.</string>
-    <string name="network_api_domain_help">Mfano: ur.network au kikoa chako maalum.</string>
+    <string name="network_api_domain_help">Mfano: bringyour.com au kikoa chako maalum.</string>
     <string name="network_api_domain_label">Kikoa cha mtandao</string>
     <string name="network_api_enter_domain">Weka kikoa cha mtandao</string>
     <string name="network_api_failed">Imeshindikana: %1$s</string>

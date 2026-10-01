@@ -286,7 +286,7 @@
     <string name="network_api_current_api">वर्तमान API: %1$s</string>
     <string name="network_api_current_connect">वर्तमान connect: %1$s</string>
     <string name="network_api_description">ऐप द्वारा उपयोग किया जाने वाला नेटवर्क डोमेन चुनें। API और connect URL को डोमेन से प्राप्त करने के लिए खाली छोड़ें।</string>
-    <string name="network_api_domain_help">उदाहरण: ur.network या आपका कस्टम डोमेन।</string>
+    <string name="network_api_domain_help">उदाहरण: bringyour.com या आपका कस्टम डोमेन।</string>
     <string name="network_api_domain_label">नेटवर्क डोमेन</string>
     <string name="network_api_enter_domain">नेटवर्क डोमेन दर्ज करें</string>
     <string name="network_api_failed">विफल: %1$s</string>

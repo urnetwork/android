@@ -513,7 +513,7 @@
     <string name="network_api_current_api">Текущий API: %1$s</string>
     <string name="network_api_current_connect">Текущий connect: %1$s</string>
     <string name="network_api_description">Выберите домен сети, используемый приложением. Оставьте URL API и connect пустыми, чтобы вывести их из домена.</string>
-    <string name="network_api_domain_help">Пример: ur.network или ваш собственный домен.</string>
+    <string name="network_api_domain_help">Пример: bringyour.com или ваш собственный домен.</string>
     <string name="network_api_domain_label">Домен сети</string>
     <string name="network_api_enter_domain">Введите домен сети</string>
     <string name="network_api_failed">Сбой: %1$s</string>

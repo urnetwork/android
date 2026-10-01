@@ -546,7 +546,7 @@ class MainAcceptanceTest {
             BuildConfig.URNETWORK_ACCEPTANCE_BUILD_ID,
         )
         assertEquals("acceptance APK must target the main environment", "main", BuildConfig.BRINGYOUR_BUNDLE_ENV_NAME)
-        assertEquals("acceptance APK must target the official network", "ur.network", BuildConfig.BRINGYOUR_BUNDLE_HOST_NAME)
+        assertEquals("acceptance APK must target the official network", "bringyour.com", BuildConfig.BRINGYOUR_BUNDLE_HOST_NAME)
 
         val repetitions = arguments.getString("repeat")?.toIntOrNull() ?: 1
         assertTrue("repeat must be positive", repetitions > 0)
