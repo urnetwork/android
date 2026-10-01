@@ -682,30 +682,59 @@ class MainApplication : Application() {
 
         val networkSpaceManager = networkSpaceManagerProvider.getNetworkSpaceManager()
 
-        val key = Sdk.newNetworkSpaceKey(BuildConfig.BRINGYOUR_BUNDLE_HOST_NAME, BuildConfig.BRINGYOUR_BUNDLE_ENV_NAME)
-        val bundleNetworkSpaceExists = networkSpaceManager?.getNetworkSpace(key) != null
-        val bundleNetworkSpace = networkSpaceManager?.updateNetworkSpace(key) { values ->
-            // migrate specific bundled fields to the latest from the build
-            values.envSecret = BuildConfig.BRINGYOUR_BUNDLE_ENV_SECRET
-            values.bundled = true
-            // security settings
-            // more security can mean fewer connectivity options and slower connectivity in some regions
-            values.netExposeServerIps = BuildConfig.BRINGYOUR_BUNDLE_NET_EXPOSE_SERVER_IPS
-            values.netExposeServerHostNames = BuildConfig.BRINGYOUR_BUNDLE_NET_EXPOSE_SERVER_HOST_NAMES
-            // server settings
-            values.linkHostName = BuildConfig.BRINGYOUR_BUNDLE_LINK_HOST_NAME
-            values.migrationHostName = BuildConfig.BRINGYOUR_BUNDLE_MIGRATION_HOST_NAME
-            // third party settings
-            // TODO sso settings
-            values.store = BuildConfig.BRINGYOUR_BUNDLE_STORE
-            values.wallet = BuildConfig.BRINGYOUR_BUNDLE_WALLET
-            values.ssoGoogle = BuildConfig.BRINGYOUR_BUNDLE_SSO_GOOGLE
-        }
+        // The bundled space is keyed by the operator host. An earlier bundle
+        // keyed it under the legacy host; installBundleNetworkSpace rolls
+        // that key forward BEFORE the bundled key is read, created, or bound
+        // (the sdk's migrateNetworkSpace contract), so the credentials and
+        // local state saved under the old key move with it.
+        val bundleIdentity = BundleNetworkSpaceIdentity.fromBuildConfig()
+        val bundleInstall = installBundleNetworkSpace(
+            bundleIdentity,
+            object : BundleNetworkSpaceStore<NetworkSpace> {
+                override fun migrate(fromHostName: String, toHostName: String, envName: String): Boolean {
+                    return networkSpaceManager?.migrateNetworkSpace(
+                        Sdk.newNetworkSpaceKey(fromHostName, envName),
+                        Sdk.newNetworkSpaceKey(toHostName, envName),
+                    ) ?: false
+                }
 
-        if (!bundleNetworkSpaceExists || networkSpaceManager?.activeNetworkSpace == null) {
-            // switch to the bundled network space when first created
-            // this is important when migrating from an older bundle to a newer bundle
-            networkSpaceManager?.activeNetworkSpace = bundleNetworkSpace
+                override fun exists(hostName: String, envName: String): Boolean {
+                    return networkSpaceManager?.getNetworkSpace(Sdk.newNetworkSpaceKey(hostName, envName)) != null
+                }
+
+                override fun update(hostName: String, envName: String): NetworkSpace? {
+                    return networkSpaceManager?.updateNetworkSpace(Sdk.newNetworkSpaceKey(hostName, envName)) { values ->
+                        // migrate specific bundled fields to the latest from the build
+                        values.envSecret = BuildConfig.BRINGYOUR_BUNDLE_ENV_SECRET
+                        values.bundled = true
+                        // security settings
+                        // more security can mean fewer connectivity options and slower connectivity in some regions
+                        values.netExposeServerIps = BuildConfig.BRINGYOUR_BUNDLE_NET_EXPOSE_SERVER_IPS
+                        values.netExposeServerHostNames = BuildConfig.BRINGYOUR_BUNDLE_NET_EXPOSE_SERVER_HOST_NAMES
+                        // server settings
+                        values.linkHostName = BuildConfig.BRINGYOUR_BUNDLE_LINK_HOST_NAME
+                        values.migrationHostName = BuildConfig.BRINGYOUR_BUNDLE_MIGRATION_HOST_NAME
+                        // third party settings
+                        // TODO sso settings
+                        values.store = BuildConfig.BRINGYOUR_BUNDLE_STORE
+                        values.wallet = BuildConfig.BRINGYOUR_BUNDLE_WALLET
+                        values.ssoGoogle = BuildConfig.BRINGYOUR_BUNDLE_SSO_GOOGLE
+                    }
+                }
+
+                override var active: NetworkSpace?
+                    get() = networkSpaceManager?.activeNetworkSpace
+                    set(value) {
+                        networkSpaceManager?.activeNetworkSpace = value
+                    }
+            },
+        )
+        if (bundleInstall.migratedFromLegacyHost) {
+            Log.i(
+                TAG,
+                "migrated bundled network space ${bundleIdentity.legacyHostName}/${bundleIdentity.envName}" +
+                    " -> ${bundleIdentity.hostName}/${bundleIdentity.envName}",
+            )
         }
 
         networkSpaceSub = networkSpaceManager?.addActiveNetworkSpaceChangeListener { networkSpace ->

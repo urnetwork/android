@@ -286,7 +286,7 @@
     <string name="network_api_current_api">Aktuální API: %1$s</string>
     <string name="network_api_current_connect">Aktuální connect: %1$s</string>
     <string name="network_api_description">Zvolte síťovou doménu, kterou aplikace používá. Ponechte URL API a connect prázdné, aby se odvodily z domény.</string>
-    <string name="network_api_domain_help">Příklad: ur.network nebo vaše vlastní doména.</string>
+    <string name="network_api_domain_help">Příklad: bringyour.com nebo vaše vlastní doména.</string>
     <string name="network_api_domain_label">Síťová doména</string>
     <string name="network_api_enter_domain">Zadejte síťovou doménu</string>
     <string name="network_api_failed">Selhalo: %1$s</string>

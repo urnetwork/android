@@ -286,7 +286,7 @@
     <string name="network_api_current_api">Τρέχον API: %1$s</string>
     <string name="network_api_current_connect">Τρέχον connect: %1$s</string>
     <string name="network_api_description">Επιλέξτε τον τομέα δικτύου που χρησιμοποιεί η εφαρμογή. Αφήστε τα URL του API και του connect κενά για να προκύψουν από τον τομέα.</string>
-    <string name="network_api_domain_help">Παράδειγμα: ur.network ή ο δικός σας τομέας.</string>
+    <string name="network_api_domain_help">Παράδειγμα: bringyour.com ή ο δικός σας τομέας.</string>
     <string name="network_api_domain_label">Τομέας δικτύου</string>
     <string name="network_api_enter_domain">Εισαγάγετε έναν τομέα δικτύου</string>
     <string name="network_api_failed">Απέτυχε: %1$s</string>

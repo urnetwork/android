@@ -286,7 +286,7 @@
     <string name="network_api_current_api">API actuelle : %1$s</string>
     <string name="network_api_current_connect">Connect actuel : %1$s</string>
     <string name="network_api_description">Choisissez le domaine réseau utilisé par l\'application. Laissez les URL API et connect vides pour les dériver du domaine.</string>
-    <string name="network_api_domain_help">Exemple : ur.network ou votre domaine personnalisé.</string>
+    <string name="network_api_domain_help">Exemple : bringyour.com ou votre domaine personnalisé.</string>
     <string name="network_api_domain_label">Domaine réseau</string>
     <string name="network_api_enter_domain">Saisissez un domaine réseau</string>
     <string name="network_api_failed">Échec : %1$s</string>

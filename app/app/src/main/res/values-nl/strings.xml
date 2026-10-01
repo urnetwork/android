@@ -286,7 +286,7 @@
     <string name="network_api_current_api">Huidige API: %1$s</string>
     <string name="network_api_current_connect">Huidige connect: %1$s</string>
     <string name="network_api_description">Kies het netwerkdomein dat de app gebruikt. Laat de API- en connect-URL\'s leeg om ze af te leiden van het domein.</string>
-    <string name="network_api_domain_help">Voorbeeld: ur.network of je eigen domein.</string>
+    <string name="network_api_domain_help">Voorbeeld: bringyour.com of je eigen domein.</string>
     <string name="network_api_domain_label">Netwerkdomein</string>
     <string name="network_api_enter_domain">Voer een netwerkdomein in</string>
     <string name="network_api_failed">Mislukt: %1$s</string>

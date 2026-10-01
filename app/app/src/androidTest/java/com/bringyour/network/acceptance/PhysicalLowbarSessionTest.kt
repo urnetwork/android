@@ -1128,7 +1128,7 @@ class PhysicalLowbarSessionTest {
             BuildConfig.URNETWORK_ACCEPTANCE_BUILD_ID,
         )
         assertEquals("main", BuildConfig.BRINGYOUR_BUNDLE_ENV_NAME)
-        assertEquals("ur.network", BuildConfig.BRINGYOUR_BUNDLE_HOST_NAME)
+        assertEquals("bringyour.com", BuildConfig.BRINGYOUR_BUNDLE_HOST_NAME)
 
         acceptanceDir.mkdirs()
         commandFile.delete()

@@ -276,15 +276,17 @@ android {
             applicationId 'com.bringyour.network'
 //            versionNameSuffix '-github'
 
-            buildConfigField "String", "BRINGYOUR_BUNDLE_HOST_NAME", '"ur.network"'
+            buildConfigField "String", "BRINGYOUR_BUNDLE_HOST_NAME", '"bringyour.com"'
+            // the key an earlier bundle stored the operator space under; migrated to
+            // BRINGYOUR_BUNDLE_HOST_NAME at startup (see MainApplication)
+            buildConfigField "String", "BRINGYOUR_BUNDLE_LEGACY_HOST_NAME", '"ur.network"'
             buildConfigField "String", "BRINGYOUR_BUNDLE_ENV_NAME", '"main"'
             buildConfigField "String", "BRINGYOUR_BUNDLE_ENV_SECRET", 'null'
             buildConfigField "boolean", "BRINGYOUR_BUNDLE_NET_EXPOSE_SERVER_IPS", 'true'
             buildConfigField "boolean", "BRINGYOUR_BUNDLE_NET_EXPOSE_SERVER_HOST_NAMES", 'true'
             buildConfigField "String", "BRINGYOUR_BUNDLE_LINK_HOST_NAME", '"ur.io"'
-            // the migratioon host name is used for services
-            // TODO this will be removed once we fully migrate to ur.network
-            buildConfigField "String", "BRINGYOUR_BUNDLE_MIGRATION_HOST_NAME", '"bringyour.com"'
+            // the migration host name, when set, is used for services instead of the host name
+            buildConfigField "String", "BRINGYOUR_BUNDLE_MIGRATION_HOST_NAME", '""'
             buildConfigField "String", "BRINGYOUR_BUNDLE_STORE", 'null'
             // hard coded initial extender networks
             // this can avoid the need for an initial doh query
@@ -316,13 +318,16 @@ android {
             applicationId 'com.bringyour.network'
             versionNameSuffix '-play'
 
-            buildConfigField "String", "BRINGYOUR_BUNDLE_HOST_NAME", '"ur.network"'
+            buildConfigField "String", "BRINGYOUR_BUNDLE_HOST_NAME", '"bringyour.com"'
+            // the key an earlier bundle stored the operator space under; migrated to
+            // BRINGYOUR_BUNDLE_HOST_NAME at startup (see MainApplication)
+            buildConfigField "String", "BRINGYOUR_BUNDLE_LEGACY_HOST_NAME", '"ur.network"'
             buildConfigField "String", "BRINGYOUR_BUNDLE_ENV_NAME", '"main"'
             buildConfigField "String", "BRINGYOUR_BUNDLE_ENV_SECRET", 'null'
             buildConfigField "boolean", "BRINGYOUR_BUNDLE_NET_EXPOSE_SERVER_IPS", 'true'
             buildConfigField "boolean", "BRINGYOUR_BUNDLE_NET_EXPOSE_SERVER_HOST_NAMES", 'true'
             buildConfigField "String", "BRINGYOUR_BUNDLE_LINK_HOST_NAME", '"ur.io"'
-            buildConfigField "String", "BRINGYOUR_BUNDLE_MIGRATION_HOST_NAME", '"bringyour.com"'
+            buildConfigField "String", "BRINGYOUR_BUNDLE_MIGRATION_HOST_NAME", '""'
             buildConfigField "String", "BRINGYOUR_BUNDLE_STORE", '"play"'
             buildConfigField "String[]", "BRINGYOUR_BUNDLE_NET_EXTENDER_NETWORKS", 'new String[]{}'
             buildConfigField "boolean", "BRINGYOUR_BUNDLE_SSO_GOOGLE", 'true'
@@ -339,13 +344,16 @@ android {
             applicationId 'com.bringyour.network'
             versionNameSuffix '-solana_dapp'
 
-            buildConfigField "String", "BRINGYOUR_BUNDLE_HOST_NAME", '"ur.network"'
+            buildConfigField "String", "BRINGYOUR_BUNDLE_HOST_NAME", '"bringyour.com"'
+            // the key an earlier bundle stored the operator space under; migrated to
+            // BRINGYOUR_BUNDLE_HOST_NAME at startup (see MainApplication)
+            buildConfigField "String", "BRINGYOUR_BUNDLE_LEGACY_HOST_NAME", '"ur.network"'
             buildConfigField "String", "BRINGYOUR_BUNDLE_ENV_NAME", '"main"'
             buildConfigField "String", "BRINGYOUR_BUNDLE_ENV_SECRET", 'null'
             buildConfigField "boolean", "BRINGYOUR_BUNDLE_NET_EXPOSE_SERVER_IPS", 'true'
             buildConfigField "boolean", "BRINGYOUR_BUNDLE_NET_EXPOSE_SERVER_HOST_NAMES", 'true'
             buildConfigField "String", "BRINGYOUR_BUNDLE_LINK_HOST_NAME", '"ur.io"'
-            buildConfigField "String", "BRINGYOUR_BUNDLE_MIGRATION_HOST_NAME", '"bringyour.com"'
+            buildConfigField "String", "BRINGYOUR_BUNDLE_MIGRATION_HOST_NAME", '""'
             buildConfigField "String", "BRINGYOUR_BUNDLE_STORE", '"solana_dapp"'
             buildConfigField "String", "BRINGYOUR_BUNDLE_WALLET", '"solana"'
             buildConfigField "String[]", "BRINGYOUR_BUNDLE_NET_EXTENDER_NETWORKS", 'new String[]{}'
@@ -373,13 +381,16 @@ android {
             applicationId 'com.bringyour.network'
             versionNameSuffix '-ethos_dapp'
 
-            buildConfigField "String", "BRINGYOUR_BUNDLE_HOST_NAME", '"ur.network"'
+            buildConfigField "String", "BRINGYOUR_BUNDLE_HOST_NAME", '"bringyour.com"'
+            // the key an earlier bundle stored the operator space under; migrated to
+            // BRINGYOUR_BUNDLE_HOST_NAME at startup (see MainApplication)
+            buildConfigField "String", "BRINGYOUR_BUNDLE_LEGACY_HOST_NAME", '"ur.network"'
             buildConfigField "String", "BRINGYOUR_BUNDLE_ENV_NAME", '"main"'
             buildConfigField "String", "BRINGYOUR_BUNDLE_ENV_SECRET", 'null'
             buildConfigField "boolean", "BRINGYOUR_BUNDLE_NET_EXPOSE_SERVER_IPS", 'true'
             buildConfigField "boolean", "BRINGYOUR_BUNDLE_NET_EXPOSE_SERVER_HOST_NAMES", 'true'
             buildConfigField "String", "BRINGYOUR_BUNDLE_LINK_HOST_NAME", '"ur.io"'
-            buildConfigField "String", "BRINGYOUR_BUNDLE_MIGRATION_HOST_NAME", '"bringyour.com"'
+            buildConfigField "String", "BRINGYOUR_BUNDLE_MIGRATION_HOST_NAME", '""'
             buildConfigField "String", "BRINGYOUR_BUNDLE_STORE", '"ethos_dapp"'
             buildConfigField "String", "BRINGYOUR_BUNDLE_WALLET", '"ethos"'
             buildConfigField "String[]", "BRINGYOUR_BUNDLE_NET_EXTENDER_NETWORKS", 'new String[]{}'

@@ -105,7 +105,7 @@ private fun hasInsecureScheme(raw: String, secureScheme: String): Boolean {
     } ?: false
 }
 
-private fun derivedServiceUrl(
+internal fun derivedServiceUrl(
     hostName: String,
     migrationHostName: String,
     envName: String,
