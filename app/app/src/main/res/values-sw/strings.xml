@@ -177,7 +177,7 @@
     <string name="expires">Inaisha</string>
     <string name="expiry_time">Muda wa kumalizika</string>
     <string name="fast_dns_on_connect">DNS ya haraka wakati wa kuunganisha</string>
-    <string name="fast_dns_on_connect_description">Hujibu DNS kupitia mtandao wa ndani wakati DNS ya tuneli inaanza. Hii inaweza kufichua utafutaji wako kwa mtandao wa ndani. Ikizimwa, DNS husuluhishwa kupitia tuneli pekee.</string>
+    <string name="fast_dns_on_connect_description">Hujibu DNS kupitia mtandao wa ndani wakati DNS ya tuneli inaanza. Hii inaweza kufichua utafutaji wako kwa mtandao wa ndani na kurudisha majibu yasiyolingana na eneo lako la kutokea. Ikizimwa, DNS husuluhishwa kupitia tuneli pekee.</string>
     <string name="feedback_header">Wasiliana nasi</string>
     <string name="feedback_include_logs">Ambatisha logi kwenye maoni (hiari)</string>
     <string name="feedback_label">Kisanduku cha maoni</string>

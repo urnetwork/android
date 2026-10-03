@@ -378,7 +378,7 @@
     <string name="extenders_active_of_reserve">%1$d de %2$d</string>
     <string name="extenders_no_session">Inicia sesión y conéctate para gestionar los extensores.</string>
     <string name="fast_dns_on_connect">DNS rápido al conectar</string>
-    <string name="fast_dns_on_connect_description">Responde al DNS a través de la red local mientras se inicia el DNS del túnel. Esto puede revelar tus búsquedas a la red local. Si está desactivado, el DNS solo se resuelve a través del túnel.</string>
+    <string name="fast_dns_on_connect_description">Responde al DNS a través de la red local mientras se inicia el DNS del túnel. Esto puede revelar tus búsquedas a la red local y devolver respuestas que no coinciden con tu ubicación de salida. Si está desactivado, el DNS solo se resuelve a través del túnel.</string>
     <string name="feedback_header">Ponte en contacto</string>
     <string name="feedback_include_logs">Adjuntar registros al comentario (opcional)</string>
     <string name="feedback_label">Cuadro de comentarios</string>

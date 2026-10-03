@@ -177,7 +177,7 @@
     <string name="expires">Λήγει</string>
     <string name="expiry_time">Χρόνος λήξης</string>
     <string name="fast_dns_on_connect">Γρήγορο DNS κατά τη σύνδεση</string>
-    <string name="fast_dns_on_connect_description">Απαντά σε ερωτήματα DNS μέσω του τοπικού δικτύου όσο ξεκινά το DNS του τούνελ. Αυτό μπορεί να αποκαλύψει τις αναζητήσεις σας στο τοπικό δίκτυο. Όταν είναι ανενεργό, το DNS επιλύεται μόνο μέσω του τούνελ.</string>
+    <string name="fast_dns_on_connect_description">Απαντά σε ερωτήματα DNS μέσω του τοπικού δικτύου όσο ξεκινά το DNS του τούνελ. Αυτό μπορεί να αποκαλύψει τις αναζητήσεις σας στο τοπικό δίκτυο και να επιστρέψει απαντήσεις που δεν ταιριάζουν με την τοποθεσία εξόδου σας. Όταν είναι ανενεργό, το DNS επιλύεται μόνο μέσω του τούνελ.</string>
     <string name="feedback_header">Επικοινωνήστε</string>
     <string name="feedback_include_logs">Επισυνάψτε τα αρχεία καταγραφής στα σχόλια (προαιρετικό)</string>
     <string name="feedback_label">Κουτί σχολίων</string>

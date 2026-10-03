@@ -11,7 +11,8 @@ import org.w3c.dom.Element
 
 /**
  * The host-network dns fallback is an opt-in shown as "Fast DNS on connect", with a
- * description that discloses it can reveal lookups to the local network. Reads the
+ * description that discloses both effects: it can reveal lookups to the local network
+ * and return answers that don't match the exit location. Reads the
  * generated english resources from the module, so no device or robolectric is needed.
  */
 class FastDnsOnConnectToggleTest {
@@ -40,9 +41,10 @@ class FastDnsOnConnectToggleTest {
     }
 
     @Test
-    fun descriptionDisclosesLocalNetworkExposure() {
+    fun descriptionDisclosesLocalNetworkExposureAndExitMismatch() {
         val description = englishString(FastDnsOnConnectToggle.descriptionRes)
         assertTrue(description, description.contains("can reveal your lookups to the local network"))
+        assertTrue(description, description.contains("return answers that don't match your exit location"))
         assertTrue(description, description.contains("When off, DNS only resolves through the tunnel"))
     }
 

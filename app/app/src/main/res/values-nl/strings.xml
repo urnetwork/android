@@ -177,7 +177,7 @@
     <string name="expires">Vervalt</string>
     <string name="expiry_time">Vervaltijd</string>
     <string name="fast_dns_on_connect">Snelle DNS bij verbinden</string>
-    <string name="fast_dns_on_connect_description">Beantwoordt DNS via het lokale netwerk terwijl de DNS van de tunnel opstart. Hierdoor kan het lokale netwerk je zoekopdrachten zien. Als dit uitstaat, wordt DNS alleen via de tunnel opgelost.</string>
+    <string name="fast_dns_on_connect_description">Beantwoordt DNS via het lokale netwerk terwijl de DNS van de tunnel opstart. Hierdoor kan het lokale netwerk je zoekopdrachten zien en kun je antwoorden krijgen die niet bij je exitlocatie passen. Als dit uitstaat, wordt DNS alleen via de tunnel opgelost.</string>
     <string name="feedback_header">Neem contact op</string>
     <string name="feedback_include_logs">Logs toevoegen aan feedback (optioneel)</string>
     <string name="feedback_label">Vak voor feedback</string>

@@ -391,7 +391,7 @@
     <string name="extenders_active_of_reserve">%1$d of %2$d</string>
     <string name="extenders_no_session">Sign in and connect to manage extenders.</string>
     <string name="fast_dns_on_connect">Fast DNS on connect</string>
-    <string name="fast_dns_on_connect_description">Answers DNS over the local network while the tunnel\'s DNS starts. This can reveal your lookups to the local network. When off, DNS only resolves through the tunnel.</string>
+    <string name="fast_dns_on_connect_description">Answers DNS over the local network while the tunnel\'s DNS starts. This can reveal your lookups to the local network and return answers that don\'t match your exit location. When off, DNS only resolves through the tunnel.</string>
     <string name="feedback_header">Get in touch</string>
     <string name="feedback_include_logs">Attach logs to feedback (optional)</string>
     <string name="feedback_label">Feedback box</string>

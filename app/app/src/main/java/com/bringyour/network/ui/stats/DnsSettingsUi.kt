@@ -36,8 +36,9 @@ data class DnsSettingsUi(
 /**
  * The opt-in "Fast DNS on connect" toggle, backed by the sdk enableFallback: it races a
  * resolver over the host's local network while the tunnel's dns starts, which can reveal
- * lookups to the local network. Off by default and whenever the device has not reported
- * settings, so dns resolves only through the tunnel unless the user turns it on.
+ * lookups to the local network and return answers that don't match the exit location. Off
+ * by default and whenever the device has not reported settings, so dns resolves only through
+ * the tunnel unless the user turns it on.
  */
 object FastDnsOnConnectToggle {
     val labelRes: Int = R.string.fast_dns_on_connect

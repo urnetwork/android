@@ -177,7 +177,7 @@
     <string name="expires">Expira</string>
     <string name="expiry_time">Hora de expiração</string>
     <string name="fast_dns_on_connect">DNS rápido ao ligar</string>
-    <string name="fast_dns_on_connect_description">Responde ao DNS através da rede local enquanto o DNS do túnel arranca. Isto pode revelar as suas pesquisas à rede local. Quando desativado, o DNS só é resolvido através do túnel.</string>
+    <string name="fast_dns_on_connect_description">Responde ao DNS através da rede local enquanto o DNS do túnel arranca. Isto pode revelar as suas pesquisas à rede local e devolver respostas que não correspondem à sua localização de saída. Quando desativado, o DNS só é resolvido através do túnel.</string>
     <string name="feedback_header">Entrar em contato</string>
     <string name="feedback_include_logs">Anexar logs ao feedback (opcional)</string>
     <string name="feedback_label">Caixa de feedback</string>

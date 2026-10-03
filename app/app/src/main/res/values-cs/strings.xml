@@ -177,7 +177,7 @@
     <string name="expires">Vyprší</string>
     <string name="expiry_time">Čas vypršení</string>
     <string name="fast_dns_on_connect">Rychlé DNS při připojení</string>
-    <string name="fast_dns_on_connect_description">Odpovídá na dotazy DNS přes místní síť, dokud se spouští DNS tunelu. Místní síť tak může vidět vaše dotazy. Když je vypnuto, DNS se překládá jen přes tunel.</string>
+    <string name="fast_dns_on_connect_description">Odpovídá na dotazy DNS přes místní síť, dokud se spouští DNS tunelu. Místní síť tak může vidět vaše dotazy a odpovědi nemusí odpovídat vašemu výstupnímu umístění. Když je vypnuto, DNS se překládá jen přes tunel.</string>
     <string name="feedback_header">Spojte se s námi</string>
     <string name="feedback_include_logs">Přiložit protokoly k zpětné vazbě (volitelné)</string>
     <string name="feedback_label">Pole pro zpětnou vazbu</string>
