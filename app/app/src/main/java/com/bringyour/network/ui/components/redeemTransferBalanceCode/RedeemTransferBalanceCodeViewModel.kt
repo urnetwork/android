@@ -4,6 +4,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bringyour.network.DeviceManager
+import com.bringyour.network.utils.formatBalanceBytes
 import com.bringyour.sdk.RedeemBalanceCodeArgs
 import com.bringyour.sdk.RedeemBalanceCodeResult
 import com.bringyour.sdk.RedeemedBalanceCodeList
@@ -33,6 +34,32 @@ sealed class RedeemBalanceCodeFailure {
 }
 
 /**
+ * A credited redeem: the data the code added to this network's balance, from the
+ * server's answer (transfer_balance.balance_byte_count).
+ *
+ * A balance code is data only. The server inserts its transfer balance with
+ * pro = false (RedeemBalanceCodeInTx) and the redeem answer has no Pro field, so a
+ * redeem is confirmed as data added and never as a Pro upgrade.
+ */
+data class RedeemedBalanceCode(val addedByteCount: Long)
+
+/**
+ * The confirmation for a credited redeem: "Balance code redeemed." and the data it
+ * added. An answer without a byte count (an older server) confirms the redeem alone.
+ */
+internal fun balanceCodeRedeemedMessage(
+    redeemed: RedeemedBalanceCode,
+    redeemedText: String,
+    dataAddedText: (amount: String) -> String,
+    formatBytes: (Long) -> String = formatBalanceBytes,
+): String =
+    if (0L < redeemed.addedByteCount) {
+        "$redeemedText ${dataAddedText(formatBytes(redeemed.addedByteCount))}"
+    } else {
+        redeemedText
+    }
+
+/**
  * The UI result for an SDK BalanceCodeRedeemOutcome* value; null is success.
  * `unknown` (the call failed and the redeemed-code list does not show the code)
  * stays a transport failure: the redeem may still have committed.
@@ -60,18 +87,33 @@ internal class BalanceCodeRedeemFlow<R, L>(
     private val redeem: (secret: String, callback: (result: R?, error: Exception?) -> Unit) -> Unit,
     private val fetchRedeemedCodes: (callback: (redeemedCodes: L?) -> Unit) -> Unit,
     private val classify: (result: R?, redeemedCodes: L?, secret: String) -> String,
+    // the data a credited answer added (its transfer balance)
+    private val addedByteCount: (result: R) -> Long,
 ) {
-    fun run(secret: String, onResult: (RedeemBalanceCodeFailure?) -> Unit) {
+    /**
+     * Exactly one of `onRedeemed` and `onFailure` is called. A credited redeem
+     * carries what the code added so the confirmation can say it.
+     */
+    fun run(
+        secret: String,
+        onRedeemed: (RedeemedBalanceCode) -> Unit,
+        onFailure: (RedeemBalanceCodeFailure) -> Unit,
+    ) {
         redeem(secret) { result, error ->
             // a transport error carries no authoritative answer
             val answer = if (error != null) null else result
             val firstOutcome = redeemFailureForOutcome(classify(answer, null, secret))
-            if (firstOutcome == null) {
-                onResult(null)
+            if (firstOutcome == null && answer != null) {
+                onRedeemed(RedeemedBalanceCode(addedByteCount(answer)))
                 return@redeem
             }
             fetchRedeemedCodes { redeemedCodes ->
-                onResult(redeemFailureForOutcome(classify(answer, redeemedCodes, secret)))
+                // credited only by this call's answer; a code found in the list
+                // was credited earlier and is AlreadyRedeemed
+                onFailure(
+                    redeemFailureForOutcome(classify(answer, redeemedCodes, secret))
+                        ?: RedeemBalanceCodeFailure.Transport
+                )
             }
         }
     }
@@ -98,7 +140,7 @@ class RedeemTransferBalanceCodeViewModel @Inject constructor(
     val codeIsValid: StateFlow<Boolean> = _codeIsValid.asStateFlow()
 
     val redeem: (
-            onSuccess: () -> Unit,
+            onSuccess: (RedeemedBalanceCode) -> Unit,
             onError: (RedeemBalanceCodeFailure) -> Unit
             ) -> Unit = { onSuccess, onError ->
 
@@ -122,17 +164,23 @@ class RedeemTransferBalanceCodeViewModel @Inject constructor(
                     classify = { result, redeemedCodes, secret ->
                         Sdk.classifyBalanceCodeRedeem(result, redeemedCodes, secret)
                     },
+                    addedByteCount = { result -> result.transferBalance?.balanceByteCount ?: 0L },
                 )
-                flow.run(code.text.trim()) { failure ->
-                    viewModelScope.launch {
-                        _isLoading.value = false
-                        if (failure == null) {
-                            onSuccess()
-                        } else {
+                flow.run(
+                    code.text.trim(),
+                    onRedeemed = { redeemed ->
+                        viewModelScope.launch {
+                            _isLoading.value = false
+                            onSuccess(redeemed)
+                        }
+                    },
+                    onFailure = { failure ->
+                        viewModelScope.launch {
+                            _isLoading.value = false
                             onError(failure)
                         }
-                    }
-                }
+                    },
+                )
             } else {
                 _isLoading.value = false
                 onError(RedeemBalanceCodeFailure.Transport)

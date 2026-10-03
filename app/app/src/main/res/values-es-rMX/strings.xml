@@ -47,6 +47,7 @@
     <string name="back">Atrás</string>
     <string name="balance">Saldo</string>
     <string name="balance_code">Código de saldo</string>
+    <string name="balance_code_redeemed">Código de saldo canjeado.</string>
     <string name="balance_code_where_to_buy">¿No tienes un código? Puedes comprar códigos de datos en ur.io y te llegarán por correo electrónico.</string>
     <string name="balance_codes_link">Códigos de saldo</string>
     <string name="balance_codes_title">Códigos de saldo</string>

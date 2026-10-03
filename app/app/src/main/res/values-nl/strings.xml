@@ -47,6 +47,7 @@
     <string name="back">Terug</string>
     <string name="balance">Saldo</string>
     <string name="balance_code">Saldo-code</string>
+    <string name="balance_code_redeemed">Saldocode ingewisseld.</string>
     <string name="balance_code_where_to_buy">Nog geen code? Datacodes koop je op ur.io en krijg je per e-mail toegestuurd.</string>
     <string name="balance_codes_link">Saldocodes</string>
     <string name="balance_codes_title">Saldocodes</string>

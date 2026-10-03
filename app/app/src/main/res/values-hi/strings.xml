@@ -47,6 +47,7 @@
     <string name="back">वापस</string>
     <string name="balance">शेष</string>
     <string name="balance_code">बैलेंस कोड</string>
+    <string name="balance_code_redeemed">बैलेंस कोड रिडीम कर लिया गया।</string>
     <string name="balance_code_where_to_buy">कोड नहीं है? डेटा कोड ur.io पर खरीदे जा सकते हैं और आपको ईमेल कर दिए जाते हैं।</string>
     <string name="balance_codes_link">बैलेंस कोड्स</string>
     <string name="balance_codes_title">बैलेंस कोड्स</string>

@@ -53,7 +53,9 @@
     <string name="balance">Balance</string>
     <string name="balance_code">Balance code</string>
     <string name="balance_code_already_redeemed_message">This balance code has already been redeemed. If you redeemed it earlier, the data is already on your balance.</string>
+    <string name="balance_code_data_added">%1$s of data added to your balance.</string>
     <string name="balance_code_invalid_message">That balance code isn\'t valid. Check the code and try again.</string>
+    <string name="balance_code_redeemed">Balance code redeemed.</string>
     <string name="balance_code_transport_error">We couldn\'t reach the server — check your connection. If you were charged, the code may already be applied; check your balance before trying again.</string>
     <string name="balance_code_where_to_buy">Don\'t have a code? Data codes can be purchased at ur.io and emailed to you.</string>
     <string name="balance_codes_link">Balance codes</string>

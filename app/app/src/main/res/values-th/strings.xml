@@ -47,6 +47,7 @@
     <string name="back">ย้อนกลับ</string>
     <string name="balance">ยอดคงเหลือ</string>
     <string name="balance_code">รหัสยอดเงิน</string>
+    <string name="balance_code_redeemed">แลกรหัสยอดเงินแล้ว</string>
     <string name="balance_code_where_to_buy">ยังไม่มีโค้ด? ซื้อรหัสข้อมูลได้ที่ ur.io แล้วระบบจะส่งให้ทางอีเมล</string>
     <string name="balance_codes_link">รหัสยอดเงิน</string>
     <string name="balance_codes_title">รหัสยอดเงิน</string>

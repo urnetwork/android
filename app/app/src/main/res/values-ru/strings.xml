@@ -51,7 +51,9 @@
     <string name="balance">Баланс</string>
     <string name="balance_code">Код баланса</string>
     <string name="balance_code_already_redeemed_message">Этот код баланса уже активирован. Если вы активировали его ранее, данные уже зачислены на ваш баланс.</string>
+    <string name="balance_code_data_added">На ваш баланс добавлено %1$s данных.</string>
     <string name="balance_code_invalid_message">Этот код баланса недействителен. Проверьте код и попробуйте снова.</string>
+    <string name="balance_code_redeemed">Код баланса активирован.</string>
     <string name="balance_code_transport_error">Не удалось связаться с сервером — проверьте подключение. Если с вас списали оплату, код, возможно, уже применён; проверьте баланс, прежде чем повторять попытку.</string>
     <string name="balance_code_where_to_buy">Нет кода? Коды данных можно купить на ur.io — их пришлют вам на почту.</string>
     <string name="balance_codes_link">Коды баланса</string>

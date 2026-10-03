@@ -31,7 +31,9 @@ import com.bringyour.network.ui.theme.ppNeueBitBold
 fun RedeemTransferBalanceCodeSheet(
     sheetState: SheetState,
     setIsPresenting: (Boolean) -> Unit,
-    onSuccess: () -> Unit,
+    // the code's data is on the balance (the sheet has shown the data-added
+    // confirmation); a code grants no Pro, so callers only refresh the balance
+    onSuccess: (RedeemedBalanceCode) -> Unit,
     viewModel: RedeemTransferBalanceCodeViewModel = hiltViewModel()
 ) {
 
@@ -45,6 +47,7 @@ fun RedeemTransferBalanceCodeSheet(
     val transportErrorMsg = stringResource(id = R.string.balance_code_transport_error)
     val invalidCodeMsg = stringResource(id = R.string.balance_code_invalid_message)
     val alreadyRedeemedMsg = stringResource(id = R.string.balance_code_already_redeemed_message)
+    val redeemedMsg = stringResource(id = R.string.balance_code_redeemed)
     val codeIsValid by viewModel.codeIsValid.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
 
@@ -86,9 +89,15 @@ fun RedeemTransferBalanceCodeSheet(
             URButton(
                 onClick = {
                     viewModel.redeem(
-                        {
+                        { redeemed ->
+                            val msg = balanceCodeRedeemedMessage(
+                                redeemed,
+                                redeemedMsg,
+                                { amount -> context.getString(R.string.balance_code_data_added, amount) },
+                            )
+                            Toast.makeText(context, msg, Toast.LENGTH_LONG).show()
                             setIsPresenting(false)
-                            onSuccess()
+                            onSuccess(redeemed)
                         },
                         { failure ->
                             val msg = when (failure) {

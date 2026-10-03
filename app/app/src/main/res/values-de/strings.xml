@@ -51,7 +51,9 @@
     <string name="balance">Guthaben</string>
     <string name="balance_code">Guthabencode</string>
     <string name="balance_code_already_redeemed_message">Dieser Guthabencode wurde bereits eingelöst. Wenn du ihn schon früher eingelöst hast, sind die Daten bereits in deinem Guthaben.</string>
+    <string name="balance_code_data_added">%1$s Daten wurden deinem Guthaben hinzugefügt.</string>
     <string name="balance_code_invalid_message">Dieser Guthabencode ist ungültig. Überprüfe den Code und versuche es erneut.</string>
+    <string name="balance_code_redeemed">Guthabencode eingelöst.</string>
     <string name="balance_code_transport_error">Wir konnten den Server nicht erreichen — überprüfe deine Verbindung. Falls dir etwas berechnet wurde, ist der Code möglicherweise schon angewendet; prüfe dein Guthaben, bevor du es erneut versuchst.</string>
     <string name="balance_code_where_to_buy">Noch keinen Code? Datencodes kannst du auf ur.io kaufen und dir per E-Mail schicken lassen.</string>
     <string name="balance_codes_link">Guthabencodes</string>

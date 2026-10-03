@@ -179,8 +179,10 @@ fun AccountScreen(
                     isPresentingRedeemTransferBalanceSheet = it
                 },
                 onSuccess = {
-                    subscriptionBalanceViewModel.pollSubscriptionBalance()
-                    overlayViewModel.launch(OverlayMode.Upgrade)
+                    // a balance code is data only: the sheet confirmed the data it
+                    // added; read the balance once. The Pro overlay and the Pro
+                    // confirmation poll would wait for a plan a code never grants.
+                    subscriptionBalanceViewModel.fetchSubscriptionBalance()
                 }
             )
         }

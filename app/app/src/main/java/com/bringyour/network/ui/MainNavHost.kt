@@ -916,7 +916,6 @@ fun IntroNavHost(
 ) {
 
     val introNavController = rememberNavController()
-    val scope = rememberCoroutineScope()
 
     // the connector mark that flies from page 1's route line into the header
     val introConnector = remember { IntroConnectorState() }
@@ -975,13 +974,12 @@ fun IntroNavHost(
                     dismiss()
                 },
                 onRedeemTransferBalanceCodeSuccess = {
-                    subscriptionBalanceViewModel.pollSubscriptionBalance()
-                    overlayViewModel.launch(OverlayMode.Upgrade)
-                    scope.launch {
-                        // bandaid for overlapping modal state getting weird
-                        delay(1000)
-                        dismiss()
-                    }
+                    // a balance code is data only: the sheet confirmed the data it
+                    // added; read the balance once and finish the intro. The Pro
+                    // overlay and the Pro confirmation poll would wait for a plan a
+                    // code never grants.
+                    subscriptionBalanceViewModel.fetchSubscriptionBalance()
+                    dismiss()
                 },
                 isCheckingSolanaTransaction = isCheckingSolanaTransaction
             )

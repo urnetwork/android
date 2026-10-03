@@ -51,7 +51,9 @@
     <string name="balance">الرصيد</string>
     <string name="balance_code">رمز الرصيد</string>
     <string name="balance_code_already_redeemed_message">تم استرداد رمز الرصيد هذا بالفعل. إذا كنت قد استرددته سابقًا، فالبيانات موجودة بالفعل في رصيدك.</string>
+    <string name="balance_code_data_added">تمت إضافة %1$s من البيانات إلى رصيدك.</string>
     <string name="balance_code_invalid_message">رمز الرصيد هذا غير صالح. تحقق من الرمز وحاول مرة أخرى.</string>
+    <string name="balance_code_redeemed">تم استخدام رمز الرصيد.</string>
     <string name="balance_code_transport_error">تعذّر الوصول إلى الخادم — تحقق من اتصالك. إذا تم تحصيل رسوم منك، فربما تم تطبيق الرمز بالفعل؛ تحقق من رصيدك قبل المحاولة مرة أخرى.</string>
     <string name="balance_code_where_to_buy">ليس لديك رمز؟ يمكن شراء رموز البيانات من ur.io وإرسالها إلى بريدك الإلكتروني.</string>
     <string name="balance_codes_link">رموز الرصيد</string>
