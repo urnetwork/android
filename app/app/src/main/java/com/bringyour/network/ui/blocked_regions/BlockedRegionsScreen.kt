@@ -43,6 +43,8 @@ import androidx.navigation.NavController
 import com.bringyour.network.R
 import com.bringyour.network.ui.indexedLazyListKey
 import com.bringyour.network.ui.components.CircleImage
+import com.bringyour.network.ui.components.RowRemoveControl
+import com.bringyour.network.ui.components.blockedLocationRemoveControls
 import com.bringyour.network.ui.components.SwipeToRevealRow
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.TextMuted
@@ -237,7 +239,7 @@ fun BlockedRegionListItem(
                     maxLines = 1,
                     modifier = Modifier.weight(1f),
                 )
-                if (BlockedLocationRemoveControl.Button in blockedLocationRemoveControls) {
+                if (RowRemoveControl.Button in blockedLocationRemoveControls) {
                     // swipe-to-reveal alone is unreachable for TalkBack, Switch
                     // Access and keyboard users, and invisible to anyone who
                     // does not know to swipe
@@ -259,7 +261,7 @@ fun BlockedRegionListItem(
         }
     }
 
-    if (BlockedLocationRemoveControl.Swipe in blockedLocationRemoveControls) {
+    if (RowRemoveControl.Swipe in blockedLocationRemoveControls) {
         SwipeToRevealRow(
             onDelete = { onRemove(blockedLocation.locationId) },
             modifier = rowModifier,
