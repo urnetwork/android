@@ -75,6 +75,8 @@ fun LoginPasswordReset(
     val context = LocalContext.current
     val app = context.applicationContext as? MainApplication
     var user by remember { mutableStateOf(TextFieldValue(userAuth)) }
+    // the address the link goes to, and the after-send screen gets, is the field as edited
+    val address = remember { PasswordResetAddress(userAuth) }
     var inProgress by remember { mutableStateOf(false) }
     var passwordResetError by remember { mutableStateOf<String?>(null) }
     // why the server did not send the link, and after a rate limit, when it will
@@ -100,8 +102,10 @@ fun LoginPasswordReset(
         passwordResetError = null
         resetNotice = VerifySendNotice.Sent
 
+        address.typed = user.text
         val args = AuthPasswordResetArgs()
-        args.userAuth = user.text.trim()
+        args.userAuth = address.userAuth
+        val afterSendRoute = address.afterSendRoute(Uri::encode)
         // a rate limit or failed send comes back in `result.error`, with the retry time
         args.resultErrors = true
 
@@ -121,7 +125,7 @@ fun LoginPasswordReset(
                 } else {
                     passwordResetError = null
 
-                    navController.navigate("reset-password-after-send/${Uri.encode(userAuth)}") {
+                    navController.navigate(afterSendRoute) {
                         popUpTo("login-initial") { inclusive = false }
                     }
                 }
