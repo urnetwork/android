@@ -7,11 +7,13 @@
     <string name="activity">Aktivität</string>
     <string name="add">Hinzufügen</string>
     <string name="add_a_rule">Regel hinzufügen</string>
+    <string name="add_a_sign_in_method">Anmeldemethode hinzufügen</string>
     <string name="add_blocked_location">Blockierten Standort hinzufügen</string>
     <string name="add_emoji">Emoji hinzufügen</string>
     <string name="add_local_split_rule">Lokal leiten</string>
     <string name="add_referral_code">Empfehlungscode hinzufügen</string>
     <string name="add_referral_extra_rewards">Füge einen Empfehlungscode hinzu, um zusätzliche Belohnungen zu erhalten</string>
+    <string name="add_sign_in_method_2">Anmeldemethode hinzufügen</string>
     <string name="add_tao_for_gas">TAO für Gas hinzufügen</string>
     <string name="advanced">Erweitert</string>
     <string name="allow_local_connections">Lokale Verbindungen zulassen</string>
@@ -122,6 +124,7 @@
     <string name="connect_seeker_wallet">Verbinde eine Wallet mit dem Saga Genesis oder Seeker Vorbestellungs-Token</string>
     <string name="connect_solana_wallet">Solana-Wallet verbinden</string>
     <string name="connect_solana_wallet_note">Verbinde eine Solana-Wallet-App oder gib eine Solana-USDC-Adresse manuell ein.</string>
+    <string name="connect_solana_wallet_to_add_sign_in_method">Verbinde eine Solana-Wallet, um sie als Anmeldemethode hinzuzufügen.</string>
     <string name="connect_to_location">Mit %1$s verbinden</string>
     <string name="connect_wallet">Wallet verbinden</string>
     <string name="connect_wallet_first">Verbinde zuerst eine Bittensor-Wallet.</string>
@@ -140,6 +143,7 @@
     <string name="copy">Kopiere</string>
     <string name="copy_auth_code">Authentifizierungscode kopieren</string>
     <string name="copy_share_text">Freigabetext kopieren</string>
+    <string name="could_not_get_google_id_token">Google-ID-Token konnte nicht abgerufen werden</string>
     <string name="countries">Länder</string>
     <string name="country">Land</string>
     <string name="country_multipliers">Länder-Multiplikatoren</string>
@@ -355,6 +359,7 @@
     <string name="enabled_under_auto_footer">In der Reihenfolge der Präferenz aufgeführt: zuerst H3 und H1, dann whodis, dann whodis pump. Die Reihenfolge ist fest. Mindestens ein Transport bleibt aktiviert.</string>
     <string name="enjoying_urnetwork">Gefällt dir URnetwork?</string>
     <string name="enter">Rein</string>
+    <string name="enter_a_password">Gib ein Passwort ein</string>
     <string name="enter_a_solana_usdc_wallet_address">Gib eine Solana USDC-Wallet-Adresse ein</string>
     <string name="enter_address_manually">Adresse manuell eingeben</string>
     <string name="enter_balance_code">Guthabencode eingeben</string>
@@ -362,13 +367,16 @@
     <string name="epoch_history">Verlauf</string>
     <string name="epoch_row_title">Epoche %1$d</string>
     <string name="epoch_share_of_block">%1$s des Blocks</string>
+    <string name="error_connecting_to_wallet">Fehler beim Verbinden mit der Wallet</string>
     <string name="error_connecting_wallet_with_reason">Beim Verbinden deiner Wallet ist ein Fehler aufgetreten: %1$s</string>
     <string name="error_deleting_account">Entschuldigung, beim Löschen deines Kontos ist ein Fehler aufgetreten.</string>
     <string name="error_loading_account_plan">Fehler beim Laden deines Kontoplans.</string>
+    <string name="error_logging_in_please_try_again">Fehler bei der Anmeldung, bitte versuche es erneut.</string>
     <string name="error_redeeming_transfer_balance_code">Fehler beim Einlösen des Übertragungsguthabencodes.</string>
     <string name="error_sending_password_reset_link">Fehler beim Senden des Links zum Zurücksetzen des Passworts</string>
     <string name="error_sending_verification_code">Beim Senden des Bestätigungscodes ist ein Fehler aufgetreten.</string>
     <string name="error_setting_default_wallet_with_reason">Fehler beim Festlegen der Standard-Wallet: %1$s</string>
+    <string name="error_signing_in_with_google">Fehler bei der Anmeldung mit Google</string>
     <string name="exclude_app">Vom VPN ausschließen</string>
     <string name="exclude_app_description">Diese App umgeht den Tunnel.</string>
     <string name="excluded">Ausgeschlossen</string>
@@ -404,6 +412,7 @@
     <string name="get_urnetwork_free_for_life_by_participating">Erhalte URnetwork lebenslang kostenlos durch Teilnahme</string>
     <string name="go_back">Zurück</string>
     <string name="google_auth_btn_text">Mit Google anmelden</string>
+    <string name="google_sign_in_method_added">Google-Anmeldemethode hinzugefügt</string>
     <string name="gossip_connecting">Verbindung wird hergestellt</string>
     <string name="gossip_network">Gossip-Netzwerk</string>
     <string name="gossip_url">Gossip-URL</string>
@@ -465,6 +474,7 @@
     <string name="licenses_intro">URnetwork basiert auf der unten aufgeführten Open-Source-Software und den unten aufgeführten Daten. Jeder Eintrag zeigt seine Lizenz und alle erforderlichen Hinweise.</string>
     <string name="licenses_project_page">Projektseite</string>
     <string name="licenses_software_header">Open-Source-Software</string>
+    <string name="link_another_way_to_sign_in_to">Verknüpfe eine weitere Möglichkeit, dich bei deinem Konto anzumelden.</string>
     <string name="load_failed">Laden fehlgeschlagen. Überprüfe deine Verbindung und versuche es erneut.</string>
     <string name="loading">Laden...</string>
     <string name="local">Lokal</string>
@@ -548,6 +558,8 @@
     <string name="no">Nein</string>
     <string name="no_apps_found">Keine Apps gefunden</string>
     <string name="no_blocked_locations">Keine blockierten Standorte</string>
+    <string name="no_compatible_wallet_app_found">Auf diesem Gerät wurde keine kompatible Wallet-App gefunden.</string>
+    <string name="no_ethos_wallet_found">Keine EthOs-Wallet gefunden</string>
     <string name="no_locations_found">Keine Standorte gefunden</string>
     <string name="no_locations_found_detail">Leider konnten wir keine Standorte finden, die mit %1$s in Verbindung stehen.</string>
     <string name="no_log_files_found">Keine Protokolldatei gefunden</string>
@@ -759,9 +771,13 @@
     <string name="show_on_points_leaderboard">Meinen Netzwerknamen anzeigen</string>
     <string name="sign_in">Anmelden</string>
     <string name="sign_in_dgen1">Mit dGEN1 anmelden</string>
+    <string name="sign_in_method_added_successfully">Anmeldemethode erfolgreich hinzugefügt</string>
     <string name="sign_in_with_apple">Mit Apple anmelden</string>
+    <string name="sign_in_with_google">Mit Google anmelden</string>
+    <string name="sign_in_with_google_to_add_it">Melde dich mit Google an, um es als Anmeldemethode hinzuzufügen.</string>
     <string name="sign_in_with_seedphrase">Mit Seedphrase anmelden</string>
     <string name="site_app_contracts">Verträge</string>
+    <string name="site_app_email">E-Mail</string>
     <string name="site_app_providers">Provider</string>
     <string name="site_save_your_seedphrase">Sichere deine Seedphrase</string>
     <string name="skip">Überspringen</string>
@@ -876,11 +892,13 @@
     <string name="verify_send_error">Fehler</string>
     <string name="version_info">Versions- und Build-Informationen</string>
     <string name="via_exit">über %1$s</string>
+    <string name="wallet">Wallet</string>
     <string name="wallet_blocked">Diese Wallet kann nicht mit URnetwork verwendet werden.</string>
     <string name="wallet_connected_to_protocol">Mit dem UR-Protokoll verbunden. Einlösungen landen hier. Alpha sammelt sich ab der nächsten Epoche nach dem Verbinden an.</string>
     <string name="wallet_looks_new_warning">Diese Adresse hat noch keine Aktivität auf der Bittensor-Chain. Es sieht nach einer neuen Wallet aus. Vergewissere dich, dass sie dir gehört, bevor du fortfährst.</string>
     <string name="wallet_not_retroactive">Verbinde eine Wallet, um ab der nächsten Epoche SN25α zu verdienen. Frühere Epochen werden nicht rückwirkend abgerechnet.</string>
     <string name="wallet_options">Wallet-Optionen</string>
+    <string name="wallet_sign_in_method_added">Wallet-Anmeldemethode hinzugefügt</string>
     <string name="welcome_offer_eyebrow">Willkommensangebot</string>
     <string name="welcome_to_urnetwork">Willkommen bei URnetwork</string>
     <string name="when_you_refer_a_friend">Wenn du einen Freund empfiehlst:</string>
@@ -915,6 +933,7 @@
     <string name="yes">Ja</string>
     <string name="you_get_free_data_every_day">Du erhältst jeden Tag kostenlose Daten.</string>
     <string name="your_bandwidth">Deine Bandbreite</string>
+    <string name="your_email_com">deine@email.com</string>
     <string name="your_referral_code">Ihr Empfehlungscode</string>
     <string name="your_seedphrase">Deine Seedphrase</string>
     <plurals name="apps_excluded_count">

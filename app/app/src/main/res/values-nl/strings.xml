@@ -5,10 +5,12 @@
     <string name="activity">Activiteit</string>
     <string name="add">Toevoegen</string>
     <string name="add_a_rule">Regel toevoegen</string>
+    <string name="add_a_sign_in_method">Een inlogmethode toevoegen</string>
     <string name="add_blocked_location">Geblokkeerde locatie toevoegen</string>
     <string name="add_emoji">Emoji toevoegen</string>
     <string name="add_referral_code">Referentiecode toevoegen</string>
     <string name="add_referral_extra_rewards">Voeg een referentiecode toe en verdien extra beloningen</string>
+    <string name="add_sign_in_method_2">Inlogmethode toevoegen</string>
     <string name="advanced">Geavanceerd</string>
     <string name="allow_local_connections">Sta lokale verbindingen toe</string>
     <string name="allow_providing_cell">Toestaan op mobiel netwerk</string>
@@ -91,6 +93,7 @@
     <string name="connect_and_open">Verbind en open de link</string>
     <string name="connect_options">Verbindingsopties</string>
     <string name="connect_seeker_wallet">Koppel een wallet met het Saga Genesis- of Seeker Pre-Order Token</string>
+    <string name="connect_solana_wallet_to_add_sign_in_method">Koppel een Solana-wallet om deze als inlogmethode toe te voegen.</string>
     <string name="connect_to_location">Verbind met %1$s</string>
     <string name="connect_wallet">Verbind Wallet</string>
     <string name="connected">Verbonden</string>
@@ -107,6 +110,7 @@
     <string name="copied">Gekopieerd!</string>
     <string name="copy">Kopiëren</string>
     <string name="copy_auth_code">Auth-code kopiëren</string>
+    <string name="could_not_get_google_id_token">Kan Google ID-token niet ophalen</string>
     <string name="countries">Landen</string>
     <string name="country">Land</string>
     <string name="country_multipliers">Landmultipliers</string>
@@ -165,16 +169,20 @@
     <string name="emoji_tag_shuffle">Andere suggestie</string>
     <string name="enjoying_urnetwork">Bevalt URnetwork je?</string>
     <string name="enter">Enter</string>
+    <string name="enter_a_password">Voer een wachtwoord in</string>
     <string name="enter_a_solana_usdc_wallet_address">Voer een Solana USDC-walletadres in</string>
     <string name="enter_balance_code">Voer saldo-code in</string>
     <string name="enter_network_referral_code">Referentiecode ingeven</string>
+    <string name="error_connecting_to_wallet">Fout bij verbinden met wallet</string>
     <string name="error_connecting_wallet_with_reason">Er is een fout opgetreden bij het verbinden van je wallet: %1$s</string>
     <string name="error_deleting_account">Sorry, er is een fout opgetreden bij het verwijderen van je account.</string>
     <string name="error_loading_account_plan">Fout bij het laden van uw accountplan.</string>
+    <string name="error_logging_in_please_try_again">Fout bij inloggen, probeer het opnieuw.</string>
     <string name="error_redeeming_transfer_balance_code">Fout bij het inwisselen van overdrachts-saldocode.</string>
     <string name="error_sending_password_reset_link">Fout bij het verzenden van de wachtwoordherstellink</string>
     <string name="error_sending_verification_code">Er is een fout opgetreden bij het verzenden van de verificatiecode.</string>
     <string name="error_setting_default_wallet_with_reason">Fout bij het instellen van de standaardwallet: %1$s</string>
+    <string name="error_signing_in_with_google">Fout bij inloggen met Google</string>
     <string name="exclude_app">Uitsluiten van VPN</string>
     <string name="exclude_app_description">Deze app omzeilt de tunnel.</string>
     <string name="excluded">Uitgesloten</string>
@@ -199,6 +207,7 @@
     <string name="get_urnetwork_free_for_life_by_participating">Krijg URnetwork gratis voor altijd door deel te nemen</string>
     <string name="go_back">Terug</string>
     <string name="google_auth_btn_text">Log in met google</string>
+    <string name="google_sign_in_method_added">Google-inlogmethode toegevoegd</string>
     <string name="guest">Gast</string>
     <string name="how_are_we_doing">Hoe gaat het met ons?</string>
     <string name="i_ve_saved_my_seedphrase">Ik heb mijn seedphrase opgeslagen</string>
@@ -234,6 +243,7 @@
     <string name="licenses_intro">URnetwork is gebouwd met de onderstaande opensourcesoftware en gegevens. Bij elk item staan de licentie en eventuele verplichte vermeldingen.</string>
     <string name="licenses_project_page">Projectpagina</string>
     <string name="licenses_software_header">Opensourcesoftware</string>
+    <string name="link_another_way_to_sign_in_to">Koppel een andere manier om in te loggen op je account.</string>
     <string name="loading">Laden...</string>
     <string name="local">Lokaal</string>
     <string name="local_dns">Lokale DNS</string>
@@ -316,6 +326,8 @@
     <string name="no">Nee</string>
     <string name="no_apps_found">Geen apps gevonden</string>
     <string name="no_blocked_locations">Geen geblokkeerde locaties</string>
+    <string name="no_compatible_wallet_app_found">Geen compatibele wallet-app gevonden op dit apparaat.</string>
+    <string name="no_ethos_wallet_found">Geen EthOs-wallet gevonden</string>
     <string name="no_locations_found">Geen locaties gevonden</string>
     <string name="no_locations_found_detail">Helaas, we hebben geen locaties gevonden gerelateerd aan %1$s.</string>
     <string name="no_log_files_found">Geen logbestand gevonden</string>
@@ -480,7 +492,11 @@
     <string name="show_on_points_leaderboard">Mijn netwerknaam tonen</string>
     <string name="sign_in">Log in</string>
     <string name="sign_in_dgen1">Inloggen met dGEN1</string>
+    <string name="sign_in_method_added_successfully">Inlogmethode succesvol toegevoegd</string>
+    <string name="sign_in_with_google">Log in met Google</string>
+    <string name="sign_in_with_google_to_add_it">Log in met Google om dit als inlogmethode toe te voegen.</string>
     <string name="sign_in_with_seedphrase">Inloggen met seedphrase</string>
+    <string name="site_app_email">E-mail</string>
     <string name="site_save_your_seedphrase">Bewaar je seedphrase</string>
     <string name="solana_sign_in">Inloggen met Solana</string>
     <string name="something_went_wrong">Er is iets misgegaan.</string>
@@ -562,6 +578,8 @@
     <string name="verify_send_error">Failed</string>
     <string name="version_info">Versie en build informatie</string>
     <string name="via_exit">via %1$s</string>
+    <string name="wallet">Wallet</string>
+    <string name="wallet_sign_in_method_added">Wallet-inlogmethode toegevoegd</string>
     <string name="welcome_offer_eyebrow">Welkomstaanbieding</string>
     <string name="welcome_to_urnetwork">Welkom bij URnetwork</string>
     <string name="when_you_refer_a_friend">Wanneer je een vriend doorverwijst:</string>
@@ -572,6 +590,7 @@
     <string name="with_urnetwork">Met URnetwork</string>
     <string name="write_it_down_and_store_it_somewhere">Schrijf hem op en bewaar hem op een veilige plek. Als je hem kwijtraakt, verlies je de toegang tot je account.</string>
     <string name="yes">Ja</string>
+    <string name="your_email_com">jouw@email.com</string>
     <string name="your_seedphrase">Jouw seedphrase</string>
     <plurals name="apps_excluded_count">
         <item quantity="one">%1$d app uitgesloten</item>
