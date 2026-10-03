@@ -4,6 +4,7 @@ import com.bringyour.network.ui.components.tabletReadableColumn
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -44,6 +45,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
@@ -52,6 +55,8 @@ import com.bringyour.network.R
 import com.bringyour.network.ui.components.URTextInputLabel
 import com.bringyour.network.ui.components.referral.ReferralGoldPanel
 import com.bringyour.network.ui.settings.SettingsViewModel
+import com.bringyour.network.ui.shared.models.SectionLoad
+import com.bringyour.network.ui.shared.models.referralStatLoads
 import com.bringyour.network.ui.settings.updateReferralNetworkBottomSheet.UpdateReferralNetworkBottomSheet
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.BlueMedium
@@ -79,9 +84,9 @@ fun ReferralsScreen(
     referralCode: String,
     totalReferrals: Long,
     referralPoints: Double,
-    pointsLoaded: Boolean,
+    pointsLoad: SectionLoad,
     fetchAccountPoints: () -> Unit,
-    referralCodeFailed: Boolean = false,
+    referralCodeLoad: SectionLoad = SectionLoad.Loaded,
     retryReferralCode: () -> Unit = {},
 ) {
     val scope = rememberCoroutineScope()
@@ -101,8 +106,9 @@ fun ReferralsScreen(
         referralCode = referralCode,
         totalReferrals = totalReferrals,
         referralPoints = referralPoints,
-        pointsLoaded = pointsLoaded,
-        referralCodeFailed = referralCodeFailed,
+        pointsLoad = pointsLoad,
+        retryPoints = fetchAccountPoints,
+        referralCodeLoad = referralCodeLoad,
         retryReferralCode = retryReferralCode,
         referralNetworkName = referralNetwork?.name,
         onUpdateReferralNetwork = {
@@ -151,13 +157,16 @@ fun ReferralsScreenContent(
     referralCode: String,
     totalReferrals: Long,
     referralPoints: Double,
-    pointsLoaded: Boolean,
+    pointsLoad: SectionLoad,
     referralNetworkName: String?,
     onUpdateReferralNetwork: () -> Unit,
     snackbarHostState: SnackbarHostState,
-    referralCodeFailed: Boolean = false,
+    retryPoints: () -> Unit = {},
+    referralCodeLoad: SectionLoad = SectionLoad.Loaded,
     retryReferralCode: () -> Unit = {},
 ) {
+    val statLoads = referralStatLoads(codeLoad = referralCodeLoad, pointsLoad = pointsLoad)
+
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -197,7 +206,7 @@ fun ReferralsScreenContent(
             ReferralGoldPanel(
                 referralCode = referralCode.ifEmpty { null },
                 totalReferrals = totalReferrals,
-                codeFailed = referralCodeFailed,
+                codeFailed = referralCodeLoad == SectionLoad.Failed,
                 onRetryCode = retryReferralCode,
             )
 
@@ -215,13 +224,15 @@ fun ReferralsScreenContent(
                 ReferralStatColumn(
                     label = stringResource(id = R.string.total_referrals),
                     value = "$totalReferrals",
-                    loaded = true,
+                    load = statLoads.totalReferrals,
+                    onRetry = retryReferralCode,
                     modifier = Modifier.weight(1f)
                 )
                 ReferralStatColumn(
                     label = stringResource(id = R.string.referral_points),
                     value = EarningsFormat.points(referralPoints),
-                    loaded = pointsLoaded,
+                    load = statLoads.referralPoints,
+                    onRetry = retryPoints,
                     modifier = Modifier.weight(1f)
                 )
             }
@@ -262,7 +273,8 @@ fun ReferralsScreenContent(
 private fun ReferralStatColumn(
     label: String,
     value: String,
-    loaded: Boolean,
+    load: SectionLoad,
+    onRetry: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier) {
@@ -271,8 +283,26 @@ private fun ReferralStatColumn(
             style = MaterialTheme.typography.bodyMedium,
             color = TextMuted
         )
-        if (loaded) {
+        if (load == SectionLoad.Loaded) {
             Text(value, style = HeadingLargeCondensed)
+        } else if (load == SectionLoad.Failed) {
+            // a failed fetch is not "0": no value, and Try again
+            val loadFailed = stringResource(id = R.string.load_failed)
+            Text(
+                "\u2014",
+                style = HeadingLargeCondensed,
+                color = TextMuted,
+                modifier = Modifier.semantics { contentDescription = loadFailed }
+            )
+            TextButton(
+                onClick = onRetry,
+                contentPadding = PaddingValues(0.dp),
+            ) {
+                Text(
+                    stringResource(id = R.string.try_again),
+                    color = BlueMedium
+                )
+            }
         } else {
             Spacer(modifier = Modifier.height(6.dp))
             CircularProgressIndicator(
@@ -295,7 +325,7 @@ private fun ReferralsScreenPreview() {
             referralCode = "ABC123",
             totalReferrals = 3,
             referralPoints = 668.0,
-            pointsLoaded = true,
+            pointsLoad = SectionLoad.Loaded,
             referralNetworkName = "parent_network",
             onUpdateReferralNetwork = {},
             snackbarHostState = SnackbarHostState(),
@@ -313,7 +343,7 @@ private fun ReferralsScreenNoReferralsPreview() {
             referralCode = "ABC123",
             totalReferrals = 0,
             referralPoints = 0.0,
-            pointsLoaded = false,
+            pointsLoad = SectionLoad.Loading,
             referralNetworkName = null,
             onUpdateReferralNetwork = {},
             snackbarHostState = SnackbarHostState(),
