@@ -212,7 +212,9 @@ fun ConnectActions(
                                 navController.navigate(Route.Upgrade)
                             },
                             style = ButtonStyle.OUTLINE,
-                            modifier = Modifier.weight(1f)
+                            modifier = Modifier
+                                .weight(1f)
+                                .testTag("acceptance.insufficient_balance_upgrade")
                         ) { buttonTextStyle ->
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
