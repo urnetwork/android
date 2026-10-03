@@ -34,6 +34,7 @@ fun rememberPlanPurchaser(
     val context = LocalContext.current
     val merchantName = stringResource(id = R.string.app_name)
     val notCompleted = stringResource(id = R.string.payment_not_completed)
+    val accountNotReady = stringResource(id = R.string.account_isn_t_ready_for_purchases)
     val pending = remember { arrayOfNulls<PurchaseInFlight>(1) }
 
     val paymentSheet = remember {
@@ -63,9 +64,16 @@ fun rememberPlanPurchaser(
     return remember(planViewModel, paymentSheet) {
         PlanPurchaser(store = Sdk.EventStoreStripe) { plan, presentation ->
             val api = planViewModel.api
-            if (api == null || planViewModel.inProgress) {
-                return@PlanPurchaser
+            when (purchaseStartFor(api != null, planViewModel.inProgress)) {
+                PurchaseStart.InProgress -> return@PlanPurchaser
+                PurchaseStart.AccountNotReady -> {
+                    planViewModel.setChangePlanError(accountNotReady)
+                    return@PlanPurchaser
+                }
+                PurchaseStart.Start -> Unit
             }
+            // Start implies an api
+            api ?: return@PlanPurchaser
             planViewModel.setInProgress(true)
             // the confirmation baseline loads while the sheet is up
             subscriptionBalanceViewModel.preparePurchaseConfirmation()
