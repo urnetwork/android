@@ -457,6 +457,7 @@
     <string name="seedphrase_paste_hint">Cole aqui a sua frase-semente de 12 ou 24 palavras</string>
     <string name="seedphrase_required">Introduza uma frase-semente</string>
     <string name="seeker_token_verified">Token Seeker verificado!</string>
+    <string name="seeker_verify_failed">Não foi possível verificar o token Seeker. Tente novamente.</string>
     <string name="select_location_provider_content_description">Globo: selecionar localização do fornecedor</string>
     <string name="send">Envie</string>
     <string name="send_feedback">Envie-nos o seu feedback diretamente ou junte-se ao nosso %1$s para suporte direto.</string>

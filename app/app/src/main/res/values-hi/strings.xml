@@ -457,6 +457,7 @@
     <string name="seedphrase_paste_hint">अपना 12 या 24 शब्दों का सीड फ़्रेज़ यहाँ पेस्ट करें</string>
     <string name="seedphrase_required">कृपया सीड फ़्रेज़ दर्ज करें</string>
     <string name="seeker_token_verified">Seeker टोकन सत्यापित हुआ!</string>
+    <string name="seeker_verify_failed">Seeker टोकन सत्यापित नहीं हो सका। कृपया फिर से प्रयास करें।</string>
     <string name="select_location_provider_content_description">ग्लोब: प्रदाता का स्थान चुनें</string>
     <string name="send">भेजें</string>
     <string name="send_feedback">हमें सीधे अपनी प्रतिक्रिया भेजें या सीधे समर्थन के लिए हमारे %1$s से जुड़ें।</string>

@@ -717,6 +717,7 @@
     <string name="seedphrase_paste_hint">在此粘贴你的 12 或 24 个单词的助记词</string>
     <string name="seedphrase_required">请输入助记词</string>
     <string name="seeker_token_verified">Seeker 令牌已验证</string>
+    <string name="seeker_verify_failed">无法验证 Seeker 代币，请重试。</string>
     <string name="select_location_provider_content_description">地球图标：选择提供商位置</string>
     <string name="send">发送</string>
     <string name="send_feedback">直接向我们反馈，或加入我们的 %1$s 获取直接支持。</string>

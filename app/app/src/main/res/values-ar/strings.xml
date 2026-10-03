@@ -717,6 +717,7 @@
     <string name="seedphrase_paste_hint">الصق عبارة الاسترداد المكونة من 12 أو 24 كلمة هنا</string>
     <string name="seedphrase_required">يرجى إدخال عبارة الاسترداد</string>
     <string name="seeker_token_verified">تم التحقق من رمز Seeker!</string>
+    <string name="seeker_verify_failed">تعذّر التحقق من رمز Seeker. يُرجى المحاولة مرة أخرى.</string>
     <string name="select_location_provider_content_description">الكرة الأرضية: اختيار موقع المزود</string>
     <string name="send">أرسل</string>
     <string name="send_feedback">أرسل لنا ملاحظاتك مباشرة أو انضم إلى %1$s الخاص بنا للحصول على دعم مباشر.</string>

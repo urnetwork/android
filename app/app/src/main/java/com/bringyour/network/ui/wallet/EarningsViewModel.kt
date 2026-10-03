@@ -613,6 +613,7 @@ class EarningsViewModel @Inject constructor(
                     success = result?.success == true,
                     serverMessage = result?.error?.message,
                     walletAddress = publicKey.address,
+                    serverCode = result?.error?.code,
                 )
                 if (notice == null) {
                     _isSeekerHolder.value = true

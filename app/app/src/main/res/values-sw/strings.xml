@@ -457,6 +457,7 @@
     <string name="seedphrase_paste_hint">Bandika hapa kifungu chako cha seed cha maneno 12 au 24</string>
     <string name="seedphrase_required">Tafadhali weka kifungu cha seed</string>
     <string name="seeker_token_verified">Tokeni ya Seeker imethibitishwa!</string>
+    <string name="seeker_verify_failed">Imeshindwa kuthibitisha tokeni ya Seeker. Tafadhali jaribu tena.</string>
     <string name="select_location_provider_content_description">Tufe: chagua eneo la mtoa huduma</string>
     <string name="send">Tuma</string>
     <string name="send_feedback">Tuma maoni yako moja kwa moja au jiunge na %1$s yetu kwa msaada wa moja kwa moja.</string>

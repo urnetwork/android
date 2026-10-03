@@ -457,6 +457,7 @@
     <string name="seedphrase_paste_hint">Wklej tutaj swoją frazę seed składającą się z 12 lub 24 słów</string>
     <string name="seedphrase_required">Wpisz frazę seed</string>
     <string name="seeker_token_verified">Token Seeker zweryfikowany!</string>
+    <string name="seeker_verify_failed">Nie udało się zweryfikować tokena Seeker. Spróbuj ponownie.</string>
     <string name="select_location_provider_content_description">Globus: wybierz lokalizację dostawcy</string>
     <string name="send">Wyślij</string>
     <string name="send_feedback">Prześlij nam swoją opinię bezpośrednio lub dołącz do naszego %1$s, aby uzyskać bezpośrednie wsparcie.</string>
