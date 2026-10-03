@@ -176,6 +176,8 @@
     <string name="excluded">제외</string>
     <string name="expires">만료</string>
     <string name="expiry_time">만료 시간</string>
+    <string name="fast_dns_on_connect">연결 시 빠른 DNS</string>
+    <string name="fast_dns_on_connect_description">터널 DNS가 시작되는 동안 로컬 네트워크를 통해 DNS에 응답합니다. 이로 인해 조회 내용이 로컬 네트워크에 노출될 수 있습니다. 끄면 DNS는 터널을 통해서만 확인됩니다.</string>
     <string name="feedback_header">연락하기</string>
     <string name="feedback_include_logs">피드백에 로그 첨부 (선택 사항)</string>
     <string name="feedback_label">피드백 상자</string>
@@ -229,8 +231,6 @@
     <string name="loading">로딩 중...</string>
     <string name="local">로컬</string>
     <string name="local_dns">로컬 DNS</string>
-    <string name="local_dns_fallback">로컬 DNS 폴백</string>
-    <string name="local_dns_fallback_description">터널이 시작되는 동안 로컬 리졸버에도 동시에 질의합니다. 끄면 DNS는 터널을 통해서만 확인됩니다.</string>
     <string name="local_dns_servers">로컬 DNS 서버</string>
     <string name="local_doh_urls">로컬 DoH URL</string>
     <string name="local_lowercase">로컬</string>

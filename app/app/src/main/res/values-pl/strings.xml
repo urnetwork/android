@@ -176,6 +176,8 @@
     <string name="excluded">Wykluczone</string>
     <string name="expires">Wygasa</string>
     <string name="expiry_time">Czas wygaśnięcia</string>
+    <string name="fast_dns_on_connect">Szybki DNS przy łączeniu</string>
+    <string name="fast_dns_on_connect_description">Odpowiada na zapytania DNS przez sieć lokalną, dopóki uruchamia się DNS tunelu. Może to ujawnić Twoje zapytania sieci lokalnej. Po wyłączeniu DNS jest rozwiązywany tylko przez tunel.</string>
     <string name="feedback_header">Skontaktuj się</string>
     <string name="feedback_include_logs">Dołącz logi do opinii (opcjonalnie)</string>
     <string name="feedback_label">Pole opinii</string>
@@ -229,8 +231,6 @@
     <string name="loading">Ładowanie...</string>
     <string name="local">Lokalnie</string>
     <string name="local_dns">Lokalny DNS</string>
-    <string name="local_dns_fallback">Awaryjny lokalny DNS</string>
-    <string name="local_dns_fallback_description">Podczas uruchamiania tunelu równolegle odpytuje lokalny resolver. Po wyłączeniu DNS jest rozwiązywany tylko przez tunel.</string>
     <string name="local_dns_servers">Lokalne serwery DNS</string>
     <string name="local_doh_urls">Lokalne adresy URL DoH</string>
     <string name="local_lowercase">lokalnie</string>

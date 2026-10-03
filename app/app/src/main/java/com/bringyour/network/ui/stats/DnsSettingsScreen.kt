@@ -258,15 +258,17 @@ fun DnsSettingsScreen(
                         toggle = { draft = currentDraft.copy(enableLocalDns = !currentDraft.enableLocalDns) }
                     )
                     Spacer(modifier = Modifier.height(12.dp))
+                    // opt-in, off by default: answers dns over the host network while
+                    // the tunnel's dns starts
                     DnsToggleRow(
-                        label = stringResource(id = R.string.local_dns_fallback),
+                        label = stringResource(id = FastDnsOnConnectToggle.labelRes),
                         detail = null,
-                        checked = currentDraft.enableFallback,
-                        toggle = { draft = currentDraft.copy(enableFallback = !currentDraft.enableFallback) }
+                        checked = FastDnsOnConnectToggle.isOn(currentDraft),
+                        toggle = { draft = FastDnsOnConnectToggle.toggled(currentDraft) }
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        stringResource(id = R.string.local_dns_fallback_description),
+                        stringResource(id = FastDnsOnConnectToggle.descriptionRes),
                         style = MaterialTheme.typography.bodySmall,
                         color = TextFaint
                     )

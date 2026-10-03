@@ -377,6 +377,8 @@
     <string name="extenders">Экстендеры</string>
     <string name="extenders_active_of_reserve">%1$d из %2$d</string>
     <string name="extenders_no_session">Войдите и подключитесь, чтобы управлять экстендерами.</string>
+    <string name="fast_dns_on_connect">Быстрый DNS при подключении</string>
+    <string name="fast_dns_on_connect_description">Отвечает на DNS-запросы через локальную сеть, пока запускается DNS туннеля. Это может раскрыть ваши запросы локальной сети. Если выключено, DNS разрешается только через туннель.</string>
     <string name="feedback_header">Свяжитесь с нами</string>
     <string name="feedback_include_logs">Приложить логи к отзыву (необязательно)</string>
     <string name="feedback_label">Поле для отзыва</string>
@@ -456,8 +458,6 @@
     <string name="loading">Загрузка...</string>
     <string name="local">Локально</string>
     <string name="local_dns">Локальный DNS</string>
-    <string name="local_dns_fallback">Резервный локальный DNS</string>
-    <string name="local_dns_fallback_description">Пока запускается туннель, параллельно опрашивает локальный резолвер и берёт первый ответ. Если выключено, DNS разрешается только через туннель.</string>
     <string name="local_dns_servers">Локальные DNS-серверы</string>
     <string name="local_doh_urls">Локальные DoH URL</string>
     <string name="local_lowercase">локально</string>

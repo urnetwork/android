@@ -176,6 +176,8 @@
     <string name="excluded">Exclue</string>
     <string name="expires">Expire</string>
     <string name="expiry_time">Heure d’expiration</string>
+    <string name="fast_dns_on_connect">DNS rapide à la connexion</string>
+    <string name="fast_dns_on_connect_description">Répond aux requêtes DNS via le réseau local pendant le démarrage du DNS du tunnel. Cela peut révéler vos recherches au réseau local. Désactivé, le DNS ne se résout qu\'à travers le tunnel.</string>
     <string name="feedback_header">Entrer en contact</string>
     <string name="feedback_include_logs">Joindre les journaux au retour (optionnel)</string>
     <string name="feedback_label">Boîte de commentaires</string>
@@ -229,8 +231,6 @@
     <string name="loading">Chargement...</string>
     <string name="local">Local</string>
     <string name="local_dns">DNS local</string>
-    <string name="local_dns_fallback">DNS local de secours</string>
-    <string name="local_dns_fallback_description">Interroge en parallèle un résolveur local pendant le démarrage du tunnel. Désactivé, le DNS ne se résout qu\'à travers le tunnel.</string>
     <string name="local_dns_servers">Serveurs DNS locaux</string>
     <string name="local_doh_urls">URL DoH locales</string>
     <string name="local_lowercase">local</string>

@@ -13,7 +13,7 @@ class DnsSettingsUiTest {
         assertFalse(ui.dohEnabled)
         assertFalse(ui.unencryptedDnsEnabled)
         assertFalse(ui.localDnsEnabled)
-        assertFalse(ui.localDnsFallbackEnabled)
+        assertFalse(ui.fastDnsOnConnectEnabled)
         assertTrue(ui.remoteDohUrlsIpv4.isEmpty())
         assertTrue(ui.remoteDnsIpv4.isEmpty())
     }
@@ -46,9 +46,9 @@ class DnsSettingsUiTest {
     }
 
     @Test
-    fun localDnsFallbackEnabledMatchesEnableFallback() {
-        assertFalse(DnsSettingsUi(enableFallback = false).localDnsFallbackEnabled)
-        assertTrue(DnsSettingsUi(enableFallback = true).localDnsFallbackEnabled)
+    fun fastDnsOnConnectEnabledMatchesEnableFallback() {
+        assertFalse(DnsSettingsUi(enableFallback = false).fastDnsOnConnectEnabled)
+        assertTrue(DnsSettingsUi(enableFallback = true).fastDnsOnConnectEnabled)
     }
 
     @Test

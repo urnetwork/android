@@ -231,7 +231,7 @@ fun ConnectStatsSections(
             Spacer(modifier = Modifier.height(8.dp))
             DnsStatusRow(stringResource(id = R.string.local_dns), settings.localDnsEnabled)
             Spacer(modifier = Modifier.height(8.dp))
-            DnsStatusRow(stringResource(id = R.string.local_dns_fallback), settings.localDnsFallbackEnabled)
+            DnsStatusRow(stringResource(id = FastDnsOnConnectToggle.labelRes), settings.fastDnsOnConnectEnabled)
         } else if (!dnsSettingsViewModel.reported) {
             // the device has not reported its resolver settings yet: the four
             // status rows as placeholders in their exact layout, so the card
@@ -245,7 +245,7 @@ fun ConnectStatsSections(
                 Spacer(modifier = Modifier.height(8.dp))
                 DnsStatusRow(stringResource(id = R.string.local_dns), false, placeholder = true)
                 Spacer(modifier = Modifier.height(8.dp))
-                DnsStatusRow(stringResource(id = R.string.local_dns_fallback), false, placeholder = true)
+                DnsStatusRow(stringResource(id = FastDnsOnConnectToggle.labelRes), false, placeholder = true)
             }
         } else {
             Text(
