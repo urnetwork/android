@@ -3,6 +3,7 @@ package com.bringyour.network.ui.shared
 import com.bringyour.network.ui.shared.models.SectionLoad
 import com.bringyour.network.ui.shared.models.accountPointsLoadAfterFetch
 import com.bringyour.network.ui.shared.models.referralCodeLoadAfterFetch
+import com.bringyour.network.ui.shared.models.referralStatLoads
 import com.bringyour.network.ui.wallet.EarningsProtocolSource
 import com.bringyour.network.ui.wallet.NoProtocolSource
 import com.bringyour.network.ui.wallet.SnWalletState
@@ -84,5 +85,34 @@ class SectionLoadTest {
 
         assertNull(load.wallet)
         assertEquals(SectionLoad.Loaded, load.load)
+    }
+
+    /**
+     * Reported defect: on Refer and earn, a failed points fetch showed
+     * "Referral points 0" and a failed referral read showed "Total referrals
+     * 0", with no error and no retry.
+     */
+    @Test
+    fun aFailedPointsFetchIsNotZeroReferralPoints() {
+        val loads = referralStatLoads(codeLoad = SectionLoad.Loaded, pointsLoad = SectionLoad.Failed)
+
+        assertEquals(SectionLoad.Failed, loads.referralPoints)
+        assertEquals(SectionLoad.Loaded, loads.totalReferrals)
+    }
+
+    @Test
+    fun aFailedReferralReadIsNotZeroReferrals() {
+        val loads = referralStatLoads(codeLoad = SectionLoad.Failed, pointsLoad = SectionLoad.Loaded)
+
+        assertEquals(SectionLoad.Failed, loads.totalReferrals)
+        assertEquals(SectionLoad.Loaded, loads.referralPoints)
+    }
+
+    @Test
+    fun theReferralCountWaitsForItsRead() {
+        val loads = referralStatLoads(codeLoad = SectionLoad.Loading, pointsLoad = SectionLoad.Loading)
+
+        assertEquals(SectionLoad.Loading, loads.totalReferrals)
+        assertEquals(SectionLoad.Loading, loads.referralPoints)
     }
 }

@@ -43,3 +43,21 @@ fun referralCodeLoadAfterFetch(failed: Boolean, code: String?, shownCode: String
         failed = failed || code.isNullOrBlank(),
         hasContent = shownCode.isNotBlank(),
     )
+
+/** The Refer and earn screen's two stats. */
+data class ReferralStatLoads(
+    val totalReferrals: SectionLoad,
+    val referralPoints: SectionLoad,
+)
+
+/**
+ * Each stat follows its own fetch: friends joined comes with the referral
+ * code read, referral points with the account points read. The stats used to
+ * show their value once any answer had arrived, so a failed fetch read as
+ * "0" with no retry; a failed fetch is now an error with Try again.
+ */
+fun referralStatLoads(codeLoad: SectionLoad, pointsLoad: SectionLoad): ReferralStatLoads =
+    ReferralStatLoads(
+        totalReferrals = codeLoad,
+        referralPoints = pointsLoad,
+    )

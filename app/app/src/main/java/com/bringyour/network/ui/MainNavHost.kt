@@ -1467,11 +1467,11 @@ fun MainNavContent(
                     navController = navController,
                     settingsViewModel = settingsViewModel,
                     referralCode = referralCodeViewModel.referralCode.collectAsState().value,
-                    referralCodeFailed = referralCodeViewModel.codeLoad.collectAsState().value == SectionLoad.Failed,
+                    referralCodeLoad = referralCodeViewModel.codeLoad.collectAsState().value,
                     retryReferralCode = referralCodeViewModel.retryReferralCode,
                     totalReferrals = totalReferralCount,
                     referralPoints = accountPointsViewModel.referralPoints.collectAsState().value,
-                    pointsLoaded = accountPointsViewModel.pointsLoaded.collectAsState().value,
+                    pointsLoad = accountPointsViewModel.pointsLoad.collectAsState().value,
                     fetchAccountPoints = { accountPointsViewModel.fetchAccountPoints() },
                 )
             }
