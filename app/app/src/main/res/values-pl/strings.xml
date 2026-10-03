@@ -186,6 +186,7 @@
     <string name="feedback_include_logs">Dołącz logi do opinii (opcjonalnie)</string>
     <string name="feedback_label">Pole opinii</string>
     <string name="feedback_placeholder">Powiedz nam, co naprawdę myślisz</string>
+    <string name="feedback_sending">Wysyłanie…</string>
     <string name="fixed_ip">Stały adres IP</string>
     <string name="forget_password">Zapomniałeś hasła?</string>
     <string name="forgot_password">Zapomniałeś hasła?</string>
@@ -468,7 +469,6 @@
     <string name="seeker_verify_no_wallet_app">Na tym urządzeniu nie znaleziono aplikacji portfela Solana.</string>
     <string name="select_location_provider_content_description">Globus: wybierz lokalizację dostawcy</string>
     <string name="send">Wyślij</string>
-    <string name="send_feedback">Prześlij nam swoją opinię bezpośrednio lub dołącz do naszego %1$s, aby uzyskać bezpośrednie wsparcie.</string>
     <string name="send_product_updates">Wysyłaj mi aktualizacje produktu</string>
     <string name="send_reset_link">Wyślij link do resetowania</string>
     <string name="sent">Wysłano!</string>

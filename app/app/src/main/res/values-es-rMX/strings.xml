@@ -186,6 +186,7 @@
     <string name="feedback_include_logs">Adjuntar registros al comentario (opcional)</string>
     <string name="feedback_label">Cuadro de comentarios</string>
     <string name="feedback_placeholder">Dinos cómo te sientes de verdad</string>
+    <string name="feedback_sending">Enviando…</string>
     <string name="fixed_ip">IP fija</string>
     <string name="forget_password">¿Olvidaste tu contraseña?</string>
     <string name="forgot_password">¿Olvidaste tu contraseña?</string>
@@ -468,7 +469,6 @@
     <string name="seeker_verify_no_wallet_app">No se encontró ninguna app de billetera Solana en este dispositivo.</string>
     <string name="select_location_provider_content_description">Globo: seleccionar ubicación del proveedor</string>
     <string name="send">Envía</string>
-    <string name="send_feedback">Envíanos tus comentarios directamente o únete a nuestro %1$s para soporte directo.</string>
     <string name="send_product_updates">Enviarme actualizaciones de productos</string>
     <string name="send_reset_link">Enviar enlace para restablecer</string>
     <string name="sent">¡Enviado!</string>

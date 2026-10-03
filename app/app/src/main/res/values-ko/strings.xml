@@ -186,6 +186,7 @@
     <string name="feedback_include_logs">피드백에 로그 첨부 (선택 사항)</string>
     <string name="feedback_label">피드백 상자</string>
     <string name="feedback_placeholder">진심으로 말씀해 주세요</string>
+    <string name="feedback_sending">보내는 중…</string>
     <string name="fixed_ip">고정 IP</string>
     <string name="forget_password">비밀번호를 잊으셨나요?</string>
     <string name="forgot_password">비밀번호를 잊으셨나요?</string>
@@ -468,7 +469,6 @@
     <string name="seeker_verify_no_wallet_app">이 기기에서 Solana 지갑 앱을 찾을 수 없습니다.</string>
     <string name="select_location_provider_content_description">지구본: 제공업체 위치 선택</string>
     <string name="send">보내기</string>
-    <string name="send_feedback">직접 피드백을 보내주시거나, 직접 지원을 위해 저희 %1$s에 참여하세요.</string>
     <string name="send_product_updates">제품 업데이트 소식 받기</string>
     <string name="send_reset_link">재설정 링크 보내기</string>
     <string name="sent">전송됨!</string>

@@ -186,6 +186,7 @@
     <string name="feedback_include_logs">フィードバックにログを添付（任意）</string>
     <string name="feedback_label">フィードバックボックス</string>
     <string name="feedback_placeholder">本音をお聞かせください</string>
+    <string name="feedback_sending">送信中…</string>
     <string name="fixed_ip">固定IP</string>
     <string name="forget_password">パスワードをお忘れですか？</string>
     <string name="forgot_password">パスワードをお忘れですか？</string>
@@ -468,7 +469,6 @@
     <string name="seeker_verify_no_wallet_app">このデバイスに Solana ウォレットアプリが見つかりませんでした。</string>
     <string name="select_location_provider_content_description">地球儀: プロバイダーの場所を選択</string>
     <string name="send">送信</string>
-    <string name="send_feedback">ご意見を直接お送りいただくか、直接サポートのために私たちの%1$sにご参加ください。</string>
     <string name="send_product_updates">製品のアップデートを送信する</string>
     <string name="send_reset_link">リセットリンクを送信</string>
     <string name="sent">送信済み！</string>

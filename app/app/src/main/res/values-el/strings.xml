@@ -186,6 +186,7 @@
     <string name="feedback_include_logs">Επισυνάψτε τα αρχεία καταγραφής στα σχόλια (προαιρετικό)</string>
     <string name="feedback_label">Κουτί σχολίων</string>
     <string name="feedback_placeholder">Πείτε μας πώς νιώθετε πραγματικά</string>
+    <string name="feedback_sending">Αποστολή…</string>
     <string name="fixed_ip">Σταθερή IP</string>
     <string name="forget_password">Ξέχασες τον κωδικό σου;</string>
     <string name="forgot_password">Ξέχασες τον κωδικό σου;</string>
@@ -468,7 +469,6 @@
     <string name="seeker_verify_no_wallet_app">Δεν βρέθηκε εφαρμογή πορτοφολιού Solana σε αυτήν τη συσκευή.</string>
     <string name="select_location_provider_content_description">Υδρόγειος: επιλογή τοποθεσίας παρόχου</string>
     <string name="send">Αποστολή</string>
-    <string name="send_feedback">Στείλτε μας τα σχόλιά σας απευθείας ή μπείτε στο %1$s μας για άμεση υποστήριξη.</string>
     <string name="send_product_updates">Στείλτε μου ενημερώσεις προϊόντων</string>
     <string name="send_reset_link">Αποστολή συνδέσμου επαναφοράς</string>
     <string name="sent">Στάλθηκε!</string>

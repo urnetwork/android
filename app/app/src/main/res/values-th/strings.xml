@@ -186,6 +186,7 @@
     <string name="feedback_include_logs">แนบไฟล์บันทึกกับข้อเสนอแนะ (ไม่บังคับ)</string>
     <string name="feedback_label">กล่องแสดงความเห็น</string>
     <string name="feedback_placeholder">บอกเราหน่อยสิว่ามีความเห็นอย่างไร</string>
+    <string name="feedback_sending">กำลังส่ง…</string>
     <string name="fixed_ip">IP แบบคงที่</string>
     <string name="forget_password">ลืมรหัสผ่านใช่หรือไม่?</string>
     <string name="forgot_password">ลืมรหัสผ่านใช่หรือไม่?</string>
@@ -468,7 +469,6 @@
     <string name="seeker_verify_no_wallet_app">ไม่พบแอปกระเป๋าเงิน Solana บนอุปกรณ์นี้</string>
     <string name="select_location_provider_content_description">ลูกโลก: เลือกตำแหน่งผู้ให้บริการ</string>
     <string name="send">ส่ง</string>
-    <string name="send_feedback">ส่งความเห็นของคุณตรงๆมาหาเรา หรือเข้าร่วมกลุ่ม %1$s เพื่อรับการช่วยเหลือของเราโดยตรง</string>
     <string name="send_product_updates">ส่งข้อมูลการอัพเดตผลิตภัณฑ์มาที่ฉัน</string>
     <string name="send_reset_link">ส่งลิงก์ตั้งรหัสใหม่</string>
     <string name="sent">ส่งแล้ว!</string>

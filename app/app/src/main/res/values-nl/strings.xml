@@ -186,6 +186,7 @@
     <string name="feedback_include_logs">Logs toevoegen aan feedback (optioneel)</string>
     <string name="feedback_label">Vak voor feedback</string>
     <string name="feedback_placeholder">Vertel ons eerlijk wat je ervan vindt</string>
+    <string name="feedback_sending">Verzenden…</string>
     <string name="fixed_ip">Vast IP-adres</string>
     <string name="forget_password">Wachtwoord vergeten?</string>
     <string name="forgot_password">Wachtwoord vergeten?</string>
@@ -468,7 +469,6 @@
     <string name="seeker_verify_no_wallet_app">Er is geen Solana-wallet-app gevonden op dit apparaat.</string>
     <string name="select_location_provider_content_description">Wereldbol: providerlocatie selecteren</string>
     <string name="send">Verstuur</string>
-    <string name="send_feedback">Stuur je feedback rechtstreeks naar ons of sluit je aan bij onze %1$s voor directe hulp.</string>
     <string name="send_product_updates">Stuur mij productupdates</string>
     <string name="send_reset_link">Herstellink verzenden</string>
     <string name="sent">Verstuurd!</string>

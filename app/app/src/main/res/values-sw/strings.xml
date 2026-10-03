@@ -186,6 +186,7 @@
     <string name="feedback_include_logs">Ambatisha logi kwenye maoni (hiari)</string>
     <string name="feedback_label">Kisanduku cha maoni</string>
     <string name="feedback_placeholder">Tuambie unavyohisi</string>
+    <string name="feedback_sending">Inatuma…</string>
     <string name="fixed_ip">IP ya kudumu</string>
     <string name="forget_password">Umesahau nenosiri lako?</string>
     <string name="forgot_password">Umesahau nenosiri lako?</string>
@@ -468,7 +469,6 @@
     <string name="seeker_verify_no_wallet_app">Hakuna programu ya pochi ya Solana iliyopatikana kwenye kifaa hiki.</string>
     <string name="select_location_provider_content_description">Tufe: chagua eneo la mtoa huduma</string>
     <string name="send">Tuma</string>
-    <string name="send_feedback">Tuma maoni yako moja kwa moja au jiunge na %1$s yetu kwa msaada wa moja kwa moja.</string>
     <string name="send_product_updates">Nitumie masasisho ya bidhaa</string>
     <string name="send_reset_link">Tuma Kiungo cha Kuweka Upya</string>
     <string name="sent">Kimetumwa!</string>

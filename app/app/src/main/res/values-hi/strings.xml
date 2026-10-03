@@ -186,6 +186,7 @@
     <string name="feedback_include_logs">फीडबैक में लॉग संलग्न करें (वैकल्पिक)</string>
     <string name="feedback_label">प्रतिक्रिया बॉक्स</string>
     <string name="feedback_placeholder">हमें बताएं कि आप वास्तव में कैसा महसूस करते हैं</string>
+    <string name="feedback_sending">भेजा जा रहा है…</string>
     <string name="fixed_ip">स्थिर IP</string>
     <string name="forget_password">अपना पासवर्ड भूल गए?</string>
     <string name="forgot_password">अपना पासवर्ड भूल गए?</string>
@@ -468,7 +469,6 @@
     <string name="seeker_verify_no_wallet_app">इस डिवाइस पर कोई Solana वॉलेट ऐप नहीं मिला।</string>
     <string name="select_location_provider_content_description">ग्लोब: प्रदाता का स्थान चुनें</string>
     <string name="send">भेजें</string>
-    <string name="send_feedback">हमें सीधे अपनी प्रतिक्रिया भेजें या सीधे समर्थन के लिए हमारे %1$s से जुड़ें।</string>
     <string name="send_product_updates">मुझे उत्पाद अपडेट भेजें</string>
     <string name="send_reset_link">रीसेट लिंक भेजें</string>
     <string name="sent">भेज दिया गया!</string>
