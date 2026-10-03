@@ -47,7 +47,6 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
@@ -65,7 +64,10 @@ import com.bringyour.network.R
 import com.bringyour.network.ui.components.ExportLogButton
 import com.bringyour.network.ui.components.PromptSolanaDAppStoreReview
 import com.bringyour.network.ui.components.ShareLogFileButton
+import com.bringyour.network.ui.components.SupportContact
 import com.bringyour.network.ui.components.URButton
+import com.bringyour.network.ui.components.openSupportUri
+import com.bringyour.network.ui.components.supportLinkSpans
 import com.bringyour.network.ui.components.URSwitch
 import com.bringyour.network.ui.components.URTextInput
 import com.bringyour.network.ui.components.URTextInputLabel
@@ -324,22 +326,21 @@ private fun FeedbackForm(
     keyboardController: SoftwareKeyboardController?
 ) {
 
-    val supportUrl = "https://discord.com/invite/RUNZXMwPRK"
+    val context = LocalContext.current
 
-    val uriHandler = LocalUriHandler.current
-    
-    val discordText = "Discord"
-    val feedbackFull = stringResource(id = R.string.send_feedback, discordText)
-
-    val startIndex = feedbackFull.indexOf(discordText)
-    val endIndex = startIndex + discordText.length
+    // the email sits next to Discord, which is unreachable in some regions
+    val feedbackFull = stringResource(
+        id = R.string.send_feedback_contact,
+        SupportContact.EMAIL,
+        SupportContact.DISCORD_NAME,
+    )
 
     val feedbackAnnotatedString = buildAnnotatedString {
         withStyle(style = MaterialTheme.typography.bodyLarge.toSpanStyle().copy(color = Color.White)) {
             append(feedbackFull)
-            if (startIndex >= 0) {
-                addStyle(SpanStyle(color = Pink), startIndex, endIndex)
-                addStringAnnotation("URL", supportUrl, startIndex, endIndex)
+            for (span in supportLinkSpans(feedbackFull, SupportContact.feedbackLinks)) {
+                addStyle(SpanStyle(color = Pink), span.start, span.end)
+                addStringAnnotation("URL", span.uri, span.start, span.end)
             }
         }
     }
@@ -368,7 +369,7 @@ private fun FeedbackForm(
                             .firstOrNull()
 
                         if (annotation?.tag == "URL") {
-                            uriHandler.openUri(annotation.item)
+                            openSupportUri(context, annotation.item)
                         }
                     }
                 }

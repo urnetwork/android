@@ -720,7 +720,6 @@
     <string name="seeker_token_verified">تم التحقق من رمز Seeker!</string>
     <string name="select_location_provider_content_description">الكرة الأرضية: اختيار موقع المزود</string>
     <string name="send">أرسل</string>
-    <string name="send_feedback">أرسل لنا ملاحظاتك مباشرة أو انضم إلى %1$s الخاص بنا للحصول على دعم مباشر.</string>
     <string name="send_product_updates">إرسال تحديثات المنتج لي</string>
     <string name="send_reset_link">إرسال رابط إعادة التعيين</string>
     <string name="send_tao_to_mirror">أرسل نحو %1$s TAO إلى %2$s لتغطية رسوم الغاز.</string>

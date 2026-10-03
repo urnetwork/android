@@ -720,7 +720,6 @@
     <string name="seeker_token_verified">Seeker 令牌已验证</string>
     <string name="select_location_provider_content_description">地球图标：选择提供商位置</string>
     <string name="send">发送</string>
-    <string name="send_feedback">直接向我们反馈，或加入我们的 %1$s 获取直接支持。</string>
     <string name="send_product_updates">向我发送产品更新</string>
     <string name="send_reset_link">发送重置链接</string>
     <string name="send_tao_to_mirror">向 %2$s 发送约 %1$s TAO 以支付 Gas 费。</string>

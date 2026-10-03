@@ -459,7 +459,6 @@
     <string name="seeker_token_verified">Seeker टोकन सत्यापित हुआ!</string>
     <string name="select_location_provider_content_description">ग्लोब: प्रदाता का स्थान चुनें</string>
     <string name="send">भेजें</string>
-    <string name="send_feedback">हमें सीधे अपनी प्रतिक्रिया भेजें या सीधे समर्थन के लिए हमारे %1$s से जुड़ें।</string>
     <string name="send_product_updates">मुझे उत्पाद अपडेट भेजें</string>
     <string name="send_reset_link">रीसेट लिंक भेजें</string>
     <string name="sent">भेज दिया गया!</string>

@@ -459,7 +459,6 @@
     <string name="seeker_token_verified">Token Seeker verificado!</string>
     <string name="select_location_provider_content_description">Globo: selecionar localização do fornecedor</string>
     <string name="send">Envie</string>
-    <string name="send_feedback">Envie-nos o seu feedback diretamente ou junte-se ao nosso %1$s para suporte direto.</string>
     <string name="send_product_updates">Enviar atualizações de produtos</string>
     <string name="send_reset_link">Enviar link de redefinição</string>
     <string name="sent">Enviado!</string>

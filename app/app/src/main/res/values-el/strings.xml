@@ -459,7 +459,6 @@
     <string name="seeker_token_verified">Το διακριτικό Seeker επαληθεύτηκε!</string>
     <string name="select_location_provider_content_description">Υδρόγειος: επιλογή τοποθεσίας παρόχου</string>
     <string name="send">Αποστολή</string>
-    <string name="send_feedback">Στείλτε μας τα σχόλιά σας απευθείας ή μπείτε στο %1$s μας για άμεση υποστήριξη.</string>
     <string name="send_product_updates">Στείλτε μου ενημερώσεις προϊόντων</string>
     <string name="send_reset_link">Αποστολή συνδέσμου επαναφοράς</string>
     <string name="sent">Στάλθηκε!</string>

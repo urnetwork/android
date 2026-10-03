@@ -459,7 +459,6 @@
     <string name="seeker_token_verified">Token Seeker zweryfikowany!</string>
     <string name="select_location_provider_content_description">Globus: wybierz lokalizację dostawcy</string>
     <string name="send">Wyślij</string>
-    <string name="send_feedback">Prześlij nam swoją opinię bezpośrednio lub dołącz do naszego %1$s, aby uzyskać bezpośrednie wsparcie.</string>
     <string name="send_product_updates">Wysyłaj mi aktualizacje produktu</string>
     <string name="send_reset_link">Wyślij link do resetowania</string>
     <string name="sent">Wysłano!</string>

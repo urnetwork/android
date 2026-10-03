@@ -459,7 +459,6 @@
     <string name="seeker_token_verified">Token Seeker ověřen!</string>
     <string name="select_location_provider_content_description">Glóbus: výběr lokality poskytovatele</string>
     <string name="send">Odeslat</string>
-    <string name="send_feedback">Pošlete nám svůj názor přímo nebo se připojte k našemu %1$s pro přímou podporu.</string>
     <string name="send_product_updates">Zasílání aktualizací produktů</string>
     <string name="send_reset_link">Odeslat odkaz pro obnovení hesla</string>
     <string name="sent">Odesláno!</string>

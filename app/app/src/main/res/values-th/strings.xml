@@ -459,7 +459,6 @@
     <string name="seeker_token_verified">ยืนยัน Seeker Token สำเร็จ</string>
     <string name="select_location_provider_content_description">ลูกโลก: เลือกตำแหน่งผู้ให้บริการ</string>
     <string name="send">ส่ง</string>
-    <string name="send_feedback">ส่งความเห็นของคุณตรงๆมาหาเรา หรือเข้าร่วมกลุ่ม %1$s เพื่อรับการช่วยเหลือของเราโดยตรง</string>
     <string name="send_product_updates">ส่งข้อมูลการอัพเดตผลิตภัณฑ์มาที่ฉัน</string>
     <string name="send_reset_link">ส่งลิงก์ตั้งรหัสใหม่</string>
     <string name="sent">ส่งแล้ว!</string>
