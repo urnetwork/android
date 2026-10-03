@@ -46,7 +46,8 @@ import kotlin.coroutines.resume
  *    persists the schedule across process death and reboot.
  *  - Each run performs the same reconcile the app does on start:
  *    queryPurchasesAsync(SUBS) -> persist -> report -> acknowledge every
- *    PURCHASED && !isAcknowledged, and re-reports any leftover persisted proof.
+ *    PURCHASED && !isAcknowledged, reports every acknowledged purchase without a
+ *    reported-terminal flag, and re-reports any leftover persisted proof.
  *  - Once a run (or the in-app reconcile, via `markSettled`) observes no PENDING,
  *    no unacknowledged purchase, and no persisted proof, the marker is cleared and
  *    the job cancels itself.
@@ -94,15 +95,14 @@ class PendingPurchaseReconcileWorker(
 
             /**
              * The full persist -> report -> acknowledge sequence for every purchase
-             * that still needs it: unacknowledged PURCHASED purchases, plus
-             * acknowledged ones that still carry a persisted proof (a crash between
-             * acknowledge and clear -- the re-report is idempotent and clears it).
+             * that still needs it (PurchaseReportPolicy): unacknowledged PURCHASED
+             * purchases, plus acknowledged ones the server never answered terminally
+             * -- a crash between acknowledge and clear, or a purchase acknowledged by a
+             * pre-report build. The re-report is idempotent.
              */
             purchases
                 .filter {
-                    it.purchaseState == Purchase.PurchaseState.PURCHASED &&
-                            (!it.isAcknowledged ||
-                                    PurchaseReporter.hasEntry(applicationContext, it.purchaseToken))
+                    PurchaseReporter.actionFor(applicationContext, it) != PurchaseReportPolicy.Action.None
                 }
                 .forEach { purchase ->
                     val result = PurchaseReporter.reportAndAcknowledge(
