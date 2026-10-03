@@ -721,7 +721,6 @@
     <string name="seedphrase_leave_confirm_body">¿Seguro? Esta es la ÚNICA vez que verás tu frase semilla. Asegúrate de haberla guardado antes de volver.</string>
     <string name="seedphrase_paste_hint">Pega aquí tu frase semilla de 12 o 24 palabras</string>
     <string name="seedphrase_required">Introduce una frase semilla</string>
-    <string name="seeker_points_only">El multiplicador de Seeker solo se aplica a los puntos.</string>
     <string name="seeker_token_verified">¡Token Seeker verificado!</string>
     <string name="select_location_provider_content_description">Globo: seleccionar ubicación del proveedor</string>
     <string name="send">Envía</string>

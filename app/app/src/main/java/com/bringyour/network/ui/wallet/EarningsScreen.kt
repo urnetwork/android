@@ -539,7 +539,7 @@ private fun PointsHeadline(
                         style = MaterialTheme.typography.bodyLarge
                     )
                     Text(
-                        stringResource(id = R.string.seeker_points_only),
+                        stringResource(id = R.string.seeker_multiplier_benefit),
                         style = MaterialTheme.typography.bodyMedium,
                         color = TextMuted
                     )
