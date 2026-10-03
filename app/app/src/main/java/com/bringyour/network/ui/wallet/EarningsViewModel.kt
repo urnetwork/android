@@ -19,6 +19,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
+import com.bringyour.network.ui.shared.models.SectionLoad
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -117,6 +118,10 @@ class EarningsViewModel @Inject constructor(
     // the first read finished, so the UI can tell "no wallet" from "not loaded yet"
     private val _walletLoaded = MutableStateFlow(false)
     val walletLoaded: StateFlow<Boolean> = _walletLoaded.asStateFlow()
+
+    // the wallet read failed with no wallet to show: an error with Try again, not a "connect wallet" offer
+    private val _walletFailed = MutableStateFlow(false)
+    val walletFailed: StateFlow<Boolean> = _walletFailed.asStateFlow()
 
     private val _connectState = MutableStateFlow<WalletConnectState>(WalletConnectState.Idle)
     val connectState: StateFlow<WalletConnectState> = _connectState.asStateFlow()
@@ -232,18 +237,22 @@ class EarningsViewModel @Inject constructor(
         }
     }
 
-    private suspend fun refreshWallet() {
-        val s = source
-        if (!s.available) {
-            _wallet.value = null
-            _walletLoaded.value = true
-            return
+    val retryWallet: () -> Unit = {
+        _walletFailed.value = false
+        _walletLoaded.value = false
+        viewModelScope.launch {
+            refreshWallet()
+            if (_wallet.value != null) {
+                refreshClaims()
+            }
         }
-        // the cached copy first, then the server's
-        s.currentWallet()?.let { _wallet.value = it }
-        s.fetchWallet()
-            .onSuccess { _wallet.value = it }
-            .onFailure { Log.i(TAG, "fetch wallet: ${it.message}") }
+    }
+
+    private suspend fun refreshWallet() {
+        val load = loadWallet(source, _wallet.value)
+        load.error?.let { Log.i(TAG, "fetch wallet: ${it.message}") }
+        _wallet.value = load.wallet
+        _walletFailed.value = load.load == SectionLoad.Failed
         _walletLoaded.value = true
     }
 
@@ -646,6 +655,7 @@ class EarningsViewModel @Inject constructor(
 
         _wallet.value = null
         _walletLoaded.value = false
+        _walletFailed.value = false
         _gasKey.value = null
         _gasBalance.value = null
         _claims.value = emptyList()
@@ -667,6 +677,7 @@ class EarningsViewModel @Inject constructor(
             viewModelScope.launch {
                 _wallet.value = w
                 _walletLoaded.value = true
+                _walletFailed.value = false
                 refreshClaims()
             }
         }
@@ -715,4 +726,34 @@ class EarningsViewModel @Inject constructor(
         // what the funding hint suggests sending to the mirror address
         const val SUGGESTED_GAS_TAO = 0.01
     }
+}
+
+/** The wallet section after a read: the wallet to show and whether it failed. */
+data class WalletLoad(
+    val wallet: SnWalletState?,
+    val load: SectionLoad,
+    val error: Throwable? = null,
+)
+
+/**
+ * Reads the wallet: the cached copy first, then the server's. A failed server
+ * read used to settle as "loaded" with no wallet, which the screen showed as
+ * the "connect wallet" offer; now it is `Failed` unless a wallet (cached or
+ * already shown) is there to keep showing.
+ */
+suspend fun loadWallet(source: EarningsProtocolSource, shown: SnWalletState?): WalletLoad {
+    if (!source.available) {
+        return WalletLoad(wallet = null, load = SectionLoad.Loaded)
+    }
+    val cached = source.currentWallet() ?: shown
+    return source.fetchWallet().fold(
+        onSuccess = { WalletLoad(wallet = it, load = SectionLoad.Loaded) },
+        onFailure = {
+            WalletLoad(
+                wallet = cached,
+                load = SectionLoad.afterFetch(failed = true, hasContent = cached != null),
+                error = it,
+            )
+        },
+    )
 }

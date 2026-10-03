@@ -59,6 +59,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bringyour.network.R
+import com.bringyour.network.ui.components.SectionLoadError
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.BlueLight
 import com.bringyour.network.ui.theme.Green
@@ -85,6 +86,9 @@ fun ReferralGoldPanel(
     referralCode: String?,
     totalReferrals: Long,
     modifier: Modifier = Modifier,
+    // the code fetch failed: an error with Try again in place of the spinner
+    codeFailed: Boolean = false,
+    onRetryCode: () -> Unit = {},
 ) {
     val crowned = 0L < totalReferrals
     val terms = LocalReferralTerms.current
@@ -218,6 +222,11 @@ fun ReferralGoldPanel(
                 GoldShareButton(
                     shareMessage = stringResource(id = R.string.referral_share_message, referralCode),
                     modifier = Modifier.fillMaxWidth()
+                )
+            } else if (codeFailed) {
+                SectionLoadError(
+                    onRetry = onRetryCode,
+                    color = BlueLight.copy(alpha = 0.85f),
                 )
             } else {
                 CircularProgressIndicator(

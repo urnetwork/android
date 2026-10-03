@@ -81,6 +81,8 @@ fun ReferralsScreen(
     referralPoints: Double,
     pointsLoaded: Boolean,
     fetchAccountPoints: () -> Unit,
+    referralCodeFailed: Boolean = false,
+    retryReferralCode: () -> Unit = {},
 ) {
     val scope = rememberCoroutineScope()
     val referralNetwork by settingsViewModel.referralNetwork.collectAsState()
@@ -100,6 +102,8 @@ fun ReferralsScreen(
         totalReferrals = totalReferrals,
         referralPoints = referralPoints,
         pointsLoaded = pointsLoaded,
+        referralCodeFailed = referralCodeFailed,
+        retryReferralCode = retryReferralCode,
         referralNetworkName = referralNetwork?.name,
         onUpdateReferralNetwork = {
             scope.launch {
@@ -151,6 +155,8 @@ fun ReferralsScreenContent(
     referralNetworkName: String?,
     onUpdateReferralNetwork: () -> Unit,
     snackbarHostState: SnackbarHostState,
+    referralCodeFailed: Boolean = false,
+    retryReferralCode: () -> Unit = {},
 ) {
     Scaffold(
         topBar = {
@@ -190,7 +196,9 @@ fun ReferralsScreenContent(
              */
             ReferralGoldPanel(
                 referralCode = referralCode.ifEmpty { null },
-                totalReferrals = totalReferrals
+                totalReferrals = totalReferrals,
+                codeFailed = referralCodeFailed,
+                onRetryCode = retryReferralCode,
             )
 
             Spacer(modifier = Modifier.height(16.dp))

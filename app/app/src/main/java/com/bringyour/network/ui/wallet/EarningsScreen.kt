@@ -53,6 +53,7 @@ import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.bringyour.network.R
+import com.bringyour.network.ui.components.SectionLoadError
 import com.bringyour.network.ui.components.ButtonStyle
 import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.components.URLearnMoreText
@@ -97,11 +98,13 @@ fun EarningsScreen(
     fetchAccountPoints: () -> Unit,
     reliabilityWindow: ReliabilityWindow?,
     activityResultSender: ActivityResultSender?,
+    accountPointsFailed: Boolean = false,
 ) {
     val context = LocalContext.current
 
     val wallet by earningsViewModel.wallet.collectAsState()
     val walletLoaded by earningsViewModel.walletLoaded.collectAsState()
+    val walletFailed by earningsViewModel.walletFailed.collectAsState()
     val connectState by earningsViewModel.connectState.collectAsState()
     val claims by earningsViewModel.claims.collectAsState()
     val totalClaimableRao by earningsViewModel.totalClaimableRao.collectAsState()
@@ -175,9 +178,13 @@ fun EarningsScreen(
         multiplierPoints = multiplierPoints,
         reliabilityPoints = reliabilityPoints,
         isSeekerHolder = isSeekerHolder,
+        accountPointsFailed = accountPointsFailed,
+        onRetryAccountPoints = fetchAccountPoints,
         protocolAvailable = earningsViewModel.protocolAvailable,
         wallet = wallet,
         walletLoaded = walletLoaded,
+        walletFailed = walletFailed,
+        onRetryWallet = earningsViewModel.retryWallet,
         connectState = connectState,
         onConnectWallet = { earningsViewModel.connectWithBridge(context) },
         onEnterManually = { earningsViewModel.openManualSheet() },
@@ -296,6 +303,10 @@ fun EarningsScreenContent(
     formatAlpha: (Long) -> String,
     formatShareBps: (Long) -> String,
     shortSs58: (String) -> String,
+    accountPointsFailed: Boolean = false,
+    onRetryAccountPoints: () -> Unit = {},
+    walletFailed: Boolean = false,
+    onRetryWallet: () -> Unit = {},
 ) {
     val refreshState = rememberPullToRefreshState()
     val claimsByEpoch = claims.associateBy { it.epoch }
@@ -344,7 +355,9 @@ fun EarningsScreenContent(
                     referralPoints = referralPoints,
                     reliabilityPoints = reliabilityPoints,
                     multiplierPoints = multiplierPoints,
-                    isSeekerHolder = isSeekerHolder
+                    isSeekerHolder = isSeekerHolder,
+                    failed = accountPointsFailed,
+                    onRetry = onRetryAccountPoints,
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -356,6 +369,8 @@ fun EarningsScreenContent(
                     protocolAvailable = protocolAvailable,
                     wallet = wallet,
                     walletLoaded = walletLoaded,
+                    walletFailed = walletFailed,
+                    onRetryWallet = onRetryWallet,
                     connectState = connectState,
                     onConnectWallet = onConnectWallet,
                     onEnterManually = onEnterManually,
@@ -448,7 +463,20 @@ private fun PointsHeadline(
     reliabilityPoints: Double,
     multiplierPoints: Double,
     isSeekerHolder: Boolean,
+    failed: Boolean = false,
+    onRetry: () -> Unit = {},
 ) {
+    if (failed) {
+        // a failed points fetch is an error, not "0 points"
+        SectionLoadError(
+            onRetry = onRetry,
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(MainTintedBackgroundBase, RoundedCornerShape(12.dp))
+                .padding(16.dp),
+        )
+        return
+    }
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -555,7 +583,15 @@ internal fun WalletSection(
     onConnectSolana: () -> Unit,
     usdcWaiting: Double?,
     shortSs58: (String) -> String,
+    walletFailed: Boolean = false,
+    onRetryWallet: () -> Unit = {},
 ) {
+    if (walletLoaded && wallet == null && walletFailed) {
+        // a failed read is an error, not the "connect wallet" offer
+        SectionLoadError(onRetry = onRetryWallet)
+        return
+    }
+
     if (!walletLoaded) {
         Row(
             modifier = Modifier

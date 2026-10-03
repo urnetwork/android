@@ -467,6 +467,7 @@
     <string name="licenses_intro">URnetwork is built with the open source software and data below. Each entry shows its license and any notice it requires.</string>
     <string name="licenses_project_page">Project page</string>
     <string name="licenses_software_header">Open source software</string>
+    <string name="load_failed">Couldn\'t load. Check your connection and try again.</string>
     <string name="loading">Loading...</string>
     <string name="local">Local</string>
     <string name="local_dns">Local DNS</string>

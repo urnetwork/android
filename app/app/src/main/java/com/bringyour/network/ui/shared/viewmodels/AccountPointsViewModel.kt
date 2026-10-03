@@ -3,6 +3,8 @@ package com.bringyour.network.ui.shared.viewmodels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bringyour.network.DeviceManager
+import com.bringyour.network.ui.shared.models.SectionLoad
+import com.bringyour.network.ui.shared.models.accountPointsLoadAfterFetch
 import com.bringyour.sdk.AccountPoint
 import com.bringyour.sdk.Sdk
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -37,14 +39,36 @@ constructor(
     private val _reliabilityPoints = MutableStateFlow<Double>(0.0)
     val reliabilityPoints: StateFlow<Double> = _reliabilityPoints.asStateFlow()
 
+    private val _pointsLoad = MutableStateFlow(SectionLoad.Loading)
+    val pointsLoad: StateFlow<SectionLoad> = _pointsLoad.asStateFlow()
+
     // the first fetch finished (successfully or not), so the account screen can stop its spinner
     private val _pointsLoaded = MutableStateFlow(false)
     val pointsLoaded: StateFlow<Boolean> = _pointsLoaded.asStateFlow()
 
-    val fetchAccountPoints = {
-        deviceManager.device?.api?.getAccountPoints { result, error ->
-            if (error != null) {
-                _pointsLoaded.value = true
+    // a failed fetch is an error with Try again, not 0 points; a failed refresh keeps the points shown
+    private fun settle(failed: Boolean) {
+        val load = accountPointsLoadAfterFetch(
+            failed = failed,
+            loadedBefore = _pointsLoad.value == SectionLoad.Loaded,
+        )
+        _pointsLoad.value = load
+        _pointsLoaded.value = load != SectionLoad.Loading
+    }
+
+    val fetchAccountPoints: () -> Unit = fetchAccountPoints@{
+        _pointsLoad.value = SectionLoad.retrying(_pointsLoad.value)
+        val api = deviceManager.device?.api
+        if (api == null) {
+            // no device yet: the spinner used to stay up for good
+            settle(failed = true)
+            return@fetchAccountPoints
+        }
+        api.getAccountPoints { result, error ->
+            if (error != null || result == null) {
+                viewModelScope.launch {
+                    settle(failed = true)
+                }
                 return@getAccountPoints
             }
 
@@ -85,7 +109,7 @@ constructor(
                 _referralPoints.value = referralPoints
                 _multiplierPoints.value = multiplierPoints
                 _reliabilityPoints.value = reliabilityPoints
-                _pointsLoaded.value = true
+                settle(failed = false)
             }
         }
     }

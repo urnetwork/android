@@ -39,7 +39,9 @@ fun IntroductionReferral(
     navController: NavHostController,
     dismiss: () -> Unit,
     totalReferrals: Long,
-    referralCode: String
+    referralCode: String,
+    referralCodeFailed: Boolean = false,
+    retryReferralCode: () -> Unit = {},
 ) {
 
     val terms = LocalReferralTerms.current
@@ -87,7 +89,9 @@ fun IntroductionReferral(
 
                 ReferralGoldPanel(
                     referralCode = referralCode,
-                    totalReferrals = totalReferrals
+                    totalReferrals = totalReferrals,
+                    codeFailed = referralCodeFailed,
+                    onRetryCode = retryReferralCode,
                 )
 
                 Spacer(modifier = Modifier.height(24.dp))

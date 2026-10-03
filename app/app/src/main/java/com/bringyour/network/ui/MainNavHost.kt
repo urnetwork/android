@@ -142,6 +142,7 @@ import com.bringyour.network.ui.introduction.IntroductionUsageBar
 import com.bringyour.network.ui.shared.models.BundleStore
 import com.bringyour.network.ui.shared.models.ProvideControlMode
 import com.bringyour.network.ui.shared.viewmodels.AccountPointsViewModel
+import com.bringyour.network.ui.shared.models.SectionLoad
 import com.bringyour.network.ui.shared.viewmodels.NetworkReliabilityViewModel
 import com.bringyour.network.ui.shared.viewmodels.Plan
 import com.bringyour.network.ui.shared.viewmodels.SolanaPaymentViewModel
@@ -236,6 +237,7 @@ private fun MainNavHostContent(
     val reliabilityWindow by networkReliabilityViewModel.reliabilityWindow.collectAsState()
     val totalReferralCount by referralCodeViewModel.totalReferralCount.collectAsState()
     val referralCode by referralCodeViewModel.referralCode.collectAsState()
+    val referralCodeLoad by referralCodeViewModel.codeLoad.collectAsState()
     val pendingReferralCelebration by referralCodeViewModel.pendingCelebration.collectAsState()
     val pendingSolanaSubReference by solanaPaymentViewModel.pendingSolanaSubscriptionReference.collectAsState()
     val isCheckingSolanaTransaction by subscriptionBalanceViewModel.isCheckingSolanaTransaction.collectAsState()
@@ -695,6 +697,8 @@ private fun MainNavHostContent(
                 meanReliabilityWeight = reliabilityWindow?.meanReliabilityWeight ?: 0.0,
                 totalReferralCount = totalReferralCount,
                 referralCode = referralCode,
+                referralCodeFailed = referralCodeLoad == SectionLoad.Failed,
+                retryReferralCode = referralCodeViewModel.retryReferralCode,
                 provideControlMode = settingsViewModel.provideControlMode,
                 setProvideControlMode = settingsViewModel.setProvideControlMode,
                 provideIndicatorColor = settingsViewModel.provideIndicatorColor,
@@ -903,6 +907,8 @@ fun IntroNavHost(
     meanReliabilityWeight: Double,
     totalReferralCount: Long,
     referralCode: String,
+    referralCodeFailed: Boolean = false,
+    retryReferralCode: () -> Unit = {},
     provideControlMode: ProvideControlMode,
     setProvideControlMode: (ProvideControlMode) -> Unit,
     provideIndicatorColor: Color,
@@ -1017,7 +1023,9 @@ fun IntroNavHost(
                 navController = introNavController,
                 dismiss = skipToOffer,
                 totalReferrals = totalReferralCount,
-                referralCode = referralCode
+                referralCode = referralCode,
+                referralCodeFailed = referralCodeFailed,
+                retryReferralCode = retryReferralCode,
             )
         }
 
@@ -1294,6 +1302,8 @@ fun MainNavContent(
                     accountViewModel,
                     totalAccountPoints = accountPointsViewModel.totalAccountPoints.collectAsState().value,
                     accountPointsLoaded = accountPointsViewModel.pointsLoaded.collectAsState().value,
+                    accountPointsFailed = accountPointsViewModel.pointsLoad.collectAsState().value == SectionLoad.Failed,
+                    retryAccountPoints = { accountPointsViewModel.fetchAccountPoints() },
                     planViewModel = planViewModel,
                     subscriptionBalanceViewModel = subscriptionBalanceViewModel,
                     overlayViewModel = overlayViewModel,
@@ -1442,7 +1452,8 @@ fun MainNavContent(
                     reliabilityPoints = accountPointsViewModel.reliabilityPoints.collectAsState().value,
                     fetchAccountPoints = { accountPointsViewModel.fetchAccountPoints() },
                     reliabilityWindow = reliabilityWindow,
-                    activityResultSender = activityResultSender
+                    activityResultSender = activityResultSender,
+                    accountPointsFailed = accountPointsViewModel.pointsLoad.collectAsState().value == SectionLoad.Failed,
                 )
             }
 
@@ -1456,6 +1467,8 @@ fun MainNavContent(
                     navController = navController,
                     settingsViewModel = settingsViewModel,
                     referralCode = referralCodeViewModel.referralCode.collectAsState().value,
+                    referralCodeFailed = referralCodeViewModel.codeLoad.collectAsState().value == SectionLoad.Failed,
+                    retryReferralCode = referralCodeViewModel.retryReferralCode,
                     totalReferrals = totalReferralCount,
                     referralPoints = accountPointsViewModel.referralPoints.collectAsState().value,
                     pointsLoaded = accountPointsViewModel.pointsLoaded.collectAsState().value,
