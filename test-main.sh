@@ -1299,11 +1299,19 @@ collect_physical_adb_read() {
 # One read-only attempt. Keep stderr and partial files: an ADB transport loss
 # is evidence, not an app crash. Each retry gets a separate directory.
 collect_physical_artifacts_once() {
-  local target_serial="$1" out="$2" sampler_started diagnostic
+  local target_serial="$1" out="$2" capture_phase="${3:-complete}" sampler_started diagnostic
+  case "$capture_phase" in live|complete) ;; *) return 2 ;; esac
   mkdir -p "$out/glog" || return 1
   : >"$out/collection.stderr" || return 1
-  collect_physical_adb_read "$out" logcat "$adb" -s "$target_serial" logcat -d -t 12000 \
-    >"$out/logcat.txt" || return "$?"
+  if [ "$capture_phase" = live ]; then
+    # Large system-log reads have severed the shared ADB transport while its
+    # instrumentation stream was still required. Keep live app evidence here,
+    # but do not invent a smaller log threshold or promote a tail as a full log.
+    printf 'deferred-until-quiescence\n' >"$out/logcat-status.txt" || return 1
+  else
+    collect_physical_adb_read "$out" logcat "$adb" -s "$target_serial" logcat -d -t 12000 \
+      >"$out/logcat.txt" || return "$?"
+  fi
   collect_physical_adb_read "$out" screencap "$adb" -s "$target_serial" exec-out screencap -p \
     >"$out/foreground.png" || return "$?"
   collect_physical_adb_read "$out" activity "$adb" -s "$target_serial" shell dumpsys activity activities \
@@ -1346,8 +1354,9 @@ collect_physical_artifacts_once() {
 }
 
 collect_physical_artifacts() {
-  local target_serial="$1" out="$2" attempt attempt_dir collection_status=1
+  local target_serial="$1" out="$2" capture_phase="${3:-complete}" attempt attempt_dir collection_status=1
   local ownership_unavailable failure_step failure_status
+  case "$capture_phase" in live|complete) ;; *) return 2 ;; esac
   mkdir -p "$out" || return 1
   for attempt in 1 2 3; do
     attempt_dir="$out/attempt-$attempt"
@@ -1360,7 +1369,7 @@ collect_physical_artifacts() {
     if ! authorize_selected_device "$target_serial"; then
       ownership_unavailable=1
       printf 'selected-device ownership unavailable\n' >"$attempt_dir/collection.stderr"
-    elif collect_physical_artifacts_once "$target_serial" "$attempt_dir"; then
+    elif collect_physical_artifacts_once "$target_serial" "$attempt_dir" "$capture_phase"; then
       collection_status=0
     else
       collection_status=$?
@@ -1392,6 +1401,34 @@ collect_physical_artifacts() {
     sleep 1
   done
   return 1
+}
+
+# The P2P caller joins both original instrumentation children before this read.
+# Guest quiescence and fresh exact-device ownership are still required: a dead
+# host child alone cannot authorize even this diagnostic phase. Keep full and
+# partial output separately from the immutable pre-finish app-state snapshot.
+# One bounded read only; failure remains a cell failure, not a workflow retry.
+collect_p2p_quiescent_logcat() {
+  local target_serial="$1" role="$2" out="$3" quiesced collection_status=0
+  case "$role" in
+    client) quiesced="${p2p_client_quiesced:-0}" ;;
+    provider) quiesced="${p2p_provider_quiesced:-0}" ;;
+    *) return 2 ;;
+  esac
+  mkdir "$out" || return 1
+  : >"$out/collection.stderr" || return 1
+  if [ "$quiesced" != 1 ]; then
+    printf 'guest quiescence unavailable; full logcat deferred\n' >"$out/collection.stderr"
+    collection_status=1
+  elif ! authorize_selected_device "$target_serial"; then
+    printf 'selected-device ownership unavailable\n' >"$out/collection.stderr"
+    collection_status=1
+  else
+    collect_physical_adb_read "$out" logcat "$adb" -s "$target_serial" logcat -d -t 12000 \
+      >"$out/logcat.txt" || collection_status=$?
+  fi
+  printf '1\t%s\n' "$collection_status" >"$out/collection-attempts.tsv" || return 1
+  return "$collection_status"
 }
 
 # The first observed failure predates any forced cleanup. Its finite local
@@ -1433,7 +1470,7 @@ record_p2p_cleanup_failure() {
   local receipt="$out/p2p-cleanup-failures.ndjson" count=0 size
   case "$role" in client|provider|pair) ;; *) return 2 ;; esac
   case "$operation" in
-    finish-instrumentation-before|finish-authorization|finish-command|finish-ack|finish-natural-exit|force-stop-authorization|force-stop-command|finish-term-exit|finish-receipt|finish-child-exit|finish-instrumentation-after|retain-authorization|retain-active-ledger|retain-reauthorization|retain-client-id|release-clients|clear-authorization|clear-markers) ;;
+    finish-instrumentation-before|finish-authorization|finish-command|finish-ack|finish-natural-exit|force-stop-authorization|force-stop-command|finish-term-exit|finish-receipt|finish-child-exit|finish-instrumentation-after|cleanup-quiescence|retain-authorization|retain-active-ledger|retain-reauthorization|retain-client-id|release-clients|clear-authorization|clear-markers) ;;
     *) return 2 ;;
   esac
   case "$command_status" in ''|*[!0-9]*) return 2 ;; esac
@@ -1485,6 +1522,9 @@ finish_physical_session() {
   local finish_status=0 child_status=0 wait_pid="$session_pid"
   case "$role" in client|provider) ;; *) return 2 ;; esac
   case "$session_pid" in ''|0*|*[!0-9]*) return 2 ;; esac
+  # These are local to the P2P invocation, not reusable evidence from a prior
+  # cell. Only guest completion or an owned successful stop discharges them.
+  printf -v "p2p_${role}_quiesced" '%s' 0
   if ! android_acceptance_session_running "$session_pid"; then
     if ! p2p_cleanup_operation "$out" "$role" finish-instrumentation-before \
         android_acceptance_verify_p2p_instrumentation "$out/$role-instrumentation.log"; then
@@ -1502,7 +1542,6 @@ finish_physical_session() {
   if ! p2p_cleanup_operation "$out" "$role" finish-authorization \
       authorize_selected_device "$target_serial"; then
     record_p2p_failure "$out" "$role" ownership-unavailable || p2p_cleanup_failed=1
-    p2p_cleanup_failed=1
     finish_status=1
   elif ! {
     observe_p2p_owned_guest "$target_serial" after-recovery finish-authorized "$role" || true
@@ -1517,17 +1556,23 @@ finish_physical_session() {
     finish_status=1
   fi
 
-  if ! p2p_cleanup_operation "$out" "$role" finish-natural-exit \
-      android_acceptance_wait_for_session_exit "$session_pid" 150; then
+  if p2p_cleanup_operation "$out" "$role" finish-natural-exit \
+      android_acceptance_wait_for_session_exit "$session_pid" 150 "$out/$role-instrumentation.log"; then
+    printf -v "p2p_${role}_quiesced" '%s' 1
+  else
     record_p2p_failure "$out" "$role" natural-exit-timeout || p2p_cleanup_failed=1
     finish_status=1
-    collect_physical_artifacts "$target_serial" "$out/$role-before-force-stop" || true
+    collect_physical_artifacts "$target_serial" "$out/$role-before-force-stop" live || true
     # Collection can itself take time; ownership must be checked after it,
     # immediately before the mutation, not merely before the grace period.
     if p2p_cleanup_operation "$out" "$role" force-stop-authorization authorize_selected_device "$target_serial"; then
-      p2p_cleanup_operation "$out" "$role" force-stop-command \
+      if p2p_cleanup_operation "$out" "$role" force-stop-command \
         timeout 30 "$adb" -s "$target_serial" shell am force-stop com.bringyour.network \
-        >"$out/$role-force-stop.log" 2>&1 || true
+          >"$out/$role-force-stop.log" 2>&1; then
+        printf -v "p2p_${role}_quiesced" '%s' 1
+      else
+        p2p_cleanup_failed=1
+      fi
     else
       p2p_cleanup_failed=1
       printf 'selected-device ownership unavailable; force-stop refused\n' >"$out/$role-force-stop.log"
@@ -1585,14 +1630,23 @@ clear_physical_cleanup_ownership() {
 
 cleanup_physical_sessions() {
   local out="$1" client_serial="$2" provider_serial="$3"
-  local cleanup_status=0 ownership_status=0
+  local cleanup_status=0 ownership_status=0 quiescence_status=0
+  p2p_cleanup_operation "$out" client cleanup-quiescence \
+    test "${p2p_client_quiesced:-0}" = 1 || quiescence_status=1
+  p2p_cleanup_operation "$out" provider cleanup-quiescence \
+    test "${p2p_provider_quiesced:-0}" = 1 || quiescence_status=1
   retain_physical_cleanup_ownership "$client_serial" client "$out" 1 || {
     cleanup_status=1; ownership_status=1
   }
   retain_physical_cleanup_ownership "$provider_serial" provider "$out" 2 || {
     cleanup_status=1; ownership_status=1
   }
-  if ! p2p_cleanup_operation "$out" pair release-clients release_active_clients "$out"; then
+  # A live guest can allocate another client after a ledger pull. Keep both
+  # device and host ownership markers until both session owners are quiescent;
+  # EXIT cleanup can still retain them before uninstalling the owned packages.
+  if [ "$quiescence_status" -ne 0 ]; then
+    cleanup_status=1
+  elif ! p2p_cleanup_operation "$out" pair release-clients release_active_clients "$out"; then
     cleanup_status=1
   elif [ "$ownership_status" -eq 0 ]; then
     # Do not erase a device ledger after a failed/incomplete pull: EXIT cleanup
@@ -1813,6 +1867,7 @@ run_android_peer_to_peer() {
   local client_diagnostic_id="$8"
   local provider_id_file="$run_dir/provider-client-id" session_status=0
   local provider_started=0 client_started=0 target_serial iteration app_apk instrumentation_apk install_role
+  local p2p_client_quiesced=0 p2p_provider_quiesced=0
   local p2p_observation_out="" p2p_observation_avd=""
   local p2p_observation_client_serial="" p2p_observation_client_pid="" p2p_observation_client_token=""
   local p2p_observation_provider_serial="" p2p_observation_provider_pid="" p2p_observation_provider_token=""
@@ -1968,13 +2023,13 @@ run_android_peer_to_peer() {
   fi
 
   if [ "$session_status" -eq 0 ]; then
-    if ! collect_physical_artifacts "$serial" "$out/client-before-teardown"; then
+    if ! collect_physical_artifacts "$serial" "$out/client-before-teardown" live; then
       record_p2p_failure "$out" client artifact-collection || p2p_cleanup_failed=1
       session_status=1
       [ ! -f "$out/client-before-teardown/collection-failed-command.tsv" ] || \
         observe_p2p_owned_guest "$serial" after-break artifact-read || true
     fi
-    if ! collect_physical_artifacts "$peer_serial" "$out/provider-before-teardown"; then
+    if ! collect_physical_artifacts "$peer_serial" "$out/provider-before-teardown" live; then
       record_p2p_failure "$out" provider artifact-collection || p2p_cleanup_failed=1
       session_status=1
       [ ! -f "$out/provider-before-teardown/collection-failed-command.tsv" ] || \
@@ -1982,11 +2037,11 @@ run_android_peer_to_peer() {
     fi
   else
     record_p2p_failure "$out" pair workflow-failed || p2p_cleanup_failed=1
-    if [ "$client_started" -eq 1 ] && ! collect_physical_artifacts "$serial" "$out/client-before-teardown"; then
+    if [ "$client_started" -eq 1 ] && ! collect_physical_artifacts "$serial" "$out/client-before-teardown" live; then
       [ ! -f "$out/client-before-teardown/collection-failed-command.tsv" ] || \
         observe_p2p_owned_guest "$serial" after-break artifact-read || true
     fi
-    if [ "$provider_started" -eq 1 ] && ! collect_physical_artifacts "$peer_serial" "$out/provider-before-teardown"; then
+    if [ "$provider_started" -eq 1 ] && ! collect_physical_artifacts "$peer_serial" "$out/provider-before-teardown" live; then
       [ ! -f "$out/provider-before-teardown/collection-failed-command.tsv" ] || \
         observe_p2p_owned_guest "$peer_serial" after-break artifact-read || true
     fi
@@ -2006,6 +2061,20 @@ run_android_peer_to_peer() {
     provider_session_out=""
   fi
   if [ "$client_started" -ne 1 ] || [ "$provider_started" -ne 1 ]; then
+    session_status=1
+  fi
+
+  # Never expose either retained instrumentation stream to the bulk system-log
+  # transfer. Live app evidence above is unchanged; this separate phase keeps
+  # the complete 12,000-line dump after natural completion or an owned stop.
+  if [ "$client_started" -eq 1 ] && ! collect_p2p_quiescent_logcat \
+      "$serial" client "$out/client-after-quiescence"; then
+    record_p2p_failure "$out" client artifact-collection || p2p_cleanup_failed=1
+    session_status=1
+  fi
+  if [ "$provider_started" -eq 1 ] && ! collect_p2p_quiescent_logcat \
+      "$peer_serial" provider "$out/provider-after-quiescence"; then
+    record_p2p_failure "$out" provider artifact-collection || p2p_cleanup_failed=1
     session_status=1
   fi
 

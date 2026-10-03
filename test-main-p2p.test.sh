@@ -7,12 +7,12 @@ here="$(cd "$(dirname "$0")" && pwd)"
 source "$here/test-main-lib.sh"
 # New regression logic is Go; it invokes only extracted platform-shell owners
 # with fake commands and never sources runner startup or contacts a device.
-(cd "$here" && GOWORK=off go test -p=1 -count=1 -timeout=60s test-main-cleanup-receipt_test.go)
+(cd "$here" && GOWORK=off go test -p=1 -count=1 -timeout=60s test-main-cleanup-receipt_test.go test-main-p2p-capture_test.go)
 fail() { echo "FAIL: $*" >&2; exit 1; }
 fixture="$(mktemp -d "${TMPDIR:-/tmp}/urnetwork-android-p2p.test.XXXXXX")"
 trap 'rm -rf "$fixture"' EXIT
 
-for helper in boot_peer_emulator retain_peer_readiness_failure run_android_peer_to_peer observe_p2p_owned_guest collect_physical_adb_read collect_physical_artifacts_once collect_physical_artifacts record_p2p_failure record_p2p_cleanup_failure p2p_cleanup_operation finish_physical_session retain_physical_cleanup_ownership clear_physical_cleanup_ownership cleanup_physical_sessions; do
+for helper in boot_peer_emulator retain_peer_readiness_failure run_android_peer_to_peer observe_p2p_owned_guest collect_physical_adb_read collect_physical_artifacts_once collect_physical_artifacts collect_p2p_quiescent_logcat record_p2p_failure record_p2p_cleanup_failure p2p_cleanup_operation finish_physical_session retain_physical_cleanup_ownership clear_physical_cleanup_ownership cleanup_physical_sessions; do
   # Only named production function definitions are loaded, never runner startup.
   # shellcheck disable=SC2294
   eval "$(sed -n "/^$helper()/,/^}/p" "$here/test-main.sh")"
@@ -242,6 +242,7 @@ for mode in complete failed-client-pull failed-provider-pull failed-release fail
     out="$fixture/cleanup-$mode"
     mkdir -p "$out"
     p2p_cleanup_failed=0
+    p2p_client_quiesced=1 p2p_provider_quiesced=1
     retained=0
     released=0
     cleared=0
@@ -544,7 +545,7 @@ for mode in natural artifact-error lost-stream transport-255-lost-client genuine
     sleep() {
       [ "$1" = 0.2 ] || fail "unexpected session polling interval"
       ticks=$((ticks + 1))
-      if [ "$ticks" -eq 3 ] && [ "$mode" != timeout ] && [ "$mode" != identity-loss ] && \
+      if [ "$alive" = 1 ] && [ "$ticks" -eq 3 ] && [ "$mode" != timeout ] && [ "$mode" != identity-loss ] && \
          [ "$mode" != identity-loss-at-force ] && [ "$mode" != stuck-host ]; then
         alive=0
         success_transcript >"$out/$role-instrumentation.log"
@@ -619,15 +620,15 @@ for mode in natural artifact-error lost-stream transport-255-lost-client genuine
         [ "$result" = 0 ] && [ "$forced" = 0 ] || fail "artifact failure caused premature app kill"
         grep -Fq '"reason":"artifact-collection"' "$out/p2p-first-failure.json" || fail "original artifact failure was erased" ;;
       lost-stream)
-        [ "$result" != 0 ] && [ "$forced" = 0 ] || fail "lost provider stream was hidden by recovered finish"
+        [ "$result" != 0 ] && [ "$forced:$ticks" = 1:150 ] || fail "lost provider stream did not retain failure and prove guest shutdown"
         grep -Fq '"classification":"infrastructure"' "$out/p2p-first-failure.json" || fail "lost stream was not infrastructure failure" ;;
       transport-255-lost-client)
-        [ "$result:$forced:$ticks:$sent" = 1:0:0:1 ] || fail "recovered finish or provider success repaired the lost client terminal"
+        [ "$result:$forced:$ticks:$sent" = 1:1:150:1 ] || fail "recovered finish or provider success repaired the lost client terminal"
         grep -Fq '"role":"client","reason":"artifact-collection","classification":"infrastructure"' "$out/p2p-first-failure.json" || \
           fail "transport break was relabeled as app crash/timeout or its first failure was erased"
         if android_acceptance_verify_p2p_instrumentation "$out/client-instrumentation.log"; then fail "start-only client stream became success"; fi ;;
       genuine-crash)
-        [ "$result" != 0 ] && [ "$forced" = 0 ] || fail "pre-existing crash was accepted or re-killed"
+        [ "$result" != 0 ] && [ "$forced:$ticks" = 1:150 ] || fail "pre-existing crash bypassed bounded guest cleanup"
         grep -Fq '"classification":"crash"' "$out/p2p-first-failure.json" || fail "real crash was hidden" ;;
       timeout)
         [ "$result" != 0 ] && [ "$ticks" = 150 ] && [ "$forced" = 1 ] || fail "hung finalizer did not hit bounded force-stop"
@@ -640,7 +641,7 @@ for mode in natural artifact-error lost-stream transport-255-lost-client genuine
         [ "$result" != 0 ] && [ "$forced" = 0 ] || fail "nonzero child exit accepted despite terminal text"
         grep -Fq '"reason":"child-exit-failed"' "$out/p2p-first-failure.json" || fail "child exit failure disappeared" ;;
       provenance-write-failed)
-        [ "$result" != 0 ] && [ "$forced" = 0 ] && [ "$p2p_cleanup_failed" = 1 ] || fail "failed diagnostic write abandoned cleanup or hid failure" ;;
+        [ "$result" != 0 ] && [ "$forced:$ticks" = 1:150 ] && [ "$p2p_cleanup_failed" = 1 ] || fail "failed diagnostic write abandoned cleanup or hid failure" ;;
       finish-command-failed|finish-ack-failed)
         [ "$result" != 0 ] && [ "$forced" = 0 ] || fail "failed finish was hidden or caused premature kill"
         grep -Fq "\"reason\":\"$mode\"" "$out/p2p-first-failure.json" || fail "finish failure provenance changed" ;;

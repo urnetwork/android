@@ -7,7 +7,7 @@ source "$here/test-main-lib.sh"
 fail() { echo "FAIL: $*" >&2; exit 1; }
 fixture="$(mktemp -d "${TMPDIR:-/tmp}/urnetwork-android-observation.test.XXXXXX")"
 trap 'rm -rf "$fixture"' EXIT
-for helper in observe_p2p_owned_guest collect_physical_adb_read collect_physical_artifacts_once collect_physical_artifacts record_p2p_failure record_p2p_cleanup_failure p2p_cleanup_operation finish_physical_session run_android_peer_to_peer; do
+for helper in observe_p2p_owned_guest collect_physical_adb_read collect_physical_artifacts_once collect_physical_artifacts collect_p2p_quiescent_logcat record_p2p_failure record_p2p_cleanup_failure p2p_cleanup_operation finish_physical_session run_android_peer_to_peer; do
   # Load definitions only; runner startup must never execute in this test.
   eval "$(sed -n "/^$helper()/,/^}/p" "$here/test-main.sh")"
 done
@@ -48,10 +48,13 @@ fake_adb() {
     'emu avd name')
       if [ "$mode" = avd-lost ] && [ -f "$case_dir/broken" ]; then printf 'foreign-avd\nOK\n'
       else printf 'fixture-avd\nOK\n'; fi ;;
-    'logcat -d -t 12000')
+    'exec-out screencap -p')
       printf 'broken\n' >"$case_dir/broken"
       printf '%057344d' 0
       return 255 ;;
+    'logcat -d -t 12000')
+      [ "${p2p_client_quiesced:-0}:${p2p_provider_quiesced:-0}" = 1:1 ] || fail "bulk logcat preceded guest quiescence"
+      printf 'complete post-quiescence log\n' ;;
     'shell am instrument -w -r '*)
       if [ "$execution_mode:$diagnostic_owned_avd" = diagnostic:1 ]; then
         [ -f "$case_dir/guest-observation/client/before-workflow/ownership-status.txt" ] || fail "client baseline did not precede instrumentation"
@@ -65,6 +68,9 @@ fake_adb() {
       fi
       success_transcript ;;
     'shell pm grant '*|'shell appops set '*) return 0 ;;
+    'shell am force-stop com.bringyour.network')
+      [ "${workflow:-0}" = 1 ] && [ "${virtual_grace_ticks:-0}" -ge 150 ] || fail "guest cleanup bypassed its finalization grace"
+      return 0 ;;
     shell*)
       [ "$#" = 2 ] || fail "guest read did not use one fixed shell stream"
       if [ "${workflow:-0}" = 1 ] && [ -f "$case_dir/broken" ]; then
@@ -220,7 +226,7 @@ success_transcript() {
 
 # Exercise the production P2P orchestration and actual child waits. The next
 # diagnostic may capture a recovered guest; its original 255 and missing
-# terminal must still fail with one original logcat read, even if finish and
+# terminal must still fail with one original live-state read, even if finish and
 # the provider complete. A swapped instance must only leave a denied receipt.
 for mode in normal token-lost canonical physical-diagnostic; do
   (
@@ -232,6 +238,11 @@ for mode in normal token-lost canonical physical-diagnostic; do
     avd_name=fixture-avd emulator_pid=$$ peer_emulator_pid=$$
     emulator_owner_token=client-owner peer_emulator_owner_token=provider-owner
     execution_mode=diagnostic diagnostic_owned_avd=1 credentials=unused repeat_count=1 workflow=1
+    # Missing client terminal evidence now requires the full guest grace and
+    # owned stop. Keep this observer-only fixture virtual; the real guard and
+    # all 150 ticks are separately exercised in the quiescence matrix.
+    virtual_grace_ticks=0
+    sleep() { [ "$1" = 0.2 ] || fail "unexpected grace interval"; virtual_grace_ticks=$((virtual_grace_ticks+1)); }
     case "$mode" in
       canonical) execution_mode=canonical diagnostic_owned_avd=0 ;;
       physical-diagnostic) diagnostic_owned_avd=0 ;;
@@ -267,7 +278,7 @@ for mode in normal token-lost canonical physical-diagnostic; do
       >"$case_dir/console.stdout" 2>"$case_dir/console.stderr" || result=$?
     [ "$result" = 1 ] || fail "recovered observation repaired a lost instrumentation stream"
     [ ! -s "$case_dir/console.stdout" ] && [ ! -s "$case_dir/console.stderr" ] || fail "workflow observation leaked private output"
-    [ "$(wc -c <"$out/client-before-teardown/logcat.txt" | tr -d ' ')" = 57344 ] || fail "observation changed original partial logcat"
+    [ "$(wc -c <"$out/client-before-teardown/foreground.png" | tr -d ' ')" = 57344 ] || fail "observation changed original partial live-state read"
     [ "$(cat "$out/client-before-teardown/collection-attempts.tsv")" = $'1\t255' ] || fail "observation added an artifact retry"
     node - "$out" "$mode" <<'NODE'
 const assert = require('node:assert/strict');

@@ -78,16 +78,20 @@ android_acceptance_verify_p2p_instrumentation() {
 
 # Poll only the retained host child; never reconnect/restart ADB or touch a
 # device here. The caller decides how to stop an authorized app after this
-# bounded natural-exit grace. A final receipt can precede the process exit.
+# bounded natural-exit grace. An optional retained terminal transcript also
+# requires guest finalization: a disconnected host alone cannot prove it.
 android_acceptance_wait_for_session_exit() {
   local session_pid="$1" polls="$2" poll
   case "$session_pid" in ''|0*|*[!0-9]*) return 2 ;; esac
   case "$polls" in ''|0*|*[!0-9]*) return 2 ;; esac
+  [ "$#" -eq 2 ] || { [ "$#" -eq 3 ] && [ -n "$3" ]; } || return 2
   for ((poll=0; poll<polls; poll++)); do
-    if ! android_acceptance_session_running "$session_pid"; then return 0; fi
+    if ! android_acceptance_session_running "$session_pid" && \
+       { [ "$#" -eq 2 ] || android_acceptance_verify_p2p_instrumentation "$3"; }; then return 0; fi
     sleep 0.2
   done
-  ! android_acceptance_session_running "$session_pid"
+  ! android_acceptance_session_running "$session_pid" && \
+    { [ "$#" -eq 2 ] || android_acceptance_verify_p2p_instrumentation "$3"; }
 }
 
 # A successful full UI cell must leave one screenshot at every workflow

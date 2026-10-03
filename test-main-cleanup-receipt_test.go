@@ -47,6 +47,10 @@ func cleanupReceiptFixture(t *testing.T, body string) string {
 	script.WriteString(`
 adb=fake_adb
 run_dir=$out
+# Ledger-only controls start after both guest finalizers completed. The
+# transport-loss matrix below replaces these with real finalization evidence.
+p2p_client_quiesced=1
+p2p_provider_quiesced=1
 authorize_selected_device() { return 0; }
 pull_android_acceptance_active_clients() { return 0; }
 pull_android_acceptance_private_client_id() { return 0; }
@@ -184,6 +188,206 @@ cleanup_physical_sessions "$out" client-fixture provider-fixture || exit 81
 		if _, err := os.Stat(filepath.Join(dir, name)); !os.IsNotExist(err) {
 			t.Fatalf("success invented failure artifact %s", name)
 		}
+	}
+}
+
+// A disconnected host shell is not a stopped guest. Use the production grace
+// loop and exact emulator ownership guard, with only virtual time/processes and
+// fixed ADB replies. No emulator, device, account or network is contacted.
+func TestP2PCleanupRequiresGuestQuiescenceAfterTransportLoss(t *testing.T) {
+	var definitions strings.Builder
+	for sourcePath, names := range map[string][]string{
+		"test-main-lib.sh": {
+			"android_acceptance_session_running", "android_acceptance_verify_p2p_instrumentation",
+			"android_acceptance_wait_for_session_exit", "android_acceptance_record_session_exit",
+			"android_acceptance_runner_owns_emulator", "android_acceptance_adb_device_ready",
+		},
+		"test-main.sh": {"authorize_selected_device", "runner_owns_peer_emulator"},
+	} {
+		source, err := os.ReadFile(sourcePath)
+		if err != nil {
+			t.Fatal(err)
+		}
+		for _, name := range names {
+			start := strings.Index(string(source), "\n"+name+"() {\n")
+			if start < 0 {
+				t.Fatalf("missing production function %s", name)
+			}
+			function := string(source)[start+1:]
+			end := strings.Index(function, "\n}\n")
+			if end < 0 {
+				t.Fatalf("unterminated production function %s", name)
+			}
+			definitions.WriteString(function[:end+3] + "\n")
+		}
+	}
+	for _, mode := range []string{
+		"recovered", "unavailable", "token-mismatch", "avd-mismatch", "owner-exited",
+		"stop-failed", "finish-acked-stream-lost", "finish-ack-failed", "normal", "live-hung",
+	} {
+		t.Run(mode, func(t *testing.T) {
+			dir := cleanupReceiptFixture(t, definitions.String()+"\nmode="+mode+"\n"+`
+ticks=0
+host_alive=0
+app_alive=1
+forced=0
+released=0
+cleared=0
+joined=0
+child_code=255
+p2p_client_quiesced=0
+# The independent provider has already positively completed and joined.
+p2p_provider_quiesced=1
+reserved_device_serials=(reserved-phone)
+execution_mode=canonical
+canonical_solana_serial=''
+started_emulator_serial=emulator-5554
+emulator_pid=4242
+emulator_owner_token=client-owner
+avd_name=fixture-avd
+peer_serial=emulator-5556
+peer_emulator_pid=4243
+peer_emulator_owner_token=provider-owner
+success_transcript() {
+  printf '%s\n' \
+    'INSTRUMENTATION_STATUS: class=com.bringyour.network.acceptance.PhysicalLowbarSessionTest' \
+    'INSTRUMENTATION_STATUS: test=physicalLowbarSession' \
+    'INSTRUMENTATION_STATUS_CODE: 1' \
+    'INSTRUMENTATION_STATUS: class=com.bringyour.network.acceptance.PhysicalLowbarSessionTest' \
+    'INSTRUMENTATION_STATUS: test=physicalLowbarSession' \
+    'INSTRUMENTATION_STATUS_CODE: 0' 'OK (1 test)' 'INSTRUMENTATION_CODE: -1'
+}
+success_transcript >"$out/provider-instrumentation.log"
+success_transcript | head -3 >"$out/client-instrumentation.log"
+case "$mode" in normal|live-hung) host_alive=1; child_code=0 ;; esac
+if [ "$mode" != normal ]; then
+  record_p2p_failure "$out" client artifact-collection || exit 80
+  cp "$out/p2p-first-failure.json" "$out/first-cause.saved"
+fi
+kill() {
+  case "$1:$2" in
+    -0:5151) [ "$host_alive" = 1 ] ;;
+    -0:4242) [ "$mode" != owner-exited ] || [ "$ticks" = 0 ] ;;
+    -0:4243) return 0 ;;
+    *) printf 'unexpected process action\n' >&2; return 90 ;;
+  esac
+}
+sleep() {
+  [ "$1" = 0.2 ] || return 91
+  ticks=$((ticks+1))
+  if [ "$mode:$ticks" = normal:3 ]; then
+    host_alive=0; app_alive=0
+    success_transcript >"$out/client-instrumentation.log"
+  fi
+}
+timeout() {
+  case "$1" in 15|30) ;; *) return 92 ;; esac
+  shift
+  "$@"
+}
+fake_adb() {
+  [ "$1" = -s ] || return 93
+  local selected="$2"
+  case "$selected" in emulator-5554|emulator-5556) ;; *) return 94 ;; esac
+  shift 2
+  printf '%s\t%s\n' "$selected" "$*" >>"$out/adb-calls"
+  case "$*" in
+    get-state)
+      if [ "$selected" = emulator-5554 ]; then
+        case "$mode" in
+          unavailable) return 255 ;;
+          recovered|token-mismatch|avd-mismatch|owner-exited|stop-failed)
+            [ "$ticks" -gt 0 ] || return 255 ;;
+        esac
+      fi
+      printf 'device\n' ;;
+    'emu avd id')
+      if [ "$selected" = emulator-5556 ]; then printf 'provider-owner\nOK\n'
+      elif [ "$mode" = token-mismatch ]; then printf 'replacement-owner\nOK\n'
+      else printf 'client-owner\nOK\n'; fi ;;
+    'emu avd name')
+      if [ "$selected:$mode" = emulator-5554:avd-mismatch ]; then printf 'replacement-avd\nOK\n'
+      else printf 'fixture-avd\nOK\n'; fi ;;
+    'shell am force-stop com.bringyour.network')
+      [ "$selected:$ticks" = emulator-5554:150 ] || return 95
+      forced=$((forced+1))
+      [ "$mode" != stop-failed ] || return 9
+      app_alive=0; host_alive=0 ;;
+    'shell run-as com.bringyour.network rm -f files/acceptance/physical-active-client-id files/acceptance/active-client-ids')
+      [ "$app_alive" = 0 ] || printf 'unsafe-clear\n' >>"$out/unsafe"
+      cleared=$((cleared+1)) ;;
+    *) printf 'unexpected ADB command\n' >&2; return 96 ;;
+  esac
+}
+send_physical_command() {
+  [ "$1:$2" = emulator-5554:client-finish'|finish|' ] || return 97
+}
+wait_physical_status() {
+  [ "$1:$2:$3:$4:$5" = emulator-5554:client-finish:complete:none:120 ] || return 98
+  [ "$mode" != finish-ack-failed ]
+}
+collect_physical_artifacts() {
+  [ "$ticks" = 150 ] || return 99
+  printf 'before-force-stop\n' >>"$out/events"
+}
+wait() {
+  [ "$1:$host_alive" = 5151:0 ] || return 100
+  joined=$((joined+1))
+  return "$child_code"
+}
+release_active_clients() {
+  [ "$app_alive" = 0 ] || printf 'unsafe-release\n' >>"$out/unsafe"
+  released=$((released+1))
+}
+finish_result=0
+finish_physical_session emulator-5554 client 5151 "$out" || finish_result=$?
+cleanup_result=0
+cleanup_physical_sessions "$out" emulator-5554 emulator-5556 || cleanup_result=$?
+printf '%s\n' "$ticks:$forced:$released:$cleared:$joined:$finish_result:$cleanup_result:$p2p_cleanup_failed" >"$out/state"
+`)
+			state, err := os.ReadFile(filepath.Join(dir, "state"))
+			if err != nil {
+				t.Fatal(err)
+			}
+			want := "150:1:1:2:1:1:0:0\n"
+			switch mode {
+			case "normal":
+				want = "3:0:1:2:1:0:0:0\n"
+			case "unavailable", "token-mismatch", "avd-mismatch", "owner-exited":
+				want = "150:0:0:0:1:1:1:1\n"
+			case "stop-failed":
+				want = "150:1:0:0:1:1:1:1\n"
+			}
+			if string(state) != want {
+				t.Errorf("ticks:forced:released:cleared:joined:finish:cleanup:unsafe = %q, want %q", state, want)
+			}
+			if unsafe, err := os.ReadFile(filepath.Join(dir, "unsafe")); !os.IsNotExist(err) {
+				t.Errorf("guest still owned a live session at destructive cleanup: %s, %v", unsafe, err)
+			}
+			var receipt struct{ WaitExitCode int }
+			exit, err := os.ReadFile(filepath.Join(dir, "client-instrumentation-exit.json"))
+			if err != nil || json.Unmarshal(exit, &receipt) != nil {
+				t.Fatalf("missing exact child receipt: %s, %v", exit, err)
+			}
+			wantChild := 255
+			if mode == "normal" || mode == "live-hung" {
+				wantChild = 0
+			}
+			if receipt.WaitExitCode != wantChild {
+				t.Errorf("cleanup repaired child status %d, want %d", receipt.WaitExitCode, wantChild)
+			}
+			if mode != "normal" {
+				first, _ := os.ReadFile(filepath.Join(dir, "p2p-first-failure.json"))
+				saved, _ := os.ReadFile(filepath.Join(dir, "first-cause.saved"))
+				if !bytes.Equal(first, saved) {
+					t.Error("cleanup replaced the original first failure")
+				}
+				transcript, _ := os.ReadFile(filepath.Join(dir, "client-instrumentation.log"))
+				if strings.Contains(string(transcript), "OK (1 test)") {
+					t.Error("cleanup invented the missing JUnit verdict")
+				}
+			}
+		})
 	}
 }
 

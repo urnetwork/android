@@ -37,13 +37,26 @@ instrumentation streams: the expected single test, `OK (1 test)`, and
 for a lost ADB instrumentation stream. Artifact collection retries only
 transport/ownership unavailability, at most three times with a fresh exact-device
 ownership check; each attempt and its stderr remain in the artifact directory.
-Logcat snapshots retain the most recent 12,000 lines; app Go logs are also kept.
+P2P capture has two phases: pre-finish snapshots retain the screenshot, activity,
+processes, app status, Go logs and memory/diagnostic timelines. The live phase
+does not read bulk logcat; `logcat-status.txt` explicitly records the deferral.
+After both instrumentation children are joined, each quiescent, freshly owned
+guest gets one bounded full logcat read in `<role>-after-quiescence/`, retaining
+the most recent 12,000 lines. A failed full read preserves partial bytes and its
+exact exit status and still fails the cell; it is not retried or substituted
+for missing instrumentation success. The separate paths preserve the original
+pre-finish app state.
 
 Each started session gets a bounded graceful finish and 30 seconds for natural
 instrumentation exit before an ownership-checked force-stop. The host records
 `p2p-first-failure.json` before forced cleanup, so an ADB interruption cannot be
 misreported as an app crash merely because later cleanup stopped the process.
-Missing terminal receipts still fail the arm and require a fresh run.
+Missing terminal receipts still fail the arm and require a fresh run. A dead
+host ADB child does not prove the guest finished its logout/finalizers: without
+positive terminal instrumentation, cleanup waits the same 30-second grace and
+requires a freshly authorized, successful bounded app force-stop. Both guests
+must be quiescent before API client release or ownership-marker deletion;
+failed ownership/stop leaves those markers available to final cleanup.
 
 Each P2P host join retains `<role>-instrumentation-exit.json` with its exact
 shell wait status and join time (which is not the child's exit time). Owned-AVD
