@@ -394,6 +394,8 @@
     <string name="feedback_include_logs">Attach logs to feedback (optional)</string>
     <string name="feedback_label">Feedback box</string>
     <string name="feedback_placeholder">Tell us how you really feel</string>
+    <string name="feedback_send_failed">Your feedback wasn\'t sent. Check your connection and try again.</string>
+    <string name="feedback_sending">Sending…</string>
     <string name="fixed_ip">Fixed IP</string>
     <string name="forget_password">Forget your password?</string>
     <string name="forgot_password">Forgot your password?</string>
