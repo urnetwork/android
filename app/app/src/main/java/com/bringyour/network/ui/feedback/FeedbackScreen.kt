@@ -66,6 +66,7 @@ import com.bringyour.network.ui.components.ExportLogButton
 import com.bringyour.network.ui.components.PromptSolanaDAppStoreReview
 import com.bringyour.network.ui.components.ShareLogFileButton
 import com.bringyour.network.ui.components.URButton
+import com.bringyour.network.ui.components.URInlineErrorText
 import com.bringyour.network.ui.components.URSwitch
 import com.bringyour.network.ui.components.URTextInput
 import com.bringyour.network.ui.components.URTextInputLabel
@@ -91,9 +92,10 @@ fun FeedbackScreen(
     FeedbackScreen(
         feedbackMsg = feedbackViewModel.feedbackMsg,
         setFeedbackMsg = feedbackViewModel.setFeedbackMsg,
-        sendFeedback = feedbackViewModel.sendFeedback,
+        sendFeedback = feedbackViewModel::sendFeedback,
         launchOverlay = overlayViewModel.launch,
         isSendEnabled = feedbackViewModel.isSendEnabled,
+        sendStatus = feedbackViewModel.sendStatus,
         starCount = feedbackViewModel.starCount,
         setStarCount = feedbackViewModel.setStarCount,
         bundleStore = bundleStore,
@@ -109,9 +111,10 @@ fun FeedbackScreen(
 fun FeedbackScreen(
     feedbackMsg: TextFieldValue,
     setFeedbackMsg: (TextFieldValue) -> Unit,
-    sendFeedback: () -> Unit,
+    sendFeedback: (onSent: () -> Unit) -> Unit,
     launchOverlay: (OverlayMode) -> Unit,
     isSendEnabled: Boolean,
+    sendStatus: FeedbackSendStatus,
     starCount: Int,
     setStarCount: (Int) -> Unit,
     bundleStore: BundleStore?,
@@ -138,63 +141,73 @@ fun FeedbackScreen(
     }
 
 
+    // the overlay and review prompt wait for the send to succeed; a failure keeps the form
     val submitFeedback = {
 
-        if (feedbackMsg.text.isNotEmpty() || starCount > 0) {
+        if (isSendEnabled) {
 
-            sendFeedback()
+            val sentStarCount = starCount
 
-            launchOverlay(OverlayMode.FeedbackSubmitted)
+            sendFeedback {
 
-            setFeedbackMsg(TextFieldValue())
+                launchOverlay(OverlayMode.FeedbackSubmitted)
 
-            if (starCount == 5) {
-                scope.launch {
-                    delay(1000)
+                if (sentStarCount == 5) {
+                    scope.launch {
+                        delay(1000)
 
-                    if (bundleStore == BundleStore.SOLANA_DAPP) {
-                        // prompt dialog to navigate to review
-                        setPromptSolanaReview(true)
-                    } else {
-                        // PLAY - launch native review prompt
-                        promptReview()
+                        if (bundleStore == BundleStore.SOLANA_DAPP) {
+                            // prompt dialog to navigate to review
+                            setPromptSolanaReview(true)
+                        } else {
+                            // PLAY - launch native review prompt
+                            promptReview()
+                        }
+
                     }
-
                 }
             }
-
-            setStarCount(0)
         }
     }
+
+    val isSending = sendStatus == FeedbackSendStatus.Sending
     Scaffold(
         bottomBar = {
 
-            Box(
+            Column(
                 modifier = Modifier
                     .background(Black)
                     .imePadding()
                     .padding(16.dp)
             ) {
 
+                if (sendStatus == FeedbackSendStatus.Failed) {
+                    URInlineErrorText(stringResource(id = R.string.feedback_send_failed))
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
+
                 URButton(
                     onClick = {
                         submitFeedback()
                         keyboardController?.hide()
                     },
-                    enabled = isSendEnabled
+                    enabled = isSendEnabled,
+                    isProcessing = isSending,
                 ) { buttonTextStyle ->
                     Row {
                         Text(
-                            stringResource(id = R.string.send),
+                            stringResource(id = if (isSending) R.string.feedback_sending else R.string.send),
                             style = buttonTextStyle
                         )
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                            contentDescription = "Right Arrow",
-                            modifier = Modifier.size(16.dp),
-                            tint = if (isSendEnabled) Color.White else Color.Gray
-                        )
+                        if (!isSending) {
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                                contentDescription = "Right Arrow",
+                                modifier = Modifier.size(16.dp),
+                                tint = if (isSendEnabled) Color.White else Color.Gray
+                            )
+                        }
                     }
                 }
 
@@ -480,6 +493,7 @@ private fun FeedbackScreenPreview() {
                     sendFeedback = {},
                     launchOverlay = {},
                     isSendEnabled = true,
+                    sendStatus = FeedbackSendStatus.Idle,
                     starCount = 3,
                     setStarCount = {},
                     bundleStore = null,

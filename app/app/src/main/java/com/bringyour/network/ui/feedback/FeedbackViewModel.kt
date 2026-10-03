@@ -2,7 +2,6 @@ package com.bringyour.network.ui.feedback
 
 import android.util.Log
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
@@ -74,17 +73,77 @@ class FeedbackViewModel @Inject constructor(
             close = { device, vc -> closeFeedbackViewController(device, vc) },
         )
 
-    var feedbackMsg by mutableStateOf(TextFieldValue())
-        private set
+    private val _includeLogs = MutableStateFlow<Boolean>(false)
+    val includeLogs: StateFlow<Boolean> = _includeLogs.asStateFlow()
 
-    private var isSendingFeedback by mutableStateOf(false)
+    val toggleIncludeLogs: () -> Unit = {
+        val currentIncludeLogs = _includeLogs.value
+        _includeLogs.value = !currentIncludeLogs
+    }
 
-    var starCount by mutableIntStateOf(0)
-        private set
+    // the api send, then the optional log upload; the feedback counts as sent once the api accepts it
+    private val sender = FeedbackSender { text, stars, done ->
+        val device = deviceManager.device
+        val api = device?.api ?: return@FeedbackSender false
+
+        val reason = prefillReason
+        val feedbackArgs = FeedbackSendArgs()
+        val needs = FeedbackSendNeeds()
+        needs.other = text
+        feedbackArgs.starCount = stars.toLong()
+        feedbackArgs.needs = needs
+
+        api.sendFeedback(feedbackArgs) { result, err ->
+            if (err != null || result == null) {
+                Log.i(TAG, "error sending feedback: ${err?.message}")
+                done(true)
+                return@sendFeedback
+            }
+
+            com.bringyour.network.analytics.ClientEvents.feedbackSubmitted(
+                rating = stars,
+                reason = reason,
+                text = text,
+            )
+
+            if (_includeLogs.value) {
+                Log.i(TAG, "feedback id is: ${result.feedbackId.string()}")
+                device.uploadLogs(result.feedbackId.string()) { _, uploadError ->
+                    if (uploadError != null) {
+                        Log.i(TAG, "error uploading logs: ${uploadError.message}")
+                    }
+                    done(false)
+                }
+            } else {
+                done(false)
+            }
+        }
+        true
+    }
+
+    private val sendFlow = FeedbackSendFlow(
+        sender = sender,
+        post = { block -> viewModelScope.launch { block() } },
+    )
+
+    val feedbackMsg: TextFieldValue
+        get() = sendFlow.message
+
+    val starCount: Int
+        get() = sendFlow.starCount
+
+    val sendStatus: FeedbackSendStatus
+        get() = sendFlow.status
+
+    val isSendEnabled: Boolean
+        get() = sendFlow.isSendEnabled
 
     val setStarCount: (Int) -> Unit = { count ->
-        starCount = count
-        validateIsSendEnabled()
+        sendFlow.updateStarCount(count)
+    }
+
+    val setFeedbackMsg: (TextFieldValue) -> Unit = { msg ->
+        sendFlow.updateMessage(msg)
     }
 
     var promptSolanaReview by mutableStateOf(false)
@@ -94,98 +153,9 @@ class FeedbackViewModel @Inject constructor(
         promptSolanaReview = it
     }
 
-    val setFeedbackMsg: (TextFieldValue) -> Unit = { msg ->
-        feedbackMsg = msg
-        validateIsSendEnabled()
-    }
-
-    var isSendEnabled by mutableStateOf(false)
-        private set
-
-    private val _includeLogs = MutableStateFlow<Boolean>(false)
-    val includeLogs: StateFlow<Boolean> = _includeLogs.asStateFlow()
-
-    val toggleIncludeLogs: () -> Unit = {
-        val currentIncludeLogs = _includeLogs.value
-        _includeLogs.value = !currentIncludeLogs
-    }
-
-    val validateIsSendEnabled = {
-        isSendEnabled = !isSendingFeedback && (feedbackMsg.text.isNotEmpty() || starCount > 0)
-    }
-
-    val sendFeedback:() -> Unit = sendFeedback@{
-
-        val device = deviceManager.device
-        if (!isSendingFeedback && device != null) {
-            isSendingFeedback = true
-
-            val feedbackArgs = FeedbackSendArgs()
-            val needs = FeedbackSendNeeds()
-            needs.other = feedbackMsg.text
-            feedbackArgs.starCount = starCount.toLong()
-            feedbackArgs.needs = needs
-
-            val api = device.api
-            if (api == null) {
-                isSendingFeedback = false
-                validateIsSendEnabled()
-                return@sendFeedback
-            }
-            api.sendFeedback(feedbackArgs) { result, err ->
-
-                if (err == null) {
-                    com.bringyour.network.analytics.ClientEvents.feedbackSubmitted(
-                        rating = starCount,
-                        reason = prefillReason,
-                        text = feedbackMsg.text,
-                    )
-                }
-
-                if (err != null) {
-                    Log.i(TAG, "error sending feedback: ${err.message}")
-                    viewModelScope.launch {
-                        isSendingFeedback = false
-                        validateIsSendEnabled()
-                    }
-                    return@sendFeedback
-                }
-
-                if (_includeLogs.value) {
-
-                    Log.i(TAG, "feedback id is: ${result.feedbackId.string()}")
-
-                    /**
-                     * upload logs
-                     */
-                    device.uploadLogs(result.feedbackId.string()) { _, uploadError ->
-
-                        if (uploadError != null) {
-                            Log.i(TAG, "error uploading logs: ${uploadError.message}")
-                        }
-
-                        viewModelScope.launch {
-                            isSendingFeedback = false
-                            validateIsSendEnabled()
-                        }
-
-                    }
-                } else {
-
-                    /**
-                     * not uploading logs, continue
-                     */
-                    viewModelScope.launch {
-                        isSendingFeedback = false
-                        validateIsSendEnabled()
-                    }
-
-                }
-
-            }
-
-        }
-
+    /** `onSent` runs (the thank-you overlay) only once the send succeeded. */
+    fun sendFeedback(onSent: () -> Unit) {
+        sendFlow.submit(onSent)
     }
 
     private fun addIsSendingListener(vc: FeedbackViewController) {
@@ -194,8 +164,7 @@ class FeedbackViewModel @Inject constructor(
                 if (feedbackVc !== vc) {
                     return@launch
                 }
-                isSendingFeedback = isSending
-                validateIsSendEnabled()
+                sendFlow.controllerSending = isSending
             }
         }
     }
@@ -243,7 +212,6 @@ class FeedbackViewModel @Inject constructor(
     }
 
     override fun onCleared() {
-        isSendingFeedback = false
         removeDeviceChangeListener?.invoke()
         removeDeviceChangeListener = null
         processLifecycle.removeObserver(this)
