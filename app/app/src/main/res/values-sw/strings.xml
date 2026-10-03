@@ -456,8 +456,11 @@
     <string name="seedphrase_leave_confirm_body">Una uhakika? Hii ndiyo mara PEKEE utakayoona seedphrase yako. Hakikisha umeihifadhi kabla ya kurudi.</string>
     <string name="seedphrase_paste_hint">Bandika hapa kifungu chako cha seed cha maneno 12 au 24</string>
     <string name="seedphrase_required">Tafadhali weka kifungu cha seed</string>
+    <string name="seeker_multiplier_benefit">Huongeza mara mbili pointi zako, data ya bure ya kila siku na data ya rufaa.</string>
+    <string name="seeker_token_not_found">Hakuna tokeni ya Seeker au Saga iliyopatikana kwenye pochi …%1$s</string>
     <string name="seeker_token_verified">Tokeni ya Seeker imethibitishwa!</string>
     <string name="seeker_verify_failed">Imeshindwa kuthibitisha tokeni ya Seeker. Tafadhali jaribu tena.</string>
+    <string name="seeker_verify_no_wallet_app">Hakuna programu ya pochi ya Solana iliyopatikana kwenye kifaa hiki.</string>
     <string name="select_location_provider_content_description">Tufe: chagua eneo la mtoa huduma</string>
     <string name="send">Tuma</string>
     <string name="send_feedback">Tuma maoni yako moja kwa moja au jiunge na %1$s yetu kwa msaada wa moja kwa moja.</string>

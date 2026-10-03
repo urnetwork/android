@@ -716,8 +716,11 @@
     <string name="seedphrase_leave_confirm_body">Вы уверены? Это ЕДИНСТВЕННЫЙ раз, когда вы увидите свою сид-фразу. Сохраните её, прежде чем вернуться.</string>
     <string name="seedphrase_paste_hint">Вставьте сюда сид-фразу из 12 или 24 слов</string>
     <string name="seedphrase_required">Введите сид-фразу</string>
+    <string name="seeker_multiplier_benefit">Удваивает ваши очки, бесплатные ежедневные данные и данные за рефералов.</string>
+    <string name="seeker_token_not_found">В кошельке …%1$s не найден токен Seeker или Saga</string>
     <string name="seeker_token_verified">Токен Seeker проверен!</string>
     <string name="seeker_verify_failed">Не удалось проверить токен Seeker. Попробуйте ещё раз.</string>
+    <string name="seeker_verify_no_wallet_app">На этом устройстве не найдено приложение кошелька Solana.</string>
     <string name="select_location_provider_content_description">Глобус: выбрать локацию провайдера</string>
     <string name="send">Отправить</string>
     <string name="send_feedback">Отправьте нам свой отзыв напрямую или присоединяйтесь к нашему %1$s для прямой поддержки.</string>

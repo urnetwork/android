@@ -456,8 +456,11 @@
     <string name="seedphrase_leave_confirm_body">Είσαι σίγουρος; Αυτή είναι η ΜΟΝΗ φορά που θα δεις το seedphrase σου. Βεβαιώσου ότι το αποθήκευσες πριν επιστρέψεις.</string>
     <string name="seedphrase_paste_hint">Επικολλήστε εδώ τη φράση ανάκτησης 12 ή 24 λέξεων</string>
     <string name="seedphrase_required">Εισαγάγετε μια φράση ανάκτησης</string>
+    <string name="seeker_multiplier_benefit">Διπλασιάζει τους πόντους σας, τα δωρεάν ημερήσια δεδομένα και τα δεδομένα παραπομπών.</string>
+    <string name="seeker_token_not_found">Δεν βρέθηκε token Seeker ή Saga στο πορτοφόλι …%1$s</string>
     <string name="seeker_token_verified">Το διακριτικό Seeker επαληθεύτηκε!</string>
     <string name="seeker_verify_failed">Δεν ήταν δυνατή η επαλήθευση του token Seeker. Δοκιμάστε ξανά.</string>
+    <string name="seeker_verify_no_wallet_app">Δεν βρέθηκε εφαρμογή πορτοφολιού Solana σε αυτήν τη συσκευή.</string>
     <string name="select_location_provider_content_description">Υδρόγειος: επιλογή τοποθεσίας παρόχου</string>
     <string name="send">Αποστολή</string>
     <string name="send_feedback">Στείλτε μας τα σχόλιά σας απευθείας ή μπείτε στο %1$s μας για άμεση υποστήριξη.</string>

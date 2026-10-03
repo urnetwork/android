@@ -456,8 +456,11 @@
     <string name="seedphrase_leave_confirm_body">Vraiment ? C\'est la SEULE fois où vous verrez votre phrase de récupération. Enregistrez-la avant de revenir en arrière.</string>
     <string name="seedphrase_paste_hint">Collez ici votre phrase de récupération de 12 ou 24 mots</string>
     <string name="seedphrase_required">Veuillez saisir une phrase de récupération</string>
+    <string name="seeker_multiplier_benefit">Double vos points, vos données quotidiennes gratuites et vos données de parrainage.</string>
+    <string name="seeker_token_not_found">Aucun jeton Seeker ou Saga trouvé dans le portefeuille …%1$s</string>
     <string name="seeker_token_verified">Jeton Seeker vérifié !</string>
     <string name="seeker_verify_failed">Impossible de vérifier le jeton Seeker. Veuillez réessayer.</string>
+    <string name="seeker_verify_no_wallet_app">Aucune application de portefeuille Solana n\'a été trouvée sur cet appareil.</string>
     <string name="select_location_provider_content_description">Globe : sélectionner l\'emplacement du fournisseur</string>
     <string name="send">Envoie</string>
     <string name="send_feedback">Envoyez-nous directement vos retours ou rejoignez notre %1$s pour un support direct.</string>

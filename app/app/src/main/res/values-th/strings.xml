@@ -456,8 +456,11 @@
     <string name="seedphrase_leave_confirm_body">แน่ใจหรือไม่ นี่เป็นครั้งเดียวที่คุณจะเห็นซีดเฟรส โปรดบันทึกให้เรียบร้อยก่อนย้อนกลับ</string>
     <string name="seedphrase_paste_hint">วางวลีกู้คืน 12 หรือ 24 คำของคุณที่นี่</string>
     <string name="seedphrase_required">กรุณาป้อนวลีกู้คืน</string>
+    <string name="seeker_multiplier_benefit">เพิ่มคะแนน ดาต้าฟรีรายวัน และดาต้าจากการแนะนำของคุณเป็นสองเท่า</string>
+    <string name="seeker_token_not_found">ไม่พบโทเค็น Seeker หรือ Saga ในวอลเล็ต …%1$s</string>
     <string name="seeker_token_verified">ยืนยัน Seeker Token สำเร็จ</string>
     <string name="seeker_verify_failed">ไม่สามารถยืนยันโทเค็น Seeker ได้ โปรดลองอีกครั้ง</string>
+    <string name="seeker_verify_no_wallet_app">ไม่พบแอปกระเป๋าเงิน Solana บนอุปกรณ์นี้</string>
     <string name="select_location_provider_content_description">ลูกโลก: เลือกตำแหน่งผู้ให้บริการ</string>
     <string name="send">ส่ง</string>
     <string name="send_feedback">ส่งความเห็นของคุณตรงๆมาหาเรา หรือเข้าร่วมกลุ่ม %1$s เพื่อรับการช่วยเหลือของเราโดยตรง</string>
