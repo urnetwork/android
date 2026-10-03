@@ -27,6 +27,7 @@ import com.android.billingclient.api.QueryPurchasesParams
 import com.android.billingclient.api.queryProductDetails
 import com.bringyour.network.MainApplication
 import com.bringyour.network.PendingPurchaseReconcileWorker
+import com.bringyour.network.PurchaseReportPolicy
 import com.bringyour.network.PurchaseReporter
 import com.bringyour.network.R
 import com.bringyour.network.TAG
@@ -346,7 +347,20 @@ class PlanViewModel @Inject constructor(
         client.queryPurchasesAsync(params) { billingResult, purchases ->
             if (billingResult.responseCode == BillingResponseCode.OK) {
                 val recoveredPurchases = purchases.filter {
-                    it.purchaseState == Purchase.PurchaseState.PURCHASED && !it.isAcknowledged
+                    PurchaseReporter.actionFor(context, it) == PurchaseReportPolicy.Action.ReportAndAcknowledge
+                }
+                /**
+                 * Acknowledged purchases the server never answered terminally: the
+                 * ones a pre-report build acknowledged on PURCHASED with no server
+                 * contact (UPGRADE.md N1). Filtering on `!isAcknowledged` alone made
+                 * an acknowledged-but-uncredited purchase invisible to every later
+                 * reconcile; each is now reported once, quietly.
+                 */
+                val unreportedPurchases = purchases.filter {
+                    PurchaseReporter.actionFor(context, it) == PurchaseReportPolicy.Action.Report
+                }
+                if (unreportedPurchases.isNotEmpty()) {
+                    reportAcknowledgedPurchases(unreportedPurchases)
                 }
                 if (recoveredPurchases.isNotEmpty()) {
                     /**
@@ -377,7 +391,11 @@ class PlanViewModel @Inject constructor(
                 }
                 if (hasPending) {
                     PendingPurchaseReconcileWorker.markPendingSeen(context)
-                } else if (recoveredPurchases.isEmpty() && !PurchaseReporter.hasEntries(context)) {
+                } else if (
+                    recoveredPurchases.isEmpty() &&
+                    unreportedPurchases.isEmpty() &&
+                    !PurchaseReporter.hasEntries(context)
+                ) {
                     PendingPurchaseReconcileWorker.markSettled(context)
                 }
 
@@ -468,7 +486,11 @@ class PlanViewModel @Inject constructor(
             return
         }
 
-        val unacknowledgedPurchases = purchasedSubscriptions.filter { !it.isAcknowledged }
+        // unacknowledged purchases, and acknowledged ones the server never answered
+        // terminally (PurchaseReportPolicy)
+        val unacknowledgedPurchases = purchasedSubscriptions.filter {
+            PurchaseReporter.actionFor(context, it) != PurchaseReportPolicy.Action.None
+        }
 
         /**
          * Step 1, before any network or billing call: persist the proof and arm the
@@ -482,10 +504,17 @@ class PlanViewModel @Inject constructor(
         }
 
         if (unacknowledgedPurchases.isEmpty()) {
-            // already acknowledged: a terminal answer was reached in an earlier
-            // session (or predates the report path). The entitlement is real --
-            // celebrate and let the poll confirm.
-            emitSuccessOrRestored(emitSuccess, emitRestored)
+            // every purchase reached a terminal answer in an earlier session:
+            // celebrate only what the server credited then
+            val credited = purchasedSubscriptions.any {
+                PurchaseReporter.Result(
+                    PurchaseReporter.reportedTerminalStatus(context, it.purchaseToken),
+                    acknowledged = true
+                ).credited
+            }
+            if (credited) {
+                emitSuccessOrRestored(emitSuccess, emitRestored)
+            }
             if (updateProgress) {
                 setInProgress(false)
             }
@@ -543,6 +572,41 @@ class PlanViewModel @Inject constructor(
 
             if (updateProgress) {
                 setInProgress(false)
+            }
+        }
+    }
+
+    /**
+     * The quiet legacy sweep: report acknowledged purchases the server never
+     * answered terminally. Play keeps no record of whether our server saw them, so
+     * this is the only path that can still credit a purchase a pre-report build
+     * acknowledged while its webhook was lost. Only a fresh credit is news to the
+     * user (the restored overlay); already_credited, wrong_network and invalid just
+     * set the token's reported-terminal flag so it is never reported again.
+     */
+    private fun reportAcknowledgedPurchases(purchases: List<Purchase>) {
+        purchases.forEach { PurchaseReporter.persist(context, it) }
+        PendingPurchaseReconcileWorker.markPendingSeen(context)
+
+        // the proofs are persisted and the worker is armed; nothing is lost
+        val billingClient = _billingClient.value ?: return
+        val api = (context.applicationContext as? MainApplication)?.api
+
+        viewModelScope.launch {
+            var credited = false
+            for (purchase in purchases) {
+                val result = PurchaseReporter.reportAndAcknowledge(
+                    context,
+                    api,
+                    billingClient,
+                    purchase
+                )
+                if (result.status == com.bringyour.sdk.Sdk.PurchaseReportStatusCredited) {
+                    credited = true
+                }
+            }
+            if (credited) {
+                _restoredSubscriptionSequence.update { it + 1L }
             }
         }
     }
