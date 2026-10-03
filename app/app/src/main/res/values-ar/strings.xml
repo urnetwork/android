@@ -750,6 +750,7 @@
     <string name="site_save_your_seedphrase">احفظ عبارة الاسترداد</string>
     <string name="skip">تخطي</string>
     <string name="solana_one_time_payment">الدفع بـ USDC على Solana دفعة سنوية لمرة واحدة، دون تجربة مجانية.</string>
+    <string name="solana_payment_still_checking">لا نزال نتحقق من دفعتك عبر Solana. قد يستغرق التأكيد على الشبكة دقيقة أو دقيقتين.</string>
     <string name="solana_sign_in">تسجيل الدخول باستخدام Solana</string>
     <string name="solana_wallet">محفظة Solana</string>
     <string name="something_went_wrong">حدث خطأ ما.</string>

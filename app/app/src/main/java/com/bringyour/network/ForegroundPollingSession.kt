@@ -15,6 +15,7 @@ internal class ForegroundPollingSession(
     private val nowMillis: () -> Long = { System.currentTimeMillis() },
 ) {
     private var deadlineMillis = 0L
+    private var startMillis = 0L
 
     var active = false
         private set
@@ -22,6 +23,7 @@ internal class ForegroundPollingSession(
     fun start(maxDurationMillis: Long) {
         require(maxDurationMillis >= 0)
         val now = nowMillis()
+        startMillis = now
         deadlineMillis =
             if (Long.MAX_VALUE - maxDurationMillis < now) {
                 Long.MAX_VALUE
@@ -51,8 +53,17 @@ internal class ForegroundPollingSession(
         return active && nowMillis() >= deadlineMillis
     }
 
+    /** Wall-clock time since start; 0 when inactive. */
+    fun elapsedMillis(): Long {
+        if (!active) {
+            return 0L
+        }
+        return (nowMillis() - startMillis).coerceAtLeast(0L)
+    }
+
     fun stop() {
         active = false
         deadlineMillis = 0L
+        startMillis = 0L
     }
 }

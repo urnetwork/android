@@ -750,6 +750,7 @@
     <string name="site_save_your_seedphrase">保存你的助记词</string>
     <string name="skip">跳过</string>
     <string name="solana_one_time_payment">使用 Solana 上的 USDC 支付为一次性年付，不含免费试用。</string>
+    <string name="solana_payment_still_checking">仍在检查您的 Solana 付款。网络确认可能需要一两分钟。</string>
     <string name="solana_sign_in">使用 Solana 登录</string>
     <string name="solana_wallet">Solana 钱包</string>
     <string name="something_went_wrong">出了些问题。</string>

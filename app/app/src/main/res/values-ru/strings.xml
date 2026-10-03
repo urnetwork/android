@@ -750,6 +750,7 @@
     <string name="site_save_your_seedphrase">Сохраните сид-фразу</string>
     <string name="skip">Пропустить</string>
     <string name="solana_one_time_payment">Оплата в USDC в сети Solana — это разовый годовой платёж без бесплатного пробного периода.</string>
+    <string name="solana_payment_still_checking">Всё ещё проверяем ваш платёж в Solana. Подтверждение в сети может занять минуту-две.</string>
     <string name="solana_sign_in">Войти через Solana</string>
     <string name="solana_wallet">Кошелек Solana</string>
     <string name="something_went_wrong">Что-то пошло не так.</string>

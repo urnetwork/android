@@ -750,6 +750,7 @@
     <string name="site_save_your_seedphrase">Guarda tu frase semilla</string>
     <string name="skip">Omitir</string>
     <string name="solana_one_time_payment">Pagar con USDC en Solana es un pago anual único, sin prueba gratuita.</string>
+    <string name="solana_payment_still_checking">Seguimos comprobando tu pago de Solana. La confirmación en la red puede tardar uno o dos minutos.</string>
     <string name="solana_sign_in">Iniciar sesión con Solana</string>
     <string name="solana_wallet">Billetera de Solana</string>
     <string name="something_went_wrong">Algo salió mal.</string>

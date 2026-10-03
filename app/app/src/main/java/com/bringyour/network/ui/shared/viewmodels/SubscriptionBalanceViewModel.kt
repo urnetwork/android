@@ -221,6 +221,41 @@ class SubscriptionBalanceViewModel @Inject constructor(
         return true
     }
 
+    /**
+     * The Solana return-path check (SolanaPaymentCheck): passed the old 20 s cap
+     * without the payment landing, so the user is told it is still checking; and
+     * ran out its two minutes, so the user gets the confirmation-delayed notice
+     * instead of silence. Consumed-sequence pattern, like the timeout above.
+     */
+    private val _solanaStillCheckingSequence = MutableStateFlow(0L)
+    val solanaStillCheckingSequence: StateFlow<Long> = _solanaStillCheckingSequence.asStateFlow()
+    private var consumedSolanaStillCheckingSequence = 0L
+
+    fun consumeSolanaStillCheckingSequence(sequence: Long): Boolean {
+        if (sequence == 0L || sequence <= consumedSolanaStillCheckingSequence) {
+            return false
+        }
+        consumedSolanaStillCheckingSequence = sequence
+        return true
+    }
+
+    private val _solanaCheckTimedOutSequence = MutableStateFlow(0L)
+    val solanaCheckTimedOutSequence: StateFlow<Long> = _solanaCheckTimedOutSequence.asStateFlow()
+    private var consumedSolanaCheckTimedOutSequence = 0L
+
+    fun consumeSolanaCheckTimedOutSequence(sequence: Long): Boolean {
+        if (sequence == 0L || sequence <= consumedSolanaCheckTimedOutSequence) {
+            return false
+        }
+        consumedSolanaCheckTimedOutSequence = sequence
+        return true
+    }
+
+    private var solanaStillCheckingShown = false
+
+    // ends the persisted pending payment once the check reaches an end
+    private var solanaCheckFinished: (() -> Unit)? = null
+
     val setErrorReachingSubscriptionBalance: (Boolean) -> Unit = {
         _errorFetchingSubscriptionBalance.value = it
     }
@@ -376,13 +411,49 @@ class SubscriptionBalanceViewModel @Inject constructor(
     /**
      * When we regain focus from a wallet, and there is a solana payment reference id (in SolanaPaymentViewModel), start polling
      * This is different than pollSubscriptionBalance, as do not know if the user submitted a transaction or not
-     * So we want to display a different pending message, and poll for a little less time
+     * So we want to display a different pending message. The check runs for up to
+     * two minutes (finality plus webhook latency); `onFinished` runs once it is
+     * confirmed or timed out, not when it is merely paused.
      */
-    fun pollSolanaTransaction(maxDurationMs: Long = 20_000L) {
+    fun pollSolanaTransaction(
+        maxDurationMs: Long = SolanaPaymentCheck.MAX_DURATION_MILLIS,
+        onFinished: () -> Unit = {},
+    ) {
         if (isPolling) return
 
         _isCheckingSolanaTransaction.value = true
+        solanaStillCheckingShown = false
+        solanaCheckFinished = onFinished
         startPolling(maxDurationMs)
+    }
+
+    private fun emitSolanaNotice(expired: Boolean) {
+        if (!_isCheckingSolanaTransaction.value) {
+            return
+        }
+        val notice = SolanaPaymentCheck.noticeFor(
+            elapsedMillis = pollingSession.elapsedMillis(),
+            expired = expired,
+            confirmed = _hasActiveSubscription.value || isSupporterWithBalance(),
+            stillCheckingShown = solanaStillCheckingShown,
+        )
+        when (notice) {
+            SolanaPaymentCheck.Notice.StillChecking -> {
+                solanaStillCheckingShown = true
+                _solanaStillCheckingSequence.update { it + 1L }
+            }
+            SolanaPaymentCheck.Notice.TimedOut -> _solanaCheckTimedOutSequence.update { it + 1L }
+            SolanaPaymentCheck.Notice.None -> Unit
+        }
+    }
+
+    private fun finishSolanaCheck() {
+        if (!_isCheckingSolanaTransaction.value) {
+            return
+        }
+        val onFinished = solanaCheckFinished
+        solanaCheckFinished = null
+        onFinished?.invoke()
     }
 
     private fun startPolling(maxDurationMs: Long) {
@@ -401,6 +472,8 @@ class SubscriptionBalanceViewModel @Inject constructor(
                 // ending the bounded confirmation session.
                 fetchSubscriptionBalance()
                 emitConfirmationTimedOutIfUnconfirmed()
+                emitSolanaNotice(expired = true)
+                finishSolanaCheck()
                 stopPolling()
                 return
             }
@@ -410,6 +483,7 @@ class SubscriptionBalanceViewModel @Inject constructor(
         pollingJob = viewModelScope.launch {
             fetchSubscriptionBalance()
             if (isSupporterWithBalance()) {
+                finishSolanaCheck()
                 stopPolling()
                 return@launch
             }
@@ -419,14 +493,18 @@ class SubscriptionBalanceViewModel @Inject constructor(
                 delay(pollingInterval)
                 fetchSubscriptionBalance()
                 if (isSupporterWithBalance()) {
+                    finishSolanaCheck()
                     stopPolling()
                     break
                 }
+                emitSolanaNotice(expired = false)
             }
 
             if (isPolling) {
                 Log.i(TAG, "polling timed out")
                 emitConfirmationTimedOutIfUnconfirmed()
+                emitSolanaNotice(expired = true)
+                finishSolanaCheck()
                 stopPolling()
             }
         }
