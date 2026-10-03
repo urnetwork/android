@@ -5,10 +5,12 @@
     <string name="activity">Activité</string>
     <string name="add">Ajouter</string>
     <string name="add_a_rule">Ajouter une règle</string>
+    <string name="add_a_sign_in_method">Ajouter une méthode de connexion</string>
     <string name="add_blocked_location">Ajouter un emplacement bloqué</string>
     <string name="add_emoji">Ajouter des emojis</string>
     <string name="add_referral_code">Ajouter un code de parrainage</string>
     <string name="add_referral_extra_rewards">Ajouter un code de parrainage pour gagner des récompenses supplémentaires</string>
+    <string name="add_sign_in_method_2">Ajouter une méthode de connexion</string>
     <string name="advanced">Avancé</string>
     <string name="allow_local_connections">Autoriser les connexions locales</string>
     <string name="allow_providing_cell">Autoriser la fourniture sur le réseau cellulaire</string>
@@ -91,6 +93,7 @@
     <string name="connect_and_open">Se connecter et ouvrir le lien</string>
     <string name="connect_options">Options de connexion</string>
     <string name="connect_seeker_wallet">Connectez un portefeuille avec le jeton Saga Genesis ou le jeton de précommande Seeker</string>
+    <string name="connect_solana_wallet_to_add_sign_in_method">Connectez un portefeuille Solana pour l\'ajouter comme méthode de connexion.</string>
     <string name="connect_to_location">Se connecter à %1$s</string>
     <string name="connect_wallet">Connecter le portefeuille</string>
     <string name="connected">Connecté</string>
@@ -107,6 +110,7 @@
     <string name="copied">Copié !</string>
     <string name="copy">Copie</string>
     <string name="copy_auth_code">Copier le code d’authentification</string>
+    <string name="could_not_get_google_id_token">Impossible d\'obtenir le jeton d\'identification Google</string>
     <string name="countries">Pays</string>
     <string name="country">Pays</string>
     <string name="country_multipliers">Multiplicateurs par pays</string>
@@ -165,16 +169,20 @@
     <string name="emoji_tag_shuffle">Autre suggestion</string>
     <string name="enjoying_urnetwork">Vous appréciez URnetwork ?</string>
     <string name="enter">Entrée</string>
+    <string name="enter_a_password">Entrez un mot de passe</string>
     <string name="enter_a_solana_usdc_wallet_address">Saisissez une adresse de portefeuille USDC sur Solana</string>
     <string name="enter_balance_code">Entrez le code de solde</string>
     <string name="enter_network_referral_code">Entrez le code de parrainage réseau</string>
+    <string name="error_connecting_to_wallet">Erreur de connexion au portefeuille</string>
     <string name="error_connecting_wallet_with_reason">Une erreur s\'est produite lors de la connexion de votre portefeuille : %1$s</string>
     <string name="error_deleting_account">Désolé, une erreur s\'est produite lors de la suppression de votre compte.</string>
     <string name="error_loading_account_plan">Erreur lors du chargement de votre formule de compte.</string>
+    <string name="error_logging_in_please_try_again">Erreur de connexion, veuillez réessayer.</string>
     <string name="error_redeeming_transfer_balance_code">Erreur lors de l’utilisation du code de transfert de solde.</string>
     <string name="error_sending_password_reset_link">Erreur lors de l\'envoi du lien de réinitialisation du mot de passe</string>
     <string name="error_sending_verification_code">Une erreur s\'est produite lors de l\'envoi du code de vérification.</string>
     <string name="error_setting_default_wallet_with_reason">Erreur lors de la définition du portefeuille par défaut : %1$s</string>
+    <string name="error_signing_in_with_google">Erreur lors de la connexion avec Google</string>
     <string name="exclude_app">Exclure du VPN</string>
     <string name="exclude_app_description">Cette application contourne le tunnel.</string>
     <string name="excluded">Exclue</string>
@@ -199,6 +207,7 @@
     <string name="get_urnetwork_free_for_life_by_participating">Obtenez URnetwork gratuitement à vie en participant</string>
     <string name="go_back">Revenir</string>
     <string name="google_auth_btn_text">Connectez-vous avec Google</string>
+    <string name="google_sign_in_method_added">Méthode de connexion Google ajoutée</string>
     <string name="guest">Invité</string>
     <string name="how_are_we_doing">Comment allons-nous ?</string>
     <string name="i_ve_saved_my_seedphrase">J’ai enregistré ma phrase de récupération</string>
@@ -234,6 +243,7 @@
     <string name="licenses_intro">URnetwork est conçu avec les logiciels open source et les données ci-dessous. Chaque entrée indique sa licence et toute mention qu\'elle exige.</string>
     <string name="licenses_project_page">Page du projet</string>
     <string name="licenses_software_header">Logiciels open source</string>
+    <string name="link_another_way_to_sign_in_to">Associez un autre moyen de vous connecter à votre compte.</string>
     <string name="loading">Chargement...</string>
     <string name="local">Local</string>
     <string name="local_dns">DNS local</string>
@@ -316,6 +326,8 @@
     <string name="no">Non</string>
     <string name="no_apps_found">Aucune application trouvée</string>
     <string name="no_blocked_locations">Aucun emplacement bloqué</string>
+    <string name="no_compatible_wallet_app_found">Aucune application de portefeuille compatible trouvée sur cet appareil.</string>
+    <string name="no_ethos_wallet_found">Aucun portefeuille EthOs trouvé</string>
     <string name="no_locations_found">Aucun emplacement trouvé</string>
     <string name="no_locations_found_detail">Désolé, nous n\'avons trouvé aucun emplacement lié à %1$s.</string>
     <string name="no_log_files_found">Aucun fichier journal trouvé</string>
@@ -480,7 +492,11 @@
     <string name="show_on_points_leaderboard">Afficher le nom de mon réseau</string>
     <string name="sign_in">Se connecter</string>
     <string name="sign_in_dgen1">Se connecter avec dGEN1</string>
+    <string name="sign_in_method_added_successfully">Méthode de connexion ajoutée avec succès</string>
+    <string name="sign_in_with_google">Se connecter avec Google</string>
+    <string name="sign_in_with_google_to_add_it">Connectez-vous avec Google pour l\'ajouter comme méthode de connexion.</string>
     <string name="sign_in_with_seedphrase">Se connecter avec la phrase de récupération</string>
+    <string name="site_app_email">E-mail</string>
     <string name="site_save_your_seedphrase">Enregistrez votre phrase de récupération</string>
     <string name="solana_sign_in">Se connecter avec Solana</string>
     <string name="something_went_wrong">Quelque chose s\'est mal passé.</string>
@@ -562,6 +578,8 @@
     <string name="verify_send_error">Erreur</string>
     <string name="version_info">Informations sur la version et la build</string>
     <string name="via_exit">via %1$s</string>
+    <string name="wallet">Portefeuille</string>
+    <string name="wallet_sign_in_method_added">Méthode de connexion par portefeuille ajoutée</string>
     <string name="welcome_offer_eyebrow">Offre de bienvenue</string>
     <string name="welcome_to_urnetwork">Bienvenue sur URnetwork</string>
     <string name="when_you_refer_a_friend">Lorsque vous parrainez un ami :</string>
@@ -572,6 +590,7 @@
     <string name="with_urnetwork">avec URnetwork</string>
     <string name="write_it_down_and_store_it_somewhere">Notez-la et conservez-la en lieu sûr. Si vous la perdez, vous perdrez l’accès à votre compte.</string>
     <string name="yes">Oui</string>
+    <string name="your_email_com">votre@email.com</string>
     <string name="your_seedphrase">Votre phrase de récupération</string>
     <plurals name="apps_excluded_count">
         <item quantity="one">%1$d application exclue</item>

@@ -5,10 +5,12 @@
     <string name="activity">गतिविधि</string>
     <string name="add">जोड़ें</string>
     <string name="add_a_rule">नियम जोड़ें</string>
+    <string name="add_a_sign_in_method">साइन-इन विधि जोड़ें</string>
     <string name="add_blocked_location">अवरुद्ध स्थान जोड़ें</string>
     <string name="add_emoji">इमोजी जोड़ें</string>
     <string name="add_referral_code">रेफरल कोड जोड़ें</string>
     <string name="add_referral_extra_rewards">अतिरिक्त पुरस्कार पाने के लिए रेफरल कोड जोड़ें</string>
+    <string name="add_sign_in_method_2">साइन-इन विधि जोड़ें</string>
     <string name="advanced">उन्नत</string>
     <string name="allow_local_connections">स्थानीय कनेक्शन की अनुमति दें</string>
     <string name="allow_providing_cell">सेलुलर नेटवर्क पर प्रदान करने की अनुमति दें</string>
@@ -91,6 +93,7 @@
     <string name="connect_and_open">कनेक्ट करें और लिंक खोलें</string>
     <string name="connect_options">कनेक्शन विकल्प</string>
     <string name="connect_seeker_wallet">सागा जेनेसिस या सीकर प्री-ऑर्डर टोकन के साथ एक वॉलेट कनेक्ट करें</string>
+    <string name="connect_solana_wallet_to_add_sign_in_method">Solana वॉलेट को साइन-इन विधि के रूप में जोड़ने के लिए उसे कनेक्ट करें।</string>
     <string name="connect_to_location">%1$s से कनेक्ट करें</string>
     <string name="connect_wallet">वॉलेट कनेक्ट करें</string>
     <string name="connected">कनेक्टेड</string>
@@ -107,6 +110,7 @@
     <string name="copied">कॉपी हो गया!</string>
     <string name="copy">कॉपी करें</string>
     <string name="copy_auth_code">ऑथ कोड कॉपी करें</string>
+    <string name="could_not_get_google_id_token">Google ID टोकन प्राप्त नहीं हो सका</string>
     <string name="countries">देश</string>
     <string name="country">देश</string>
     <string name="country_multipliers">देश गुणक</string>
@@ -165,16 +169,20 @@
     <string name="emoji_tag_shuffle">दूसरा सुझाव</string>
     <string name="enjoying_urnetwork">क्या आप URnetwork का आनंद ले रहे हैं?</string>
     <string name="enter">दर्ज</string>
+    <string name="enter_a_password">पासवर्ड दर्ज करें</string>
     <string name="enter_a_solana_usdc_wallet_address">Solana USDC वॉलेट पता दर्ज करें</string>
     <string name="enter_balance_code">बैलेंस कोड दर्ज करें</string>
     <string name="enter_network_referral_code">नेटवर्क रेफ़रल कोड दर्ज करें</string>
+    <string name="error_connecting_to_wallet">वॉलेट से कनेक्ट करने में त्रुटि</string>
     <string name="error_connecting_wallet_with_reason">आपका वॉलेट कनेक्ट करते समय त्रुटि हुई: %1$s</string>
     <string name="error_deleting_account">क्षमा करें, आपका खाता हटाते समय त्रुटि हुई।</string>
     <string name="error_loading_account_plan">आपके अकाउंट प्लान को लोड करने में त्रुटि हुई।</string>
+    <string name="error_logging_in_please_try_again">लॉग इन करने में त्रुटि, कृपया पुनः प्रयास करें।</string>
     <string name="error_redeeming_transfer_balance_code">ट्रांसफर बैलेंस कोड रिडीम करने में त्रुटि।</string>
     <string name="error_sending_password_reset_link">पासवर्ड रीसेट लिंक भेजने में त्रुटि</string>
     <string name="error_sending_verification_code">सत्यापन कोड भेजने में त्रुटि हुई।</string>
     <string name="error_setting_default_wallet_with_reason">डिफ़ॉल्ट वॉलेट सेट करने में त्रुटि: %1$s</string>
+    <string name="error_signing_in_with_google">Google से साइन इन करने में त्रुटि</string>
     <string name="exclude_app">VPN से बाहर रखें</string>
     <string name="exclude_app_description">यह ऐप टनल को बायपास करता है।</string>
     <string name="excluded">बाहर रखे गए</string>
@@ -199,6 +207,7 @@
     <string name="get_urnetwork_free_for_life_by_participating">भाग लेकर URnetwork जीवनभर मुफ्त पाएं</string>
     <string name="go_back">वापस जाएँ</string>
     <string name="google_auth_btn_text">Google से लॉग इन करें</string>
+    <string name="google_sign_in_method_added">Google साइन-इन विधि जोड़ी गई</string>
     <string name="guest">अतिथि</string>
     <string name="how_are_we_doing">हम कैसा कर रहे हैं?</string>
     <string name="i_ve_saved_my_seedphrase">मैंने अपना सीड फ़्रेज़ सहेज लिया</string>
@@ -234,6 +243,7 @@
     <string name="licenses_intro">URnetwork नीचे दिए गए ओपन सोर्स सॉफ़्टवेयर और डेटा से बना है। हर प्रविष्टि अपना लाइसेंस और ज़रूरी सूचना दिखाती है।</string>
     <string name="licenses_project_page">प्रोजेक्ट पेज</string>
     <string name="licenses_software_header">ओपन सोर्स सॉफ़्टवेयर</string>
+    <string name="link_another_way_to_sign_in_to">अपने खाते में साइन इन करने का एक और तरीका लिंक करें।</string>
     <string name="loading">लोड हो रहा है...</string>
     <string name="local">स्थानीय</string>
     <string name="local_dns">स्थानीय DNS</string>
@@ -316,6 +326,8 @@
     <string name="no">नहीं</string>
     <string name="no_apps_found">कोई ऐप नहीं मिला</string>
     <string name="no_blocked_locations">कोई अवरुद्ध स्थान नहीं</string>
+    <string name="no_compatible_wallet_app_found">इस डिवाइस पर कोई संगत वॉलेट ऐप नहीं मिला।</string>
+    <string name="no_ethos_wallet_found">कोई EthOs वॉलेट नहीं मिला</string>
     <string name="no_locations_found">कोई स्थान नहीं मिला</string>
     <string name="no_locations_found_detail">क्षमा करें, हमें %1$s से संबंधित कोई स्थान नहीं मिला.</string>
     <string name="no_log_files_found">कोई लॉग फ़ाइल नहीं मिली</string>
@@ -480,7 +492,11 @@
     <string name="show_on_points_leaderboard">मेरे नेटवर्क का नाम दिखाएँ</string>
     <string name="sign_in">साइन इन करें</string>
     <string name="sign_in_dgen1">dGEN1 से साइन इन करें</string>
+    <string name="sign_in_method_added_successfully">साइन-इन विधि सफलतापूर्वक जोड़ी गई</string>
+    <string name="sign_in_with_google">Google से साइन इन करें</string>
+    <string name="sign_in_with_google_to_add_it">Google से साइन इन करें और उसे साइन-इन विधि के रूप में जोड़ें।</string>
     <string name="sign_in_with_seedphrase">सीड फ़्रेज़ से साइन इन करें</string>
+    <string name="site_app_email">ईमेल</string>
     <string name="site_save_your_seedphrase">अपना सीडफ़्रेज़ सहेजें</string>
     <string name="solana_sign_in">Solana से साइन इन करें</string>
     <string name="something_went_wrong">कुछ गलत हो गया।</string>
@@ -562,6 +578,8 @@
     <string name="verify_send_error">त्रुटि</string>
     <string name="version_info">संस्करण और बिल्ड जानकारी</string>
     <string name="via_exit">%1$s के ज़रिए</string>
+    <string name="wallet">वॉलेट</string>
+    <string name="wallet_sign_in_method_added">वॉलेट साइन-इन विधि जोड़ी गई</string>
     <string name="welcome_offer_eyebrow">स्वागत ऑफ़र</string>
     <string name="welcome_to_urnetwork">URnetwork में आपका स्वागत है</string>
     <string name="when_you_refer_a_friend">जब आप किसी मित्र को रेफ़र करते हैं:</string>
@@ -572,6 +590,7 @@
     <string name="with_urnetwork">URnetwork के साथ</string>
     <string name="write_it_down_and_store_it_somewhere">इसे लिखकर किसी सुरक्षित जगह पर रखें। अगर यह खो गया, तो आप अपने खाते तक पहुंच खो देंगे।</string>
     <string name="yes">हाँ</string>
+    <string name="your_email_com">name@email.com</string>
     <string name="your_seedphrase">आपका सीड फ़्रेज़</string>
     <plurals name="apps_excluded_count">
         <item quantity="one">%1$d ऐप बाहर रखा गया</item>

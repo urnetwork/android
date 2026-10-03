@@ -47,7 +47,7 @@ fun GoogleAddAuthButton(
             val account = task.getResult(ApiException::class.java)
             val idToken = account.idToken
             if (idToken == null) {
-                onError("Could not get Google ID token")
+                onError(context.getString(R.string.could_not_get_google_id_token))
                 return@rememberLauncherForActivityResult
             }
             val args = AddAuthArgs()
@@ -56,18 +56,18 @@ fun GoogleAddAuthButton(
             addAuth(
                 args,
                 {
-                    Toast.makeText(context, "Google sign-in method added", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, context.getString(R.string.google_sign_in_method_added), Toast.LENGTH_SHORT).show()
                     onAdded()
                 },
                 { msg -> onError(msg) }
             )
         } catch (e: ApiException) {
-            onError("Error signing in with Google")
+            onError(context.getString(R.string.error_signing_in_with_google))
         }
     }
 
     Text(
-        "Sign in with Google to add it as a sign-in method.",
+        stringResource(id = R.string.sign_in_with_google_to_add_it),
         style = MaterialTheme.typography.bodyMedium,
         color = TextMuted
     )
@@ -76,6 +76,6 @@ fun GoogleAddAuthButton(
         onClick = { googleSignInLauncher.launch(googleSignInClient.signInIntent) },
         enabled = !isAddingAuth
     ) { buttonTextStyle ->
-        Text("Sign in with Google", style = buttonTextStyle)
+        Text(stringResource(id = R.string.sign_in_with_google), style = buttonTextStyle)
     }
 }

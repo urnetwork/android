@@ -100,7 +100,7 @@ fun LoginInitial(
                 contentVisible = it
             },
             onErr = {
-                Toast.makeText(context, "Error logging in, please try again.", Toast.LENGTH_LONG).show()
+                Toast.makeText(context, context.getString(R.string.error_logging_in_please_try_again), Toast.LENGTH_LONG).show()
             },
             onWelcomeOverlayVisibilityChange = {
                 welcomeOverlayVisible = it
@@ -273,7 +273,7 @@ fun LoginInitial(
                         loginActivity?.finishAuthenticatedLoginNow()
                     is com.bringyour.network.LoginClientCompletion.Failed -> {
                         android.util.Log.e("LoginInitial", "auth client finish err: ${completion.message}")
-                        android.widget.Toast.makeText(context, "Error logging in, please try again.", android.widget.Toast.LENGTH_LONG).show()
+                        android.widget.Toast.makeText(context, context.getString(R.string.error_logging_in_please_try_again), android.widget.Toast.LENGTH_LONG).show()
                     }
                 }
             }
@@ -469,7 +469,7 @@ fun LoginInitialActions(
                 horizontalArrangement = Arrangement.Center
             ) {
                 Text(
-                    "or",
+                    stringResource(id = R.string.or),
                     color = TextMuted
                 )
             }

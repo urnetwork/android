@@ -24,10 +24,12 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import com.bringyour.network.MainApplication
+import com.bringyour.network.R
 import com.bringyour.network.ui.components.ButtonStyle
 import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.components.URInlineErrorText
@@ -98,7 +100,7 @@ fun AddAuthMethodSheet(
                 addAuth(
                     args,
                     {
-                        Toast.makeText(context, "Sign-in method added successfully", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, context.getString(R.string.sign_in_method_added_successfully), Toast.LENGTH_SHORT).show()
                         onAdded()
                     },
                     { msg -> addError = msg }
@@ -118,14 +120,14 @@ fun AddAuthMethodSheet(
                 .padding(16.dp)
         ) {
             Text(
-                "Add a sign-in method",
+                stringResource(id = R.string.add_a_sign_in_method),
                 style = MaterialTheme.typography.headlineSmall
             )
 
             Spacer(modifier = Modifier.height(4.dp))
 
             Text(
-                "Link another way to sign in to your account.",
+                stringResource(id = R.string.link_another_way_to_sign_in_to),
                 style = MaterialTheme.typography.bodyMedium,
                 color = TextMuted
             )
@@ -151,8 +153,8 @@ fun AddAuthMethodSheet(
                             Text(
                                 when (method) {
                                     AddAuthMethod.GOOGLE -> "Google"
-                                    AddAuthMethod.WALLET -> "Wallet"
-                                    AddAuthMethod.EMAIL -> "Email"
+                                    AddAuthMethod.WALLET -> stringResource(id = R.string.wallet)
+                                    AddAuthMethod.EMAIL -> stringResource(id = R.string.site_app_email)
                                 },
                                 style = buttonTextStyle
                             )
@@ -179,7 +181,7 @@ fun AddAuthMethodSheet(
                 }
                 AddAuthMethod.WALLET -> {
                     Text(
-                        "Connect a Solana wallet to add it as a sign-in method.",
+                        stringResource(id = R.string.connect_solana_wallet_to_add_sign_in_method),
                         style = MaterialTheme.typography.bodyMedium,
                         color = TextMuted
                     )
@@ -190,7 +192,7 @@ fun AddAuthMethodSheet(
                                 activityResultSender?.let { sender ->
                                     val api = (context.applicationContext as? MainApplication)?.api
                                     if (api == null) {
-                                        addError = "Error connecting to wallet"
+                                        addError = context.getString(R.string.error_connecting_to_wallet)
                                         return@launch
                                     }
                                     isConnectingWallet = true
@@ -206,18 +208,18 @@ fun AddAuthMethodSheet(
                                             addAuth(
                                                 args,
                                                 {
-                                                    Toast.makeText(context, "Wallet sign-in method added", Toast.LENGTH_SHORT).show()
+                                                    Toast.makeText(context, context.getString(R.string.wallet_sign_in_method_added), Toast.LENGTH_SHORT).show()
                                                     onAdded()
                                                 },
                                                 { msg -> addError = msg }
                                             )
                                         }
                                         is SolanaChallengeSignResult.NoWalletFound -> {
-                                            addError = "No compatible wallet app found on this device."
+                                            addError = context.getString(R.string.no_compatible_wallet_app_found)
                                         }
                                         is SolanaChallengeSignResult.Failure -> {
                                             Log.i("AddAuthMethodSheet", "Error connecting to wallet: ${result.error}")
-                                            addError = "Error connecting to wallet"
+                                            addError = context.getString(R.string.error_connecting_to_wallet)
                                         }
                                     }
                                     isConnectingWallet = false
@@ -227,28 +229,28 @@ fun AddAuthMethodSheet(
                         enabled = !isAddingAuth && !isConnectingWallet,
                         isProcessing = isConnectingWallet
                     ) { buttonTextStyle ->
-                        Text("Connect Wallet", style = buttonTextStyle)
+                        Text(stringResource(id = R.string.connect_wallet), style = buttonTextStyle)
                     }
                 }
                 AddAuthMethod.EMAIL -> {
                     URTextInput(
                         value = email,
                         onValueChange = { email = it },
-                        label = "Email",
-                        placeholder = "your@email.com",
+                        label = stringResource(id = R.string.site_app_email),
+                        placeholder = stringResource(id = R.string.your_email_com),
                         keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = KeyboardType.Email)
                     )
                     Spacer(modifier = Modifier.height(12.dp))
                     URTextInput(
                         value = password,
                         onValueChange = { password = it },
-                        label = "Password",
-                        placeholder = "Enter a password",
+                        label = stringResource(id = R.string.password_label),
+                        placeholder = stringResource(id = R.string.enter_a_password),
                         isPassword = true
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        "Password must be at least 12 characters",
+                        stringResource(id = R.string.password_support_txt),
                         style = MaterialTheme.typography.bodySmall,
                         color = TextMuted
                     )
@@ -267,7 +269,7 @@ fun AddAuthMethodSheet(
                     enabled = !isAddingAuth && formValid,
                     isProcessing = isAddingAuth
                 ) { buttonTextStyle ->
-                    Text("Add Sign-In Method", style = buttonTextStyle)
+                    Text(stringResource(id = R.string.add_sign_in_method_2), style = buttonTextStyle)
                 }
             }
 

@@ -7,11 +7,13 @@
     <string name="activity">النشاط</string>
     <string name="add">إضافة</string>
     <string name="add_a_rule">إضافة قاعدة</string>
+    <string name="add_a_sign_in_method">إضافة طريقة تسجيل دخول</string>
     <string name="add_blocked_location">إضافة موقع محجوب</string>
     <string name="add_emoji">إضافة إيموجي</string>
     <string name="add_local_split_rule">توجيه محلي</string>
     <string name="add_referral_code">إضافة رمز الإحالة</string>
     <string name="add_referral_extra_rewards">أضف رمز الإحالة لكسب مكافآت إضافية</string>
+    <string name="add_sign_in_method_2">إضافة طريقة تسجيل الدخول</string>
     <string name="add_tao_for_gas">أضف TAO لرسوم الغاز</string>
     <string name="advanced">متقدم</string>
     <string name="allow_local_connections">السماح بالاتصالات المحلية</string>
@@ -122,6 +124,7 @@
     <string name="connect_seeker_wallet">قم بتوصيل محفظة برمز الطلب المسبق لـ Seeker</string>
     <string name="connect_solana_wallet">ربط محفظة Solana</string>
     <string name="connect_solana_wallet_note">اربط تطبيق محفظة Solana، أو أدخل عنوان USDC على Solana يدويًا.</string>
+    <string name="connect_solana_wallet_to_add_sign_in_method">اربط محفظة Solana لإضافتها كطريقة لتسجيل الدخول.</string>
     <string name="connect_to_location">الاتصال بـ %1$s</string>
     <string name="connect_wallet">ربط المحفظة</string>
     <string name="connect_wallet_first">اربط محفظة Bittensor أولًا.</string>
@@ -140,6 +143,7 @@
     <string name="copy">انسخ</string>
     <string name="copy_auth_code">نسخ رمز المصادقة</string>
     <string name="copy_share_text">نسخ نص المشاركة</string>
+    <string name="could_not_get_google_id_token">تعذّر الحصول على رمز معرّف Google</string>
     <string name="countries">الدول</string>
     <string name="country">الدولة</string>
     <string name="country_multipliers">مضاعفات الدول</string>
@@ -355,6 +359,7 @@
     <string name="enabled_under_auto_footer">مرتبة حسب الأفضلية: H3 و H1 أولًا، ثم whodis، ثم whodis pump. الترتيب ثابت. يبقى بروتوكول نقل واحد على الأقل مفعّلًا.</string>
     <string name="enjoying_urnetwork">هل تستمتع بـ URnetwork؟</string>
     <string name="enter">ادخل</string>
+    <string name="enter_a_password">أدخل كلمة مرور</string>
     <string name="enter_a_solana_usdc_wallet_address">أدخل عنوان محفظة USDC على Solana</string>
     <string name="enter_address_manually">إدخال العنوان يدويًا</string>
     <string name="enter_balance_code">أدخل رمز الرصيد</string>
@@ -362,13 +367,16 @@
     <string name="epoch_history">السجل</string>
     <string name="epoch_row_title">الفترة %1$d</string>
     <string name="epoch_share_of_block">%1$s من الكتلة</string>
+    <string name="error_connecting_to_wallet">خطأ في الاتصال بالمحفظة</string>
     <string name="error_connecting_wallet_with_reason">حدث خطأ أثناء ربط محفظتك: %1$s</string>
     <string name="error_deleting_account">عذرًا، حدث خطأ أثناء حذف حسابك.</string>
     <string name="error_loading_account_plan">حدث خطأ أثناء تحميل خطة حسابك.</string>
+    <string name="error_logging_in_please_try_again">حدث خطأ أثناء تسجيل الدخول، يرجى المحاولة مرة أخرى.</string>
     <string name="error_redeeming_transfer_balance_code">حدث خطأ أثناء استرداد رمز تحويل الرصيد.</string>
     <string name="error_sending_password_reset_link">خطأ في إرسال رابط إعادة تعيين كلمة المرور</string>
     <string name="error_sending_verification_code">حدث خطأ أثناء إرسال رمز التحقق.</string>
     <string name="error_setting_default_wallet_with_reason">خطأ في تعيين المحفظة الافتراضية: %1$s</string>
+    <string name="error_signing_in_with_google">خطأ في تسجيل الدخول باستخدام Google</string>
     <string name="exclude_app">استثناء من VPN</string>
     <string name="exclude_app_description">يتجاوز هذا التطبيق النفق.</string>
     <string name="excluded">مستثنى</string>
@@ -404,6 +412,7 @@
     <string name="get_urnetwork_free_for_life_by_participating">احصل على URnetwork مجانًا مدى الحياة من خلال المشاركة</string>
     <string name="go_back">رجوع</string>
     <string name="google_auth_btn_text">تسجيل الدخول باستخدام Google</string>
+    <string name="google_sign_in_method_added">تمت إضافة طريقة تسجيل الدخول عبر Google</string>
     <string name="gossip_connecting">جارٍ الاتصال</string>
     <string name="gossip_network">شبكة Gossip</string>
     <string name="gossip_url">عنوان URL لشبكة Gossip</string>
@@ -465,6 +474,7 @@
     <string name="licenses_intro">تم بناء URnetwork باستخدام البرمجيات مفتوحة المصدر والبيانات أدناه. يعرض كل إدخال ترخيصه وأي إشعار يتطلبه.</string>
     <string name="licenses_project_page">صفحة المشروع</string>
     <string name="licenses_software_header">البرمجيات مفتوحة المصدر</string>
+    <string name="link_another_way_to_sign_in_to">اربط طريقة أخرى لتسجيل الدخول إلى حسابك.</string>
     <string name="load_failed">تعذّر التحميل. تحقّق من اتصالك وحاول مرة أخرى.</string>
     <string name="loading">جارٍ التحميل...</string>
     <string name="local">محلي</string>
@@ -548,6 +558,8 @@
     <string name="no">لا</string>
     <string name="no_apps_found">لم يتم العثور على تطبيقات</string>
     <string name="no_blocked_locations">لا توجد مواقع محجوبة</string>
+    <string name="no_compatible_wallet_app_found">لم يتم العثور على تطبيق محفظة متوافق على هذا الجهاز.</string>
+    <string name="no_ethos_wallet_found">لم يتم العثور على محفظة EthOs</string>
     <string name="no_locations_found">لم يتم العثور على مواقع</string>
     <string name="no_locations_found_detail">عذرًا، تعذر علينا العثور على أي مواقع ذات صلة بـ %1$s.</string>
     <string name="no_log_files_found">لم يتم العثور على ملف السجل</string>
@@ -759,9 +771,13 @@
     <string name="show_on_points_leaderboard">إظهار اسم شبكتي</string>
     <string name="sign_in">تسجيل الدخول</string>
     <string name="sign_in_dgen1">تسجيل الدخول باستخدام dGEN1</string>
+    <string name="sign_in_method_added_successfully">تمت إضافة طريقة تسجيل الدخول بنجاح</string>
     <string name="sign_in_with_apple">تسجيل الدخول باستخدام Apple</string>
+    <string name="sign_in_with_google">تسجيل الدخول باستخدام Google</string>
+    <string name="sign_in_with_google_to_add_it">سجّل الدخول باستخدام Google لإضافته كطريقة لتسجيل الدخول.</string>
     <string name="sign_in_with_seedphrase">تسجيل الدخول بعبارة الاسترداد</string>
     <string name="site_app_contracts">العقود</string>
+    <string name="site_app_email">البريد الإلكتروني</string>
     <string name="site_app_providers">المزوّدون</string>
     <string name="site_save_your_seedphrase">احفظ عبارة الاسترداد</string>
     <string name="skip">تخطي</string>
@@ -876,11 +892,13 @@
     <string name="verify_send_error">خطأ</string>
     <string name="version_info">معلومات الإصدار والبناء</string>
     <string name="via_exit">عبر %1$s</string>
+    <string name="wallet">المحفظة</string>
     <string name="wallet_blocked">لا يمكن استخدام هذه المحفظة مع URnetwork.</string>
     <string name="wallet_connected_to_protocol">متصل ببروتوكول UR. يصل ما تطالب به إلى هنا. يتراكم Alpha بدءًا من الفترة التالية بعد الاتصال.</string>
     <string name="wallet_looks_new_warning">لا يوجد أي نشاط لهذا العنوان على سلسلة Bittensor بعد. يبدو أنها محفظة جديدة. تأكد من أنها ملكك قبل المتابعة.</string>
     <string name="wallet_not_retroactive">اربط محفظة لتكسب SN25α بدءًا من الفترة التالية. لا تتم تسوية الفترات السابقة بأثر رجعي.</string>
     <string name="wallet_options">خيارات المحفظة</string>
+    <string name="wallet_sign_in_method_added">تمت إضافة طريقة تسجيل الدخول عبر المحفظة</string>
     <string name="welcome_offer_eyebrow">عرض الترحيب</string>
     <string name="welcome_to_urnetwork">مرحبًا بك في URnetwork</string>
     <string name="when_you_refer_a_friend">عندما تقوم بإحالة صديق:</string>
@@ -915,6 +933,7 @@
     <string name="yes">نعم</string>
     <string name="you_get_free_data_every_day">تحصل على بيانات مجانية كل يوم.</string>
     <string name="your_bandwidth">عرض النطاق الترددي لديك</string>
+    <string name="your_email_com">name@email.com</string>
     <string name="your_referral_code">رمز الإحالة الخاص بك</string>
     <string name="your_seedphrase">عبارة الاسترداد الخاصة بك</string>
     <plurals name="apps_excluded_count">
