@@ -97,6 +97,8 @@ sealed class Route {
     @Serializable object Leaderboard: Route()
 
     @Serializable object Upgrade: Route()
+    // a legacy guest adds a sign-in method to its network (GuestConversionSheet)
+    @Serializable object GuestConversion: Route()
     @Serializable object Account : Route()
     @Serializable object Support : Route()
     @Serializable object Profile : Route()

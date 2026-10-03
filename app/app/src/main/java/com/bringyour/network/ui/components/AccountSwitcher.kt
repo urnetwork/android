@@ -74,7 +74,9 @@ fun AccountSwitcher(
     loginMode: LoginMode,
     networkName: String?,
     isPro: Boolean = false,
-    openReferrals: () -> Unit
+    openReferrals: () -> Unit,
+    // a legacy guest adds a sign-in method to this network; never a logout
+    createAccount: () -> Unit = {},
 ) {
 
     val context = LocalContext.current
@@ -143,9 +145,8 @@ fun AccountSwitcher(
             when(loginMode) {
                 LoginMode.Guest -> GuestPopup(
                     onDismiss = { isOverlayVisible = false },
-                    application = application,
-                    context = context,
                     openReferrals = openReferrals,
+                    createAccount = createAccount,
                     focusRequester = focusRequester
                 )
                 LoginMode.Authenticated -> AuthenticatedPopup(
@@ -201,9 +202,8 @@ fun AccountSwitcherPopup(
 @Composable
 fun GuestPopup(
     onDismiss: () -> Unit,
-    context: Context?,
-    application: MainApplication?,
     openReferrals: () -> Unit,
+    createAccount: () -> Unit,
     focusRequester: FocusRequester
 ) {
 
@@ -221,12 +221,8 @@ fun GuestPopup(
             iconResourceId = R.drawable.plus,
             text = "Create Account",
             onClick = {
-                application?.logout()
-
-                val intent = Intent(context, LoginActivity::class.java)
-                context?.startActivity(intent)
-                
-                (context as? Activity)?.finish()
+                createAccount()
+                onDismiss()
             },
             focusRequester = focusRequester
         )
@@ -386,9 +382,8 @@ fun GuestPopupPreview() {
     URNetworkTheme {
         GuestPopup(
             onDismiss = {},
-            application =  null,
-            context = null,
             openReferrals = {},
+            createAccount = {},
             focusRequester = focusRequester
         )
     }

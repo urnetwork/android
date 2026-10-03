@@ -39,7 +39,8 @@ fun AccountRootSubscription(
     isProcessingUpgrade: Boolean,
     isCheckingSolanaTransaction: Boolean, // checking for potential Solana transaction
     isPollingSubscriptionBalance: Boolean,
-    logout: () -> Unit,
+    // a legacy guest adds a sign-in method to this network (GuestConversionSheet)
+    createAccount: () -> Unit,
     navController: NavHostController,
     // a Pro network's plan label replays the Pro celebration
     onPlanLabelTap: () -> Unit = {},
@@ -115,7 +116,7 @@ fun AccountRootSubscription(
                     modifier = Modifier
                         .offset(y = (-8).dp)
                         .clickable {
-                            logout()
+                            createAccount()
                         }
                 )
             } else {

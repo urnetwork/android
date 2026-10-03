@@ -49,6 +49,18 @@ class AccountViewModel @Inject constructor(
         loginMode = mode
     }
 
+    private var jwtParsed = false
+    private var isGuestNetwork = false
+
+    /**
+     * A legacy guest network (GuestAccount) shows the guest mode: no plan for
+     * sale, and "create an account" adds a sign-in method to this network.
+     */
+    val setGuestNetwork: (Boolean) -> Unit = { isGuest ->
+        isGuestNetwork = isGuest
+        setLoginMode(GuestAccount.loginMode(jwtParsed, isGuestNetwork))
+    }
+
     private val _networkUser = MutableStateFlow<NetworkUser?>(null)
     val networkUser: StateFlow<NetworkUser?> = _networkUser.asStateFlow()
 
@@ -82,11 +94,13 @@ class AccountViewModel @Inject constructor(
 
         localState?.parseByJwt { jwt, success ->
             viewModelScope.launch {
-                // a parsed jwt is a real account: guest mode is gone, and every
+                // a parsed jwt is an account; it is a legacy guest only while
+                // the network has no login method (setGuestNetwork). Every
                 // account now has a network name (auto-generated for seedphrase
                 // accounts until claimed). networkName is a gomobile-bound Go
                 // string, so it is never null and can't be tested for one.
-                setLoginMode(if (success) LoginMode.Authenticated else LoginMode.Guest)
+                jwtParsed = success
+                setLoginMode(GuestAccount.loginMode(jwtParsed, isGuestNetwork))
             }
         }
 

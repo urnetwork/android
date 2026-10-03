@@ -1,8 +1,6 @@
 package com.bringyour.network.ui.account
 
 import com.bringyour.network.ui.components.tabletReadableColumn
-import android.app.Activity
-import android.content.Intent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -56,8 +54,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.bringyour.network.LoginActivity
-import com.bringyour.network.MainApplication
 import com.bringyour.network.R
 import com.bringyour.network.ui.components.SectionLoadError
 import com.bringyour.network.ui.Route
@@ -228,7 +224,6 @@ fun AccountScreenContent(
 ) {
 
     val context = LocalContext.current
-    val application = context.applicationContext as? MainApplication
     val uriHandler = LocalUriHandler.current
 
     Column(
@@ -252,7 +247,8 @@ fun AccountScreenContent(
                 networkName = networkName,
                 // Pro members get a glowing gold ring around their avatar
                 isPro = currentPlan == Plan.Supporter,
-                openReferrals = { navController.navigate(Route.Referrals) }
+                openReferrals = { navController.navigate(Route.Referrals) },
+                createAccount = { navController.navigate(Route.GuestConversion) }
             )
         }
 
@@ -276,14 +272,9 @@ fun AccountScreenContent(
                     onPlanLabelTap = onPlanLabelTap,
                     currentStore = currentStore,
 //                    scope = scope,
-                    logout = {
-                        application?.logout()
-
-                        val intent = Intent(context, LoginActivity::class.java)
-                        context.startActivity(intent)
-
-                        (context as? Activity)?.finish()
-                    },
+                    // never logs out: that stranded a guest's plan and balance on
+                    // a network with no login to come back to (GuestAccount)
+                    createAccount = { navController.navigate(Route.GuestConversion) },
                     isProcessingUpgrade = isProcessingUpgrade,
                     isPollingSubscriptionBalance = isPollingSubscriptionBalance,
                     isCheckingSolanaTransaction = isCheckingSolanaTransaction,
@@ -310,7 +301,7 @@ fun AccountScreenContent(
                         if (loginMode == LoginMode.Authenticated) {
                             navController.navigate(Route.Referrals)
                         } else {
-                            context.startActivity(Intent(context, LoginActivity::class.java))
+                            navController.navigate(Route.GuestConversion)
                         }
                     }
                 )
@@ -359,7 +350,7 @@ fun AccountScreenContent(
                         .fillMaxWidth()
                         .clickable {
                             if (loginMode == LoginMode.Guest) {
-                                context.startActivity(Intent(context, LoginActivity::class.java))
+                                navController.navigate(Route.GuestConversion)
                             } else {
                                 navController.navigate(Route.Earnings)
                             }
@@ -438,7 +429,7 @@ fun AccountScreenContent(
                 if (loginMode == LoginMode.Authenticated) {
                     navController.navigate(Route.Profile)
                 } else {
-                    context.startActivity(Intent(context, LoginActivity::class.java))
+                    navController.navigate(Route.GuestConversion)
                 }
             }
         )
@@ -450,7 +441,7 @@ fun AccountScreenContent(
                 if (loginMode == LoginMode.Authenticated) {
                     navController.navigate(Route.Settings)
                 } else {
-                    context.startActivity(Intent(context, LoginActivity::class.java))
+                    navController.navigate(Route.GuestConversion)
                 }
             }
         )
@@ -462,7 +453,7 @@ fun AccountScreenContent(
                 if (loginMode == LoginMode.Authenticated) {
                     navController.navigate(Route.Earnings)
                 } else {
-                    context.startActivity(Intent(context, LoginActivity::class.java))
+                    navController.navigate(Route.GuestConversion)
                 }
             }
         )
@@ -474,7 +465,7 @@ fun AccountScreenContent(
                 if (loginMode == LoginMode.Authenticated) {
                     navController.navigate(Route.Referrals)
                 } else {
-                    context.startActivity(Intent(context, LoginActivity::class.java))
+                    navController.navigate(Route.GuestConversion)
                 }
             }
         )
@@ -498,7 +489,7 @@ fun AccountScreenContent(
                 if (loginMode == LoginMode.Authenticated) {
                     navController.navigate(Route.Extenders)
                 } else {
-                    context.startActivity(Intent(context, LoginActivity::class.java))
+                    navController.navigate(Route.GuestConversion)
                 }
             }
         )

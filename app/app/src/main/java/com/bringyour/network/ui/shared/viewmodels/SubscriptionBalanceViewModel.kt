@@ -16,6 +16,7 @@ import com.bringyour.network.ForegroundWorkOwner
 import com.bringyour.network.ForegroundPollingResume
 import com.bringyour.network.ForegroundPollingSession
 import com.bringyour.network.JwtManager
+import com.bringyour.network.ui.account.GuestAccount
 import com.bringyour.network.TAG
 import com.bringyour.sdk.ExperimentAssignmentList
 import com.bringyour.sdk.OnboardingOffer
@@ -32,6 +33,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -271,6 +273,24 @@ class SubscriptionBalanceViewModel @Inject constructor(
     private val _hasActiveSubscription = MutableStateFlow(false)
     val hasActiveSubscription: StateFlow<Boolean> = _hasActiveSubscription.asStateFlow()
 
+    // the server's `guest`: the network has no login method (read from the live
+    // auth methods, so it survives the token refresh that clears guest_mode)
+    private val _serverGuest = MutableStateFlow(false)
+
+    // re-signs the jwt for the same network (a converted guest's guest_mode clears)
+    val refreshJwt: () -> Unit = {
+        deviceManager.device?.refreshToken(0)
+    }
+
+    /**
+     * A legacy guest network (GuestAccount): the jwt's guest_mode claim or the
+     * server's `guest`. A guest is never sold a plan; it adds a sign-in method
+     * to this network first.
+     */
+    val isGuestNetwork: StateFlow<Boolean> = combine(jwtManager.jwtFlow, _serverGuest) { jwt, serverGuest ->
+        GuestAccount.isGuest(guestModeClaim = jwt?.guestMode == true, serverGuest = serverGuest)
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, false)
+
     /**
      * The confirmation poll ran out its budget (2 minutes) without the server
      * confirming. This used to die as a single log line ("polling timed out") while
@@ -395,6 +415,7 @@ class SubscriptionBalanceViewModel @Inject constructor(
                              */
                             val serverIsPro = result.currentSubscription != null
                             _hasActiveSubscription.value = serverIsPro
+                            _serverGuest.value = result.guest
                             if (serverIsPro) {
                                 pendingSolanaPurchase?.let { (plan, amountUsd) ->
                                     pendingSolanaPurchase = null
