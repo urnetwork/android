@@ -534,6 +534,7 @@
     <string name="network_api_use_default">Использовать сеть по умолчанию</string>
     <string name="network_create_bonus_message">"Кто-то пригласил вас присоединиться 🥳 \nПолучите свой бонус, создав сеть!"</string>
     <string name="network_name_check_error">Недоступно. Имя должно отличаться от существующего как минимум на 3 символа. Сделайте его уникальнее или длиннее.</string>
+    <string name="network_name_check_failed">Не удалось проверить доступность. Вы всё равно можете продолжить.</string>
     <string name="network_name_label">Имя сети</string>
     <string name="network_name_length_error">Название сети должно содержать не менее 6 символов</string>
     <string name="network_name_placeholder">Название вашей сети</string>

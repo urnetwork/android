@@ -534,6 +534,7 @@
     <string name="network_api_use_default">使用默认网络</string>
     <string name="network_create_bonus_message">"有人邀请你加入 🥳 \n创建网络即可领取你的奖励！"</string>
     <string name="network_name_check_error">不可用。必须与现有网络至少有 3 个字符不同。使其独特或更长。</string>
+    <string name="network_name_check_failed">无法检查是否可用。你仍可以继续。</string>
     <string name="network_name_label">网络名称</string>
     <string name="network_name_length_error">网络名称必须至少包含 6 个字符。</string>
     <string name="network_name_placeholder">您的网络名称</string>

@@ -552,8 +552,8 @@
     <string name="network_api_switched_to">Switched to %1$s</string>
     <string name="network_api_use_default">Use default network</string>
     <string name="network_create_bonus_message">"Someone invited you to join 🥳 \nClaim your bonus by creating a network!"</string>
-    <string name="network_name_check_failed">Couldn\'t check availability. You can still continue.</string>
     <string name="network_name_check_error">Not available. Must be at least 3 characters different than an existing network. Make it unique or longer.</string>
+    <string name="network_name_check_failed">Couldn\'t check availability. You can still continue.</string>
     <string name="network_name_label">Network name</string>
     <string name="network_name_length_error">Network names must be 6 characters or more</string>
     <string name="network_name_placeholder">Your network name</string>

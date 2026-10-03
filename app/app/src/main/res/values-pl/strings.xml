@@ -302,6 +302,7 @@
     <string name="network_api_use_default">Użyj domyślnej sieci</string>
     <string name="network_create_bonus_message">Ktoś zaprosił Cię do dołączenia 🥳\\nOdbierz swój bonus tworząc sieć!</string>
     <string name="network_name_check_error">Niedostępne. Musi różnić się od istniejącej sieci o co najmniej 3 znaki. Uczyń ją unikalną lub dłuższą.</string>
+    <string name="network_name_check_failed">Nie udało się sprawdzić dostępności. Nadal możesz kontynuować.</string>
     <string name="network_name_label">Nazwa sieci</string>
     <string name="network_name_length_error">Nazwy sieci muszą mieć co najmniej 6 znaków.</string>
     <string name="network_name_placeholder">Nazwa twojej sieci</string>
