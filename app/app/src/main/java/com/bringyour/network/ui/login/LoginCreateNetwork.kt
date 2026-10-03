@@ -158,6 +158,7 @@ fun LoginCreateNetwork(
         networkName = loginCreateNetworkViewModel.networkName,
         setNetworkName = loginCreateNetworkViewModel.setNetworkName,
         networkNameErrorExists = loginCreateNetworkViewModel.networkNameErrorExists,
+        networkNameCheckFailed = loginCreateNetworkViewModel.networkNameCheckFailed,
         password = loginCreateNetworkViewModel.password,
         setPassword = loginCreateNetworkViewModel.setPassword,
         termsAgreed = loginCreateNetworkViewModel.termsAgreed,
@@ -195,6 +196,7 @@ fun LoginCreateNetwork(
     password: TextFieldValue,
     setPassword: (TextFieldValue) -> Unit,
     networkNameErrorExists: Boolean,
+    networkNameCheckFailed: Boolean = false,
     termsAgreed: Boolean,
     setTermsAgreed: (Boolean) -> Unit,
     productUpdates: Boolean = true,
@@ -377,18 +379,21 @@ fun LoginCreateNetwork(
     }
 
     val networkNameUnavailable = stringResource(id = R.string.network_name_unavailable)
+    val networkNameCheckFailedText = stringResource(id = R.string.network_name_check_failed)
     val invalidNetworkNameLength = stringResource(id = R.string.network_name_length_error)
     val networkNameAvailable = stringResource(id = R.string.available)
 
     val titleSize: TextUnit = dimensionResource(id = R.dimen.login_title_size).value.sp
 
-    LaunchedEffect(networkNameErrorExists, networkNameIsValid, networkName.text) {
+    LaunchedEffect(networkNameErrorExists, networkNameCheckFailed, networkNameIsValid, networkName.text) {
         if (networkName.text.isEmpty()) {
             setNetworkNameSupportingText("")
         } else if (networkName.text.length < 6) {
             setNetworkNameSupportingText(invalidNetworkNameLength)
         } else if (networkNameErrorExists) {
             setNetworkNameSupportingText(networkNameUnavailable)
+        } else if (networkNameCheckFailed) {
+            setNetworkNameSupportingText(networkNameCheckFailedText)
         } else if (networkNameIsValid) {
             setNetworkNameSupportingText(networkNameAvailable)
         } else {
