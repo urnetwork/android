@@ -963,8 +963,10 @@ private fun SettingsScreen(
                                 color = Color.White
                             )
                             Spacer(modifier = Modifier.height(8.dp))
+                            // the tunnel captures ::/0 like 0.0.0.0/0 (VpnRoutes.kt),
+                            // so the only public-route exception is SMTP on port 25
                             Text(
-                                stringResource(id = R.string.kill_switch_exception_detail),
+                                stringResource(id = R.string.kill_switch_exception_smtp_detail),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = BlueLight
                             )

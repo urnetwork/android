@@ -438,7 +438,7 @@
     <string name="join_urnetwork">加入 URnetwork</string>
     <string name="kill_switch">断网保护</string>
     <string name="kill_switch_exception">断网保护例外</string>
-    <string name="kill_switch_exception_detail">VPN 连接期间，即使开启了断网保护，IPv6 流量也不会经由 URnetwork 路由，可能会使用您的本地网络。通过 TCP 端口 25 的出站 SMTP 也会绕过 VPN。这些例外可能会向相应目标暴露您本地的公网 IP。端口 465 和 587 上的 SMTP 仍在 VPN 内，并且必须建立 TLS。</string>
+    <string name="kill_switch_exception_smtp_detail">VPN 连接期间，IPv6 与 IPv4 一样经由 URnetwork 路由。即使开启了断网保护，通过 TCP 端口 25 的出站 SMTP 也会绕过 VPN，这可能会向相应邮件服务器暴露您本地的公网 IP。端口 465 和 587 上的 SMTP 仍在 VPN 内，并且必须建立 TLS。</string>
     <string name="launch">启动</string>
     <string name="leaderboard">排行榜</string>
     <string name="leaderboard_description">排行榜是最近 4 次付款的总和。它会在每个付款周期更新。</string>

@@ -438,7 +438,7 @@
     <string name="join_urnetwork">Присоединяйтесь к URnetwork</string>
     <string name="kill_switch">Kill switch</string>
     <string name="kill_switch_exception">Исключение для Kill switch</string>
-    <string name="kill_switch_exception_detail">Пока VPN подключён, IPv6 не маршрутизируется через URnetwork и может использовать вашу локальную сеть, даже если Kill switch включён. Исходящий SMTP через TCP-порт 25 также идёт в обход VPN. Эти исключения могут раскрыть ваш локальный публичный IP этим адресатам. SMTP на портах 465 и 587 остаётся в VPN и обязан устанавливать TLS.</string>
+    <string name="kill_switch_exception_smtp_detail">Пока VPN подключён, IPv6 маршрутизируется через URnetwork так же, как IPv4. Исходящий SMTP через TCP-порт 25 идёт в обход VPN, даже если Kill switch включён, и может раскрыть ваш локальный публичный IP этим почтовым серверам. SMTP на портах 465 и 587 остаётся в VPN и обязан устанавливать TLS.</string>
     <string name="launch">Запустить</string>
     <string name="leaderboard">Таблица лидеров</string>
     <string name="leaderboard_description">Таблица лидеров представляет собой сумму последних 4 платежей. Она обновляется в каждом платежном цикле.</string>

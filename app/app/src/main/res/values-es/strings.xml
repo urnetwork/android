@@ -438,7 +438,7 @@
     <string name="join_urnetwork">Únete a URnetwork</string>
     <string name="kill_switch">Kill switch</string>
     <string name="kill_switch_exception">Excepción del Kill switch</string>
-    <string name="kill_switch_exception_detail">Mientras la VPN está conectada, IPv6 no se enruta a través de URnetwork y puede usar tu red local, incluso con el Kill switch activado. El SMTP saliente por el puerto TCP 25 también evita la VPN. Estas excepciones pueden exponer tu IP pública local a esos destinos. El SMTP por los puertos 465 y 587 permanece en la VPN y debe establecer TLS.</string>
+    <string name="kill_switch_exception_smtp_detail">Mientras la VPN está conectada, IPv6 se enruta a través de URnetwork igual que IPv4. El SMTP saliente por el puerto TCP 25 evita la VPN, incluso con el Kill switch activado, lo que puede exponer tu IP pública local a esos servidores de correo. El SMTP por los puertos 465 y 587 permanece en la VPN y debe establecer TLS.</string>
     <string name="launch">Iniciar</string>
     <string name="leaderboard">Tabla de clasificación</string>
     <string name="leaderboard_description">La tabla de clasificación es la suma de los últimos 4 pagos. Se actualiza en cada ciclo de pago.</string>

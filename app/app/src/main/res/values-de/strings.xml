@@ -438,7 +438,7 @@
     <string name="join_urnetwork">Tritt bei URnetwork</string>
     <string name="kill_switch">Kill switch</string>
     <string name="kill_switch_exception">Ausnahme vom Kill switch</string>
-    <string name="kill_switch_exception_detail">Während das VPN verbunden ist, wird IPv6 nicht über URnetwork geleitet und kann dein lokales Netzwerk nutzen, selbst wenn der Kill switch aktiviert ist. Ausgehendes SMTP über TCP-Port 25 umgeht das VPN ebenfalls. Durch diese Ausnahmen kann deine lokale öffentliche IP für diese Ziele sichtbar werden. SMTP über die Ports 465 und 587 bleibt im VPN und muss TLS aufbauen.</string>
+    <string name="kill_switch_exception_smtp_detail">Während das VPN verbunden ist, wird IPv6 wie IPv4 über URnetwork geleitet. Ausgehendes SMTP über TCP-Port 25 umgeht das VPN, selbst wenn der Kill switch aktiviert ist. Dadurch kann deine lokale öffentliche IP für diese Mailserver sichtbar werden. SMTP über die Ports 465 und 587 bleibt im VPN und muss TLS aufbauen.</string>
     <string name="launch">Starten</string>
     <string name="leaderboard">Bestenliste</string>
     <string name="leaderboard_description">Die Bestenliste ist die Summe der letzten 4 Zahlungen. Sie wird bei jedem Zahlungszyklus aktualisiert.</string>
