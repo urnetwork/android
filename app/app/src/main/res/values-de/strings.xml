@@ -414,7 +414,6 @@
     <string name="includes_free_trial_days">Enthält eine %1$d-tägige kostenlose Testphase</string>
     <string name="instant_account_no_email_password">Keine E-Mail und kein Passwort nötig. Dein Konto wird durch eine Seedphrase gesichert.</string>
     <string name="insufficient_balance">Unzureichendes Guthaben</string>
-    <string name="insufficient_balance_message">Füge Guthaben oder einen Tarif hinzu, um weiterhin verbunden zu bleiben.</string>
     <string name="insufficient_funds">Unzureichende Mittel</string>
     <string name="intro_quick_connect_details">Schalte URnetwork in den Schnelleinstellungen ein und aus und behalte es auf deinem Startbildschirm im Blick.</string>
     <string name="intro_quick_connect_title">Mit einem Tipp verbinden</string>

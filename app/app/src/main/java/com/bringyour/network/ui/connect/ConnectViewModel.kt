@@ -291,9 +291,9 @@ constructor(
         val sub = device?.addContractStatusChangeListener {
             viewModelScope.launch {
                 if (viewControllerDevice === device) {
-                    // the insufficient balance disconnect is decided by
-                    // InsufficientBalanceDisconnectEffect, which knows the plan,
-                    // the balance poll and the kill switch
+                    // out of balance never disconnects: connect stays requested so
+                    // nothing leaves outside the tunnel. InsufficientBalanceMonitor
+                    // alerts the user, who can upgrade or disconnect
                     refreshContractStatus()
                 }
             }

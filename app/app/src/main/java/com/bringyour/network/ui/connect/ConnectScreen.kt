@@ -633,25 +633,13 @@ fun ConnectMainContent(
                 ) {
                     ConnectButton(
                         onClick = {
-                            when (
-                                connectButtonTapAction(
-                                    insufficientBalance = displayInsufficientBalance,
-                                    currentPlan = currentPlan,
-                                    isPollingSubscriptionBalance = isPollingSubscriptionBalance,
-                                    connectStatus = connectStatus,
-                                )
-                            ) {
-                                ConnectButtonTapAction.CONNECT -> {
-                                    connect(selectedLocation)
+                            if (connectStatus == ConnectStatus.DISCONNECTED) {
+                                connect(selectedLocation)
 //                            checkTriggerPromptReview()
+                            } else if (connectStatus == ConnectStatus.CONNECTED) {
+                                if (connectedTapGate.tap(System.currentTimeMillis())) {
+                                    launchProCelebration()
                                 }
-                                ConnectButtonTapAction.DISCONNECT -> disconnect()
-                                ConnectButtonTapAction.COUNT_CONNECTED_TAP -> {
-                                    if (connectedTapGate.tap(System.currentTimeMillis())) {
-                                        launchProCelebration()
-                                    }
-                                }
-                                ConnectButtonTapAction.NONE -> {}
                             }
                         },
                         updatedStatus = connectStatus,

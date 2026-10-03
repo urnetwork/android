@@ -8,16 +8,12 @@ import com.bringyour.network.ui.shared.viewmodels.Plan
  * testable without an Android runtime.
  *
  * Insufficient balance is a billing state reported by the server contract, and
- * backend incidents can raise it on funded accounts too. While it holds, the
- * tunnel keeps capturing because connect is still requested, so the user must
- * always have a way out: disconnect stays offered, and once the state outlasts
- * a short grace the connect request is cleared the same way a user disconnect
- * clears it. An enabled kill switch keeps capture (fail closed); the user can
- * still disconnect by hand.
+ * backend incidents can raise it on funded accounts too. While it holds, connect
+ * stays requested and the tunnel keeps capturing, so no traffic leaves outside
+ * the tunnel without the user knowing. The app never disconnects on its own:
+ * it tells the user (in-app alert plus one notification per entry into the
+ * state) and always offers an explicit disconnect next to upgrade.
  */
-
-/** Rides out transient contract latches before the app disconnects on its own. */
-internal const val INSUFFICIENT_BALANCE_DISCONNECT_GRACE_MILLIS = 15_000L
 
 /**
  * Whether the connect controls are replaced by the upgrade flow. Supporters and
@@ -65,51 +61,61 @@ internal fun connectActionButtons(
     )
 }
 
-internal enum class ConnectButtonTapAction {
-    CONNECT,
-    DISCONNECT,
-    COUNT_CONNECTED_TAP,
-    NONE,
+/**
+ * The session controls the monitor reports to. disconnect is the user's
+ * control; the monitor holds it only to make explicit that out of balance
+ * never calls it.
+ */
+internal interface InsufficientBalanceSession {
+    fun disconnect()
+    fun postNotice()
+    fun cancelNotice()
 }
 
 /**
- * The round connect button. It connects when disconnected as before; in the
- * gate it shows the insufficient balance warning instead of the grid, so a tap
- * while a connection is requested disconnects. Outside the gate a tap while
- * connected only feeds the hidden tap sequence.
+ * Reacts to contract status, plan, balance poll and connection observations.
+ * An episode starts when insufficient balance is first seen and ends when it
+ * clears. The notice says traffic is held in the tunnel, so it is posted once
+ * per episode at the first observation where the gate holds and a connection
+ * is requested (a supporter plan or a balance poll at entry defers it). It is
+ * removed when it stops being true: the episode ends or the user disconnects.
+ * A disconnect does not re-arm it within the episode. Not thread safe; feed it
+ * from one thread.
  */
-internal fun connectButtonTapAction(
-    insufficientBalance: Boolean,
-    currentPlan: Plan,
-    isPollingSubscriptionBalance: Boolean,
-    connectStatus: ConnectStatus,
-): ConnectButtonTapAction = when {
-    connectStatus == ConnectStatus.DISCONNECTED -> ConnectButtonTapAction.CONNECT
-    insufficientBalanceGate(insufficientBalance, currentPlan, isPollingSubscriptionBalance) ->
-        ConnectButtonTapAction.DISCONNECT
-    connectStatus == ConnectStatus.CONNECTED -> ConnectButtonTapAction.COUNT_CONNECTED_TAP
-    else -> ConnectButtonTapAction.NONE
-}
+internal class InsufficientBalanceMonitor(
+    private val session: InsufficientBalanceSession,
+) {
+    private var noticePosted = false
+    private var noticeShown = false
 
-/**
- * Whether the app clears the connect request on its own. The gate must have
- * held continuously since gateSinceMillis for the full grace; null means it
- * does not hold now. An enabled kill switch keeps the request (fail closed).
- */
-internal fun insufficientBalanceAutoDisconnect(
-    insufficientBalance: Boolean,
-    currentPlan: Plan,
-    isPollingSubscriptionBalance: Boolean,
-    connectRequested: Boolean,
-    killSwitch: Boolean,
-    gateSinceMillis: Long?,
-    nowMillis: Long,
-): Boolean {
-    if (!insufficientBalanceGate(insufficientBalance, currentPlan, isPollingSubscriptionBalance)) {
-        return false
+    fun update(
+        insufficientBalance: Boolean,
+        currentPlan: Plan,
+        isPollingSubscriptionBalance: Boolean,
+        connectRequested: Boolean,
+    ) {
+        if (!insufficientBalance) {
+            noticePosted = false
+            hideNotice()
+            return
+        }
+        if (!connectRequested) {
+            hideNotice()
+            return
+        }
+        if (!noticePosted &&
+            insufficientBalanceGate(insufficientBalance, currentPlan, isPollingSubscriptionBalance)
+        ) {
+            noticePosted = true
+            noticeShown = true
+            session.postNotice()
+        }
     }
-    if (!connectRequested || killSwitch || gateSinceMillis == null) {
-        return false
+
+    private fun hideNotice() {
+        if (noticeShown) {
+            noticeShown = false
+            session.cancelNotice()
+        }
     }
-    return INSUFFICIENT_BALANCE_DISCONNECT_GRACE_MILLIS <= nowMillis - gateSinceMillis
 }

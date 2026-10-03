@@ -148,6 +148,14 @@ fun ConnectActions(
             // the marker (the peers line, the connection-type selector, the
             // toggles) stays inside the same card but falls below the fold when
             // collapsed.
+            val actionButtons = connectActionButtons(
+                insufficientBalance = insufficientBalance,
+                currentPlan = currentPlan,
+                isPollingSubscriptionBalance = isPollingSubscriptionBalance,
+                connectStatus = connectStatus,
+                displayReconnectTunnel = displayReconnectTunnel,
+            )
+
             Column(
                 modifier = Modifier.fillMaxWidth()
             ) {
@@ -168,14 +176,6 @@ fun ConnectActions(
                     modifier = Modifier
                         .height(48.dp)
                 ) {
-
-                val actionButtons = connectActionButtons(
-                    insufficientBalance = insufficientBalance,
-                    currentPlan = currentPlan,
-                    isPollingSubscriptionBalance = isPollingSubscriptionBalance,
-                    connectStatus = connectStatus,
-                    displayReconnectTunnel = displayReconnectTunnel,
-                )
 
                 val disconnectButton: @Composable (Modifier) -> Unit = { buttonModifier ->
                     URButton(
@@ -268,6 +268,20 @@ fun ConnectActions(
                     }
                 }
                 }
+            }
+
+            if (actionButtons.upgrade && actionButtons.disconnect) {
+                // in-app alert, above the fold so it shows in the collapsed peek
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    stringResource(id = R.string.insufficient_balance_held_notice),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = TextMuted,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 4.dp)
+                        .testTag("acceptance.insufficient_balance_notice")
+                )
             }
 
             // the fold marker: a zero-height anchor at the bottom of the

@@ -2272,31 +2272,26 @@ class MainApplication : Application() {
      * the same state transition as the connect screen and Quick Settings tile.
      * System Always-on owns its own reconnect policy, so it must not be
      * presented as a disconnectable state.
-     *
-     * Returns true when the disconnect was issued on this call (main thread
-     * only; an off-main call is reposted and returns false).
      */
-    fun disconnectVpnConnection(source: String): Boolean {
+    fun disconnectVpnConnection(source: String) {
         if (android.os.Looper.myLooper() != mainLooper) {
             mainHandler.post { disconnectVpnConnection(source) }
-            return false
+            return
         }
         if (systemAlwaysOnVpn) {
             Log.i(TAG, "Ignoring VPN disconnect from $source while system Always-on is active")
-            return false
+            return
         }
-        val current = device ?: return false
-        if (!current.connectEnabled) return false
+        val current = device ?: return
+        if (!current.connectEnabled) return
 
         val vc = current.openConnectViewController() ?: run {
             Log.i(TAG, "Unable to open connect controller for VPN disconnect from $source")
-            return false
+            return
         }
-        var issued = false
         try {
             Log.i(TAG, "Disconnecting VPN connection from $source")
             vc.disconnect()
-            issued = true
         } catch (e: Exception) {
             Log.e(TAG, "VPN disconnect from $source failed: ${e.message}", e)
         } finally {
@@ -2304,17 +2299,41 @@ class MainApplication : Application() {
                 .onFailure { Log.i(TAG, "Connect controller close failed: ${it.message}") }
         }
         updateVpnService()
-        return issued
     }
 
     /**
-     * Clears the connect request after insufficient balance outlasted its
-     * grace, through the same path as a user disconnect, and tells the user
-     * why so the change in routing is never silent.
+     * Process-wide so the notice is posted once per out of balance episode even
+     * across activity recreation. Fed on the main thread by
+     * InsufficientBalanceNoticeEffect.
+     */
+    internal val insufficientBalanceMonitor by lazy(LazyThreadSafetyMode.NONE) {
+        com.bringyour.network.ui.connect.InsufficientBalanceMonitor(
+            object : com.bringyour.network.ui.connect.InsufficientBalanceSession {
+                override fun disconnect() {
+                    disconnectVpnConnection("insufficient_balance")
+                }
+
+                override fun postNotice() {
+                    postInsufficientBalanceNotice()
+                }
+
+                override fun cancelNotice() {
+                    runCatching {
+                        (getSystemService(NOTIFICATION_SERVICE) as android.app.NotificationManager)
+                            .cancel(INSUFFICIENT_BALANCE_NOTIFICATION_ID)
+                    }
+                }
+            }
+        )
+    }
+
+    /**
+     * Tells the user the account is out of balance and traffic is held in the
+     * tunnel, with a disconnect action. Without notification permission the
+     * in-app alert still explains it.
      */
     @android.annotation.SuppressLint("NotificationPermission")
-    fun disconnectForInsufficientBalance() {
-        if (!disconnectVpnConnection("insufficient_balance")) return
+    private fun postInsufficientBalanceNotice() {
         runCatching {
             val notificationManager =
                 getSystemService(NOTIFICATION_SERVICE) as android.app.NotificationManager
@@ -2334,24 +2353,31 @@ class MainApplication : Application() {
                 android.content.Intent(this, MainActivity::class.java),
                 android.app.PendingIntent.FLAG_IMMUTABLE or android.app.PendingIntent.FLAG_UPDATE_CURRENT,
             )
-            val message = getString(R.string.insufficient_balance_message)
-            val notification = androidx.core.app.NotificationCompat.Builder(
+            // the service notification's disconnect target
+            val disconnectIntent = android.app.PendingIntent.getBroadcast(
+                this,
+                1,
+                android.content.Intent(this, NotificationDisconnectReceiver::class.java)
+                    .setAction(NotificationDisconnectReceiver.ACTION_DISCONNECT),
+                android.app.PendingIntent.FLAG_IMMUTABLE or android.app.PendingIntent.FLAG_UPDATE_CURRENT,
+            )
+            val message = getString(R.string.insufficient_balance_held_notice)
+            val builder = androidx.core.app.NotificationCompat.Builder(
                 this,
                 MainService.NOTIFICATION_CHANNEL_ID,
             )
                 .setSmallIcon(R.drawable.ic_status)
-                // header reads "URnetwork • Disconnected", so the routing change is explicit
-                .setSubText(getString(R.string.disconnected))
                 .setContentTitle(getString(R.string.insufficient_balance))
                 .setContentText(message)
                 .setStyle(androidx.core.app.NotificationCompat.BigTextStyle().bigText(message))
                 .setContentIntent(contentIntent)
                 .setAutoCancel(true)
-                .build()
-            notificationManager.notify(INSUFFICIENT_BALANCE_NOTIFICATION_ID, notification)
+            if (!systemAlwaysOnVpn) {
+                builder.addAction(R.drawable.ic_close, getString(R.string.disconnect), disconnectIntent)
+            }
+            notificationManager.notify(INSUFFICIENT_BALANCE_NOTIFICATION_ID, builder.build())
         }.onFailure {
-            // without notification permission the in-app status still explains it
-            Log.i(TAG, "Insufficient balance notification failed: ${it.message}")
+            Log.i(TAG, "Insufficient balance notice failed: ${it.message}")
         }
     }
 

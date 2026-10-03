@@ -203,7 +203,6 @@
     <string name="included">Incluídos</string>
     <string name="instant_account_no_email_password">Sem e-mail nem senha. Sua conta é protegida por uma frase-semente.</string>
     <string name="insufficient_balance">Saldo insuficiente</string>
-    <string name="insufficient_balance_message">Adicione saldo ou um plano para continuar se conectando.</string>
     <string name="insufficient_funds">Fundos insuficientes</string>
     <string name="invalid_referral_code">Este código não é válido</string>
     <string name="ip_address">Endereço IP</string>
