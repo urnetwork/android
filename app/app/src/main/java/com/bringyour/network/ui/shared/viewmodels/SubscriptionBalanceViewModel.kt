@@ -17,7 +17,6 @@ import com.bringyour.network.ForegroundPollingResume
 import com.bringyour.network.ForegroundPollingSession
 import com.bringyour.network.JwtManager
 import com.bringyour.network.TAG
-import com.bringyour.network.ui.shared.models.ProvideControlMode
 import com.bringyour.sdk.ExperimentAssignmentList
 import com.bringyour.sdk.OnboardingOffer
 import com.bringyour.sdk.OnboardingOfferIssueArgs
@@ -299,13 +298,12 @@ class SubscriptionBalanceViewModel @Inject constructor(
                             }
                             val jwtIsPro = jwtManager.jwtFlow.value?.pro == true
 
-                            if (serverIsPro && !jwtIsPro) {
-                                // free -> paid: reset provide mode to never once at the
-                                // upgrade; the user can opt back in and that choice persists
-                                deviceManager.provideControlMode = ProvideControlMode.NEVER
+                            val provideControlMode = deviceManager.provideControlMode
+                            val sync = ProStatusSync.plan(serverIsPro, jwtIsPro, provideControlMode)
+                            if (sync.provideControlMode != provideControlMode) {
+                                deviceManager.provideControlMode = sync.provideControlMode
                             }
-
-                            if (serverIsPro != jwtIsPro) {
+                            if (sync.refreshToken) {
                                 deviceManager.device?.refreshToken(0)
                             }
 
