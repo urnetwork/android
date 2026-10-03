@@ -8,6 +8,7 @@
     <string name="add_a_rule">添加规则</string>
     <string name="add_blocked_location">添加被屏蔽的位置</string>
     <string name="add_emoji">添加表情</string>
+    <string name="add_local_split_rule">本地路由</string>
     <string name="add_referral_code">添加推荐码</string>
     <string name="add_referral_extra_rewards">添加推荐码以获得额外奖励</string>
     <string name="add_tao_for_gas">添加 TAO 以支付 Gas 费</string>
@@ -447,6 +448,7 @@
     <string name="kill_switch">断网保护</string>
     <string name="kill_switch_exception">断网保护例外</string>
     <string name="kill_switch_exception_detail">VPN 连接期间，即使开启了断网保护，IPv6 流量也不会经由 URnetwork 路由，可能会使用您的本地网络。通过 TCP 端口 25 的出站 SMTP 也会绕过 VPN。这些例外可能会向相应目标暴露您本地的公网 IP。端口 465 和 587 上的 SMTP 仍在 VPN 内，并且必须建立 TLS。</string>
+    <string name="kill_switch_exception_unrecognized_encrypted">关闭断网保护时，被 URnetwork 安全规则挡在网络之外的流量（例如无法识别的加密协议）会绕过 VPN 并使用您本地的公网 IP。开启断网保护时，这些流量会被阻止。</string>
     <string name="launch">启动</string>
     <string name="leaderboard">排行榜</string>
     <string name="leaderboard_description">排行榜是最近 4 次付款的总和。它会在每个付款周期更新。</string>
@@ -708,6 +710,8 @@
     <string name="route_local">断开连接时允许本地流量</string>
     <string name="route_you">您</string>
     <string name="rules">规则</string>
+    <string name="safety_rule">安全规则</string>
+    <string name="safety_rule_detail">URnetwork 安全规则会将此流量挡在网络之外，例如它无法识别的加密协议。本地分流规则会通过您自己的 IP 在 VPN 之外发送它。</string>
     <string name="save">保存</string>
     <string name="save_logs">保存日志</string>
     <string name="saved_as">已保存为 %1$s</string>

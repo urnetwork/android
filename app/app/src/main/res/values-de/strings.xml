@@ -8,6 +8,7 @@
     <string name="add_a_rule">Regel hinzufügen</string>
     <string name="add_blocked_location">Blockierten Standort hinzufügen</string>
     <string name="add_emoji">Emoji hinzufügen</string>
+    <string name="add_local_split_rule">Lokal leiten</string>
     <string name="add_referral_code">Empfehlungscode hinzufügen</string>
     <string name="add_referral_extra_rewards">Füge einen Empfehlungscode hinzu, um zusätzliche Belohnungen zu erhalten</string>
     <string name="add_tao_for_gas">TAO für Gas hinzufügen</string>
@@ -447,6 +448,7 @@
     <string name="kill_switch">Kill switch</string>
     <string name="kill_switch_exception">Ausnahme vom Kill switch</string>
     <string name="kill_switch_exception_detail">Während das VPN verbunden ist, wird IPv6 nicht über URnetwork geleitet und kann dein lokales Netzwerk nutzen, selbst wenn der Kill switch aktiviert ist. Ausgehendes SMTP über TCP-Port 25 umgeht das VPN ebenfalls. Durch diese Ausnahmen kann deine lokale öffentliche IP für diese Ziele sichtbar werden. SMTP über die Ports 465 und 587 bleibt im VPN und muss TLS aufbauen.</string>
+    <string name="kill_switch_exception_unrecognized_encrypted">Wenn der Kill switch deaktiviert ist, umgeht Datenverkehr, den die Sicherheitsregeln von URnetwork aus dem Netzwerk heraushalten, etwa nicht erkannte verschlüsselte Protokolle, das VPN und nutzt deine lokale öffentliche IP. Bei aktiviertem Kill switch wird dieser Datenverkehr blockiert.</string>
     <string name="launch">Starten</string>
     <string name="leaderboard">Bestenliste</string>
     <string name="leaderboard_description">Die Bestenliste ist die Summe der letzten 4 Zahlungen. Sie wird bei jedem Zahlungszyklus aktualisiert.</string>
@@ -708,6 +710,8 @@
     <string name="route_local">Lokalen Datenverkehr erlauben, wenn getrennt</string>
     <string name="route_you">Du</string>
     <string name="rules">Regeln</string>
+    <string name="safety_rule">Sicherheitsregel</string>
+    <string name="safety_rule_detail">Die Sicherheitsregeln von URnetwork halten diesen Datenverkehr aus dem Netzwerk heraus, zum Beispiel ein verschlüsseltes Protokoll, das sie nicht erkennen. Eine lokale Split-Regel sendet ihn außerhalb des VPN über deine eigene IP.</string>
     <string name="save">Speichern</string>
     <string name="save_logs">Protokolle speichern</string>
     <string name="saved_as">Gespeichert als %1$s</string>

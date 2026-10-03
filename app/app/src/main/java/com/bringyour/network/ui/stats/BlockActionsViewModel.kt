@@ -55,6 +55,12 @@ data class BlockActionUi(
     // the deciding route override id, when a rule determined the decision
     val overrideId: String?,
     val byteCount: Long,
+    // the URnetwork safety rules decided this action (sdk BlockAction.isSecurity)
+    val safetyRule: Boolean = false,
+    // a local split rule makes this traffic work outside the tunnel
+    // (sdk BlockAction.routeLocalOverridable). BitTorrent and non-public
+    // destinations are never overridable
+    val routeLocalOverridable: Boolean = false,
     // short client ids of the exits CURRENTLY carrying flows to this
     // cluster's ips (live join against the flow table). One id is the normal
     // healthy shape; two ids on one row is a site split across egress IPs --
@@ -72,6 +78,18 @@ data class BlockActionUi(
      */
     val hostValues: List<String>
         get() = allHostNames + allIps
+
+    /**
+     * offer "Route locally": a safety rule that a local split rule can
+     * override, with no override already deciding this action
+     */
+    val offersRouteLocal: Boolean
+        get() = safetyRule &&
+            routeLocalOverridable &&
+            overrideId == null &&
+            !hasBlockOverride &&
+            !hasRouteOverride &&
+            hostValues.isNotEmpty()
 
     /** count of unmatched ips, rendered as a single "X IPs" pill */
     val ipCount: Int
@@ -363,6 +381,8 @@ class BlockActionsViewModel @Inject constructor(
                         hasRouteOverride = action.routeOverride != null,
                         overrideId = action.overrideId?.idStr,
                         byteCount = action.byteCount,
+                        safetyRule = action.isSecurity(),
+                        routeLocalOverridable = action.routeLocalOverridable(),
                     )
                 )
             }

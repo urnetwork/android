@@ -8,6 +8,7 @@
     <string name="add_a_rule">Добавить правило</string>
     <string name="add_blocked_location">Добавить заблокированную локацию</string>
     <string name="add_emoji">Добавить эмодзи</string>
+    <string name="add_local_split_rule">Направить локально</string>
     <string name="add_referral_code">Добавить реферальный код</string>
     <string name="add_referral_extra_rewards">Добавьте реферальный код, чтобы получить дополнительные награды</string>
     <string name="add_tao_for_gas">Пополните TAO для оплаты газа</string>
@@ -447,6 +448,7 @@
     <string name="kill_switch">Kill switch</string>
     <string name="kill_switch_exception">Исключение для Kill switch</string>
     <string name="kill_switch_exception_detail">Пока VPN подключён, IPv6 не маршрутизируется через URnetwork и может использовать вашу локальную сеть, даже если Kill switch включён. Исходящий SMTP через TCP-порт 25 также идёт в обход VPN. Эти исключения могут раскрыть ваш локальный публичный IP этим адресатам. SMTP на портах 465 и 587 остаётся в VPN и обязан устанавливать TLS.</string>
+    <string name="kill_switch_exception_unrecognized_encrypted">Когда Kill switch выключен, трафик, который правила безопасности URnetwork не пропускают в сеть, например нераспознанные зашифрованные протоколы, идёт в обход VPN и использует ваш локальный публичный IP. Когда Kill switch включён, такой трафик блокируется.</string>
     <string name="launch">Запустить</string>
     <string name="leaderboard">Таблица лидеров</string>
     <string name="leaderboard_description">Таблица лидеров представляет собой сумму последних 4 платежей. Она обновляется в каждом платежном цикле.</string>
@@ -708,6 +710,8 @@
     <string name="route_local">Разрешить локальный трафик при отключении</string>
     <string name="route_you">Вы</string>
     <string name="rules">Правила</string>
+    <string name="safety_rule">Правило безопасности</string>
+    <string name="safety_rule_detail">Правила безопасности URnetwork не пропускают этот трафик в сеть, например зашифрованный протокол, который они не могут распознать. Локальное правило разделения отправит его в обход VPN с вашего собственного IP.</string>
     <string name="save">Сохранить</string>
     <string name="save_logs">Сохранить логи</string>
     <string name="saved_as">Сохранено как %1$s</string>
