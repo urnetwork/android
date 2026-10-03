@@ -66,6 +66,49 @@ class SeekerVerifyNoticeTest {
         assertEquals(SeekerVerifyNotice.ServerMessage("signature verification failed"), notice)
     }
 
+    /**
+     * Reported defect: the server's English reason was shown as is, so a
+     * wallet without the token got an untranslated message. The error code
+     * picks the localized notice.
+     */
+    @Test
+    fun aTokenNotFoundCodeNamesTheWalletInsteadOfTheServerMessage() {
+        val notice = SeekerVerifyNotice.fromVerifyResult(
+            requestFailed = false,
+            success = false,
+            serverMessage = "No Seeker or Saga token found in this wallet.",
+            walletAddress = address,
+            serverCode = "seeker_token_not_found",
+        )
+        assertEquals(SeekerVerifyNotice.NotHolder("1111111"), notice)
+    }
+
+    @Test
+    fun aSignatureOrLookupFailureCodeIsTheLocalizedFailure() {
+        listOf("seeker_invalid_signature", "seeker_lookup_failed").forEach { code ->
+            val notice = SeekerVerifyNotice.fromVerifyResult(
+                requestFailed = false,
+                success = false,
+                serverMessage = "signature verification failed",
+                walletAddress = address,
+                serverCode = code,
+            )
+            assertEquals(code, SeekerVerifyNotice.Failed, notice)
+        }
+    }
+
+    @Test
+    fun anUnknownCodeFallsBackToTheServerMessage() {
+        val notice = SeekerVerifyNotice.fromVerifyResult(
+            requestFailed = false,
+            success = false,
+            serverMessage = "a new reason",
+            walletAddress = address,
+            serverCode = "seeker_new_reason",
+        )
+        assertEquals(SeekerVerifyNotice.ServerMessage("a new reason"), notice)
+    }
+
     @Test
     fun aVerifiedWalletHasNoNotice() {
         assertNull(

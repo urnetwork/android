@@ -459,7 +459,11 @@
     <string name="seedphrase_leave_confirm_body">Tem certeza? Esta é a ÚNICA vez que você verá sua frase-semente. Salve-a antes de voltar.</string>
     <string name="seedphrase_paste_hint">Cole aqui sua frase-semente de 12 ou 24 palavras</string>
     <string name="seedphrase_required">Digite uma frase-semente</string>
+    <string name="seeker_multiplier_benefit">Dobra seus pontos, dados diários gratuitos e dados de indicação.</string>
+    <string name="seeker_token_not_found">Nenhum token Seeker ou Saga encontrado na carteira …%1$s</string>
     <string name="seeker_token_verified">Token Seeker verificado!</string>
+    <string name="seeker_verify_failed">Não foi possível verificar o token Seeker. Tente novamente.</string>
+    <string name="seeker_verify_no_wallet_app">Nenhum app de carteira Solana foi encontrado neste dispositivo.</string>
     <string name="select_location_provider_content_description">Globo: selecionar localização do provedor</string>
     <string name="send">Enviar</string>
     <string name="send_feedback">Envie seu feedback diretamente ou entre no nosso %1$s para suporte direto.</string>

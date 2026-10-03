@@ -721,7 +721,11 @@
     <string name="seedphrase_leave_confirm_body">确定吗？这是您唯一一次看到助记词的机会。返回前请务必保存。</string>
     <string name="seedphrase_paste_hint">在此粘贴你的 12 或 24 个单词的助记词</string>
     <string name="seedphrase_required">请输入助记词</string>
+    <string name="seeker_multiplier_benefit">将你的积分、每日免费流量和推荐流量翻倍。</string>
+    <string name="seeker_token_not_found">在钱包 …%1$s 中未找到 Seeker 或 Saga 代币</string>
     <string name="seeker_token_verified">Seeker 令牌已验证</string>
+    <string name="seeker_verify_failed">无法验证 Seeker 代币，请重试。</string>
+    <string name="seeker_verify_no_wallet_app">此设备上未找到 Solana 钱包应用。</string>
     <string name="select_location_provider_content_description">地球图标：选择提供商位置</string>
     <string name="send">发送</string>
     <string name="send_feedback">直接向我们反馈，或加入我们的 %1$s 获取直接支持。</string>

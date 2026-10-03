@@ -459,7 +459,11 @@
     <string name="seedphrase_leave_confirm_body">정말인가요? 시드 문구는 지금 한 번만 볼 수 있습니다. 돌아가기 전에 저장했는지 확인하세요.</string>
     <string name="seedphrase_paste_hint">12개 또는 24개 단어의 시드 문구를 여기에 붙여넣으세요</string>
     <string name="seedphrase_required">시드 문구를 입력하세요</string>
+    <string name="seeker_multiplier_benefit">포인트, 무료 일일 데이터, 추천 데이터가 두 배가 됩니다.</string>
+    <string name="seeker_token_not_found">지갑 …%1$s에서 Seeker 또는 Saga 토큰을 찾을 수 없습니다</string>
     <string name="seeker_token_verified">Seeker 토큰이 인증되었습니다!</string>
+    <string name="seeker_verify_failed">Seeker 토큰을 확인할 수 없습니다. 다시 시도해 주세요.</string>
+    <string name="seeker_verify_no_wallet_app">이 기기에서 Solana 지갑 앱을 찾을 수 없습니다.</string>
     <string name="select_location_provider_content_description">지구본: 제공업체 위치 선택</string>
     <string name="send">보내기</string>
     <string name="send_feedback">직접 피드백을 보내주시거나, 직접 지원을 위해 저희 %1$s에 참여하세요.</string>

@@ -459,7 +459,11 @@
     <string name="seedphrase_leave_confirm_body">Opravdu? Toto je JEDINÁ chvíle, kdy svou seedphrase uvidíte. Než se vrátíte, ujistěte se, že jste si ji uložili.</string>
     <string name="seedphrase_paste_hint">Sem vložte svou seed frázi o 12 nebo 24 slovech</string>
     <string name="seedphrase_required">Zadejte prosím seed frázi</string>
+    <string name="seeker_multiplier_benefit">Zdvojnásobí vaše body, bezplatná denní data a data za doporučení.</string>
+    <string name="seeker_token_not_found">V peněžence …%1$s nebyl nalezen žádný token Seeker ani Saga</string>
     <string name="seeker_token_verified">Token Seeker ověřen!</string>
+    <string name="seeker_verify_failed">Token Seeker se nepodařilo ověřit. Zkuste to prosím znovu.</string>
+    <string name="seeker_verify_no_wallet_app">V tomto zařízení nebyla nalezena žádná aplikace peněženky Solana.</string>
     <string name="select_location_provider_content_description">Glóbus: výběr lokality poskytovatele</string>
     <string name="send">Odeslat</string>
     <string name="send_feedback">Pošlete nám svůj názor přímo nebo se připojte k našemu %1$s pro přímou podporu.</string>

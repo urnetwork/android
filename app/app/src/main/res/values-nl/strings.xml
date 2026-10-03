@@ -459,7 +459,11 @@
     <string name="seedphrase_leave_confirm_body">Weet je het zeker? Dit is de ENIGE keer dat je je seedphrase ziet. Sla hem op voordat je teruggaat.</string>
     <string name="seedphrase_paste_hint">Plak hier je seedphrase van 12 of 24 woorden</string>
     <string name="seedphrase_required">Voer een seedphrase in</string>
+    <string name="seeker_multiplier_benefit">Verdubbelt je punten, gratis dagelijkse data en verwijzingsdata.</string>
+    <string name="seeker_token_not_found">Geen Seeker- of Saga-token gevonden in wallet …%1$s</string>
     <string name="seeker_token_verified">Seeker Token geverifieerd!</string>
+    <string name="seeker_verify_failed">Het Seeker-token kon niet worden geverifieerd. Probeer het opnieuw.</string>
+    <string name="seeker_verify_no_wallet_app">Er is geen Solana-wallet-app gevonden op dit apparaat.</string>
     <string name="select_location_provider_content_description">Wereldbol: providerlocatie selecteren</string>
     <string name="send">Verstuur</string>
     <string name="send_feedback">Stuur je feedback rechtstreeks naar ons of sluit je aan bij onze %1$s voor directe hulp.</string>

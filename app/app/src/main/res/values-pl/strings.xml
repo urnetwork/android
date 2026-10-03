@@ -459,7 +459,11 @@
     <string name="seedphrase_leave_confirm_body">Na pewno? To JEDYNY moment, w którym zobaczysz swoją seedphrase. Zapisz ją, zanim wrócisz.</string>
     <string name="seedphrase_paste_hint">Wklej tutaj swoją frazę seed składającą się z 12 lub 24 słów</string>
     <string name="seedphrase_required">Wpisz frazę seed</string>
+    <string name="seeker_multiplier_benefit">Podwaja Twoje punkty, darmowe dzienne dane i dane za polecenia.</string>
+    <string name="seeker_token_not_found">Nie znaleziono tokena Seeker ani Saga w portfelu …%1$s</string>
     <string name="seeker_token_verified">Token Seeker zweryfikowany!</string>
+    <string name="seeker_verify_failed">Nie udało się zweryfikować tokena Seeker. Spróbuj ponownie.</string>
+    <string name="seeker_verify_no_wallet_app">Na tym urządzeniu nie znaleziono aplikacji portfela Solana.</string>
     <string name="select_location_provider_content_description">Globus: wybierz lokalizację dostawcy</string>
     <string name="send">Wyślij</string>
     <string name="send_feedback">Prześlij nam swoją opinię bezpośrednio lub dołącz do naszego %1$s, aby uzyskać bezpośrednie wsparcie.</string>
