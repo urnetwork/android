@@ -1,5 +1,6 @@
 package com.bringyour.network
 
+import android.util.Log
 import com.bringyour.network.ui.shared.models.ProvideControlMode
 import com.bringyour.network.ui.shared.models.ProvideNetworkMode
 import com.bringyour.sdk.BlockActionOverrideList
@@ -68,6 +69,21 @@ internal fun <T> configureCreatedDevice(
     DeviceConfigurationResult.Failed(DeviceInitFailure.DEVICE_LOCAL_CONFIGURATION_FAILED)
 }
 
+/**
+ * Turns on device local state auto save. A failure is reported and returned but never thrown:
+ * the device is still usable without it, only its preferences stop persisting.
+ */
+internal fun enableDeviceAutoSave(
+    setAutoSave: (Boolean) -> Unit,
+    onFailure: (Throwable) -> Unit,
+): Boolean = try {
+    setAutoSave(true)
+    true
+} catch (e: Exception) {
+    onFailure(e)
+    false
+}
+
 @Singleton
 class DeviceManager @Inject constructor(
     private val jwtManager: JwtManager,
@@ -75,6 +91,8 @@ class DeviceManager @Inject constructor(
 ) {
 
     companion object {
+        private const val TAG = "DeviceManager"
+
         // Per-device target passed at construction: DNS 2 parts, one shared
         // 13-part transfer/topology root with overlapping client/provider/NAT
         // children, and 5 parts for platform carriers. Process-level
@@ -404,6 +422,33 @@ class DeviceManager @Inject constructor(
                 synchronized(deviceLock) {
                     closeDeviceSubscriptionsLocked()
                     device?.close()
+
+                    // The sdk persists a device-side preference change (split
+                    // rules, app rules, dns resolver settings, blocker, ...)
+                    // only while auto save is enabled; it defaults off and its
+                    // Load never turns it on. Without this, every edit the app
+                    // routes to the live device is applied in memory and never
+                    // reaches the network space's local state, so the setting
+                    // is gone the moment the process dies. ios enables it the
+                    // same way in PacketTunnelProvider. SetAutoSave says to
+                    // call it before exposing rpc or user input and it neither
+                    // loads nor saves a snapshot itself, so it goes in before
+                    // the device is published below. It returns an error when
+                    // the device does not own its preference store; the device
+                    // still works then, it just cannot persist. The seeds
+                    // below are device setters too, so each one now saves the
+                    // value it was seeded with.
+                    enableDeviceAutoSave(
+                        setAutoSave = newDevice::setAutoSave,
+                        onFailure = {
+                            Log.e(
+                                TAG,
+                                "could not enable local state auto save; device preferences will not persist",
+                                it,
+                            )
+                        },
+                    )
+
                     device = newDevice
 
                     persistDeviceLocalKeyMaterial(localState, newDevice)
