@@ -170,6 +170,7 @@
     <string name="error_connecting_wallet_with_reason">Wystąpił błąd podczas łączenia portfela: %1$s</string>
     <string name="error_loading_account_plan">Błąd podczas ładowania planu konta.</string>
     <string name="error_redeeming_transfer_balance_code">Błąd podczas realizacji kodu transferu salda.</string>
+    <string name="error_sending_password_reset_link">Błąd podczas wysyłania linku do zresetowania hasła</string>
     <string name="error_sending_verification_code">Wystąpił błąd podczas wysyłania kodu weryfikacyjnego.</string>
     <string name="error_setting_default_wallet_with_reason">Błąd podczas ustawiania domyślnego portfela: %1$s</string>
     <string name="exclude_app">Wyklucz z VPN</string>
@@ -641,6 +642,12 @@
         <item quantity="few">%1$d znajomych dołączyło z twoim kodem! Po +%2$d GiB/dzień za każdego, na całe życie.</item>
         <item quantity="many">%1$d znajomych dołączyło z twoim kodem! Po +%2$d GiB/dzień za każdego, na całe życie.</item>
         <item quantity="other">%1$d znajomych dołączyło z twoim kodem! Po +%2$d GiB/dzień za każdego, na całe życie.</item>
+    </plurals>
+    <plurals name="reset_link_rate_limited">
+        <item quantity="one">Zbyt wiele prób. Nowy link do resetowania możesz poprosić za %1$d minutę.</item>
+        <item quantity="few">Zbyt wiele prób. Nowy link do resetowania możesz poprosić za %1$d minuty.</item>
+        <item quantity="many">Zbyt wiele prób. Nowy link do resetowania możesz poprosić za %1$d minut.</item>
+        <item quantity="other">Zbyt wiele prób. Nowy link do resetowania możesz poprosić za %1$d minuty.</item>
     </plurals>
     <plurals name="split_rule_count">
         <item quantity="one">%1$d reguła podziału</item>

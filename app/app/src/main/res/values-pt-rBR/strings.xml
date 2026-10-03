@@ -170,6 +170,7 @@
     <string name="error_connecting_wallet_with_reason">Ocorreu um erro ao conectar sua carteira: %1$s</string>
     <string name="error_loading_account_plan">Erro ao carregar seu plano de conta.</string>
     <string name="error_redeeming_transfer_balance_code">Erro ao resgatar o código de transferência de saldo.</string>
+    <string name="error_sending_password_reset_link">Erro ao enviar o link de redefinição de senha</string>
     <string name="error_sending_verification_code">Ocorreu um erro ao enviar o código de verificação.</string>
     <string name="error_setting_default_wallet_with_reason">Erro ao definir a carteira padrão: %1$s</string>
     <string name="exclude_app">Excluir da VPN</string>
@@ -615,6 +616,10 @@
     <plurals name="referral_toast_joined">
         <item quantity="one">Um amigo entrou com o seu código! +%2$d GiB/dia, para sempre.</item>
         <item quantity="other">%1$d amigos entraram com o seu código! +%2$d GiB/dia por cada um, para sempre.</item>
+    </plurals>
+    <plurals name="reset_link_rate_limited">
+        <item quantity="one">Muitas tentativas. Você pode solicitar um novo link de redefinição em %1$d minuto.</item>
+        <item quantity="other">Muitas tentativas. Você pode solicitar um novo link de redefinição em %1$d minutos.</item>
     </plurals>
     <plurals name="split_rule_count">
         <item quantity="one">%1$d regra de divisão</item>

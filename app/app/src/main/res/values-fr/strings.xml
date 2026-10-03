@@ -170,6 +170,7 @@
     <string name="error_connecting_wallet_with_reason">Une erreur s\'est produite lors de la connexion de votre portefeuille : %1$s</string>
     <string name="error_loading_account_plan">Erreur lors du chargement de votre formule de compte.</string>
     <string name="error_redeeming_transfer_balance_code">Erreur lors de l’utilisation du code de transfert de solde.</string>
+    <string name="error_sending_password_reset_link">Erreur lors de l\'envoi du lien de réinitialisation du mot de passe</string>
     <string name="error_sending_verification_code">Une erreur s\'est produite lors de l\'envoi du code de vérification.</string>
     <string name="error_setting_default_wallet_with_reason">Erreur lors de la définition du portefeuille par défaut : %1$s</string>
     <string name="exclude_app">Exclure du VPN</string>
@@ -615,6 +616,10 @@
     <plurals name="referral_toast_joined">
         <item quantity="one">Un ami a rejoint avec votre code ! +%2$d GiB/jour, à vie.</item>
         <item quantity="other">%1$d amis ont rejoint avec votre code ! +%2$d GiB/jour chacun, à vie.</item>
+    </plurals>
+    <plurals name="reset_link_rate_limited">
+        <item quantity="one">Trop de tentatives. Vous pourrez demander un nouveau lien de réinitialisation dans %1$d minute.</item>
+        <item quantity="other">Trop de tentatives. Vous pourrez demander un nouveau lien de réinitialisation dans %1$d minutes.</item>
     </plurals>
     <plurals name="split_rule_count">
         <item quantity="one">%1$d règle de séparation</item>

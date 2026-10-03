@@ -170,6 +170,7 @@
     <string name="error_connecting_wallet_with_reason">ウォレットの接続中にエラーが発生しました：%1$s</string>
     <string name="error_loading_account_plan">アカウントプランの読み込み中にエラーが発生しました。</string>
     <string name="error_redeeming_transfer_balance_code">転送残高コードの引き換え時にエラーが発生しました。</string>
+    <string name="error_sending_password_reset_link">パスワードリセット用リンクの送信中にエラーが発生しました</string>
     <string name="error_sending_verification_code">確認コードの送信中にエラーが発生しました。</string>
     <string name="error_setting_default_wallet_with_reason">デフォルトウォレットの設定中にエラーが発生しました：%1$s</string>
     <string name="exclude_app">VPNから除外</string>
@@ -602,6 +603,9 @@
     </plurals>
     <plurals name="referral_toast_joined">
         <item quantity="other">友達%1$d人があなたのコードで参加！1人につき毎日+%2$d GiB、一生もらえます。</item>
+    </plurals>
+    <plurals name="reset_link_rate_limited">
+        <item quantity="other">試行回数が多すぎます。%1$d 分後に新しいリセット用リンクをリクエストできます。</item>
     </plurals>
     <plurals name="split_rule_count">
         <item quantity="other">%1$d件の分割ルール</item>

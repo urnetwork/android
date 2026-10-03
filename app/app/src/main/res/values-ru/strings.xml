@@ -361,6 +361,7 @@
     <string name="error_connecting_wallet_with_reason">Произошла ошибка при подключении кошелька: %1$s</string>
     <string name="error_loading_account_plan">Ошибка загрузки вашего тарифного плана.</string>
     <string name="error_redeeming_transfer_balance_code">Ошибка при активации кода перевода баланса.</string>
+    <string name="error_sending_password_reset_link">Ошибка при отправке ссылки для сброса пароля</string>
     <string name="error_sending_verification_code">Произошла ошибка при отправке кода подтверждения.</string>
     <string name="error_setting_default_wallet_with_reason">Ошибка при установке кошелька по умолчанию: %1$s</string>
     <string name="exclude_app">Исключить из VPN</string>
@@ -1008,6 +1009,12 @@
         <item quantity="few">%1$d друга присоединились по вашему коду! По +%2$d GiB в день за каждого, навсегда.</item>
         <item quantity="many">%1$d друзей присоединились по вашему коду! По +%2$d GiB в день за каждого, навсегда.</item>
         <item quantity="other">%1$d друзей присоединились по вашему коду! По +%2$d GiB в день за каждого, навсегда.</item>
+    </plurals>
+    <plurals name="reset_link_rate_limited">
+        <item quantity="one">Слишком много попыток. Новую ссылку для сброса можно запросить через %1$d минуту.</item>
+        <item quantity="few">Слишком много попыток. Новую ссылку для сброса можно запросить через %1$d минуты.</item>
+        <item quantity="many">Слишком много попыток. Новую ссылку для сброса можно запросить через %1$d минут.</item>
+        <item quantity="other">Слишком много попыток. Новую ссылку для сброса можно запросить через %1$d минуты.</item>
     </plurals>
     <plurals name="share_extenders_count">
         <item quantity="one">%1$d экстендер</item>

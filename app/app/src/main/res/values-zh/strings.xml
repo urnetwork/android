@@ -361,6 +361,7 @@
     <string name="error_connecting_wallet_with_reason">连接钱包时出错：%1$s</string>
     <string name="error_loading_account_plan">加载您的账户方案时出错。</string>
     <string name="error_redeeming_transfer_balance_code">兑换转账余额码时出错。</string>
+    <string name="error_sending_password_reset_link">发送密码重置链接时出错</string>
     <string name="error_sending_verification_code">发送验证码时出错。</string>
     <string name="error_setting_default_wallet_with_reason">设置默认钱包时出错：%1$s</string>
     <string name="exclude_app">从 VPN 排除</string>
@@ -954,6 +955,9 @@
     </plurals>
     <plurals name="referral_toast_joined">
         <item quantity="other">%1$d 位好友通过你的推荐码加入了！每位 +%2$d GiB/天，终身有效。</item>
+    </plurals>
+    <plurals name="reset_link_rate_limited">
+        <item quantity="other">尝试次数过多。%1$d 分钟后可以重新获取重置链接。</item>
     </plurals>
     <plurals name="share_extenders_count">
         <item quantity="other">%1$d 个扩展器</item>

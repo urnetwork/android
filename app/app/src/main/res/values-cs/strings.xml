@@ -170,6 +170,7 @@
     <string name="error_connecting_wallet_with_reason">Při připojování peněženky došlo k chybě: %1$s</string>
     <string name="error_loading_account_plan">Chyba při načítání plánu vašeho účtu.</string>
     <string name="error_redeeming_transfer_balance_code">Chyba při uplatnění kódu převodu zůstatku.</string>
+    <string name="error_sending_password_reset_link">Chyba při odesílání odkazu pro obnovení hesla</string>
     <string name="error_sending_verification_code">Při odesílání ověřovacího kódu došlo k chybě.</string>
     <string name="error_setting_default_wallet_with_reason">Chyba při nastavování výchozí peněženky: %1$s</string>
     <string name="exclude_app">Vyloučit z VPN</string>
@@ -641,6 +642,12 @@
         <item quantity="few">Přes váš kód se připojili %1$d přátelé! +%2$d GiB/den za každého, na celý život.</item>
         <item quantity="many">Přes váš kód se připojilo %1$d přátel! +%2$d GiB/den za každého, na celý život.</item>
         <item quantity="other">Přes váš kód se připojilo %1$d přátel! +%2$d GiB/den za každého, na celý život.</item>
+    </plurals>
+    <plurals name="reset_link_rate_limited">
+        <item quantity="one">Příliš mnoho pokusů. Nový odkaz pro obnovení si můžete vyžádat za %1$d minutu.</item>
+        <item quantity="few">Příliš mnoho pokusů. Nový odkaz pro obnovení si můžete vyžádat za %1$d minuty.</item>
+        <item quantity="many">Příliš mnoho pokusů. Nový odkaz pro obnovení si můžete vyžádat za %1$d minuty.</item>
+        <item quantity="other">Příliš mnoho pokusů. Nový odkaz pro obnovení si můžete vyžádat za %1$d minut.</item>
     </plurals>
     <plurals name="split_rule_count">
         <item quantity="one">%1$d pravidlo rozdělení</item>

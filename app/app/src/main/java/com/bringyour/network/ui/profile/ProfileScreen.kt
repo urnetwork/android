@@ -58,11 +58,16 @@ import com.bringyour.network.ui.components.URInlineErrorText
 import com.bringyour.network.ui.components.URTextInput
 import com.bringyour.network.ui.components.overlays.OverlayMode
 import com.bringyour.network.ui.shared.viewmodels.OverlayViewModel
+import com.bringyour.network.ui.login.ResendCooldown
+import com.bringyour.network.ui.login.VerifySendNotice
+import com.bringyour.network.ui.login.passwordResetNoticeText
+import com.bringyour.network.ui.login.passwordResetNotice
 import com.bringyour.network.ui.shared.viewmodels.ResetPasswordFunction
 import com.bringyour.network.ui.shared.viewmodels.ResetPasswordViewModel
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.BlueMedium
 import com.bringyour.network.ui.theme.TextMuted
+import androidx.compose.ui.unit.sp
 import com.bringyour.network.ui.theme.TopBarTitleTextStyle
 import com.bringyour.network.ui.theme.URNetworkTheme
 import kotlinx.coroutines.Job
@@ -156,9 +161,20 @@ fun ProfileScreen(
         }
     }
 
+    // after the server refused a reset link for too many attempts, wait until it will send one
+    var resetNowMillis by remember { mutableStateOf(System.currentTimeMillis()) }
+    var resetCooldown by remember { mutableStateOf<ResendCooldown?>(null) }
+    LaunchedEffect(resetCooldown) {
+        while (resetCooldown?.canResend(resetNowMillis) == false) {
+            delay(1000L)
+            resetNowMillis = System.currentTimeMillis()
+        }
+    }
+
     val resendBtnEnabled by remember {
         derivedStateOf {
             cooldownTrigger
+            resetCooldown?.canResend(resetNowMillis) != false &&
             userAuth != null &&
                     !isSendingResetPassLink &&
                     (System.currentTimeMillis() - lastResetTime > cooldownPeriod)
@@ -168,6 +184,8 @@ fun ProfileScreen(
     var debounceJob by remember { mutableStateOf<Job?>(null) }
     val coroutineScope = rememberCoroutineScope()
     val resetPasswordErr = stringResource(id = R.string.something_went_wrong)
+    val resetCooldownText = resetCooldown?.notice(resetNowMillis)?.let { passwordResetNoticeText(it) }
+    val resetSendFailedMsg = stringResource(id = R.string.error_sending_password_reset_link)
     val resetPasswordEmailSentMsg = stringResource(id = R.string.reset_password_email_sent, userAuth ?: stringResource(id = R.string.unknown))
 
     Scaffold(
@@ -327,10 +345,21 @@ fun ProfileScreen(
                                         Toast.LENGTH_LONG
                                     ).show()
                                 },
-                                {
+                                { sendError ->
+                                    resetNowMillis = System.currentTimeMillis()
+                                    resetCooldown = ResendCooldown.after(sendError, resetNowMillis)
+                                    val message = when (val notice = passwordResetNotice(sendError == null, sendError)) {
+                                        is VerifySendNotice.RateLimited -> context.resources.getQuantityString(
+                                            R.plurals.reset_link_rate_limited,
+                                            notice.minutes,
+                                            notice.minutes,
+                                        )
+                                        is VerifySendNotice.ServerMessage -> notice.message
+                                        else -> if (sendError == null) resetPasswordErr else resetSendFailedMsg
+                                    }
                                     Toast.makeText(
                                         context,
-                                        resetPasswordErr,
+                                        message,
                                         Toast.LENGTH_SHORT
                                     ).show()
                                 }
@@ -341,6 +370,16 @@ fun ProfileScreen(
                         color = if (resendBtnEnabled) BlueMedium else TextMuted
                     )
                 )
+
+                if (resetCooldownText != null) {
+                    Text(
+                        resetCooldownText,
+                        style = TextStyle(
+                            fontSize = 12.sp,
+                            color = TextMuted
+                        )
+                    )
+                }
 
             }
         }
