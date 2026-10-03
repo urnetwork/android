@@ -12,6 +12,8 @@ import androidx.lifecycle.viewModelScope
 import com.bringyour.network.DeviceManager
 import com.bringyour.network.ForegroundWorkOwner
 import com.bringyour.network.TAG
+import com.bringyour.network.ui.shared.models.SectionLoad
+import com.bringyour.network.ui.shared.models.referralCodeLoadAfterFetch
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Job
@@ -49,6 +51,10 @@ class ReferralCodeViewModel @Inject constructor(
 
     private val _referralCode = MutableStateFlow<String>("")
     val referralCode: StateFlow<String> = _referralCode.asStateFlow()
+
+    // a failed fetch used to be only logged, leaving the code's spinner up for good
+    private val _codeLoad = MutableStateFlow(SectionLoad.Loading)
+    val codeLoad: StateFlow<SectionLoad> = _codeLoad.asStateFlow()
 
     private val _totalReferralCount = MutableStateFlow<Long>(0)
     val totalReferralCount: StateFlow<Long> = _totalReferralCount.asStateFlow()
@@ -140,23 +146,48 @@ class ReferralCodeViewModel @Inject constructor(
         }
     }
 
-    val fetchReferralCode: () -> Unit = {
+    private fun settleCode(failed: Boolean, code: String?) {
+        _codeLoad.value = referralCodeLoadAfterFetch(
+            failed = failed,
+            code = code,
+            shownCode = _referralCode.value,
+        )
+    }
+
+    /** Try again after a failed fetch: the spinner comes back while it runs. */
+    val retryReferralCode: () -> Unit = {
+        _codeLoad.value = SectionLoad.retrying(_codeLoad.value)
+        fetchReferralCode()
+    }
+
+    val fetchReferralCode: () -> Unit = fetchReferralCode@{
         ensureNetworkId()
 
-        deviceManager.device?.api?.getNetworkReferralCode { result, error ->
+        val api = deviceManager.device?.api
+        if (api == null) {
+            settleCode(failed = true, code = null)
+            return@fetchReferralCode
+        }
 
-            if (error != null) {
+        api.getNetworkReferralCode { result, error ->
+
+            if (error != null || result == null) {
                 Log.i(TAG, "Error getNetworkReferralCode: $error")
+                viewModelScope.launch { settleCode(failed = true, code = null) }
                 return@getNetworkReferralCode
             }
 
             if (result.error != null) {
                 Log.i(TAG, "Result error getNetworkReferralCode: ${result.error.message}")
+                viewModelScope.launch { settleCode(failed = true, code = null) }
                 return@getNetworkReferralCode
             }
 
             viewModelScope.launch {
-                _referralCode.value = result.referralCode
+                settleCode(failed = false, code = result.referralCode)
+                if (!result.referralCode.isNullOrBlank()) {
+                    _referralCode.value = result.referralCode
+                }
                 _totalReferralCount.value = result.totalReferrals
                 _terms.value = ReferralTerms.from(result)
 

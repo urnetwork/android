@@ -453,6 +453,7 @@
     <string name="licenses_intro">URnetwork está hecho con el software de código abierto y los datos que se indican a continuación. Cada entrada muestra su licencia y cualquier aviso que requiera.</string>
     <string name="licenses_project_page">Página del proyecto</string>
     <string name="licenses_software_header">Software de código abierto</string>
+    <string name="load_failed">No se pudo cargar. Revisa tu conexión y vuelve a intentarlo.</string>
     <string name="loading">Cargando...</string>
     <string name="local">Local</string>
     <string name="local_dns">DNS local</string>

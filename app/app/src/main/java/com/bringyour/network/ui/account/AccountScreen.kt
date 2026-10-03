@@ -59,6 +59,7 @@ import androidx.navigation.compose.rememberNavController
 import com.bringyour.network.LoginActivity
 import com.bringyour.network.MainApplication
 import com.bringyour.network.R
+import com.bringyour.network.ui.components.SectionLoadError
 import com.bringyour.network.ui.Route
 import com.bringyour.network.ui.components.URNavListItem
 import com.bringyour.network.ui.components.AccountSwitcher
@@ -94,6 +95,8 @@ fun AccountScreen(
     totalAccountPoints: Double,
     accountPointsLoaded: Boolean,
     totalReferrals: Long,
+    accountPointsFailed: Boolean = false,
+    retryAccountPoints: () -> Unit = {},
     meanReliabilityWeight: Double,
     isPro: Boolean,
     postQuantumIdentityViewModel: PostQuantumIdentityViewModel = hiltViewModel(),
@@ -149,6 +152,8 @@ fun AccountScreen(
                         networkName = networkUser?.networkName,
                         totalAccountPoints = totalAccountPoints,
                         accountPointsLoaded = accountPointsLoaded,
+                        accountPointsFailed = accountPointsFailed,
+                        retryAccountPoints = retryAccountPoints,
                         currentPlan = if (isPro) Plan.Supporter else Plan.Basic,
                         currentStore = currentStore,
                         accountOffer = accountOffer,
@@ -198,6 +203,8 @@ fun AccountScreenContent(
     totalAccountPoints: Double,
     accountPointsLoaded: Boolean,
     currentPlan: Plan,
+    accountPointsFailed: Boolean = false,
+    retryAccountPoints: () -> Unit = {},
     currentStore: String?,
     // the welcome offer while it can be redeemed (read-only on this screen)
     accountOffer: com.bringyour.network.ui.upgrade.OfferPresentation? = null,
@@ -363,7 +370,13 @@ fun AccountScreenContent(
                                 color = TextMuted
                             )
                         )
-                        if (accountPointsLoaded) {
+                        if (accountPointsFailed) {
+                            // a failed fetch is an error, not "0 points"
+                            SectionLoadError(
+                                onRetry = retryAccountPoints,
+                                modifier = Modifier.height(42.dp),
+                            )
+                        } else if (accountPointsLoaded) {
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()

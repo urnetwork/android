@@ -453,6 +453,7 @@
     <string name="licenses_intro">تم بناء URnetwork باستخدام البرمجيات مفتوحة المصدر والبيانات أدناه. يعرض كل إدخال ترخيصه وأي إشعار يتطلبه.</string>
     <string name="licenses_project_page">صفحة المشروع</string>
     <string name="licenses_software_header">البرمجيات مفتوحة المصدر</string>
+    <string name="load_failed">تعذّر التحميل. تحقّق من اتصالك وحاول مرة أخرى.</string>
     <string name="loading">جارٍ التحميل...</string>
     <string name="local">محلي</string>
     <string name="local_dns">DNS محلي</string>

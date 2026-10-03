@@ -453,6 +453,7 @@
     <string name="licenses_intro">URnetwork basiert auf der unten aufgeführten Open-Source-Software und den unten aufgeführten Daten. Jeder Eintrag zeigt seine Lizenz und alle erforderlichen Hinweise.</string>
     <string name="licenses_project_page">Projektseite</string>
     <string name="licenses_software_header">Open-Source-Software</string>
+    <string name="load_failed">Laden fehlgeschlagen. Überprüfe deine Verbindung und versuche es erneut.</string>
     <string name="loading">Laden...</string>
     <string name="local">Lokal</string>
     <string name="local_dns">Lokales DNS</string>
