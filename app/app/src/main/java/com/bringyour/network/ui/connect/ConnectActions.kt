@@ -148,6 +148,14 @@ fun ConnectActions(
             // the marker (the peers line, the connection-type selector, the
             // toggles) stays inside the same card but falls below the fold when
             // collapsed.
+            val actionButtons = connectActionButtons(
+                insufficientBalance = insufficientBalance,
+                currentPlan = currentPlan,
+                isPollingSubscriptionBalance = isPollingSubscriptionBalance,
+                connectStatus = connectStatus,
+                displayReconnectTunnel = displayReconnectTunnel,
+            )
+
             Column(
                 modifier = Modifier.fillMaxWidth()
             ) {
@@ -169,27 +177,66 @@ fun ConnectActions(
                         .height(48.dp)
                 ) {
 
-                if (insufficientBalance && currentPlan != Plan.Supporter && !isPollingSubscriptionBalance) {
+                val disconnectButton: @Composable (Modifier) -> Unit = { buttonModifier ->
                     URButton(
-                        onClick = {
-                            navController.navigate(Route.Upgrade)
-                        },
-                        style = ButtonStyle.OUTLINE
+                        onClick = disconnect,
+                        style = ButtonStyle.OUTLINE,
+                        modifier = buttonModifier.testTag("acceptance.disconnect")
                     ) { buttonTextStyle ->
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.Center
                         ) {
+
                             Text(
-                                stringResource(id = R.string.insufficient_balance),
+                                stringResource(id = R.string.disconnect),
                                 style = buttonTextStyle,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
                                 modifier = Modifier.padding(horizontal = 16.dp)
                             )
+
+                        }
+                    }
+                }
+
+                if (actionButtons.upgrade) {
+                    // out of balance: upgrade replaces connect, but a requested
+                    // connection always keeps its way out
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        URButton(
+                            onClick = {
+                                navController.navigate(Route.Upgrade)
+                            },
+                            style = ButtonStyle.OUTLINE,
+                            modifier = Modifier
+                                .weight(1f)
+                                .testTag("acceptance.insufficient_balance_upgrade")
+                        ) { buttonTextStyle ->
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.Center
+                            ) {
+                                Text(
+                                    stringResource(id = R.string.insufficient_balance),
+                                    style = buttonTextStyle,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                    modifier = Modifier.padding(horizontal = 4.dp)
+                                )
+                            }
+                        }
+
+                        if (actionButtons.disconnect) {
+                            disconnectButton(Modifier.weight(1f))
                         }
                     }
                 } else {
 
-                    if (connectStatus == ConnectStatus.DISCONNECTED) {
+                    if (actionButtons.connect) {
                         URButton(
                             onClick = connect,
                             modifier = Modifier.testTag("acceptance.connect")
@@ -202,28 +249,11 @@ fun ConnectActions(
                         }
                     }
 
-                    if (connectStatus != ConnectStatus.DISCONNECTED && !displayReconnectTunnel) {
-                        URButton(
-                            onClick = disconnect,
-                            style = ButtonStyle.OUTLINE,
-                            modifier = Modifier.testTag("acceptance.disconnect")
-                        ) { buttonTextStyle ->
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.Center
-                            ) {
-
-                                Text(
-                                    stringResource(id = R.string.disconnect),
-                                    style = buttonTextStyle,
-                                    modifier = Modifier.padding(horizontal = 16.dp)
-                                )
-
-                            }
-                        }
+                    if (actionButtons.disconnect) {
+                        disconnectButton(Modifier)
                     }
 
-                    if (displayReconnectTunnel) {
+                    if (actionButtons.reconnect) {
                         URButton(
                             onClick = {
 //                                application?.startVpnService()
@@ -240,6 +270,20 @@ fun ConnectActions(
                     }
                 }
                 }
+            }
+
+            if (actionButtons.upgrade && actionButtons.disconnect) {
+                // in-app alert, above the fold so it shows in the collapsed peek
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    stringResource(id = R.string.insufficient_balance_held_notice),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = TextMuted,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 4.dp)
+                        .testTag("acceptance.insufficient_balance_notice")
+                )
             }
 
             // the fold marker: a zero-height anchor at the bottom of the

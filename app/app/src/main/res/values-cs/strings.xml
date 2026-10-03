@@ -206,6 +206,7 @@
     <string name="included">Zahrnuto</string>
     <string name="instant_account_no_email_password">Není potřeba e-mail ani heslo. Váš účet je zabezpečen seedphrase.</string>
     <string name="insufficient_balance">Nedostatečný zůstatek</string>
+    <string name="insufficient_balance_held_notice">Váš provoz zůstává zadržen v tunelu, dokud nepřejdete na vyšší tarif nebo se neodpojíte.</string>
     <string name="insufficient_funds">Nedostatek financí</string>
     <string name="invalid_referral_code">Tento kód není platný</string>
     <string name="ip_address">IP adresa</string>

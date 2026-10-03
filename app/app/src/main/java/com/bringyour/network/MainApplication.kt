@@ -72,6 +72,8 @@ private class DefaultNetworkTelephonyCallback(
 class MainApplication : Application() {
     internal companion object {
         const val VPN_STATE_BURST_COALESCE_MILLIS = 20L
+        // distinct from MainService.NOTIFICATION_ID so it outlives the service notification
+        const val INSUFFICIENT_BALANCE_NOTIFICATION_ID = 102
         // a return to the foreground after this long starts a new product-event session
         const val CLIENT_EVENT_SESSION_GAP_MILLIS = 30L * 60L * 1000L
         // how long logout waits for the pending product events to send
@@ -2300,6 +2302,86 @@ class MainApplication : Application() {
                 .onFailure { Log.i(TAG, "Connect controller close failed: ${it.message}") }
         }
         updateVpnService()
+    }
+
+    /**
+     * Process-wide so the notice is posted once per out of balance episode even
+     * across activity recreation. Fed on the main thread by
+     * InsufficientBalanceNoticeEffect.
+     */
+    internal val insufficientBalanceMonitor by lazy(LazyThreadSafetyMode.NONE) {
+        com.bringyour.network.ui.connect.InsufficientBalanceMonitor(
+            object : com.bringyour.network.ui.connect.InsufficientBalanceSession {
+                override fun disconnect() {
+                    disconnectVpnConnection("insufficient_balance")
+                }
+
+                override fun postNotice() {
+                    postInsufficientBalanceNotice()
+                }
+
+                override fun cancelNotice() {
+                    runCatching {
+                        (getSystemService(NOTIFICATION_SERVICE) as android.app.NotificationManager)
+                            .cancel(INSUFFICIENT_BALANCE_NOTIFICATION_ID)
+                    }
+                }
+            }
+        )
+    }
+
+    /**
+     * Tells the user the account is out of balance and traffic is held in the
+     * tunnel, with a disconnect action. Without notification permission the
+     * in-app alert still explains it.
+     */
+    @android.annotation.SuppressLint("NotificationPermission")
+    private fun postInsufficientBalanceNotice() {
+        runCatching {
+            val notificationManager =
+                getSystemService(NOTIFICATION_SERVICE) as android.app.NotificationManager
+            // same channel as the service notification; creating it again is a no-op
+            notificationManager.createNotificationChannel(
+                android.app.NotificationChannel(
+                    MainService.NOTIFICATION_CHANNEL_ID,
+                    getString(R.string.app_name),
+                    android.app.NotificationManager.IMPORTANCE_LOW,
+                ).apply {
+                    setShowBadge(false)
+                }
+            )
+            val contentIntent = android.app.PendingIntent.getActivity(
+                this,
+                0,
+                android.content.Intent(this, MainActivity::class.java),
+                android.app.PendingIntent.FLAG_IMMUTABLE or android.app.PendingIntent.FLAG_UPDATE_CURRENT,
+            )
+            // the service notification's disconnect target
+            val disconnectIntent = android.app.PendingIntent.getBroadcast(
+                this,
+                1,
+                android.content.Intent(this, NotificationDisconnectReceiver::class.java)
+                    .setAction(NotificationDisconnectReceiver.ACTION_DISCONNECT),
+                android.app.PendingIntent.FLAG_IMMUTABLE or android.app.PendingIntent.FLAG_UPDATE_CURRENT,
+            )
+            val message = getString(R.string.insufficient_balance_held_notice)
+            val builder = androidx.core.app.NotificationCompat.Builder(
+                this,
+                MainService.NOTIFICATION_CHANNEL_ID,
+            )
+                .setSmallIcon(R.drawable.ic_status)
+                .setContentTitle(getString(R.string.insufficient_balance))
+                .setContentText(message)
+                .setStyle(androidx.core.app.NotificationCompat.BigTextStyle().bigText(message))
+                .setContentIntent(contentIntent)
+                .setAutoCancel(true)
+            if (!systemAlwaysOnVpn) {
+                builder.addAction(R.drawable.ic_close, getString(R.string.disconnect), disconnectIntent)
+            }
+            notificationManager.notify(INSUFFICIENT_BALANCE_NOTIFICATION_ID, builder.build())
+        }.onFailure {
+            Log.i(TAG, "Insufficient balance notice failed: ${it.message}")
+        }
     }
 
     /**

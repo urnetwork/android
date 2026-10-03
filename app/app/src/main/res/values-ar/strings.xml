@@ -418,6 +418,7 @@
     <string name="includes_free_trial_days">يتضمن تجربة مجانية لمدة %1$d يومًا</string>
     <string name="instant_account_no_email_password">لا حاجة إلى بريد إلكتروني أو كلمة مرور. حسابك محمي بعبارة الاسترداد.</string>
     <string name="insufficient_balance">رصيد غير كافٍ</string>
+    <string name="insufficient_balance_held_notice">تبقى حركة بياناتك محتجزة داخل النفق حتى تقوم بالترقية أو قطع الاتصال.</string>
     <string name="insufficient_funds">رصيد غير كافٍ</string>
     <string name="intro_quick_connect_details">شغّل URnetwork وأوقفه من الإعدادات السريعة، وتابعه من شاشتك الرئيسية.</string>
     <string name="intro_quick_connect_title">اتصل بلمسة واحدة</string>

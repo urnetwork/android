@@ -206,6 +206,7 @@
     <string name="included">शामिल</string>
     <string name="instant_account_no_email_password">ईमेल या पासवर्ड की ज़रूरत नहीं। आपका खाता एक सीडफ़्रेज़ से सुरक्षित है।</string>
     <string name="insufficient_balance">अपर्याप्त शेष राशि</string>
+    <string name="insufficient_balance_held_notice">जब तक आप अपग्रेड या डिस्कनेक्ट नहीं करते, आपका ट्रैफ़िक टनल में रोका रहता है।</string>
     <string name="insufficient_funds">अपर्याप्त धन</string>
     <string name="invalid_referral_code">यह कोड मान्य नहीं है</string>
     <string name="ip_address">IP पता</string>
