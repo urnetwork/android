@@ -180,6 +180,8 @@
     <string name="excluded">除外</string>
     <string name="expires">有効期限</string>
     <string name="expiry_time">有効期限</string>
+    <string name="fast_dns_on_connect">接続時の高速DNS</string>
+    <string name="fast_dns_on_connect_description">トンネルのDNSが起動するまで、ローカルネットワーク経由でDNSに応答します。問い合わせ内容がローカルネットワークに知られたり、出口の場所に合わない応答が返されたりする可能性があります。オフの場合、DNSはトンネル経由でのみ解決されます。</string>
     <string name="feedback_header">お問い合わせ</string>
     <string name="feedback_include_logs">フィードバックにログを添付（任意）</string>
     <string name="feedback_label">フィードバックボックス</string>
@@ -234,8 +236,6 @@
     <string name="loading">読み込み中...</string>
     <string name="local">ローカル</string>
     <string name="local_dns">ローカルDNS</string>
-    <string name="local_dns_fallback">ローカルDNSフォールバック</string>
-    <string name="local_dns_fallback_description">トンネルの起動中はローカルリゾルバーにも並行して問い合わせます。オフの場合、DNSはトンネル経由でのみ解決されます。</string>
     <string name="local_dns_servers">ローカルDNSサーバー</string>
     <string name="local_doh_urls">ローカルDoH URL</string>
     <string name="local_lowercase">ローカル</string>

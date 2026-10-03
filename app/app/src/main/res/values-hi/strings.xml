@@ -180,6 +180,8 @@
     <string name="excluded">बाहर रखे गए</string>
     <string name="expires">समाप्त होता है</string>
     <string name="expiry_time">समाप्ति समय</string>
+    <string name="fast_dns_on_connect">कनेक्ट करते समय तेज़ DNS</string>
+    <string name="fast_dns_on_connect_description">टनल का DNS शुरू होने तक स्थानीय नेटवर्क से DNS का जवाब देता है। इससे आपके लुकअप स्थानीय नेटवर्क को दिख सकते हैं और ऐसे जवाब मिल सकते हैं जो आपके एग्ज़िट स्थान से मेल नहीं खाते। बंद होने पर DNS केवल टनल से ही रिज़ॉल्व होता है।</string>
     <string name="feedback_header">संपर्क करें</string>
     <string name="feedback_include_logs">फीडबैक में लॉग संलग्न करें (वैकल्पिक)</string>
     <string name="feedback_label">प्रतिक्रिया बॉक्स</string>
@@ -234,8 +236,6 @@
     <string name="loading">लोड हो रहा है...</string>
     <string name="local">स्थानीय</string>
     <string name="local_dns">स्थानीय DNS</string>
-    <string name="local_dns_fallback">स्थानीय DNS फ़ॉलबैक</string>
-    <string name="local_dns_fallback_description">टनल शुरू होते समय स्थानीय रिज़ॉल्वर को साथ-साथ आज़माता है। बंद होने पर DNS केवल टनल से ही रिज़ॉल्व होता है।</string>
     <string name="local_dns_servers">स्थानीय DNS सर्वर</string>
     <string name="local_doh_urls">स्थानीय DoH URLs</string>
     <string name="local_lowercase">स्थानीय</string>

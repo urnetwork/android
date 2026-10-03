@@ -180,6 +180,8 @@
     <string name="excluded">ยกเว้น</string>
     <string name="expires">หมดอายุ</string>
     <string name="expiry_time">เวลาหมดอายุ</string>
+    <string name="fast_dns_on_connect">DNS ที่รวดเร็วขณะเชื่อมต่อ</string>
+    <string name="fast_dns_on_connect_description">ตอบ DNS ผ่านเครือข่ายภายในขณะที่ DNS ของอุโมงค์กำลังเริ่มทำงาน ซึ่งอาจเปิดเผยการค้นหาของคุณให้เครือข่ายภายในเห็น และอาจได้คำตอบที่ไม่ตรงกับตำแหน่งทางออกของคุณ เมื่อปิดอยู่ DNS จะทำงานผ่านอุโมงค์เท่านั้น</string>
     <string name="feedback_header">ติดต่อเรา</string>
     <string name="feedback_include_logs">แนบไฟล์บันทึกกับข้อเสนอแนะ (ไม่บังคับ)</string>
     <string name="feedback_label">กล่องแสดงความเห็น</string>
@@ -234,8 +236,6 @@
     <string name="loading">กำลังโหลด...</string>
     <string name="local">ภายในเครื่อง</string>
     <string name="local_dns">DNS ภายในเครื่อง</string>
-    <string name="local_dns_fallback">DNS สำรองภายในเครื่อง</string>
-    <string name="local_dns_fallback_description">ใช้รีโซลเวอร์ภายในเครื่องแข่งกันไปด้วยขณะที่อุโมงค์กำลังเริ่มทำงาน เมื่อปิดอยู่ DNS จะทำงานผ่านอุโมงค์เท่านั้น</string>
     <string name="local_dns_servers">เซิร์ฟเวอร์ DNS ภายในเครื่อง</string>
     <string name="local_doh_urls">DoH URL ภายในเครื่อง</string>
     <string name="local_lowercase">ภายในเครื่อง</string>

@@ -382,6 +382,8 @@
     <string name="extenders">扩展器</string>
     <string name="extenders_active_of_reserve">%1$d / %2$d</string>
     <string name="extenders_no_session">登录并连接后即可管理扩展器。</string>
+    <string name="fast_dns_on_connect">连接时快速 DNS</string>
+    <string name="fast_dns_on_connect_description">在隧道 DNS 启动期间通过本地网络应答 DNS。这可能会向本地网络暴露你的查询，并返回与你的出口位置不符的结果。关闭后，DNS 仅通过隧道解析。</string>
     <string name="feedback_header">保持联系</string>
     <string name="feedback_include_logs">附加日志到反馈（可选）</string>
     <string name="feedback_label">反馈框</string>
@@ -463,8 +465,6 @@
     <string name="loading">加载中...</string>
     <string name="local">本地</string>
     <string name="local_dns">本地 DNS</string>
-    <string name="local_dns_fallback">本地 DNS 回退</string>
-    <string name="local_dns_fallback_description">隧道启动时并行查询本地解析器，取最先返回的结果。关闭后，DNS 仅通过隧道解析。</string>
     <string name="local_dns_servers">本地 DNS 服务器</string>
     <string name="local_doh_urls">本地 DoH URLs</string>
     <string name="local_lowercase">本地</string>

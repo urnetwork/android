@@ -180,6 +180,8 @@
     <string name="excluded">Excluídas</string>
     <string name="expires">Expira</string>
     <string name="expiry_time">Hora de expiração</string>
+    <string name="fast_dns_on_connect">DNS rápido ao ligar</string>
+    <string name="fast_dns_on_connect_description">Responde ao DNS através da rede local enquanto o DNS do túnel arranca. Isto pode revelar as suas pesquisas à rede local e devolver respostas que não correspondem à sua localização de saída. Quando desativado, o DNS só é resolvido através do túnel.</string>
     <string name="feedback_header">Entrar em contato</string>
     <string name="feedback_include_logs">Anexar logs ao feedback (opcional)</string>
     <string name="feedback_label">Caixa de feedback</string>
@@ -234,8 +236,6 @@
     <string name="loading">A carregar...</string>
     <string name="local">Local</string>
     <string name="local_dns">DNS local</string>
-    <string name="local_dns_fallback">Fallback de DNS local</string>
-    <string name="local_dns_fallback_description">Consulta um resolvedor local em paralelo enquanto o túnel arranca. Quando desativado, o DNS só é resolvido através do túnel.</string>
     <string name="local_dns_servers">Servidores DNS locais</string>
     <string name="local_doh_urls">URLs DoH locais</string>
     <string name="local_lowercase">local</string>

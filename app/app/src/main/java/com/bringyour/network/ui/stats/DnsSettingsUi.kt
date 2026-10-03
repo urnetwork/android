@@ -1,5 +1,7 @@
 package com.bringyour.network.ui.stats
 
+import com.bringyour.network.R
+
 /**
  * Editable snapshot of the device dns resolver settings
  */
@@ -27,8 +29,25 @@ data class DnsSettingsUi(
         get() = enableRemoteDns || enableLocalDns
     val localDnsEnabled: Boolean
         get() = enableLocalDoh || enableLocalDns
-    val localDnsFallbackEnabled: Boolean
-        get() = enableFallback
+    val fastDnsOnConnectEnabled: Boolean
+        get() = FastDnsOnConnectToggle.isOn(this)
+}
+
+/**
+ * The opt-in "Fast DNS on connect" toggle, backed by the sdk enableFallback: it races a
+ * resolver over the host's local network while the tunnel's dns starts, which can reveal
+ * lookups to the local network and return answers that don't match the exit location. Off
+ * by default and whenever the device has not reported settings, so dns resolves only through
+ * the tunnel unless the user turns it on.
+ */
+object FastDnsOnConnectToggle {
+    val labelRes: Int = R.string.fast_dns_on_connect
+    val descriptionRes: Int = R.string.fast_dns_on_connect_description
+
+    fun isOn(settings: DnsSettingsUi?): Boolean = settings?.enableFallback == true
+
+    fun toggled(settings: DnsSettingsUi): DnsSettingsUi =
+        settings.copy(enableFallback = !settings.enableFallback)
 }
 
 /**
