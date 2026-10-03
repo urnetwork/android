@@ -47,9 +47,11 @@ fun rememberPlanPurchaser(
                     onPurchaseSuccess()
                 }
                 is PaymentSheetResult.Canceled -> {
+                    subscriptionBalanceViewModel.cancelPurchaseConfirmation()
                     inFlight?.let { ClientEvents.purchaseCancelled(Sdk.EventStoreStripe, ClientEvents.PRODUCT_STRIPE_PRO, it.plan, it.trial, it.price, it.currency) }
                 }
                 is PaymentSheetResult.Failed -> {
+                    subscriptionBalanceViewModel.cancelPurchaseConfirmation()
                     Log.e("PlanPurchaser", "payment sheet failed", result.error)
                     inFlight?.let { ClientEvents.purchaseFailed(Sdk.EventStoreStripe, ClientEvents.PRODUCT_STRIPE_PRO, it.plan, it.trial, it.price, it.currency, "sheet") }
                     planViewModel.setChangePlanError(listOfNotNull(notCompleted, result.error.localizedMessage).joinToString("\n"))
@@ -65,6 +67,8 @@ fun rememberPlanPurchaser(
                 return@PlanPurchaser
             }
             planViewModel.setInProgress(true)
+            // the confirmation baseline loads while the sheet is up
+            subscriptionBalanceViewModel.preparePurchaseConfirmation()
             val yearly = plan == PlanType.YEARLY
             val planName = if (yearly) Sdk.PlanYearly else Sdk.PlanMonthly
             ClientEvents.purchaseStarted(
@@ -74,6 +78,7 @@ fun rememberPlanPurchaser(
             )
             StripeSheetRequest.request(api, plan, subscriptionBalanceViewModel.storefrontCountry) { result, error ->
                 if (result == null) {
+                    subscriptionBalanceViewModel.cancelPurchaseConfirmation()
                     planViewModel.setInProgress(false)
                     ClientEvents.purchaseFailed(Sdk.EventStoreStripe, ClientEvents.PRODUCT_STRIPE_PRO, planName, yearly, 0.0, presentation.currency, "prepare")
                     planViewModel.setChangePlanError(listOfNotNull(notCompleted, error).joinToString("\n"))
@@ -98,6 +103,7 @@ fun rememberPlanPurchaser(
                     paymentSheet.presentWithPaymentIntent(result.paymentIntentClientSecret, configuration)
                 } else {
                     pending[0] = null
+                    subscriptionBalanceViewModel.cancelPurchaseConfirmation()
                     planViewModel.setInProgress(false)
                     Toast.makeText(context, notCompleted, Toast.LENGTH_SHORT).show()
                 }

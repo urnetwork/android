@@ -21,7 +21,6 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.bringyour.network.ui.MainNavHost
-import com.bringyour.network.ui.components.overlays.OverlayMode
 import com.bringyour.network.ui.settings.SettingsViewModel
 import com.bringyour.network.ui.shared.models.BundleStore
 import com.bringyour.network.ui.shared.viewmodels.OverlayViewModel
@@ -194,8 +193,9 @@ class MainActivity: AppCompatActivity() {
         if (subscriptionUpgradeSuccess) {
             subscriptionUpgradeSuccess = false
             intent.removeExtra("UPGRADE_SUBSCRIPTION_SUCCESS")
-            overlayViewModel.launch(OverlayMode.Upgrade)
-            subscriptionBalanceViewModel.pollSubscriptionBalance()
+            // a checkout returned through the login deep link: the overlay follows the
+            // server's confirmation (MainNavHost purchaseConfirmedSequence)
+            subscriptionBalanceViewModel.confirmPurchase()
         }
     }
 
