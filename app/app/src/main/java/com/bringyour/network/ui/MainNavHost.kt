@@ -463,6 +463,22 @@ private fun MainNavHostContent(
     }
 
     /**
+     * A Stripe sheet / pay page / checkout-return purchase the server has confirmed
+     * (SubscriptionBalanceViewModel.confirmPurchase). The overlay launches only now,
+     * never when the payment UI merely reported success.
+     */
+    LaunchedEffect(Unit) {
+        subscriptionBalanceViewModel.purchaseConfirmedSequence.collect { sequence ->
+            if (!subscriptionBalanceViewModel.consumePurchaseConfirmedSequence(sequence)) {
+                return@collect
+            }
+
+            overlayViewModel.launchSunglassesFlight()
+            overlayViewModel.launch(OverlayMode.Upgrade)
+        }
+    }
+
+    /**
      * EVERY billing error reaches the user, with a way out.
      *
      * `changePlanError` was set in half a dozen places -- a declined card, a billing
@@ -971,7 +987,7 @@ fun IntroNavHost(
                 createSolanaPaymentIntent = solanaPaymentViewModel.createSolanaPaymentIntent,
                 setPendingSolanaSubscriptionReference = solanaPaymentViewModel.setPendingSolanaSubscriptionReference,
                 onStripePaymentSuccess = {
-                    subscriptionBalanceViewModel.pollSubscriptionBalance()
+                    subscriptionBalanceViewModel.confirmPurchase()
                     dismiss()
                 },
                 onRedeemTransferBalanceCodeSuccess = {
@@ -1039,9 +1055,8 @@ fun IntroNavHost(
                 planViewModel = planViewModel,
                 subscriptionBalanceViewModel = subscriptionBalanceViewModel,
                 onPurchaseSuccess = {
-                    subscriptionBalanceViewModel.pollSubscriptionBalance()
-                    overlayViewModel.launchSunglassesFlight()
-                    overlayViewModel.launch(OverlayMode.Upgrade)
+                    // the overlay follows the server's confirmation (purchaseConfirmedSequence)
+                    subscriptionBalanceViewModel.confirmPurchase()
                     dismiss()
                 },
             )
@@ -1274,9 +1289,8 @@ fun MainNavContent(
                 setPendingSolanaSubscriptionReference = solanaPaymentViewModel.setPendingSolanaSubscriptionReference,
                 createSolanaPaymentIntent = solanaPaymentViewModel.createSolanaPaymentIntent,
                 onStripePaymentSuccess = {
-                    subscriptionBalanceViewModel.pollSubscriptionBalance()
-                    overlayViewModel.launchSunglassesFlight()
-                    overlayViewModel.launch(OverlayMode.Upgrade)
+                    // the overlay follows the server's confirmation (purchaseConfirmedSequence)
+                    subscriptionBalanceViewModel.confirmPurchase()
                     navController.popBackStack()
                 },
                 isCheckingSolanaTransaction = isCheckingSolanaTransaction

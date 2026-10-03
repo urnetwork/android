@@ -81,6 +81,7 @@ fun rememberPlanPurchaser(
             },
             onDismiss = {
                 payPage = null
+                subscriptionBalanceViewModel.cancelPurchaseConfirmation()
                 planViewModel.setInProgress(false)
                 ClientEvents.purchaseCancelled(Sdk.EventStoreStripe, ClientEvents.PRODUCT_STRIPE_PRO, page.plan, page.trial, page.price, page.currency)
             },
@@ -94,6 +95,8 @@ fun rememberPlanPurchaser(
                 return@PlanPurchaser
             }
             planViewModel.setInProgress(true)
+            // the confirmation baseline loads while the pay page is up
+            subscriptionBalanceViewModel.preparePurchaseConfirmation()
             val yearly = plan == PlanType.YEARLY
             val planName = if (yearly) Sdk.PlanYearly else Sdk.PlanMonthly
             ClientEvents.purchaseStarted(
@@ -103,6 +106,7 @@ fun rememberPlanPurchaser(
             )
             StripeSheetRequest.request(api, plan, subscriptionBalanceViewModel.storefrontCountry) { result, error ->
                 if (result == null) {
+                    subscriptionBalanceViewModel.cancelPurchaseConfirmation()
                     planViewModel.setInProgress(false)
                     ClientEvents.purchaseFailed(Sdk.EventStoreStripe, ClientEvents.PRODUCT_STRIPE_PRO, planName, yearly, 0.0, presentation.currency, "prepare")
                     planViewModel.setChangePlanError(listOfNotNull(notCompleted, error).joinToString("\n"))
@@ -110,6 +114,7 @@ fun rememberPlanPurchaser(
                 }
                 val secret = if (result.intentType == Sdk.StripeIntentTypeSetup) result.setupIntentClientSecret else result.paymentIntentClientSecret
                 if (secret.isNullOrEmpty()) {
+                    subscriptionBalanceViewModel.cancelPurchaseConfirmation()
                     planViewModel.setInProgress(false)
                     Toast.makeText(context, notCompleted, Toast.LENGTH_SHORT).show()
                     return@request
