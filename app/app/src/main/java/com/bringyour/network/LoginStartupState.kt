@@ -1,5 +1,6 @@
 package com.bringyour.network
 
+import com.bringyour.network.ui.login.VerifySendError
 import java.util.Base64
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -316,6 +317,8 @@ internal sealed class LoginClientCompletion {
 internal data class PasswordAuthWireResult(
     val byJwt: String? = null,
     val verificationUserAuth: String? = null,
+    // set when verification is required but no code was sent
+    val verificationSendError: VerifySendError? = null,
     val failure: LoginStartupFailure? = null,
     val failureMessage: String? = null,
 )
@@ -338,7 +341,11 @@ internal fun interface NetworkSessionAuthenticator {
 
 internal sealed class PasswordLoginCompletion {
     data class Ready(val clientId: String) : PasswordLoginCompletion()
-    data class VerificationRequired(val userAuth: String) : PasswordLoginCompletion()
+    data class VerificationRequired(
+        val userAuth: String,
+        // set when no code was sent; the verify screen must not say one was
+        val sendError: VerifySendError? = null,
+    ) : PasswordLoginCompletion()
     data class Failed(
         val failure: LoginStartupFailure,
         val message: String? = null,
@@ -414,7 +421,12 @@ internal class PasswordLoginCoordinator(
             return
         }
         result.verificationUserAuth?.takeIf(String::isNotEmpty)?.let { verificationUserAuth ->
-            completion(PasswordLoginCompletion.VerificationRequired(verificationUserAuth))
+            completion(
+                PasswordLoginCompletion.VerificationRequired(
+                    verificationUserAuth,
+                    result.verificationSendError,
+                )
+            )
             return
         }
         val byJwt = result.byJwt?.takeIf(String::isNotEmpty)

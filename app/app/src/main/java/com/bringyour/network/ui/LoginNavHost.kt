@@ -24,6 +24,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.bringyour.network.LoginClientCompletion
 import com.bringyour.network.ui.components.overlays.FullScreenOverlay
 import com.bringyour.network.ui.components.overlays.WelcomeAnimatedOverlayLogin
@@ -40,6 +41,7 @@ import com.bringyour.network.ui.login.LoginVerify
 import com.bringyour.network.ui.login.LoginViewModel
 import com.bringyour.network.ui.login.SeedphraseDisplayScreen
 import com.bringyour.network.ui.login.SwitchAccountScreen
+import com.bringyour.network.ui.login.VerifySendError
 import com.bringyour.network.ui.login.toWalletCreateBundle
 import com.bringyour.network.ui.shared.viewmodels.OverlayViewModel
 import com.solana.mobilewalletadapter.clientlib.ActivityResultSender
@@ -213,13 +215,42 @@ fun LoginNavHost(
                         )
                     }
 
-                    composable("verify/{userAuth}") { backStackEntry ->
+                    composable(
+                        "verify/{userAuth}?sendErrorCode={sendErrorCode}" +
+                            "&sendErrorMessage={sendErrorMessage}" +
+                            "&sendErrorRetryAfterSeconds={sendErrorRetryAfterSeconds}",
+                        arguments = listOf(
+                            navArgument("sendErrorCode") {
+                                nullable = true
+                                defaultValue = null
+                            },
+                            navArgument("sendErrorMessage") {
+                                nullable = true
+                                defaultValue = null
+                            },
+                            navArgument("sendErrorRetryAfterSeconds") {
+                                nullable = true
+                                defaultValue = null
+                            },
+                        ),
+                    ) { backStackEntry ->
 
-                        val userAuth = backStackEntry.arguments?.getString("userAuth") ?: ""
+                        val arguments = backStackEntry.arguments
+                        val userAuth = arguments?.getString("userAuth") ?: ""
+                        // set by verifyRoute when the login or sign-up did not send a code
+                        val sendError = arguments?.getString("sendErrorCode")?.let { code ->
+                            VerifySendError(
+                                code = code,
+                                message = arguments.getString("sendErrorMessage") ?: "",
+                                retryAfterSeconds = arguments.getString("sendErrorRetryAfterSeconds")
+                                    ?.toLongOrNull() ?: 0L,
+                            )
+                        }
 
                         LoginVerify(
                             userAuth,
-                            navController
+                            navController,
+                            sendError = sendError,
                         )
                     }
 

@@ -30,6 +30,7 @@ import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.work.WorkManager
 import com.bringyour.network.location.MockLocationController
 import com.bringyour.network.location.MockLocationFeeder
+import com.bringyour.network.ui.login.toVerifySendError
 import com.bringyour.network.ui.shared.models.ProvideNetworkMode
 import com.bringyour.sdk.DeviceLocal
 import com.bringyour.sdk.LocalState
@@ -295,6 +296,8 @@ class MainApplication : Application() {
                                 PasswordAuthWireResult(
                                     byJwt = it.network?.byJwt,
                                     verificationUserAuth = it.verificationRequired?.userAuth,
+                                    verificationSendError =
+                                        it.verificationRequired?.sendError?.toVerifySendError(),
                                     failure = if (resultError == null) {
                                         null
                                     } else {

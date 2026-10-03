@@ -374,6 +374,7 @@
     <string name="error_connecting_wallet_with_reason">There was an error connecting your wallet: %1$s</string>
     <string name="error_loading_account_plan">Error loading your account plan.</string>
     <string name="error_redeeming_transfer_balance_code">Error redeeming transfer balance code</string>
+    <string name="error_sending_verification_code">There was an error sending the verification code.</string>
     <string name="error_setting_default_wallet_with_reason">Error setting default wallet: %1$s</string>
     <string name="exclude_app">Exclude from VPN</string>
     <string name="exclude_app_description">This app bypasses the tunnel.</string>
@@ -1000,6 +1001,10 @@
     <plurals name="total_referral_count">
         <item quantity="one">Total referrals: %1$d</item>
         <item quantity="other">Total referrals: %1$d</item>
+    </plurals>
+    <plurals name="verify_code_rate_limited">
+        <item quantity="one">Too many attempts. You can request a new code in %1$d minute.</item>
+        <item quantity="other">Too many attempts. You can request a new code in %1$d minutes.</item>
     </plurals>
     <plurals name="widget_contract_stack_accessibility">
         <item quantity="one">%1$d contract, %2$s</item>

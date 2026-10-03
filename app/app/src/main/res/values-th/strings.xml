@@ -170,6 +170,7 @@
     <string name="error_connecting_wallet_with_reason">เกิดข้อผิดพลาดในการเชื่อมต่อกระเป๋าเงินของคุณ: %1$s</string>
     <string name="error_loading_account_plan">เกิดข้อผิดพลาดในการโหลดแผนบัญชีของคุณ</string>
     <string name="error_redeeming_transfer_balance_code">เกิดข้อผิดพลาดในการแลกรหัสยอดเงินโอน</string>
+    <string name="error_sending_verification_code">เกิดข้อผิดพลาดในการส่งรหัสยืนยัน</string>
     <string name="error_setting_default_wallet_with_reason">เกิดข้อผิดพลาดในการตั้งค่ากระเป๋าเงินเริ่มต้น: %1$s</string>
     <string name="exclude_app">ยกเว้นจาก VPN</string>
     <string name="exclude_app_description">แอปนี้จะไม่ผ่านอุโมงค์</string>
@@ -606,5 +607,8 @@
     </plurals>
     <plurals name="total_referral_count">
         <item quantity="other">จำนวนการแนะนำทั้งหมด: %1$d</item>
+    </plurals>
+    <plurals name="verify_code_rate_limited">
+        <item quantity="other">พยายามหลายครั้งเกินไป คุณสามารถขอรหัสใหม่ได้ในอีก %1$d นาที</item>
     </plurals>
 </resources>

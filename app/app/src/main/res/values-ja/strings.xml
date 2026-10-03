@@ -170,6 +170,7 @@
     <string name="error_connecting_wallet_with_reason">ウォレットの接続中にエラーが発生しました：%1$s</string>
     <string name="error_loading_account_plan">アカウントプランの読み込み中にエラーが発生しました。</string>
     <string name="error_redeeming_transfer_balance_code">転送残高コードの引き換え時にエラーが発生しました。</string>
+    <string name="error_sending_verification_code">確認コードの送信中にエラーが発生しました。</string>
     <string name="error_setting_default_wallet_with_reason">デフォルトウォレットの設定中にエラーが発生しました：%1$s</string>
     <string name="exclude_app">VPNから除外</string>
     <string name="exclude_app_description">このアプリはトンネルを迂回します。</string>
@@ -606,5 +607,8 @@
     </plurals>
     <plurals name="total_referral_count">
         <item quantity="other">紹介合計: %1$d</item>
+    </plurals>
+    <plurals name="verify_code_rate_limited">
+        <item quantity="other">試行回数が多すぎます。%1$d 分後に新しいコードをリクエストできます。</item>
     </plurals>
 </resources>

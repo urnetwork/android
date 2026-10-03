@@ -170,6 +170,7 @@
     <string name="error_connecting_wallet_with_reason">Při připojování peněženky došlo k chybě: %1$s</string>
     <string name="error_loading_account_plan">Chyba při načítání plánu vašeho účtu.</string>
     <string name="error_redeeming_transfer_balance_code">Chyba při uplatnění kódu převodu zůstatku.</string>
+    <string name="error_sending_verification_code">Při odesílání ověřovacího kódu došlo k chybě.</string>
     <string name="error_setting_default_wallet_with_reason">Chyba při nastavování výchozí peněženky: %1$s</string>
     <string name="exclude_app">Vyloučit z VPN</string>
     <string name="exclude_app_description">Tato aplikace obchází tunel.</string>
@@ -651,5 +652,11 @@
         <item quantity="few">Celkem doporučení: %1$d</item>
         <item quantity="many">Celkem doporučení: %1$d</item>
         <item quantity="other">Celkem doporučení: %1$d</item>
+    </plurals>
+    <plurals name="verify_code_rate_limited">
+        <item quantity="one">Příliš mnoho pokusů. Nový kód si můžete vyžádat za %1$d minutu.</item>
+        <item quantity="few">Příliš mnoho pokusů. Nový kód si můžete vyžádat za %1$d minuty.</item>
+        <item quantity="many">Příliš mnoho pokusů. Nový kód si můžete vyžádat za %1$d minuty.</item>
+        <item quantity="other">Příliš mnoho pokusů. Nový kód si můžete vyžádat za %1$d minut.</item>
     </plurals>
 </resources>
