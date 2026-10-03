@@ -47,6 +47,7 @@
     <string name="back">Rudi</string>
     <string name="balance">Mizani</string>
     <string name="balance_code">Msimbo wa salio</string>
+    <string name="balance_code_redeemed">Msimbo wa salio umetumika.</string>
     <string name="balance_code_where_to_buy">Huna msimbo? Misimbo ya data inaweza kununuliwa kwenye ur.io na kutumwa kwako kwa barua pepe.</string>
     <string name="balance_codes_link">Misimbo ya salio</string>
     <string name="balance_codes_title">Misimbo ya salio</string>

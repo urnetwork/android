@@ -47,6 +47,7 @@
     <string name="back">Wstecz</string>
     <string name="balance">Saldo</string>
     <string name="balance_code">Kod salda</string>
+    <string name="balance_code_redeemed">Kod salda zrealizowany.</string>
     <string name="balance_code_where_to_buy">Nie masz kodu? Kody danych można kupić na ur.io i otrzymać e-mailem.</string>
     <string name="balance_codes_link">Kody salda</string>
     <string name="balance_codes_title">Kody salda</string>

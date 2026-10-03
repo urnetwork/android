@@ -47,6 +47,7 @@
     <string name="back">戻る</string>
     <string name="balance">残高</string>
     <string name="balance_code">残高コード</string>
+    <string name="balance_code_redeemed">残高コードを利用しました。</string>
     <string name="balance_code_where_to_buy">コードをお持ちでない方は、ur.ioでデータコードを購入すると、メールで届きます。</string>
     <string name="balance_codes_link">残高コード</string>
     <string name="balance_codes_title">残高コード</string>

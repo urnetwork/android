@@ -47,6 +47,7 @@
     <string name="back">Zpět</string>
     <string name="balance">Zůstatek</string>
     <string name="balance_code">Kód zůstatku</string>
+    <string name="balance_code_redeemed">Kód zůstatku uplatněn.</string>
     <string name="balance_code_where_to_buy">Nemáte kód? Datové kódy si můžete koupit na ur.io a přijdou vám e-mailem.</string>
     <string name="balance_codes_link">Kódy zůstatku</string>
     <string name="balance_codes_title">Kódy zůstatku</string>

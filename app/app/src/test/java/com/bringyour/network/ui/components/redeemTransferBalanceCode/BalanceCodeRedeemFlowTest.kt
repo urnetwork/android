@@ -12,7 +12,7 @@ import org.junit.Test
  */
 class BalanceCodeRedeemFlowTest {
 
-    private data class Answer(val credited: Boolean, val errorMessage: String?)
+    private data class Answer(val credited: Boolean, val errorMessage: String?, val byteCount: Long = 0L)
 
     private val secret = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
@@ -45,13 +45,21 @@ class BalanceCodeRedeemFlowTest {
                 callback(redeemedCodes)
             },
             classify = classify,
+            addedByteCount = { it.byteCount },
         )
 
+        var redeemed: RedeemedBalanceCode? = null
+
+        /** The failure, or null when the redeem credited (then `redeemed` is set). */
         fun result(secret: String): RedeemBalanceCodeFailure? {
             var out: RedeemBalanceCodeFailure? = null
-            var called = false
-            flow.run(secret) { out = it; called = true }
-            check(called)
+            var calls = 0
+            flow.run(
+                secret,
+                onRedeemed = { redeemed = it; calls += 1 },
+                onFailure = { out = it; calls += 1 },
+            )
+            check(calls == 1)
             return out
         }
     }
@@ -106,7 +114,54 @@ class BalanceCodeRedeemFlowTest {
     fun creditedRedeemSucceedsWithoutFetchingTheList() {
         val run = Run(Answer(credited = true, errorMessage = null), transportError = false, redeemedCodes = null, classify = ::classify)
         assertNull(run.result(secret))
+        assertEquals(RedeemedBalanceCode(addedByteCount = 0L), run.redeemed)
         assertEquals(0, run.listFetches)
+    }
+
+    /**
+     * The defect: a credited data code reached the UI as a bare success, so the app
+     * confirmed it with the Pro upgrade overlay and a Pro confirmation poll. The
+     * success must carry the data the server's answer says the code added.
+     */
+    @Test
+    fun creditedRedeemReportsTheDataTheCodeAdded() {
+        val fiveGib = 5L * 1024 * 1024 * 1024
+        val run = Run(
+            Answer(credited = true, errorMessage = null, byteCount = fiveGib),
+            transportError = false,
+            redeemedCodes = null,
+            classify = ::classify,
+        )
+        assertNull(run.result(secret))
+        assertEquals(RedeemedBalanceCode(addedByteCount = fiveGib), run.redeemed)
+    }
+
+    @Test
+    fun alreadyRedeemedIsNotReportedAsANewCredit() {
+        val run = Run(null, transportError = true, redeemedCodes = listOf(secret), classify = ::classify)
+        assertEquals(RedeemBalanceCodeFailure.AlreadyRedeemed, run.result(secret))
+        assertNull(run.redeemed)
+    }
+
+    @Test
+    fun redeemedMessageStatesTheDataAddedAndNoPlan() {
+        val message = balanceCodeRedeemedMessage(
+            RedeemedBalanceCode(addedByteCount = 5L * 1024 * 1024 * 1024),
+            "Balance code redeemed.",
+            { amount -> "$amount of data added to your balance." },
+            formatBytes = { "${it / (1024L * 1024 * 1024)} GiB" },
+        )
+        assertEquals("Balance code redeemed. 5 GiB of data added to your balance.", message)
+    }
+
+    @Test
+    fun redeemedMessageWithoutAByteCountConfirmsTheRedeem() {
+        val message = balanceCodeRedeemedMessage(
+            RedeemedBalanceCode(addedByteCount = 0L),
+            "Balance code redeemed.",
+            { amount -> "$amount of data added to your balance." },
+        )
+        assertEquals("Balance code redeemed.", message)
     }
 
     @Test

@@ -47,6 +47,7 @@
     <string name="back">뒤로</string>
     <string name="balance">잔액</string>
     <string name="balance_code">잔액 코드</string>
+    <string name="balance_code_redeemed">잔액 코드를 사용했습니다.</string>
     <string name="balance_code_where_to_buy">코드가 없으신가요? 데이터 코드는 ur.io에서 구매할 수 있으며 이메일로 전송됩니다.</string>
     <string name="balance_codes_link">잔액 코드</string>
     <string name="balance_codes_title">잔액 코드</string>

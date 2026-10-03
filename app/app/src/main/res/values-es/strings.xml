@@ -51,7 +51,9 @@
     <string name="balance">Saldo</string>
     <string name="balance_code">Código de saldo</string>
     <string name="balance_code_already_redeemed_message">Este código de saldo ya se canjeó. Si lo canjeaste antes, los datos ya están en tu saldo.</string>
+    <string name="balance_code_data_added">Se añadieron %1$s de datos a tu saldo.</string>
     <string name="balance_code_invalid_message">Ese código de saldo no es válido. Revisa el código e inténtalo de nuevo.</string>
+    <string name="balance_code_redeemed">Código de saldo canjeado.</string>
     <string name="balance_code_transport_error">No pudimos conectar con el servidor — revisa tu conexión. Si se te cobró, puede que el código ya se haya aplicado; revisa tu saldo antes de volver a intentarlo.</string>
     <string name="balance_code_where_to_buy">¿No tienes un código? Puedes comprar códigos de datos en ur.io y te llegarán por correo electrónico.</string>
     <string name="balance_codes_link">Códigos de saldo</string>

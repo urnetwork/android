@@ -47,6 +47,7 @@
     <string name="back">Retour</string>
     <string name="balance">Solde</string>
     <string name="balance_code">Code de solde</string>
+    <string name="balance_code_redeemed">Code de solde utilisé.</string>
     <string name="balance_code_where_to_buy">Pas de code ? Les codes de données s\'achètent sur ur.io et vous sont envoyés par e-mail.</string>
     <string name="balance_codes_link">Codes de solde</string>
     <string name="balance_codes_title">Codes de solde</string>

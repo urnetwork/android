@@ -47,6 +47,7 @@
     <string name="back">Πίσω</string>
     <string name="balance">Υπόλοιπο</string>
     <string name="balance_code">Κωδικός υπολοίπου</string>
+    <string name="balance_code_redeemed">Ο κωδικός υπολοίπου εξαργυρώθηκε.</string>
     <string name="balance_code_where_to_buy">Δεν έχετε κωδικό; Οι κωδικοί δεδομένων αγοράζονται στο ur.io και αποστέλλονται με email.</string>
     <string name="balance_codes_link">Κωδικοί υπολοίπου</string>
     <string name="balance_codes_title">Κωδικοί υπολοίπου</string>
