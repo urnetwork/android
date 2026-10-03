@@ -145,7 +145,11 @@ fun LoginVerify(
                 if (sendNotice == VerifySendNotice.Sent) {
                     codeSent = true
                     markResendAsSent = true
-                    Toast.makeText(context, "Verification code sent", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        context,
+                        context.getString(R.string.verification_code_sent_2),
+                        Toast.LENGTH_SHORT,
+                    ).show()
                 }
             }
         } ?: run {

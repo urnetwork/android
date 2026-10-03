@@ -852,6 +852,7 @@
     <string name="user_auth_label">E-Mail oder Telefon</string>
     <string name="user_auth_placeholder">Gib deine Telefonnummer oder E-Mail-Adresse ein</string>
     <string name="uses_ur_protocol">Nutzt das UR Protocol</string>
+    <string name="verification_code_sent_2">Bestätigungscode gesendet.</string>
     <string name="verified_project_on">Verifiziertes Projekt auf %1$s</string>
     <string name="verify_error">Etwas ist schiefgelaufen. Versuche es erneut.</string>
     <string name="verify_seeker">Seeker verifizieren</string>

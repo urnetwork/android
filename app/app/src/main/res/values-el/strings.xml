@@ -546,6 +546,7 @@
     <string name="user_auth_label">Email ή τηλέφωνο</string>
     <string name="user_auth_placeholder">Εισαγάγετε τον αριθμό τηλεφώνου ή το email σας</string>
     <string name="uses_ur_protocol">Χρησιμοποιεί το UR Protocol</string>
+    <string name="verification_code_sent_2">Ο κωδικός επαλήθευσης στάλθηκε.</string>
     <string name="verified_project_on">Επαληθευμένο έργο στο %1$s</string>
     <string name="verify_error">Κάτι πήγε στραβά. Δοκιμάστε ξανά.</string>
     <string name="verify_seeker_token_btn">Επαληθεύστε το Seeker Pre-Order Token</string>

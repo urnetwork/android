@@ -852,6 +852,7 @@
     <string name="user_auth_label">Email или телефон</string>
     <string name="user_auth_placeholder">Введите номер телефона или email</string>
     <string name="uses_ur_protocol">Использует UR Protocol</string>
+    <string name="verification_code_sent_2">Код подтверждения отправлен.</string>
     <string name="verified_project_on">Проверенный проект на %1$s</string>
     <string name="verify_error">Что-то пошло не так. Попробуйте еще раз.</string>
     <string name="verify_seeker">Подтвердить Seeker</string>

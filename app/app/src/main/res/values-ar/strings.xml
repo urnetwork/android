@@ -852,6 +852,7 @@
     <string name="user_auth_label">البريد الإلكتروني أو الهاتف</string>
     <string name="user_auth_placeholder">أدخل رقم هاتفك أو بريدك الإلكتروني</string>
     <string name="uses_ur_protocol">يستخدم UR Protocol</string>
+    <string name="verification_code_sent_2">تم إرسال رمز التحقق.</string>
     <string name="verified_project_on">مشروع موثّق على %1$s</string>
     <string name="verify_error">حدث خطأ ما. حاول مجددا.</string>
     <string name="verify_seeker">التحقق من Seeker</string>

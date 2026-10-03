@@ -546,6 +546,7 @@
     <string name="user_auth_label">อีเมล หรือ เบอร์โทรศัพท์</string>
     <string name="user_auth_placeholder">กรอกเบอร์โทรศัพท์ หรืออีเมลของคุณ</string>
     <string name="uses_ur_protocol">ใช้ UR Protocol</string>
+    <string name="verification_code_sent_2">ส่งรหัสยืนยันแล้ว</string>
     <string name="verified_project_on">โปรเจกต์ที่ได้รับการยืนยันบน %1$s</string>
     <string name="verify_error">มีบางอย่างผิดปกติ ลองใหม่อีกครั้ง</string>
     <string name="verify_seeker_token_btn">ยืนยัน Seeker Pre-Order Token</string>

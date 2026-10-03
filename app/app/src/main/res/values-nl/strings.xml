@@ -546,6 +546,7 @@
     <string name="user_auth_label">E-mail of telefoon</string>
     <string name="user_auth_placeholder">Voer je telefoonnummer of e-mailadres in</string>
     <string name="uses_ur_protocol">Gebruikt het UR Protocol</string>
+    <string name="verification_code_sent_2">Verificatiecode verzonden.</string>
     <string name="verified_project_on">Geverifieerd project op %1$s</string>
     <string name="verify_error">Er is iets misgegaan. Probeer het opnieuw.</string>
     <string name="verify_seeker_token_btn">Verifieer je Seeker Pre-Order Token</string>

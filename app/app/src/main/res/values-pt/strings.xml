@@ -546,6 +546,7 @@
     <string name="user_auth_label">E-mail ou telefone</string>
     <string name="user_auth_placeholder">Digite seu número de telefone ou e-mail</string>
     <string name="uses_ur_protocol">Utiliza o UR Protocol</string>
+    <string name="verification_code_sent_2">Código de verificação enviado.</string>
     <string name="verified_project_on">Projeto verificado no %1$s</string>
     <string name="verify_error">Algo deu errado. Tente novamente.</string>
     <string name="verify_seeker_token_btn">Verificar token de pré-venda Seeker</string>

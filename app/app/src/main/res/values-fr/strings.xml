@@ -546,6 +546,7 @@
     <string name="user_auth_label">Email ou téléphone</string>
     <string name="user_auth_placeholder">Entrez votre numéro de téléphone ou votre email</string>
     <string name="uses_ur_protocol">Utilise UR Protocol</string>
+    <string name="verification_code_sent_2">Code de vérification envoyé.</string>
     <string name="verified_project_on">Projet vérifié sur %1$s</string>
     <string name="verify_error">Quelque chose s\'est mal passé. Réessayez.</string>
     <string name="verify_seeker_token_btn">Vérifier le jeton de précommande Seeker</string>

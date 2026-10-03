@@ -546,6 +546,7 @@
     <string name="user_auth_label">이메일 또는 전화번호</string>
     <string name="user_auth_placeholder">전화번호 또는 이메일을 입력하세요</string>
     <string name="uses_ur_protocol">UR Protocol 사용</string>
+    <string name="verification_code_sent_2">인증 코드를 보냈습니다.</string>
     <string name="verified_project_on">%1$s에서 인증된 프로젝트</string>
     <string name="verify_error">문제가 발생했습니다. 다시 시도해 주세요.</string>
     <string name="verify_seeker_token_btn">Seeker 선주문 토큰 확인</string>

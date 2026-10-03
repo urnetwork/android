@@ -546,6 +546,7 @@
     <string name="user_auth_label">メールアドレスまたは電話番号</string>
     <string name="user_auth_placeholder">電話番号またはメールアドレスを入力してください</string>
     <string name="uses_ur_protocol">UR Protocolを使用</string>
+    <string name="verification_code_sent_2">確認コードを送信しました。</string>
     <string name="verified_project_on">%1$sで認証されたプロジェクト</string>
     <string name="verify_error">エラーが発生しました。もう一度お試しください。</string>
     <string name="verify_seeker_token_btn">シーカー事前予約トークンを認証</string>

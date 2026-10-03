@@ -852,6 +852,7 @@
     <string name="user_auth_label">电子邮件或电话</string>
     <string name="user_auth_placeholder">输入您的电话号码或电子邮件</string>
     <string name="uses_ur_protocol">使用 UR Protocol</string>
+    <string name="verification_code_sent_2">验证码已发送。</string>
     <string name="verified_project_on">在 %1$s 上已验证的项目</string>
     <string name="verify_error">出了些问题。再试一次。</string>
     <string name="verify_seeker">验证 Seeker</string>

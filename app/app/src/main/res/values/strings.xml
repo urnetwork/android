@@ -870,6 +870,7 @@
     <string name="user_auth_label">Email or phone</string>
     <string name="user_auth_placeholder">Enter your phone number or email</string>
     <string name="uses_ur_protocol">Uses the UR Protocol</string>
+    <string name="verification_code_sent_2">Verification code sent.</string>
     <string name="verified_project_on">Verified project on %1$s</string>
     <string name="verify_error">Something went wrong. Try again.</string>
     <string name="verify_seeker">Verify Seeker</string>

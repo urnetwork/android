@@ -546,6 +546,7 @@
     <string name="user_auth_label">Barua pepe au simu</string>
     <string name="user_auth_placeholder">Weka nambari yako ya simu au barua pepe</string>
     <string name="uses_ur_protocol">Hutumia UR Protocol</string>
+    <string name="verification_code_sent_2">Nambari ya uthibitisho imetumwa.</string>
     <string name="verified_project_on">Mradi uliothibitishwa kwenye %1$s</string>
     <string name="verify_error">Kuna kitu kilienda vibaya. Jaribu tena.</string>
     <string name="verify_seeker_token_btn">Thibitisha Tokeni ya Agizo la Mapema la Seeker</string>
