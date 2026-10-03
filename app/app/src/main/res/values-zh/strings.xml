@@ -716,7 +716,6 @@
     <string name="seedphrase_leave_confirm_body">确定吗？这是您唯一一次看到助记词的机会。返回前请务必保存。</string>
     <string name="seedphrase_paste_hint">在此粘贴你的 12 或 24 个单词的助记词</string>
     <string name="seedphrase_required">请输入助记词</string>
-    <string name="seeker_points_only">Seeker 倍增器仅适用于积分。</string>
     <string name="seeker_token_verified">Seeker 令牌已验证</string>
     <string name="select_location_provider_content_description">地球图标：选择提供商位置</string>
     <string name="send">发送</string>

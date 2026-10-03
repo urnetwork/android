@@ -716,7 +716,6 @@
     <string name="seedphrase_leave_confirm_body">Bist du sicher? Das ist das EINZIGE Mal, dass du deine Seedphrase siehst. Speichere sie, bevor du zurückgehst.</string>
     <string name="seedphrase_paste_hint">Füge hier deine Seedphrase mit 12 oder 24 Wörtern ein</string>
     <string name="seedphrase_required">Bitte gib eine Seedphrase ein</string>
-    <string name="seeker_points_only">Der Seeker-Multiplikator gilt nur für Punkte.</string>
     <string name="seeker_token_verified">Seeker-Token verifiziert!</string>
     <string name="select_location_provider_content_description">Globus: Anbieter-Standort auswählen</string>
     <string name="send">Sende</string>

@@ -568,12 +568,17 @@ class EarningsViewModel @Inject constructor(
 
     // ---- seeker
 
+    /**
+     * Sends a signed Seeker verification message to the server. Every way it
+     * can end short of verified reaches `onNotice`; before, a missing device or
+     * a transport error ended silently.
+     */
     val verifySeekerHolder: (
         SolanaPublicKey,
         String,
         String,
-        (String) -> Unit
-    ) -> Unit = verifySeekerHolder@{ publicKey, message, signature, onError ->
+        (SeekerVerifyNotice) -> Unit
+    ) -> Unit = verifySeekerHolder@{ publicKey, message, signature, onNotice ->
 
         if (isVerifyingSeekerHolder) {
             return@verifySeekerHolder
@@ -583,6 +588,12 @@ class EarningsViewModel @Inject constructor(
         val api = device?.api
         if (device == null || api == null) {
             isVerifyingSeekerHolder = false
+            SeekerVerifyNotice.fromVerifyResult(
+                requestFailed = true,
+                success = false,
+                serverMessage = null,
+                walletAddress = publicKey.address,
+            )?.let(onNotice)
             return@verifySeekerHolder
         }
 
@@ -597,16 +608,16 @@ class EarningsViewModel @Inject constructor(
                     return@launch
                 }
                 Log.i(TAG, "[verifySeekerHolder] result = $result, error = $error")
-                if (error != null) {
-                    isVerifyingSeekerHolder = false
-                    return@launch
-                }
-                if (result != null && result.success) {
+                val notice = SeekerVerifyNotice.fromVerifyResult(
+                    requestFailed = error != null || result == null,
+                    success = result?.success == true,
+                    serverMessage = result?.error?.message,
+                    walletAddress = publicKey.address,
+                )
+                if (notice == null) {
                     _isSeekerHolder.value = true
                 } else {
-                    val errorMessage = result?.error?.message
-                        ?: "No Seeker NFT found in wallet ...${publicKey.address.takeLast(7)}"
-                    onError(errorMessage)
+                    onNotice(notice)
                 }
                 isVerifyingSeekerHolder = false
             }

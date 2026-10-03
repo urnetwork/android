@@ -730,8 +730,11 @@
     <string name="seedphrase_leave_confirm_body">Are you sure? This is the ONLY time you\'ll see your seedphrase. Make sure you\'ve saved it before going back.</string>
     <string name="seedphrase_paste_hint">Paste your 12 or 24-word seedphrase here</string>
     <string name="seedphrase_required">Please enter a seedphrase</string>
-    <string name="seeker_points_only">The Seeker multiplier applies to points only.</string>
+    <string name="seeker_multiplier_benefit">Doubles your points, free daily data and referral data.</string>
+    <string name="seeker_token_not_found">No Seeker or Saga token found in wallet …%1$s</string>
     <string name="seeker_token_verified">Seeker Token Verified!</string>
+    <string name="seeker_verify_failed">Couldn\'t verify the Seeker token. Please try again.</string>
+    <string name="seeker_verify_no_wallet_app">No Solana wallet app was found on this device.</string>
     <string name="select_location_provider_content_description">Select location provider globe</string>
     <string name="send">Send</string>
     <string name="send_feedback">Send us your feedback directly or join our %1$s for direct support.</string>

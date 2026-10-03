@@ -113,6 +113,8 @@ import com.bringyour.network.ui.shared.viewmodels.SubscriptionBalanceViewModel
 import com.bringyour.network.ui.theme.BlueMedium
 import com.bringyour.network.ui.theme.Green
 import com.bringyour.network.ui.wallet.EarningsViewModel
+import com.bringyour.network.ui.wallet.SeekerSignOutcome
+import com.bringyour.network.ui.wallet.SeekerVerifyNotice
 import com.solana.mobilewalletadapter.clientlib.ActivityResultSender
 import com.solana.mobilewalletadapter.clientlib.ConnectionIdentity
 import com.solana.mobilewalletadapter.clientlib.MobileWalletAdapter
@@ -218,6 +220,7 @@ fun SettingsScreen(
     val iconUri = Uri.parse("favicon.ico")
     val identityName = "URnetwork"
     val snackbarHostState = remember { SnackbarHostState() }
+    val context = LocalContext.current
 
     val clipboardManager = LocalClipboardManager.current
 
@@ -251,35 +254,51 @@ fun SettingsScreen(
                     signMessagesDetached(arrayOf(message.toByteArray()), arrayOf((authResult.accounts.first().publicKey)))
                 }
 
-                when (result) {
-                    is TransactionResult.Success -> {
-                        val signedMessageBytes = result.successPayload?.messages?.first()?.signatures?.first()
-                        val signatureBase64 = Base64.encodeToString(signedMessageBytes, Base64.NO_WRAP)
-                        // val message = result.successPayload?.messages?.first()?.message?.decodeToString()
-                        val pk = SolanaPublicKey(result.authResult.accounts.first().publicKey)
-
-                        earningsViewModel.verifySeekerHolder(
-                            pk,
-                            message,
-                            signatureBase64
-                        ) { errMsg ->
-                            scope.launch {
-                                snackbarHostState.showSnackbar(
-                                    message = errMsg,
-                                    withDismissAction = true,
-                                    duration = SnackbarDuration.Indefinite
-                                )
-                            }
-                        }
-
-
+                val showNotice: (SeekerVerifyNotice) -> Unit = { notice ->
+                    val noticeMessage = when (notice) {
+                        SeekerVerifyNotice.NoWalletApp ->
+                            context.getString(R.string.seeker_verify_no_wallet_app)
+                        SeekerVerifyNotice.Failed ->
+                            context.getString(R.string.seeker_verify_failed)
+                        is SeekerVerifyNotice.NotHolder ->
+                            context.getString(R.string.seeker_token_not_found, notice.walletSuffix)
+                        is SeekerVerifyNotice.ServerMessage -> notice.message
                     }
-                    is TransactionResult.NoWalletFound -> {
-                        println("No MWA compatible wallet app found on device.")
+                    scope.launch {
+                        snackbarHostState.showSnackbar(
+                            message = noticeMessage,
+                            withDismissAction = true,
+                            duration = SnackbarDuration.Indefinite
+                        )
                     }
+                }
+
+                // a wallet app that cannot sign is shown, not only logged
+                val signedMessageBytes = (result as? TransactionResult.Success)
+                    ?.successPayload?.messages?.firstOrNull()?.signatures?.firstOrNull()
+                val signOutcome = when (result) {
+                    is TransactionResult.Success ->
+                        if (signedMessageBytes == null) SeekerSignOutcome.NoSignature else SeekerSignOutcome.Signed
+                    is TransactionResult.NoWalletFound -> SeekerSignOutcome.NoWalletApp
                     is TransactionResult.Failure -> {
-                        println("Error during transaction signing: ${result.e}")
+                        Log.i(TAG, "Error during transaction signing: ${result.e}")
+                        SeekerSignOutcome.Failed
                     }
+                }
+
+                val signNotice = SeekerVerifyNotice.fromSign(signOutcome)
+                if (signNotice != null) {
+                    showNotice(signNotice)
+                } else if (result is TransactionResult.Success && signedMessageBytes != null) {
+                    val signatureBase64 = Base64.encodeToString(signedMessageBytes, Base64.NO_WRAP)
+                    val pk = SolanaPublicKey(result.authResult.accounts.first().publicKey)
+
+                    earningsViewModel.verifySeekerHolder(
+                        pk,
+                        message,
+                        signatureBase64,
+                        showNotice
+                    )
                 }
             }
 
@@ -1444,6 +1463,13 @@ private fun SettingsScreen(
 
             Text(
                 stringResource(id = R.string.connect_seeker_wallet),
+                style = MaterialTheme.typography.bodySmall,
+                color = TextMuted
+            )
+
+            // the multiplier doubles points, free daily data and referral data; it does not grant Pro
+            Text(
+                stringResource(id = R.string.seeker_multiplier_benefit),
                 style = MaterialTheme.typography.bodySmall,
                 color = TextMuted
             )
