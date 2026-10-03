@@ -66,12 +66,14 @@ import androidx.navigation.NavController
 import com.bringyour.network.R
 import com.bringyour.network.ui.indexedLazyListKey
 import com.bringyour.network.ui.components.ButtonStyle
+import com.bringyour.network.ui.components.InfoIconWithOverlay
 import com.bringyour.network.ui.components.SwipeToRevealRow
 import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.components.URTextInput
 import com.bringyour.network.utils.SplitRuleHostError
 import com.bringyour.network.utils.SplitRuleHostInput
 import com.bringyour.network.ui.theme.Black
+import com.bringyour.network.ui.theme.BlueLight
 import com.bringyour.network.ui.theme.BlueMedium
 import com.bringyour.network.ui.theme.Green
 import com.bringyour.network.ui.theme.Red
@@ -80,14 +82,31 @@ import com.bringyour.network.ui.theme.TextFaint
 import com.bringyour.network.ui.theme.MainTintedBackgroundBase
 import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.TopBarTitleTextStyle
+import com.bringyour.network.ui.theme.Yellow400
 import com.bringyour.network.utils.formatByteCountCompact
 import kotlinx.coroutines.launch
 
-private data class RuleEditorTarget(
+internal data class RuleEditorTarget(
     val candidates: List<String>,
     val selected: Set<String>,
     val ruleId: String?,
 )
+
+/**
+ * The editor for "Route locally" on a safety-ruled action: a new local rule
+ * with all of the action's host values selected. Null when the action does
+ * not offer it (see [BlockActionUi.offersRouteLocal])
+ */
+internal fun routeLocalEditorTarget(action: BlockActionUi): RuleEditorTarget? =
+    if (action.offersRouteLocal) {
+        RuleEditorTarget(
+            candidates = action.hostValues,
+            selected = action.hostValues.toSet(),
+            ruleId = null,
+        )
+    } else {
+        null
+    }
 
 /**
  * Live routing decisions with the split rules pinned on top.
@@ -316,7 +335,10 @@ fun SplitRulesScreen(
                     ) { _, action ->
                         BlockActionRow(
                             action = action,
-                            onClick = { openEditor(action) }
+                            onClick = { openEditor(action) },
+                            onRouteLocal = {
+                                routeLocalEditorTarget(action)?.let { editorTarget = it }
+                            },
                         )
                     }
                 }
@@ -461,11 +483,14 @@ private fun SplitRuleRow(
 // A block-action row. Chips, in order: the exact hosts/ips an override matched
 // (green), then the remaining hosts collapsed to base names (white outline), then a
 // single "X IPs" pill for the remaining ips. The block/route state chips trail.
+// A safety-ruled action adds a "Safety rule" chip with its detail, and "Route
+// locally" when a local split rule can override it.
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun BlockActionRow(
     action: BlockActionUi,
     onClick: () -> Unit,
+    onRouteLocal: () -> Unit,
 ) {
 
     Row(
@@ -530,6 +555,14 @@ private fun BlockActionRow(
                 }
             }
 
+            if (action.safetyRule) {
+                Spacer(modifier = Modifier.height(6.dp))
+                SafetyRuleLine(
+                    offersRouteLocal = action.offersRouteLocal,
+                    onRouteLocal = onRouteLocal,
+                )
+            }
+
         }
 
         Spacer(modifier = Modifier.width(8.dp))
@@ -550,6 +583,55 @@ private fun BlockActionRow(
             )
         }
 
+    }
+}
+
+// The "Safety rule" chip with its detail behind the info icon, then "Route
+// locally" when offered.
+@Composable
+private fun SafetyRuleLine(
+    offersRouteLocal: Boolean,
+    onRouteLocal: () -> Unit,
+) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        StateChip(
+            text = stringResource(id = R.string.safety_rule),
+            color = Yellow400,
+            highlighted = false
+        )
+
+        Spacer(modifier = Modifier.width(6.dp))
+
+        InfoIconWithOverlay(
+            contentDescription = stringResource(id = R.string.safety_rule)
+        ) {
+            Column {
+                Text(
+                    stringResource(id = R.string.safety_rule),
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    color = Color.White
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    stringResource(id = R.string.safety_rule_detail),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = BlueLight
+                )
+            }
+        }
+
+        if (offersRouteLocal) {
+            Spacer(modifier = Modifier.width(10.dp))
+            Text(
+                stringResource(id = R.string.add_local_split_rule),
+                style = TextStyle(fontSize = 11.sp, fontWeight = FontWeight.Medium),
+                color = Green,
+                modifier = Modifier
+                    .clickable { onRouteLocal() }
+                    .padding(vertical = 3.dp)
+            )
+        }
     }
 }
 
