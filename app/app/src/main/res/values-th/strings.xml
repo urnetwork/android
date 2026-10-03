@@ -203,6 +203,7 @@
     <string name="included">รวมไว้</string>
     <string name="instant_account_no_email_password">ไม่ต้องใช้อีเมลหรือรหัสผ่าน บัญชีของคุณได้รับการปกป้องด้วยซีดเฟรส</string>
     <string name="insufficient_balance">ยอดเงินไม่เพียงพอ</string>
+    <string name="insufficient_balance_held_notice">ทราฟฟิกของคุณถูกกักไว้ในอุโมงค์จนกว่าคุณจะอัปเกรดหรือตัดการเชื่อมต่อ</string>
     <string name="insufficient_funds">ยอดเงินไม่เพียงพอ</string>
     <string name="invalid_referral_code">โค้ดนี้ไม่ถูกต้อง</string>
     <string name="ip_address">ที่อยู่ IP</string>

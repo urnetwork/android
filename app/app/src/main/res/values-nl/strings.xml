@@ -203,6 +203,7 @@
     <string name="included">Inbegrepen</string>
     <string name="instant_account_no_email_password">Geen e-mail of wachtwoord nodig. Je account wordt beveiligd met een seedphrase.</string>
     <string name="insufficient_balance">Onvoldoende saldo</string>
+    <string name="insufficient_balance_held_notice">Je verkeer wordt in de tunnel vastgehouden totdat je upgradet of de verbinding verbreekt.</string>
     <string name="insufficient_funds">Onvoldoende saldo</string>
     <string name="invalid_referral_code">Deze code is niet geldig</string>
     <string name="ip_address">IP-adres</string>

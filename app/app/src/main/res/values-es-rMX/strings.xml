@@ -203,6 +203,7 @@
     <string name="included">Incluidas</string>
     <string name="instant_account_no_email_password">No necesitas correo ni contraseña. Tu cuenta está protegida por una frase semilla.</string>
     <string name="insufficient_balance">Saldo insuficiente</string>
+    <string name="insufficient_balance_held_notice">Tu tráfico se mantiene en el túnel hasta que mejores tu plan o te desconectes.</string>
     <string name="insufficient_funds">Fondos insuficientes</string>
     <string name="invalid_referral_code">Este código no es válido</string>
     <string name="ip_address">Dirección IP</string>

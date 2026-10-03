@@ -203,6 +203,7 @@
     <string name="included">포함</string>
     <string name="instant_account_no_email_password">이메일이나 비밀번호가 필요 없습니다. 계정은 시드 문구로 보호됩니다.</string>
     <string name="insufficient_balance">잔액 부족</string>
+    <string name="insufficient_balance_held_notice">업그레이드하거나 연결을 해제할 때까지 트래픽이 터널 안에 보류됩니다.</string>
     <string name="insufficient_funds">잔액 부족</string>
     <string name="invalid_referral_code">이 코드는 유효하지 않습니다</string>
     <string name="ip_address">IP 주소</string>

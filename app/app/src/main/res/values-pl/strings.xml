@@ -203,6 +203,7 @@
     <string name="included">Uwzględnione</string>
     <string name="instant_account_no_email_password">Bez e-maila i hasła. Twoje konto jest zabezpieczone seedphrase.</string>
     <string name="insufficient_balance">Niewystarczające saldo</string>
+    <string name="insufficient_balance_held_notice">Twój ruch jest zatrzymany w tunelu, dopóki nie przejdziesz na wyższy plan lub się nie rozłączysz.</string>
     <string name="insufficient_funds">Niewystarczające środki</string>
     <string name="invalid_referral_code">Ten kod jest nieprawidłowy</string>
     <string name="ip_address">Adres IP</string>

@@ -203,6 +203,7 @@
     <string name="included">Incluse</string>
     <string name="instant_account_no_email_password">Ni e-mail ni mot de passe. Votre compte est protégé par une phrase de récupération.</string>
     <string name="insufficient_balance">Solde insuffisant</string>
+    <string name="insufficient_balance_held_notice">Votre trafic est retenu dans le tunnel jusqu’à ce que vous passiez à une offre supérieure ou que vous vous déconnectiez.</string>
     <string name="insufficient_funds">Fonds insuffisants</string>
     <string name="invalid_referral_code">Ce code n\'est pas valide</string>
     <string name="ip_address">Adresse IP</string>

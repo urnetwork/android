@@ -414,6 +414,7 @@
     <string name="includes_free_trial_days">包含 %1$d 天免费试用</string>
     <string name="instant_account_no_email_password">无需邮箱或密码。您的账户由助记词保护。</string>
     <string name="insufficient_balance">余额不足</string>
+    <string name="insufficient_balance_held_notice">在你升级或断开连接之前，你的流量会保留在隧道中。</string>
     <string name="insufficient_funds">资金不足</string>
     <string name="intro_quick_connect_details">在快捷设置中开关 URnetwork，并在主屏幕上随时查看其状态。</string>
     <string name="intro_quick_connect_title">一键连接</string>
