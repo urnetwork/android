@@ -302,6 +302,7 @@
     <string name="network_api_use_default">Tumia mtandao wa chaguomsingi</string>
     <string name="network_create_bonus_message">Mtu fulani amekualika kujiunga 🥳\\nDai bonasi yako kwa kuunda mtandao!</string>
     <string name="network_name_check_error">Haipatikani. Lazima iwe na angalau herufi 3 tofauti na mtandao uliopo. Ifanye iwe ya kipekee au ndefu zaidi.</string>
+    <string name="network_name_check_failed">Imeshindwa kukagua upatikanaji. Bado unaweza kuendelea.</string>
     <string name="network_name_label">Jina la mtandao</string>
     <string name="network_name_length_error">Majina ya mtandao lazima yawe na herufi 6 au zaidi.</string>
     <string name="network_name_placeholder">Jina la mtandao wako</string>

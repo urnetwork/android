@@ -302,6 +302,7 @@
     <string name="network_api_use_default">Usar red predeterminada</string>
     <string name="network_create_bonus_message">¡Alguien te invitó a unirte 🥳\\n¡Obtén tu bono creando una red!</string>
     <string name="network_name_check_error">No disponible. Debe tener al menos 3 caracteres diferentes de una red existente. Hazlo único o más largo.</string>
+    <string name="network_name_check_failed">No se pudo verificar la disponibilidad. Aun así puedes continuar.</string>
     <string name="network_name_label">Nombre de la red</string>
     <string name="network_name_length_error">Los nombres de red deben tener al menos 6 caracteres.</string>
     <string name="network_name_placeholder">El nombre de tu red</string>

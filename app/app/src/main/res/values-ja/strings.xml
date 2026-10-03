@@ -302,6 +302,7 @@
     <string name="network_api_use_default">デフォルトのネットワークを使用</string>
     <string name="network_create_bonus_message">誰かがあなたを招待しています 🥳\\nネットワークを作成してボーナスを獲得しましょう！</string>
     <string name="network_name_check_error">利用できません。既存のネットワークとは少なくとも3文字異なる必要があります。ユニークにするか、長くしてください。</string>
+    <string name="network_name_check_failed">利用可能かどうかを確認できませんでした。このまま続行できます。</string>
     <string name="network_name_label">ネットワーク名</string>
     <string name="network_name_length_error">ネットワーク名は6文字以上である必要があります</string>
     <string name="network_name_placeholder">あなたのネットワーク名</string>

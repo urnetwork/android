@@ -302,6 +302,7 @@
     <string name="network_api_use_default">Utiliser le réseau par défaut</string>
     <string name="network_create_bonus_message">Quelqu\\\'un t\\\'a invité à rejoindre 🥳\\nRéclame ton bonus en créant un réseau !</string>
     <string name="network_name_check_error">Non disponible. Doit comporter au moins 3 caractères différents d\'un réseau existant. Rendez-le unique ou plus long.</string>
+    <string name="network_name_check_failed">Impossible de vérifier la disponibilité. Vous pouvez tout de même continuer.</string>
     <string name="network_name_label">Nom du réseau</string>
     <string name="network_name_length_error">Les noms de réseau doivent comporter au moins 6 caractères.</string>
     <string name="network_name_placeholder">Nom de votre réseau</string>

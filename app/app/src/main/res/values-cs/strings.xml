@@ -302,6 +302,7 @@
     <string name="network_api_use_default">Použít výchozí síť</string>
     <string name="network_create_bonus_message">"Někdo vás pozval, abyste se připojili 🥳 \nZískejte svůj bonus vytvořením sítě!"</string>
     <string name="network_name_check_error">Není k dispozici. Musí se lišit alespoň o 3 znaky od existující sítě. Vytvořte ji jedinečnou nebo delší.</string>
+    <string name="network_name_check_failed">Dostupnost se nepodařilo ověřit. Přesto můžete pokračovat.</string>
     <string name="network_name_label">Název sítě</string>
     <string name="network_name_length_error">Jména sítí musí mít 6 a více znaků</string>
     <string name="network_name_placeholder">Název vaší sítě</string>

@@ -534,6 +534,7 @@
     <string name="network_api_use_default">Standardnetzwerk verwenden</string>
     <string name="network_create_bonus_message">Jemand hat dich zum Mitmachen eingeladen 🥳\\nSichere dir deinen Bonus durch die Erstellung eines Netzwerks!</string>
     <string name="network_name_check_error">Nicht verfügbar. Muss mindestens 3 Zeichen von einem bestehenden Netzwerk abweichen. Mach es einzigartig oder länger.</string>
+    <string name="network_name_check_failed">Verfügbarkeit konnte nicht geprüft werden. Du kannst trotzdem fortfahren.</string>
     <string name="network_name_label">Netzwerkname</string>
     <string name="network_name_length_error">Netzwerknamen müssen mindestens 6 Zeichen lang sein.</string>
     <string name="network_name_placeholder">Dein Netzwerkname</string>

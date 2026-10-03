@@ -302,6 +302,7 @@
     <string name="network_api_use_default">ใช้เครือข่ายเริ่มต้น</string>
     <string name="network_create_bonus_message">"มีใครบางคนเชิญคุณอยู่ 🥳 \nรับรางวัลโบนัสของคุณโดยการสร้างระบบเครือข่ายสิ!"</string>
     <string name="network_name_check_error">ไม่สามารถใช้ได้ จะต้องมีตัวอักษรอย่างน้อย 3 ตัวที่แตกต่างจากชื่อเน็ตเวิร์กเดิม ลองตั้งใหม่ให้แตกต่างหรือยาวขึ้น</string>
+    <string name="network_name_check_failed">ไม่สามารถตรวจสอบความพร้อมใช้งานได้ คุณยังคงดำเนินการต่อได้</string>
     <string name="network_name_label">ชื่อเครือข่าย</string>
     <string name="network_name_length_error">ชื่อเครือข่ายของคุณต้องมีตัวอักษรมากกว่า 6 ตัวขึ้นไป</string>
     <string name="network_name_placeholder">ชื่อเครือข่ายของคุณ</string>

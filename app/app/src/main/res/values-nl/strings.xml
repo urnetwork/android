@@ -302,6 +302,7 @@
     <string name="network_api_use_default">Standaardnetwerk gebruiken</string>
     <string name="network_create_bonus_message">Iemand heeft je uitgenodigd! 🥳\nOntvang je bonus door een netwerk aan te maken.</string>
     <string name="network_name_check_error">Niet beschikbaar. Moet minstens 3 tekens verschillen van een bestaand netwerk. Maak het uniek of langer.</string>
+    <string name="network_name_check_failed">Kan beschikbaarheid niet controleren. Je kunt toch doorgaan.</string>
     <string name="network_name_label">Netwerk naam</string>
     <string name="network_name_length_error">Netwerknamen moeten uit 6 of meer tekens bestaan</string>
     <string name="network_name_placeholder">Jouw netwerk naam</string>

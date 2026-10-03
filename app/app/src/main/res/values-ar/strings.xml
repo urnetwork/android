@@ -534,6 +534,7 @@
     <string name="network_api_use_default">استخدام الشبكة الافتراضية</string>
     <string name="network_create_bonus_message">شخص ما دعاك للانضمام 🥳\\nاحصل على مكافأتك عن طريق إنشاء شبكة!</string>
     <string name="network_name_check_error">غير متوفر. يجب أن يكون 3 أحرف على الأقل مختلفة عن شبكة موجودة. اجعلها فريدة أو أطول.</string>
+    <string name="network_name_check_failed">تعذّر التحقق من التوفر. لا يزال بإمكانك المتابعة.</string>
     <string name="network_name_label">اسم الشبكة</string>
     <string name="network_name_length_error">يجب أن تتكون أسماء الشبكات من 6 أحرف أو أكثر</string>
     <string name="network_name_placeholder">اسم شبكتك</string>

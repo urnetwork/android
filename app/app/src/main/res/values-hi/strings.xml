@@ -302,6 +302,7 @@
     <string name="network_api_use_default">डिफ़ॉल्ट नेटवर्क का उपयोग करें</string>
     <string name="network_create_bonus_message">किसी ने आपको जुड़ने के लिए आमंत्रित किया 🥳\\nनेटवर्क बनाकर अपना बोनस प्राप्त करें!</string>
     <string name="network_name_check_error">उपलब्ध नहीं है। किसी मौजूदा नेटवर्क से कम से कम 3 वर्ण अलग होने चाहिए। इसे अद्वितीय या लंबा बनाएं।</string>
+    <string name="network_name_check_failed">उपलब्धता की जांच नहीं हो सकी। आप फिर भी जारी रख सकते हैं।</string>
     <string name="network_name_label">नेटवर्क का नाम</string>
     <string name="network_name_length_error">नेटवर्क नाम कम से कम 6 अक्षरों का होना चाहिए</string>
     <string name="network_name_placeholder">आपके नेटवर्क का नाम</string>
