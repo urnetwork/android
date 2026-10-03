@@ -169,6 +169,7 @@
     <string name="enter_balance_code">잔액 코드를 입력하세요</string>
     <string name="enter_network_referral_code">네트워크 추천 코드를 입력하세요</string>
     <string name="error_connecting_wallet_with_reason">지갑을 연결하는 중 오류가 발생했습니다: %1$s</string>
+    <string name="error_deleting_account">죄송합니다. 계정을 삭제하는 중 오류가 발생했습니다.</string>
     <string name="error_loading_account_plan">계정 플랜을 불러오는 중 오류가 발생했습니다.</string>
     <string name="error_redeeming_transfer_balance_code">이체 잔액 코드 사용 중 오류가 발생했습니다.</string>
     <string name="error_sending_password_reset_link">비밀번호 재설정 링크를 보내는 중 오류가 발생했습니다</string>

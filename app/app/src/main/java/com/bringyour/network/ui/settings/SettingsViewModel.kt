@@ -276,27 +276,42 @@ class SettingsViewModel @Inject constructor(
         this.provideControlMode = mode
     }
 
+    /**
+     * onSuccess runs only when the account was deleted. A server refusal
+     * (an error in the result) or a transport error runs onFailure with the
+     * failed outcome, and the user stays signed in and may retry.
+     */
     val deleteAccount: (
             onSuccess: () -> Unit,
-            onFailure: (Exception?) -> Unit
+            onFailure: (DeleteAccountOutcome.Failed) -> Unit
             ) -> Unit = { onSuccess, onFailure ->
 
                 _isDeletingAccount.value = true
 
-        deviceManager.device?.api?.networkDelete { _, exception ->
+        deviceManager.device?.api?.networkDelete { result, exception ->
+
+            val outcome = DeleteAccountOutcome.of(
+                exception = exception,
+                resultPresent = result != null,
+                resultHasError = result?.error != null,
+                resultErrorMessage = result?.error?.message,
+            )
 
             viewModelScope.launch {
 
-                if (exception != null) {
-                    onFailure(exception)
-                } else {
-                    onSuccess()
+                when (outcome) {
+                    is DeleteAccountOutcome.Deleted -> onSuccess()
+                    is DeleteAccountOutcome.Failed -> {
+                        Log.i(TAG, "Error deleting account: ${exception?.message ?: outcome.serverMessage}")
+                        onFailure(outcome)
+                    }
                 }
                 _isDeletingAccount.value = false
 
             }
         } ?: run {
             _isDeletingAccount.value = false
+            onFailure(DeleteAccountOutcome.Failed(null))
         }
     }
 

@@ -361,6 +361,7 @@
     <string name="epoch_row_title">Época %1$d</string>
     <string name="epoch_share_of_block">%1$s del bloque</string>
     <string name="error_connecting_wallet_with_reason">Se ha producido un error al conectar tu billetera: %1$s</string>
+    <string name="error_deleting_account">Lo sentimos, se ha producido un error al eliminar tu cuenta.</string>
     <string name="error_loading_account_plan">Error al cargar el plan de tu cuenta.</string>
     <string name="error_redeeming_transfer_balance_code">Error al canjear el código de transferencia de saldo.</string>
     <string name="error_sending_password_reset_link">Error al enviar el enlace para restablecer la contraseña</string>

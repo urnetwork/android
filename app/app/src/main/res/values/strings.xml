@@ -377,6 +377,7 @@
     <string name="epoch_row_title">Epoch %1$d</string>
     <string name="epoch_share_of_block">%1$s of block</string>
     <string name="error_connecting_wallet_with_reason">There was an error connecting your wallet: %1$s</string>
+    <string name="error_deleting_account">Sorry, there was an error deleting your account.</string>
     <string name="error_loading_account_plan">Error loading your account plan.</string>
     <string name="error_redeeming_transfer_balance_code">Error redeeming transfer balance code</string>
     <string name="error_sending_password_reset_link">Error sending password reset link</string>
