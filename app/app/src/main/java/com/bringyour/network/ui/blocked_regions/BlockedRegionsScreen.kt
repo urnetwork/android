@@ -16,6 +16,7 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -210,19 +211,17 @@ fun BlockedRegionListItem(
     modifier: Modifier = Modifier,
 ) {
 
-    SwipeToRevealRow(
-        onDelete = { onRemove(blockedLocation.locationId) },
-        modifier = modifier
-            .fillMaxWidth()
-            .height(64.dp),
-    ) {
+    val rowModifier = modifier
+        .fillMaxWidth()
+        .height(64.dp)
+    val content: @Composable () -> Unit = {
         Box(modifier = Modifier.fillMaxSize()) {
 
             Row(
                 modifier = Modifier
                     .fillMaxSize()
                     .background(Black)
-                    .padding(horizontal = 16.dp),
+                    .padding(start = 16.dp, end = 4.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 CircleImage(
@@ -236,7 +235,20 @@ fun BlockedRegionListItem(
                     style = MaterialTheme.typography.bodyLarge,
                     overflow = TextOverflow.Ellipsis,
                     maxLines = 1,
+                    modifier = Modifier.weight(1f),
                 )
+                if (BlockedLocationRemoveControl.Button in blockedLocationRemoveControls) {
+                    // swipe-to-reveal alone is unreachable for TalkBack, Switch
+                    // Access and keyboard users, and invisible to anyone who
+                    // does not know to swipe
+                    IconButton(onClick = { onRemove(blockedLocation.locationId) }) {
+                        Icon(
+                            Icons.Filled.Clear,
+                            contentDescription = stringResource(id = R.string.remove),
+                            tint = TextMuted,
+                        )
+                    }
+                }
             }
 
             HorizontalDivider(
@@ -244,6 +256,18 @@ fun BlockedRegionListItem(
                     .align(Alignment.BottomCenter)
                     .fillMaxWidth(),
             )
+        }
+    }
+
+    if (BlockedLocationRemoveControl.Swipe in blockedLocationRemoveControls) {
+        SwipeToRevealRow(
+            onDelete = { onRemove(blockedLocation.locationId) },
+            modifier = rowModifier,
+            content = content,
+        )
+    } else {
+        Box(modifier = rowModifier) {
+            content()
         }
     }
 }
