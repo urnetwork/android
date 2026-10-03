@@ -141,6 +141,12 @@
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="ur" />
             </intent-filter>
+            <!-- long-pressing the Quick Settings tile opens the app; without this
+                 the system opens the app info page instead -->
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE_PREFERENCES" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
             <!-- long-press launcher shortcuts: Connect / Disconnect -->
             <meta-data
                 android:name="android.app.shortcuts"
