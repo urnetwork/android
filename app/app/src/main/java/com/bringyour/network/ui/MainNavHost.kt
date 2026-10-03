@@ -47,6 +47,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.NavigationDrawerItemDefaults
 import androidx.compose.material3.NavigationRailItemDefaults
+import com.bringyour.network.ui.connect.InsufficientBalanceDisconnectEffect
 import com.bringyour.network.ui.connect.ConnectDrawerState
 import com.bringyour.network.ui.connect.rememberConnectDrawerState
 import androidx.compose.material3.SheetValue
@@ -421,6 +422,12 @@ private fun MainNavHostContent(
         selectTopLevelRoute(TopLevelScaffoldRoutes.ACCOUNT_CONTAINER)
         navController.navigate(Route.Earnings)
     }
+
+    InsufficientBalanceDisconnectEffect(
+        connectViewModel = connectViewModel,
+        isPro = isPro,
+        isPollingSubscriptionBalance = subscriptionBalanceViewModel.isPollingSubscriptionBalance,
+    )
 
     /**
      * For initial intro funnel prompting

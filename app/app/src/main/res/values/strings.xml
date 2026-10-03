@@ -427,6 +427,7 @@
     <string name="includes_free_trial_days">Includes %1$d day free trial</string>
     <string name="instant_account_no_email_password">No email or password needed. Your account is secured by a seedphrase.</string>
     <string name="insufficient_balance">Insufficient balance</string>
+    <string name="insufficient_balance_message">Add balance or a plan to keep connecting.</string>
     <string name="insufficient_funds">Insufficient funds</string>
     <string name="intro_quick_connect_details">Turn URnetwork on and off from Quick Settings, and keep an eye on it from your home screen.</string>
     <string name="intro_quick_connect_title">Connect in one tap</string>

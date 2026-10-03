@@ -414,6 +414,7 @@
     <string name="includes_free_trial_days">Incluye una prueba gratuita de %1$d días</string>
     <string name="instant_account_no_email_password">No necesitas correo ni contraseña. Tu cuenta está protegida por una frase semilla.</string>
     <string name="insufficient_balance">Saldo insuficiente</string>
+    <string name="insufficient_balance_message">Añade saldo o un plan para seguir conectándote.</string>
     <string name="insufficient_funds">Fondos insuficientes</string>
     <string name="intro_quick_connect_details">Activa y desactiva URnetwork desde Ajustes rápidos y vigílalo desde tu pantalla de inicio.</string>
     <string name="intro_quick_connect_title">Conéctate con un toque</string>

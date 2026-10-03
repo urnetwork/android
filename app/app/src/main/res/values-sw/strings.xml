@@ -203,6 +203,7 @@
     <string name="included">Imejumuishwa</string>
     <string name="instant_account_no_email_password">Hakuna haja ya barua pepe au nenosiri. Akaunti yako inalindwa na seedphrase.</string>
     <string name="insufficient_balance">Salio halitoshi</string>
+    <string name="insufficient_balance_message">Ongeza salio au mpango ili kuendelea kuunganisha.</string>
     <string name="insufficient_funds">Fedha haitoshi</string>
     <string name="invalid_referral_code">Msimbo huu si sahihi</string>
     <string name="ip_address">Anwani ya IP</string>

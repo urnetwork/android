@@ -203,6 +203,7 @@
     <string name="included">含める</string>
     <string name="instant_account_no_email_password">メールアドレスやパスワードは不要です。アカウントはシードフレーズで保護されます。</string>
     <string name="insufficient_balance">残高不足</string>
+    <string name="insufficient_balance_message">接続を続けるには、残高またはプランを追加してください。</string>
     <string name="insufficient_funds">残高不足</string>
     <string name="invalid_referral_code">このコードは無効です</string>
     <string name="ip_address">IPアドレス</string>

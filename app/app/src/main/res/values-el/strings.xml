@@ -203,6 +203,7 @@
     <string name="included">Συμπερίληψη</string>
     <string name="instant_account_no_email_password">Δεν χρειάζεται email ή κωδικός. Ο λογαριασμός σου προστατεύεται από ένα seedphrase.</string>
     <string name="insufficient_balance">Ανεπαρκές υπόλοιπο</string>
+    <string name="insufficient_balance_message">Προσθέστε υπόλοιπο ή ένα πρόγραμμα για να συνεχίσετε να συνδέεστε.</string>
     <string name="insufficient_funds">Ανεπαρκή κεφάλαια</string>
     <string name="invalid_referral_code">Αυτός ο κωδικός δεν είναι έγκυρος</string>
     <string name="ip_address">Διεύθυνση IP</string>
