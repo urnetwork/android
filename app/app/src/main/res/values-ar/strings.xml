@@ -363,6 +363,7 @@
     <string name="error_connecting_wallet_with_reason">حدث خطأ أثناء ربط محفظتك: %1$s</string>
     <string name="error_loading_account_plan">حدث خطأ أثناء تحميل خطة حسابك.</string>
     <string name="error_redeeming_transfer_balance_code">حدث خطأ أثناء استرداد رمز تحويل الرصيد.</string>
+    <string name="error_sending_password_reset_link">خطأ في إرسال رابط إعادة تعيين كلمة المرور</string>
     <string name="error_sending_verification_code">حدث خطأ أثناء إرسال رمز التحقق.</string>
     <string name="error_setting_default_wallet_with_reason">خطأ في تعيين المحفظة الافتراضية: %1$s</string>
     <string name="exclude_app">استثناء من VPN</string>
@@ -1047,6 +1048,14 @@
         <item quantity="few">انضم %1$d من الأصدقاء برمزك! +%2$d GiB يوميًا لكل منهم، مدى الحياة.</item>
         <item quantity="many">انضم %1$d من الأصدقاء برمزك! +%2$d GiB يوميًا لكل منهم، مدى الحياة.</item>
         <item quantity="other">انضم %1$d من الأصدقاء برمزك! +%2$d GiB يوميًا لكل منهم، مدى الحياة.</item>
+    </plurals>
+    <plurals name="reset_link_rate_limited">
+        <item quantity="zero">محاولات كثيرة جدًا. يمكنك طلب رابط إعادة تعيين جديد بعد %1$d دقيقة.</item>
+        <item quantity="one">محاولات كثيرة جدًا. يمكنك طلب رابط إعادة تعيين جديد بعد دقيقة واحدة.</item>
+        <item quantity="two">محاولات كثيرة جدًا. يمكنك طلب رابط إعادة تعيين جديد بعد دقيقتين.</item>
+        <item quantity="few">محاولات كثيرة جدًا. يمكنك طلب رابط إعادة تعيين جديد بعد %1$d دقائق.</item>
+        <item quantity="many">محاولات كثيرة جدًا. يمكنك طلب رابط إعادة تعيين جديد بعد %1$d دقيقة.</item>
+        <item quantity="other">محاولات كثيرة جدًا. يمكنك طلب رابط إعادة تعيين جديد بعد %1$d دقيقة.</item>
     </plurals>
     <plurals name="share_extenders_count">
         <item quantity="zero">%1$d موسّع</item>

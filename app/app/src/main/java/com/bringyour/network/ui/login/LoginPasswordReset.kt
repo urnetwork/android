@@ -30,6 +30,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -62,6 +63,7 @@ import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.URNetworkTheme
 import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -75,9 +77,13 @@ fun LoginPasswordReset(
     var user by remember { mutableStateOf(TextFieldValue(userAuth)) }
     var inProgress by remember { mutableStateOf(false) }
     var passwordResetError by remember { mutableStateOf<String?>(null) }
+    // why the server did not send the link, and after a rate limit, when it will
+    var resetNotice by remember { mutableStateOf<VerifySendNotice>(VerifySendNotice.Sent) }
+    var nowMillis by remember { mutableStateOf(System.currentTimeMillis()) }
+    var resendCooldown by remember { mutableStateOf<ResendCooldown?>(null) }
     val isBtnEnabled by remember {
         derivedStateOf {
-            !inProgress && (Patterns.EMAIL_ADDRESS.matcher(user.text).matches() ||
+            !inProgress && resendCooldown?.canResend(nowMillis) != false && (Patterns.EMAIL_ADDRESS.matcher(user.text).matches() ||
                     Patterns.PHONE.matcher(user.text).matches())
         }
     }
@@ -92,9 +98,12 @@ fun LoginPasswordReset(
         }
 
         passwordResetError = null
+        resetNotice = VerifySendNotice.Sent
 
         val args = AuthPasswordResetArgs()
         args.userAuth = user.text.trim()
+        // a rate limit or failed send comes back in `result.error`, with the retry time
+        args.resultErrors = true
 
         inProgress = true
 
@@ -102,8 +111,13 @@ fun LoginPasswordReset(
             scope.launch {
                 inProgress = false
 
+                val error = result?.error?.toVerifySendError()
                 if (err != null) {
                     passwordResetError = err.message
+                } else if (passwordResetNotice(result == null, error) != VerifySendNotice.Sent) {
+                    resetNotice = passwordResetNotice(result == null, error)
+                    nowMillis = System.currentTimeMillis()
+                    resendCooldown = ResendCooldown.after(error, nowMillis)
                 } else {
                     passwordResetError = null
 
@@ -115,6 +129,16 @@ fun LoginPasswordReset(
         } ?: run {
             passwordResetError = passwordResetErrorMsg
             inProgress = false
+        }
+    }
+
+    val resetNoticeText = passwordResetNoticeText(resetNotice.at(resendCooldown, nowMillis))
+
+    // tick the rate-limit countdown until a new link can be requested
+    LaunchedEffect(resendCooldown) {
+        while (resendCooldown?.canResend(nowMillis) == false) {
+            delay(1000L)
+            nowMillis = System.currentTimeMillis()
         }
     }
 
@@ -214,7 +238,7 @@ fun LoginPasswordReset(
                     }
 
                     Spacer(modifier = Modifier.height(8.dp))
-                    URInlineErrorText(passwordResetError)
+                    URInlineErrorText(passwordResetError ?: resetNoticeText)
                 }
             }
         }

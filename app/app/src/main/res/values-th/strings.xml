@@ -171,6 +171,7 @@
     <string name="error_connecting_wallet_with_reason">เกิดข้อผิดพลาดในการเชื่อมต่อกระเป๋าเงินของคุณ: %1$s</string>
     <string name="error_loading_account_plan">เกิดข้อผิดพลาดในการโหลดแผนบัญชีของคุณ</string>
     <string name="error_redeeming_transfer_balance_code">เกิดข้อผิดพลาดในการแลกรหัสยอดเงินโอน</string>
+    <string name="error_sending_password_reset_link">เกิดข้อผิดพลาดในการส่งลิงก์รีเซ็ตรหัสผ่าน</string>
     <string name="error_sending_verification_code">เกิดข้อผิดพลาดในการส่งรหัสยืนยัน</string>
     <string name="error_setting_default_wallet_with_reason">เกิดข้อผิดพลาดในการตั้งค่ากระเป๋าเงินเริ่มต้น: %1$s</string>
     <string name="exclude_app">ยกเว้นจาก VPN</string>
@@ -603,6 +604,9 @@
     </plurals>
     <plurals name="referral_toast_joined">
         <item quantity="other">เพื่อน %1$d คนเข้าร่วมด้วยโค้ดของคุณ! +%2$d GiB/วันต่อคน ตลอดชีวิต</item>
+    </plurals>
+    <plurals name="reset_link_rate_limited">
+        <item quantity="other">พยายามหลายครั้งเกินไป คุณสามารถขอลิงก์รีเซ็ตใหม่ได้ในอีก %1$d นาที</item>
     </plurals>
     <plurals name="split_rule_count">
         <item quantity="other">กฎแยกเส้นทาง %1$d ข้อ</item>

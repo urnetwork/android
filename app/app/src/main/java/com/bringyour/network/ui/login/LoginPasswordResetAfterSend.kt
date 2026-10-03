@@ -63,9 +63,13 @@ fun LoginPasswordResetAfterSend(
     var markAsSent by remember { mutableStateOf(false) }
     var inProgress by remember { mutableStateOf(false) }
     var passwordResetError by remember { mutableStateOf<String?>(null) }
+    // why the server did not send the link, and after a rate limit, when it will
+    var resetNotice by remember { mutableStateOf<VerifySendNotice>(VerifySendNotice.Sent) }
+    var nowMillis by remember { mutableStateOf(System.currentTimeMillis()) }
+    var resendCooldown by remember { mutableStateOf<ResendCooldown?>(null) }
     val isBtnEnabled by remember {
         derivedStateOf {
-            !inProgress && !markAsSent
+            !inProgress && !markAsSent && resendCooldown?.canResend(nowMillis) != false
         }
     }
     val titleSize: TextUnit = dimensionResource(id = R.dimen.login_title_size).value.sp
@@ -79,18 +83,26 @@ fun LoginPasswordResetAfterSend(
         }
 
         passwordResetError = null
+        resetNotice = VerifySendNotice.Sent
 
         val args = AuthPasswordResetArgs()
         args.userAuth = userAuth.trim()
+        // a rate limit or failed send comes back in `result.error`, with the retry time
+        args.resultErrors = true
 
         inProgress = true
 
-        app?.api?.authPasswordReset(args) { _, err ->
+        app?.api?.authPasswordReset(args) { result, err ->
             scope.launch {
                 inProgress = false
 
+                val error = result?.error?.toVerifySendError()
                 if (err != null) {
                     passwordResetError = err.message
+                } else if (passwordResetNotice(result == null, error) != VerifySendNotice.Sent) {
+                    resetNotice = passwordResetNotice(result == null, error)
+                    nowMillis = System.currentTimeMillis()
+                    resendCooldown = ResendCooldown.after(error, nowMillis)
                 } else {
                     passwordResetError = null
 
@@ -100,6 +112,16 @@ fun LoginPasswordResetAfterSend(
         } ?: run {
             passwordResetError = passwordResetErrorMsg
             inProgress = false
+        }
+    }
+
+    val resetNoticeText = passwordResetNoticeText(resetNotice.at(resendCooldown, nowMillis))
+
+    // tick the rate-limit countdown until a new link can be requested
+    LaunchedEffect(resendCooldown) {
+        while (resendCooldown?.canResend(nowMillis) == false) {
+            delay(1000L)
+            nowMillis = System.currentTimeMillis()
         }
     }
 
@@ -183,7 +205,7 @@ fun LoginPasswordResetAfterSend(
                 }
 
                 Spacer(modifier = Modifier.height(8.dp))
-                URInlineErrorText(passwordResetError)
+                URInlineErrorText(passwordResetError ?: resetNoticeText)
             }
         }
     }

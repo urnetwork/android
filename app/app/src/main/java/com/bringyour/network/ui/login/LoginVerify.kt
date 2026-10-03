@@ -92,12 +92,16 @@ fun LoginVerify(
     // the outcome of the last code send: the one that opened this screen, then each resend
     var sendNotice by remember { mutableStateOf(VerifySendNotice.from(false, sendError)) }
     var codeSent by remember { mutableStateOf(sendNotice == VerifySendNotice.Sent) }
+    // after a rate limit, Resend waits until the server will send a new code
+    var nowMillis by remember { mutableStateOf(System.currentTimeMillis()) }
+    var resendCooldown by remember { mutableStateOf(ResendCooldown.after(sendError, nowMillis)) }
     var verifyInProgress by remember { mutableStateOf(false) }
     val resendBtnEnabled by remember {
         derivedStateOf {
             !resendInProgress &&
                     !verifyInProgress &&
-                    !markResendAsSent
+                    !markResendAsSent &&
+                    resendCooldown?.canResend(nowMillis) != false
         }
     }
     var verifyError by remember { mutableStateOf<String?>(null) }
@@ -105,7 +109,7 @@ fun LoginVerify(
     var isContentVisible by remember { mutableStateOf(true) }
     val isEmail = Patterns.EMAIL_ADDRESS.matcher(userAuth).matches()
     val titleSize: TextUnit = dimensionResource(id = R.dimen.login_title_size).value.sp
-    val sendNoticeText = when (val notice = sendNotice) {
+    val sendNoticeText = when (val notice = sendNotice.at(resendCooldown, nowMillis)) {
         VerifySendNotice.Sent -> null
         VerifySendNotice.SendFailed -> stringResource(id = R.string.error_sending_verification_code)
         is VerifySendNotice.RateLimited -> pluralStringResource(
@@ -138,10 +142,10 @@ fun LoginVerify(
 
                 resendInProgress = false
 
-                sendNotice = VerifySendNotice.from(
-                    err != null || result == null,
-                    result?.error?.toVerifySendError(),
-                )
+                val error = result?.error?.toVerifySendError()
+                sendNotice = VerifySendNotice.from(err != null || result == null, error)
+                nowMillis = System.currentTimeMillis()
+                resendCooldown = ResendCooldown.after(error, nowMillis)
                 if (sendNotice == VerifySendNotice.Sent) {
                     codeSent = true
                     markResendAsSent = true
@@ -234,6 +238,14 @@ fun LoginVerify(
         if (markResendAsSent) {
             delay(30000L)
             markResendAsSent = false
+        }
+    }
+
+    // tick the rate-limit countdown until Resend is available again
+    LaunchedEffect(resendCooldown) {
+        while (resendCooldown?.canResend(nowMillis) == false) {
+            delay(1000L)
+            nowMillis = System.currentTimeMillis()
         }
     }
 

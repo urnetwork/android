@@ -171,6 +171,7 @@
     <string name="error_connecting_wallet_with_reason">Παρουσιάστηκε σφάλμα κατά τη σύνδεση του πορτοφολιού σας: %1$s</string>
     <string name="error_loading_account_plan">Σφάλμα κατά τη φόρτωση του προγράμματος λογαριασμού σας.</string>
     <string name="error_redeeming_transfer_balance_code">Σφάλμα κατά την εξαργύρωση του κωδικού μεταφοράς υπολοίπου.</string>
+    <string name="error_sending_password_reset_link">Σφάλμα κατά την αποστολή του συνδέσμου επαναφοράς κωδικού πρόσβασης</string>
     <string name="error_sending_verification_code">Παρουσιάστηκε σφάλμα κατά την αποστολή του κωδικού επαλήθευσης.</string>
     <string name="error_setting_default_wallet_with_reason">Σφάλμα κατά τον ορισμό του προεπιλεγμένου πορτοφολιού: %1$s</string>
     <string name="exclude_app">Εξαίρεση από το VPN</string>
@@ -616,6 +617,10 @@
     <plurals name="referral_toast_joined">
         <item quantity="one">Ένας φίλος μπήκε με τον κωδικό σου! +%2$d GiB/ημέρα, για πάντα.</item>
         <item quantity="other">%1$d φίλοι μπήκαν με τον κωδικό σου! +%2$d GiB/ημέρα ο καθένας, για πάντα.</item>
+    </plurals>
+    <plurals name="reset_link_rate_limited">
+        <item quantity="one">Πάρα πολλές προσπάθειες. Μπορείτε να ζητήσετε νέο σύνδεσμο επαναφοράς σε %1$d λεπτό.</item>
+        <item quantity="other">Πάρα πολλές προσπάθειες. Μπορείτε να ζητήσετε νέο σύνδεσμο επαναφοράς σε %1$d λεπτά.</item>
     </plurals>
     <plurals name="split_rule_count">
         <item quantity="one">%1$d κανόνας διαχωρισμού</item>

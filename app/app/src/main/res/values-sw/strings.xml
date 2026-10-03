@@ -171,6 +171,7 @@
     <string name="error_connecting_wallet_with_reason">Hitilafu imetokea wakati wa kuunganisha pochi yako: %1$s</string>
     <string name="error_loading_account_plan">Hitilafu katika kupakia mpango wa akaunti yako.</string>
     <string name="error_redeeming_transfer_balance_code">Hitilafu katika kukomboa msimbo wa uhamisho wa salio.</string>
+    <string name="error_sending_password_reset_link">Hitilafu wakati wa kutuma kiungo cha kuweka upya nenosiri</string>
     <string name="error_sending_verification_code">Hitilafu imetokea wakati wa kutuma msimbo wa uthibitishaji.</string>
     <string name="error_setting_default_wallet_with_reason">Hitilafu wakati wa kuweka pochi chaguomsingi: %1$s</string>
     <string name="exclude_app">Tenga kutoka VPN</string>
@@ -616,6 +617,10 @@
     <plurals name="referral_toast_joined">
         <item quantity="one">Rafiki amejiunga kwa msimbo wako! +%2$d GiB kwa siku, maisha yote.</item>
         <item quantity="other">Marafiki %1$d wamejiunga kwa msimbo wako! +%2$d GiB kwa siku kwa kila mmoja, maisha yote.</item>
+    </plurals>
+    <plurals name="reset_link_rate_limited">
+        <item quantity="one">Majaribio mengi mno. Unaweza kuomba kiungo kipya cha kuweka upya baada ya dakika %1$d.</item>
+        <item quantity="other">Majaribio mengi mno. Unaweza kuomba kiungo kipya cha kuweka upya baada ya dakika %1$d.</item>
     </plurals>
     <plurals name="split_rule_count">
         <item quantity="one">%1$d sheria ya mgawanyo</item>

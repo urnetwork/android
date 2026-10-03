@@ -363,6 +363,7 @@
     <string name="error_connecting_wallet_with_reason">Beim Verbinden deiner Wallet ist ein Fehler aufgetreten: %1$s</string>
     <string name="error_loading_account_plan">Fehler beim Laden deines Kontoplans.</string>
     <string name="error_redeeming_transfer_balance_code">Fehler beim Einlösen des Übertragungsguthabencodes.</string>
+    <string name="error_sending_password_reset_link">Fehler beim Senden des Links zum Zurücksetzen des Passworts</string>
     <string name="error_sending_verification_code">Beim Senden des Bestätigungscodes ist ein Fehler aufgetreten.</string>
     <string name="error_setting_default_wallet_with_reason">Fehler beim Festlegen der Standard-Wallet: %1$s</string>
     <string name="exclude_app">Vom VPN ausschließen</string>
@@ -975,6 +976,10 @@
     <plurals name="referral_toast_joined">
         <item quantity="one">Ein Freund ist mit deinem Code beigetreten! +%2$d GiB/Tag, ein Leben lang.</item>
         <item quantity="other">%1$d Freunde sind mit deinem Code beigetreten! Je +%2$d GiB/Tag, ein Leben lang.</item>
+    </plurals>
+    <plurals name="reset_link_rate_limited">
+        <item quantity="one">Zu viele Versuche. Du kannst in %1$d Minute einen neuen Link zum Zurücksetzen anfordern.</item>
+        <item quantity="other">Zu viele Versuche. Du kannst in %1$d Minuten einen neuen Link zum Zurücksetzen anfordern.</item>
     </plurals>
     <plurals name="share_extenders_count">
         <item quantity="one">%1$d Extender</item>
