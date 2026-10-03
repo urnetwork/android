@@ -47,6 +47,13 @@ final class EgressProbeClient {
         "https://api.ipify.org/",
     };
 
+    // The bulk endpoint PERF's physical runner already fetches through tunnels.
+    private static final String TRAFFIC_ENDPOINT = "https://speed.cloudflare.com/__down?bytes=";
+    static final long MAX_TRAFFIC_BYTES = 8L * 1024 * 1024;
+    // Below the probe's 40 s bound so the activity always answers the 45 s
+    // Binder request, even when the tunnel holds the transfer.
+    static final long TRAFFIC_DURATION_MILLIS = 30_000;
+
     interface ConnectionFactory {
         HttpURLConnection open(String endpoint) throws Exception;
     }
@@ -393,6 +400,64 @@ final class EgressProbeClient {
             if (interrupted) {
                 Thread.currentThread().interrupt();
             }
+        }
+    }
+
+    /**
+     * Bounded bulk download through the system path, so already-open contracts
+     * are used up and the client must ask for a new one. It reads at most
+     * byteCount bytes and stops at the duration bound with whatever arrived;
+     * the result is the byte count, never the body.
+     */
+    static long downloadTraffic(long byteCount) throws Exception {
+        return downloadTraffic(
+            byteCount,
+            endpoint -> (HttpURLConnection) new URL(endpoint).openConnection(),
+            System::nanoTime,
+            TRAFFIC_DURATION_MILLIS
+        );
+    }
+
+    interface NanoClock {
+        long nanoTime();
+    }
+
+    static long downloadTraffic(
+        long byteCount,
+        ConnectionFactory connectionFactory,
+        NanoClock clock,
+        long durationMillis
+    ) throws Exception {
+        if (byteCount <= 0 || MAX_TRAFFIC_BYTES < byteCount) {
+            throw new IllegalArgumentException("traffic byte count must be in (0, " + MAX_TRAFFIC_BYTES + "]");
+        }
+        long start = clock.nanoTime();
+        HttpURLConnection connection = connectionFactory.open(TRAFFIC_ENDPOINT + byteCount);
+        connection.setConnectTimeout(CONNECT_TIMEOUT_MILLIS);
+        connection.setReadTimeout(READ_TIMEOUT_MILLIS);
+        connection.setInstanceFollowRedirects(false);
+        try {
+            int statusCode = connection.getResponseCode();
+            if (statusCode != HttpURLConnection.HTTP_OK) {
+                throw new IllegalStateException("HTTP " + statusCode);
+            }
+            long total = 0;
+            byte[] buffer = new byte[16 * 1024];
+            try (InputStream input = connection.getInputStream()) {
+                while (elapsedMillis(start, clock.nanoTime()) < durationMillis) {
+                    int count = input.read(buffer, 0, (int) Math.min(buffer.length, byteCount - total + 1));
+                    if (count == -1) {
+                        break;
+                    }
+                    total += count;
+                    if (byteCount < total) {
+                        throw new IllegalStateException("traffic response exceeds " + byteCount + " bytes");
+                    }
+                }
+            }
+            return total;
+        } finally {
+            connection.disconnect();
         }
     }
 

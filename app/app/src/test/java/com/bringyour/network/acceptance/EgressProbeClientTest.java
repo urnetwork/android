@@ -1017,4 +1017,92 @@ public final class EgressProbeClientTest {
             }
         };
     }
+
+    @Test
+    public void trafficReadsTheBoundedDownloadAndDisconnects() throws Exception {
+        AtomicReference<String> opened = new AtomicReference<>();
+        AtomicBoolean disconnected = new AtomicBoolean();
+        long count = EgressProbeClient.downloadTraffic(
+            40_000,
+            endpoint -> {
+                opened.set(endpoint);
+                return responseConnection(endpoint, HttpURLConnection.HTTP_OK, "x".repeat(40_000), () -> disconnected.set(true));
+            },
+            () -> 0L,
+            30_000
+        );
+        assertEquals(40_000, count);
+        assertEquals("https://speed.cloudflare.com/__down?bytes=40000", opened.get());
+        assertTrue("traffic download left its connection open", disconnected.get());
+    }
+
+    @Test
+    public void trafficStopsAtTheDurationBound() throws Exception {
+        long[] now = {0};
+        long count = EgressProbeClient.downloadTraffic(
+            1_000_000,
+            endpoint -> new HttpURLConnection(new URL(endpoint)) {
+                @Override
+                public int getResponseCode() {
+                    return HTTP_OK;
+                }
+
+                @Override
+                public InputStream getInputStream() {
+                    return new InputStream() {
+                        @Override
+                        public int read() {
+                            return 'x';
+                        }
+
+                        @Override
+                        public int read(byte[] buffer, int offset, int length) {
+                            // each read takes 10 s of the injected clock
+                            now[0] += TimeUnit.SECONDS.toNanos(10);
+                            return Math.min(length, 1_000);
+                        }
+                    };
+                }
+
+                @Override
+                public void disconnect() {
+                }
+
+                @Override
+                public boolean usingProxy() {
+                    return false;
+                }
+
+                @Override
+                public void connect() {
+                }
+            },
+            () -> now[0],
+            30_000
+        );
+        assertEquals(3_000, count);
+    }
+
+    @Test
+    public void trafficRejectsAnOversizedBodyAndBadRequests() throws Exception {
+        assertThrows(IllegalStateException.class, () -> EgressProbeClient.downloadTraffic(
+            10,
+            endpoint -> responseConnection(endpoint, HttpURLConnection.HTTP_OK, "x".repeat(11)),
+            () -> 0L,
+            30_000
+        ));
+        assertThrows(IllegalStateException.class, () -> EgressProbeClient.downloadTraffic(
+            10,
+            endpoint -> responseConnection(endpoint, HttpURLConnection.HTTP_FORBIDDEN, ""),
+            () -> 0L,
+            30_000
+        ));
+        assertThrows(IllegalArgumentException.class, () -> EgressProbeClient.downloadTraffic(
+            EgressProbeClient.MAX_TRAFFIC_BYTES + 1,
+            endpoint -> responseConnection(endpoint, HttpURLConnection.HTTP_OK, ""),
+            () -> 0L,
+            30_000
+        ));
+        assertTrue(EgressProbeClient.TRAFFIC_DURATION_MILLIS < EgressProbeClient.defaultMaximumDurationMillis());
+    }
 }

@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+# SPDX-License-Identifier: MPL-2.0
+#
+# MAIN's insufficient-balance driver for Android. tests/runner/balance runs
+#   test-insufficient-balance-driver <verb> [arg]
+# with URNETWORK_ROOT, URNETWORK_INSUFFICIENT_BALANCE_STATE and
+# URNETWORK_INSUFFICIENT_BALANCE_CREDENTIALS; the protocol is in
+# tests/runner/RUN-MAIN.md and the implementation in
+# test-insufficient-balance-driver.go. The driver binary is built once per
+# source revision into the private state directory, so the frequent observe
+# and egress calls do not recompile.
+#
+# Environment:
+#   UR_ACCEPT_ANDROID_AVD=<name>    AVD (default urnetwork-acceptance)
+#   UR_ACCEPT_ANDROID_WINDOW=1      show the emulator window
+#   ANDROID_SDK_ROOT=<path>         Android SDK
+set -euo pipefail
+umask 077
+
+here="$(cd "$(dirname "$0")" && pwd)"
+state="${URNETWORK_INSUFFICIENT_BALANCE_STATE:?URNETWORK_INSUFFICIENT_BALANCE_STATE is required}"
+source_file="$here/test-insufficient-balance-driver.go"
+bin_dir="$state/bin"
+binary="$bin_dir/android-insufficient-balance-driver"
+
+sha256() {
+  if command -v shasum >/dev/null 2>&1; then
+    shasum -a 256 "$1" | awk '{ print $1 }'
+  else
+    sha256sum "$1" | awk '{ print $1 }'
+  fi
+}
+
+mkdir -p "$bin_dir"
+source_hash="$(sha256 "$source_file")"
+if [ ! -x "$binary" ] || [ "$(cat "$bin_dir/source.sha256" 2>/dev/null || true)" != "$source_hash" ]; then
+  # build output stays on stderr: stdout is the verb's single JSON object
+  (cd "$here" && GOWORK=off go build -trimpath -o "$binary.tmp" test-insufficient-balance-driver.go) >&2
+  mv -f "$binary.tmp" "$binary"
+  printf '%s\n' "$source_hash" >"$bin_dir/source.sha256"
+fi
+URNETWORK_ANDROID_DRIVER_HOME="$here" exec "$binary" "$@"

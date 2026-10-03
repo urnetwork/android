@@ -35,6 +35,7 @@ internal object EgressProbeRequest {
         instrumentation: Instrumentation,
         timeoutMillis: Long,
         fixedResult: String? = null,
+        trafficBytes: Long = 0,
     ): EgressProbeResponse {
         require(timeoutMillis > 0) { "egress probe timeout must be positive" }
 
@@ -64,6 +65,7 @@ internal object EgressProbeRequest {
             putExtra(EgressProbeActivity.EXTRA_REQUEST_NONCE, nonce)
             putExtra(EgressProbeActivity.EXTRA_FINISH_AFTER_RESULT, true)
             fixedResult?.let { putExtra(EgressProbeActivity.EXTRA_FIXED_RESULT, it) }
+            if (0 < trafficBytes) putExtra(EgressProbeActivity.EXTRA_TRAFFIC_BYTES, trafficBytes)
         }
         testContext.startActivity(intent)
 
@@ -112,4 +114,11 @@ internal object EgressProbeRequest {
         }
         return message.removePrefix("ACCEPTANCE_IP=").trim()
     }
+
+    /**
+     * Bounded traffic from the second UID. A failure is returned, not thrown:
+     * while the tunnel holds traffic the download is expected to fail.
+     */
+    fun downloadTraffic(instrumentation: Instrumentation, timeoutMillis: Long, byteCount: Long): String =
+        execute(instrumentation, timeoutMillis, trafficBytes = byteCount).message
 }
