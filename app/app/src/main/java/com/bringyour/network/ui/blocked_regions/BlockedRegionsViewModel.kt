@@ -22,14 +22,78 @@ class BlockedRegionsViewModel @Inject constructor(
     private val deviceManager: DeviceManager,
 ): ViewModel() {
 
-    private val _blockedRegions = MutableStateFlow<List<BlockedLocation>>(emptyList())
-    val blockedRegions: StateFlow<List<BlockedLocation>> = _blockedRegions.asStateFlow()
+    // the sdk calls behind the model
+    private val source: BlockedRegionsSource<BlockedLocation> = object : BlockedRegionsSource<BlockedLocation> {
+        override fun fetch(done: (Result<List<BlockedLocation>>) -> Unit): Boolean {
+            val api = deviceManager.device?.api ?: return false
+            api.getNetworkBlockedLocations { result, error ->
+                if (error != null) {
+                    Log.i(TAG, "error fetching blocked locations: ${error.message}")
+                    done(Result.failure(error))
+                    return@getNetworkBlockedLocations
+                }
+                val blockedLocations = result?.blockedLocations
+                if (blockedLocations == null) {
+                    // no list in the reply: keep what is shown
+                    done(Result.success(model.regions.value))
+                    return@getNetworkBlockedLocations
+                }
+                val locations = mutableListOf<BlockedLocation>()
+                for (i in 0 until blockedLocations.len()) {
+                    locations.add(blockedLocations.get(i))
+                }
+                done(Result.success(locations))
+            }
+            return true
+        }
 
-    private val _isFetchingLocations = MutableStateFlow<Boolean>(false)
-    val isFetchingLocations: StateFlow<Boolean> = _isFetchingLocations.asStateFlow()
+        override fun block(location: BlockedLocation, done: (failed: Boolean) -> Unit): Boolean {
+            val api = deviceManager.device?.api ?: return false
+            val args = NetworkBlockLocationArgs()
+            args.locationId = location.locationId
+            api.networkBlockLocation(args) { result, error ->
+                val failed = error != null || result?.error != null
+                if (failed) {
+                    Log.i(TAG, "error blocking region: ${error?.message ?: result?.error?.message}")
+                }
+                done(failed)
+            }
+            return true
+        }
 
-    private val _isProcessing = MutableStateFlow<Boolean>(false)
-    val isProcessing: StateFlow<Boolean> = _isProcessing.asStateFlow()
+        override fun unblock(location: BlockedLocation, done: (failed: Boolean) -> Unit): Boolean {
+            val api = deviceManager.device?.api ?: return false
+            val args = NetworkUnblockLocationArgs()
+            args.locationId = location.locationId
+            api.networkUnblockLocation(args) { result, error ->
+                val failed = error != null || result?.error != null
+                if (failed) {
+                    Log.i(TAG, "error unblocking location: ${error?.message ?: result?.error?.message}")
+                }
+                done(failed)
+            }
+            return true
+        }
+    }
+
+    private val model: BlockedRegionsModel<BlockedLocation> = BlockedRegionsModel(
+        source = source,
+        post = { block -> viewModelScope.launch { block() } },
+        nameOf = { it.locationName },
+        isSame = { a, b -> a.locationId.cmp(b.locationId).toInt() == 0 },
+    )
+
+    val blockedRegions: StateFlow<List<BlockedLocation>> = model.regions
+
+    val isFetchingLocations: StateFlow<Boolean> = model.isFetching
+
+    val isProcessing: StateFlow<Boolean> = model.isProcessing
+
+    val notice: StateFlow<BlockedRegionsNotice?> = model.notice
+
+    val clearNotice: () -> Unit = {
+        model.clearNotice()
+    }
 
     private val _displayBottomSheet = MutableStateFlow<Boolean>(false)
     val displayBottonSheet: StateFlow<Boolean> = _displayBottomSheet.asStateFlow()
@@ -39,156 +103,22 @@ class BlockedRegionsViewModel @Inject constructor(
     }
 
     val fetchBlockedRegions: () -> Unit = {
-
-        if (!_isFetchingLocations.value) {
-
-            _isFetchingLocations.value = true
-
-            deviceManager.device?.api?.getNetworkBlockedLocations { result, error ->
-
-                if (error != null) {
-                    Log.i(TAG, "error fetching blocked locations: ${error.message}")
-
-                    viewModelScope.launch {
-                        _isFetchingLocations.value = false
-                    }
-
-                    return@getNetworkBlockedLocations
-                }
-
-                if (result.blockedLocations != null) {
-
-                    val locations = mutableListOf<BlockedLocation>()
-                    val n = result.blockedLocations.len()
-
-                    for (i in 0 until n) {
-                        val location = result.blockedLocations.get(i)
-                        locations.add(location)
-                    }
-
-                    locations.sortBy { it.locationName.lowercase() }
-
-                    viewModelScope.launch {
-                        _blockedRegions.value = locations
-                        _isFetchingLocations.value = false
-                    }
-
-                } else {
-                    viewModelScope.launch {
-                        _isFetchingLocations.value = false
-                    }
-                }
-
-            }
-
-        }
-
+        model.fetch()
     }
 
     val blockRegion: (Id, String, String) -> Unit = { id, name, countryCode ->
-
-        if (!_isProcessing.value && !isInList(id)) {
-
-            _isProcessing.value = true
-
-            val blockLocationArgs = NetworkBlockLocationArgs()
-            blockLocationArgs.locationId = id
-
-            deviceManager.device?.api?.networkBlockLocation(blockLocationArgs) { result, error ->
-
-                if (error != null) {
-                    Log.i(TAG, "error blocking region: ${error.message}")
-
-                    viewModelScope.launch {
-                        _isProcessing.value = false
-                    }
-
-                    return@networkBlockLocation
-                }
-
-                if (result.error != null) {
-                    Log.i(TAG, "result error blocking region: ${result.error.message}")
-
-                    viewModelScope.launch {
-                        _isProcessing.value = false
-                    }
-
-                    return@networkBlockLocation
-                }
-
-                viewModelScope.launch {
-
-                    // add to list
-                    val blockedLocation = BlockedLocation()
-                    blockedLocation.locationId = id
-                    blockedLocation.locationName = name
-                    blockedLocation.locationType = Sdk.LocationTypeCountry
-                    blockedLocation.countryCode = countryCode
-
-                    var locations = _blockedRegions.value + blockedLocation
-                    locations = locations.sortedBy { it.locationName.lowercase() }
-                    _blockedRegions.value = locations
-
-                    _isProcessing.value = false
-                }
-
-            }
-
-        }
-
+        val blockedLocation = BlockedLocation()
+        blockedLocation.locationId = id
+        blockedLocation.locationName = name
+        blockedLocation.locationType = Sdk.LocationTypeCountry
+        blockedLocation.countryCode = countryCode
+        model.block(blockedLocation)
     }
 
     val unblockLocation: (Id) -> Unit = { id ->
-
-        if (!_isProcessing.value && isInList(id)) {
-
-            _isProcessing.value = true
-
-            val removedItem = _blockedRegions.value.find { it.locationId.cmp(id).toInt() == 0 }
-            removeFromList(id)
-
-            val args = NetworkUnblockLocationArgs()
-            args.locationId = id
-            deviceManager.device?.api?.networkUnblockLocation(args) { result, error ->
-
-                if (error != null) {
-                    Log.i(TAG, "error unblocking location: ${error.message}")
-                    removedItem?.let { item ->
-                        viewModelScope.launch {
-                            _blockedRegions.value = (_blockedRegions.value + item).sortedBy { it.locationName.lowercase() }
-                            _isProcessing.value = false
-                        }
-                    } ?: viewModelScope.launch { _isProcessing.value = false }
-                    return@networkUnblockLocation
-                }
-
-                if (result.error != null) {
-                    Log.i(TAG, "result error unblocking location: ${result.error.message}")
-                    removedItem?.let { item ->
-                        viewModelScope.launch {
-                            _blockedRegions.value = (_blockedRegions.value + item).sortedBy { it.locationName.lowercase() }
-                            _isProcessing.value = false
-                        }
-                    } ?: viewModelScope.launch { _isProcessing.value = false }
-                    return@networkUnblockLocation
-                }
-
-                viewModelScope.launch {
-                    _isProcessing.value = false
-                }
-
-            }
-
-        }
-
-    }
-
-    val isInList: (Id) -> Boolean = { id ->
-        _blockedRegions.value.any { it.locationId.cmp(id).toInt() == 0 }
-    }
-
-    val removeFromList: (Id) -> Unit = { id ->
-        _blockedRegions.value = _blockedRegions.value.filter { it.locationId.cmp(id).toInt() != 0 }
+        blockedRegions.value
+            .find { it.locationId.cmp(id).toInt() == 0 }
+            ?.let { model.unblock(it) }
     }
 
     init {

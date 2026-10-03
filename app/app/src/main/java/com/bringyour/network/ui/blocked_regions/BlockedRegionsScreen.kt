@@ -23,16 +23,22 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -64,8 +70,28 @@ fun BlockedRegionsScreen(
         skipPartiallyExpanded = true
     )
     val scope = rememberCoroutineScope()
+    val context = LocalContext.current
+    val snackbarHostState = remember { SnackbarHostState() }
+    val notice by viewModel.notice.collectAsState()
+
+    LaunchedEffect(notice) {
+        val shown = notice ?: return@LaunchedEffect
+        val message = when (shown) {
+            BlockedRegionsNotice.LoadFailed ->
+                context.getString(R.string.blocked_locations_load_failed)
+            is BlockedRegionsNotice.BlockFailed ->
+                context.getString(R.string.blocked_location_block_failed, shown.locationName)
+            is BlockedRegionsNotice.UnblockFailed ->
+                context.getString(R.string.blocked_location_unblock_failed, shown.locationName)
+        }
+        viewModel.clearNotice()
+        snackbarHostState.showSnackbar(message = message, withDismissAction = true)
+    }
 
     Scaffold(
+        snackbarHost = {
+            SnackbarHost(hostState = snackbarHostState)
+        },
         topBar = {
             CenterAlignedTopAppBar(
                 title = {

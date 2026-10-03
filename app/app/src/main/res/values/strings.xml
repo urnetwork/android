@@ -68,7 +68,10 @@
     <string name="bittensor_wallet">Bittensor wallet</string>
     <string name="block_ads_and_trackers">Block ads and trackers</string>
     <string name="blocked">Blocked</string>
+    <string name="blocked_location_block_failed">Couldn\'t block %1$s. Please try again.</string>
+    <string name="blocked_location_unblock_failed">Couldn\'t unblock %1$s. Please try again.</string>
     <string name="blocked_locations">Blocked Locations</string>
+    <string name="blocked_locations_load_failed">Couldn\'t load your blocked locations. Pull down to try again.</string>
     <string name="blocks">Blocks</string>
     <string name="bonus_referral_code_label">Bonus referral code</string>
     <string name="browse_locations">Browse Locations</string>
