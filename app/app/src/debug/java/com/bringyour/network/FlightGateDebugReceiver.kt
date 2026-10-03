@@ -87,7 +87,11 @@ class FlightGateDebugReceiver : BroadcastReceiver() {
                 is PasswordLoginCompletion.Ready ->
                     Log.i(TAG, "result action=login ok=true")
                 is PasswordLoginCompletion.VerificationRequired ->
-                    Log.i(TAG, "result action=login ok=false error=verification-required")
+                    Log.i(
+                        TAG,
+                        "result action=login ok=false error=verification-required " +
+                            "send_error=${completion.sendError?.code}",
+                    )
                 is PasswordLoginCompletion.Failed ->
                     Log.i(TAG, "result action=login ok=false error=${completion.failure} message=${completion.message}")
             }

@@ -123,7 +123,7 @@ fun LoginPassword(
                     }
                     is PasswordLoginCompletion.VerificationRequired -> {
                         inProgress = false
-                        navController.navigate("verify/${Uri.encode(completion.userAuth)}")
+                        navController.navigate(verifyRoute(completion.userAuth, completion.sendError))
                     }
                     is PasswordLoginCompletion.Ready -> {
                         loginError = null

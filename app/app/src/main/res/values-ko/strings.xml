@@ -171,6 +171,7 @@
     <string name="error_connecting_wallet_with_reason">지갑을 연결하는 중 오류가 발생했습니다: %1$s</string>
     <string name="error_loading_account_plan">계정 플랜을 불러오는 중 오류가 발생했습니다.</string>
     <string name="error_redeeming_transfer_balance_code">이체 잔액 코드 사용 중 오류가 발생했습니다.</string>
+    <string name="error_sending_verification_code">인증 코드를 보내는 중 오류가 발생했습니다.</string>
     <string name="error_setting_default_wallet_with_reason">기본 지갑을 설정하는 중 오류가 발생했습니다: %1$s</string>
     <string name="exclude_app">VPN에서 제외</string>
     <string name="exclude_app_description">이 앱은 터널을 우회합니다.</string>
@@ -546,6 +547,7 @@
     <string name="user_auth_label">이메일 또는 전화번호</string>
     <string name="user_auth_placeholder">전화번호 또는 이메일을 입력하세요</string>
     <string name="uses_ur_protocol">UR Protocol 사용</string>
+    <string name="verification_code_sent_2">인증 코드를 보냈습니다.</string>
     <string name="verified_project_on">%1$s에서 인증된 프로젝트</string>
     <string name="verify_error">문제가 발생했습니다. 다시 시도해 주세요.</string>
     <string name="verify_seeker_token_btn">Seeker 선주문 토큰 확인</string>
@@ -607,5 +609,8 @@
     </plurals>
     <plurals name="total_referral_count">
         <item quantity="other">총 추천 수: %1$d</item>
+    </plurals>
+    <plurals name="verify_code_rate_limited">
+        <item quantity="other">시도 횟수가 너무 많습니다. %1$d분 후에 새 코드를 요청할 수 있습니다.</item>
     </plurals>
 </resources>

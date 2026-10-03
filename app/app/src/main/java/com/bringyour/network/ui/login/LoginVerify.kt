@@ -48,6 +48,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
@@ -58,6 +59,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.bringyour.sdk.AuthVerifyArgs
 import com.bringyour.sdk.AuthVerifySendArgs
+import com.bringyour.sdk.AuthVerifySendError
 import com.bringyour.network.LoginActivity
 import com.bringyour.network.LoginClientCompletion
 import com.bringyour.network.MainApplication
@@ -75,7 +77,9 @@ import kotlinx.coroutines.launch
 @Composable
 fun LoginVerify(
     userAuth: String,
-    navController: NavController
+    navController: NavController,
+    // set when the login or sign-up that opened this screen did not send a code
+    sendError: VerifySendError? = null,
 ) {
 
     val context = LocalContext.current
@@ -85,7 +89,9 @@ fun LoginVerify(
     var code by remember { mutableStateOf(List(codeLength) { "" }) }
     var resendInProgress by remember { mutableStateOf(false) }
     var markResendAsSent by remember { mutableStateOf(false) }
-    var resendError by remember { mutableStateOf<String?>(null) }
+    // the outcome of the last code send: the one that opened this screen, then each resend
+    var sendNotice by remember { mutableStateOf(VerifySendNotice.from(false, sendError)) }
+    var codeSent by remember { mutableStateOf(sendNotice == VerifySendNotice.Sent) }
     var verifyInProgress by remember { mutableStateOf(false) }
     val resendBtnEnabled by remember {
         derivedStateOf {
@@ -99,7 +105,16 @@ fun LoginVerify(
     var isContentVisible by remember { mutableStateOf(true) }
     val isEmail = Patterns.EMAIL_ADDRESS.matcher(userAuth).matches()
     val titleSize: TextUnit = dimensionResource(id = R.dimen.login_title_size).value.sp
-    val verifySendErrMsg = stringResource(id = R.string.verify_send_error)
+    val sendNoticeText = when (val notice = sendNotice) {
+        VerifySendNotice.Sent -> null
+        VerifySendNotice.SendFailed -> stringResource(id = R.string.error_sending_verification_code)
+        is VerifySendNotice.RateLimited -> pluralStringResource(
+            id = R.plurals.verify_code_rate_limited,
+            count = notice.minutes,
+            notice.minutes,
+        )
+        is VerifySendNotice.ServerMessage -> notice.message
+    }
     val verifyErrMsg = stringResource(id = R.string.verify_error)
 
     val scope = rememberCoroutineScope()
@@ -109,28 +124,37 @@ fun LoginVerify(
             return@resendCode
         }
 
-        resendError = null
+        sendNotice = VerifySendNotice.Sent
         resendInProgress = true
 
         val args = AuthVerifySendArgs()
         args.userAuth = userAuth
         args.useNumeric = true
+        // a rate limit or failed send comes back in `result.error`, with the retry time
+        args.resultErrors = true
 
-        application?.api?.authVerifySend(args) { _, err ->
+        application?.api?.authVerifySend(args) { result, err ->
             scope.launch {
 
                 resendInProgress = false
 
-                if (err != null) {
-                    resendError = verifySendErrMsg
-                } else {
+                sendNotice = VerifySendNotice.from(
+                    err != null || result == null,
+                    result?.error?.toVerifySendError(),
+                )
+                if (sendNotice == VerifySendNotice.Sent) {
+                    codeSent = true
                     markResendAsSent = true
-                    Toast.makeText(context, "Verification code sent", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        context,
+                        context.getString(R.string.verification_code_sent_2),
+                        Toast.LENGTH_SHORT,
+                    ).show()
                 }
             }
         } ?: run {
             resendInProgress = false
-            resendError = verifySendErrMsg
+            sendNotice = VerifySendNotice.SendFailed
         }
     }
 
@@ -271,23 +295,26 @@ fun LoginVerify(
                     Column(
                         modifier = Modifier.imePadding()
                     ) {
-                        Text(
-                            stringResource(id =
-                                if (isEmail) R.string.login_verify_header
-                                else R.string.login_verify_check_phone
-                            ),
-                            style = MaterialTheme.typography.headlineLarge,
-                            fontSize = titleSize
-                        )
+                        // both lines say a code was sent
+                        if (codeSent) {
+                            Text(
+                                stringResource(id =
+                                    if (isEmail) R.string.login_verify_header
+                                    else R.string.login_verify_check_phone
+                                ),
+                                style = MaterialTheme.typography.headlineLarge,
+                                fontSize = titleSize
+                            )
 
-                        Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.login_margin_lg)))
+                            Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.login_margin_lg)))
 
-                        Text(
-                            stringResource(id = R.string.login_verify_details),
-                            color = TextMuted
-                        )
+                            Text(
+                                stringResource(id = R.string.login_verify_details),
+                                color = TextMuted
+                            )
 
-                        Spacer(modifier = Modifier.height(32.dp))
+                            Spacer(modifier = Modifier.height(32.dp))
+                        }
 
                         URCodeInput(
                             value = code,
@@ -311,7 +338,7 @@ fun LoginVerify(
                             },
                             resendBtnEnabled = resendBtnEnabled,
                             resendInProgress = resendInProgress,
-                            resendError = resendError
+                            resendError = sendNoticeText
                         )
                     }
                 }
@@ -371,6 +398,12 @@ private fun ResendCode(
         URInlineErrorText(resendError)
     }
 }
+
+fun AuthVerifySendError.toVerifySendError() = VerifySendError(
+    code = code ?: "",
+    message = message ?: "",
+    retryAfterSeconds = retryAfterSeconds,
+)
 
 @Preview
 @Composable

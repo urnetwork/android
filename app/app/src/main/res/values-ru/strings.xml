@@ -363,6 +363,7 @@
     <string name="error_connecting_wallet_with_reason">Произошла ошибка при подключении кошелька: %1$s</string>
     <string name="error_loading_account_plan">Ошибка загрузки вашего тарифного плана.</string>
     <string name="error_redeeming_transfer_balance_code">Ошибка при активации кода перевода баланса.</string>
+    <string name="error_sending_verification_code">Произошла ошибка при отправке кода подтверждения.</string>
     <string name="error_setting_default_wallet_with_reason">Ошибка при установке кошелька по умолчанию: %1$s</string>
     <string name="exclude_app">Исключить из VPN</string>
     <string name="exclude_app_description">Это приложение обходит туннель.</string>
@@ -854,6 +855,7 @@
     <string name="user_auth_label">Email или телефон</string>
     <string name="user_auth_placeholder">Введите номер телефона или email</string>
     <string name="uses_ur_protocol">Использует UR Protocol</string>
+    <string name="verification_code_sent_2">Код подтверждения отправлен.</string>
     <string name="verified_project_on">Проверенный проект на %1$s</string>
     <string name="verify_error">Что-то пошло не так. Попробуйте еще раз.</string>
     <string name="verify_seeker">Подтвердить Seeker</string>
@@ -1027,6 +1029,12 @@
         <item quantity="few">Всего рефералов: %1$d</item>
         <item quantity="many">Всего рефералов: %1$d</item>
         <item quantity="other">Всего рефералов: %1$d</item>
+    </plurals>
+    <plurals name="verify_code_rate_limited">
+        <item quantity="one">Слишком много попыток. Новый код можно запросить через %1$d минуту.</item>
+        <item quantity="few">Слишком много попыток. Новый код можно запросить через %1$d минуты.</item>
+        <item quantity="many">Слишком много попыток. Новый код можно запросить через %1$d минут.</item>
+        <item quantity="other">Слишком много попыток. Новый код можно запросить через %1$d минуты.</item>
     </plurals>
     <plurals name="widget_contract_stack_accessibility">
         <item quantity="one">%1$d контракт, %2$s</item>

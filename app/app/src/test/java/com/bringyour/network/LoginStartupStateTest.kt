@@ -1,5 +1,6 @@
 package com.bringyour.network
 
+import com.bringyour.network.ui.login.VerifySendError
 import java.util.Base64
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -196,6 +197,37 @@ class LoginStartupStateTest {
 
         assertEquals(
             PasswordLoginCompletion.VerificationRequired("verified@example.com"),
+            completion,
+        )
+    }
+
+    @Test
+    fun `password verification response carries the send error to the verify screen`() {
+        val sendError = VerifySendError(
+            code = "verify_rate_limited",
+            message = "Too many recent sign-in attempts. Please try again in 5 minutes.",
+            retryAfterSeconds = 300,
+        )
+        var completion: PasswordLoginCompletion? = null
+        PasswordLoginCoordinator(
+            tracker = LoginStartupTracker(),
+            requester = PasswordAuthRequester { _, _, callback ->
+                callback(
+                    PasswordAuthWireResult(
+                        verificationUserAuth = "verified@example.com",
+                        verificationSendError = sendError,
+                    ),
+                    null,
+                )
+            },
+            sessionAuthenticator = NetworkSessionAuthenticator { _, _, _ ->
+                error("must not authenticate session")
+            },
+            dispatch = { it() },
+        ).authenticate("user@example.com", "password") { completion = it }
+
+        assertEquals(
+            PasswordLoginCompletion.VerificationRequired("verified@example.com", sendError),
             completion,
         )
     }

@@ -171,6 +171,7 @@
     <string name="error_connecting_wallet_with_reason">ウォレットの接続中にエラーが発生しました：%1$s</string>
     <string name="error_loading_account_plan">アカウントプランの読み込み中にエラーが発生しました。</string>
     <string name="error_redeeming_transfer_balance_code">転送残高コードの引き換え時にエラーが発生しました。</string>
+    <string name="error_sending_verification_code">確認コードの送信中にエラーが発生しました。</string>
     <string name="error_setting_default_wallet_with_reason">デフォルトウォレットの設定中にエラーが発生しました：%1$s</string>
     <string name="exclude_app">VPNから除外</string>
     <string name="exclude_app_description">このアプリはトンネルを迂回します。</string>
@@ -546,6 +547,7 @@
     <string name="user_auth_label">メールアドレスまたは電話番号</string>
     <string name="user_auth_placeholder">電話番号またはメールアドレスを入力してください</string>
     <string name="uses_ur_protocol">UR Protocolを使用</string>
+    <string name="verification_code_sent_2">確認コードを送信しました。</string>
     <string name="verified_project_on">%1$sで認証されたプロジェクト</string>
     <string name="verify_error">エラーが発生しました。もう一度お試しください。</string>
     <string name="verify_seeker_token_btn">シーカー事前予約トークンを認証</string>
@@ -607,5 +609,8 @@
     </plurals>
     <plurals name="total_referral_count">
         <item quantity="other">紹介合計: %1$d</item>
+    </plurals>
+    <plurals name="verify_code_rate_limited">
+        <item quantity="other">試行回数が多すぎます。%1$d 分後に新しいコードをリクエストできます。</item>
     </plurals>
 </resources>

@@ -171,6 +171,7 @@
     <string name="error_connecting_wallet_with_reason">Παρουσιάστηκε σφάλμα κατά τη σύνδεση του πορτοφολιού σας: %1$s</string>
     <string name="error_loading_account_plan">Σφάλμα κατά τη φόρτωση του προγράμματος λογαριασμού σας.</string>
     <string name="error_redeeming_transfer_balance_code">Σφάλμα κατά την εξαργύρωση του κωδικού μεταφοράς υπολοίπου.</string>
+    <string name="error_sending_verification_code">Παρουσιάστηκε σφάλμα κατά την αποστολή του κωδικού επαλήθευσης.</string>
     <string name="error_setting_default_wallet_with_reason">Σφάλμα κατά τον ορισμό του προεπιλεγμένου πορτοφολιού: %1$s</string>
     <string name="exclude_app">Εξαίρεση από το VPN</string>
     <string name="exclude_app_description">Αυτή η εφαρμογή παρακάμπτει το τούνελ.</string>
@@ -546,6 +547,7 @@
     <string name="user_auth_label">Email ή τηλέφωνο</string>
     <string name="user_auth_placeholder">Εισαγάγετε τον αριθμό τηλεφώνου ή το email σας</string>
     <string name="uses_ur_protocol">Χρησιμοποιεί το UR Protocol</string>
+    <string name="verification_code_sent_2">Ο κωδικός επαλήθευσης στάλθηκε.</string>
     <string name="verified_project_on">Επαληθευμένο έργο στο %1$s</string>
     <string name="verify_error">Κάτι πήγε στραβά. Δοκιμάστε ξανά.</string>
     <string name="verify_seeker_token_btn">Επαληθεύστε το Seeker Pre-Order Token</string>
@@ -622,5 +624,9 @@
     <plurals name="total_referral_count">
         <item quantity="one">Συνολικές παραπομπές: %1$d</item>
         <item quantity="other">Συνολικές παραπομπές: %1$d</item>
+    </plurals>
+    <plurals name="verify_code_rate_limited">
+        <item quantity="one">Πάρα πολλές προσπάθειες. Μπορείτε να ζητήσετε νέο κωδικό σε %1$d λεπτό.</item>
+        <item quantity="other">Πάρα πολλές προσπάθειες. Μπορείτε να ζητήσετε νέο κωδικό σε %1$d λεπτά.</item>
     </plurals>
 </resources>

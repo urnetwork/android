@@ -171,6 +171,7 @@
     <string name="error_connecting_wallet_with_reason">Se produjo un error al conectar tu cartera: %1$s</string>
     <string name="error_loading_account_plan">Error al cargar el plan de tu cuenta.</string>
     <string name="error_redeeming_transfer_balance_code">Error al canjear el código de transferencia de saldo.</string>
+    <string name="error_sending_verification_code">Ocurrió un error al enviar el código de verificación.</string>
     <string name="error_setting_default_wallet_with_reason">Error al establecer la cartera predeterminada: %1$s</string>
     <string name="exclude_app">Excluir de la VPN</string>
     <string name="exclude_app_description">Esta app evita el túnel.</string>
@@ -546,6 +547,7 @@
     <string name="user_auth_label">Correo electrónico o teléfono</string>
     <string name="user_auth_placeholder">Introduce tu número de teléfono o correo electrónico</string>
     <string name="uses_ur_protocol">Usa el UR Protocol</string>
+    <string name="verification_code_sent_2">Código de verificación enviado.</string>
     <string name="verified_project_on">Proyecto verificado en %1$s</string>
     <string name="verify_error">Algo salió mal. Inténtalo de nuevo.</string>
     <string name="verify_seeker_token_btn">Verificar el token de pre-pedido de Seeker</string>
@@ -622,5 +624,9 @@
     <plurals name="total_referral_count">
         <item quantity="one">Total de referidos: %1$d</item>
         <item quantity="other">Total de referidos: %1$d</item>
+    </plurals>
+    <plurals name="verify_code_rate_limited">
+        <item quantity="one">Demasiados intentos. Puedes solicitar un código nuevo en %1$d minuto.</item>
+        <item quantity="other">Demasiados intentos. Puedes solicitar un código nuevo en %1$d minutos.</item>
     </plurals>
 </resources>

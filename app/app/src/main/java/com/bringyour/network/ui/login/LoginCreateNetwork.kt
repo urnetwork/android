@@ -81,7 +81,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import com.bringyour.network.ui.components.overlays.WelcomeAnimatedOverlayLogin
-import android.net.Uri
 import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.ppNeueBitBold
 import com.bringyour.sdk.Api
@@ -355,7 +354,12 @@ fun LoginCreateNetwork(
                         }
 
                         verificationUserAuth?.let {
-                            navController.navigate("verify/${Uri.encode(it)}")
+                            navController.navigate(
+                                verifyRoute(
+                                    it,
+                                    result.verificationRequired.sendError?.toVerifySendError(),
+                                )
+                            )
                         } ?: run {
                             createNetworkError = createNetworkErrorMsg
                         }

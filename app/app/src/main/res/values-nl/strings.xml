@@ -171,6 +171,7 @@
     <string name="error_connecting_wallet_with_reason">Er is een fout opgetreden bij het verbinden van je wallet: %1$s</string>
     <string name="error_loading_account_plan">Fout bij het laden van uw accountplan.</string>
     <string name="error_redeeming_transfer_balance_code">Fout bij het inwisselen van overdrachts-saldocode.</string>
+    <string name="error_sending_verification_code">Er is een fout opgetreden bij het verzenden van de verificatiecode.</string>
     <string name="error_setting_default_wallet_with_reason">Fout bij het instellen van de standaardwallet: %1$s</string>
     <string name="exclude_app">Uitsluiten van VPN</string>
     <string name="exclude_app_description">Deze app omzeilt de tunnel.</string>
@@ -546,6 +547,7 @@
     <string name="user_auth_label">E-mail of telefoon</string>
     <string name="user_auth_placeholder">Voer je telefoonnummer of e-mailadres in</string>
     <string name="uses_ur_protocol">Gebruikt het UR Protocol</string>
+    <string name="verification_code_sent_2">Verificatiecode verzonden.</string>
     <string name="verified_project_on">Geverifieerd project op %1$s</string>
     <string name="verify_error">Er is iets misgegaan. Probeer het opnieuw.</string>
     <string name="verify_seeker_token_btn">Verifieer je Seeker Pre-Order Token</string>
@@ -622,5 +624,9 @@
     <plurals name="total_referral_count">
         <item quantity="one">Totaal aantal verwijzingen: %1$d</item>
         <item quantity="other">Totaal aantal verwijzingen: %1$d</item>
+    </plurals>
+    <plurals name="verify_code_rate_limited">
+        <item quantity="one">Te veel pogingen. Je kunt over %1$d minuut een nieuwe code aanvragen.</item>
+        <item quantity="other">Te veel pogingen. Je kunt over %1$d minuten een nieuwe code aanvragen.</item>
     </plurals>
 </resources>
