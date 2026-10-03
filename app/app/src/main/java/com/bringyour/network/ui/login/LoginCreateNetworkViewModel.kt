@@ -18,6 +18,7 @@ import com.bringyour.sdk.Sdk
 import com.bringyour.sdk.ValidateReferralCodeArgs
 import com.bringyour.sdk.WalletAuthArgs
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -37,18 +38,23 @@ class LoginCreateNetworkViewModel @Inject constructor(
         emailOrPhone = tfv
     }
 
-    var networkNameIsValid by mutableStateOf(false)
+    var networkNameCheckState by mutableStateOf(NetworkNameCheckState.EMPTY)
         private set
 
-    var networkNameErrorExists by mutableStateOf(false)
-        private set
+    /** the name may be submitted: available, or the check failed and network create re-checks it */
+    val networkNameIsValid: Boolean
+        get() = networkNameCheckState.allowsCreate
 
-    val setNetworkNameErrorExists: (Boolean) -> Unit = { errExists ->
-        networkNameErrorExists = errExists
-    }
+    /** the check answered that the name is taken */
+    val networkNameErrorExists: Boolean
+        get() = networkNameCheckState == NetworkNameCheckState.UNAVAILABLE
 
-    var isValidatingNetworkName by mutableStateOf(false)
-        private set
+    /** the check errored or never answered; the name was not judged */
+    val networkNameCheckFailed: Boolean
+        get() = networkNameCheckState == NetworkNameCheckState.FAILED
+
+    val isValidatingNetworkName: Boolean
+        get() = networkNameCheckState == NetworkNameCheckState.CHECKING
 
 //    var presentBonusSheet by mutableStateOf(false)
 //        private set
@@ -58,10 +64,6 @@ class LoginCreateNetworkViewModel @Inject constructor(
 
     val setPresentBonusSheet: (Boolean) -> Unit = { pb ->
         _presentBonusSheet.value = pb
-    }
-
-    val setIsValidatingNetworkName: (Boolean) -> Unit = { iv ->
-        isValidatingNetworkName = iv
     }
 
     var networkName by mutableStateOf(TextFieldValue(""))
@@ -192,43 +194,32 @@ class LoginCreateNetworkViewModel @Inject constructor(
         _referralCodeInputSupportingTextRes.value = msgRes
     }
 
-    val validateNetworkName: (String) -> Unit = { nn ->
-
-        if (nn.isNotEmpty()) {
-
-            if (nn.length < 6) {
-                networkNameIsValid = false
-                setNetworkNameErrorExists(false)
-            } else {
-                setIsValidatingNetworkName(true)
-
-                networkNameValidationVc?.networkCheck(nn) { result, err ->
-                    viewModelScope.launch {
-
-                        if (err == null) {
-                            if (result.available) {
-                                Log.i("LoginCreateNetworkViewModel", "$nn is available")
-                                networkNameIsValid = true
-                                setNetworkNameErrorExists(false)
-                            } else {
-                                Log.i("LoginCreateNetworkViewModel", "$nn is unavailable")
-                                networkNameIsValid = false
-                                setNetworkNameErrorExists(true)
-                            }
-                        } else {
-                            Log.i("LoginCreateNetworkViewModel", "$nn an error occurred")
-                            networkNameIsValid = false
-                            setNetworkNameErrorExists(true)
-                        }
-
-                        setIsValidatingNetworkName(false)
+    private val networkNameCheck = NetworkNameCheck(
+        check = { nn, onResult ->
+            networkNameValidationVc?.networkCheck(nn) { result, err ->
+                viewModelScope.launch {
+                    if (err != null) {
+                        Log.i(TAG, "network name check failed: ${err.message}")
                     }
+                    onResult(if (err == null) result?.available else null)
                 }
+            } ?: onResult(null)
+        },
+        schedule = { delayMillis, action ->
+            val job = viewModelScope.launch {
+                delay(delayMillis)
+                action()
             }
-        } else {
-            networkNameIsValid = false
-            setNetworkNameErrorExists(false)
-        }
+            val cancel: () -> Unit = { job.cancel() }
+            cancel
+        },
+        onStateChange = { state ->
+            networkNameCheckState = state
+        },
+    )
+
+    val validateNetworkName: (String) -> Unit = { nn ->
+        networkNameCheck.validate(nn)
     }
 
     val createNetworkArgs: (LoginCreateNetworkParams) -> NetworkCreateArgs = { params ->

@@ -1,5 +1,7 @@
 package com.bringyour.network.ui.profile
 
+import com.bringyour.network.ui.login.NetworkNameCheck
+import com.bringyour.network.ui.login.NetworkNameCheckState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -79,15 +81,10 @@ class ProfileViewModel @Inject constructor(
             networkNameValidationVc?.networkCheck(nn) { result, err ->
                 viewModelScope.launch {
 
-                    if (err == null) {
-                        if (result.available) {
-                            setNetworkNameIsValid(true)
-                        } else {
-                            setNetworkNameIsValid(false)
-                        }
-                    } else {
-                        setNetworkNameIsValid(false)
-                    }
+                    // a failed check did not judge the name, so it is not marked
+                    // invalid; changing the name re-checks it on the server
+                    val state = NetworkNameCheck.resultState(if (err == null) result?.available else null)
+                    setNetworkNameIsValid(state != NetworkNameCheckState.UNAVAILABLE)
 
                     setIsValidatingNetworkName(false)
                 }
