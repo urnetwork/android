@@ -543,7 +543,7 @@ private fun SettingsScreen(
     networkName: String? = null,
     setShowDeleteAccountDialog: (Boolean) -> Unit = {},
     showDeleteAccountDialog: Boolean,
-    deleteAccount: (onSuccess: () -> Unit, onFailure: (Exception?) -> Unit) -> Unit,
+    deleteAccount: (onSuccess: () -> Unit, onFailure: (DeleteAccountOutcome.Failed) -> Unit) -> Unit,
     isDeletingAccount: Boolean,
     routeLocal: Boolean,
     toggleRouteLocal: () -> Unit,
@@ -578,6 +578,8 @@ private fun SettingsScreen(
     val context = LocalContext.current
     val clipboardManager = LocalClipboardManager.current
     val application = context.applicationContext as? MainApplication
+    // outlives the delete dialog, which closes before the failure snackbar shows
+    val deleteAccountScope = rememberCoroutineScope()
 
     // todo - load this maybe as an config var?
     val discordInviteLink = "https://discord.com/invite/RUNZXMwPRK"
@@ -1502,6 +1504,7 @@ private fun SettingsScreen(
             var deleteConfirmText by remember { mutableStateOf(TextFieldValue("")) }
             val requiresTypedName = DeleteAccountConfirmation.requiresTypedName(networkName)
             val deleteConfirmed = DeleteAccountConfirmation.confirms(networkName, deleteConfirmText.text)
+            val deleteAccountFailedText = stringResource(id = R.string.error_deleting_account)
 
             BasicAlertDialog(
                 onDismissRequest = {
@@ -1612,10 +1615,17 @@ private fun SettingsScreen(
                                             (context as? Activity)?.finish()
 
                                         },
-                                        { exception ->
-                                            Log.i(TAG, "Error deleting account: ${exception?.message}")
+                                        { failed ->
+                                            // the account still exists: stay signed in, say why
                                             setShowDeleteAccountDialog(false)
-                                            // todo: snackbar show error
+                                            val message = DeleteAccountOutcome.failureMessage(deleteAccountFailedText, failed)
+                                            deleteAccountScope.launch {
+                                                snackbarHostState.showSnackbar(
+                                                    message = message,
+                                                    withDismissAction = true,
+                                                    duration = SnackbarDuration.Indefinite
+                                                )
+                                            }
                                         }
                                     )
                                 },

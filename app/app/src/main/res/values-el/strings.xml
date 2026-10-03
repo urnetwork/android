@@ -168,6 +168,7 @@
     <string name="enter_balance_code">Εισαγάγετε τον κωδικό υπολοίπου</string>
     <string name="enter_network_referral_code">Εισαγάγετε τον κωδικό παραπομπής δικτύου</string>
     <string name="error_connecting_wallet_with_reason">Παρουσιάστηκε σφάλμα κατά τη σύνδεση του πορτοφολιού σας: %1$s</string>
+    <string name="error_deleting_account">Λυπούμαστε, παρουσιάστηκε σφάλμα κατά τη διαγραφή του λογαριασμού σας.</string>
     <string name="error_loading_account_plan">Σφάλμα κατά τη φόρτωση του προγράμματος λογαριασμού σας.</string>
     <string name="error_redeeming_transfer_balance_code">Σφάλμα κατά την εξαργύρωση του κωδικού μεταφοράς υπολοίπου.</string>
     <string name="error_setting_default_wallet_with_reason">Σφάλμα κατά τον ορισμό του προεπιλεγμένου πορτοφολιού: %1$s</string>

@@ -168,6 +168,7 @@
     <string name="enter_balance_code">बैलेंस कोड दर्ज करें</string>
     <string name="enter_network_referral_code">नेटवर्क रेफ़रल कोड दर्ज करें</string>
     <string name="error_connecting_wallet_with_reason">आपका वॉलेट कनेक्ट करते समय त्रुटि हुई: %1$s</string>
+    <string name="error_deleting_account">क्षमा करें, आपका खाता हटाते समय त्रुटि हुई।</string>
     <string name="error_loading_account_plan">आपके अकाउंट प्लान को लोड करने में त्रुटि हुई।</string>
     <string name="error_redeeming_transfer_balance_code">ट्रांसफर बैलेंस कोड रिडीम करने में त्रुटि।</string>
     <string name="error_setting_default_wallet_with_reason">डिफ़ॉल्ट वॉलेट सेट करने में त्रुटि: %1$s</string>

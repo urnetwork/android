@@ -168,6 +168,7 @@
     <string name="enter_balance_code">Zadejte kód zůstatku</string>
     <string name="enter_network_referral_code">Zadejte síťový referenční kód</string>
     <string name="error_connecting_wallet_with_reason">Při připojování peněženky došlo k chybě: %1$s</string>
+    <string name="error_deleting_account">Omlouváme se, při mazání účtu došlo k chybě.</string>
     <string name="error_loading_account_plan">Chyba při načítání plánu vašeho účtu.</string>
     <string name="error_redeeming_transfer_balance_code">Chyba při uplatnění kódu převodu zůstatku.</string>
     <string name="error_setting_default_wallet_with_reason">Chyba při nastavování výchozí peněženky: %1$s</string>

@@ -168,6 +168,7 @@
     <string name="enter_balance_code">残高コードを入力</string>
     <string name="enter_network_referral_code">ネットワーク紹介コードを入力してください</string>
     <string name="error_connecting_wallet_with_reason">ウォレットの接続中にエラーが発生しました：%1$s</string>
+    <string name="error_deleting_account">申し訳ありません。アカウントの削除中にエラーが発生しました。</string>
     <string name="error_loading_account_plan">アカウントプランの読み込み中にエラーが発生しました。</string>
     <string name="error_redeeming_transfer_balance_code">転送残高コードの引き換え時にエラーが発生しました。</string>
     <string name="error_setting_default_wallet_with_reason">デフォルトウォレットの設定中にエラーが発生しました：%1$s</string>

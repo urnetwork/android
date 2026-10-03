@@ -359,6 +359,7 @@
     <string name="epoch_row_title">Epoche %1$d</string>
     <string name="epoch_share_of_block">%1$s des Blocks</string>
     <string name="error_connecting_wallet_with_reason">Beim Verbinden deiner Wallet ist ein Fehler aufgetreten: %1$s</string>
+    <string name="error_deleting_account">Entschuldigung, beim Löschen deines Kontos ist ein Fehler aufgetreten.</string>
     <string name="error_loading_account_plan">Fehler beim Laden deines Kontoplans.</string>
     <string name="error_redeeming_transfer_balance_code">Fehler beim Einlösen des Übertragungsguthabencodes.</string>
     <string name="error_setting_default_wallet_with_reason">Fehler beim Festlegen der Standard-Wallet: %1$s</string>

@@ -168,6 +168,7 @@
     <string name="enter_balance_code">Voer saldo-code in</string>
     <string name="enter_network_referral_code">Referentiecode ingeven</string>
     <string name="error_connecting_wallet_with_reason">Er is een fout opgetreden bij het verbinden van je wallet: %1$s</string>
+    <string name="error_deleting_account">Sorry, er is een fout opgetreden bij het verwijderen van je account.</string>
     <string name="error_loading_account_plan">Fout bij het laden van uw accountplan.</string>
     <string name="error_redeeming_transfer_balance_code">Fout bij het inwisselen van overdrachts-saldocode.</string>
     <string name="error_setting_default_wallet_with_reason">Fout bij het instellen van de standaardwallet: %1$s</string>

@@ -168,6 +168,7 @@
     <string name="enter_balance_code">ป้อนรหัสยอดเงิน</string>
     <string name="enter_network_referral_code">กรอกรหัสการแนะนำเครือข่าย</string>
     <string name="error_connecting_wallet_with_reason">เกิดข้อผิดพลาดในการเชื่อมต่อกระเป๋าเงินของคุณ: %1$s</string>
+    <string name="error_deleting_account">ขออภัย เกิดข้อผิดพลาดในการลบบัญชีของคุณ</string>
     <string name="error_loading_account_plan">เกิดข้อผิดพลาดในการโหลดแผนบัญชีของคุณ</string>
     <string name="error_redeeming_transfer_balance_code">เกิดข้อผิดพลาดในการแลกรหัสยอดเงินโอน</string>
     <string name="error_setting_default_wallet_with_reason">เกิดข้อผิดพลาดในการตั้งค่ากระเป๋าเงินเริ่มต้น: %1$s</string>

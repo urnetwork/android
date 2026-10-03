@@ -168,6 +168,7 @@
     <string name="enter_balance_code">Wpisz kod salda</string>
     <string name="enter_network_referral_code">Wprowadź kod polecenia sieci</string>
     <string name="error_connecting_wallet_with_reason">Wystąpił błąd podczas łączenia portfela: %1$s</string>
+    <string name="error_deleting_account">Przepraszamy, wystąpił błąd podczas usuwania konta.</string>
     <string name="error_loading_account_plan">Błąd podczas ładowania planu konta.</string>
     <string name="error_redeeming_transfer_balance_code">Błąd podczas realizacji kodu transferu salda.</string>
     <string name="error_setting_default_wallet_with_reason">Błąd podczas ustawiania domyślnego portfela: %1$s</string>

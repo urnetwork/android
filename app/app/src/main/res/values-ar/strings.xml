@@ -359,6 +359,7 @@
     <string name="epoch_row_title">الفترة %1$d</string>
     <string name="epoch_share_of_block">%1$s من الكتلة</string>
     <string name="error_connecting_wallet_with_reason">حدث خطأ أثناء ربط محفظتك: %1$s</string>
+    <string name="error_deleting_account">عذرًا، حدث خطأ أثناء حذف حسابك.</string>
     <string name="error_loading_account_plan">حدث خطأ أثناء تحميل خطة حسابك.</string>
     <string name="error_redeeming_transfer_balance_code">حدث خطأ أثناء استرداد رمز تحويل الرصيد.</string>
     <string name="error_setting_default_wallet_with_reason">خطأ في تعيين المحفظة الافتراضية: %1$s</string>

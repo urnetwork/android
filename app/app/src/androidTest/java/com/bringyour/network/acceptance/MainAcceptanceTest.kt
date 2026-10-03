@@ -355,12 +355,18 @@ class MainAcceptanceTest {
         val api = application.api ?: throw AssertionError("network delete has no active API")
         val complete = CountDownLatch(1)
         var failure: Throwable? = null
-        api.networkDelete { _, error ->
+        var refusal: String? = null
+        api.networkDelete { result, error ->
             failure = error
+            // the server refuses a deletion with an error in the result
+            if (error == null && (result == null || result.error != null)) {
+                refusal = result?.error?.message ?: "no result"
+            }
             complete.countDown()
         }
         check(complete.await(45, TimeUnit.SECONDS)) { "network delete timed out" }
         failure?.let { throw AssertionError("network delete failed", it) }
+        refusal?.let { throw AssertionError("network delete refused: $it") }
         instrumentation.runOnMainSync { application.logout() }
     }
 

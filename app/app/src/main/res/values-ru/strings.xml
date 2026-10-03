@@ -359,6 +359,7 @@
     <string name="epoch_row_title">Эпоха %1$d</string>
     <string name="epoch_share_of_block">%1$s блока</string>
     <string name="error_connecting_wallet_with_reason">Произошла ошибка при подключении кошелька: %1$s</string>
+    <string name="error_deleting_account">К сожалению, произошла ошибка при удалении вашего аккаунта.</string>
     <string name="error_loading_account_plan">Ошибка загрузки вашего тарифного плана.</string>
     <string name="error_redeeming_transfer_balance_code">Ошибка при активации кода перевода баланса.</string>
     <string name="error_setting_default_wallet_with_reason">Ошибка при установке кошелька по умолчанию: %1$s</string>
