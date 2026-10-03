@@ -1,28 +1,72 @@
 package com.bringyour.network.ui.shared.viewmodels
 
-import android.util.Log
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bringyour.network.DeviceManager
-import com.bringyour.network.TAG
 import com.bringyour.sdk.SolanaPaymentIntentArgs
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+/**
+ * The Solana Pay hand-off: registers the payment intent and remembers the payment the
+ * wallet was opened for. The pending payment is persisted (PendingSolanaPaymentStore,
+ * UPGRADE.md N6) so the return-path check survives the system killing the app while
+ * the wallet is in front.
+ */
 @HiltViewModel
 class SolanaPaymentViewModel @Inject constructor(
     deviceManager: DeviceManager,
+    @ApplicationContext context: Context,
 ): ViewModel() {
 
-    private val _pendingSolanaSubscriptionReference = MutableStateFlow<String?>(null)
+    private val store = PendingSolanaPaymentStore(
+        object : PendingSolanaPaymentStore.Prefs {
+            private val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+
+            override fun getString(key: String): String? = prefs.getString(key, null)
+
+            override fun putStrings(values: Map<String, String?>) {
+                val edit = prefs.edit()
+                values.forEach { (key, value) ->
+                    if (value == null) edit.remove(key) else edit.putString(key, value)
+                }
+                edit.apply()
+            }
+        }
+    )
+
+    // the last intent the server quoted, so the opened payment persists with its plan
+    @Volatile
+    private var lastIntent: Triple<String, String, Double>? = null
+
+    private val _pendingSolanaSubscriptionReference = MutableStateFlow<String?>(store.load()?.reference)
     val pendingSolanaSubscriptionReference: StateFlow<String?> = _pendingSolanaSubscriptionReference.asStateFlow()
 
-    val setPendingSolanaSubscriptionReference: (String?) -> Unit = {
-        _pendingSolanaSubscriptionReference.value = it
+    /** The persisted pending payment, if the check for it has not ended. */
+    internal val pendingSolanaPayment: PendingSolanaPayment?
+        get() = store.load()
+
+    val setPendingSolanaSubscriptionReference: (String?) -> Unit = { reference ->
+        if (reference == null) {
+            store.clear()
+        } else {
+            val intent = lastIntent?.takeIf { it.first == reference }
+            store.save(
+                PendingSolanaPayment(
+                    reference = reference,
+                    plan = intent?.second ?: "",
+                    amountUsd = intent?.third ?: 0.0,
+                    createdAtMillis = System.currentTimeMillis(),
+                )
+            )
+        }
+        _pendingSolanaSubscriptionReference.value = reference
     }
 
     /**
@@ -72,6 +116,7 @@ class SolanaPaymentViewModel @Inject constructor(
                                 return@launch
                             }
 
+                            lastIntent = Triple(reference, plan, result.amountUsd)
                             onSuccess(result.amountUsd)
 
                         }
@@ -80,6 +125,10 @@ class SolanaPaymentViewModel @Inject constructor(
                 } else {
                     onError()
                 }
+    }
+
+    companion object {
+        private const val PREFS_NAME = "pending_solana_payment"
     }
 
 }

@@ -69,4 +69,18 @@ class ForegroundPollingSessionTest {
         assertEquals(ForegroundPollingResume.ACTIVE, session.resume())
         assertFalse(session.hasExpired())
     }
+
+    @Test
+    fun elapsedTimeCountsFromStartAndResetsOnStop() {
+        var now = 10L
+        val session = ForegroundPollingSession(nowMillis = { now })
+        assertEquals(0L, session.elapsedMillis())
+
+        session.start(100L)
+        now = 35L
+        assertEquals(25L, session.elapsedMillis())
+
+        session.stop()
+        assertEquals(0L, session.elapsedMillis())
+    }
 }

@@ -15,6 +15,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.AlertDialog
 import android.content.res.Configuration
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.EnterTransition
@@ -71,6 +72,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
@@ -569,6 +571,48 @@ private fun MainNavHostContent(
         }
     }
 
+    /**
+     * The Solana return-path check passed the old 20 s cap: say it is still checking
+     * rather than going quiet. If it runs out its two minutes, the confirmation-delayed
+     * notice follows -- without the "Payment received" title, since the app cannot
+     * know the wallet sent anything.
+     */
+    val solanaStillCheckingMessage = stringResource(id = R.string.solana_payment_still_checking)
+    val navHostContext = LocalContext.current
+    LaunchedEffect(Unit) {
+        subscriptionBalanceViewModel.solanaStillCheckingSequence.collect { sequence ->
+            if (!subscriptionBalanceViewModel.consumeSolanaStillCheckingSequence(sequence)) {
+                return@collect
+            }
+
+            Toast.makeText(navHostContext, solanaStillCheckingMessage, Toast.LENGTH_LONG).show()
+        }
+    }
+
+    var showSolanaCheckDelayedDialog by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        subscriptionBalanceViewModel.solanaCheckTimedOutSequence.collect { sequence ->
+            if (!subscriptionBalanceViewModel.consumeSolanaCheckTimedOutSequence(sequence)) {
+                return@collect
+            }
+
+            showSolanaCheckDelayedDialog = true
+        }
+    }
+
+    if (showSolanaCheckDelayedDialog) {
+        AlertDialog(
+            onDismissRequest = { showSolanaCheckDelayedDialog = false },
+            text = { Text(stringResource(id = R.string.payment_confirmation_delayed)) },
+            confirmButton = {
+                TextButton(onClick = { showSolanaCheckDelayedDialog = false }) {
+                    Text(stringResource(id = R.string.close))
+                }
+            }
+        )
+    }
+
     if (showConfirmationDelayedDialog) {
         AlertDialog(
             onDismissRequest = { showConfirmationDelayedDialog = false },
@@ -648,7 +692,9 @@ private fun MainNavHostContent(
 
     /**
      * This is for listening to Solana Wallet subscriptions
-     * If there is a pending sub reference + the app regains focus, we start polling the subscription balance
+     * If there is a pending sub reference + the app regains focus, we start polling the subscription balance.
+     * The reference is persisted (it survives the app being killed while the wallet is
+     * in front) and is only dropped once the check is confirmed or timed out.
      */
     DisposableEffect(lifecycleOwner, pendingSolanaSubReference) {
 
@@ -656,9 +702,18 @@ private fun MainNavHostContent(
             if (event == Lifecycle.Event.ON_RESUME) {
                 if (!pendingSolanaSubReference.isNullOrEmpty()) {
                     scope.launch {
+                        // a restart after process death lost the in-memory expectation
+                        solanaPaymentViewModel.pendingSolanaPayment?.let { payment ->
+                            if (payment.plan.isNotEmpty()) {
+                                subscriptionBalanceViewModel.expectSolanaPurchase(payment.plan, payment.amountUsd)
+                            }
+                        }
                         // poll subscription balance until it's updated
-                        subscriptionBalanceViewModel.pollSolanaTransaction()
-                        solanaPaymentViewModel.setPendingSolanaSubscriptionReference(null)
+                        subscriptionBalanceViewModel.pollSolanaTransaction(
+                            onFinished = {
+                                solanaPaymentViewModel.setPendingSolanaSubscriptionReference(null)
+                            }
+                        )
                     }
                 }
             }
