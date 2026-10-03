@@ -29,6 +29,7 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -66,6 +67,8 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.bringyour.network.R
 import com.bringyour.network.ui.components.Identicon
+import com.bringyour.network.ui.components.RowRemoveControl
+import com.bringyour.network.ui.components.providerLocationRemoveControls
 import com.bringyour.network.ui.components.SwipeToRevealRow
 import com.bringyour.network.ui.indexedLazyListKey
 import com.bringyour.network.ui.shared.viewmodels.PostQuantumIdentityViewModel
@@ -225,15 +228,28 @@ fun ProviderLocationsScreen(
                         indexedLazyListKey("provider-location", index, row.clientId)
                     },
                 ) { _, row ->
-                    SwipeToRevealRow(onDelete = { viewModel.removeProvider(row.clientId) }) {
+                    val rowContent: @Composable () -> Unit = {
                         ProviderLocationRowItem(
                             row = row,
                             selected = row.clientId == selectedClientId,
                             nowMillis = nowMillis,
                             getLocationColor = getLocationColor,
                             onSelect = { viewModel.select(row.clientId) },
+                            onRemove = if (RowRemoveControl.Button in providerLocationRemoveControls) {
+                                { viewModel.removeProvider(row.clientId) }
+                            } else {
+                                null
+                            },
                             pqIdenticon = pqIdenticonByClientId[row.clientId],
                         )
+                    }
+                    if (RowRemoveControl.Swipe in providerLocationRemoveControls) {
+                        SwipeToRevealRow(
+                            onDelete = { viewModel.removeProvider(row.clientId) },
+                            content = rowContent,
+                        )
+                    } else {
+                        rowContent()
                     }
                     HorizontalDivider()
                 }
@@ -254,6 +270,8 @@ private fun ProviderLocationRowItem(
     nowMillis: Long,
     getLocationColor: (String) -> Color,
     onSelect: () -> Unit,
+    // a visible remove button at the end of the row, when non-null
+    onRemove: (() -> Unit)? = null,
     // the provider's post-quantum identity identicon at badge size, non-null
     // only when the provider has an identity-verified end-to-end encrypted
     // session; rendered as a small badge to the right of the client id
@@ -350,6 +368,18 @@ private fun ProviderLocationRowItem(
                 color = TextMuted,
                 maxLines = 1,
             )
+        }
+
+        // swipe-to-reveal alone is unreachable for TalkBack, Switch Access and
+        // keyboard users, and invisible to anyone who does not know to swipe
+        onRemove?.let { remove ->
+            IconButton(onClick = remove) {
+                Icon(
+                    Icons.Filled.Clear,
+                    contentDescription = stringResource(id = R.string.remove),
+                    tint = TextMuted,
+                )
+            }
         }
     }
 }

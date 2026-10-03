@@ -33,6 +33,8 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.customActions
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntOffset
@@ -56,6 +58,9 @@ import kotlin.math.roundToInt
  * and proportional to the slide distance. The button also stays centered
  * within the revealed gap the whole way, so it reads as growing out of the
  * trailing edge.
+ *
+ * Assistive tech cannot swipe, so the content also carries the delete as an
+ * accessibility custom action.
  */
 @Composable
 fun SwipeToRevealRow(
@@ -76,6 +81,8 @@ fun SwipeToRevealRow(
     val close: () -> Unit = {
         scope.launch { offsetX.animateTo(0f) }
     }
+
+    val removeLabel = stringResource(id = R.string.remove)
 
     Box(
         modifier = modifier.fillMaxWidth()
@@ -136,6 +143,9 @@ fun SwipeToRevealRow(
                 .offset { IntOffset(offsetX.value.roundToInt(), 0) }
                 .fillMaxWidth()
                 .background(Black)
+                .semantics {
+                    customActions = swipeToRevealAccessibilityActions(removeLabel, onDelete)
+                }
                 .draggable(
                     orientation = Orientation.Horizontal,
                     state = rememberDraggableState { delta ->
