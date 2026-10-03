@@ -968,6 +968,12 @@ private fun SettingsScreen(
                                 style = MaterialTheme.typography.bodySmall,
                                 color = BlueLight
                             )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(
+                                stringResource(id = R.string.kill_switch_exception_unrecognized_encrypted),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = BlueLight
+                            )
                         }
                     }
                 }

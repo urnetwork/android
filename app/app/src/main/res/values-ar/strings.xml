@@ -8,6 +8,7 @@
     <string name="add_a_rule">إضافة قاعدة</string>
     <string name="add_blocked_location">إضافة موقع محجوب</string>
     <string name="add_emoji">إضافة إيموجي</string>
+    <string name="add_local_split_rule">توجيه محلي</string>
     <string name="add_referral_code">إضافة رمز الإحالة</string>
     <string name="add_referral_extra_rewards">أضف رمز الإحالة لكسب مكافآت إضافية</string>
     <string name="add_tao_for_gas">أضف TAO لرسوم الغاز</string>
@@ -439,6 +440,7 @@
     <string name="kill_switch">مفتاح القتل</string>
     <string name="kill_switch_exception">استثناء مفتاح القتل</string>
     <string name="kill_switch_exception_detail">أثناء اتصال VPN، لا يُوجَّه IPv6 عبر URnetwork وقد يستخدم شبكتك المحلية، حتى عند تشغيل مفتاح القتل. كما يتجاوز SMTP الصادر عبر منفذ TCP رقم 25 شبكة VPN. قد تكشف هذه الاستثناءات عنوان IP العام المحلي لديك لتلك الوجهات. يبقى SMTP على المنفذين 465 و587 داخل VPN ويجب أن يُنشئ اتصال TLS.</string>
+    <string name="kill_switch_exception_unrecognized_encrypted">عند إيقاف مفتاح القتل، تتجاوز حركة المرور التي تُبقيها قواعد أمان URnetwork خارج الشبكة، مثل البروتوكولات المشفرة غير المعروفة، شبكة VPN وتستخدم عنوان IP العام المحلي لديك. عند تشغيل مفتاح القتل، تُحظر حركة المرور هذه.</string>
     <string name="launch">تشغيل</string>
     <string name="leaderboard">لوحة الصدارة</string>
     <string name="leaderboard_description">لوحة الصدارة هي مجموع آخر 4 دفعات. يتم تحديثها كل دورة دفع.</string>
@@ -701,6 +703,8 @@
     <string name="route_local">السماح بحركة المرور المحلية عند قطع الاتصال</string>
     <string name="route_you">أنت</string>
     <string name="rules">القواعد</string>
+    <string name="safety_rule">قاعدة أمان</string>
+    <string name="safety_rule_detail">تُبقي قواعد أمان URnetwork حركة المرور هذه خارج الشبكة، مثل بروتوكول مشفّر لا يمكنها التعرف عليه. تُرسلها قاعدة تقسيم محلية خارج VPN من عنوان IP الخاص بك.</string>
     <string name="save">حفظ</string>
     <string name="save_logs">حفظ السجلات</string>
     <string name="saved_as">يُحفظ كـ %1$s</string>

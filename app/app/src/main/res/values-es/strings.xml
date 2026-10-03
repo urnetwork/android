@@ -8,6 +8,7 @@
     <string name="add_a_rule">Añadir una regla</string>
     <string name="add_blocked_location">Agregar ubicación bloqueada</string>
     <string name="add_emoji">Añadir emojis</string>
+    <string name="add_local_split_rule">Enrutar localmente</string>
     <string name="add_referral_code">Añadir código de referencia</string>
     <string name="add_referral_extra_rewards">Añade un código de referencia para ganar recompensas adicionales</string>
     <string name="add_tao_for_gas">Añade TAO para el gas</string>
@@ -439,6 +440,7 @@
     <string name="kill_switch">Kill switch</string>
     <string name="kill_switch_exception">Excepción del Kill switch</string>
     <string name="kill_switch_exception_detail">Mientras la VPN está conectada, IPv6 no se enruta a través de URnetwork y puede usar tu red local, incluso con el Kill switch activado. El SMTP saliente por el puerto TCP 25 también evita la VPN. Estas excepciones pueden exponer tu IP pública local a esos destinos. El SMTP por los puertos 465 y 587 permanece en la VPN y debe establecer TLS.</string>
+    <string name="kill_switch_exception_unrecognized_encrypted">Con el Kill switch desactivado, el tráfico que las reglas de seguridad de URnetwork mantienen fuera de la red, como protocolos cifrados no reconocidos, evita la VPN y usa tu IP pública local. Con el Kill switch activado, ese tráfico se bloquea.</string>
     <string name="launch">Iniciar</string>
     <string name="leaderboard">Tabla de clasificación</string>
     <string name="leaderboard_description">La tabla de clasificación es la suma de los últimos 4 pagos. Se actualiza en cada ciclo de pago.</string>
@@ -701,6 +703,8 @@
     <string name="route_local">Permitir tráfico local cuando esté desconectado</string>
     <string name="route_you">Tú</string>
     <string name="rules">Reglas</string>
+    <string name="safety_rule">Regla de seguridad</string>
+    <string name="safety_rule_detail">Las reglas de seguridad de URnetwork mantienen este tráfico fuera de la red, por ejemplo un protocolo cifrado que no pueden reconocer. Una regla de división local lo envía fuera de la VPN desde tu propia IP.</string>
     <string name="save">Guardar</string>
     <string name="save_logs">Guardar registros</string>
     <string name="saved_as">Se guarda como %1$s</string>
