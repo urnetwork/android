@@ -21,7 +21,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
@@ -30,7 +30,10 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import com.bringyour.network.R
+import com.bringyour.network.ui.components.SupportContact
 import com.bringyour.network.ui.components.URButton
+import com.bringyour.network.ui.components.openSupportUri
+import com.bringyour.network.ui.components.supportLinkSpans
 import com.bringyour.network.ui.theme.Pink
 import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.Yellow
@@ -41,42 +44,22 @@ fun ApiErrorScreen(
     isLoading: Boolean
 ) {
 
-    val supportUrl = "https://discord.com/invite/RUNZXMwPRK"
-    val supportEmail = "support@ur.io"
+    val context = LocalContext.current
 
-    val uriHandler = LocalUriHandler.current
-
-    val discordText = "Discord"
-    val emailText = "support@ur.io"
-
-    val supportFullText = stringResource(id = R.string.api_error_contact, emailText, discordText)
-
-    val startDiscordIndex = supportFullText.indexOf(discordText)
-    val endDiscordIndex = startDiscordIndex + discordText.length
-
-    val startEmailIndex = supportFullText.indexOf(emailText)
-    val endEmailIndex = startEmailIndex + emailText.length
-
+    val supportFullText = stringResource(
+        id = R.string.api_error_contact,
+        SupportContact.EMAIL,
+        SupportContact.DISCORD_NAME,
+    )
 
     val supportAnnotatedString = buildAnnotatedString {
         withStyle(style = MaterialTheme.typography.bodyMedium.toSpanStyle().copy(color = TextMuted)) {
             append(supportFullText)
-            // Style and annotate email
-            addStyle(SpanStyle(color = Pink), startEmailIndex, endEmailIndex)
-            addStringAnnotation(
-                tag = "EMAIL",
-                annotation = "mailto:$supportEmail",
-                start = startEmailIndex,
-                end = endEmailIndex
-            )
-            // Style and annotate Discord
-            addStyle(SpanStyle(color = Pink), startDiscordIndex, endDiscordIndex)
-            addStringAnnotation(
-                tag = "URL",
-                annotation = supportUrl,
-                start = startDiscordIndex,
-                end = endDiscordIndex
-            )
+            // a link text missing from a translation gets no span instead of a negative range
+            for (span in supportLinkSpans(supportFullText, SupportContact.apiErrorLinks)) {
+                addStyle(SpanStyle(color = Pink), span.start, span.end)
+                addStringAnnotation(tag = "URL", annotation = span.uri, start = span.start, end = span.end)
+            }
         }
     }
 
@@ -141,9 +124,8 @@ fun ApiErrorScreen(
                                 .getStringAnnotations(position, position)
                                 .firstOrNull()
 
-                            when (annotation?.tag) {
-                                "EMAIL" -> uriHandler.openUri(annotation.item)
-                                "URL" -> uriHandler.openUri(annotation.item)
+                            if (annotation?.tag == "URL") {
+                                openSupportUri(context, annotation.item)
                             }
                         }
                     }

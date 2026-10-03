@@ -84,7 +84,8 @@ import com.bringyour.network.LoginActivity
 import com.bringyour.network.MainApplication
 import com.bringyour.network.ui.account.AccountViewModel
 import com.bringyour.network.ui.components.InfoIconWithOverlay
-import com.bringyour.network.ui.components.URLinkText
+import com.bringyour.network.ui.components.SupportContact
+import com.bringyour.network.ui.components.openSupportUri
 import com.bringyour.network.ui.components.URSwitch
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.text.input.ImeAction
@@ -600,8 +601,6 @@ private fun SettingsScreen(
     // outlives the delete dialog, which closes before the failure snackbar shows
     val deleteAccountScope = rememberCoroutineScope()
 
-    // todo - load this maybe as an config var?
-    val discordInviteLink = "https://discord.com/invite/RUNZXMwPRK"
 
     val depinHubStr = "DePIN Hub"
     val depinHubLink = "https://depinhub.io/projects/urnetwork"
@@ -1171,40 +1170,56 @@ private fun SettingsScreen(
 
             Spacer(modifier = Modifier.height(18.dp))
 
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.Bottom
-            ) {
+            // one row per support contact; the email comes first since Discord is unreachable in some regions
+            SupportContact.settingsLinks.forEachIndexed { index, link ->
+
+                if (0 < index) {
+                    Spacer(modifier = Modifier.height(18.dp))
+                }
 
                 Row(
-                    verticalAlignment = Alignment.CenterVertically
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.Bottom
                 ) {
-                    Text(
-                        stringResource(id = R.string.join_community_discord),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = Color.White
-                    )
-                    Spacer(modifier = Modifier.width(3.dp))
-                    URLinkText(
-                        text = "Discord",
-                        url = discordInviteLink,
-                        fontSize = 14.sp
-                    )
-                }
-                IconButton(
-                    onClick = {
-                        val intent = Intent(Intent.ACTION_VIEW, discordInviteLink.toUri())
-                        context.startActivity(intent)
-                    },
-                    modifier = Modifier.size(20.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Outlined.Outbound,
-                        contentDescription = "Right Arrow",
-                        tint = TextMuted,
-                    )
+
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            stringResource(
+                                id = if (link == SupportContact.emailLink) {
+                                    R.string.email_support_at
+                                } else {
+                                    R.string.join_community_discord
+                                }
+                            ),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color.White
+                        )
+                        Spacer(modifier = Modifier.width(3.dp))
+                        Text(
+                            link.text,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = BlueMedium,
+                            modifier = Modifier.clickable {
+                                openSupportUri(context, link.uri)
+                            }
+                        )
+                    }
+                    IconButton(
+                        onClick = {
+                            openSupportUri(context, link.uri)
+                        },
+                        modifier = Modifier.size(20.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Outlined.Outbound,
+                            contentDescription = link.text,
+                            tint = TextMuted,
+                        )
+                    }
                 }
             }
 
