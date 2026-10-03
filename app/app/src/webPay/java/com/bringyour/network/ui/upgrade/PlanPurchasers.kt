@@ -68,6 +68,7 @@ fun rememberPlanPurchaser(
 ): PlanPurchaser {
     val context = LocalContext.current
     val notCompleted = stringResource(id = R.string.payment_not_completed)
+    val accountNotReady = stringResource(id = R.string.account_isn_t_ready_for_purchases)
     var payPage by remember { mutableStateOf<PayPage?>(null) }
 
     payPage?.let { page ->
@@ -90,9 +91,16 @@ fun rememberPlanPurchaser(
     return remember(planViewModel) {
         PlanPurchaser(store = Sdk.EventStoreStripe) { plan, presentation ->
             val api = planViewModel.api
-            if (api == null || planViewModel.inProgress) {
-                return@PlanPurchaser
+            when (purchaseStartFor(api != null, planViewModel.inProgress)) {
+                PurchaseStart.InProgress -> return@PlanPurchaser
+                PurchaseStart.AccountNotReady -> {
+                    planViewModel.setChangePlanError(accountNotReady)
+                    return@PlanPurchaser
+                }
+                PurchaseStart.Start -> Unit
             }
+            // Start implies an api
+            api ?: return@PlanPurchaser
             planViewModel.setInProgress(true)
             val yearly = plan == PlanType.YEARLY
             val planName = if (yearly) Sdk.PlanYearly else Sdk.PlanMonthly
