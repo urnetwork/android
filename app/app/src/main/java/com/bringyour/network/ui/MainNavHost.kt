@@ -99,6 +99,7 @@ import com.bringyour.network.ui.components.proFlightPixelation
 import com.bringyour.network.ui.components.rememberProFlightClock
 import com.bringyour.network.ui.components.overlays.FullScreenOverlay
 import com.bringyour.network.ui.components.overlays.WelcomeAnimatedMainOverlay
+import com.bringyour.network.ui.components.referral.LocalReferralCountLoad
 import com.bringyour.network.ui.components.referral.LocalReferralTerms
 import com.bringyour.network.ui.components.referral.ReferralRoyalToast
 import com.bringyour.network.ui.connect.ConnectScreen
@@ -186,8 +187,13 @@ fun MainNavHost(
     // the referral cap and bonus come from the server with the referral code;
     // everything signed-in reads them from here instead of hardcoding numbers
     val referralTerms by referralCodeViewModel.terms.collectAsState()
+    // the usage bar's referral figures wait for the same read
+    val referralCountLoad by referralCodeViewModel.codeLoad.collectAsState()
 
-    CompositionLocalProvider(LocalReferralTerms provides referralTerms) {
+    CompositionLocalProvider(
+        LocalReferralTerms provides referralTerms,
+        LocalReferralCountLoad provides referralCountLoad,
+    ) {
         MainNavHostContent(
         earningsViewModel = earningsViewModel,
         settingsViewModel = settingsViewModel,

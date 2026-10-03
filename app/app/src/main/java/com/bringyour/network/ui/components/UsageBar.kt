@@ -1,5 +1,6 @@
 package com.bringyour.network.ui.components
 
+import com.bringyour.network.ui.components.referral.LocalReferralCountLoad
 import com.bringyour.network.ui.components.referral.LocalReferralTerms
 import com.bringyour.network.ui.components.referral.ReferralBonusLine
 import com.bringyour.network.ui.components.referral.referralBonusLine
@@ -55,7 +56,7 @@ fun UsageBar(
     // the referral row; off where referrals have their own screen
     showReferrals: Boolean = true,
     // the referral read behind the referral row's figures
-    referralCountLoad: SectionLoad = SectionLoad.Loaded,
+    referralCountLoad: SectionLoad = LocalReferralCountLoad.current,
 ) {
     
     val totalBytes = usedBytes + pendingBytes + availableBytes
