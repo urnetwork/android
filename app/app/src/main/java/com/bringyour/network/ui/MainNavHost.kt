@@ -120,6 +120,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.navigation
 import androidx.navigation.toRoute
 import com.bringyour.network.ui.account.AccountViewModel
+import com.bringyour.network.ui.account.GuestAccount
+import com.bringyour.network.ui.account.GuestConversionSheet
+import com.bringyour.network.ui.account.UpgradeEntry
 import com.bringyour.network.ui.components.nestedLinkBottomSheet.NestedLinkBottomSheet
 import com.bringyour.network.ui.connect.BrowseLocationsScreen
 import com.bringyour.network.ui.connect.LocationsListViewModel
@@ -442,9 +445,14 @@ private fun MainNavHostContent(
     /**
      * For initial intro funnel prompting
      */
-    LaunchedEffect(isPro, allowPromptIntroFunnel) {
+    val isGuestNetworkForIntro by subscriptionBalanceViewModel.isGuestNetwork.collectAsState()
+    LaunchedEffect(isPro, allowPromptIntroFunnel, isGuestNetworkForIntro) {
 
         if (isPro) {
+            mainNavViewModel.setDisplayIntroFunnel(false)
+        } else if (GuestAccount.upgradeEntry(isGuestNetworkForIntro) == UpgradeEntry.AddSignInMethod) {
+            // the intro sells a plan; a guest network is not sold one (GuestAccount).
+            // Not marked prompted, so it can show once the network has a login.
             mainNavViewModel.setDisplayIntroFunnel(false)
         } else {
             if (allowPromptIntroFunnel) {
@@ -1180,6 +1188,11 @@ fun MainNavContent(
     profileViewModel: ProfileViewModel = hiltViewModel<ProfileViewModel>(),
     accountPointsViewModel: AccountPointsViewModel = hiltViewModel<AccountPointsViewModel>(),
 ) {
+    val isGuestNetwork by subscriptionBalanceViewModel.isGuestNetwork.collectAsState()
+    LaunchedEffect(isGuestNetwork) {
+        accountViewModel.setGuestNetwork(isGuestNetwork)
+    }
+
     val localDensityCurrent = LocalDensity.current
     val canvasSizePx =
         with(localDensityCurrent) { connectViewModel.canvasSize.times(0.4f).toPx() }
@@ -1350,12 +1363,38 @@ fun MainNavContent(
             LeaderboardScreen()
         }
 
+        composable<Route.GuestConversion> {
+            GuestConversionSheet(
+                settingsViewModel = settingsViewModel,
+                activityResultSender = activityResultSender,
+                refreshJwt = subscriptionBalanceViewModel.refreshJwt,
+                onAdded = {
+                    // the server stops reporting a guest once the method exists
+                    subscriptionBalanceViewModel.fetchSubscriptionBalance()
+                    navController.popBackStack()
+                },
+                onDismiss = { navController.popBackStack() }
+            )
+        }
+
         composable<Route.Upgrade>(
             enterTransition = NavigationAnimations.enterTransition(),
             exitTransition = NavigationAnimations.exitTransition(),
             popEnterTransition = NavigationAnimations.popEnterTransition(),
             popExitTransition = NavigationAnimations.popExitTransition()
         ) {
+            // every upgrade entry lands here; a guest network has no login to
+            // come back to, so it adds a sign-in method first and is not sold a plan
+            if (GuestAccount.upgradeEntry(isGuestNetwork) == UpgradeEntry.AddSignInMethod) {
+                GuestConversionSheet(
+                    settingsViewModel = settingsViewModel,
+                    activityResultSender = activityResultSender,
+                    refreshJwt = subscriptionBalanceViewModel.refreshJwt,
+                    onAdded = { subscriptionBalanceViewModel.fetchSubscriptionBalance() },
+                    onDismiss = { navController.popBackStack() }
+                )
+                return@composable
+            }
             UpgradeScreen(
                 navController = navController,
                 planViewModel = planViewModel,
