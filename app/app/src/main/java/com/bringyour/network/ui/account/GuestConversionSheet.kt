@@ -13,7 +13,8 @@ import com.solana.mobilewalletadapter.clientlib.ActivityResultSender
 /**
  * A legacy guest's "create an account" and every upgrade entry while the network
  * is a guest (GuestAccount): the add-sign-in-method sheet, adding the method to
- * THIS network through AddAuth, then re-signing the jwt. The plan and balance
+ * THIS network through AddAuth, then re-signing the jwt. An email or phone is
+ * then verified with a code before `onAdded` runs. The plan and balance
  * stay on the network; nothing logs out. Once a method exists the server stops
  * reporting a guest, and the upgrade entries lead to checkout again.
  */
