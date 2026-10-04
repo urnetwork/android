@@ -10,6 +10,7 @@
     <string name="add_emoji">इमोजी जोड़ें</string>
     <string name="add_referral_code">रेफरल कोड जोड़ें</string>
     <string name="add_referral_extra_rewards">अतिरिक्त पुरस्कार पाने के लिए रेफरल कोड जोड़ें</string>
+    <string name="add_sign_in_method">साइन-इन विधि जोड़ें</string>
     <string name="add_sign_in_method_2">साइन-इन विधि जोड़ें</string>
     <string name="advanced">उन्नत</string>
     <string name="allow_local_connections">स्थानीय कनेक्शन की अनुमति दें</string>
@@ -29,6 +30,7 @@
     <string name="app_split_precedence_note">शामिल ऐप्स को प्राथमिकता मिलती है: यदि कोई भी ऐप शामिल है, तो केवल शामिल ऐप्स ही VPN का उपयोग करते हैं और बाहर रखने का कोई असर नहीं होता।</string>
     <string name="app_split_rules">ऐप स्प्लिट नियम</string>
     <string name="app_split_starter">0 स्प्लिट ऐप्स</string>
+    <string name="apple_sign_in_method_added">Apple साइन-इन विधि जोड़ी गई</string>
     <string name="apply_bonus">बोनस लागू करें</string>
     <string name="apps">ऐप्स</string>
     <string name="are_you_sure_delete_account">क्या आप वाकई अपना अकाउंट डिलीट करना चाहते हैं?</string>
@@ -91,6 +93,7 @@
     <string name="companion">साथी</string>
     <string name="connect">कनेक्ट करें</string>
     <string name="connect_and_open">कनेक्ट करें और लिंक खोलें</string>
+    <string name="connect_bittensor_wallet_to_add_sign_in_method">Bittensor वॉलेट को साइन-इन विधि के रूप में जोड़ने के लिए उसे कनेक्ट करें।</string>
     <string name="connect_options">कनेक्शन विकल्प</string>
     <string name="connect_seeker_wallet">सागा जेनेसिस या सीकर प्री-ऑर्डर टोकन के साथ एक वॉलेट कनेक्ट करें</string>
     <string name="connect_solana_wallet_to_add_sign_in_method">Solana वॉलेट को साइन-इन विधि के रूप में जोड़ने के लिए उसे कनेक्ट करें।</string>
@@ -264,6 +267,7 @@
     <string name="make_default">डिफ़ॉल्ट बनाएं</string>
     <string name="manage_subscription">सदस्यता प्रबंधित करें</string>
     <string name="member">सदस्य</string>
+    <string name="method">विधि</string>
     <string name="mock_location_active">%1$s के साथ सिंक हो रहा है</string>
     <string name="mock_location_disclosure_detectable">ऐप्लिकेशन पहचान सकते हैं कि स्थान नकली है। बैंकिंग, राइड-हेलिंग, डिलीवरी और कुछ गेम ऐप्लिकेशन इसके चालू रहने पर काम करने से मना कर सकते हैं।</string>
     <string name="mock_location_disclosure_device_wide">इससे आपके डिवाइस के हर ऐप्लिकेशन को दिखने वाला स्थान बदल जाता है, सिर्फ़ URnetwork को नहीं।</string>
@@ -492,6 +496,7 @@
     <string name="sign_in_with_google">Google से साइन इन करें</string>
     <string name="sign_in_with_google_to_add_it">Google से साइन इन करें और उसे साइन-इन विधि के रूप में जोड़ें।</string>
     <string name="sign_in_with_seedphrase">सीड फ़्रेज़ से साइन इन करें</string>
+    <string name="sign_in_with_your_apple_id_to">अपने Apple ID से साइन इन करें और उसे साइन-इन विधि के रूप में जोड़ें।</string>
     <string name="site_app_email">ईमेल</string>
     <string name="site_save_your_seedphrase">अपना सीडफ़्रेज़ सहेजें</string>
     <string name="solana_sign_in">Solana से साइन इन करें</string>

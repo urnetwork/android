@@ -10,7 +10,8 @@ import kotlinx.coroutines.flow.asStateFlow
  * The app side of a Bittensor coldkey proof: pick a wallet, show the
  * server-issued challenge, take the pasted address and signature, and hand a
  * proof to the flow that asked (sign-in, the create-network second
- * signature, or the Earnings coldkey connect).
+ * signature, the Earnings coldkey connect, or adding the wallet as a sign-in
+ * method).
  *
  * The protocol lives in the SDK (`sdk/bittensor_wallet.go`,
  * `BittensorWalletSession`): what is signed, and whether an answer is
@@ -36,6 +37,8 @@ object BittensorWallets {
     const val PURPOSE_LOGIN = "login"
     const val PURPOSE_CREATE = "create"
     const val PURPOSE_CONNECT = "connect"
+    // add the wallet as a sign-in method to the signed-in network (/auth/add-auth)
+    const val PURPOSE_ADD = "add"
 
     // the app's registered return link (unused by the manual transport, kept
     // so a session built here matches what the bridge would return to)
@@ -197,11 +200,12 @@ class BittensorProofFlow(
 }
 
 /** Where a proof goes next. */
-enum class BittensorProofRoute { LOGIN, CREATE_NETWORK, CONNECT_WALLET }
+enum class BittensorProofRoute { LOGIN, CREATE_NETWORK, CONNECT_WALLET, ADD_SIGN_IN }
 
 fun bittensorProofRoute(proof: BittensorProof): BittensorProofRoute? = when (proof.purpose) {
     BittensorWallets.PURPOSE_LOGIN -> BittensorProofRoute.LOGIN
     BittensorWallets.PURPOSE_CREATE -> BittensorProofRoute.CREATE_NETWORK
     BittensorWallets.PURPOSE_CONNECT -> BittensorProofRoute.CONNECT_WALLET
+    BittensorWallets.PURPOSE_ADD -> BittensorProofRoute.ADD_SIGN_IN
     else -> null
 }

@@ -41,7 +41,7 @@ fun GuestConversionSheet(
     AddAuthMethodSheet(
         visible = true,
         onDismiss = onDismiss,
-        showGoogleOption = BuildConfig.BRINGYOUR_BUNDLE_SSO_GOOGLE,
+        showSsoOptions = BuildConfig.BRINGYOUR_BUNDLE_SSO_GOOGLE,
         activityResultSender = activityResultSender,
         isAddingAuth = isAddingAuth,
         addAuth = { args, onSuccess, onError ->

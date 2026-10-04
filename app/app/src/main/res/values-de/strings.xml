@@ -13,6 +13,7 @@
     <string name="add_local_split_rule">Lokal leiten</string>
     <string name="add_referral_code">Empfehlungscode hinzufügen</string>
     <string name="add_referral_extra_rewards">Füge einen Empfehlungscode hinzu, um zusätzliche Belohnungen zu erhalten</string>
+    <string name="add_sign_in_method">Anmeldemethode hinzufügen</string>
     <string name="add_sign_in_method_2">Anmeldemethode hinzufügen</string>
     <string name="add_tao_for_gas">TAO für Gas hinzufügen</string>
     <string name="advanced">Erweitert</string>
@@ -34,6 +35,7 @@
     <string name="app_split_rules">App-Split-Regeln</string>
     <string name="app_split_starter">0 Apps im App-Split</string>
     <string name="apple">Apple</string>
+    <string name="apple_sign_in_method_added">Apple-Anmeldemethode hinzugefügt</string>
     <string name="apply_bonus">Bonus anwenden</string>
     <string name="apps">Apps</string>
     <string name="are_you_sure_delete_account">Bist du sicher, dass du dein Konto löschen möchtest?</string>
@@ -130,6 +132,7 @@
     <string name="connect">Verbinde</string>
     <string name="connect_and_open">Verbinden und Link öffnen</string>
     <string name="connect_bittensor_wallet">Bittensor-Wallet verbinden</string>
+    <string name="connect_bittensor_wallet_to_add_sign_in_method">Verbinde eine Bittensor-Wallet, um sie als Anmeldemethode hinzuzufügen.</string>
     <string name="connect_options">Verbindungsoptionen</string>
     <string name="connect_seeker_wallet">Verbinde eine Wallet mit dem Saga Genesis oder Seeker Vorbestellungs-Token</string>
     <string name="connect_solana_wallet">Solana-Wallet verbinden</string>
@@ -423,6 +426,7 @@
     <string name="get_started">Loslegen</string>
     <string name="get_urnetwork_free_for_life_by_participating">Erhalte URnetwork lebenslang kostenlos durch Teilnahme</string>
     <string name="go_back">Zurück</string>
+    <string name="google">Google</string>
     <string name="google_auth_btn_text">Mit Google anmelden</string>
     <string name="google_sign_in_method_added">Google-Anmeldemethode hinzugefügt</string>
     <string name="gossip_connecting">Verbindung wird hergestellt</string>
@@ -508,6 +512,7 @@
     <string name="make_default">Als Standard festlegen</string>
     <string name="manage_subscription">Abonnement verwalten</string>
     <string name="member">Mitglied</string>
+    <string name="method">Methode</string>
     <string name="mock_location_active">Wird mit %1$s synchronisiert</string>
     <string name="mock_location_disclosure_detectable">Apps können erkennen, dass der Standort simuliert ist. Banking-, Fahrdienst-, Liefer- und manche Spiele-Apps funktionieren möglicherweise nicht, solange dies aktiviert ist.</string>
     <string name="mock_location_disclosure_device_wide">Dies ändert den Standort, der jeder App auf deinem Gerät gemeldet wird, nicht nur URnetwork.</string>
@@ -784,6 +789,7 @@
     <string name="sign_in_with_google">Mit Google anmelden</string>
     <string name="sign_in_with_google_to_add_it">Melde dich mit Google an, um es als Anmeldemethode hinzuzufügen.</string>
     <string name="sign_in_with_seedphrase">Mit Seedphrase anmelden</string>
+    <string name="sign_in_with_your_apple_id_to">Melde dich mit deiner Apple ID an, um sie als Anmeldemethode hinzuzufügen.</string>
     <string name="site_app_contracts">Verträge</string>
     <string name="site_app_email">E-Mail</string>
     <string name="site_app_providers">Provider</string>

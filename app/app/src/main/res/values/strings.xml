@@ -13,6 +13,7 @@
     <string name="add_local_split_rule">Route locally</string>
     <string name="add_referral_code">Add referral code</string>
     <string name="add_referral_extra_rewards">Add referral code to earn extra rewards</string>
+    <string name="add_sign_in_method">Add sign-in method</string>
     <string name="add_sign_in_method_2">Add Sign-In Method</string>
     <string name="add_tao_for_gas">Add TAO for gas</string>
     <string name="advanced">Advanced</string>
@@ -35,6 +36,7 @@
     <string name="app_split_rules">App split rules</string>
     <string name="app_split_starter">0 split apps</string>
     <string name="apple">Apple</string>
+    <string name="apple_sign_in_method_added">Apple sign-in method added</string>
     <string name="apply_bonus">Apply bonus</string>
     <string name="apps">Apps</string>
     <string name="are_you_sure_delete_account">Are you sure you want to delete your account?</string>
@@ -136,6 +138,7 @@
     <string name="connect">Connect</string>
     <string name="connect_and_open">Connect and open link</string>
     <string name="connect_bittensor_wallet">Connect Bittensor wallet</string>
+    <string name="connect_bittensor_wallet_to_add_sign_in_method">Connect a Bittensor wallet to add it as a sign-in method.</string>
     <string name="connect_options">Connect options</string>
     <string name="connect_seeker_wallet">Connect a wallet with the Saga Genesis or Seeker Pre-Order Token</string>
     <string name="connect_solana_wallet">Connect Solana wallet</string>
@@ -441,6 +444,7 @@
     <string name="get_started">Get started</string>
     <string name="get_urnetwork_free_for_life_by_participating">Get URnetwork free for life by participating</string>
     <string name="go_back">Go Back</string>
+    <string name="google">Google</string>
     <string name="google_auth_btn_text">Log in with Google</string>
     <string name="google_sign_in_method_added">Google sign-in method added</string>
     <string name="gossip_connecting">Connecting</string>
@@ -527,6 +531,7 @@
     <string name="make_default">Make default</string>
     <string name="manage_subscription">Manage subscription</string>
     <string name="member">Member</string>
+    <string name="method">Method</string>
     <string name="mock_location_active">Syncing with %1$s</string>
     <string name="mock_location_disclosure_detectable">Apps can tell the location is simulated. Banking, ride-hailing, delivery and some game apps may refuse to work while this is on.</string>
     <string name="mock_location_disclosure_device_wide">This changes the location reported to every app on your device, not just URnetwork.</string>
@@ -804,6 +809,7 @@
     <string name="sign_in_with_google">Sign in with Google</string>
     <string name="sign_in_with_google_to_add_it">Sign in with Google to add it as a sign-in method.</string>
     <string name="sign_in_with_seedphrase">Sign in with Seedphrase</string>
+    <string name="sign_in_with_your_apple_id_to">Sign in with your Apple ID to add it as a sign-in method.</string>
     <string name="site_app_contracts">Contracts</string>
     <string name="site_app_email">Email</string>
     <string name="site_app_providers">Providers</string>

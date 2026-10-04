@@ -10,6 +10,7 @@
     <string name="add_emoji">Ajouter des emojis</string>
     <string name="add_referral_code">Ajouter un code de parrainage</string>
     <string name="add_referral_extra_rewards">Ajouter un code de parrainage pour gagner des récompenses supplémentaires</string>
+    <string name="add_sign_in_method">Ajouter une méthode de connexion</string>
     <string name="add_sign_in_method_2">Ajouter une méthode de connexion</string>
     <string name="advanced">Avancé</string>
     <string name="allow_local_connections">Autoriser les connexions locales</string>
@@ -29,6 +30,7 @@
     <string name="app_split_precedence_note">Les applications incluses ont la priorité : dès qu\'une application est incluse, seules les applications incluses utilisent le VPN et les exclusions n\'ont aucun effet.</string>
     <string name="app_split_rules">Règles par application</string>
     <string name="app_split_starter">0 application séparée</string>
+    <string name="apple_sign_in_method_added">Méthode de connexion Apple ajoutée</string>
     <string name="apply_bonus">Appliquer le bonus</string>
     <string name="apps">Applications</string>
     <string name="are_you_sure_delete_account">Êtes-vous sûr de vouloir supprimer votre compte ?</string>
@@ -91,6 +93,7 @@
     <string name="companion">Partenaire</string>
     <string name="connect">Connecte</string>
     <string name="connect_and_open">Se connecter et ouvrir le lien</string>
+    <string name="connect_bittensor_wallet_to_add_sign_in_method">Connectez un portefeuille Bittensor pour l\'ajouter comme méthode de connexion.</string>
     <string name="connect_options">Options de connexion</string>
     <string name="connect_seeker_wallet">Connectez un portefeuille avec le jeton Saga Genesis ou le jeton de précommande Seeker</string>
     <string name="connect_solana_wallet_to_add_sign_in_method">Connectez un portefeuille Solana pour l\'ajouter comme méthode de connexion.</string>
@@ -264,6 +267,7 @@
     <string name="make_default">Définir par défaut</string>
     <string name="manage_subscription">Gérer l\'abonnement</string>
     <string name="member">Membre</string>
+    <string name="method">Méthode</string>
     <string name="mock_location_active">Synchronisation avec %1$s</string>
     <string name="mock_location_disclosure_detectable">Les applications peuvent détecter que la position est fictive. Les applications bancaires, de VTC, de livraison et certains jeux peuvent refuser de fonctionner tant que cette option est activée.</string>
     <string name="mock_location_disclosure_device_wide">Cela modifie la position communiquée à toutes les applications de votre appareil, pas seulement à URnetwork.</string>
@@ -492,6 +496,7 @@
     <string name="sign_in_with_google">Se connecter avec Google</string>
     <string name="sign_in_with_google_to_add_it">Connectez-vous avec Google pour l\'ajouter comme méthode de connexion.</string>
     <string name="sign_in_with_seedphrase">Se connecter avec la phrase de récupération</string>
+    <string name="sign_in_with_your_apple_id_to">Connectez-vous avec votre Apple ID pour l\'ajouter comme méthode de connexion.</string>
     <string name="site_app_email">E-mail</string>
     <string name="site_save_your_seedphrase">Enregistrez votre phrase de récupération</string>
     <string name="solana_sign_in">Se connecter avec Solana</string>

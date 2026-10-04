@@ -15,6 +15,7 @@ enum class AddedSignInMethod {
     // email or phone + password
     PASSWORD,
     GOOGLE,
+    APPLE,
     WALLET;
 
     val needsVerification: Boolean get() = this == PASSWORD

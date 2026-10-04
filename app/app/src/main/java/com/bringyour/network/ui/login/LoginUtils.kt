@@ -142,10 +142,18 @@ const val AUTH_JWT_TYPE_APPLE = "apple"
 private const val APPLE_OAUTH_PREFS = "apple_oauth"
 private const val APPLE_OAUTH_MAX_AGE_MILLIS = 10 * 60 * 1000L
 
+// Why an attempt was started. The return comes back on the same link either
+// way; the purpose decides who may take it. A login takes only a login
+// attempt, and the add sheet only an add attempt, so an Apple ID being added
+// to the signed-in network can never sign in as itself.
+const val APPLE_OAUTH_PURPOSE_LOGIN = "login"
+const val APPLE_OAUTH_PURPOSE_ADD = "add"
+
 class PendingAppleOAuth(
     val state: String,
     val nonce: String,
     val createdMillis: Long,
+    val purpose: String = APPLE_OAUTH_PURPOSE_LOGIN,
 )
 
 /** base64url without padding, the encoding of the state and of the random tokens. */
@@ -175,9 +183,60 @@ fun appleOAuthAuthorizeUrl(apiUrl: String, state: String, nonce: String): String
             "&nonce=${enc(nonce)}"
 }
 
+/** Where the one pending attempt is kept. */
+interface AppleOAuthStore {
+    fun load(): PendingAppleOAuth?
+    fun save(pending: PendingAppleOAuth)
+    fun clear()
+}
+
 /**
- * One attempt at a time, kept in preferences rather than memory: the browser
- * round trip can outlive this process, and the return must still be matched.
+ * One attempt at a time. [take] hands the attempt only to the flow it was
+ * started for, and leaves another flow's attempt in place: a login never
+ * consumes (or signs in with) the return of an add attempt, and the add sheet
+ * never consumes a login's. Times come from `nowMillis` so tests inject the
+ * clock.
+ */
+class AppleOAuthAttempts(
+    private val store: AppleOAuthStore,
+    private val nowMillis: () -> Long,
+    private val token: () -> String,
+) {
+    fun begin(purpose: String): PendingAppleOAuth {
+        val pending = PendingAppleOAuth(appleOAuthState(token()), token(), nowMillis(), purpose)
+        store.save(pending)
+        return pending
+    }
+
+    /** The purpose of the pending attempt for `state`, null when there is none. */
+    fun purposeOf(state: String?): String? {
+        if (state.isNullOrEmpty()) return null
+        val pending = store.load() ?: return null
+        return if (pending.state == state) pending.purpose else null
+    }
+
+    /**
+     * The pending attempt for `state` started for `purpose`, consumed; null
+     * when it does not match or is stale. An attempt for another purpose is
+     * not consumed.
+     */
+    fun take(state: String?, purpose: String): PendingAppleOAuth? {
+        if (state.isNullOrEmpty()) return null
+        val pending = store.load() ?: return null
+        if (pending.state.isEmpty() || pending.state != state) {
+            store.clear()
+            return null
+        }
+        if (pending.purpose != purpose) return null
+        store.clear()
+        if (nowMillis() - pending.createdMillis > APPLE_OAUTH_MAX_AGE_MILLIS) return null
+        return pending
+    }
+}
+
+/**
+ * The attempt kept in preferences rather than memory: the browser round trip
+ * can outlive this process, and the return must still be matched.
  */
 object AppleOAuthSession {
     private fun token(): String {
@@ -186,31 +245,64 @@ object AppleOAuthSession {
         return base64Url(bytes)
     }
 
-    fun begin(context: Context): PendingAppleOAuth {
-        val pending = PendingAppleOAuth(appleOAuthState(token()), token(), System.currentTimeMillis())
-        context.getSharedPreferences(APPLE_OAUTH_PREFS, Context.MODE_PRIVATE).edit()
-            .putString("state", pending.state)
-            .putString("nonce", pending.nonce)
-            .putLong("created", pending.createdMillis)
-            .apply()
-        return pending
+    fun attempts(context: Context): AppleOAuthAttempts {
+        val prefs = context.getSharedPreferences(APPLE_OAUTH_PREFS, Context.MODE_PRIVATE)
+        val store = object : AppleOAuthStore {
+            override fun load(): PendingAppleOAuth? {
+                val state = prefs.getString("state", "") ?: ""
+                if (state.isEmpty()) return null
+                return PendingAppleOAuth(
+                    state,
+                    prefs.getString("nonce", "") ?: "",
+                    prefs.getLong("created", 0L),
+                    // an attempt saved before purposes were kept was a login
+                    prefs.getString("purpose", null) ?: APPLE_OAUTH_PURPOSE_LOGIN,
+                )
+            }
+
+            override fun save(pending: PendingAppleOAuth) {
+                prefs.edit()
+                    .putString("state", pending.state)
+                    .putString("nonce", pending.nonce)
+                    .putLong("created", pending.createdMillis)
+                    .putString("purpose", pending.purpose)
+                    .apply()
+            }
+
+            override fun clear() {
+                prefs.edit().clear().apply()
+            }
+        }
+        return AppleOAuthAttempts(store, System::currentTimeMillis, ::token)
     }
 
-    /** The pending attempt for `state`, consumed; null when it does not match or is stale. */
-    fun take(context: Context, state: String?): PendingAppleOAuth? {
-        if (state.isNullOrEmpty()) return null
-        val prefs = context.getSharedPreferences(APPLE_OAUTH_PREFS, Context.MODE_PRIVATE)
-        val pending = PendingAppleOAuth(
-            prefs.getString("state", "") ?: "",
-            prefs.getString("nonce", "") ?: "",
-            prefs.getLong("created", 0L),
-        )
-        prefs.edit().clear().apply()
-        if (pending.state.isEmpty() || pending.state != state) return null
-        if (System.currentTimeMillis() - pending.createdMillis > APPLE_OAUTH_MAX_AGE_MILLIS) return null
-        return pending
-    }
+    fun begin(context: Context, purpose: String = APPLE_OAUTH_PURPOSE_LOGIN): PendingAppleOAuth =
+        attempts(context).begin(purpose)
+
+    /** The login's attempt for `state`, consumed; see [AppleOAuthAttempts.take]. */
+    fun take(context: Context, state: String?, purpose: String = APPLE_OAUTH_PURPOSE_LOGIN): PendingAppleOAuth? =
+        attempts(context).take(state, purpose)
 }
+
+/** Who takes an Apple return. */
+enum class AppleOAuthReturnRoute {
+    // the login screen (/auth/login)
+    LOGIN,
+    // the add sign-in method sheet (/auth/add-auth on the signed-in network)
+    ADD_SIGN_IN,
+}
+
+/**
+ * The route of an Apple return, by the purpose of the attempt its state
+ * names. Anything that is not a pending add attempt goes to the login, which
+ * refuses a stale or forged state as before.
+ */
+fun appleOAuthReturnRoute(attempts: AppleOAuthAttempts, state: String?): AppleOAuthReturnRoute =
+    if (attempts.purposeOf(state) == APPLE_OAUTH_PURPOSE_ADD) {
+        AppleOAuthReturnRoute.ADD_SIGN_IN
+    } else {
+        AppleOAuthReturnRoute.LOGIN
+    }
 
 /** `ur://oauth/apple?…`: the callback's return for this app. */
 fun isAppleOAuthReturn(uri: Uri): Boolean =
@@ -220,12 +312,12 @@ fun isAppleOAuthReturn(uri: Uri): Boolean =
  * Opens Apple's sign-in in a Custom Tab; false when the api origin is unknown
  * or no browser could be opened.
  */
-fun launchAppleOAuth(context: Context, apiUrl: String?): Boolean {
+fun launchAppleOAuth(context: Context, apiUrl: String?, purpose: String = APPLE_OAUTH_PURPOSE_LOGIN): Boolean {
     if (apiUrl.isNullOrEmpty()) {
         Log.i("LoginUtils", "apple sign-in: no api url for the callback")
         return false
     }
-    val pending = AppleOAuthSession.begin(context)
+    val pending = AppleOAuthSession.begin(context, purpose)
     return launchInBrowser(context, Uri.parse(appleOAuthAuthorizeUrl(apiUrl, pending.state, pending.nonce)))
 }
 

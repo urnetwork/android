@@ -25,6 +25,9 @@ import com.bringyour.network.ui.login.LoginViewModel
 import com.bringyour.network.ui.login.launchBittensorSignMessage
 import com.bringyour.network.ui.login.AUTH_JWT_TYPE_APPLE
 import com.bringyour.network.ui.login.AppleOAuthSession
+import com.bringyour.network.ui.login.AppleOAuthReturnRoute
+import com.bringyour.network.ui.login.appleOAuthReturnRoute
+import com.bringyour.network.ui.settings.forwardAppleAddSignInReturn
 import com.bringyour.network.ui.login.appleOAuthUserName
 import com.bringyour.network.ui.login.isAppleOAuthReturn
 import com.bringyour.network.ui.login.ssoJwtPayload
@@ -88,6 +91,17 @@ class LoginActivity : AppCompatActivity() {
             Log.i(TAG, "Login Activity hitting Intent.ACTION_VIEW == action")
             intent?.data?.let { u ->
                 if (isAppleOAuthReturn(u)) {
+                    if (app.device != null && appleOAuthReturnRoute(
+                            AppleOAuthSession.attempts(this),
+                            u.getQueryParameter("state"),
+                        ) == AppleOAuthReturnRoute.ADD_SIGN_IN
+                    ) {
+                        // Settings' add sign-in method sheet started this attempt: the
+                        // sheet adds the Apple ID to the signed-in network; never a login
+                        Log.i(TAG, "forwardAppleAddSignInReturn")
+                        forwardAppleAddSignInReturn(this, u, MainActivity::class.java)
+                        return
+                    }
                     Log.i(TAG, "appleOAuthLogin $u")
                     appleOAuthLogin(u)
                 } else if (u.scheme == "ur" && u.host == "bittensor-sign-message") {
