@@ -276,6 +276,8 @@ class SubscriptionBalanceViewModel @Inject constructor(
     // the server's `guest`: the network has no login method (read from the live
     // auth methods, so it survives the token refresh that clears guest_mode)
     private val _serverGuest = MutableStateFlow(false)
+    // a balance (and so the server's `guest`) has loaded at least once
+    private val _serverGuestLoaded = MutableStateFlow(false)
 
     // re-signs the jwt for the same network (a converted guest's guest_mode clears)
     val refreshJwt: () -> Unit = {
@@ -289,6 +291,16 @@ class SubscriptionBalanceViewModel @Inject constructor(
      */
     val isGuestNetwork: StateFlow<Boolean> = combine(jwtManager.jwtFlow, _serverGuest) { jwt, serverGuest ->
         GuestAccount.isGuest(guestModeClaim = jwt?.guestMode == true, serverGuest = serverGuest)
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, false)
+
+    /**
+     * Whether `isGuestNetwork` is settled (GuestAccount.guestStatusKnown): a
+     * refreshed guest has no claim, so it reads as an account until the first
+     * balance load. What opens by itself at startup and sells a plan (the intro
+     * funnel) waits for this.
+     */
+    val guestStatusKnown: StateFlow<Boolean> = combine(jwtManager.jwtFlow, _serverGuestLoaded) { jwt, loaded ->
+        GuestAccount.guestStatusKnown(guestModeClaim = jwt?.guestMode == true, serverGuestLoaded = loaded)
     }.stateIn(viewModelScope, SharingStarted.Eagerly, false)
 
     /**
@@ -416,6 +428,7 @@ class SubscriptionBalanceViewModel @Inject constructor(
                             val serverIsPro = result.currentSubscription != null
                             _hasActiveSubscription.value = serverIsPro
                             _serverGuest.value = result.guest
+                            _serverGuestLoaded.value = true
                             if (serverIsPro) {
                                 pendingSolanaPurchase?.let { (plan, amountUsd) ->
                                     pendingSolanaPurchase = null

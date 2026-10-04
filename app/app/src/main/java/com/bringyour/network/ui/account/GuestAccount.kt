@@ -42,6 +42,46 @@ object GuestAccount {
     fun upgradeEntry(isGuest: Boolean): UpgradeEntry {
         return if (isGuest) UpgradeEntry.AddSignInMethod else UpgradeEntry.Checkout
     }
+
+    /**
+     * Whether `isGuest` is settled. A guest claim marks a guest on its own; a
+     * jwt without the claim (every refreshed jwt) says nothing until the
+     * server's `guest` has loaded once, so until then a refreshed guest reads
+     * as an account.
+     */
+    fun guestStatusKnown(guestModeClaim: Boolean, serverGuestLoaded: Boolean): Boolean {
+        return guestModeClaim || serverGuestLoaded
+    }
+
+    /**
+     * The intro funnel sells a plan, and opens by itself at startup, before the
+     * first balance load. It waits for the guest status: shown on the claim
+     * alone, a refreshed guest saw the funnel until the balance arrived. Hidden
+     * (not marked prompted) for a guest, so it can show once the network has a
+     * login.
+     */
+    fun introFunnel(
+        isPro: Boolean,
+        isGuest: Boolean,
+        guestStatusKnown: Boolean,
+        allowPrompt: Boolean,
+    ): IntroFunnel {
+        return when {
+            isPro -> IntroFunnel.Hide
+            !guestStatusKnown || upgradeEntry(isGuest) == UpgradeEntry.AddSignInMethod -> IntroFunnel.Hide
+            allowPrompt -> IntroFunnel.Show
+            else -> IntroFunnel.Unchanged
+        }
+    }
+}
+
+enum class IntroFunnel {
+    // not displayed, and not marked prompted
+    Hide,
+    // displayed and marked prompted
+    Show,
+    // left as it is (not due to prompt again)
+    Unchanged,
 }
 
 enum class UpgradeEntry {
