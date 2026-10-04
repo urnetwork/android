@@ -364,7 +364,7 @@ fun LoginVerify(
 }
 
 @Composable
-private fun ResendCode(
+internal fun ResendCode(
     resendCode: () -> Unit,
     resendBtnEnabled: Boolean,
     resendInProgress: Boolean,

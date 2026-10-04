@@ -63,6 +63,8 @@ interface GuestConversionSession<A> {
 /**
  * Converts a guest network in place: adds the sign-in method to the current
  * network, then re-signs the jwt for the same network so `guest_mode` clears.
+ * `onAdded` here means AddAuth succeeded; the add sheet (AddSignInFlow) still
+ * verifies an added email or phone with a code before the sign-in counts.
  */
 class GuestConversion<A>(private val session: GuestConversionSession<A>) {
 
