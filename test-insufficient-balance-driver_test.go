@@ -46,6 +46,8 @@ type fakeHost struct {
 	answer func(command string) string
 	// ready is the status the session writes once it started
 	ready string
+	// cleanupCredentials is what client-cleanup.mjs read from its credentials file
+	cleanupCredentials []string
 }
 
 func newFakeHost(t *testing.T, libPath string) *fakeHost {
@@ -83,6 +85,12 @@ func (self *fakeHost) Run(ctx context.Context, env []string, name string, args .
 		return "", errors.New("unexpected build")
 	case name == "node":
 		self.calls = append(self.calls, "node "+filepath.Base(args[0]))
+		for _, value := range env {
+			if path, ok := strings.CutPrefix(value, "UR_ACCEPT_CREDENTIALS_FILE="); ok {
+				b, _ := os.ReadFile(path)
+				self.cleanupCredentials = append(self.cleanupCredentials, string(b))
+			}
+		}
 		return "", nil
 	case strings.HasSuffix(name, "/adb"):
 		return self.adb(args)
@@ -157,9 +165,25 @@ type fixture struct {
 	host   *fakeHost
 	driver *driver
 	clock  *fakeClock
+	// the runner's per-case credentials file, passed as `setup <file>`
+	credentials string
 }
 
-const testPassword = "correct horse battery staple"
+const (
+	testPassword  = "correct horse battery staple"
+	decoyPassword = "decoy env password"
+)
+
+// writeCredentials writes a runner-style private credentials file.
+func writeCredentials(t *testing.T, path, email, password string) string {
+	if err := os.MkdirAll(filepath.Dir(path), 0700); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(path, []byte("email: "+email+"\npassword: \""+password+"\"\n"), 0600); err != nil {
+		t.Fatal(err)
+	}
+	return path
+}
 
 func newFixture(t *testing.T) *fixture {
 	root := t.TempDir()
@@ -174,13 +198,13 @@ func newFixture(t *testing.T) *fixture {
 		os.WriteFile(filepath.Join(root, "sdk", "build", "android", name), []byte("x"), 0600)
 	}
 	os.WriteFile(filepath.Join(here, "tests", "__acceptance__", "build", "github", "build-id"), []byte("20261002-101010-github\n"), 0600)
-	credentials := filepath.Join(root, "vault", "tests-insufficient-balance.yml")
-	os.MkdirAll(filepath.Dir(credentials), 0700)
-	os.WriteFile(credentials, []byte("email: ib@example.invalid\npassword: \""+testPassword+"\"\n"), 0600)
+	credentials := writeCredentials(t, filepath.Join(root, "runner", "case-1-credentials"), "ib@example.invalid", testPassword)
+	// the retired env var points at a different, valid account; it must be ignored
+	decoy := writeCredentials(t, filepath.Join(root, "vault", "tests-insufficient-balance.yml"), "decoy@example.invalid", decoyPassword)
 	env := map[string]string{
 		"URNETWORK_ROOT":                             root,
 		"URNETWORK_INSUFFICIENT_BALANCE_STATE":       state,
-		"URNETWORK_INSUFFICIENT_BALANCE_CREDENTIALS": credentials,
+		"URNETWORK_INSUFFICIENT_BALANCE_CREDENTIALS": decoy,
 		"ANDROID_SDK_ROOT":                           "/sdk",
 	}
 	c, err := configFromEnv(func(k string) string { return env[k] }, here)
@@ -190,12 +214,15 @@ func newFixture(t *testing.T) *fixture {
 	host := newFakeHost(t, filepath.Join(here, "test-main-lib.sh"))
 	clock := &fakeClock{now: time.Date(2026, 10, 2, 12, 0, 0, 0, time.UTC)}
 	d := &driver{config: c, runner: host, clock: clock, timing: defaultTiming, now: clock.Now}
-	return &fixture{t: t, root: root, state: state, host: host, driver: d, clock: clock}
+	return &fixture{t: t, root: root, state: state, host: host, driver: d, clock: clock, credentials: credentials}
 }
 
 // run executes one verb and requires exactly one JSON object on stdout or one
 // stderr line.
+// Each verb is a separate process, so nothing learned by an earlier verb is kept
+// in memory.
 func (self *fixture) run(args ...string) (map[string]any, string, int) {
+	self.driver.secrets = nil
 	var stdout, stderr bytes.Buffer
 	code := mainCode(context.Background(), self.driver, args, &stdout, &stderr)
 	if code == 0 {
@@ -222,7 +249,7 @@ func (self *fixture) run(args ...string) (map[string]any, string, int) {
 }
 
 func (self *fixture) setup() {
-	out, errLine, code := self.run("setup")
+	out, errLine, code := self.run("setup", self.credentials)
 	if code != 0 {
 		self.t.Fatalf("setup failed: %s", errLine)
 	}
@@ -243,7 +270,7 @@ func indexOf(calls []string, prefix string) int {
 
 func TestSetupReusesMainsCacheAndOwnsTheAvd(t *testing.T) {
 	f := newFixture(t)
-	_, errLine, code := f.run("setup")
+	_, errLine, code := f.run("setup", f.credentials)
 	if code != 0 {
 		t.Fatalf("setup failed: %s", errLine)
 	}
@@ -298,7 +325,7 @@ func TestSetupReusesMainsCacheAndOwnsTheAvd(t *testing.T) {
 func TestSetupSkipsNotificationGrantBeforeAndroid13(t *testing.T) {
 	f := newFixture(t)
 	f.host.sdkLevel = "31\n"
-	if _, errLine, code := f.run("setup"); code != 0 {
+	if _, errLine, code := f.run("setup", f.credentials); code != 0 {
 		t.Fatalf("setup failed: %s", errLine)
 	}
 	if indexOf(f.host.calls, "adb shell getprop") < 0 {
@@ -312,7 +339,7 @@ func TestSetupSkipsNotificationGrantBeforeAndroid13(t *testing.T) {
 func TestSetupFailureIsOneRedactedLineAndTeardownStillStopsTheAvd(t *testing.T) {
 	f := newFixture(t)
 	f.host.libErrs["android_acceptance_prepare_owned_emulator"] = fmt.Errorf("exit status 1: echoed %s", testPassword)
-	_, errLine, code := f.run("setup")
+	_, errLine, code := f.run("setup", f.credentials)
 	if code == 0 {
 		t.Fatal("setup passed on an unready AVD")
 	}
@@ -337,7 +364,7 @@ func TestSetupFailureIsOneRedactedLineAndTeardownStillStopsTheAvd(t *testing.T) 
 func TestSetupRefusesAnAvdAlreadyRunning(t *testing.T) {
 	f := newFixture(t)
 	f.host.libErrs["android_acceptance_no_running_avd"] = errors.New("exit status 1")
-	if _, _, code := f.run("setup"); code == 0 {
+	if _, _, code := f.run("setup", f.credentials); code == 0 {
 		t.Fatal("setup adopted an AVD it did not start")
 	}
 	if indexOf(f.host.calls, "start ") != -1 {
@@ -622,5 +649,154 @@ func TestFreeConsolePortAndRetainedClients(t *testing.T) {
 	}
 	if _, err := retainedClientIds("a\nb/../c\n"); err == nil {
 		t.Fatal("accepted an unsafe client id")
+	}
+}
+
+func TestSetupReadsCredentialsOnlyFromItsArgument(t *testing.T) {
+	f := newFixture(t)
+	f.setup()
+	if f.host.pushed["credentials"] != "ib@example.invalid\n"+testPassword+"\n" {
+		t.Fatalf("pushed credentials %q", f.host.pushed["credentials"])
+	}
+	for _, content := range f.host.pushed {
+		if strings.Contains(content, "decoy") {
+			t.Fatal("setup read the retired URNETWORK_INSUFFICIENT_BALANCE_CREDENTIALS")
+		}
+	}
+}
+
+func TestSetupWithoutAnArgumentIgnoresTheRetiredEnvVar(t *testing.T) {
+	for _, value := range []string{"decoy", "not a path", "/nonexistent/credentials"} {
+		f := newFixture(t)
+		if value != "decoy" {
+			env := map[string]string{
+				"URNETWORK_ROOT":                             f.root,
+				"URNETWORK_INSUFFICIENT_BALANCE_STATE":       f.state,
+				"URNETWORK_INSUFFICIENT_BALANCE_CREDENTIALS": value,
+				"ANDROID_SDK_ROOT":                           "/sdk",
+			}
+			c, err := configFromEnv(func(k string) string { return env[k] }, f.driver.config.here)
+			if err != nil {
+				t.Fatalf("env var %q broke the configuration: %v", value, err)
+			}
+			f.driver.config = c
+		}
+		_, errLine, code := f.run("setup")
+		if code == 0 || !strings.Contains(errLine, "credentials file") {
+			t.Fatalf("env var %q: setup without an argument: %q", value, errLine)
+		}
+		if len(f.host.calls) != 0 || len(f.host.pushed) != 0 {
+			t.Fatalf("env var %q: setup without an argument reached the host: %v", value, f.host.calls)
+		}
+		// with the argument, the env var does not matter
+		f.setup()
+		if f.host.pushed["credentials"] != "ib@example.invalid\n"+testPassword+"\n" {
+			t.Fatalf("env var %q: pushed credentials %q", value, f.host.pushed["credentials"])
+		}
+	}
+}
+
+func TestSetupRejectsUnsafeCredentialArguments(t *testing.T) {
+	f := newFixture(t)
+	dir := filepath.Join(f.root, "runner")
+	groupReadable := writeCredentials(t, filepath.Join(dir, "group"), "a@example.invalid", "p")
+	os.Chmod(groupReadable, 0640)
+	malformed := filepath.Join(dir, "malformed")
+	os.WriteFile(malformed, []byte("email: a@example.invalid\n"), 0600)
+	relative, err := filepath.Rel(mustGetwd(t), f.credentials)
+	if err != nil {
+		t.Fatal(err)
+	}
+	cases := map[string][]string{
+		"relative path":  {"setup", relative},
+		"bare name":      {"setup", "credentials"},
+		"group readable": {"setup", groupReadable},
+		"malformed":      {"setup", malformed},
+		"missing":        {"setup", filepath.Join(dir, "missing")},
+		"directory":      {"setup", dir},
+		"extra argument": {"setup", f.credentials, f.credentials},
+	}
+	for name, args := range cases {
+		_, errLine, code := f.run(args...)
+		if code == 0 {
+			t.Fatalf("%s: setup accepted %v", name, args)
+		}
+		if strings.Contains(errLine, testPassword) || strings.Contains(errLine, "a@example.invalid") {
+			t.Fatalf("%s: stderr carried a credential: %q", name, errLine)
+		}
+		if indexOf(f.host.calls, "start ") != -1 || len(f.host.pushed) != 0 {
+			t.Fatalf("%s: setup went ahead: %v", name, f.host.calls)
+		}
+		if _, err := os.Stat(filepath.Join(f.state, stateName)); !os.IsNotExist(err) {
+			t.Fatalf("%s: setup left driver state", name)
+		}
+	}
+}
+
+func mustGetwd(t *testing.T) string {
+	wd, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	return wd
+}
+
+// Verbs after setup are separate processes: they reach the credentials only
+// through the path setup recorded in the state directory.
+func TestLaterVerbsFindTheCredentialsThroughTheStateDir(t *testing.T) {
+	f := newFixture(t)
+	f.setup()
+	b, err := os.ReadFile(filepath.Join(f.state, stateName))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(string(b), testPassword) {
+		t.Fatal("driver state carries the password")
+	}
+
+	// redaction in a later verb
+	f.host.answer = func(command string) string {
+		return "command=" + strings.Split(command, "|")[0] + "\nstate=failed\nerror=signed in as ib@example.invalid with " + testPassword + "\n"
+	}
+	_, errLine, code := f.run("observe")
+	if code == 0 || strings.Contains(errLine, testPassword) || strings.Contains(errLine, "ib@example.invalid") || !strings.Contains(errLine, "[redacted]") {
+		t.Fatalf("observe stderr not redacted: %q", errLine)
+	}
+
+	// client release at teardown signs in as the argument's account
+	f.host.answer = func(command string) string {
+		return "command=" + strings.Split(command, "|")[0] + "\nstate=complete\n"
+	}
+	f.host.files[deviceClientsPath] = "client-a\n"
+	if _, errLine, code := f.run("teardown"); code != 0 {
+		t.Fatalf("teardown: %s", errLine)
+	}
+	if !reflect.DeepEqual(f.host.cleanupCredentials, []string{"ib@example.invalid\n" + testPassword + "\n"}) {
+		t.Fatalf("client cleanup credentials %q", f.host.cleanupCredentials)
+	}
+}
+
+// The runner's kill-switch case is a second setup with a new account and a new
+// state directory after the first teardown.
+func TestSecondCaseSignsInWithItsOwnAccount(t *testing.T) {
+	f := newFixture(t)
+	f.setup()
+	f.host.answer = func(command string) string {
+		return "command=" + strings.Split(command, "|")[0] + "\nstate=complete\n"
+	}
+	if _, errLine, code := f.run("teardown"); code != 0 {
+		t.Fatalf("teardown: %s", errLine)
+	}
+	if _, err := os.Stat(filepath.Join(f.state, "credentials")); !os.IsNotExist(err) {
+		t.Fatal("teardown left a credentials copy")
+	}
+	f.state = filepath.Join(f.root, "artifacts", "android", "kill-switch")
+	f.driver.config.stateDir = f.state
+	f.credentials = writeCredentials(t, filepath.Join(f.root, "runner", "case-2-credentials"), "ib2@example.invalid", "second password")
+	f.host.pushed = map[string]string{}
+	f.host.answer = nil
+	f.setup()
+	if f.host.pushed["credentials"] != "ib2@example.invalid\nsecond password\n" {
+		t.Fatalf("second case pushed %q", f.host.pushed["credentials"])
 	}
 }

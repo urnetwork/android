@@ -2,11 +2,13 @@
 # SPDX-License-Identifier: MPL-2.0
 #
 # MAIN's insufficient-balance driver for Android. tests/runner/balance runs
+#   test-insufficient-balance-driver setup <credentials-file>
 #   test-insufficient-balance-driver <verb> [arg]
-# with URNETWORK_ROOT, URNETWORK_INSUFFICIENT_BALANCE_STATE and
-# URNETWORK_INSUFFICIENT_BALANCE_CREDENTIALS; the protocol is in
-# tests/runner/RUN-MAIN.md and the implementation in
-# test-insufficient-balance-driver.go. The driver binary is built once per
+# with URNETWORK_ROOT and URNETWORK_INSUFFICIENT_BALANCE_STATE (a fresh private
+# directory per case). Each case uses a fresh account whose private credentials
+# file arrives only as the setup argument; later verbs find it through the
+# state setup recorded. The protocol is in tests/runner/RUN-MAIN.md and the
+# implementation in test-insufficient-balance-driver.go. The driver binary is built once per
 # source revision into the private state directory, so the frequent observe
 # and egress calls do not recompile.
 #
