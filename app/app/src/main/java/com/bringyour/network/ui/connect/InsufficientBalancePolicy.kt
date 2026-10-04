@@ -43,7 +43,8 @@ internal fun insufficientBalanceGate(
  * use). Unknown (never fetched, or signed out) and Supporter are never
  * exhausted. The contract status only reports insufficient balance while a
  * connection is up and the SDK clears it with the destination, so this is
- * what a start connect from the disconnected state can see.
+ * what a start connect from the disconnected state can see; a start connect
+ * reads it only fresh (see [startConnectBalance]).
  */
 internal fun accountBalanceExhausted(balance: WidgetBalanceSnapshot?): Boolean =
     balance != null &&
@@ -79,6 +80,58 @@ internal fun startConnectBlocked(
     currentPlan,
     isPollingSubscriptionBalance,
 )
+
+/**
+ * How old the account balance may be for a start connect to be blocked on it.
+ * The snapshot is otherwise refreshed only every 30 minutes outside the app,
+ * so a zero from before a purchase or a daily refill would send a funded
+ * account to upgrade. Matches the other platforms.
+ */
+internal const val START_CONNECT_BALANCE_MAX_AGE_MILLIS = 60_000L
+
+/** How long a start connect waits for a fresh account balance. */
+internal const val START_CONNECT_BALANCE_FETCH_TIMEOUT_MILLIS = 5_000L
+
+/** The account balance was fetched recently enough to block a start connect. */
+internal fun startConnectBalanceFresh(balance: WidgetBalanceSnapshot?, nowMillis: Long): Boolean =
+    balance != null &&
+        balance.updatedAtMillis <= nowMillis &&
+        nowMillis - balance.updatedAtMillis <= START_CONNECT_BALANCE_MAX_AGE_MILLIS
+
+/**
+ * The account balance a start connect decides on. A fresh cached balance is
+ * used as is. Otherwise the balance is fetched: `fetch` calls back once with
+ * the fetched balance, or null when the fetch failed or timed out. A failed
+ * fetch never blocks (null is not exhausted): the server refuses the contract
+ * anyway, and the connection's held state and alert cover it.
+ */
+internal fun startConnectBalance(
+    cached: WidgetBalanceSnapshot?,
+    nowMillis: Long,
+    fetch: (onBalance: (WidgetBalanceSnapshot?) -> Unit) -> Unit,
+    onBalance: (WidgetBalanceSnapshot?) -> Unit,
+) {
+    if (startConnectBalanceFresh(cached, nowMillis)) {
+        onBalance(cached)
+    } else {
+        fetch(onBalance)
+    }
+}
+
+/**
+ * Passes on only the first of a balance fetch's result and its timeout, so a
+ * start connect decides exactly once. Main thread only.
+ */
+internal class FirstBalance(private val onBalance: (WidgetBalanceSnapshot?) -> Unit) {
+    private var delivered = false
+
+    fun offer(balance: WidgetBalanceSnapshot?) {
+        if (!delivered) {
+            delivered = true
+            onBalance(balance)
+        }
+    }
+}
 
 internal enum class QuickConnectStep {
     /** The request matches the current state: nothing to do. */

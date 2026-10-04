@@ -18,9 +18,10 @@ import android.net.VpnService
  * reads is the same one these surfaces write.
  *
  * A connect goes through the same start connect gate as the connect screen
- * (MainApplication.startConnectBlocked): out of balance it does not start the
- * tunnel and the surface opens the upgrade screen. A connection already
- * requested is left as is.
+ * (MainApplication.checkStartConnect): out of balance it does not start the
+ * tunnel and the surface opens the upgrade screen. The gate may first fetch
+ * a fresh balance, so the result is delivered to a callback (main thread). A
+ * connection already requested is left as is and never waits on the gate.
  */
 object QuickConnect {
 
@@ -48,15 +49,26 @@ object QuickConnect {
     /** The tile's notion of "on": the user asked for a connection. */
     fun isConnected(app: MainApplication): Boolean = app.device?.connectEnabled == true
 
-    fun toggle(app: MainApplication, source: String): Result =
-        setConnected(app, connect = !isConnected(app), source = source)
+    fun toggle(app: MainApplication, source: String, onResult: (Result) -> Unit) =
+        setConnected(app, connect = !isConnected(app), source = source, onResult = onResult)
 
-    fun setConnected(app: MainApplication, connect: Boolean, source: String): Result {
+    fun setConnected(app: MainApplication, connect: Boolean, source: String, onResult: (Result) -> Unit) {
+        val device = app.device ?: return onResult(Result.NEEDS_APP)
+        if (connect && !device.connectEnabled) {
+            app.checkStartConnect { blocked ->
+                onResult(apply(app, connect, blocked, source))
+            }
+        } else {
+            onResult(apply(app, connect, false, source))
+        }
+    }
+
+    private fun apply(app: MainApplication, connect: Boolean, startConnectBlocked: Boolean, source: String): Result {
         val device = app.device ?: return Result.NEEDS_APP
         val step = com.bringyour.network.ui.connect.quickConnectStep(
             connectEnabled = device.connectEnabled,
             connect = connect,
-            startConnectBlocked = connect && !device.connectEnabled && app.startConnectBlocked(),
+            startConnectBlocked = startConnectBlocked,
         )
         when (step) {
             com.bringyour.network.ui.connect.QuickConnectStep.NONE ->

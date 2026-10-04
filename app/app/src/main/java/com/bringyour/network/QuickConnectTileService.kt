@@ -77,6 +77,11 @@ class QuickConnectTileService : TileService() {
             mainHandler.post { render() }
         }
         render()
+        // a tap decides on a fresh balance: fetch it while the shade is open
+        // so the tap rarely has to wait for it
+        if (!QuickConnect.isConnected(app)) {
+            app.refreshStartConnectBalanceIfStale()
+        }
     }
 
     override fun onStopListening() {
@@ -87,14 +92,16 @@ class QuickConnectTileService : TileService() {
 
     override fun onClick() {
         super.onClick()
-        when (QuickConnect.toggle(app, source = "tile")) {
-            QuickConnect.Result.APPLIED -> render()
-            QuickConnect.Result.NEEDS_CONSENT -> {
-                render()
-                openApp()
+        QuickConnect.toggle(app, source = "tile") { result ->
+            when (result) {
+                QuickConnect.Result.APPLIED -> render()
+                QuickConnect.Result.NEEDS_CONSENT -> {
+                    render()
+                    openApp()
+                }
+                QuickConnect.Result.NEEDS_APP,
+                QuickConnect.Result.NEEDS_UPGRADE -> openApp()
             }
-            QuickConnect.Result.NEEDS_APP,
-            QuickConnect.Result.NEEDS_UPGRADE -> openApp()
         }
     }
 

@@ -234,17 +234,29 @@ constructor(
     /**
      * Every in-app connect (the connect button and drawer, a location pick, a
      * link) passes the start connect gate: out of balance it opens the
-     * upgrade screen instead of starting the tunnel.
+     * upgrade screen instead of starting the tunnel. The gate may first fetch
+     * a fresh account balance, so the connect starts from its callback.
      */
     val connect: (ConnectLocation?) -> Unit = { location ->
         val app = appContext as? com.bringyour.network.MainApplication
-        if (app != null && app.startConnectBlocked()) {
-            Log.i(TAG, "[connect]blocked: insufficient balance")
-            app.requestUpgradeScreen()
-        } else if (location != null) {
-            connectVc?.connect(location)
+        val start = {
+            if (location != null) {
+                connectVc?.connect(location)
+            } else {
+                connectVc?.connectBestAvailable()
+            }
+        }
+        if (app == null) {
+            start()
         } else {
-            connectVc?.connectBestAvailable()
+            app.checkStartConnect { blocked ->
+                if (blocked) {
+                    Log.i(TAG, "[connect]blocked: insufficient balance")
+                    app.requestUpgradeScreen()
+                } else {
+                    start()
+                }
+            }
         }
     }
 
