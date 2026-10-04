@@ -448,7 +448,9 @@ class PlanViewModel @Inject constructor(
      * (credited/already_credited) -- this replaces the old optimistic emit at
      * acknowledge time, where "You're premium." could be backed by nothing.
      * wrong_network and invalid still acknowledge (the purchase is real; Play must
-     * not auto-refund it) but surface honestly instead of celebrating.
+     * not auto-refund it) but surface honestly instead of celebrating. An invalid
+     * answer for a purchase without an account link (a Play Store promo code
+     * redemption) is not this network's and stays quiet (PurchaseReportPolicy.Outcome).
      */
     private fun reportAndAcknowledgePurchases(
         purchases: List<Purchase>,
@@ -550,6 +552,10 @@ class PlanViewModel @Inject constructor(
                     PurchaseReportPolicy.Outcome.Credited -> credited = true
                     PurchaseReportPolicy.Outcome.WrongNetwork -> wrongNetwork = true
                     PurchaseReportPolicy.Outcome.Invalid -> invalid = true
+                    PurchaseReportPolicy.Outcome.NotThisNetwork -> Log.i(
+                        TAG,
+                        "PurchaseReporter: a purchase without an account link is not this network's"
+                    )
                     PurchaseReportPolicy.Outcome.Deferred -> deferred = true
                 }
             }

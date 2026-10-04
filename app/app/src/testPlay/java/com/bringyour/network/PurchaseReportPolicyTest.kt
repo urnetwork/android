@@ -2,6 +2,7 @@ package com.bringyour.network
 
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -164,5 +165,87 @@ class PurchaseReportPolicyTest {
         assertEquals("already_credited", status)
         assertEquals(2, store.attempts["token"])
         assertEquals("already_credited", store.terminal["token"])
+    }
+
+    /**
+     * UPGRADE.md A1 (Play): a purchase made outside the app's billing flow (a Play
+     * Store promo code redemption) carries no obfuscated account id. The server
+     * credits it only to the network it is bound to through the issued welcome
+     * offer; for any other network it answers invalid. That answer means "not this
+     * network's" -- the purchase is real and stays acknowledged -- so it must not
+     * be surfaced as a verification error on every reconcile that finds it.
+     */
+    @Test
+    fun invalidAnswerForUnlinkedPurchaseIsNotAnError() {
+        assertNotEquals(
+            PurchaseReportPolicy.Outcome.Invalid,
+            PurchaseReportPolicy.outcomeFor(
+                credited = false,
+                wrongNetwork = false,
+                invalid = true,
+                linkedToAccount = false,
+            )
+        )
+    }
+
+    @Test
+    fun invalidAnswerForUnlinkedPurchaseIsNotThisNetworks() {
+        assertEquals(
+            PurchaseReportPolicy.Outcome.NotThisNetwork,
+            PurchaseReportPolicy.outcomeFor(
+                credited = false,
+                wrongNetwork = false,
+                invalid = true,
+                linkedToAccount = false,
+            )
+        )
+    }
+
+    @Test
+    fun invalidAnswerForLinkedPurchaseIsAnError() {
+        // a purchase this app launched for this network that the server will never
+        // credit: the user must hear about it
+        assertEquals(
+            PurchaseReportPolicy.Outcome.Invalid,
+            PurchaseReportPolicy.outcomeFor(
+                credited = false,
+                wrongNetwork = false,
+                invalid = true,
+                linkedToAccount = true,
+            )
+        )
+    }
+
+    @Test
+    fun creditedUnlinkedPurchaseIsThisNetworks() {
+        // a promo redemption the server bound to this network: success, and the
+        // confirmation poll starts like any credited purchase
+        assertEquals(
+            PurchaseReportPolicy.Outcome.Credited,
+            PurchaseReportPolicy.outcomeFor(
+                credited = true,
+                wrongNetwork = false,
+                invalid = false,
+                linkedToAccount = false,
+            )
+        )
+        assertEquals(
+            PurchaseReportPolicy.Outcome.Deferred,
+            PurchaseReportPolicy.outcomeFor(
+                credited = false,
+                wrongNetwork = false,
+                invalid = false,
+                linkedToAccount = false,
+            )
+        )
+        assertEquals(
+            PurchaseReportPolicy.Outcome.WrongNetwork,
+            PurchaseReportPolicy.outcomeFor(
+                credited = false,
+                wrongNetwork = true,
+                invalid = false,
+                linkedToAccount = true,
+            )
+        )
     }
 }

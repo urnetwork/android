@@ -61,6 +61,15 @@ internal object PurchaseReportPolicy {
         /** The server will never credit this purchase: surfaced as an error. */
         Invalid,
 
+        /**
+         * `invalid` for a purchase with no obfuscated account id (bought outside the
+         * app's billing flow, e.g. a Play Store promo code redemption). The server
+         * credits such a purchase only to the network it is bound to through the
+         * issued welcome offer, so for this network it is simply not this network's:
+         * acknowledged (it is real), never surfaced as an error.
+         */
+        NotThisNetwork,
+
         /** No terminal answer this session; the daily worker carries it. */
         Deferred,
     }
@@ -77,6 +86,7 @@ internal object PurchaseReportPolicy {
     ): Outcome = when {
         credited -> Outcome.Credited
         wrongNetwork -> Outcome.WrongNetwork
+        invalid && !linkedToAccount -> Outcome.NotThisNetwork
         invalid -> Outcome.Invalid
         else -> Outcome.Deferred
     }
