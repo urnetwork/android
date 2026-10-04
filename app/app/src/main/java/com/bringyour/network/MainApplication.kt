@@ -401,11 +401,45 @@ class MainApplication : Application() {
 
     /**
      * The screen a Home Screen widget tap asked for (see QuickConnectActivity):
-     * "connect", "provider_locations" or "contract_stats". MainNavHost observes
-     * it, navigates, and clears it -- whether the app was cold-started for the
-     * tap or was already running.
+     * "connect", "provider_locations", "contract_stats" or "upgrade" (a
+     * blocked connect). MainNavHost observes it, navigates, and clears it --
+     * whether the app was cold-started for the tap or was already running.
      */
     val widgetRoute = kotlinx.coroutines.flow.MutableStateFlow<String?>(null)
+
+    /**
+     * The plan and balance poll state the connect screen shows, mirrored by
+     * InsufficientBalanceNoticeEffect so the start connect gate outside the ui
+     * (tile, shortcuts, widget button) matches the in-app swap. Main thread.
+     */
+    @Volatile
+    internal var uiIsPro: Boolean = false
+    @Volatile
+    internal var uiPollingSubscriptionBalance: Boolean = false
+
+    /**
+     * The start connect gate shared by every connect surface (see
+     * InsufficientBalancePolicy): out of balance by the contract status or
+     * the last fetched account balance, not Supporter, no balance poll.
+     */
+    fun startConnectBlocked(): Boolean {
+        val balance = com.bringyour.network.widgets.WidgetSnapshotStore.loadBalance(this)
+        val isPro = uiIsPro ||
+            balance?.isPro == true ||
+            deviceManager.jwtFlow.value?.pro == true
+        return com.bringyour.network.ui.connect.startConnectBlocked(
+            contractInsufficientBalance = device?.contractStatus?.insufficientBalance == true,
+            accountBalanceExhausted = com.bringyour.network.ui.connect.accountBalanceExhausted(balance),
+            currentPlan = if (isPro) com.bringyour.network.ui.shared.viewmodels.Plan.Supporter
+                else com.bringyour.network.ui.shared.viewmodels.Plan.Basic,
+            isPollingSubscriptionBalance = uiPollingSubscriptionBalance,
+        )
+    }
+
+    /** A blocked connect: show the upgrade screen when the app is next in front. */
+    fun requestUpgradeScreen() {
+        widgetRoute.value = QuickConnectActivity.ROUTE_UPGRADE
+    }
 
     /**
      * A campaign email link opened the app on the feedback screen with a
@@ -2387,6 +2421,10 @@ class MainApplication : Application() {
     /**
      * System Always-on owns the disconnect policy. Keep the user's selected
      * location when there is one, otherwise reconnect to the best provider.
+     * Not gated on balance: Always-on is a connection the user set up in
+     * system settings and cannot disconnect here, so it counts as already
+     * connected; refusing it would leave the system tunnel up with traffic
+     * escaping it. Out of balance it holds traffic like any connection.
      * A bounded-delay retry covers a transient SDK restore/network race while
      * avoiding multiple simultaneous controllers for the same device.
      */

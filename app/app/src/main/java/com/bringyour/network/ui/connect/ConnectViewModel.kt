@@ -52,6 +52,7 @@ class ConnectViewModel
 @Inject
 constructor(
         private val deviceManager: DeviceManager,
+        @dagger.hilt.android.qualifiers.ApplicationContext private val appContext: android.content.Context,
 ) : ViewModel(), DefaultLifecycleObserver {
 
     private var connectVc: ConnectViewController? = null
@@ -230,8 +231,17 @@ constructor(
         shuffledSuccessPoints.addAll(successPoints.shuffled())
     }
 
+    /**
+     * Every in-app connect (the connect button and drawer, a location pick, a
+     * link) passes the start connect gate: out of balance it opens the
+     * upgrade screen instead of starting the tunnel.
+     */
     val connect: (ConnectLocation?) -> Unit = { location ->
-        if (location != null) {
+        val app = appContext as? com.bringyour.network.MainApplication
+        if (app != null && app.startConnectBlocked()) {
+            Log.i(TAG, "[connect]blocked: insufficient balance")
+            app.requestUpgradeScreen()
+        } else if (location != null) {
             connectVc?.connect(location)
         } else {
             connectVc?.connectBestAvailable()

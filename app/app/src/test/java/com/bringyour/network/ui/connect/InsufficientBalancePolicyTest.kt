@@ -4,6 +4,7 @@ import com.bringyour.network.VpnPacketFlowMode
 import com.bringyour.network.vpnPacketFlowMode
 import com.bringyour.network.ui.shared.models.ConnectStatus
 import com.bringyour.network.ui.shared.viewmodels.Plan
+import com.bringyour.network.widgets.WidgetBalanceSnapshot
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -187,6 +188,151 @@ class InsufficientBalancePolicyTest {
         assertEquals(
             VpnPacketFlowMode.DENYLIST,
             vpnPacketFlowMode(offline = false, connected = false, killSwitch = true, connectRequested = false, includedAppIds = emptySet()),
+        )
+    }
+
+    private fun balance(
+        balanceByteCount: Long = 0,
+        openTransferByteCount: Long = 0,
+        isPro: Boolean = false,
+    ) = WidgetBalanceSnapshot(
+        updatedAtMillis = 0,
+        startBalanceByteCount = 1_000_000_000,
+        balanceByteCount = balanceByteCount,
+        openTransferByteCount = openTransferByteCount,
+        isPro = isPro,
+    )
+
+    // start connect: while disconnected the SDK has cleared the contract
+    // status with the destination, so it reads not insufficient
+    private fun startBlocked(
+        accountBalance: WidgetBalanceSnapshot?,
+        currentPlan: Plan = Plan.Basic,
+        isPollingSubscriptionBalance: Boolean = false,
+        contractInsufficientBalance: Boolean = false,
+    ) = startConnectBlocked(
+        contractInsufficientBalance = contractInsufficientBalance,
+        accountBalanceExhausted = accountBalanceExhausted(accountBalance),
+        currentPlan = currentPlan,
+        isPollingSubscriptionBalance = isPollingSubscriptionBalance,
+    )
+
+    @Test
+    fun quickConnectWhileOutOfBalanceDoesNotStartTunnel() {
+        // the reported gap: the tile, shortcuts and widget button connected an
+        // account with no balance, which only the connect screen refused
+        val step = quickConnectStep(
+            connectEnabled = false,
+            connect = true,
+            startConnectBlocked = startBlocked(balance()),
+        )
+        assertEquals(QuickConnectStep.UPGRADE, step)
+    }
+
+    @Test
+    fun startConnectBlockedWhileDisconnectedOutOfBalance() {
+        assertTrue(startBlocked(balance()))
+        // the contract status alone, as the connection reports it, also blocks
+        assertTrue(startBlocked(balance(balanceByteCount = 1), contractInsufficientBalance = true))
+    }
+
+    @Test
+    fun startConnectGateMatchesConnectScreenSwap() {
+        // the connect screen shows upgrade in place of connect exactly when a
+        // start connect is blocked
+        val balances = listOf(
+            null,
+            balance(),
+            balance(balanceByteCount = 1),
+            balance(openTransferByteCount = 1),
+            balance(isPro = true),
+        )
+        for (accountBalance in balances) {
+            for (contract in listOf(false, true)) {
+                for (plan in Plan.entries) {
+                    for (polling in listOf(false, true)) {
+                        val buttons = connectActionButtons(
+                            insufficientBalance = displayInsufficientBalance(
+                                contractInsufficientBalance = contract,
+                                accountBalanceExhausted = accountBalanceExhausted(accountBalance),
+                                connectRequested = false,
+                            ),
+                            currentPlan = plan,
+                            isPollingSubscriptionBalance = polling,
+                            connectStatus = ConnectStatus.DISCONNECTED,
+                            displayReconnectTunnel = false,
+                        )
+                        assertEquals(
+                            "$accountBalance $contract $plan $polling",
+                            buttons.upgrade,
+                            startBlocked(accountBalance, plan, polling, contract),
+                        )
+                        assertEquals(!buttons.upgrade, buttons.connect)
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    fun startConnectAllowedWithBalanceSupporterOrPoll() {
+        assertFalse("never fetched", startBlocked(null))
+        assertFalse("available", startBlocked(balance(balanceByteCount = 1)))
+        assertFalse("held in open contracts", startBlocked(balance(openTransferByteCount = 1)))
+        assertFalse("server pro", startBlocked(balance(isPro = true)))
+        assertFalse("supporter", startBlocked(balance(), currentPlan = Plan.Supporter))
+        assertFalse("balance poll", startBlocked(balance(), isPollingSubscriptionBalance = true))
+    }
+
+    @Test
+    fun quickConnectOutsideGateIsUnchanged() {
+        assertEquals(QuickConnectStep.CONNECT, quickConnectStep(connectEnabled = false, connect = true, startConnectBlocked = false))
+        assertEquals(QuickConnectStep.DISCONNECT, quickConnectStep(connectEnabled = true, connect = false, startConnectBlocked = false))
+        // disconnect is always allowed, out of balance too
+        assertEquals(QuickConnectStep.DISCONNECT, quickConnectStep(connectEnabled = true, connect = false, startConnectBlocked = true))
+        assertEquals(QuickConnectStep.NONE, quickConnectStep(connectEnabled = false, connect = false, startConnectBlocked = true))
+    }
+
+    @Test
+    fun alreadyConnectedIsNeverDroppedOrRefused() {
+        // a requested connection (also the system restoring it) stays as is
+        // whatever the balance: no disconnect, no upgrade hand-off
+        for (blocked in listOf(false, true)) {
+            assertEquals(
+                "blocked=$blocked",
+                QuickConnectStep.NONE,
+                quickConnectStep(connectEnabled = true, connect = true, startConnectBlocked = blocked),
+            )
+        }
+    }
+
+    @Test
+    fun accountBalanceOnlyGatesBeforeConnectIsRequested() {
+        // once connected, the held-traffic state follows the connection's own
+        // contract status; an exhausted account balance alone does not turn a
+        // live connection into the out of balance state
+        for (status in requestedStatuses) {
+            val insufficient = displayInsufficientBalance(
+                contractInsufficientBalance = false,
+                accountBalanceExhausted = true,
+                connectRequested = status != ConnectStatus.DISCONNECTED,
+            )
+            assertFalse("$status", insufficient)
+            val buttons = connectActionButtons(
+                insufficientBalance = insufficient,
+                currentPlan = Plan.Basic,
+                isPollingSubscriptionBalance = false,
+                connectStatus = status,
+                displayReconnectTunnel = false,
+            )
+            assertTrue("$status", buttons.disconnect)
+        }
+        assertTrue(
+            displayInsufficientBalance(
+                contractInsufficientBalance = false,
+                accountBalanceExhausted = true,
+                connectRequested = false,
+            ),
         )
     }
 }
