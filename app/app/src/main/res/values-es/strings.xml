@@ -65,7 +65,17 @@
     <string name="become_supporter">Obtener UR Pro</string>
     <string name="best_available_provider">Mejor proveedor disponible</string>
     <string name="best_value">Mejor oferta</string>
+    <string name="bittensor_choose_wallet">Elige tu billetera de Bittensor</string>
+    <string name="bittensor_continue_in_browser">Continúa en tu navegador y aprueba la solicitud en la extensión de %1$s.</string>
+    <string name="bittensor_error_challenge_expired">Esta solicitud caducó. Empieza de nuevo para obtener un mensaje nuevo para firmar.</string>
+    <string name="bittensor_error_extension_not_found">No se encontró la extensión de %1$s en este navegador. Instálala y vuelve a intentarlo.</string>
+    <string name="bittensor_error_invalid_signature">No es una firma válida. Pega la firma 0x completa de tu billetera.</string>
+    <string name="bittensor_error_message_mismatch">La billetera firmó una solicitud diferente. Empieza de nuevo.</string>
+    <string name="bittensor_manual_sign_instructions">Firma este mensaje con la billetera %1$s que contiene tu coldkey y luego pega abajo la dirección y la firma.</string>
+    <string name="bittensor_message_to_sign">Mensaje para firmar</string>
     <string name="bittensor_sign_in">Iniciar sesión con Bittensor</string>
+    <string name="bittensor_signature_label">Firma</string>
+    <string name="bittensor_signature_placeholder">Pega la firma 0x…</string>
     <string name="bittensor_wallet">Billetera de Bittensor</string>
     <string name="block_ads_and_trackers">Bloquear anuncios y rastreadores</string>
     <string name="blocked">Bloqueadas</string>
@@ -342,6 +352,8 @@
     <string name="earn_more_bullet_stay_connected">Mantente conectado diariamente = Gana hasta %1$s GiB/día</string>
     <string name="earning_multipliers">Multiplicadores de ganancias</string>
     <string name="earnings">Ganancias</string>
+    <string name="earnings_address_placeholder">Introduce una dirección de Bittensor</string>
+    <string name="earnings_wallet_mismatch">La billetera que firmó no corresponde a la dirección que introdujiste.</string>
     <string name="edit_device_name">Editar nombre del dispositivo</string>
     <string name="edit_emoji">Editar emojis</string>
     <string name="edit_network_name">Editar nombre de la red</string>

@@ -65,7 +65,17 @@
     <string name="become_supporter">احصل على UR Pro</string>
     <string name="best_available_provider">أفضل مزود متاح</string>
     <string name="best_value">أفضل قيمة</string>
+    <string name="bittensor_choose_wallet">اختر محفظة Bittensor</string>
+    <string name="bittensor_continue_in_browser">تابع في متصفحك ووافق على الطلب في إضافة %1$s.</string>
+    <string name="bittensor_error_challenge_expired">انتهت صلاحية هذا الطلب. ابدأ من جديد للحصول على رسالة جديدة للتوقيع.</string>
+    <string name="bittensor_error_extension_not_found">لم يتم العثور على إضافة %1$s في هذا المتصفح. ثبّتها ثم حاول مرة أخرى.</string>
+    <string name="bittensor_error_invalid_signature">هذا ليس توقيعًا صالحًا. الصق توقيع 0x الكامل من محفظتك.</string>
+    <string name="bittensor_error_message_mismatch">وقّعت المحفظة طلبًا مختلفًا. ابدأ من جديد.</string>
+    <string name="bittensor_manual_sign_instructions">وقّع هذه الرسالة باستخدام محفظة %1$s التي تملك مفتاحك البارد (coldkey)، ثم الصق العنوان والتوقيع أدناه.</string>
+    <string name="bittensor_message_to_sign">الرسالة المطلوب توقيعها</string>
     <string name="bittensor_sign_in">تسجيل الدخول باستخدام Bittensor</string>
+    <string name="bittensor_signature_label">التوقيع</string>
+    <string name="bittensor_signature_placeholder">الصق التوقيع ‎0x…</string>
     <string name="bittensor_wallet">محفظة Bittensor</string>
     <string name="block_ads_and_trackers">حظر الإعلانات والمتعقبات</string>
     <string name="blocked">محظور</string>
@@ -342,6 +352,8 @@
     <string name="earn_more_bullet_stay_connected">البقاء متصلاً يوميًا = اربح حتى %1$s GiB/يوم</string>
     <string name="earning_multipliers">مضاعفات الأرباح</string>
     <string name="earnings">الأرباح</string>
+    <string name="earnings_address_placeholder">أدخل عنوان Bittensor</string>
+    <string name="earnings_wallet_mismatch">المحفظة التي وقّعت ليست العنوان الذي أدخلته.</string>
     <string name="edit_device_name">تعديل اسم الجهاز</string>
     <string name="edit_emoji">تعديل الإيموجي</string>
     <string name="edit_network_name">تعديل اسم الشبكة</string>

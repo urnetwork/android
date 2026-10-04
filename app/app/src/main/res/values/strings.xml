@@ -68,7 +68,17 @@
     <string name="best_available_provider">Best available provider</string>
     <string name="best_value">Best value</string>
     <string name="bittensor" translatable="false">Bittensor</string>
+    <string name="bittensor_choose_wallet">Choose your Bittensor wallet</string>
+    <string name="bittensor_continue_in_browser">Continue in your browser and approve the request in the %1$s extension.</string>
+    <string name="bittensor_error_challenge_expired">This request expired. Start again to get a new message to sign.</string>
+    <string name="bittensor_error_extension_not_found">The %1$s extension was not found in this browser. Install it, then try again.</string>
+    <string name="bittensor_error_invalid_signature">That is not a valid signature. Paste the full 0x signature from your wallet.</string>
+    <string name="bittensor_error_message_mismatch">The wallet signed a different request. Start again.</string>
+    <string name="bittensor_manual_sign_instructions">Sign this message with the %1$s wallet that holds your coldkey, then paste the address and the signature below.</string>
+    <string name="bittensor_message_to_sign">Message to sign</string>
     <string name="bittensor_sign_in">Sign in with Bittensor</string>
+    <string name="bittensor_signature_label">Signature</string>
+    <string name="bittensor_signature_placeholder">Paste the 0x… signature</string>
     <string name="bittensor_wallet">Bittensor wallet</string>
     <string name="block_ads_and_trackers">Block ads and trackers</string>
     <string name="blocked">Blocked</string>
@@ -356,7 +366,9 @@
     <string name="earn_more_bullet_stay_connected">Stay connected daily = Earn up to %1$s GiB/Day</string>
     <string name="earning_multipliers">Earning multipliers</string>
     <string name="earnings">Earnings</string>
+    <string name="earnings_address_placeholder">Enter a Bittensor address</string>
     <string name="earnings_email_support">Questions about earlier payouts? Email support@ur.io.</string>
+    <string name="earnings_wallet_mismatch">The wallet that signed is not the address you entered.</string>
     <string name="edit_device_name">Edit device name</string>
     <string name="edit_emoji">Edit emoji</string>
     <string name="edit_network_name">Edit network name</string>
