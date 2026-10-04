@@ -606,11 +606,8 @@
     <string name="of_total">of %1$s</string>
     <string name="off">Off</string>
     <string name="offer_available_until">Available until %1$s</string>
-    <string name="offer_cta_start_trial_months_free">Start free trial with %1$d months free</string>
     <string name="offer_first_year_price">%1$s for your first year</string>
-    <string name="offer_months_free_headline">%1$d months of Pro, free</string>
     <string name="offer_percent_off_first_year">%1$d%% off your first year</string>
-    <string name="offer_terms_first_year">%1$d days free, then %2$s for your first year, then %3$s/year. Cancel anytime.</string>
     <string name="offer_then_regular_price">then %1$s/year</string>
     <string name="offer_timeline_day">Day %1$d</string>
     <string name="offer_timeline_first_charge">%1$s for the year, cancel anytime before</string>
@@ -650,7 +647,6 @@
     <string name="plan_price_per_month">%1$s/month</string>
     <string name="plan_price_per_year">%1$s/year</string>
     <string name="plan_save_percent">Save %1$d%%</string>
-    <string name="plan_terms_yearly">%1$d days free, then %2$s/year. Cancel anytime.</string>
     <string name="please_try_again">Please try again.</string>
     <string name="please_wait">Please wait a few minutes and try again.</string>
     <string name="points">Points</string>
@@ -1023,6 +1019,22 @@
     <plurals name="new_items_count">
         <item quantity="one">%1$d new</item>
         <item quantity="other">%1$d new</item>
+    </plurals>
+    <plurals name="offer_cta_start_trial_months_free">
+        <item quantity="one">Start free trial with %1$d month free</item>
+        <item quantity="other">Start free trial with %1$d months free</item>
+    </plurals>
+    <plurals name="offer_months_free_headline">
+        <item quantity="one">%1$d month of Pro, free</item>
+        <item quantity="other">%1$d months of Pro, free</item>
+    </plurals>
+    <plurals name="offer_terms_first_year">
+        <item quantity="one">%1$d day free, then %2$s for your first year, then %3$s/year. Cancel anytime.</item>
+        <item quantity="other">%1$d days free, then %2$s for your first year, then %3$s/year. Cancel anytime.</item>
+    </plurals>
+    <plurals name="plan_terms_yearly">
+        <item quantity="one">%1$d day free, then %2$s/year. Cancel anytime.</item>
+        <item quantity="other">%1$d days free, then %2$s/year. Cancel anytime.</item>
     </plurals>
     <plurals name="plus_n_more">
         <item quantity="one">+ %1$d more</item>

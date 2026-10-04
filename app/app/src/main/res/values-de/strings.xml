@@ -587,11 +587,8 @@
     <string name="of_total">von %1$s</string>
     <string name="off">Aus</string>
     <string name="offer_available_until">Verfügbar bis %1$s</string>
-    <string name="offer_cta_start_trial_months_free">Kostenlos testen, mit %1$d Gratismonaten</string>
     <string name="offer_first_year_price">%1$s für dein erstes Jahr</string>
-    <string name="offer_months_free_headline">%1$d Monate Pro, gratis</string>
     <string name="offer_percent_off_first_year">%1$d %% Rabatt auf dein erstes Jahr</string>
-    <string name="offer_terms_first_year">%1$d Tage gratis, danach %2$s für dein erstes Jahr, danach %3$s/Jahr. Jederzeit kündbar.</string>
     <string name="offer_then_regular_price">danach %1$s/Jahr</string>
     <string name="offer_timeline_day">Tag %1$d</string>
     <string name="offer_timeline_first_charge">%1$s für das Jahr, davor jederzeit kündbar</string>
@@ -631,7 +628,6 @@
     <string name="plan_price_per_month">%1$s/Monat</string>
     <string name="plan_price_per_year">%1$s/Jahr</string>
     <string name="plan_save_percent">%1$d %% sparen</string>
-    <string name="plan_terms_yearly">%1$d Tage gratis, danach %2$s/Jahr. Jederzeit kündbar.</string>
     <string name="please_try_again">Bitte versuche es erneut.</string>
     <string name="please_wait">Bitte warte ein paar Minuten und versuche es erneut.</string>
     <string name="points">Punkte</string>
@@ -999,6 +995,22 @@
     <plurals name="new_items_count">
         <item quantity="one">%1$d neu</item>
         <item quantity="other">%1$d neu</item>
+    </plurals>
+    <plurals name="offer_cta_start_trial_months_free">
+        <item quantity="one">Kostenlos testen, mit %1$d Gratismonat</item>
+        <item quantity="other">Kostenlos testen, mit %1$d Gratismonaten</item>
+    </plurals>
+    <plurals name="offer_months_free_headline">
+        <item quantity="one">%1$d Monat Pro, gratis</item>
+        <item quantity="other">%1$d Monate Pro, gratis</item>
+    </plurals>
+    <plurals name="offer_terms_first_year">
+        <item quantity="one">%1$d Tag gratis, danach %2$s für dein erstes Jahr, danach %3$s/Jahr. Jederzeit kündbar.</item>
+        <item quantity="other">%1$d Tage gratis, danach %2$s für dein erstes Jahr, danach %3$s/Jahr. Jederzeit kündbar.</item>
+    </plurals>
+    <plurals name="plan_terms_yearly">
+        <item quantity="one">%1$d Tag gratis, danach %2$s/Jahr. Jederzeit kündbar.</item>
+        <item quantity="other">%1$d Tage gratis, danach %2$s/Jahr. Jederzeit kündbar.</item>
     </plurals>
     <plurals name="plus_n_more">
         <item quantity="one">+ %1$d weiterer</item>
