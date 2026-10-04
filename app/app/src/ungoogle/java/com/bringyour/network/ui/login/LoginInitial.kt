@@ -61,6 +61,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.bringyour.sdk.AuthLoginResult
 import com.bringyour.sdk.Api
+import com.bringyour.network.BuildConfig
 import com.bringyour.network.LoginActivity
 import com.bringyour.network.MainApplication
 import com.bringyour.network.R
@@ -89,6 +90,13 @@ fun LoginInitial(
     LifecycleResumeEffect(Unit) {
         if (loginViewModel.bittensorAuthInProgress) {
             loginViewModel.setBittensorAuthInProgress(false)
+        }
+        // back from the browser sign-in: its return arrives in a new LoginActivity
+        if (loginViewModel.googleAuthInProgress) {
+            loginViewModel.setGoogleAuthInProgress(false)
+        }
+        if (loginViewModel.appleAuthInProgress) {
+            loginViewModel.setAppleAuthInProgress(false)
         }
         onPauseOrDispose {}
     }
@@ -222,6 +230,22 @@ fun LoginInitial(
         bittensorLogin.start()
     }
 
+    // this build has no Play services, so Google signs in like Apple: the
+    // provider's web flow in a Custom Tab, returned by the api's callback through
+    // ur://oauth/<provider> (handled by the LoginActivity)
+    val connectSso: (SsoProvider) -> Unit = { provider ->
+        loginViewModel.setLoginError(null)
+        val apiUrl = application?.networkSpaceManagerProvider?.getNetworkSpace()?.apiUrl
+        if (launchSsoOAuth(context, provider, apiUrl)) {
+            when (provider) {
+                SsoProvider.GOOGLE -> loginViewModel.setGoogleAuthInProgress(true)
+                SsoProvider.APPLE -> loginViewModel.setAppleAuthInProgress(true)
+            }
+        } else {
+            loginViewModel.setLoginError(context.getString(R.string.login_error))
+        }
+    }
+
     // the seed sign-in is a slide-up sheet, like the auth code sign-in
     var seedphraseLoginSheetVisible by remember { mutableStateOf(false) }
     val onSeedphraseLogin: () -> Unit = {
@@ -249,6 +273,10 @@ fun LoginInitial(
             connectBittensorWallet()
         },
         bittensorAuthInProgress = loginViewModel.bittensorAuthInProgress,
+        googleLogin = { connectSso(SsoProvider.GOOGLE) },
+        googleAuthInProgress = loginViewModel.googleAuthInProgress,
+        appleLogin = { connectSso(SsoProvider.APPLE) },
+        appleAuthInProgress = loginViewModel.appleAuthInProgress,
         onLogin = onLogin,
         contentVisible = contentVisible,
         setContentVisible = {
@@ -322,6 +350,10 @@ fun LoginInitial(
     solanaAuthInProgress: Boolean,
     bittensorLogin: () -> Unit,
     bittensorAuthInProgress: Boolean,
+    googleLogin: () -> Unit = {},
+    googleAuthInProgress: Boolean = false,
+    appleLogin: () -> Unit = {},
+    appleAuthInProgress: Boolean = false,
     onLogin: (String) -> Unit,
     contentVisible: Boolean,
     setContentVisible: (Boolean) -> Unit,
@@ -399,6 +431,10 @@ fun LoginInitial(
                         solanaAuthInProgress = solanaAuthInProgress,
                         onBittensorLogin = bittensorLogin,
                         bittensorAuthInProgress = bittensorAuthInProgress,
+                        onGoogleLogin = googleLogin,
+                        googleAuthInProgress = googleAuthInProgress,
+                        onAppleLogin = appleLogin,
+                        appleAuthInProgress = appleAuthInProgress,
                         launchAuthCodeLoginSheet = {
                             setAuthCodeLoginSheetVisible(true)
                         },
@@ -441,11 +477,15 @@ fun LoginInitialActions(
     solanaAuthInProgress: Boolean,
     onBittensorLogin: () -> Unit,
     bittensorAuthInProgress: Boolean,
+    onGoogleLogin: () -> Unit = {},
+    googleAuthInProgress: Boolean = false,
+    onAppleLogin: () -> Unit = {},
+    appleAuthInProgress: Boolean = false,
     launchAuthCodeLoginSheet: () -> Unit,
     onSeedphraseLogin: () -> Unit,
     onInstantAccountCreate: () -> Unit,
 ) {
-    val isLoginInProgress = userAuthInProgress || solanaAuthInProgress || bittensorAuthInProgress
+    val isLoginInProgress = userAuthInProgress || googleAuthInProgress || appleAuthInProgress || solanaAuthInProgress || bittensorAuthInProgress
 
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -458,11 +498,15 @@ fun LoginInitialActions(
         ) {
 
             // the login stack rule (LoginStack.kt): up to three full-width buttons,
-            // then icon tiles four per row with each row filled; this flavor's lists
+            // then icon tiles four per row with each row filled; this flavor's lists,
+            // the play flavor's order (Google and Apple through the browser here)
             LoginStack(
-                full = listOf(
-                    instantAccountLoginMethod(onClick = onInstantAccountCreate)
-                ),
+                full = loginSsoProviders(BuildConfig.BRINGYOUR_BUNDLE_SSO_GOOGLE).map { provider ->
+                    when (provider) {
+                        SsoProvider.GOOGLE -> googleLoginMethod(onClick = onGoogleLogin, processing = googleAuthInProgress)
+                        SsoProvider.APPLE -> appleLoginMethod(onClick = onAppleLogin, processing = appleAuthInProgress)
+                    }
+                } + instantAccountLoginMethod(onClick = onInstantAccountCreate),
                 tiles = listOf(
                     secretKeyLoginMethod(onClick = onSeedphraseLogin),
                     authCodeLoginMethod(onClick = launchAuthCodeLoginSheet, tile = true),

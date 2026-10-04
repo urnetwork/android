@@ -292,7 +292,11 @@ android {
             // this can avoid the need for an initial doh query
             // json string array
             buildConfigField "String[]", "BRINGYOUR_BUNDLE_NET_EXTENDER_NETWORKS", 'new String[]{}'
-            buildConfigField "boolean", "BRINGYOUR_BUNDLE_SSO_GOOGLE", 'false'
+            // Google (and Apple) sign-in are offered on the login and the add
+            // sign-in method sheet. Without Play services both run as the
+            // provider's web flow in a Custom Tab (LoginUtils launchSsoOAuth),
+            // never play-services-auth.
+            buildConfigField "boolean", "BRINGYOUR_BUNDLE_SSO_GOOGLE", 'true'
             buildConfigField "String", "BRINGYOUR_BUNDLE_WALLET", '"solana"'
 
             signingConfig = signingConfigs.github

@@ -32,10 +32,16 @@ import com.bringyour.network.ui.login.LoginViewModel
 import com.bringyour.network.ui.login.launchBittensorSignMessage
 import com.bringyour.network.ui.login.AUTH_JWT_TYPE_APPLE
 import com.bringyour.network.ui.login.AppleOAuthSession
-import com.bringyour.network.ui.login.AppleOAuthReturnRoute
-import com.bringyour.network.ui.login.appleOAuthReturnRoute
+import com.bringyour.network.ui.login.SsoOAuthReturnRoute
+import com.bringyour.network.ui.login.ssoOAuthReturnRoute
 import com.bringyour.network.ui.settings.bittensorAddReturn
-import com.bringyour.network.ui.settings.forwardAppleAddSignInReturn
+import com.bringyour.network.ui.settings.forwardSsoAddSignInReturn
+import com.bringyour.network.ui.login.SsoProvider
+import com.bringyour.network.ui.login.SsoLoginOutcome
+import com.bringyour.network.ui.login.GoogleOAuthSession
+import com.bringyour.network.ui.login.isGoogleOAuthReturn
+import com.bringyour.network.ui.login.ssoLoginOutcome
+import com.bringyour.network.ui.login.ssoOAuthReturn
 import com.bringyour.network.ui.settings.forwardBittensorAddSignInReturn
 import com.bringyour.network.ui.login.appleOAuthUserName
 import com.bringyour.network.ui.login.isAppleOAuthReturn
@@ -100,19 +106,35 @@ class LoginActivity : AppCompatActivity() {
             Log.i(TAG, "Login Activity hitting Intent.ACTION_VIEW == action")
             intent?.data?.let { u ->
                 if (isAppleOAuthReturn(u)) {
-                    if (app.device != null && appleOAuthReturnRoute(
+                    if (app.device != null && ssoOAuthReturnRoute(
                             AppleOAuthSession.attempts(this),
                             u.getQueryParameter("state"),
-                        ) == AppleOAuthReturnRoute.ADD_SIGN_IN
+                        ) == SsoOAuthReturnRoute.ADD_SIGN_IN
                     ) {
                         // Settings' add sign-in method sheet started this attempt: the
                         // sheet adds the Apple ID to the signed-in network; never a login
-                        Log.i(TAG, "forwardAppleAddSignInReturn")
-                        forwardAppleAddSignInReturn(this, u, MainActivity::class.java)
+                        Log.i(TAG, "forwardSsoAddSignInReturn")
+                        forwardSsoAddSignInReturn(this, SsoProvider.APPLE, u, MainActivity::class.java)
                         return
                     }
                     Log.i(TAG, "appleOAuthLogin $u")
                     appleOAuthLogin(u)
+                } else if (isGoogleOAuthReturn(u)) {
+                    // this build has no Play services: Google signs in through the
+                    // browser (launchGoogleOAuth) and the api's callback returns here
+                    if (app.device != null && ssoOAuthReturnRoute(
+                            GoogleOAuthSession.attempts(this),
+                            u.getQueryParameter("state"),
+                        ) == SsoOAuthReturnRoute.ADD_SIGN_IN
+                    ) {
+                        // the add sign-in method sheet started this attempt: the sheet
+                        // adds the Google account to the signed-in network; never a login
+                        Log.i(TAG, "forwardSsoAddSignInReturn google")
+                        forwardSsoAddSignInReturn(this, SsoProvider.GOOGLE, u, MainActivity::class.java)
+                        return
+                    }
+                    Log.i(TAG, "googleOAuthLogin")
+                    googleOAuthLogin(u)
                 } else if (u.scheme == "ur" && u.host == "bittensor-sign-message") {
                     // a WalletConnect bridge return is judged by its waiting session
                     // (message, purpose, address, expiry); with none waiting it is a
@@ -441,6 +463,96 @@ class LoginActivity : AppCompatActivity() {
                         authJwt = authJwt,
                         authJwtType = provider,
                         userName = (result.userName ?: "").ifEmpty { appleUserName },
+                        userAuth = email,
+                        referralCode = referralCode
+                    )
+                }
+            }
+        } ?: run {
+            isLoadingAuthCode = false
+        }
+    }
+
+    // handles the return from Google's browser sign-in (LoginUtils.kt: Google's
+    // code flow in a Custom Tab, exchanged by the api's /auth/google/callback,
+    // which redirects here): ur://oauth/google?state=<state>&id_token=<identity token>
+    // or ur://oauth/google?state=<state>&error=<message>
+    private fun googleOAuthLogin(uri: Uri) {
+        val app = app ?: return
+        val provider = SsoProvider.GOOGLE
+
+        // a fresh state per launch, consumed here, and the token must carry the
+        // nonce this launch asked for, so a stale or forged return signs no one in
+        val outcome = ssoLoginOutcome(provider, GoogleOAuthSession.attempts(this), ssoOAuthReturn(uri)) { idToken ->
+            ssoJwtPayload(idToken)?.optString("nonce")
+        }
+        val authJwt = when (outcome) {
+            is SsoLoginOutcome.SignIn -> outcome.authJwt
+            is SsoLoginOutcome.Failed -> {
+                Log.i(TAG, "googleOAuthLogin: error: ${outcome.error}")
+                loginViewModel.setLoginError(outcome.error ?: getString(R.string.login_error))
+                return
+            }
+            SsoLoginOutcome.NoAttempt -> {
+                Log.i(TAG, "googleOAuthLogin: no pending attempt for this state")
+                loginViewModel.setLoginError(getString(R.string.login_error))
+                return
+            }
+        }
+        val claims = ssoJwtPayload(authJwt)
+        val email = claims?.optString("email") ?: ""
+        val googleUserName = claims?.optString("name") ?: ""
+
+        isLoadingAuthCode = true
+
+        val args = AuthLoginArgs()
+        args.authJwt = authJwt
+        args.authJwtType = provider.authJwtType
+
+        app.api?.authLogin(args) { result, err ->
+            val resultError = result?.error
+            val networkJwt = if (err == null && resultError == null) {
+                result?.network?.byJwt?.takeIf(String::isNotEmpty)
+            } else {
+                null
+            }
+            if (networkJwt != null) {
+                welcomeThenAuthClientAndFinish(
+                    byJwt = networkJwt,
+                    callback = { finishError ->
+                        if (finishError != null) {
+                            Log.i(TAG, "authClientAndFinish error: $finishError")
+                        }
+                        isLoadingAuthCode = false
+                    },
+                )
+                return@authLogin
+            }
+            lifecycleScope.launch {
+                if (err != null) {
+                    isLoadingAuthCode = false
+                    loginViewModel.setLoginError(err.message)
+                } else if (resultError != null) {
+                    isLoadingAuthCode = false
+                    loginViewModel.setLoginError(resultError.message)
+                } else if (result == null) {
+                    isLoadingAuthCode = false
+                    loginViewModel.setLoginError(getString(R.string.login_error))
+                } else if (result.authAllowed != null) {
+                    val authAllowed = mutableListOf<String>()
+                    for (i in 0 until result.authAllowed.len()) {
+                        authAllowed.add(result.authAllowed.get(i))
+                    }
+                    isLoadingAuthCode = false
+                    loginViewModel.setLoginError(getString(R.string.login_error_auth_allowed, authAllowed.joinToString(",")))
+                } else {
+                    // a new user: continue into create network with the identity token
+                    loginViewModel.setLoginError(null)
+                    isLoadingAuthCode = false
+                    jwtCreateNetworkParams = LoginCreateNetworkParams.LoginCreateAuthJwtParams(
+                        authJwt = authJwt,
+                        authJwtType = provider.authJwtType,
+                        userName = (result.userName ?: "").ifEmpty { googleUserName },
                         userAuth = email,
                         referralCode = referralCode
                     )

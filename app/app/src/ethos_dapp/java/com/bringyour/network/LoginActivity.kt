@@ -31,10 +31,11 @@ import com.bringyour.network.ui.login.LoginViewModel
 import com.bringyour.network.ui.login.launchBittensorSignMessage
 import com.bringyour.network.ui.login.AUTH_JWT_TYPE_APPLE
 import com.bringyour.network.ui.login.AppleOAuthSession
-import com.bringyour.network.ui.login.AppleOAuthReturnRoute
-import com.bringyour.network.ui.login.appleOAuthReturnRoute
+import com.bringyour.network.ui.login.SsoOAuthReturnRoute
+import com.bringyour.network.ui.login.ssoOAuthReturnRoute
 import com.bringyour.network.ui.settings.bittensorAddReturn
-import com.bringyour.network.ui.settings.forwardAppleAddSignInReturn
+import com.bringyour.network.ui.settings.forwardSsoAddSignInReturn
+import com.bringyour.network.ui.login.SsoProvider
 import com.bringyour.network.ui.settings.forwardBittensorAddSignInReturn
 import com.bringyour.network.ui.login.appleOAuthUserName
 import com.bringyour.network.ui.login.isAppleOAuthReturn
@@ -100,15 +101,15 @@ class LoginActivity : AppCompatActivity() {
             Log.i(TAG, "Intent.ACTION_VIEW == action")
             intent?.data?.let { u ->
                 if (isAppleOAuthReturn(u)) {
-                    if (app.device != null && appleOAuthReturnRoute(
+                    if (app.device != null && ssoOAuthReturnRoute(
                             AppleOAuthSession.attempts(this),
                             u.getQueryParameter("state"),
-                        ) == AppleOAuthReturnRoute.ADD_SIGN_IN
+                        ) == SsoOAuthReturnRoute.ADD_SIGN_IN
                     ) {
                         // Settings' add sign-in method sheet started this attempt: the
                         // sheet adds the Apple ID to the signed-in network; never a login
-                        Log.i(TAG, "forwardAppleAddSignInReturn")
-                        forwardAppleAddSignInReturn(this, u, MainActivity::class.java)
+                        Log.i(TAG, "forwardSsoAddSignInReturn")
+                        forwardSsoAddSignInReturn(this, SsoProvider.APPLE, u, MainActivity::class.java)
                         return
                     }
                     Log.i(TAG, "appleOAuthLogin $u")

@@ -40,8 +40,8 @@ import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.components.URCodeInput
 import com.bringyour.network.ui.components.URInlineErrorText
 import com.bringyour.network.ui.components.URTextInput
-import com.bringyour.network.ui.login.APPLE_OAUTH_PURPOSE_ADD
-import com.bringyour.network.ui.login.AppleOAuthSession
+import com.bringyour.network.ui.login.SSO_OAUTH_PURPOSE_ADD
+import com.bringyour.network.ui.login.SsoProvider
 import com.bringyour.network.ui.login.ResendCode
 import com.bringyour.network.ui.login.SolanaChallengeSignResult
 import com.bringyour.network.ui.login.VerifySendError
@@ -50,6 +50,7 @@ import com.bringyour.network.ui.login.launchAppleOAuth
 import com.bringyour.network.ui.login.launchBittensorBridge
 import com.bringyour.network.ui.login.requestAndSignSolanaChallenge
 import com.bringyour.network.ui.login.ssoJwtPayload
+import com.bringyour.network.ui.login.ssoOAuthAttempts
 import com.bringyour.network.ui.login.toVerifySendError
 import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.wallet.BittensorProofFlow
@@ -80,7 +81,8 @@ private const val verifyCodeLength = 6
 fun AddAuthMethodSheet(
     visible: Boolean,
     onDismiss: () -> Unit,
-    // the Google SSO flavors: Apple and Google, as on their login screen
+    // Apple and Google, as on the flavor's login screen (every flavor now;
+    // github adds Google through the browser)
     showSsoOptions: Boolean,
     activityResultSender: ActivityResultSender?,
     isAddingAuth: Boolean,
@@ -237,34 +239,39 @@ fun AddAuthMethodSheet(
         }
     }
 
-    // Apple's web flow returns through the LoginActivity (ur://oauth/apple),
-    // which hands an add attempt's return here; a login never takes it
-    val appleReturn by AppleAddSignInReturns.pending.collectAsState()
-    LaunchedEffect(appleReturn) {
-        val r = AppleAddSignInReturns.take() ?: return@LaunchedEffect
-        val outcome = appleAddOutcome(AppleOAuthSession.attempts(context), r) { idToken ->
+    // the browser flows (Apple everywhere, Google on github) return through the
+    // LoginActivity (ur://oauth/<provider>), which hands an add attempt's
+    // return here; a login never takes it. Adding never changes the session jwt.
+    val ssoReturn by SsoAddSignInReturns.pending.collectAsState()
+    LaunchedEffect(ssoReturn) {
+        val r = SsoAddSignInReturns.take() ?: return@LaunchedEffect
+        val outcome = ssoAddOutcome(r.provider, ssoOAuthAttempts(context, r.provider), r.ssoReturn) { idToken ->
             ssoJwtPayload(idToken)?.optString("nonce")
         }
         when (outcome) {
-            is AppleAddOutcome.Add -> {
+            is SsoAddOutcome.Add -> {
                 val args = AddAuthArgs()
                 args.authJwt = outcome.auth.authJwt
                 args.authJwtType = outcome.auth.authJwtType
+                val (method, addedMessage) = when (r.provider) {
+                    SsoProvider.APPLE -> AddedSignInMethod.APPLE to R.string.apple_sign_in_method_added
+                    SsoProvider.GOOGLE -> AddedSignInMethod.GOOGLE to R.string.google_sign_in_method_added
+                }
                 flow.add(
-                    AddedSignInMethod.APPLE,
+                    method,
                     args,
                     "",
                     {
-                        Toast.makeText(context, context.getString(R.string.apple_sign_in_method_added), Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, context.getString(addedMessage), Toast.LENGTH_SHORT).show()
                         onAdded()
                     },
                     { msg -> addError = msg }
                 )
             }
-            is AppleAddOutcome.Failed -> {
+            is SsoAddOutcome.Failed -> {
                 addError = outcome.error ?: context.getString(R.string.login_error)
             }
-            AppleAddOutcome.Stray -> {}
+            SsoAddOutcome.Stray -> {}
         }
     }
 
@@ -393,8 +400,9 @@ fun AddAuthMethodSheet(
                         // Google Sign-In is per-flavor code (com.google.android.gms.*
                         // is not on github's classpath) -- every flavor's source set
                         // provides its own GoogleAddAuthButton with this exact
-                        // signature (real impl on google/solana_dapp/ethos_dapp,
-                        // no-op stub on ungoogle/github).
+                        // signature (Play services on google/solana_dapp/ethos_dapp,
+                        // the browser flow on ungoogle/github, whose return
+                        // arrives through SsoAddSignInReturns above).
                         GoogleAddAuthButton(
                             addAuth = { args, onSuccess, onError ->
                                 flow.add(AddedSignInMethod.GOOGLE, args, "", onSuccess, onError)
@@ -418,7 +426,7 @@ fun AddAuthMethodSheet(
                                 addError = null
                                 val apiUrl = (context.applicationContext as? MainApplication)
                                     ?.networkSpaceManagerProvider?.getNetworkSpace()?.apiUrl
-                                if (!launchAppleOAuth(context, apiUrl, APPLE_OAUTH_PURPOSE_ADD)) {
+                                if (!launchAppleOAuth(context, apiUrl, SSO_OAUTH_PURPOSE_ADD)) {
                                     addError = context.getString(R.string.login_error)
                                 }
                             },

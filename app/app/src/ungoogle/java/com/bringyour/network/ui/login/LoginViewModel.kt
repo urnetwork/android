@@ -62,6 +62,16 @@ class LoginViewModel @Inject constructor(
         bittensorAuthInProgress = inProgress
     }
 
+    // the browser round trip of Apple's web sign-in (and of Google's, which
+    // this build without Play services also signs in with in the browser);
+    // cleared when the login screen resumes
+    var appleAuthInProgress by mutableStateOf(false)
+        private set
+
+    val setAppleAuthInProgress: (Boolean) -> Unit = { inProgress ->
+        appleAuthInProgress = inProgress
+    }
+
     val login: (
         ctx: Context,
         api: Api?,
