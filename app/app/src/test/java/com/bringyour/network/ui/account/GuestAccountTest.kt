@@ -79,4 +79,60 @@ class GuestAccountTest {
         assertEquals("Password must have at least 12 characters", error)
         assertEquals(listOf("addAuth:user@example.com"), session.calls)
     }
+
+    /**
+     * The intro funnel opens by itself at startup, before the first balance
+     * load. A refreshed guest has no guest_mode claim, so until the server's
+     * `guest` loads it reads as an account: the funnel must wait for the guest
+     * status instead of selling it a plan in that window.
+     */
+    @Test
+    fun introFunnelWaitsForTheGuestStatus() {
+        // a refreshed guest before the first balance load: no claim, nothing loaded
+        val known = GuestAccount.guestStatusKnown(guestModeClaim = false, serverGuestLoaded = false)
+        assertFalse("a jwt without the claim does not settle the guest status", known)
+        assertEquals(
+            "intro funnel shown before the guest status is known",
+            IntroFunnel.Hide,
+            GuestAccount.introFunnel(isPro = false, isGuest = false, guestStatusKnown = known, allowPrompt = true),
+        )
+        // the balance loaded: a guest stays hidden, an account is prompted
+        assertEquals(
+            IntroFunnel.Hide,
+            GuestAccount.introFunnel(isPro = false, isGuest = true, guestStatusKnown = true, allowPrompt = true),
+        )
+        assertEquals(
+            IntroFunnel.Show,
+            GuestAccount.introFunnel(isPro = false, isGuest = false, guestStatusKnown = true, allowPrompt = true),
+        )
+        assertEquals(
+            IntroFunnel.Unchanged,
+            GuestAccount.introFunnel(isPro = false, isGuest = false, guestStatusKnown = true, allowPrompt = false),
+        )
+        assertEquals(
+            IntroFunnel.Hide,
+            GuestAccount.introFunnel(isPro = true, isGuest = false, guestStatusKnown = false, allowPrompt = true),
+        )
+    }
+
+    @Test
+    fun guestClaimSettlesTheGuestStatus() {
+        assertTrue(GuestAccount.guestStatusKnown(guestModeClaim = true, serverGuestLoaded = false))
+        assertTrue(GuestAccount.guestStatusKnown(guestModeClaim = false, serverGuestLoaded = true))
+    }
+
+    /**
+     * An instant account is the server's seedphrase path (terms and no login
+     * method). The server dropped guest_mode from network create with that
+     * path and ignores it, so the app no longer sends guest_mode = true. The
+     * sdk args are a native gomobile class, so the source is read as text.
+     */
+    @Test
+    fun instantAccountIsNotCreatedAsAGuest() {
+        val source = java.io.File(
+            "src/main/java/com/bringyour/network/ui/login/CreateNetworkInstantViewModel.kt"
+        ).readText()
+        assertTrue("networkCreate call not found", source.contains("api.networkCreate(args)"))
+        assertFalse("the instant account still sets guestMode = true", source.contains("guestMode = true"))
+    }
 }

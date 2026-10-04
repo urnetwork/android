@@ -81,7 +81,8 @@ class CreateNetworkInstantViewModel @Inject constructor(
         // Main still validates this field. Newer servers generate their own
         // instant-account name and safely ignore this compatibility fallback.
         args.networkName = "guest-${UUID.randomUUID()}"
-        args.guestMode = true
+        // no guestMode: the server dropped guest_mode from network create with
+        // the seedphrase path and ignores it; this is a seedphrase account
         args.terms = termsAgreed
         // the sign-up page's "Periodic product updates" line; false here keeps the preference on
         args.productUpdatesOptOut = !productUpdates

@@ -122,6 +122,7 @@ import androidx.navigation.toRoute
 import com.bringyour.network.ui.account.AccountViewModel
 import com.bringyour.network.ui.account.GuestAccount
 import com.bringyour.network.ui.account.GuestConversionSheet
+import com.bringyour.network.ui.account.IntroFunnel
 import com.bringyour.network.ui.account.UpgradeEntry
 import com.bringyour.network.ui.components.nestedLinkBottomSheet.NestedLinkBottomSheet
 import com.bringyour.network.ui.connect.BrowseLocationsScreen
@@ -453,21 +454,26 @@ private fun MainNavHostContent(
      * For initial intro funnel prompting
      */
     val isGuestNetworkForIntro by subscriptionBalanceViewModel.isGuestNetwork.collectAsState()
-    LaunchedEffect(isPro, allowPromptIntroFunnel, isGuestNetworkForIntro) {
+    // a refreshed guest is a guest only once the balance has loaded
+    val guestStatusKnownForIntro by subscriptionBalanceViewModel.guestStatusKnown.collectAsState()
+    LaunchedEffect(isPro, allowPromptIntroFunnel, isGuestNetworkForIntro, guestStatusKnownForIntro) {
 
-        if (isPro) {
-            mainNavViewModel.setDisplayIntroFunnel(false)
-        } else if (GuestAccount.upgradeEntry(isGuestNetworkForIntro) == UpgradeEntry.AddSignInMethod) {
-            // the intro sells a plan; a guest network is not sold one (GuestAccount).
-            // Not marked prompted, so it can show once the network has a login.
-            mainNavViewModel.setDisplayIntroFunnel(false)
-        } else {
-            if (allowPromptIntroFunnel) {
+        // the intro sells a plan; a guest network is not sold one (GuestAccount),
+        // and it waits until the guest status is known
+        when (GuestAccount.introFunnel(
+            isPro = isPro,
+            isGuest = isGuestNetworkForIntro,
+            guestStatusKnown = guestStatusKnownForIntro,
+            allowPrompt = allowPromptIntroFunnel,
+        )) {
+            IntroFunnel.Hide -> mainNavViewModel.setDisplayIntroFunnel(false)
+            IntroFunnel.Show -> {
                 // display intro funnel
                 mainNavViewModel.setDisplayIntroFunnel(true)
                 // set time last prompted in localstorage
                 mainNavViewModel.setIntroFunnelLastPrompted()
             }
+            IntroFunnel.Unchanged -> {}
         }
 
     }
