@@ -128,11 +128,19 @@ fun ConnectScreen(
     val dailyByteCount by subscriptionBalanceViewModel.startBalanceByteCount.collectAsState()
 
     // the last fetched account balance, as the start connect gate outside the
-    // ui reads it (MainApplication.startConnectBlocked)
+    // ui reads it (MainApplication.checkStartConnect)
     val screenContext = LocalContext.current
     val balanceChanges by com.bringyour.network.widgets.WidgetSnapshotStore.changes.collectAsState()
     val balanceExhausted = remember(balanceChanges) {
         accountBalanceExhausted(com.bringyour.network.widgets.WidgetSnapshotStore.loadBalance(screenContext))
+    }
+    // upgrade shown in place of connect on the account balance alone: make
+    // sure that balance is current, so a stale zero does not hide connect
+    val balanceGatesConnect = balanceExhausted && connectStatus == ConnectStatus.DISCONNECTED
+    LaunchedEffect(balanceGatesConnect, balanceChanges) {
+        if (balanceGatesConnect) {
+            (screenContext.applicationContext as? MainApplication)?.refreshStartConnectBalanceIfStale()
+        }
     }
     val displayInsufficientBalance = com.bringyour.network.ui.connect.displayInsufficientBalance(
         contractInsufficientBalance = contractStatus?.insufficientBalance == true,

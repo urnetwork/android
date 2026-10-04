@@ -335,4 +335,127 @@ class InsufficientBalancePolicyTest {
             ),
         )
     }
+
+    // start connect on the account balance the gate decides on: the cached
+    // snapshot, or a fetch when it is not fresh. fetchResult null is a failed
+    // or timed out fetch.
+    private class StartConnectRun(
+        cached: WidgetBalanceSnapshot?,
+        nowMillis: Long,
+        fetchResult: WidgetBalanceSnapshot?,
+    ) {
+        var fetchCount = 0
+        var decided: WidgetBalanceSnapshot? = null
+        var decisionCount = 0
+
+        init {
+            startConnectBalance(
+                cached = cached,
+                nowMillis = nowMillis,
+                fetch = { onBalance ->
+                    fetchCount += 1
+                    onBalance(fetchResult)
+                },
+            ) { balance ->
+                decisionCount += 1
+                decided = balance
+            }
+        }
+
+        val blocked get() = startConnectBlocked(
+            contractInsufficientBalance = false,
+            accountBalanceExhausted = accountBalanceExhausted(decided),
+            currentPlan = Plan.Basic,
+            isPollingSubscriptionBalance = false,
+        )
+    }
+
+    private val now = 10 * 60 * 60_000L
+
+    private fun balanceAt(updatedAtMillis: Long, balanceByteCount: Long = 0) =
+        balance(balanceByteCount = balanceByteCount).copy(updatedAtMillis = updatedAtMillis)
+
+    @Test
+    fun staleZeroBalanceDoesNotSendAFundedAccountToUpgrade() {
+        // the reported gap: the snapshot is refreshed every 30 minutes outside
+        // the app, so a zero from before a purchase or refill blocked connect
+        val stale = balanceAt(now - 30 * 60_000L)
+        val funded = StartConnectRun(stale, now, fetchResult = balanceAt(now, balanceByteCount = 1_000))
+        assertFalse("stale zero blocked a funded account", funded.blocked)
+        assertEquals(1, funded.fetchCount)
+        assertEquals(1, funded.decisionCount)
+        // a failed fetch never blocks: the server refuses the contract anyway
+        val failed = StartConnectRun(stale, now, fetchResult = null)
+        assertFalse("failed fetch blocked", failed.blocked)
+        assertEquals(1, failed.fetchCount)
+    }
+
+    @Test
+    fun freshZeroBalanceBlocksWithoutFetching() {
+        for (age in listOf(0L, 1_000L, START_CONNECT_BALANCE_MAX_AGE_MILLIS)) {
+            val run = StartConnectRun(balanceAt(now - age), now, fetchResult = balanceAt(now, balanceByteCount = 1_000))
+            assertEquals("age=$age", 0, run.fetchCount)
+            assertTrue("age=$age", run.blocked)
+        }
+    }
+
+    @Test
+    fun freshStartWithAnEmptyAccountIsBlocked() {
+        // nothing cached yet (fresh install or sign in): the fetched balance decides
+        val empty = StartConnectRun(null, now, fetchResult = balanceAt(now))
+        assertTrue("empty account started the tunnel", empty.blocked)
+        assertEquals(1, empty.fetchCount)
+        // just past the limit counts as stale
+        val stale = StartConnectRun(balanceAt(now - START_CONNECT_BALANCE_MAX_AGE_MILLIS - 1), now, fetchResult = balanceAt(now))
+        assertTrue("stale balance not fetched", stale.blocked)
+        assertEquals(1, stale.fetchCount)
+        // a snapshot from the future (clock change) is not trusted
+        assertFalse(startConnectBalanceFresh(balanceAt(now + 1), now))
+    }
+
+    @Test
+    fun balanceFetchDecidesOnce() {
+        val decided = mutableListOf<WidgetBalanceSnapshot?>()
+        val first = FirstBalance { decided.add(it) }
+        val fetched = balanceAt(now, balanceByteCount = 1)
+        first.offer(fetched)
+        // the timeout after the answer is ignored
+        first.offer(null)
+        assertEquals(listOf<WidgetBalanceSnapshot?>(fetched), decided)
+    }
+
+    @Test
+    fun connectedSessionIsNeverDroppedWhateverTheBalance() {
+        // a requested connection stays as is with a fresh zero balance: the
+        // quick surfaces never consult the gate for it
+        val run = StartConnectRun(balanceAt(now), now, fetchResult = null)
+        assertTrue(run.blocked)
+        assertEquals(
+            QuickConnectStep.NONE,
+            quickConnectStep(connectEnabled = true, connect = true, startConnectBlocked = run.blocked),
+        )
+        // and running out while connected only tells the user
+        val session = object : InsufficientBalanceSession {
+            var disconnects = 0
+            var notices = 0
+            override fun disconnect() {
+                disconnects += 1
+            }
+            override fun postNotice() {
+                notices += 1
+            }
+            override fun cancelNotice() {}
+        }
+        val monitor = InsufficientBalanceMonitor(session)
+        for (insufficientBalance in listOf(false, true, true, false, true)) {
+            monitor.update(
+                insufficientBalance = insufficientBalance,
+                currentPlan = Plan.Basic,
+                isPollingSubscriptionBalance = false,
+                connectRequested = true,
+            )
+        }
+        assertEquals(0, session.disconnects)
+        assertEquals(2, session.notices)
+    }
 }

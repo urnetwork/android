@@ -14,6 +14,7 @@ import android.net.NetworkCapabilities
 import android.net.VpnService
 import android.os.Build
 import android.os.Handler
+import android.os.Looper
 import android.os.PowerManager
 import android.os.SystemClock
 import android.os.ext.SdkExtensions
@@ -419,11 +420,31 @@ class MainApplication : Application() {
 
     /**
      * The start connect gate shared by every connect surface (see
-     * InsufficientBalancePolicy): out of balance by the contract status or
-     * the last fetched account balance, not Supporter, no balance poll.
+     * InsufficientBalancePolicy): out of balance by the contract status or a
+     * fresh account balance, not Supporter, no balance poll. A cached balance
+     * older than START_CONNECT_BALANCE_MAX_AGE_MILLIS is fetched again first
+     * (bounded by START_CONNECT_BALANCE_FETCH_TIMEOUT_MILLIS; a failed fetch
+     * does not block). onResult runs on the main thread, once.
      */
-    fun startConnectBlocked(): Boolean {
-        val balance = com.bringyour.network.widgets.WidgetSnapshotStore.loadBalance(this)
+    fun checkStartConnect(onResult: (blocked: Boolean) -> Unit) {
+        com.bringyour.network.ui.connect.startConnectBalance(
+            cached = com.bringyour.network.widgets.WidgetSnapshotStore.loadBalance(this),
+            nowMillis = System.currentTimeMillis(),
+            fetch = ::fetchStartConnectBalance,
+        ) { balance ->
+            onResult(startConnectBlocked(balance))
+        }
+    }
+
+    /** Fetches the account balance again when the cached one is too old to gate on. */
+    fun refreshStartConnectBalanceIfStale() {
+        val cached = com.bringyour.network.widgets.WidgetSnapshotStore.loadBalance(this)
+        if (!com.bringyour.network.ui.connect.startConnectBalanceFresh(cached, System.currentTimeMillis())) {
+            fetchStartConnectBalance {}
+        }
+    }
+
+    private fun startConnectBlocked(balance: com.bringyour.network.widgets.WidgetBalanceSnapshot?): Boolean {
         val isPro = uiIsPro ||
             balance?.isPro == true ||
             deviceManager.jwtFlow.value?.pro == true
@@ -434,6 +455,45 @@ class MainApplication : Application() {
                 else com.bringyour.network.ui.shared.viewmodels.Plan.Basic,
             isPollingSubscriptionBalance = uiPollingSubscriptionBalance,
         )
+    }
+
+    /**
+     * Fetches the subscription balance, publishes it for the widgets and the
+     * connect screen, and calls back on the main thread with it, or with null
+     * when the fetch fails or does not answer in time.
+     */
+    private fun fetchStartConnectBalance(onBalance: (com.bringyour.network.widgets.WidgetBalanceSnapshot?) -> Unit) {
+        val mainHandler = Handler(Looper.getMainLooper())
+        val first = com.bringyour.network.ui.connect.FirstBalance(onBalance)
+        val api = device?.api
+        if (api == null) {
+            mainHandler.post { first.offer(null) }
+            return
+        }
+        mainHandler.postDelayed(
+            { first.offer(null) },
+            com.bringyour.network.ui.connect.START_CONNECT_BALANCE_FETCH_TIMEOUT_MILLIS,
+        )
+        api.subscriptionBalance(com.bringyour.sdk.SubscriptionBalanceCallback { result, err ->
+            val balance = if (err == null && result != null) {
+                com.bringyour.network.widgets.WidgetBalanceSnapshot(
+                    updatedAtMillis = System.currentTimeMillis(),
+                    startBalanceByteCount = result.startBalanceByteCount,
+                    balanceByteCount = result.balanceByteCount,
+                    openTransferByteCount = result.openTransferByteCount,
+                    isPro = result.currentSubscription != null,
+                )
+            } else {
+                null
+            }
+            mainHandler.post {
+                if (balance != null) {
+                    widgetSnapshotWriter?.publishBalance(balance)
+                        ?: com.bringyour.network.widgets.WidgetSnapshotStore.save(this, balance)
+                }
+                first.offer(balance)
+            }
+        })
     }
 
     /** A blocked connect: show the upgrade screen when the app is next in front. */

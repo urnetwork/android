@@ -166,7 +166,7 @@
             android:excludeFromRecents="true"
             android:noHistory="true"
             android:taskAffinity=""
-            android:theme="@android:style/Theme.NoDisplay">
+            android:theme="@android:style/Theme.Translucent.NoTitleBar">
             <intent-filter>
                 <action android:name="com.bringyour.network.action.QUICK_CONNECT" />
                 <action android:name="com.bringyour.network.action.QUICK_DISCONNECT" />
