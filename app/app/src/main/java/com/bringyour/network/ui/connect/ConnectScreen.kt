@@ -127,7 +127,18 @@ fun ConnectScreen(
     val availableBytes by subscriptionBalanceViewModel.availableBalanceByteCount.collectAsState()
     val dailyByteCount by subscriptionBalanceViewModel.startBalanceByteCount.collectAsState()
 
-    val displayInsufficientBalance = contractStatus?.insufficientBalance == true && !isPro
+    // the last fetched account balance, as the start connect gate outside the
+    // ui reads it (MainApplication.startConnectBlocked)
+    val screenContext = LocalContext.current
+    val balanceChanges by com.bringyour.network.widgets.WidgetSnapshotStore.changes.collectAsState()
+    val balanceExhausted = remember(balanceChanges) {
+        accountBalanceExhausted(com.bringyour.network.widgets.WidgetSnapshotStore.loadBalance(screenContext))
+    }
+    val displayInsufficientBalance = com.bringyour.network.ui.connect.displayInsufficientBalance(
+        contractInsufficientBalance = contractStatus?.insufficientBalance == true,
+        accountBalanceExhausted = balanceExhausted,
+        connectRequested = connectStatus != ConnectStatus.DISCONNECTED,
+    ) && !isPro
 
     var promptSolanaReview by remember { mutableStateOf(false) }
 

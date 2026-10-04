@@ -16,6 +16,11 @@ import android.net.VpnService
  * Everything runs in the app process next to the SDK, so there is no IPC and
  * no shared intent record to keep: the SDK local state the connect screen
  * reads is the same one these surfaces write.
+ *
+ * A connect goes through the same start connect gate as the connect screen
+ * (MainApplication.startConnectBlocked): out of balance it does not start the
+ * tunnel and the surface opens the upgrade screen. A connection already
+ * requested is left as is.
  */
 object QuickConnect {
 
@@ -30,6 +35,11 @@ object QuickConnect {
         NEEDS_CONSENT,
         /** Logged out, or the device is not initialized yet: only the app can help. */
         NEEDS_APP,
+        /**
+         * Out of balance: the connect was not started. The upgrade screen is
+         * requested; the surface opens the app to show it.
+         */
+        NEEDS_UPGRADE,
     }
 
     /** The app has a signed-in device to drive. */
@@ -43,8 +53,21 @@ object QuickConnect {
 
     fun setConnected(app: MainApplication, connect: Boolean, source: String): Result {
         val device = app.device ?: return Result.NEEDS_APP
-        if (device.connectEnabled == connect) {
-            return if (connect && VpnService.prepare(app) != null) Result.NEEDS_CONSENT else Result.APPLIED
+        val step = com.bringyour.network.ui.connect.quickConnectStep(
+            connectEnabled = device.connectEnabled,
+            connect = connect,
+            startConnectBlocked = connect && !device.connectEnabled && app.startConnectBlocked(),
+        )
+        when (step) {
+            com.bringyour.network.ui.connect.QuickConnectStep.NONE ->
+                return if (connect && VpnService.prepare(app) != null) Result.NEEDS_CONSENT else Result.APPLIED
+            com.bringyour.network.ui.connect.QuickConnectStep.UPGRADE -> {
+                android.util.Log.i("QuickConnect", "connect from $source blocked: insufficient balance")
+                app.requestUpgradeScreen()
+                return Result.NEEDS_UPGRADE
+            }
+            com.bringyour.network.ui.connect.QuickConnectStep.CONNECT,
+            com.bringyour.network.ui.connect.QuickConnectStep.DISCONNECT -> {}
         }
         val vc = device.openConnectViewController() ?: return Result.NEEDS_APP
         try {

@@ -93,7 +93,8 @@ class QuickConnectTileService : TileService() {
                 render()
                 openApp()
             }
-            QuickConnect.Result.NEEDS_APP -> openApp()
+            QuickConnect.Result.NEEDS_APP,
+            QuickConnect.Result.NEEDS_UPGRADE -> openApp()
         }
     }
 

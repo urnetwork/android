@@ -398,6 +398,13 @@ private fun MainNavHostContent(
             selectTopLevelRoute(TopLevelScaffoldRoutes.CONNECT_CONTAINER)
             return@LaunchedEffect
         }
+        if (route == com.bringyour.network.QuickConnectActivity.ROUTE_UPGRADE) {
+            // a connect blocked by insufficient balance: the upgrade the connect
+            // screen offers in place of Connect
+            selectTopLevelRoute(TopLevelScaffoldRoutes.CONNECT_CONTAINER)
+            navController.navigate(Route.Upgrade)
+            return@LaunchedEffect
+        }
         // the campaign email links land on Account screens: the widgets page, the
         // Get Pro screen (which shows the welcome offer while it is active), or
         // the feedback screen with the email's rating or reason pre-filled
