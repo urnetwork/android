@@ -65,6 +65,10 @@ suspend fun requestBittensorChallenge(api: Api, walletAddress: String? = null): 
  * `ur://bittensor-sign-message?address=<ss58>&signature=<0xhex>&message=...&purpose=...`
  * (or `?errorCode=...&errorMessage=...`), which is handled by the LoginActivity. The
  * `connect` purpose is forwarded to the MainActivity for the earnings screen.
+ *
+ * Legacy: new sign-ins and wallet connects use the manual proof
+ * (BittensorProofSheets). This only continues a sign-in that an earlier app
+ * version started through the bridge (its create-network second signature).
  */
 fun launchBittensorSignMessage(
     context: Context,

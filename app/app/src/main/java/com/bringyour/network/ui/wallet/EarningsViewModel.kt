@@ -1,6 +1,5 @@
 package com.bringyour.network.ui.wallet
 
-import android.content.Context
 import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -9,9 +8,6 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bringyour.network.DeviceManager
-import com.bringyour.network.ui.login.BITTENSOR_SIGN_PURPOSE_CONNECT
-import com.bringyour.network.ui.login.launchBittensorSignMessage
-import com.bringyour.network.ui.login.requestBittensorChallenge
 import com.bringyour.sdk.DeviceLocal
 import com.bringyour.sdk.VerifySeekerNftHolderArgs
 import com.solana.publickey.SolanaPublicKey
@@ -292,33 +288,46 @@ class EarningsViewModel @Inject constructor(
             }
     }
 
-    // ---- wallet connect through the ur.io bridge
+    // ---- wallet connect: the coldkey proves itself by signing a challenge
+
+    // the wallet chooser and the manual proof sheets (BittensorProofSheets)
+    val proofFlow = BittensorProofFlow(System::currentTimeMillis)
 
     /**
-     * Ask the server for a single-use challenge and open the bridge to sign it with a
-     * Bittensor wallet. `address` binds the challenge to a manually entered coldkey.
+     * Open the wallet chooser. `address` binds the challenge to a manually entered
+     * coldkey, so only that account's signature is accepted.
      */
-    fun connectWithBridge(context: Context, address: String? = null) {
+    fun connectWithBridge(address: String? = null) {
+        _connectState.value = WalletConnectState.Idle
+        proofFlow.open(BittensorWallets.PURPOSE_CONNECT, address)
+    }
+
+    /** Fetch the single-use challenge for the chosen wallet. */
+    fun chooseProofWallet(walletId: String) {
+        val request = proofFlow.choose(walletId) ?: return
         val api = byDevice?.api
         if (api == null) {
-            _connectState.value = WalletConnectState.Failed(null)
+            proofFlow.sessionFailed(request)
             return
         }
-        _connectState.value = WalletConnectState.RequestingChallenge
         viewModelScope.launch {
-            requestBittensorChallenge(api, address)
-                .onSuccess { message ->
-                    val launched = launchBittensorSignMessage(context, message, BITTENSOR_SIGN_PURPOSE_CONNECT)
-                    _connectState.value = if (launched) {
-                        WalletConnectState.AwaitingSignature
-                    } else {
-                        WalletConnectState.Failed(null)
-                    }
-                }
+            startBittensorProofSession(api, request)
+                .onSuccess { proofFlow.sessionReady(request, it) }
                 .onFailure {
                     Log.i(TAG, "wallet challenge: ${it.message}")
-                    _connectState.value = WalletConnectState.Failed(it.message)
+                    proofFlow.sessionFailed(request)
                 }
+        }
+    }
+
+    /** The pasted address and signature; an accepted proof goes through the wallet gate. */
+    fun submitProof() {
+        val proof = proofFlow.submit() ?: return
+        if (bittensorProofRoute(proof) != BittensorProofRoute.CONNECT_WALLET) {
+            return
+        }
+        viewModelScope.launch {
+            validateAndConnect(proof.address, proof.signature, proof.message)
         }
     }
 
@@ -411,7 +420,7 @@ class EarningsViewModel @Inject constructor(
             }
     }
 
-    // ---- manual address entry (validated, then signed through the bridge)
+    // ---- manual address entry (validated, then proven by a signature for that address)
 
     fun openManualSheet() {
         manualAddress = TextFieldValue("")
@@ -455,13 +464,13 @@ class EarningsViewModel @Inject constructor(
         }
     }
 
-    fun continueManual(context: Context) {
+    fun continueManual() {
         if (!_manualValidation.value.canContinue) {
             return
         }
         val a = manualAddress.text.trim()
         closeManualSheet()
-        connectWithBridge(context, a)
+        connectWithBridge(a)
     }
 
     // ---- claims (the SDK signs and sends; the app only shows progress)

@@ -65,7 +65,17 @@
     <string name="become_supporter">升级为 UR Pro</string>
     <string name="best_available_provider">最佳可用提供商</string>
     <string name="best_value">最超值</string>
+    <string name="bittensor_choose_wallet">选择您的 Bittensor 钱包</string>
+    <string name="bittensor_continue_in_browser">请在浏览器中继续，并在 %1$s 扩展中批准请求。</string>
+    <string name="bittensor_error_challenge_expired">此请求已过期。请重新开始以获取新的待签名消息。</string>
+    <string name="bittensor_error_extension_not_found">在此浏览器中未找到 %1$s 扩展。请安装后重试。</string>
+    <string name="bittensor_error_invalid_signature">这不是有效的签名。请粘贴钱包中完整的 0x 签名。</string>
+    <string name="bittensor_error_message_mismatch">钱包签署了另一个请求。请重新开始。</string>
+    <string name="bittensor_manual_sign_instructions">请使用持有您 coldkey 的 %1$s 钱包签署此消息，然后在下方粘贴地址和签名。</string>
+    <string name="bittensor_message_to_sign">待签名消息</string>
     <string name="bittensor_sign_in">使用 Bittensor 登录</string>
+    <string name="bittensor_signature_label">签名</string>
+    <string name="bittensor_signature_placeholder">粘贴 0x… 签名</string>
     <string name="bittensor_wallet">Bittensor 钱包</string>
     <string name="block_ads_and_trackers">拦截广告和跟踪器</string>
     <string name="blocked">已拦截</string>
@@ -342,6 +352,8 @@
     <string name="earn_more_bullet_stay_connected">每天保持连接 = 每日最多可赚 %1$s GiB</string>
     <string name="earning_multipliers">收益倍增器</string>
     <string name="earnings">收益</string>
+    <string name="earnings_address_placeholder">输入 Bittensor 地址</string>
+    <string name="earnings_wallet_mismatch">签名的钱包与您输入的地址不一致。</string>
     <string name="edit_device_name">编辑设备名称</string>
     <string name="edit_emoji">编辑表情</string>
     <string name="edit_network_name">编辑网络名称</string>

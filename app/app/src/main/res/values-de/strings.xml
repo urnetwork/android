@@ -65,7 +65,17 @@
     <string name="become_supporter">UR Pro holen</string>
     <string name="best_available_provider">Bester verfügbarer Anbieter</string>
     <string name="best_value">Bestes Angebot</string>
+    <string name="bittensor_choose_wallet">Wähle deine Bittensor-Wallet</string>
+    <string name="bittensor_continue_in_browser">Fahre in deinem Browser fort und bestätige die Anfrage in der %1$s-Erweiterung.</string>
+    <string name="bittensor_error_challenge_expired">Diese Anfrage ist abgelaufen. Starte erneut, um eine neue Nachricht zum Signieren zu erhalten.</string>
+    <string name="bittensor_error_extension_not_found">Die %1$s-Erweiterung wurde in diesem Browser nicht gefunden. Installiere sie und versuche es dann erneut.</string>
+    <string name="bittensor_error_invalid_signature">Das ist keine gültige Signatur. Füge die vollständige 0x-Signatur aus deiner Wallet ein.</string>
+    <string name="bittensor_error_message_mismatch">Die Wallet hat eine andere Anfrage signiert. Starte erneut.</string>
+    <string name="bittensor_manual_sign_instructions">Signiere diese Nachricht mit der %1$s-Wallet, die deinen Coldkey enthält, und füge dann unten die Adresse und die Signatur ein.</string>
+    <string name="bittensor_message_to_sign">Zu signierende Nachricht</string>
     <string name="bittensor_sign_in">Mit Bittensor anmelden</string>
+    <string name="bittensor_signature_label">Signatur</string>
+    <string name="bittensor_signature_placeholder">0x…-Signatur einfügen</string>
     <string name="bittensor_wallet">Bittensor-Wallet</string>
     <string name="block_ads_and_trackers">Werbung und Tracker blockieren</string>
     <string name="blocked">Blockiert</string>
@@ -342,6 +352,8 @@
     <string name="earn_more_bullet_stay_connected">Täglich verbunden bleiben = Verdiene bis zu %1$s GiB/Tag</string>
     <string name="earning_multipliers">Verdienst-Multiplikatoren</string>
     <string name="earnings">Einnahmen</string>
+    <string name="earnings_address_placeholder">Bittensor-Adresse eingeben</string>
+    <string name="earnings_wallet_mismatch">Die Wallet, die signiert hat, entspricht nicht der eingegebenen Adresse.</string>
     <string name="edit_device_name">Gerätenamen bearbeiten</string>
     <string name="edit_emoji">Emoji bearbeiten</string>
     <string name="edit_network_name">Netzwerknamen bearbeiten</string>

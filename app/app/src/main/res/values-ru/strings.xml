@@ -65,7 +65,17 @@
     <string name="become_supporter">Получить UR Pro</string>
     <string name="best_available_provider">Лучший доступный провайдер</string>
     <string name="best_value">Выгоднее всего</string>
+    <string name="bittensor_choose_wallet">Выберите кошелек Bittensor</string>
+    <string name="bittensor_continue_in_browser">Продолжите в браузере и подтвердите запрос в расширении %1$s.</string>
+    <string name="bittensor_error_challenge_expired">Срок действия запроса истек. Начните заново, чтобы получить новое сообщение для подписи.</string>
+    <string name="bittensor_error_extension_not_found">Расширение %1$s не найдено в этом браузере. Установите его и повторите попытку.</string>
+    <string name="bittensor_error_invalid_signature">Это недействительная подпись. Вставьте полную подпись 0x из вашего кошелька.</string>
+    <string name="bittensor_error_message_mismatch">Кошелек подписал другой запрос. Начните заново.</string>
+    <string name="bittensor_manual_sign_instructions">Подпишите это сообщение в кошельке %1$s, где хранится ваш coldkey, затем вставьте ниже адрес и подпись.</string>
+    <string name="bittensor_message_to_sign">Сообщение для подписи</string>
     <string name="bittensor_sign_in">Войти через Bittensor</string>
+    <string name="bittensor_signature_label">Подпись</string>
+    <string name="bittensor_signature_placeholder">Вставьте подпись 0x…</string>
     <string name="bittensor_wallet">Кошелек Bittensor</string>
     <string name="block_ads_and_trackers">Блокировать рекламу и трекеры</string>
     <string name="blocked">Заблокировано</string>
@@ -342,6 +352,8 @@
     <string name="earn_more_bullet_stay_connected">Оставайтесь на связи ежедневно = Зарабатывайте до %1$s GiB/день</string>
     <string name="earning_multipliers">Множители заработка</string>
     <string name="earnings">Заработок</string>
+    <string name="earnings_address_placeholder">Введите адрес Bittensor</string>
+    <string name="earnings_wallet_mismatch">Кошелек, который подписал запрос, не соответствует введённому адресу.</string>
     <string name="edit_device_name">Изменить имя устройства</string>
     <string name="edit_emoji">Изменить эмодзи</string>
     <string name="edit_network_name">Изменить имя сети</string>
