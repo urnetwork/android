@@ -6,6 +6,8 @@ import com.bringyour.network.ui.login.AppleOAuthAttempts
 import com.bringyour.network.ui.login.BITTENSOR_BLOCKCHAIN
 import com.bringyour.network.ui.wallet.BittensorProof
 import com.bringyour.network.ui.wallet.BittensorProofRoute
+import com.bringyour.network.ui.wallet.BittensorReturnAction
+import com.bringyour.network.ui.wallet.BittensorWallets
 import com.bringyour.network.ui.wallet.bittensorProofRoute
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -120,11 +122,61 @@ object AppleAddSignInReturns {
     }
 }
 
+/** A WalletConnect bridge return for the add sheet's Bittensor wallet. */
+sealed class BittensorAddReturn {
+    data class Proven(val proof: BittensorProof) : BittensorAddReturn()
+    // detail: the wallet's own text for wallet_error
+    data class Failed(val code: String, val detail: String?) : BittensorAddReturn()
+}
+
 /**
- * Hands an add attempt's Apple return (`ur://oauth/apple`, which every flavor's
- * LoginActivity receives) to the add sheet and brings the main activity back
- * over the browser tab. The existing main activity is kept (single top), so
- * the sheet that started the attempt is still there to take it.
+ * The add sheet's share of a `ur://bittensor-sign-message` return: a proof or
+ * refusal for an add-purpose session, else null (the login's, the Earnings
+ * connect's, or a pre-helper return, handled as before).
+ */
+fun bittensorAddReturn(action: BittensorReturnAction): BittensorAddReturn? = when (action) {
+    is BittensorReturnAction.Proven ->
+        if (action.route == BittensorProofRoute.ADD_SIGN_IN) BittensorAddReturn.Proven(action.proof) else null
+    is BittensorReturnAction.Failed ->
+        if (action.purpose == BittensorWallets.PURPOSE_ADD) BittensorAddReturn.Failed(action.code, action.detail) else null
+    BittensorReturnAction.Legacy -> null
+}
+
+/**
+ * Hands a Bittensor bridge return for an add-purpose session from the
+ * LoginActivity to the add sheet, like [AppleAddSignInReturns].
+ */
+object BittensorAddSignInReturns {
+    private val _pending = MutableStateFlow<BittensorAddReturn?>(null)
+    val pending: StateFlow<BittensorAddReturn?> = _pending.asStateFlow()
+
+    fun deliver(addReturn: BittensorAddReturn) {
+        _pending.value = addReturn
+    }
+
+    /** The waiting return, taken once. */
+    fun take(): BittensorAddReturn? {
+        val addReturn = _pending.value
+        _pending.value = null
+        return addReturn
+    }
+}
+
+/**
+ * Brings the main activity back over the browser tab after a return for the
+ * add sheet was handed over. The existing main activity is kept (single top),
+ * so the sheet that started the attempt is still there to take it.
+ */
+private fun returnToAddSheet(activity: android.app.Activity, mainActivity: Class<*>) {
+    val intent = android.content.Intent(activity, mainActivity)
+    intent.addFlags(android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP or android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP)
+    activity.startActivity(intent)
+    activity.finish()
+}
+
+/**
+ * Hands an add attempt's Apple return (`ur://oauth/apple`, which every
+ * flavor's LoginActivity receives) to the add sheet.
  */
 fun forwardAppleAddSignInReturn(activity: android.app.Activity, uri: android.net.Uri, mainActivity: Class<*>) {
     AppleAddSignInReturns.deliver(
@@ -134,8 +186,11 @@ fun forwardAppleAddSignInReturn(activity: android.app.Activity, uri: android.net
             error = uri.getQueryParameter("error"),
         )
     )
-    val intent = android.content.Intent(activity, mainActivity)
-    intent.addFlags(android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP or android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP)
-    activity.startActivity(intent)
-    activity.finish()
+    returnToAddSheet(activity, mainActivity)
+}
+
+/** Hands an add-purpose Bittensor bridge return to the add sheet. */
+fun forwardBittensorAddSignInReturn(activity: android.app.Activity, addReturn: BittensorAddReturn, mainActivity: Class<*>) {
+    BittensorAddSignInReturns.deliver(addReturn)
+    returnToAddSheet(activity, mainActivity)
 }

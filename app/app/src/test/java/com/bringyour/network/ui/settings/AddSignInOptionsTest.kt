@@ -7,8 +7,17 @@ import com.bringyour.network.ui.login.AppleOAuthReturnRoute
 import com.bringyour.network.ui.login.AppleOAuthStore
 import com.bringyour.network.ui.login.PendingAppleOAuth
 import com.bringyour.network.ui.login.appleOAuthReturnRoute
+import com.bringyour.network.ui.wallet.BittensorBridgeReturns
 import com.bringyour.network.ui.wallet.BittensorProof
+import com.bringyour.network.ui.wallet.BittensorProofFlow
+import com.bringyour.network.ui.wallet.BittensorProofOutcome
+import com.bringyour.network.ui.wallet.BittensorProofRoute
+import com.bringyour.network.ui.wallet.BittensorProofSession
+import com.bringyour.network.ui.wallet.BittensorReturnAction
 import com.bringyour.network.ui.wallet.BittensorWallets
+import com.bringyour.network.ui.wallet.bittensorReturnAction
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
@@ -170,5 +179,68 @@ class AddSignInOptionsTest {
         assertEquals(AddSignInStep.ADDED, flow.step)
         assertEquals(listOf("addAuth:apple-args"), calls)
         assertTrue(calls.none { it == "verifyCode" })
+    }
+
+    // a WalletConnect bridge session with one scripted return
+    private class BridgeSession(override val purpose: String, private val outcome: BittensorProofOutcome) : BittensorProofSession {
+        override val walletId: String = BittensorWallets.WALLET_CONNECT
+        override val message: String = "Sign in to URnetwork\nChallenge: abc\nTimestamp: 1757340000"
+        override val transport: String = BittensorWallets.TRANSPORT_BROWSER_BRIDGE
+        override fun handleSignature(address: String, signature: String, nowMillis: Long): BittensorProofOutcome =
+            BittensorProofOutcome.Refused("wrong_transport")
+        override fun handleBridgeReturn(uri: String, nowMillis: Long): BittensorProofOutcome = outcome
+    }
+
+    @Test
+    fun aWalletConnectAddReturnGoesToTheSheetNotTheLogin() {
+        val bridgeReturns = BittensorBridgeReturns()
+        bridgeReturns.begin(BridgeSession(BittensorWallets.PURPOSE_ADD, BittensorProofOutcome.Proven(proof(BittensorWallets.PURPOSE_ADD))))
+        val action = bittensorReturnAction("ur://bittensor-sign-message?purpose=add", 0L, bridgeReturns)
+        assertEquals(BittensorReturnAction.Proven(BittensorProofRoute.ADD_SIGN_IN, proof(BittensorWallets.PURPOSE_ADD)), action)
+        assertEquals(BittensorAddReturn.Proven(proof(BittensorWallets.PURPOSE_ADD)), bittensorAddReturn(action))
+
+        val refused = BittensorBridgeReturns()
+        refused.begin(BridgeSession(BittensorWallets.PURPOSE_ADD, BittensorProofOutcome.Refused(BittensorWallets.ERROR_WALLET, "Rejected")))
+        assertEquals(
+            BittensorAddReturn.Failed(BittensorWallets.ERROR_WALLET, "Rejected"),
+            bittensorAddReturn(bittensorReturnAction("ur://bittensor-sign-message?purpose=add", 0L, refused)),
+        )
+    }
+
+    @Test
+    fun aSignInOrConnectReturnIsNotTheSheets() {
+        for (purpose in listOf(BittensorWallets.PURPOSE_LOGIN, BittensorWallets.PURPOSE_CREATE, BittensorWallets.PURPOSE_CONNECT)) {
+            val bridgeReturns = BittensorBridgeReturns()
+            bridgeReturns.begin(BridgeSession(purpose, BittensorProofOutcome.Proven(proof(purpose))))
+            assertNull(purpose, bittensorAddReturn(bittensorReturnAction("ur://bittensor-sign-message", 0L, bridgeReturns)))
+        }
+        assertNull(bittensorAddReturn(BittensorReturnAction.Legacy))
+    }
+
+    @Test
+    fun theSheetAddsAReturnedProofAsATaoWallet() {
+        val added = mutableListOf<AddWalletAuth>()
+        var error: String? = "stale"
+        val controller = BittensorAddSignInController(
+            flow = BittensorProofFlow(BittensorBridgeReturns()) { 0L },
+            scope = CoroutineScope(Dispatchers.Unconfined),
+            api = { null },
+            setError = { error = it },
+            defaultError = { "default" },
+            addWalletAuth = { added += it },
+            refusalError = { code, detail -> "$code:$detail" },
+        )
+        controller.handleReturn(BittensorAddReturn.Proven(proof(BittensorWallets.PURPOSE_ADD)))
+        assertEquals(listOf(AddWalletAuth("TAO", alice, message, signature)), added)
+        assertNull(error)
+
+        // a proof for anything but adding is never added
+        controller.handleReturn(BittensorAddReturn.Proven(proof(BittensorWallets.PURPOSE_LOGIN)))
+        assertEquals(1, added.size)
+        assertEquals("default", error)
+
+        controller.handleReturn(BittensorAddReturn.Failed(BittensorWallets.ERROR_WALLET, "Rejected"))
+        assertEquals("wallet_error:Rejected", error)
+        assertEquals(1, added.size)
     }
 }

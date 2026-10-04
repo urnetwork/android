@@ -26,6 +26,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -46,12 +47,14 @@ import com.bringyour.network.ui.login.SolanaChallengeSignResult
 import com.bringyour.network.ui.login.VerifySendError
 import com.bringyour.network.ui.login.VerifySendNotice
 import com.bringyour.network.ui.login.launchAppleOAuth
+import com.bringyour.network.ui.login.launchBittensorBridge
 import com.bringyour.network.ui.login.requestAndSignSolanaChallenge
 import com.bringyour.network.ui.login.ssoJwtPayload
 import com.bringyour.network.ui.login.toVerifySendError
 import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.wallet.BittensorProofFlow
 import com.bringyour.network.ui.wallet.BittensorProofSheets
+import com.bringyour.network.ui.wallet.BittensorWallets
 import com.bringyour.sdk.AddAuthArgs
 import com.bringyour.sdk.AuthVerifyArgs
 import com.bringyour.sdk.AuthVerifySendArgs
@@ -191,7 +194,7 @@ fun AddAuthMethodSheet(
 
     val bittensorAdd = remember {
         BittensorAddSignInController(
-            flow = BittensorProofFlow(System::currentTimeMillis),
+            flow = BittensorProofFlow(nowMillis = System::currentTimeMillis),
             scope = scope,
             api = { (context.applicationContext as? MainApplication)?.api },
             setError = { addError = it },
@@ -204,7 +207,27 @@ fun AddAuthMethodSheet(
                 walletAuth.signature = auth.signature
                 addWallet(walletAuth)
             },
+            openUrl = { url -> launchBittensorBridge(context, url) },
+            refusalError = { code, detail ->
+                if (code == BittensorWallets.ERROR_WALLET && !detail.isNullOrEmpty()) {
+                    detail
+                } else {
+                    context.getString(BittensorWallets.errorRes(code))
+                }
+            },
         )
+    }
+
+    // back from the WalletConnect page: a bridge that already returned is done
+    LifecycleResumeEffect(bittensorAdd) {
+        bittensorAdd.onResumed()
+        onPauseOrDispose {}
+    }
+
+    // a WalletConnect bridge return for this sheet, handed over by the LoginActivity
+    val bittensorReturn by BittensorAddSignInReturns.pending.collectAsState()
+    LaunchedEffect(bittensorReturn) {
+        BittensorAddSignInReturns.take()?.let { bittensorAdd.handleReturn(it) }
     }
 
     DisposableEffect(Unit) {
