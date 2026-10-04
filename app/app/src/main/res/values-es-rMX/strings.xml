@@ -10,6 +10,7 @@
     <string name="add_emoji">Agregar emojis</string>
     <string name="add_referral_code">Agregar código de referencia</string>
     <string name="add_referral_extra_rewards">Agrega un código de referencia para ganar recompensas adicionales</string>
+    <string name="add_sign_in_method">Agregar método de inicio de sesión</string>
     <string name="add_sign_in_method_2">Agregar método de inicio de sesión</string>
     <string name="advanced">Avanzado</string>
     <string name="allow_local_connections">Permitir conexiones locales</string>
@@ -29,6 +30,7 @@
     <string name="app_split_precedence_note">Las apps incluidas tienen prioridad: si hay alguna app incluida, solo las apps incluidas usan la VPN y las exclusiones no tienen efecto.</string>
     <string name="app_split_rules">Reglas de división por app</string>
     <string name="app_split_starter">0 apps divididas</string>
+    <string name="apple_sign_in_method_added">Método de inicio de sesión de Apple agregado</string>
     <string name="apply_bonus">Aplicar bono</string>
     <string name="apps">Apps</string>
     <string name="are_you_sure_delete_account">¿Estás seguro de que quieres eliminar tu cuenta?</string>
@@ -91,6 +93,7 @@
     <string name="companion">Compañero</string>
     <string name="connect">Conecta</string>
     <string name="connect_and_open">Conectar y abrir enlace</string>
+    <string name="connect_bittensor_wallet_to_add_sign_in_method">Conecta una cartera de Bittensor para agregarla como método de inicio de sesión.</string>
     <string name="connect_options">Opciones de conexión</string>
     <string name="connect_seeker_wallet">Conecta una billetera con el token Saga Genesis o el token de pre-pedido de Seeker</string>
     <string name="connect_solana_wallet_to_add_sign_in_method">Conecta una cartera de Solana para agregarla como método de inicio de sesión.</string>
@@ -264,6 +267,7 @@
     <string name="make_default">Establecer como predeterminada</string>
     <string name="manage_subscription">Administrar suscripción</string>
     <string name="member">Miembro</string>
+    <string name="method">Método</string>
     <string name="mock_location_active">Sincronizando con %1$s</string>
     <string name="mock_location_disclosure_detectable">Las apps pueden detectar que la ubicación es simulada. Las apps de banca, transporte, reparto y algunos juegos pueden negarse a funcionar mientras esté activado.</string>
     <string name="mock_location_disclosure_device_wide">Esto cambia la ubicación que se informa a todas las apps de tu dispositivo, no solo a URnetwork.</string>
@@ -492,6 +496,7 @@
     <string name="sign_in_with_google">Iniciar sesión con Google</string>
     <string name="sign_in_with_google_to_add_it">Inicia sesión con Google para agregarlo como método de inicio de sesión.</string>
     <string name="sign_in_with_seedphrase">Iniciar sesión con la frase semilla</string>
+    <string name="sign_in_with_your_apple_id_to">Inicia sesión con tu Apple ID para agregarlo como método de inicio de sesión.</string>
     <string name="site_app_email">Correo electrónico</string>
     <string name="site_save_your_seedphrase">Guarda tu frase semilla</string>
     <string name="solana_sign_in">Iniciar sesión con Solana</string>

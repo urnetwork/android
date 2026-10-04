@@ -13,6 +13,7 @@
     <string name="add_local_split_rule">توجيه محلي</string>
     <string name="add_referral_code">إضافة رمز الإحالة</string>
     <string name="add_referral_extra_rewards">أضف رمز الإحالة لكسب مكافآت إضافية</string>
+    <string name="add_sign_in_method">إضافة طريقة تسجيل دخول</string>
     <string name="add_sign_in_method_2">إضافة طريقة تسجيل الدخول</string>
     <string name="add_tao_for_gas">أضف TAO لرسوم الغاز</string>
     <string name="advanced">متقدم</string>
@@ -34,6 +35,7 @@
     <string name="app_split_rules">قواعد تقسيم التطبيقات</string>
     <string name="app_split_starter">0 تطبيقات مقسّمة</string>
     <string name="apple">Apple</string>
+    <string name="apple_sign_in_method_added">تمت إضافة طريقة تسجيل الدخول عبر Apple</string>
     <string name="apply_bonus">تطبيق المكافأة</string>
     <string name="apps">التطبيقات</string>
     <string name="are_you_sure_delete_account">هل أنت متأكد أنك تريد حذف حسابك؟</string>
@@ -77,6 +79,8 @@
     <string name="bittensor_signature_label">التوقيع</string>
     <string name="bittensor_signature_placeholder">الصق التوقيع ‎0x…</string>
     <string name="bittensor_wallet">محفظة Bittensor</string>
+    <string name="bittensor_walletconnect_continue">تابع في متصفحك: امسح الرمز باستخدام تطبيق محفظتك، أو افتح المحفظة على هذا الجهاز.</string>
+    <string name="bittensor_walletconnect_hint">Nova وNightly ومحافظ WalletConnect الأخرى</string>
     <string name="block_ads_and_trackers">حظر الإعلانات والمتعقبات</string>
     <string name="blocked">محظور</string>
     <string name="blocked_locations">المواقع المحجوبة</string>
@@ -130,6 +134,7 @@
     <string name="connect">اربط</string>
     <string name="connect_and_open">الاتصال وفتح الرابط</string>
     <string name="connect_bittensor_wallet">ربط محفظة Bittensor</string>
+    <string name="connect_bittensor_wallet_to_add_sign_in_method">اربط محفظة Bittensor لإضافتها كطريقة لتسجيل الدخول.</string>
     <string name="connect_options">خيارات الاتصال</string>
     <string name="connect_seeker_wallet">قم بتوصيل محفظة برمز الطلب المسبق لـ Seeker</string>
     <string name="connect_solana_wallet">ربط محفظة Solana</string>
@@ -423,6 +428,7 @@
     <string name="get_started">البدء</string>
     <string name="get_urnetwork_free_for_life_by_participating">احصل على URnetwork مجانًا مدى الحياة من خلال المشاركة</string>
     <string name="go_back">رجوع</string>
+    <string name="google">Google</string>
     <string name="google_auth_btn_text">تسجيل الدخول باستخدام Google</string>
     <string name="google_sign_in_method_added">تمت إضافة طريقة تسجيل الدخول عبر Google</string>
     <string name="gossip_connecting">جارٍ الاتصال</string>
@@ -508,6 +514,7 @@
     <string name="make_default">جعل الافتراضي</string>
     <string name="manage_subscription">إدارة الاشتراك</string>
     <string name="member">عضو</string>
+    <string name="method">الطريقة</string>
     <string name="mock_location_active">تتم المزامنة مع %1$s</string>
     <string name="mock_location_disclosure_detectable">يمكن للتطبيقات معرفة أن الموقع وهمي. قد ترفض تطبيقات البنوك وطلب سيارات الأجرة والتوصيل وبعض الألعاب العمل أثناء تفعيل هذه الميزة.</string>
     <string name="mock_location_disclosure_device_wide">يؤدي هذا إلى تغيير الموقع الذي يظهر لجميع التطبيقات على جهازك، وليس URnetwork فقط.</string>
@@ -784,6 +791,7 @@
     <string name="sign_in_with_google">تسجيل الدخول باستخدام Google</string>
     <string name="sign_in_with_google_to_add_it">سجّل الدخول باستخدام Google لإضافته كطريقة لتسجيل الدخول.</string>
     <string name="sign_in_with_seedphrase">تسجيل الدخول بعبارة الاسترداد</string>
+    <string name="sign_in_with_your_apple_id_to">سجّل الدخول باستخدام Apple ID الخاص بك لإضافته كطريقة لتسجيل الدخول.</string>
     <string name="site_app_contracts">العقود</string>
     <string name="site_app_email">البريد الإلكتروني</string>
     <string name="site_app_providers">المزوّدون</string>

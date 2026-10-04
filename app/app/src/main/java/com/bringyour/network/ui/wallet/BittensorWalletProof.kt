@@ -19,16 +19,24 @@ import kotlinx.coroutines.flow.asStateFlow
  * gomobile classes need the native library). [SdkBittensorProofSession]
  * adapts the SDK session.
  *
- * Android uses manual entry for both supported wallets: neither Talisman nor
- * TAO.com documents a mobile deep link or WalletConnect interface, so the
- * user signs the shown message in their wallet and pastes the result.
+ * Talisman and TAO.com use manual entry on Android: neither documents a
+ * mobile deep link, so the user signs the shown message in their wallet and
+ * pastes the result. WalletConnect (Nova, Nightly and other substrate
+ * wallets) uses the browser bridge: ur.io/bittensor-connect pairs with the
+ * wallet app and returns on ur://bittensor-sign-message, where
+ * [BittensorBridgeReturns] hands the return to the waiting session.
  *
  * Not safe for concurrent use: call from the main thread.
  */
 object BittensorWallets {
-    // mirror sdk BittensorWalletTalisman / BittensorWalletTaoCom
+    // mirror sdk BittensorWalletTalisman / BittensorWalletTaoCom / BittensorWalletWalletConnect
     const val TALISMAN = "talisman"
     const val TAO_COM = "taocom"
+    const val WALLET_CONNECT = "walletconnect"
+
+    // mirror sdk BittensorWalletTransport*
+    const val TRANSPORT_MANUAL = "manual"
+    const val TRANSPORT_BROWSER_BRIDGE = "browser_bridge"
     // mirror sdk BittensorWalletPlatformAndroid
     const val PLATFORM = "android"
 
@@ -37,12 +45,19 @@ object BittensorWallets {
     const val PURPOSE_CREATE = "create"
     const val PURPOSE_CONNECT = "connect"
 
-    // the app's registered return link (unused by the manual transport, kept
-    // so a session built here matches what the bridge would return to)
+    // the app's registered return link: the bridge page returns here
     const val REDIRECT_LINK = "ur://bittensor-sign-message"
 
     /** The supported wallets, in display order (sdk BittensorWalletIdList). */
-    val walletIds: List<String> = listOf(TALISMAN, TAO_COM)
+    val walletIds: List<String> = listOf(TALISMAN, TAO_COM, WALLET_CONNECT)
+
+    /** The chooser line under a wallet's name, or null. */
+    @StringRes
+    fun subtitleRes(walletId: String): Int? = when (walletId) {
+        TAO_COM -> R.string.enter_address_manually
+        WALLET_CONNECT -> R.string.bittensor_walletconnect_hint
+        else -> null
+    }
 
     // mirror sdk BittensorWalletError* codes
     const val ERROR_WALLET = "wallet_error"
@@ -53,6 +68,14 @@ object BittensorWallets {
     const val ERROR_INVALID_ADDRESS = "invalid_ss58_address"
     const val ERROR_ADDRESS_MISMATCH = "address_mismatch"
     const val ERROR_INVALID_SIGNATURE = "invalid_signature"
+    const val ERROR_NOT_RETURN = "not_bittensor_return"
+    const val ERROR_PURPOSE_MISMATCH = "purpose_mismatch"
+    const val ERROR_UNSUPPORTED_WALLET = "unsupported_wallet"
+    const val ERROR_NOT_AWAITING = "not_awaiting_wallet"
+
+    // a bridge return these codes refuse belongs to another flow (or none):
+    // the waiting session ignores it and keeps waiting
+    val foreignReturnCodes = setOf(ERROR_NOT_RETURN, ERROR_PURPOSE_MISMATCH, ERROR_UNSUPPORTED_WALLET, ERROR_NOT_AWAITING)
 
     /** The message for a session refusal code. */
     @StringRes
@@ -77,7 +100,8 @@ data class BittensorProof(
 
 sealed class BittensorProofOutcome {
     data class Proven(val proof: BittensorProof) : BittensorProofOutcome()
-    data class Refused(val code: String) : BittensorProofOutcome()
+    // detail: the wallet's own text for wallet_error
+    data class Refused(val code: String, val detail: String? = null) : BittensorProofOutcome()
 }
 
 /** One challenge: the SDK session, or a fake in tests. */
@@ -86,7 +110,64 @@ interface BittensorProofSession {
     val purpose: String
     // the exact message to sign
     val message: String
+    // sdk BittensorWalletTransport*
+    val transport: String get() = BittensorWallets.TRANSPORT_MANUAL
     fun handleSignature(address: String, signature: String, nowMillis: Long): BittensorProofOutcome
+    /** The bridge page to open (browser_bridge only). */
+    fun bridgeUrl(): String? = null
+    fun handleBridgeReturn(uri: String, nowMillis: Long): BittensorProofOutcome =
+        BittensorProofOutcome.Refused(BittensorWallets.ERROR_NOT_RETURN)
+}
+
+/** A bridge return handed to the waiting session. */
+sealed class BittensorBridgeReturn {
+    // no waiting session, or the return belongs to another flow
+    object Ignored : BittensorBridgeReturn()
+    data class Proven(val proof: BittensorProof) : BittensorBridgeReturn()
+    data class Refused(val purpose: String, val code: String, val detail: String?) : BittensorBridgeReturn()
+}
+
+/**
+ * The browser-bridge session waiting for its return. The return arrives in a
+ * new LoginActivity (ur://bittensor-sign-message), not in the screen that
+ * opened the page, so the waiting session is held here for the process.
+ * A process restart drops it: the return is then ignored and the user starts
+ * again (the challenge is single use and short lived anyway).
+ */
+class BittensorBridgeReturns {
+    private var pending: BittensorProofSession? = null
+
+    val waiting: Boolean get() = pending != null
+
+    fun begin(session: BittensorProofSession) {
+        pending = session
+    }
+
+    fun cancel() {
+        pending = null
+    }
+
+    fun take(uri: String, nowMillis: Long): BittensorBridgeReturn {
+        val session = pending ?: return BittensorBridgeReturn.Ignored
+        return when (val outcome = session.handleBridgeReturn(uri, nowMillis)) {
+            is BittensorProofOutcome.Proven -> {
+                pending = null
+                BittensorBridgeReturn.Proven(outcome.proof)
+            }
+            is BittensorProofOutcome.Refused -> {
+                if (outcome.code in BittensorWallets.foreignReturnCodes) {
+                    BittensorBridgeReturn.Ignored
+                } else {
+                    pending = null
+                    BittensorBridgeReturn.Refused(session.purpose, outcome.code, outcome.detail)
+                }
+            }
+        }
+    }
+
+    companion object {
+        val shared = BittensorBridgeReturns()
+    }
 }
 
 /** A session to start: the wallet, why, and the address the challenge is bound to. */
@@ -100,6 +181,8 @@ sealed class BittensorProofStage {
     object Hidden : BittensorProofStage()
     data class Choosing(@StringRes val errorRes: Int? = null) : BittensorProofStage()
     data class Loading(val request: BittensorProofRequest) : BittensorProofStage()
+    // the bridge page is open in the browser; the return comes back through LoginActivity
+    data class AwaitingBrowser(val walletId: String) : BittensorProofStage()
     data class Signing(
         val session: BittensorProofSession,
         val address: String,
@@ -116,6 +199,7 @@ sealed class BittensorProofStage {
  * create-network second signature reuses the wallet that signed in).
  */
 class BittensorProofFlow(
+    private val bridgeReturns: BittensorBridgeReturns = BittensorBridgeReturns.shared,
     private val nowMillis: () -> Long,
 ) {
     private val _stage = MutableStateFlow<BittensorProofStage>(BittensorProofStage.Hidden)
@@ -145,17 +229,48 @@ class BittensorProofFlow(
         return choose(walletId)
     }
 
-    /** The challenge arrived; a stale session (the user moved on) is dropped. */
-    fun sessionReady(request: BittensorProofRequest, session: BittensorProofSession) {
+    /**
+     * The challenge arrived; a stale session (the user moved on) is dropped.
+     * Returns the bridge page to open for a browser-bridge session (it now
+     * waits in [BittensorBridgeReturns]), else null.
+     */
+    fun sessionReady(request: BittensorProofRequest, session: BittensorProofSession): String? {
         val s = _stage.value
         if (s !is BittensorProofStage.Loading || s.request != request) {
-            return
+            return null
+        }
+        if (session.transport == BittensorWallets.TRANSPORT_BROWSER_BRIDGE) {
+            val url = session.bridgeUrl()
+            if (url == null) {
+                _stage.value = BittensorProofStage.Choosing(R.string.login_error)
+                return null
+            }
+            bridgeReturns.begin(session)
+            _stage.value = BittensorProofStage.AwaitingBrowser(session.walletId)
+            return url
         }
         _stage.value = BittensorProofStage.Signing(
             session = session,
             address = request.expectedAddress ?: "",
             signature = "",
         )
+        return null
+    }
+
+    /** The browser could not be opened. */
+    fun browserFailed() {
+        if (_stage.value !is BittensorProofStage.AwaitingBrowser) {
+            return
+        }
+        bridgeReturns.cancel()
+        _stage.value = BittensorProofStage.Choosing(R.string.login_error)
+    }
+
+    /** Back on screen: a bridge that already returned (or was dropped) is done waiting. */
+    fun onResumed() {
+        if (_stage.value is BittensorProofStage.AwaitingBrowser && !bridgeReturns.waiting) {
+            _stage.value = BittensorProofStage.Hidden
+        }
     }
 
     fun sessionFailed(request: BittensorProofRequest) {
@@ -192,6 +307,9 @@ class BittensorProofFlow(
     }
 
     fun dismiss() {
+        if (_stage.value is BittensorProofStage.AwaitingBrowser) {
+            bridgeReturns.cancel()
+        }
         _stage.value = BittensorProofStage.Hidden
     }
 }
@@ -204,4 +322,24 @@ fun bittensorProofRoute(proof: BittensorProof): BittensorProofRoute? = when (pro
     BittensorWallets.PURPOSE_CREATE -> BittensorProofRoute.CREATE_NETWORK
     BittensorWallets.PURPOSE_CONNECT -> BittensorProofRoute.CONNECT_WALLET
     else -> null
+}
+
+/** What LoginActivity does with a ur://bittensor-sign-message return. */
+sealed class BittensorReturnAction {
+    // no waiting session: the pre-helper return handling
+    object Legacy : BittensorReturnAction()
+    data class Proven(val route: BittensorProofRoute, val proof: BittensorProof) : BittensorReturnAction()
+    data class Failed(val purpose: String, val code: String, val detail: String?) : BittensorReturnAction()
+}
+
+fun bittensorReturnAction(
+    uri: String,
+    nowMillis: Long,
+    bridgeReturns: BittensorBridgeReturns = BittensorBridgeReturns.shared,
+): BittensorReturnAction = when (val r = bridgeReturns.take(uri, nowMillis)) {
+    BittensorBridgeReturn.Ignored -> BittensorReturnAction.Legacy
+    is BittensorBridgeReturn.Refused -> BittensorReturnAction.Failed(r.purpose, r.code, r.detail)
+    is BittensorBridgeReturn.Proven -> bittensorProofRoute(r.proof)
+        ?.let { BittensorReturnAction.Proven(it, r.proof) }
+        ?: BittensorReturnAction.Failed(r.proof.purpose, BittensorWallets.ERROR_PURPOSE_MISMATCH, null)
 }

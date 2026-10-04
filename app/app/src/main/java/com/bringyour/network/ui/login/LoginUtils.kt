@@ -4,6 +4,8 @@ import android.content.Intent
 import android.net.Uri
 import android.util.Base64
 import android.util.Log
+import com.bringyour.network.ui.wallet.BittensorProof
+import com.bringyour.network.ui.wallet.BittensorReturnAction
 import androidx.browser.customtabs.CustomTabsIntent
 import com.bringyour.network.BuildConfig
 import com.bringyour.network.LoginClientCompletion
@@ -70,6 +72,46 @@ suspend fun requestBittensorChallenge(api: Api, walletAddress: String? = null): 
  * (BittensorProofSheets). This only continues a sign-in that an earlier app
  * version started through the bridge (its create-network second signature).
  */
+/** A proven bridge return as the ur://bittensor-sign-message uri the return handling reads. */
+fun bittensorProofUri(proof: BittensorProof): Uri = Uri.parse(BITTENSOR_SIGN_REDIRECT_LINK).buildUpon()
+    .appendQueryParameter("address", proof.address)
+    .appendQueryParameter("signature", proof.signature)
+    .appendQueryParameter("message", proof.message)
+    .appendQueryParameter("purpose", proof.purpose)
+    .appendQueryParameter("wallet", proof.walletId)
+    .build()
+
+/** A refused bridge return as an error uri, so the flow shows `message`. */
+fun bittensorFailureUri(failed: BittensorReturnAction.Failed, message: String): Uri =
+    Uri.parse(BITTENSOR_SIGN_REDIRECT_LINK).buildUpon()
+        .appendQueryParameter("errorCode", failed.code)
+        .appendQueryParameter("errorMessage", failed.detail ?: message)
+        .appendQueryParameter("purpose", failed.purpose)
+        .build()
+
+/**
+ * Opens a Bittensor bridge page (sdk BittensorWalletSession.bridgeUrl, e.g.
+ * WalletConnect on ur.io/bittensor-connect) in a Custom Tab, falling back to
+ * the browser. The page returns on ur://bittensor-sign-message.
+ */
+fun launchBittensorBridge(context: Context, url: String): Boolean {
+    val uri = Uri.parse(url)
+    return try {
+        CustomTabsIntent.Builder()
+            .build()
+            .launchUrl(context, uri)
+        true
+    } catch (e: Exception) {
+        try {
+            context.startActivity(Intent(Intent.ACTION_VIEW, uri))
+            true
+        } catch (e: Exception) {
+            Log.i("LoginUtils", "unable to open the bittensor bridge: ${e.message}")
+            false
+        }
+    }
+}
+
 fun launchBittensorSignMessage(
     context: Context,
     message: String,

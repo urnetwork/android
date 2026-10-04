@@ -10,6 +10,7 @@
     <string name="add_emoji">이모지 추가</string>
     <string name="add_referral_code">추천 코드 추가</string>
     <string name="add_referral_extra_rewards">추가 보상을 얻으려면 추천 코드를 추가하세요</string>
+    <string name="add_sign_in_method">로그인 방법 추가</string>
     <string name="add_sign_in_method_2">로그인 방법 추가</string>
     <string name="advanced">고급</string>
     <string name="allow_local_connections">로컬 연결 허용</string>
@@ -29,6 +30,7 @@
     <string name="app_split_precedence_note">포함이 우선합니다. 앱을 하나라도 포함하면 포함된 앱만 VPN을 사용하고 제외는 적용되지 않습니다.</string>
     <string name="app_split_rules">앱 분할 규칙</string>
     <string name="app_split_starter">분할 앱 0개</string>
+    <string name="apple_sign_in_method_added">Apple 로그인 방법이 추가되었습니다</string>
     <string name="apply_bonus">보너스 적용</string>
     <string name="apps">앱</string>
     <string name="are_you_sure_delete_account">정말로 계정을 삭제하시겠습니까?</string>
@@ -91,6 +93,7 @@
     <string name="companion">상대방</string>
     <string name="connect">연결</string>
     <string name="connect_and_open">연결하고 링크를 엽니다</string>
+    <string name="connect_bittensor_wallet_to_add_sign_in_method">Bittensor 지갑을 연결하여 로그인 방법으로 추가하세요.</string>
     <string name="connect_options">연결 옵션</string>
     <string name="connect_seeker_wallet">Saga Genesis 또는 Seeker 선주문 토큰으로 지갑을 연결하세요</string>
     <string name="connect_solana_wallet_to_add_sign_in_method">Solana 지갑을 연결하여 로그인 방법으로 추가하세요.</string>
@@ -264,6 +267,7 @@
     <string name="make_default">기본값으로 설정</string>
     <string name="manage_subscription">구독 관리</string>
     <string name="member">회원</string>
+    <string name="method">방법</string>
     <string name="mock_location_active">%1$s와(과) 동기화 중</string>
     <string name="mock_location_disclosure_detectable">앱은 위치가 모의 위치임을 감지할 수 있습니다. 은행, 차량 호출, 배달 및 일부 게임 앱은 이 기능이 켜져 있는 동안 작동을 거부할 수 있습니다.</string>
     <string name="mock_location_disclosure_device_wide">이 설정은 URnetwork뿐만 아니라 기기의 모든 앱에 보고되는 위치를 변경합니다.</string>
@@ -492,6 +496,7 @@
     <string name="sign_in_with_google">Google로 로그인</string>
     <string name="sign_in_with_google_to_add_it">Google로 로그인하여 로그인 방법으로 추가하세요.</string>
     <string name="sign_in_with_seedphrase">시드 문구로 로그인</string>
+    <string name="sign_in_with_your_apple_id_to">Apple ID로 로그인하여 로그인 방법으로 추가하세요.</string>
     <string name="site_app_email">이메일</string>
     <string name="site_save_your_seedphrase">시드 문구를 저장하세요</string>
     <string name="solana_sign_in">Solana로 로그인</string>

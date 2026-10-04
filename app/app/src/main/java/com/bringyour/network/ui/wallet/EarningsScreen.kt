@@ -39,6 +39,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -57,6 +58,7 @@ import com.bringyour.network.ui.components.ButtonStyle
 import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.components.URLearnMoreText
 import com.bringyour.network.ui.login.NoSolanaWalletsAlert
+import com.bringyour.network.ui.login.launchBittensorBridge
 import com.bringyour.network.ui.stats.ThroughputViewModel
 import com.bringyour.network.ui.shared.viewmodels.OverlayViewModel
 import com.bringyour.network.ui.stats.ProviderStatsSection
@@ -222,9 +224,12 @@ fun EarningsScreen(
         explorerTxUrl = earningsViewModel::explorerTxUrl,
     )
 
+    val bridgeContext = LocalContext.current
     BittensorProofSheets(
         flow = earningsViewModel.proofFlow,
-        onChoose = earningsViewModel::chooseProofWallet,
+        onChoose = { walletId ->
+            earningsViewModel.chooseProofWallet(walletId) { url -> launchBittensorBridge(bridgeContext, url) }
+        },
         onSubmit = earningsViewModel::submitProof,
     )
 

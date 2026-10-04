@@ -21,6 +21,13 @@ import com.bringyour.sdk.WalletAuthArgs
 import com.bringyour.network.ui.LoginNavHost
 import com.bringyour.network.ui.login.BITTENSOR_SIGN_PURPOSE_CONNECT
 import com.bringyour.network.ui.login.BITTENSOR_SIGN_PURPOSE_CREATE
+import com.bringyour.network.ui.login.bittensorFailureUri
+import com.bringyour.network.ui.login.bittensorProofUri
+import com.bringyour.network.ui.wallet.BittensorProofRequest
+import com.bringyour.network.ui.wallet.BittensorReturnAction
+import com.bringyour.network.ui.wallet.BittensorWallets
+import com.bringyour.network.ui.wallet.bittensorReturnAction
+import com.bringyour.network.ui.wallet.startBittensorBridgeProof
 import com.bringyour.network.ui.login.BITTENSOR_SIGN_PURPOSE_LOGIN
 import com.bringyour.network.ui.login.LoginCreateNetworkParams
 import com.bringyour.network.ui.login.LoginViewModel
@@ -94,14 +101,25 @@ class LoginActivity : AppCompatActivity() {
                     Log.i(TAG, "appleOAuthLogin $u")
                     appleOAuthLogin(u)
                 } else if (u.scheme == "ur" && u.host == "bittensor-sign-message") {
-                    if (u.getQueryParameter("purpose") == BITTENSOR_SIGN_PURPOSE_CONNECT && app.device != null) {
+                    // a WalletConnect bridge return is judged by its waiting session
+                    // (message, purpose, address, expiry); with none waiting it is a
+                    // pre-helper return, handled as before
+                    val bridgeUri = when (val action = bittensorReturnAction(u.toString(), System.currentTimeMillis())) {
+                        BittensorReturnAction.Legacy -> u
+                        is BittensorReturnAction.Proven -> bittensorProofUri(action.proof)
+                        is BittensorReturnAction.Failed -> bittensorFailureUri(
+                            action,
+                            getString(BittensorWallets.errorRes(action.code)),
+                        )
+                    }
+                    if (bridgeUri.getQueryParameter("purpose") == BITTENSOR_SIGN_PURPOSE_CONNECT && app.device != null) {
                         // the earnings screen's wallet connect: the main activity owns that flow
-                        Log.i(TAG, "forwardWalletConnectToMain $u")
-                        forwardWalletConnectToMain(u)
+                        Log.i(TAG, "forwardWalletConnectToMain $bridgeUri")
+                        forwardWalletConnectToMain(bridgeUri)
                         return
                     }
-                    Log.i(TAG, "bittensorSignMessageLogin $u")
-                    bittensorSignMessageLogin(u)
+                    Log.i(TAG, "bittensorSignMessageLogin $bridgeUri")
+                    bittensorSignMessageLogin(bridgeUri)
                 } else if ((u.scheme == "https" && u.host == "ur.io" && u.path == "/c") || (u.scheme == "ur")) {
                     Log.i(TAG, "createWithUri $u")
                     createWithUri(u)
@@ -524,6 +542,20 @@ class LoginActivity : AppCompatActivity() {
                     if (api == null) {
                         isLoadingAuthCode = false
                         loginViewModel.setLoginError(getString(R.string.login_error))
+                        return@launch
+                    }
+
+                    if (uri.getQueryParameter("wallet") == BittensorWallets.WALLET_CONNECT) {
+                        // a WalletConnect sign-in signs the create challenge with the same wallet
+                        val opened = startBittensorBridgeProof(
+                            this@LoginActivity,
+                            api,
+                            BittensorProofRequest(BittensorWallets.WALLET_CONNECT, BittensorWallets.PURPOSE_CREATE, address),
+                        )
+                        isLoadingAuthCode = false
+                        if (!opened) {
+                            loginViewModel.setLoginError(getString(R.string.login_error))
+                        }
                         return@launch
                     }
 

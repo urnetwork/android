@@ -291,7 +291,7 @@ class EarningsViewModel @Inject constructor(
     // ---- wallet connect: the coldkey proves itself by signing a challenge
 
     // the wallet chooser and the manual proof sheets (BittensorProofSheets)
-    val proofFlow = BittensorProofFlow(System::currentTimeMillis)
+    val proofFlow = BittensorProofFlow(nowMillis = System::currentTimeMillis)
 
     /**
      * Open the wallet chooser. `address` binds the challenge to a manually entered
@@ -302,8 +302,12 @@ class EarningsViewModel @Inject constructor(
         proofFlow.open(BittensorWallets.PURPOSE_CONNECT, address)
     }
 
-    /** Fetch the single-use challenge for the chosen wallet. */
-    fun chooseProofWallet(walletId: String) {
+    /**
+     * Fetch the single-use challenge for the chosen wallet. A browser-bridge
+     * wallet (WalletConnect) opens its page with `openUrl`; the signed return
+     * comes back through LoginActivity as for the pre-helper bridge.
+     */
+    fun chooseProofWallet(walletId: String, openUrl: (String) -> Boolean = { false }) {
         val request = proofFlow.choose(walletId) ?: return
         val api = byDevice?.api
         if (api == null) {
@@ -312,7 +316,13 @@ class EarningsViewModel @Inject constructor(
         }
         viewModelScope.launch {
             startBittensorProofSession(api, request)
-                .onSuccess { proofFlow.sessionReady(request, it) }
+                .onSuccess { session ->
+                    proofFlow.sessionReady(request, session)?.let { url ->
+                        if (!openUrl(url)) {
+                            proofFlow.browserFailed()
+                        }
+                    }
+                }
                 .onFailure {
                     Log.i(TAG, "wallet challenge: ${it.message}")
                     proofFlow.sessionFailed(request)
@@ -358,6 +368,7 @@ class EarningsViewModel @Inject constructor(
      * a completed signature arrives through a fresh MainActivity, so waiting is over.
      */
     fun onScreenResumed() {
+        proofFlow.onResumed()
         val s = _connectState.value
         if (s is WalletConnectState.AwaitingSignature || s is WalletConnectState.RequestingChallenge) {
             _connectState.value = WalletConnectState.Idle

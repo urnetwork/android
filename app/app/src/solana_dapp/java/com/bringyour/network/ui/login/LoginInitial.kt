@@ -215,7 +215,7 @@ fun LoginInitial(
     // the user signs the shown challenge in the wallet and pastes the proof
     val bittensorLogin = remember {
         BittensorLoginController(
-            flow = BittensorProofFlow(System::currentTimeMillis),
+            flow = BittensorProofFlow(nowMillis = System::currentTimeMillis),
             scope = scope,
             api = { application?.api },
             setLoginError = loginViewModel.setLoginError,
@@ -225,7 +225,14 @@ fun LoginInitial(
             onCreateNetwork = { bundle ->
                 navController.navigate("create-network-wallet/${bundle.toBase64Json()}")
             },
+            openUrl = { url -> launchBittensorBridge(context, url) },
         )
+    }
+
+    // back from the WalletConnect page: a bridge that already returned is done
+    LifecycleResumeEffect(bittensorLogin) {
+        bittensorLogin.onResumed()
+        onPauseOrDispose {}
     }
 
     val connectBittensorWallet = {

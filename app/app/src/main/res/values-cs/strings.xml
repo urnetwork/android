@@ -10,6 +10,7 @@
     <string name="add_emoji">Přidat emoji</string>
     <string name="add_referral_code">Přidání doporučujícího kódu</string>
     <string name="add_referral_extra_rewards">Přidáním kódu pro doporučení získáte další odměny</string>
+    <string name="add_sign_in_method">Přidat způsob přihlášení</string>
     <string name="add_sign_in_method_2">Přidat způsob přihlášení</string>
     <string name="advanced">Pokročilé</string>
     <string name="allow_local_connections">Povolit místní připojení</string>
@@ -29,6 +30,7 @@
     <string name="app_split_precedence_note">Zahrnuté aplikace mají přednost: pokud je zahrnutá jakákoli aplikace, VPN používají jen zahrnuté aplikace a vyloučení nemá žádný účinek.</string>
     <string name="app_split_rules">Pravidla rozdělení aplikací</string>
     <string name="app_split_starter">0 rozdělených aplikací</string>
+    <string name="apple_sign_in_method_added">Způsob přihlášení Apple byl přidán</string>
     <string name="apply_bonus">Použít bonus</string>
     <string name="apps">Aplikace</string>
     <string name="are_you_sure_delete_account">Opravdu chcete svůj účet odstranit?</string>
@@ -91,6 +93,7 @@
     <string name="companion">Protějšek</string>
     <string name="connect">Připojit</string>
     <string name="connect_and_open">Připojení a otevření odkazu</string>
+    <string name="connect_bittensor_wallet_to_add_sign_in_method">Připojte peněženku Bittensor a přidejte ji jako způsob přihlášení.</string>
     <string name="connect_options">Možnosti připojení</string>
     <string name="connect_seeker_wallet">Připojení peněženky s žetonem předobjednávky Saga Genesis nebo Seeker</string>
     <string name="connect_solana_wallet_to_add_sign_in_method">Připojte peněženku Solana a přidejte ji jako způsob přihlášení.</string>
@@ -264,6 +267,7 @@
     <string name="make_default">Udělat výchozí</string>
     <string name="manage_subscription">Správa předplatného</string>
     <string name="member">Člen</string>
+    <string name="method">Způsob</string>
     <string name="mock_location_active">Synchronizace: %1$s</string>
     <string name="mock_location_disclosure_detectable">Aplikace dokážou poznat, že jde o simulovanou polohu. Bankovní aplikace, aplikace pro objednávání jízd a rozvoz i některé hry mohou při zapnutí této funkce odmítnout fungovat.</string>
     <string name="mock_location_disclosure_device_wide">Tím se změní poloha hlášená všem aplikacím ve vašem zařízení, nejen aplikaci URnetwork.</string>
@@ -492,6 +496,7 @@
     <string name="sign_in_with_google">Přihlásit se pomocí Google</string>
     <string name="sign_in_with_google_to_add_it">Přihlaste se přes Google a přidejte jej jako způsob přihlášení.</string>
     <string name="sign_in_with_seedphrase">Přihlásit se pomocí seed fráze</string>
+    <string name="sign_in_with_your_apple_id_to">Přihlaste se pomocí svého Apple ID a přidejte jej jako způsob přihlášení.</string>
     <string name="site_app_email">E-mail</string>
     <string name="site_save_your_seedphrase">Uložte si seedphrase</string>
     <string name="solana_sign_in">Přihlaste se pomocí Solana</string>
