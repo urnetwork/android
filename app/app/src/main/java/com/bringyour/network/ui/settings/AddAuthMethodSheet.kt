@@ -18,6 +18,7 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -25,6 +26,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -38,13 +40,21 @@ import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.components.URCodeInput
 import com.bringyour.network.ui.components.URInlineErrorText
 import com.bringyour.network.ui.components.URTextInput
+import com.bringyour.network.ui.login.APPLE_OAUTH_PURPOSE_ADD
+import com.bringyour.network.ui.login.AppleOAuthSession
 import com.bringyour.network.ui.login.ResendCode
 import com.bringyour.network.ui.login.SolanaChallengeSignResult
 import com.bringyour.network.ui.login.VerifySendError
 import com.bringyour.network.ui.login.VerifySendNotice
+import com.bringyour.network.ui.login.launchAppleOAuth
+import com.bringyour.network.ui.login.launchBittensorBridge
 import com.bringyour.network.ui.login.requestAndSignSolanaChallenge
+import com.bringyour.network.ui.login.ssoJwtPayload
 import com.bringyour.network.ui.login.toVerifySendError
 import com.bringyour.network.ui.theme.TextMuted
+import com.bringyour.network.ui.wallet.BittensorProofFlow
+import com.bringyour.network.ui.wallet.BittensorProofSheets
+import com.bringyour.network.ui.wallet.BittensorWallets
 import com.bringyour.sdk.AddAuthArgs
 import com.bringyour.sdk.AuthVerifyArgs
 import com.bringyour.sdk.AuthVerifySendArgs
@@ -53,14 +63,14 @@ import com.solana.mobilewalletadapter.clientlib.ActivityResultSender
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-private enum class AddAuthMethod { GOOGLE, WALLET, EMAIL }
-
 private const val verifyCodeLength = 6
 
 /**
  * Adds a sign-in method to the current network (Settings, and a legacy guest's
- * in-place conversion through GuestConversionSheet). Google and wallet sign-ins
- * are added once AddAuth succeeds. An email or phone is added unverified, so the
+ * in-place conversion through GuestConversionSheet). The options are the same
+ * as every app's ([addAuthMethods]): Apple, Google, a Solana or Bittensor
+ * wallet, and an email or phone. Apple, Google and wallet sign-ins are added
+ * once AddAuth succeeds. An email or phone is added unverified, so the
  * sheet then sends a code and asks for it (AddSignInFlow); `onAdded` runs only
  * after authVerify accepts the code.
  */
@@ -70,7 +80,8 @@ private const val verifyCodeLength = 6
 fun AddAuthMethodSheet(
     visible: Boolean,
     onDismiss: () -> Unit,
-    showGoogleOption: Boolean,
+    // the Google SSO flavors: Apple and Google, as on their login screen
+    showSsoOptions: Boolean,
     activityResultSender: ActivityResultSender?,
     isAddingAuth: Boolean,
     addAuth: (AddAuthArgs, onSuccess: () -> Unit, onError: (String) -> Unit) -> Unit,
@@ -156,13 +167,7 @@ fun AddAuthMethodSheet(
     @Suppress("UNUSED_VARIABLE") val observedFlowVersion = flowVersion
     val verifying = flow.step == AddSignInStep.ENTER_CODE || flow.step == AddSignInStep.VERIFYING
 
-    val methods = remember(showGoogleOption) {
-        if (showGoogleOption) {
-            listOf(AddAuthMethod.GOOGLE, AddAuthMethod.WALLET, AddAuthMethod.EMAIL)
-        } else {
-            listOf(AddAuthMethod.WALLET, AddAuthMethod.EMAIL)
-        }
-    }
+    val methods = remember(showSsoOptions) { addAuthMethods(showSsoOptions) }
     var selectedMethod by remember(methods) { mutableStateOf(methods.first()) }
 
     var email by remember { mutableStateOf(TextFieldValue("")) }
@@ -172,9 +177,94 @@ fun AddAuthMethodSheet(
     var walletConnectJob by remember { mutableStateOf<kotlinx.coroutines.Job?>(null) }
     var isConnectingWallet by remember { mutableStateOf(false) }
 
+    val addWallet: (WalletAuthArgs) -> Unit = { walletAuth ->
+        val args = AddAuthArgs()
+        args.walletAuth = walletAuth
+        flow.add(
+            AddedSignInMethod.WALLET,
+            args,
+            "",
+            {
+                Toast.makeText(context, context.getString(R.string.wallet_sign_in_method_added), Toast.LENGTH_SHORT).show()
+                onAdded()
+            },
+            { msg -> addError = msg }
+        )
+    }
+
+    val bittensorAdd = remember {
+        BittensorAddSignInController(
+            flow = BittensorProofFlow(nowMillis = System::currentTimeMillis),
+            scope = scope,
+            api = { (context.applicationContext as? MainApplication)?.api },
+            setError = { addError = it },
+            defaultError = { context.getString(R.string.error_connecting_to_wallet) },
+            addWalletAuth = { auth ->
+                val walletAuth = WalletAuthArgs()
+                walletAuth.blockchain = auth.blockchain
+                walletAuth.publicKey = auth.publicKey
+                walletAuth.message = auth.message
+                walletAuth.signature = auth.signature
+                addWallet(walletAuth)
+            },
+            openUrl = { url -> launchBittensorBridge(context, url) },
+            refusalError = { code, detail ->
+                if (code == BittensorWallets.ERROR_WALLET && !detail.isNullOrEmpty()) {
+                    detail
+                } else {
+                    context.getString(BittensorWallets.errorRes(code))
+                }
+            },
+        )
+    }
+
+    // back from the WalletConnect page: a bridge that already returned is done
+    LifecycleResumeEffect(bittensorAdd) {
+        bittensorAdd.onResumed()
+        onPauseOrDispose {}
+    }
+
+    // a WalletConnect bridge return for this sheet, handed over by the LoginActivity
+    val bittensorReturn by BittensorAddSignInReturns.pending.collectAsState()
+    LaunchedEffect(bittensorReturn) {
+        BittensorAddSignInReturns.take()?.let { bittensorAdd.handleReturn(it) }
+    }
+
     DisposableEffect(Unit) {
         onDispose {
             walletConnectJob?.cancel()
+            bittensorAdd.flow.dismiss()
+        }
+    }
+
+    // Apple's web flow returns through the LoginActivity (ur://oauth/apple),
+    // which hands an add attempt's return here; a login never takes it
+    val appleReturn by AppleAddSignInReturns.pending.collectAsState()
+    LaunchedEffect(appleReturn) {
+        val r = AppleAddSignInReturns.take() ?: return@LaunchedEffect
+        val outcome = appleAddOutcome(AppleOAuthSession.attempts(context), r) { idToken ->
+            ssoJwtPayload(idToken)?.optString("nonce")
+        }
+        when (outcome) {
+            is AppleAddOutcome.Add -> {
+                val args = AddAuthArgs()
+                args.authJwt = outcome.auth.authJwt
+                args.authJwtType = outcome.auth.authJwtType
+                flow.add(
+                    AddedSignInMethod.APPLE,
+                    args,
+                    "",
+                    {
+                        Toast.makeText(context, context.getString(R.string.apple_sign_in_method_added), Toast.LENGTH_SHORT).show()
+                        onAdded()
+                    },
+                    { msg -> addError = msg }
+                )
+            }
+            is AppleAddOutcome.Failed -> {
+                addError = outcome.error ?: context.getString(R.string.login_error)
+            }
+            AppleAddOutcome.Stray -> {}
         }
     }
 
@@ -284,7 +374,8 @@ fun AddAuthMethodSheet(
                             ) { buttonTextStyle ->
                                 Text(
                                     when (method) {
-                                        AddAuthMethod.GOOGLE -> "Google"
+                                        AddAuthMethod.APPLE -> stringResource(id = R.string.apple)
+                                        AddAuthMethod.GOOGLE -> stringResource(id = R.string.google)
                                         AddAuthMethod.WALLET -> stringResource(id = R.string.wallet)
                                         AddAuthMethod.EMAIL -> stringResource(id = R.string.site_app_email)
                                     },
@@ -313,59 +404,97 @@ fun AddAuthMethodSheet(
                             onError = { msg -> addError = msg }
                         )
                     }
-                    AddAuthMethod.WALLET -> {
+                    AddAuthMethod.APPLE -> {
+                        // Apple has no Android SDK: the login's web flow in a Custom Tab,
+                        // started as an add attempt (AppleOAuthSession purpose add)
                         Text(
-                            stringResource(id = R.string.connect_solana_wallet_to_add_sign_in_method),
+                            stringResource(id = R.string.sign_in_with_your_apple_id_to),
                             style = MaterialTheme.typography.bodyMedium,
                             color = TextMuted
                         )
                         Spacer(modifier = Modifier.height(12.dp))
                         URButton(
                             onClick = {
-                                walletConnectJob = scope.launch {
-                                    activityResultSender?.let { sender ->
-                                        val api = (context.applicationContext as? MainApplication)?.api
-                                        if (api == null) {
-                                            addError = context.getString(R.string.error_connecting_to_wallet)
-                                            return@launch
-                                        }
-                                        isConnectingWallet = true
-                                        when (val result = requestAndSignSolanaChallenge(sender, api)) {
-                                            is SolanaChallengeSignResult.Success -> {
-                                                val walletAuth = WalletAuthArgs()
-                                                walletAuth.publicKey = result.signed.publicKey
-                                                walletAuth.signature = result.signed.signature
-                                                walletAuth.message = result.signed.message
-                                                walletAuth.blockchain = "solana"
-                                                val args = AddAuthArgs()
-                                                args.walletAuth = walletAuth
-                                                flow.add(
-                                                    AddedSignInMethod.WALLET,
-                                                    args,
-                                                    "",
-                                                    {
-                                                        Toast.makeText(context, context.getString(R.string.wallet_sign_in_method_added), Toast.LENGTH_SHORT).show()
-                                                        onAdded()
-                                                    },
-                                                    { msg -> addError = msg }
-                                                )
-                                            }
-                                            is SolanaChallengeSignResult.NoWalletFound -> {
-                                                addError = context.getString(R.string.no_compatible_wallet_app_found)
-                                            }
-                                            is SolanaChallengeSignResult.Failure -> {
-                                                Log.i("AddAuthMethodSheet", "Error connecting to wallet: ${result.error}")
-                                                addError = context.getString(R.string.error_connecting_to_wallet)
-                                            }
-                                        }
-                                        isConnectingWallet = false
-                                    }
+                                addError = null
+                                val apiUrl = (context.applicationContext as? MainApplication)
+                                    ?.networkSpaceManagerProvider?.getNetworkSpace()?.apiUrl
+                                if (!launchAppleOAuth(context, apiUrl, APPLE_OAUTH_PURPOSE_ADD)) {
+                                    addError = context.getString(R.string.login_error)
                                 }
                             },
-                            enabled = !isAddingAuth && !isConnectingWallet,
-                            isProcessing = isConnectingWallet
+                            enabled = !isAddingAuth && !flow.busy,
+                            isProcessing = flow.busy
                         ) { buttonTextStyle ->
-                            Text(stringResource(id = R.string.connect_wallet), style = buttonTextStyle)
+                            Text(stringResource(id = R.string.sign_in_with_apple), style = buttonTextStyle)
+                        }
+                    }
+                    AddAuthMethod.WALLET -> {
+                        Text(
+                            stringResource(id = R.string.connect_solana_wallet_to_add_sign_in_method),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = TextMuted
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            stringResource(id = R.string.connect_bittensor_wallet_to_add_sign_in_method),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = TextMuted
+                        )
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            addAuthWalletChains.forEach { chain ->
+                                androidx.compose.foundation.layout.Box(modifier = Modifier.weight(1f)) {
+                                    when (chain) {
+                                        AddAuthWalletChain.SOLANA -> URButton(
+                                            onClick = {
+                                                walletConnectJob = scope.launch {
+                                                    activityResultSender?.let { sender ->
+                                                        val api = (context.applicationContext as? MainApplication)?.api
+                                                        if (api == null) {
+                                                            addError = context.getString(R.string.error_connecting_to_wallet)
+                                                            return@launch
+                                                        }
+                                                        isConnectingWallet = true
+                                                        when (val result = requestAndSignSolanaChallenge(sender, api)) {
+                                                            is SolanaChallengeSignResult.Success -> {
+                                                                val walletAuth = WalletAuthArgs()
+                                                                walletAuth.publicKey = result.signed.publicKey
+                                                                walletAuth.signature = result.signed.signature
+                                                                walletAuth.message = result.signed.message
+                                                                walletAuth.blockchain = "solana"
+                                                                addWallet(walletAuth)
+                                                            }
+                                                            is SolanaChallengeSignResult.NoWalletFound -> {
+                                                                addError = context.getString(R.string.no_compatible_wallet_app_found)
+                                                            }
+                                                            is SolanaChallengeSignResult.Failure -> {
+                                                                Log.i("AddAuthMethodSheet", "Error connecting to wallet: ${result.error}")
+                                                                addError = context.getString(R.string.error_connecting_to_wallet)
+                                                            }
+                                                        }
+                                                        isConnectingWallet = false
+                                                    }
+                                                }
+                                            },
+                                            style = ButtonStyle.SECONDARY,
+                                            enabled = !isAddingAuth && !isConnectingWallet && !flow.busy,
+                                            isProcessing = isConnectingWallet
+                                        ) { buttonTextStyle ->
+                                            Text(stringResource(id = R.string.solana_wallet), style = buttonTextStyle)
+                                        }
+                                        AddAuthWalletChain.BITTENSOR -> URButton(
+                                            onClick = { bittensorAdd.start() },
+                                            style = ButtonStyle.SECONDARY,
+                                            enabled = !isAddingAuth && !isConnectingWallet && !flow.busy,
+                                        ) { buttonTextStyle ->
+                                            Text(stringResource(id = R.string.bittensor_wallet), style = buttonTextStyle)
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                     AddAuthMethod.EMAIL -> {
@@ -413,6 +542,13 @@ fun AddAuthMethodSheet(
             Spacer(modifier = Modifier.height(16.dp))
         }
     }
+
+    // the wallet chooser and manual proof, the login's "Sign in with Bittensor" sheets
+    BittensorProofSheets(
+        flow = bittensorAdd.flow,
+        onChoose = bittensorAdd::choose,
+        onSubmit = bittensorAdd::submit,
+    )
 }
 
 /**

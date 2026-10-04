@@ -423,7 +423,7 @@ fun SettingsScreen(
     AddAuthMethodSheet(
         visible = presentAddAuthSheet,
         onDismiss = { presentAddAuthSheet = false },
-        showGoogleOption = BuildConfig.BRINGYOUR_BUNDLE_SSO_GOOGLE,
+        showSsoOptions = BuildConfig.BRINGYOUR_BUNDLE_SSO_GOOGLE,
         activityResultSender = activityResultSender,
         isAddingAuth = isAddingAuth,
         addAuth = settingsViewModel.addAuth,
