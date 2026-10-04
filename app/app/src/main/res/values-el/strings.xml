@@ -342,11 +342,8 @@
     <string name="of_total">από %1$s</string>
     <string name="off">Ανενεργό</string>
     <string name="offer_available_until">Διαθέσιμο έως %1$s</string>
-    <string name="offer_cta_start_trial_months_free">Ξεκίνα τη δωρεάν δοκιμή με %1$d μήνες δωρεάν</string>
     <string name="offer_first_year_price">%1$s για τον πρώτο χρόνο</string>
-    <string name="offer_months_free_headline">%1$d μήνες Pro, δωρεάν</string>
     <string name="offer_percent_off_first_year">%1$d%% έκπτωση στον πρώτο χρόνο</string>
-    <string name="offer_terms_first_year">%1$d ημέρες δωρεάν, έπειτα %2$s για τον πρώτο χρόνο, έπειτα %3$s/έτος. Ακύρωση οποτεδήποτε.</string>
     <string name="offer_then_regular_price">έπειτα %1$s/έτος</string>
     <string name="offer_timeline_day">Ημέρα %1$d</string>
     <string name="offer_timeline_first_charge">%1$s για το έτος, ακύρωση οποτεδήποτε πριν</string>
@@ -377,7 +374,6 @@
     <string name="plan_billed_yearly_price_for_country">Χρέωση μία φορά τον χρόνο · τιμή για %1$s</string>
     <string name="plan_monthly_equivalent_line">≈ %1$s/μήνα · χρέωση μία φορά τον χρόνο</string>
     <string name="plan_save_percent">Εξοικονόμηση %1$d%%</string>
-    <string name="plan_terms_yearly">%1$d ημέρες δωρεάν, έπειτα %2$s/έτος. Ακύρωση οποτεδήποτε.</string>
     <string name="please_try_again">Παρακαλώ δοκιμάστε ξανά.</string>
     <string name="please_wait">Περιμένετε λίγα λεπτά και προσπαθήστε ξανά.</string>
     <string name="points">Πόντοι</string>
@@ -623,6 +619,22 @@
     <plurals name="new_items_count">
         <item quantity="one">%1$d νέο</item>
         <item quantity="other">%1$d νέα</item>
+    </plurals>
+    <plurals name="offer_cta_start_trial_months_free">
+        <item quantity="one">Ξεκίνα τη δωρεάν δοκιμή με %1$d μήνα δωρεάν</item>
+        <item quantity="other">Ξεκίνα τη δωρεάν δοκιμή με %1$d μήνες δωρεάν</item>
+    </plurals>
+    <plurals name="offer_months_free_headline">
+        <item quantity="one">%1$d μήνας Pro, δωρεάν</item>
+        <item quantity="other">%1$d μήνες Pro, δωρεάν</item>
+    </plurals>
+    <plurals name="offer_terms_first_year">
+        <item quantity="one">%1$d ημέρα δωρεάν, έπειτα %2$s για τον πρώτο χρόνο, έπειτα %3$s/έτος. Ακύρωση οποτεδήποτε.</item>
+        <item quantity="other">%1$d ημέρες δωρεάν, έπειτα %2$s για τον πρώτο χρόνο, έπειτα %3$s/έτος. Ακύρωση οποτεδήποτε.</item>
+    </plurals>
+    <plurals name="plan_terms_yearly">
+        <item quantity="one">%1$d ημέρα δωρεάν, έπειτα %2$s/έτος. Ακύρωση οποτεδήποτε.</item>
+        <item quantity="other">%1$d ημέρες δωρεάν, έπειτα %2$s/έτος. Ακύρωση οποτεδήποτε.</item>
     </plurals>
     <plurals name="plus_n_more">
         <item quantity="one">+ %1$d ακόμη</item>

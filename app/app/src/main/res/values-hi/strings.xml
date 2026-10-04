@@ -342,11 +342,8 @@
     <string name="of_total">%1$s में से</string>
     <string name="off">बंद</string>
     <string name="offer_available_until">%1$s तक उपलब्ध</string>
-    <string name="offer_cta_start_trial_months_free">%1$d मुफ़्त महीनों के साथ ट्रायल शुरू करें</string>
     <string name="offer_first_year_price">पहले साल के लिए %1$s</string>
-    <string name="offer_months_free_headline">Pro के %1$d महीने, मुफ़्त</string>
     <string name="offer_percent_off_first_year">पहले साल पर %1$d%% की छूट</string>
-    <string name="offer_terms_first_year">%1$d दिन मुफ़्त, फिर पहले साल %2$s, फिर %3$s/वर्ष। कभी भी रद्द करें।</string>
     <string name="offer_then_regular_price">फिर %1$s/वर्ष</string>
     <string name="offer_timeline_day">दिन %1$d</string>
     <string name="offer_timeline_first_charge">साल के लिए %1$s, उससे पहले कभी भी रद्द करें</string>
@@ -377,7 +374,6 @@
     <string name="plan_billed_yearly_price_for_country">साल में एक बार बिल · %1$s के लिए कीमत</string>
     <string name="plan_monthly_equivalent_line">≈ %1$s/माह · साल में एक बार बिल</string>
     <string name="plan_save_percent">%1$d%% बचाएँ</string>
-    <string name="plan_terms_yearly">%1$d दिन मुफ़्त, फिर %2$s/वर्ष। कभी भी रद्द करें।</string>
     <string name="please_try_again">कृपया पुनः प्रयास करें।</string>
     <string name="please_wait">कृपया कुछ मिनट प्रतीक्षा करें और पुनः प्रयास करें।</string>
     <string name="points">पॉइंट</string>
@@ -623,6 +619,22 @@
     <plurals name="new_items_count">
         <item quantity="one">%1$d नया</item>
         <item quantity="other">%1$d नए</item>
+    </plurals>
+    <plurals name="offer_cta_start_trial_months_free">
+        <item quantity="one">%1$d मुफ़्त महीने के साथ ट्रायल शुरू करें</item>
+        <item quantity="other">%1$d मुफ़्त महीनों के साथ ट्रायल शुरू करें</item>
+    </plurals>
+    <plurals name="offer_months_free_headline">
+        <item quantity="one">Pro का %1$d महीना, मुफ़्त</item>
+        <item quantity="other">Pro के %1$d महीने, मुफ़्त</item>
+    </plurals>
+    <plurals name="offer_terms_first_year">
+        <item quantity="one">%1$d दिन मुफ़्त, फिर पहले साल %2$s, फिर %3$s/वर्ष। कभी भी रद्द करें।</item>
+        <item quantity="other">%1$d दिन मुफ़्त, फिर पहले साल %2$s, फिर %3$s/वर्ष। कभी भी रद्द करें।</item>
+    </plurals>
+    <plurals name="plan_terms_yearly">
+        <item quantity="one">%1$d दिन मुफ़्त, फिर %2$s/वर्ष। कभी भी रद्द करें।</item>
+        <item quantity="other">%1$d दिन मुफ़्त, फिर %2$s/वर्ष। कभी भी रद्द करें।</item>
     </plurals>
     <plurals name="plus_n_more">
         <item quantity="one">+ %1$d और</item>

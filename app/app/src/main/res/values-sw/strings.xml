@@ -342,11 +342,8 @@
     <string name="of_total">kati ya %1$s</string>
     <string name="off">Imezimwa</string>
     <string name="offer_available_until">Inapatikana hadi %1$s</string>
-    <string name="offer_cta_start_trial_months_free">Anza jaribio la bila malipo na miezi %1$d bila malipo</string>
     <string name="offer_first_year_price">%1$s kwa mwaka wako wa kwanza</string>
-    <string name="offer_months_free_headline">Miezi %1$d ya Pro, bila malipo</string>
     <string name="offer_percent_off_first_year">Punguzo la %1$d%% kwa mwaka wako wa kwanza</string>
-    <string name="offer_terms_first_year">Siku %1$d bila malipo, kisha %2$s kwa mwaka wa kwanza, kisha %3$s/mwaka. Ghairi wakati wowote.</string>
     <string name="offer_then_regular_price">kisha %1$s/mwaka</string>
     <string name="offer_timeline_day">Siku ya %1$d</string>
     <string name="offer_timeline_first_charge">%1$s kwa mwaka, ghairi wakati wowote kabla</string>
@@ -377,7 +374,6 @@
     <string name="plan_billed_yearly_price_for_country">Hulipwa mara moja kwa mwaka · bei ya %1$s</string>
     <string name="plan_monthly_equivalent_line">≈ %1$s/mwezi · hulipwa mara moja kwa mwaka</string>
     <string name="plan_save_percent">Okoa %1$d%%</string>
-    <string name="plan_terms_yearly">Siku %1$d bila malipo, kisha %2$s/mwaka. Ghairi wakati wowote.</string>
     <string name="please_try_again">Tafadhali jaribu tena.</string>
     <string name="please_wait">Tafadhali subiri dakika chache kisha ujaribu tena.</string>
     <string name="points">Pointi</string>
@@ -623,6 +619,22 @@
     <plurals name="new_items_count">
         <item quantity="one">%1$d mpya</item>
         <item quantity="other">%1$d mpya</item>
+    </plurals>
+    <plurals name="offer_cta_start_trial_months_free">
+        <item quantity="one">Anza jaribio la bila malipo na mwezi %1$d bila malipo</item>
+        <item quantity="other">Anza jaribio la bila malipo na miezi %1$d bila malipo</item>
+    </plurals>
+    <plurals name="offer_months_free_headline">
+        <item quantity="one">Mwezi %1$d wa Pro, bila malipo</item>
+        <item quantity="other">Miezi %1$d ya Pro, bila malipo</item>
+    </plurals>
+    <plurals name="offer_terms_first_year">
+        <item quantity="one">Siku %1$d bila malipo, kisha %2$s kwa mwaka wa kwanza, kisha %3$s/mwaka. Ghairi wakati wowote.</item>
+        <item quantity="other">Siku %1$d bila malipo, kisha %2$s kwa mwaka wa kwanza, kisha %3$s/mwaka. Ghairi wakati wowote.</item>
+    </plurals>
+    <plurals name="plan_terms_yearly">
+        <item quantity="one">Siku %1$d bila malipo, kisha %2$s/mwaka. Ghairi wakati wowote.</item>
+        <item quantity="other">Siku %1$d bila malipo, kisha %2$s/mwaka. Ghairi wakati wowote.</item>
     </plurals>
     <plurals name="plus_n_more">
         <item quantity="one">+ %1$d zaidi</item>

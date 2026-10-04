@@ -22,6 +22,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.bringyour.network.R
@@ -111,7 +112,7 @@ fun IntroductionOffer(
                 }
                 Text(
                     if (offer != null) {
-                        stringResource(id = R.string.offer_months_free_headline, offer.monthsFree)
+                        pluralStringResource(id = R.plurals.offer_months_free_headline, count = offer.monthsFree, offer.monthsFree)
                     } else {
                         stringResource(id = R.string.get_pro)
                     },
@@ -156,7 +157,7 @@ fun IntroductionOffer(
                 ) { btnStyle ->
                     Text(
                         if (offer != null) {
-                            stringResource(id = R.string.offer_cta_start_trial_months_free, offer.monthsFree)
+                            pluralStringResource(id = R.plurals.offer_cta_start_trial_months_free, count = offer.monthsFree, offer.monthsFree)
                         } else {
                             stringResource(id = R.string.start_free_trial)
                         },

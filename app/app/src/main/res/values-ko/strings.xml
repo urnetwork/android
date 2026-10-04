@@ -342,11 +342,8 @@
     <string name="of_total">/ %1$s</string>
     <string name="off">꺼짐</string>
     <string name="offer_available_until">%1$s까지 이용 가능</string>
-    <string name="offer_cta_start_trial_months_free">무료 체험 시작 + %1$d개월 무료</string>
     <string name="offer_first_year_price">첫해 %1$s</string>
-    <string name="offer_months_free_headline">Pro %1$d개월 무료</string>
     <string name="offer_percent_off_first_year">첫해 %1$d%% 할인</string>
-    <string name="offer_terms_first_year">%1$d일 무료, 첫해 %2$s, 이후 %3$s/년. 언제든 취소 가능.</string>
     <string name="offer_then_regular_price">이후 %1$s/년</string>
     <string name="offer_timeline_day">%1$d일 차</string>
     <string name="offer_timeline_first_charge">연 %1$s, 그 전에 언제든 취소 가능</string>
@@ -377,7 +374,6 @@
     <string name="plan_billed_yearly_price_for_country">연 1회 청구 · %1$s 가격</string>
     <string name="plan_monthly_equivalent_line">≈ %1$s/월 · 연 1회 청구</string>
     <string name="plan_save_percent">%1$d%% 절약</string>
-    <string name="plan_terms_yearly">%1$d일 무료, 이후 %2$s/년. 언제든 취소 가능.</string>
     <string name="please_try_again">다시 시도해 주세요.</string>
     <string name="please_wait">잠시 후 다시 시도해 주세요.</string>
     <string name="points">포인트</string>
@@ -615,6 +611,18 @@
     </plurals>
     <plurals name="new_items_count">
         <item quantity="other">신규 %1$d개</item>
+    </plurals>
+    <plurals name="offer_cta_start_trial_months_free">
+        <item quantity="other">무료 체험 시작 + %1$d개월 무료</item>
+    </plurals>
+    <plurals name="offer_months_free_headline">
+        <item quantity="other">Pro %1$d개월 무료</item>
+    </plurals>
+    <plurals name="offer_terms_first_year">
+        <item quantity="other">%1$d일 무료, 첫해 %2$s, 이후 %3$s/년. 언제든 취소 가능.</item>
+    </plurals>
+    <plurals name="plan_terms_yearly">
+        <item quantity="other">%1$d일 무료, 이후 %2$s/년. 언제든 취소 가능.</item>
     </plurals>
     <plurals name="plus_n_more">
         <item quantity="other">+ %1$d개 더</item>
