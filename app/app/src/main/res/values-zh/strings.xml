@@ -79,6 +79,8 @@
     <string name="bittensor_signature_label">签名</string>
     <string name="bittensor_signature_placeholder">粘贴 0x… 签名</string>
     <string name="bittensor_wallet">Bittensor 钱包</string>
+    <string name="bittensor_walletconnect_continue">请在浏览器中继续：用钱包应用扫描二维码，或在此设备上打开钱包。</string>
+    <string name="bittensor_walletconnect_hint">Nova、Nightly 及其他 WalletConnect 钱包</string>
     <string name="block_ads_and_trackers">拦截广告和跟踪器</string>
     <string name="blocked">已拦截</string>
     <string name="blocked_locations">被屏蔽的位置</string>

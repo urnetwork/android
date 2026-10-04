@@ -79,6 +79,8 @@
     <string name="bittensor_signature_label">التوقيع</string>
     <string name="bittensor_signature_placeholder">الصق التوقيع ‎0x…</string>
     <string name="bittensor_wallet">محفظة Bittensor</string>
+    <string name="bittensor_walletconnect_continue">تابع في متصفحك: امسح الرمز باستخدام تطبيق محفظتك، أو افتح المحفظة على هذا الجهاز.</string>
+    <string name="bittensor_walletconnect_hint">Nova وNightly ومحافظ WalletConnect الأخرى</string>
     <string name="block_ads_and_trackers">حظر الإعلانات والمتعقبات</string>
     <string name="blocked">محظور</string>
     <string name="blocked_locations">المواقع المحجوبة</string>

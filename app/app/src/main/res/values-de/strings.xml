@@ -79,6 +79,8 @@
     <string name="bittensor_signature_label">Signatur</string>
     <string name="bittensor_signature_placeholder">0x…-Signatur einfügen</string>
     <string name="bittensor_wallet">Bittensor-Wallet</string>
+    <string name="bittensor_walletconnect_continue">Fahre in deinem Browser fort: Scanne den Code mit deiner Wallet-App oder öffne die Wallet auf diesem Gerät.</string>
+    <string name="bittensor_walletconnect_hint">Nova, Nightly und andere WalletConnect-Wallets</string>
     <string name="block_ads_and_trackers">Werbung und Tracker blockieren</string>
     <string name="blocked">Blockiert</string>
     <string name="blocked_locations">Blockierte Standorte</string>

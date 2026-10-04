@@ -79,6 +79,8 @@
     <string name="bittensor_signature_label">Подпись</string>
     <string name="bittensor_signature_placeholder">Вставьте подпись 0x…</string>
     <string name="bittensor_wallet">Кошелек Bittensor</string>
+    <string name="bittensor_walletconnect_continue">Продолжите в браузере: отсканируйте код приложением кошелька или откройте кошелек на этом устройстве.</string>
+    <string name="bittensor_walletconnect_hint">Nova, Nightly и другие кошельки с поддержкой WalletConnect</string>
     <string name="block_ads_and_trackers">Блокировать рекламу и трекеры</string>
     <string name="blocked">Заблокировано</string>
     <string name="blocked_locations">Заблокированные локации</string>

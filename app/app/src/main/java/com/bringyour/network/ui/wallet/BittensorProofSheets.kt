@@ -1,5 +1,6 @@
 package com.bringyour.network.ui.wallet
 
+import android.content.Context
 import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -25,7 +26,9 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
+import com.bringyour.network.BuildConfig
 import com.bringyour.network.R
+import com.bringyour.network.ui.login.launchBittensorBridge
 import com.bringyour.network.ui.components.ButtonStyle
 import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.components.URTextInput
@@ -47,9 +50,22 @@ class SdkBittensorProofSession(
     override val walletId: String = session.walletId()
     override val purpose: String = session.purpose()
     override val message: String get() = session.message()
+    override val transport: String = session.transport()
 
-    override fun handleSignature(address: String, signature: String, nowMillis: Long): BittensorProofOutcome {
-        val result = session.handleSignature(address, signature, nowMillis)
+    override fun handleSignature(address: String, signature: String, nowMillis: Long): BittensorProofOutcome =
+        outcome(session.handleSignature(address, signature, nowMillis))
+
+    override fun bridgeUrl(): String? = try {
+        session.bridgeUrl()
+    } catch (e: Exception) {
+        Log.i(TAG, "bridge url: ${e.message}")
+        null
+    }
+
+    override fun handleBridgeReturn(uri: String, nowMillis: Long): BittensorProofOutcome =
+        outcome(session.handleBridgeReturn(uri, nowMillis))
+
+    private fun outcome(result: com.bringyour.sdk.BittensorWalletResult): BittensorProofOutcome {
         val proof = result.proof
         if (result.errorCode.isNullOrEmpty() && proof != null) {
             return BittensorProofOutcome.Proven(
@@ -62,7 +78,7 @@ class SdkBittensorProofSession(
                 )
             )
         }
-        return BittensorProofOutcome.Refused(result.errorCode ?: "")
+        return BittensorProofOutcome.Refused(result.errorCode ?: "", result.errorMessage?.takeIf { it.isNotEmpty() })
     }
 }
 
@@ -74,6 +90,8 @@ suspend fun startBittensorProofSession(
     api: Api,
     request: BittensorProofRequest,
     nowMillis: () -> Long = System::currentTimeMillis,
+    // the WalletConnect Cloud project id (local.properties) the bridge page pairs with
+    walletConnectProjectId: String = BuildConfig.WALLETCONNECT_PROJECT_ID,
 ): Result<BittensorProofSession> {
     val session = try {
         Sdk.newBittensorWalletSession(
@@ -85,6 +103,7 @@ suspend fun startBittensorProofSession(
     } catch (e: Exception) {
         return Result.failure(e)
     }
+    session.setWalletConnectProjectId(walletConnectProjectId)
     val args = session.challengeArgs(request.expectedAddress ?: "")
     return suspendCancellableCoroutine { continuation ->
         api.authWalletChallenge(args) { result, err ->
@@ -104,6 +123,27 @@ suspend fun startBittensorProofSession(
             }
         }
     }
+}
+
+/**
+ * Starts a browser-bridge proof outside the chooser (the create-network second
+ * signature after a WalletConnect sign-in): the session waits in
+ * [BittensorBridgeReturns] and the page opens in a Custom Tab.
+ */
+suspend fun startBittensorBridgeProof(
+    context: Context,
+    api: Api,
+    request: BittensorProofRequest,
+    bridgeReturns: BittensorBridgeReturns = BittensorBridgeReturns.shared,
+): Boolean {
+    val session = startBittensorProofSession(api, request).getOrNull() ?: return false
+    val url = session.bridgeUrl() ?: return false
+    bridgeReturns.begin(session)
+    if (!launchBittensorBridge(context, url)) {
+        bridgeReturns.cancel()
+        return false
+    }
+    return true
 }
 
 /** The product name (not translated). */
@@ -153,6 +193,14 @@ fun BittensorProofSheets(
                         ) { buttonTextStyle ->
                             Text(displayName(walletId), style = buttonTextStyle)
                         }
+                        BittensorWallets.subtitleRes(walletId)?.let { subtitleRes ->
+                            Text(
+                                stringResource(id = subtitleRes),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = TextMuted,
+                                modifier = Modifier.padding(top = 4.dp, start = 4.dp)
+                            )
+                        }
                         Spacer(modifier = Modifier.height(8.dp))
                     }
                     (s as? BittensorProofStage.Choosing)?.errorRes?.let { errorRes ->
@@ -161,6 +209,35 @@ fun BittensorProofSheets(
                             style = MaterialTheme.typography.bodyMedium,
                             color = Red
                         )
+                    }
+                    Spacer(modifier = Modifier.height(32.dp))
+                }
+            }
+        }
+        is BittensorProofStage.AwaitingBrowser -> {
+            val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+            ModalBottomSheet(
+                onDismissRequest = { flow.dismiss() },
+                sheetState = sheetState,
+                containerColor = SheetBlack,
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
+                ) {
+                    Text(displayName(s.walletId), style = MaterialTheme.typography.bodyLarge)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        stringResource(id = R.string.bittensor_walletconnect_continue),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    Spacer(modifier = Modifier.height(24.dp))
+                    URButton(
+                        onClick = { flow.dismiss() },
+                        style = ButtonStyle.SECONDARY,
+                    ) { buttonTextStyle ->
+                        Text(stringResource(id = R.string.cancel), style = buttonTextStyle)
                     }
                     Spacer(modifier = Modifier.height(32.dp))
                 }

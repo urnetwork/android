@@ -65,10 +65,17 @@ class BittensorLoginController(
     private val defaultError: () -> String,
     private val onNetworkJwt: (String) -> Unit,
     private val onCreateNetwork: (WalletCreateBundle) -> Unit,
+    // opens a browser-bridge page (WalletConnect); false when no browser opened
+    private val openUrl: (String) -> Boolean = { false },
 ) {
     fun start() {
         setLoginError(null)
         flow.open(BittensorWallets.PURPOSE_LOGIN)
+    }
+
+    /** Back on the login screen (from the browser). */
+    fun onResumed() {
+        flow.onResumed()
     }
 
     fun choose(walletId: String) {
@@ -92,7 +99,13 @@ class BittensorLoginController(
                 return@launch
             }
             startBittensorProofSession(api, request)
-                .onSuccess { flow.sessionReady(request, it) }
+                .onSuccess { session ->
+                    flow.sessionReady(request, session)?.let { url ->
+                        if (!openUrl(url)) {
+                            flow.browserFailed()
+                        }
+                    }
+                }
                 .onFailure {
                     Log.i(TAG, "challenge: ${it.message}")
                     flow.sessionFailed(request)

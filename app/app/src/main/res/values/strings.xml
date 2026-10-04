@@ -82,6 +82,8 @@
     <string name="bittensor_signature_label">Signature</string>
     <string name="bittensor_signature_placeholder">Paste the 0x… signature</string>
     <string name="bittensor_wallet">Bittensor wallet</string>
+    <string name="bittensor_walletconnect_continue">Continue in your browser: scan the code with your wallet app, or open the wallet on this device.</string>
+    <string name="bittensor_walletconnect_hint">Nova, Nightly and other WalletConnect wallets</string>
     <string name="block_ads_and_trackers">Block ads and trackers</string>
     <string name="blocked">Blocked</string>
     <string name="blocked_location_block_failed">Couldn\'t block %1$s. Please try again.</string>

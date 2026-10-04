@@ -79,6 +79,8 @@
     <string name="bittensor_signature_label">Firma</string>
     <string name="bittensor_signature_placeholder">Pega la firma 0x…</string>
     <string name="bittensor_wallet">Billetera de Bittensor</string>
+    <string name="bittensor_walletconnect_continue">Continúa en tu navegador: escanea el código con la app de tu billetera o abre la billetera en este dispositivo.</string>
+    <string name="bittensor_walletconnect_hint">Nova, Nightly y otras billeteras compatibles con WalletConnect</string>
     <string name="block_ads_and_trackers">Bloquear anuncios y rastreadores</string>
     <string name="blocked">Bloqueadas</string>
     <string name="blocked_locations">Ubicaciones bloqueadas</string>
