@@ -40,7 +40,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -100,7 +99,6 @@ fun EarningsScreen(
     activityResultSender: ActivityResultSender?,
     accountPointsFailed: Boolean = false,
 ) {
-    val context = LocalContext.current
 
     val wallet by earningsViewModel.wallet.collectAsState()
     val walletLoaded by earningsViewModel.walletLoaded.collectAsState()
@@ -186,7 +184,7 @@ fun EarningsScreen(
         walletFailed = walletFailed,
         onRetryWallet = earningsViewModel.retryWallet,
         connectState = connectState,
-        onConnectWallet = { earningsViewModel.connectWithBridge(context) },
+        onConnectWallet = { earningsViewModel.connectWithBridge() },
         onEnterManually = { earningsViewModel.openManualSheet() },
         onContinueLooksNew = { earningsViewModel.continueAfterLooksNew() },
         onDismissConnectState = { earningsViewModel.dismissConnectState() },
@@ -224,12 +222,18 @@ fun EarningsScreen(
         explorerTxUrl = earningsViewModel::explorerTxUrl,
     )
 
+    BittensorProofSheets(
+        flow = earningsViewModel.proofFlow,
+        onChoose = earningsViewModel::chooseProofWallet,
+        onSubmit = earningsViewModel::submitProof,
+    )
+
     if (earningsViewModel.isPresentedManualSheet) {
         ConnectWalletSheet(
             address = earningsViewModel.manualAddress,
             onAddressChange = { earningsViewModel.updateManualAddress(it) },
             validation = manualValidation,
-            onContinue = { earningsViewModel.continueManual(context) },
+            onContinue = { earningsViewModel.continueManual() },
             onDismiss = { earningsViewModel.closeManualSheet() },
         )
     }

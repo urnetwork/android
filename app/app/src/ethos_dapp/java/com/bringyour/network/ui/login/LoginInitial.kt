@@ -1,6 +1,8 @@
 package com.bringyour.network.ui.login
 
 import com.bringyour.network.ui.components.tabletForm
+import com.bringyour.network.ui.wallet.BittensorProofFlow
+import com.bringyour.network.ui.wallet.BittensorProofSheets
 import android.content.Context
 import android.net.Uri
 import android.util.Log
@@ -284,29 +286,25 @@ fun LoginInitial(
 
     }
 
+    // Talisman or TAO.com: neither documents a mobile connect interface, so
+    // the user signs the shown challenge in the wallet and pastes the proof
+    val bittensorLogin = remember {
+        BittensorLoginController(
+            flow = BittensorProofFlow(System::currentTimeMillis),
+            scope = scope,
+            api = { application?.api },
+            setLoginError = loginViewModel.setLoginError,
+            setInProgress = loginViewModel.setBittensorAuthInProgress,
+            defaultError = { context.getString(R.string.login_error) },
+            onNetworkJwt = onLogin,
+            onCreateNetwork = { bundle ->
+                navController.navigate("create-network-wallet/${bundle.toBase64Json()}")
+            },
+        )
+    }
+
     val connectBittensorWallet = {
-        loginViewModel.setLoginError(null)
-
-        scope.launch {
-            val api = application?.api
-            if (api == null) {
-                loginViewModel.setLoginError(context.getString(R.string.login_error))
-                return@launch
-            }
-
-            requestBittensorChallenge(api)
-                .onSuccess { message ->
-                    if (launchBittensorSignMessage(context, message, BITTENSOR_SIGN_PURPOSE_LOGIN)) {
-                        loginViewModel.setBittensorAuthInProgress(true)
-                    } else {
-                        loginViewModel.setLoginError(context.getString(R.string.login_error))
-                    }
-                }
-                .onFailure { error ->
-                    Log.i("LoginInitial", "Error fetching Bittensor challenge: $error")
-                    loginViewModel.setLoginError(context.getString(R.string.login_error))
-                }
-        }
+        bittensorLogin.start()
     }
 
     // Apple has no Android SDK: Apple's own web flow runs in a Custom Tab and
@@ -370,6 +368,12 @@ fun LoginInitial(
         },
         onSeedphraseLogin = onSeedphraseLogin,
         onInstantAccountCreate = onInstantAccountCreate
+    )
+
+    BittensorProofSheets(
+        flow = bittensorLogin.flow,
+        onChoose = bittensorLogin::choose,
+        onSubmit = bittensorLogin::submit,
     )
 
     SeedphraseLoginSheet(

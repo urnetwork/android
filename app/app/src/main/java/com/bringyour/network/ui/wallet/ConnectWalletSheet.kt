@@ -31,7 +31,8 @@ import com.bringyour.network.ui.theme.TextMuted
 /**
  * Manual coldkey entry. The address is validated before anything else happens
  * (syntax locally, then the unauthenticated server check); a blocked address never
- * leaves the device. Continuing still signs through the ur.io bridge so the server
+ * leaves the device. Continuing opens the wallet chooser and asks for a signature by
+ * this address (BittensorProofSheets) so the server
  * can verify ownership.
  */
 @OptIn(ExperimentalMaterial3Api::class)
