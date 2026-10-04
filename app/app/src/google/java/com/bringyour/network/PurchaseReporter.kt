@@ -79,6 +79,8 @@ object PurchaseReporter {
     data class Result(
         val status: String?,
         val acknowledged: Boolean,
+        /** The purchase carries an obfuscated account id (isLinkedToAccount). */
+        val linkedToAccount: Boolean = true,
     ) {
         /** The server actually credited this network -- the only success signal. */
         val credited: Boolean
@@ -88,10 +90,21 @@ object PurchaseReporter {
         val wrongNetwork: Boolean get() = status == Sdk.PurchaseReportStatusWrongNetwork
 
         val invalid: Boolean get() = status == Sdk.PurchaseReportStatusInvalid
+
+        internal val outcome: PurchaseReportPolicy.Outcome
+            get() = PurchaseReportPolicy.outcomeFor(credited, wrongNetwork, invalid, linkedToAccount)
     }
 
     private fun prefs(context: Context) =
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+
+    /**
+     * Whether the purchase was made through this app's billing flow, which sets the
+     * network as the obfuscated account id. A purchase made outside it (a Play Store
+     * promo code redemption) carries none.
+     */
+    fun isLinkedToAccount(purchase: Purchase): Boolean =
+        !purchase.accountIdentifiers?.obfuscatedAccountId.isNullOrEmpty()
 
     private fun productIdOf(purchase: Purchase): String =
         purchase.products.firstOrNull() ?: DEFAULT_PRODUCT_ID
@@ -241,13 +254,17 @@ object PurchaseReporter {
             productIdOf(purchase),
             purchase.purchaseToken,
             maxAttempts
-        ) ?: return Result(status = null, acknowledged = false)
+        ) ?: return Result(
+            status = null,
+            acknowledged = false,
+            linkedToAccount = isLinkedToAccount(purchase)
+        )
 
         if (purchase.isAcknowledged) {
             // a legacy purchase acknowledged before the report path existed, or a
             // proof whose acknowledge landed but whose clear was lost to process death
             clear(context, purchase.purchaseToken)
-            return Result(status, acknowledged = true)
+            return Result(status, acknowledged = true, linkedToAccount = isLinkedToAccount(purchase))
         }
 
         val ackParams = AcknowledgePurchaseParams.newBuilder()
@@ -256,7 +273,7 @@ object PurchaseReporter {
         val ackResult = billingClient.acknowledgePurchase(ackParams)
         return if (ackResult.responseCode == BillingResponseCode.OK) {
             clear(context, purchase.purchaseToken)
-            Result(status, acknowledged = true)
+            Result(status, acknowledged = true, linkedToAccount = isLinkedToAccount(purchase))
         } else {
             Log.i(
                 TAG,
@@ -264,7 +281,7 @@ object PurchaseReporter {
                         "${ackResult.responseCode} ${ackResult.debugMessage}"
             )
             PendingPurchaseReconcileWorker.markPendingSeen(context)
-            Result(status, acknowledged = false)
+            Result(status, acknowledged = false, linkedToAccount = isLinkedToAccount(purchase))
         }
     }
 

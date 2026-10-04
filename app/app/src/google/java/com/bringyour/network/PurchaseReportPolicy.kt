@@ -50,6 +50,37 @@ internal object PurchaseReportPolicy {
         return Action.None
     }
 
+    /** What a terminal (or missing) report answer means for the user. */
+    enum class Outcome {
+        /** credited / already_credited: this network has the purchase. */
+        Credited,
+
+        /** The purchase is linked to a different network than the session's. */
+        WrongNetwork,
+
+        /** The server will never credit this purchase: surfaced as an error. */
+        Invalid,
+
+        /** No terminal answer this session; the daily worker carries it. */
+        Deferred,
+    }
+
+    /**
+     * Classifies one report answer. `linkedToAccount` is whether Play's purchase
+     * carries an obfuscated account id (set at billing-flow launch).
+     */
+    fun outcomeFor(
+        credited: Boolean,
+        wrongNetwork: Boolean,
+        invalid: Boolean,
+        linkedToAccount: Boolean,
+    ): Outcome = when {
+        credited -> Outcome.Credited
+        wrongNetwork -> Outcome.WrongNetwork
+        invalid -> Outcome.Invalid
+        else -> Outcome.Deferred
+    }
+
     /** Durable per-token report state. */
     interface Store {
         fun persist(productId: String, purchaseToken: String)

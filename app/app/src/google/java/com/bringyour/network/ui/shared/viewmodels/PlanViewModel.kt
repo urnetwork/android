@@ -546,11 +546,11 @@ class PlanViewModel @Inject constructor(
                     billingClient,
                     purchase
                 )
-                when {
-                    result.credited -> credited = true
-                    result.wrongNetwork -> wrongNetwork = true
-                    result.invalid -> invalid = true
-                    else -> deferred = true
+                when (result.outcome) {
+                    PurchaseReportPolicy.Outcome.Credited -> credited = true
+                    PurchaseReportPolicy.Outcome.WrongNetwork -> wrongNetwork = true
+                    PurchaseReportPolicy.Outcome.Invalid -> invalid = true
+                    PurchaseReportPolicy.Outcome.Deferred -> deferred = true
                 }
             }
 
