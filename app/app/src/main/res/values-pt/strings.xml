@@ -342,11 +342,8 @@
     <string name="of_total">de %1$s</string>
     <string name="off">Desativado</string>
     <string name="offer_available_until">Disponível até %1$s</string>
-    <string name="offer_cta_start_trial_months_free">Começar o teste grátis com %1$d meses grátis</string>
     <string name="offer_first_year_price">%1$s no primeiro ano</string>
-    <string name="offer_months_free_headline">%1$d meses de Pro, grátis</string>
     <string name="offer_percent_off_first_year">%1$d%% de desconto no primeiro ano</string>
-    <string name="offer_terms_first_year">%1$d dias grátis, depois %2$s no primeiro ano, depois %3$s/ano. Cancele quando quiser.</string>
     <string name="offer_then_regular_price">depois %1$s/ano</string>
     <string name="offer_timeline_day">Dia %1$d</string>
     <string name="offer_timeline_first_charge">%1$s pelo ano, cancele antes quando quiser</string>
@@ -377,7 +374,6 @@
     <string name="plan_billed_yearly_price_for_country">Cobrado uma vez por ano · preço para %1$s</string>
     <string name="plan_monthly_equivalent_line">≈ %1$s/mês · cobrado uma vez por ano</string>
     <string name="plan_save_percent">Poupe %1$d%%</string>
-    <string name="plan_terms_yearly">%1$d dias grátis, depois %2$s/ano. Cancele quando quiser.</string>
     <string name="please_try_again">Por favor, tente novamente.</string>
     <string name="please_wait">Aguarde alguns minutos e tente novamente.</string>
     <string name="points">Pontos</string>
@@ -623,6 +619,22 @@
     <plurals name="new_items_count">
         <item quantity="one">%1$d novo</item>
         <item quantity="other">%1$d novos</item>
+    </plurals>
+    <plurals name="offer_cta_start_trial_months_free">
+        <item quantity="one">Começar o teste grátis com %1$d mês grátis</item>
+        <item quantity="other">Começar o teste grátis com %1$d meses grátis</item>
+    </plurals>
+    <plurals name="offer_months_free_headline">
+        <item quantity="one">%1$d mês de Pro, grátis</item>
+        <item quantity="other">%1$d meses de Pro, grátis</item>
+    </plurals>
+    <plurals name="offer_terms_first_year">
+        <item quantity="one">%1$d dia grátis, depois %2$s no primeiro ano, depois %3$s/ano. Cancele quando quiser.</item>
+        <item quantity="other">%1$d dias grátis, depois %2$s no primeiro ano, depois %3$s/ano. Cancele quando quiser.</item>
+    </plurals>
+    <plurals name="plan_terms_yearly">
+        <item quantity="one">%1$d dia grátis, depois %2$s/ano. Cancele quando quiser.</item>
+        <item quantity="other">%1$d dias grátis, depois %2$s/ano. Cancele quando quiser.</item>
     </plurals>
     <plurals name="plus_n_more">
         <item quantity="one">+ mais %1$d</item>

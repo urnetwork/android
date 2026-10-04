@@ -115,7 +115,7 @@
     <string name="close">Закрыть</string>
     <string name="commitment_issues">Не хотите регистрироваться?</string>
     <string name="community_edition">Версия для сообщества</string>
-    <string name="community_edition_details">Участвуйте в сети и получите бесплатный доступ к версии для сообщества.</string>
+    <string name="community_edition_details">Получите бесплатный доступ к версии для сообщества.</string>
     <string name="companion">Партнёр</string>
     <string name="connect">Подключить</string>
     <string name="connect_and_open">Подключиться и открыть ссылку</string>
@@ -136,7 +136,7 @@
     <string name="continue_txt">Продолжить</string>
     <string name="continue_with_free_plan">Продолжить с бесплатным планом</string>
     <string name="contract">Контракт</string>
-    <string name="contract_stack_max">макс %1$s</string>
+    <string name="contract_stack_max">макс. %1$s</string>
     <string name="contracts_appear_connected">Контракты появятся здесь при подключении.</string>
     <string name="contracts_appear_providing">Контракты появятся здесь во время предоставления.</string>
     <string name="copied">Скопировано!</string>
@@ -332,8 +332,8 @@
     <string name="display_network_on_leaderboard">Отображать сеть в таблице лидеров</string>
     <string name="dns_over_https">DNS через HTTPS</string>
     <string name="dns_pill_defaults">Безопасные настройки по умолчанию не применены</string>
-    <string name="dns_pill_recommended">Есть непримененные рекомендуемые настройки для %1$s</string>
-    <string name="dns_recommendation_message">Известно, что самые строгие правила безопасности не работают в %1$s. Есть менее безопасные рекомендованные настройки DNS, которые работают лучше.</string>
+    <string name="dns_pill_recommended">%1$s: есть неприменённые рекомендуемые настройки</string>
+    <string name="dns_recommendation_message">%1$s: известно, что здесь самые строгие правила безопасности не работают. Есть менее безопасные рекомендуемые настройки DNS, которые работают лучше.</string>
     <string name="dns_restore_secure_message">Восстановите самые безопасные настройки: шифрованный DNS через HTTPS в туннеле.</string>
     <string name="dns_settings_unavailable">Настройки DNS недоступны</string>
     <string name="dns_using_recommended">Используются рекомендованные региональные настройки</string>
@@ -417,7 +417,7 @@
     <string name="gossip_network">Gossip-сеть</string>
     <string name="gossip_url">URL gossip-сети</string>
     <string name="guest">Гость</string>
-    <string name="how_are_we_doing">Как наши успехи?</string>
+    <string name="how_are_we_doing">Как мы справляемся?</string>
     <string name="i_ve_saved_my_seedphrase">Я сохранил сид-фразу</string>
     <string name="identity_key_hash_copied">Хеш ключа идентификации провайдера скопирован</string>
     <string name="ignore_battery_optimizations">Игнорировать оптимизацию батареи</string>
@@ -482,7 +482,7 @@
     <string name="local_dns_servers">Локальные DNS-серверы</string>
     <string name="local_doh_urls">Локальные DoH URL</string>
     <string name="local_lowercase">локально</string>
-    <string name="local_provider_safety_description">Локальный провайдер будет работать, когда вы подключены к сети. Сегодня существует более 30 тысяч провайдеров, и у нас нет известных инцидентов с безопасностью или провайдерами. Мы ценим возможность участия без проблем и создали протокол с приоритетом безопасности.</string>
+    <string name="local_provider_safety_description">Локальный провайдер будет работать, когда вы подключены к сети. Сегодня существует более 30 тысяч провайдеров, и у нас нет известных инцидентов, связанных с безопасностью или интернет-провайдерами. Мы ценим возможность участия без проблем и создали протокол с приоритетом безопасности.</string>
     <string name="local_statistics">Локальная статистика</string>
     <string name="login_client_error">Произошла ошибка при аутентификации клиента. Попробуйте еще раз.</string>
     <string name="login_error">Что-то пошло не так. Попробуйте еще раз.</string>
@@ -548,7 +548,7 @@
     <string name="network_name_label">Имя сети</string>
     <string name="network_name_length_error">Название сети должно содержать не менее 6 символов</string>
     <string name="network_name_placeholder">Название вашей сети</string>
-    <string name="network_name_ready_to_connect">%1$s готово к подключению</string>
+    <string name="network_name_ready_to_connect">Сеть %1$s готова к подключению</string>
     <string name="network_name_unavailable">Имя сети недоступно</string>
     <string name="network_peers">Сетевые узлы</string>
     <string name="never">Никогда</string>
@@ -562,7 +562,7 @@
     <string name="no_ethos_wallet_found">Кошелек EthOs не найден</string>
     <string name="no_locations_found">Локации не найдены</string>
     <string name="no_locations_found_detail">К сожалению, нам не удалось найти локации, связанные с %1$s.</string>
-    <string name="no_log_files_found">Файл журнала не найден</string>
+    <string name="no_log_files_found">Файл логов не найден</string>
     <string name="no_open_contracts">Нет открытых контрактов</string>
     <string name="no_points_yet">Эпох пока нет. Очки появятся после вашей первой завершённой эпохи.</string>
     <string name="no_providers_found">Нам не удалось найти провайдеров.</string>
@@ -575,11 +575,8 @@
     <string name="of_total">из %1$s</string>
     <string name="off">Выкл.</string>
     <string name="offer_available_until">Доступно до %1$s</string>
-    <string name="offer_cta_start_trial_months_free">Начать пробный период с %1$d бесплатными месяцами</string>
     <string name="offer_first_year_price">%1$s за первый год</string>
-    <string name="offer_months_free_headline">%1$d месяца Pro бесплатно</string>
     <string name="offer_percent_off_first_year">Скидка %1$d%% на первый год</string>
-    <string name="offer_terms_first_year">%1$d дней бесплатно, далее %2$s за первый год, затем %3$s/год. Отмена в любой момент.</string>
     <string name="offer_then_regular_price">далее %1$s/год</string>
     <string name="offer_timeline_day">День %1$d</string>
     <string name="offer_timeline_first_charge">%1$s за год, до этого можно отменить в любой момент</string>
@@ -614,19 +611,18 @@
     <string name="pinned">Закреплено</string>
     <string name="plan">Тариф</string>
     <string name="plan_billed_monthly_cancel_anytime">Списание ежемесячно · отмена в любой момент</string>
-    <string name="plan_billed_yearly_price_for_country">Списание раз в год · цена для %1$s</string>
+    <string name="plan_billed_yearly_price_for_country">Списание раз в год · цена для страны %1$s</string>
     <string name="plan_monthly_equivalent_line">≈ %1$s/мес · списание раз в год</string>
     <string name="plan_price_per_month">%1$s/месяц</string>
     <string name="plan_price_per_year">%1$s/год</string>
     <string name="plan_save_percent">Экономия %1$d%%</string>
-    <string name="plan_terms_yearly">%1$d дней бесплатно, далее %2$s/год. Отмена в любой момент.</string>
     <string name="please_try_again">Пожалуйста, попробуйте снова.</string>
     <string name="please_wait">Пожалуйста, подождите несколько минут и попробуйте снова.</string>
     <string name="points">Очки</string>
     <string name="points_earned">Заработано очков</string>
     <string name="points_leaderboard_description">Очки за всё время. Блок — одна завершённая эпоха; серия считает подряд идущие блоки с очками до последнего.</string>
     <string name="points_leaderboard_empty">В таблице лидеров по очкам пока никого нет.</string>
-    <string name="points_leaderboard_private_hint">Ваша сеть отображается как Анонимно, пока вы не включите это.</string>
+    <string name="points_leaderboard_private_hint">Ваша сеть отображается как «Анонимно», пока вы не включите этот параметр.</string>
     <string name="points_short">%1$s очк.</string>
     <string name="post_quantum_encryption">Постквантовое шифрование</string>
     <string name="post_quantum_encryption_fallback_note">Резервный режим включён (временно)</string>
@@ -675,7 +671,7 @@
     <string name="redeemed">Активирован</string>
     <string name="refer_and_earn">Приглашайте и зарабатывайте</string>
     <string name="refer_friends_code_hint">Поделитесь своим кодом. Друзья вводят его при регистрации.</string>
-    <string name="refer_friends_detail">Больше подключений помогают нашему сообществу оставаться анонимным (и помогают вам зарабатывать!)</string>
+    <string name="refer_friends_detail">Больше подключений помогает нашему сообществу оставаться анонимным (и помогает вам зарабатывать!)</string>
     <string name="refer_friends_header">Пригласить друзей</string>
     <string name="refer_friends_increase_free_data">Пригласите друзей и наблюдайте, как увеличивается ваш бесплатный трафик.</string>
     <string name="refer_friends_perks">Вы получаете +%1$s GiB/день навсегда</string>
@@ -688,7 +684,7 @@
     <string name="referral_network">Реферальная сеть</string>
     <string name="referral_network_updated">Реферальная сеть обновлена</string>
     <string name="referral_panel_detail">Каждый подтверждённый реферал даёт каждому из вас по %1$d GiB в день бесплатно, навсегда.</string>
-    <string name="referral_panel_heading">Пригласите друга и вы оба получите бесплатный трафик</string>
+    <string name="referral_panel_heading">Пригласите друга, и вы оба получите бесплатный трафик</string>
     <string name="referral_panel_none">Пока нет друзей — поделитесь кодом, и появится корона. 👑</string>
     <string name="referral_points">Реферальные очки</string>
     <string name="referral_royal_welcome">Королевский приём!</string>
@@ -749,7 +745,7 @@
     <string name="seeker_verify_no_wallet_app">На этом устройстве не найдено приложение кошелька Solana.</string>
     <string name="select_location_provider_content_description">Глобус: выбрать локацию провайдера</string>
     <string name="send">Отправить</string>
-    <string name="send_product_updates">Присылайте мне обновления продукта</string>
+    <string name="send_product_updates">Присылать мне новости о продукте</string>
     <string name="send_reset_link">Отправить ссылку для сброса</string>
     <string name="send_tao_to_mirror">Отправьте около %1$s TAO на %2$s, чтобы покрыть оплату газа.</string>
     <string name="sent">Отправлено!</string>
@@ -824,7 +820,7 @@
     <string name="tap_to_connect">Нажмите для подключения</string>
     <string name="tap_to_refetch">Нажмите, чтобы повторить попытку получения локации.</string>
     <string name="test_animation">Проверить анимацию</string>
-    <string name="this_region">этом регионе</string>
+    <string name="this_region">Этот регион</string>
     <string name="tile_status_connected">Подключено</string>
     <string name="tile_status_disconnected">Отключено</string>
     <string name="title_login">Вход</string>
@@ -909,7 +905,7 @@
     <string name="widget_control_description">Подключение и отключение VPN URnetwork.</string>
     <string name="widget_dashboard_description">Баланс трафика, подключённая локация и трафик, с быстрым подключением.</string>
     <string name="widget_globe_description">Ваши подключённые провайдеры на глобусе.</string>
-    <string name="widget_more_providers">ещё %1$d</string>
+    <string name="widget_more_providers">+ ещё %1$d</string>
     <string name="widget_no_contracts">Нет контрактов</string>
     <string name="widget_no_providers">Нет провайдеров</string>
     <string name="widget_not_providing">Не предоставляет</string>
@@ -1013,6 +1009,30 @@
         <item quantity="few">%1$d новых</item>
         <item quantity="many">%1$d новых</item>
         <item quantity="other">Новых: %1$d</item>
+    </plurals>
+    <plurals name="offer_cta_start_trial_months_free">
+        <item quantity="one">Начать пробный период с %1$d бесплатным месяцем</item>
+        <item quantity="few">Начать пробный период с %1$d бесплатными месяцами</item>
+        <item quantity="many">Начать пробный период с %1$d бесплатными месяцами</item>
+        <item quantity="other">Начать пробный период с %1$d бесплатными месяцами</item>
+    </plurals>
+    <plurals name="offer_months_free_headline">
+        <item quantity="one">%1$d месяц Pro бесплатно</item>
+        <item quantity="few">%1$d месяца Pro бесплатно</item>
+        <item quantity="many">%1$d месяцев Pro бесплатно</item>
+        <item quantity="other">%1$d месяцев Pro бесплатно</item>
+    </plurals>
+    <plurals name="offer_terms_first_year">
+        <item quantity="one">%1$d день бесплатно, далее %2$s за первый год, затем %3$s/год. Отмена в любой момент.</item>
+        <item quantity="few">%1$d дня бесплатно, далее %2$s за первый год, затем %3$s/год. Отмена в любой момент.</item>
+        <item quantity="many">%1$d дней бесплатно, далее %2$s за первый год, затем %3$s/год. Отмена в любой момент.</item>
+        <item quantity="other">%1$d дней бесплатно, далее %2$s за первый год, затем %3$s/год. Отмена в любой момент.</item>
+    </plurals>
+    <plurals name="plan_terms_yearly">
+        <item quantity="one">%1$d день бесплатно, далее %2$s/год. Отмена в любой момент.</item>
+        <item quantity="few">%1$d дня бесплатно, далее %2$s/год. Отмена в любой момент.</item>
+        <item quantity="many">%1$d дней бесплатно, далее %2$s/год. Отмена в любой момент.</item>
+        <item quantity="other">%1$d дней бесплатно, далее %2$s/год. Отмена в любой момент.</item>
     </plurals>
     <plurals name="plus_n_more">
         <item quantity="one">+ ещё %1$d</item>

@@ -342,11 +342,8 @@
     <string name="of_total">z %1$s</string>
     <string name="off">Vypnuto</string>
     <string name="offer_available_until">K dispozici do %1$s</string>
-    <string name="offer_cta_start_trial_months_free">Začít zkušební období s %1$d měsíci zdarma</string>
     <string name="offer_first_year_price">%1$s za první rok</string>
-    <string name="offer_months_free_headline">%1$d měsíce Pro zdarma</string>
     <string name="offer_percent_off_first_year">%1$d %% sleva na první rok</string>
-    <string name="offer_terms_first_year">%1$d dní zdarma, poté %2$s za první rok, poté %3$s/rok. Zrušit lze kdykoli.</string>
     <string name="offer_then_regular_price">poté %1$s/rok</string>
     <string name="offer_timeline_day">Den %1$d</string>
     <string name="offer_timeline_first_charge">%1$s za rok, do té doby lze kdykoli zrušit</string>
@@ -377,7 +374,6 @@
     <string name="plan_billed_yearly_price_for_country">Účtováno jednou ročně · cena pro %1$s</string>
     <string name="plan_monthly_equivalent_line">≈ %1$s/měsíc · účtováno jednou ročně</string>
     <string name="plan_save_percent">Ušetřete %1$d %%</string>
-    <string name="plan_terms_yearly">%1$d dní zdarma, poté %2$s/rok. Zrušit lze kdykoli.</string>
     <string name="please_try_again">Prosím, zkuste to znovu.</string>
     <string name="please_wait">Prosím, počkejte několik minut a zkuste to znovu.</string>
     <string name="points">Body</string>
@@ -639,6 +635,30 @@
         <item quantity="few">%1$d nové</item>
         <item quantity="many">%1$d nové</item>
         <item quantity="other">Nové: %1$d</item>
+    </plurals>
+    <plurals name="offer_cta_start_trial_months_free">
+        <item quantity="one">Začít zkušební období s %1$d měsícem zdarma</item>
+        <item quantity="few">Začít zkušební období s %1$d měsíci zdarma</item>
+        <item quantity="many">Začít zkušební období s %1$d měsíce zdarma</item>
+        <item quantity="other">Začít zkušební období s %1$d měsíci zdarma</item>
+    </plurals>
+    <plurals name="offer_months_free_headline">
+        <item quantity="one">%1$d měsíc Pro zdarma</item>
+        <item quantity="few">%1$d měsíce Pro zdarma</item>
+        <item quantity="many">%1$d měsíce Pro zdarma</item>
+        <item quantity="other">%1$d měsíců Pro zdarma</item>
+    </plurals>
+    <plurals name="offer_terms_first_year">
+        <item quantity="one">%1$d den zdarma, poté %2$s za první rok, poté %3$s/rok. Zrušit lze kdykoli.</item>
+        <item quantity="few">%1$d dny zdarma, poté %2$s za první rok, poté %3$s/rok. Zrušit lze kdykoli.</item>
+        <item quantity="many">%1$d dne zdarma, poté %2$s za první rok, poté %3$s/rok. Zrušit lze kdykoli.</item>
+        <item quantity="other">%1$d dní zdarma, poté %2$s za první rok, poté %3$s/rok. Zrušit lze kdykoli.</item>
+    </plurals>
+    <plurals name="plan_terms_yearly">
+        <item quantity="one">%1$d den zdarma, poté %2$s/rok. Zrušit lze kdykoli.</item>
+        <item quantity="few">%1$d dny zdarma, poté %2$s/rok. Zrušit lze kdykoli.</item>
+        <item quantity="many">%1$d dne zdarma, poté %2$s/rok. Zrušit lze kdykoli.</item>
+        <item quantity="other">%1$d dní zdarma, poté %2$s/rok. Zrušit lze kdykoli.</item>
     </plurals>
     <plurals name="plus_n_more">
         <item quantity="one">+ %1$d další</item>

@@ -11,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.unit.dp
@@ -185,9 +186,9 @@ fun PlanTermsLine(
         selectedPlan == PlanType.MONTHLY ->
             stringResource(id = R.string.plan_billed_monthly_cancel_anytime)
         offer != null ->
-            stringResource(id = R.string.offer_terms_first_year, freeTrialDays, offer.firstYearPrice, offer.regularYearPrice)
+            pluralStringResource(id = R.plurals.offer_terms_first_year, count = freeTrialDays, freeTrialDays, offer.firstYearPrice, offer.regularYearPrice)
         else ->
-            stringResource(id = R.string.plan_terms_yearly, freeTrialDays, presentation.yearlyPrice)
+            pluralStringResource(id = R.plurals.plan_terms_yearly, count = freeTrialDays, freeTrialDays, presentation.yearlyPrice)
     }
     Text(
         text,

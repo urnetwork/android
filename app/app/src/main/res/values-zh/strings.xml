@@ -575,11 +575,8 @@
     <string name="of_total">/ %1$s</string>
     <string name="off">关</string>
     <string name="offer_available_until">有效期至 %1$s</string>
-    <string name="offer_cta_start_trial_months_free">开始免费试用，另享 %1$d 个月免费</string>
     <string name="offer_first_year_price">首年 %1$s</string>
-    <string name="offer_months_free_headline">Pro 免费 %1$d 个月</string>
     <string name="offer_percent_off_first_year">首年立减 %1$d%%</string>
-    <string name="offer_terms_first_year">免费 %1$d 天，首年 %2$s，之后 %3$s/年。可随时取消。</string>
     <string name="offer_then_regular_price">之后 %1$s/年</string>
     <string name="offer_timeline_day">第 %1$d 天</string>
     <string name="offer_timeline_first_charge">全年 %1$s，此前可随时取消</string>
@@ -619,7 +616,6 @@
     <string name="plan_price_per_month">%1$s/月</string>
     <string name="plan_price_per_year">%1$s/年</string>
     <string name="plan_save_percent">省 %1$d%%</string>
-    <string name="plan_terms_yearly">免费 %1$d 天，之后 %2$s/年。可随时取消。</string>
     <string name="please_try_again">请再试一次。</string>
     <string name="please_wait">请稍等片刻，然后重试。</string>
     <string name="points">积分</string>
@@ -974,6 +970,18 @@
     </plurals>
     <plurals name="new_items_count">
         <item quantity="other">%1$d 个新增</item>
+    </plurals>
+    <plurals name="offer_cta_start_trial_months_free">
+        <item quantity="other">开始免费试用，另享 %1$d 个月免费</item>
+    </plurals>
+    <plurals name="offer_months_free_headline">
+        <item quantity="other">Pro 免费 %1$d 个月</item>
+    </plurals>
+    <plurals name="offer_terms_first_year">
+        <item quantity="other">免费 %1$d 天，首年 %2$s，之后 %3$s/年。可随时取消。</item>
+    </plurals>
+    <plurals name="plan_terms_yearly">
+        <item quantity="other">免费 %1$d 天，之后 %2$s/年。可随时取消。</item>
     </plurals>
     <plurals name="plus_n_more">
         <item quantity="other">+ 另外 %1$d 个</item>

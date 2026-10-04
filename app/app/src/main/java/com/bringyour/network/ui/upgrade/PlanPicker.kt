@@ -9,6 +9,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.bringyour.network.R
@@ -87,7 +88,7 @@ fun PlanPicker(
                 Text(
                     when {
                         yearlySelected && offer != null && trialOffered ->
-                            stringResource(id = R.string.offer_cta_start_trial_months_free, offer.monthsFree)
+                            pluralStringResource(id = R.plurals.offer_cta_start_trial_months_free, count = offer.monthsFree, offer.monthsFree)
                         yearlySelected && trialOffered ->
                             stringResource(id = R.string.start_free_trial)
                         else ->

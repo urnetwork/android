@@ -342,11 +342,8 @@
     <string name="of_total">จาก %1$s</string>
     <string name="off">ปิด</string>
     <string name="offer_available_until">ใช้ได้ถึง %1$s</string>
-    <string name="offer_cta_start_trial_months_free">เริ่มทดลองใช้ฟรี พร้อมฟรี %1$d เดือน</string>
     <string name="offer_first_year_price">%1$s สำหรับปีแรก</string>
-    <string name="offer_months_free_headline">Pro ฟรี %1$d เดือน</string>
     <string name="offer_percent_off_first_year">ลด %1$d%% สำหรับปีแรก</string>
-    <string name="offer_terms_first_year">ฟรี %1$d วัน จากนั้น %2$s สำหรับปีแรก แล้ว %3$s/ปี ยกเลิกได้ทุกเมื่อ</string>
     <string name="offer_then_regular_price">จากนั้น %1$s/ปี</string>
     <string name="offer_timeline_day">วันที่ %1$d</string>
     <string name="offer_timeline_first_charge">%1$s ต่อปี ยกเลิกได้ทุกเมื่อก่อนหน้านั้น</string>
@@ -377,7 +374,6 @@
     <string name="plan_billed_yearly_price_for_country">เรียกเก็บปีละครั้ง · ราคาสำหรับ %1$s</string>
     <string name="plan_monthly_equivalent_line">≈ %1$s/เดือน · เรียกเก็บปีละครั้ง</string>
     <string name="plan_save_percent">ประหยัด %1$d%%</string>
-    <string name="plan_terms_yearly">ฟรี %1$d วัน จากนั้น %2$s/ปี ยกเลิกได้ทุกเมื่อ</string>
     <string name="please_try_again">กรุณาลองใหม่อีกครั้ง</string>
     <string name="please_wait">โปรดรอสักครู่ แล้วลองใหม่อีกครั้ง</string>
     <string name="points">คะแนน</string>
@@ -615,6 +611,18 @@
     </plurals>
     <plurals name="new_items_count">
         <item quantity="other">ใหม่ %1$d รายการ</item>
+    </plurals>
+    <plurals name="offer_cta_start_trial_months_free">
+        <item quantity="other">เริ่มทดลองใช้ฟรี พร้อมฟรี %1$d เดือน</item>
+    </plurals>
+    <plurals name="offer_months_free_headline">
+        <item quantity="other">Pro ฟรี %1$d เดือน</item>
+    </plurals>
+    <plurals name="offer_terms_first_year">
+        <item quantity="other">ฟรี %1$d วัน จากนั้น %2$s สำหรับปีแรก แล้ว %3$s/ปี ยกเลิกได้ทุกเมื่อ</item>
+    </plurals>
+    <plurals name="plan_terms_yearly">
+        <item quantity="other">ฟรี %1$d วัน จากนั้น %2$s/ปี ยกเลิกได้ทุกเมื่อ</item>
     </plurals>
     <plurals name="plus_n_more">
         <item quantity="other">+ อีก %1$d รายการ</item>
