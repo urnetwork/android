@@ -1,12 +1,21 @@
 package com.bringyour.network.ui.settings
 
-import com.bringyour.network.ui.login.APPLE_OAUTH_PURPOSE_ADD
-import com.bringyour.network.ui.login.APPLE_OAUTH_PURPOSE_LOGIN
-import com.bringyour.network.ui.login.AppleOAuthAttempts
-import com.bringyour.network.ui.login.AppleOAuthReturnRoute
-import com.bringyour.network.ui.login.AppleOAuthStore
-import com.bringyour.network.ui.login.PendingAppleOAuth
-import com.bringyour.network.ui.login.appleOAuthReturnRoute
+import com.bringyour.network.BuildConfig
+import com.bringyour.network.ui.login.GOOGLE_OAUTH_WEB_CLIENT_ID
+import com.bringyour.network.ui.login.SSO_OAUTH_PURPOSE_ADD
+import com.bringyour.network.ui.login.SSO_OAUTH_PURPOSE_LOGIN
+import com.bringyour.network.ui.login.SsoOAuthAttempts
+import com.bringyour.network.ui.login.SsoOAuthReturnRoute
+import com.bringyour.network.ui.login.SsoOAuthStore
+import com.bringyour.network.ui.login.PendingSsoOAuth
+import com.bringyour.network.ui.login.SsoLoginOutcome
+import com.bringyour.network.ui.login.SsoOAuthReturn
+import com.bringyour.network.ui.login.SsoProvider
+import com.bringyour.network.ui.login.googleOAuthAuthorizeUrl
+import com.bringyour.network.ui.login.loginSsoProviders
+import com.bringyour.network.ui.login.ssoLoginOutcome
+import com.bringyour.network.ui.login.ssoOAuthReturnProvider
+import com.bringyour.network.ui.login.ssoOAuthReturnRoute
 import com.bringyour.network.ui.wallet.BittensorBridgeReturns
 import com.bringyour.network.ui.wallet.BittensorProof
 import com.bringyour.network.ui.wallet.BittensorProofFlow
@@ -29,16 +38,19 @@ import org.junit.Test
  * The add sign-in method sheet offers the same options on every app (ur.io
  * AddSignInSheet, apple AddAuthSheetMethods): Apple, Google, a Solana or
  * Bittensor wallet, and an email or phone. Android offered Google, a Solana
- * wallet and email only. Adding must never sign in: an Apple return started
- * by the sheet is not taken by the login, and a Bittensor proof signed to add
- * is never a sign-in proof. Stores, clocks and tokens are injected.
+ * wallet and email only, and the github build (no Play services) neither
+ * Apple nor Google, on its login or in the sheet; it now signs in with both
+ * through the browser. Adding must never sign in: an Apple or Google return
+ * started by the sheet is not taken by the login, and a Bittensor proof
+ * signed to add is never a sign-in proof. Stores, clocks and tokens are
+ * injected.
  */
 class AddSignInOptionsTest {
 
-    private class MemoryStore : AppleOAuthStore {
-        var pending: PendingAppleOAuth? = null
-        override fun load(): PendingAppleOAuth? = pending
-        override fun save(pending: PendingAppleOAuth) {
+    private class MemoryStore : SsoOAuthStore {
+        var pending: PendingSsoOAuth? = null
+        override fun load(): PendingSsoOAuth? = pending
+        override fun save(pending: PendingSsoOAuth) {
             this.pending = pending
         }
         override fun clear() {
@@ -54,9 +66,9 @@ class AddSignInOptionsTest {
         }
     }
 
-    private fun attempts(store: MemoryStore, nowMillis: Long = 5_000L): AppleOAuthAttempts {
+    private fun attempts(store: MemoryStore, nowMillis: Long = 5_000L): SsoOAuthAttempts {
         val tokens = Tokens()
-        return AppleOAuthAttempts(store, { nowMillis }, tokens::token)
+        return SsoOAuthAttempts(store, { nowMillis }, tokens::token)
     }
 
     private val alice = "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY"
@@ -71,8 +83,101 @@ class AddSignInOptionsTest {
             listOf(AddAuthMethod.APPLE, AddAuthMethod.GOOGLE, AddAuthMethod.WALLET, AddAuthMethod.EMAIL),
             addAuthMethods(ssoAvailable = true),
         )
-        // the ungoogle (github) flavor's login has no Apple or Google either
+        // a build that offered neither on its login
         assertEquals(listOf(AddAuthMethod.WALLET, AddAuthMethod.EMAIL), addAuthMethods(ssoAvailable = false))
+    }
+
+    // runs per flavor (testGithubDebugUnitTest is the build without Play
+    // services): the sheet is given this build's flag, exactly as Settings and
+    // the guest conversion give it
+    @Test
+    fun thisBuildsAddSheetOffersAppleAndGoogleInTheUrIoOrder() {
+        assertEquals(
+            listOf(AddAuthMethod.APPLE, AddAuthMethod.GOOGLE, AddAuthMethod.WALLET, AddAuthMethod.EMAIL),
+            addAuthMethods(BuildConfig.BRINGYOUR_BUNDLE_SSO_GOOGLE),
+        )
+    }
+
+    @Test
+    fun thisBuildsLoginLeadsWithGoogleThenApple() {
+        // the play flavor's order; the github login lays out its stack from this
+        assertEquals(listOf(SsoProvider.GOOGLE, SsoProvider.APPLE), loginSsoProviders(BuildConfig.BRINGYOUR_BUNDLE_SSO_GOOGLE))
+        assertEquals(listOf<SsoProvider>(), loginSsoProviders(false))
+    }
+
+    @Test
+    fun googleSignsInThroughTheApiCallbackWithTheWebClient() {
+        val url = googleOAuthAuthorizeUrl("https://api.example/", "state-1", "nonce-1")
+        assertTrue(url, url.startsWith("https://accounts.google.com/o/oauth2/v2/auth?"))
+        // the web client the server accepts as an audience (no Android client, no Play services)
+        assertTrue(url, url.contains("client_id=$GOOGLE_OAUTH_WEB_CLIENT_ID&"))
+        assertTrue(url, url.contains("redirect_uri=https%3A%2F%2Fapi.example%2Fauth%2Fgoogle%2Fcallback&"))
+        // the code flow: the callback exchanges the code for the identity token
+        assertTrue(url, url.contains("&response_type=code&"))
+        assertTrue(url, url.contains("&scope=openid%20email%20profile&"))
+        assertTrue(url, url.contains("&state=state-1&"))
+        assertTrue(url, url.contains("&nonce=nonce-1&"))
+    }
+
+    @Test
+    fun theCallbackReturnsAreToldApartByPath() {
+        assertEquals(SsoProvider.GOOGLE, ssoOAuthReturnProvider("ur", "oauth", "/google"))
+        assertEquals(SsoProvider.APPLE, ssoOAuthReturnProvider("ur", "oauth", "/apple"))
+        assertNull(ssoOAuthReturnProvider("ur", "oauth", "/other"))
+        assertNull(ssoOAuthReturnProvider("ur", "bittensor-sign-message", "/google"))
+        assertNull(ssoOAuthReturnProvider("https", "oauth", "/google"))
+    }
+
+    @Test
+    fun anAddStartedGoogleReturnIsAddedAndNeverSignsIn() {
+        val store = MemoryStore()
+        val attempts = attempts(store)
+        val pending = attempts.begin(SSO_OAUTH_PURPOSE_ADD)
+        val googleReturn = SsoOAuthReturn(pending.state, "google-id-token", null)
+
+        assertEquals(SsoOAuthReturnRoute.ADD_SIGN_IN, ssoOAuthReturnRoute(attempts, pending.state))
+        // the login refuses it and leaves it for the sheet
+        assertEquals(SsoLoginOutcome.NoAttempt, ssoLoginOutcome(SsoProvider.GOOGLE, attempts, googleReturn) { pending.nonce })
+        assertNotNull(store.pending)
+
+        assertEquals(
+            SsoAddOutcome.Add(AddSsoAuth("google-id-token", "google")),
+            ssoAddOutcome(SsoProvider.GOOGLE, attempts, googleReturn) { pending.nonce },
+        )
+        assertNull(store.pending)
+    }
+
+    @Test
+    fun aLoginGoogleReturnSignsInAndIsNotTheSheets() {
+        val store = MemoryStore()
+        val attempts = attempts(store)
+        val pending = attempts.begin(SSO_OAUTH_PURPOSE_LOGIN)
+        val googleReturn = SsoOAuthReturn(pending.state, "google-id-token", null)
+
+        assertEquals(SsoOAuthReturnRoute.LOGIN, ssoOAuthReturnRoute(attempts, pending.state))
+        assertEquals(SsoAddOutcome.Stray, ssoAddOutcome(SsoProvider.GOOGLE, attempts, googleReturn) { pending.nonce })
+        assertEquals(
+            SsoLoginOutcome.SignIn("google-id-token", "google"),
+            ssoLoginOutcome(SsoProvider.GOOGLE, attempts, googleReturn) { pending.nonce },
+        )
+        // consumed once: a replayed return signs no one in
+        assertEquals(SsoLoginOutcome.NoAttempt, ssoLoginOutcome(SsoProvider.GOOGLE, attempts, googleReturn) { pending.nonce })
+    }
+
+    @Test
+    fun aGoogleLoginReturnMustCarryTheAttemptsNonce() {
+        val store = MemoryStore()
+        val attempts = attempts(store)
+        val pending = attempts.begin(SSO_OAUTH_PURPOSE_LOGIN)
+        assertEquals(
+            SsoLoginOutcome.Failed(null),
+            ssoLoginOutcome(SsoProvider.GOOGLE, attempts, SsoOAuthReturn(pending.state, "other-token", null)) { "other-nonce" },
+        )
+        val cancelled = attempts.begin(SSO_OAUTH_PURPOSE_LOGIN)
+        assertEquals(
+            SsoLoginOutcome.Failed("access_denied"),
+            ssoLoginOutcome(SsoProvider.GOOGLE, attempts, SsoOAuthReturn(cancelled.state, null, "access_denied")) { cancelled.nonce },
+        )
     }
 
     @Test
@@ -98,20 +203,20 @@ class AddSignInOptionsTest {
     fun anAddStartedAppleReturnIsNotTakenByTheLogin() {
         val store = MemoryStore()
         val attempts = attempts(store)
-        val pending = attempts.begin(APPLE_OAUTH_PURPOSE_ADD)
+        val pending = attempts.begin(SSO_OAUTH_PURPOSE_ADD)
 
-        assertEquals(AppleOAuthReturnRoute.ADD_SIGN_IN, appleOAuthReturnRoute(attempts, pending.state))
+        assertEquals(SsoOAuthReturnRoute.ADD_SIGN_IN, ssoOAuthReturnRoute(attempts, pending.state))
         // the login refuses it and leaves it for the sheet
-        assertNull(attempts.take(pending.state, APPLE_OAUTH_PURPOSE_LOGIN))
+        assertNull(attempts.take(pending.state, SSO_OAUTH_PURPOSE_LOGIN))
         assertNotNull(store.pending)
 
-        val outcome = appleAddOutcome(attempts, AppleOAuthReturn(pending.state, "apple-id-token", null)) { pending.nonce }
-        assertEquals(AppleAddOutcome.Add(AddSsoAuth("apple-id-token", "apple")), outcome)
+        val outcome = ssoAddOutcome(SsoProvider.APPLE, attempts, SsoOAuthReturn(pending.state, "apple-id-token", null)) { pending.nonce }
+        assertEquals(SsoAddOutcome.Add(AddSsoAuth("apple-id-token", "apple")), outcome)
         // consumed once
         assertNull(store.pending)
         assertEquals(
-            AppleAddOutcome.Stray,
-            appleAddOutcome(attempts, AppleOAuthReturn(pending.state, "apple-id-token", null)) { pending.nonce },
+            SsoAddOutcome.Stray,
+            ssoAddOutcome(SsoProvider.APPLE, attempts, SsoOAuthReturn(pending.state, "apple-id-token", null)) { pending.nonce },
         )
     }
 
@@ -119,31 +224,31 @@ class AddSignInOptionsTest {
     fun aLoginAppleReturnIsNotTakenByTheSheet() {
         val store = MemoryStore()
         val attempts = attempts(store)
-        val pending = attempts.begin(APPLE_OAUTH_PURPOSE_LOGIN)
+        val pending = attempts.begin(SSO_OAUTH_PURPOSE_LOGIN)
 
-        assertEquals(AppleOAuthReturnRoute.LOGIN, appleOAuthReturnRoute(attempts, pending.state))
+        assertEquals(SsoOAuthReturnRoute.LOGIN, ssoOAuthReturnRoute(attempts, pending.state))
         assertEquals(
-            AppleAddOutcome.Stray,
-            appleAddOutcome(attempts, AppleOAuthReturn(pending.state, "apple-id-token", null)) { pending.nonce },
+            SsoAddOutcome.Stray,
+            ssoAddOutcome(SsoProvider.APPLE, attempts, SsoOAuthReturn(pending.state, "apple-id-token", null)) { pending.nonce },
         )
         // still the login's
-        assertEquals(pending.nonce, attempts.take(pending.state, APPLE_OAUTH_PURPOSE_LOGIN)?.nonce)
+        assertEquals(pending.nonce, attempts.take(pending.state, SSO_OAUTH_PURPOSE_LOGIN)?.nonce)
     }
 
     @Test
     fun anAppleAddReturnMustCarryTheAttemptsNonce() {
         val store = MemoryStore()
         val attempts = attempts(store)
-        val pending = attempts.begin(APPLE_OAUTH_PURPOSE_ADD)
+        val pending = attempts.begin(SSO_OAUTH_PURPOSE_ADD)
         assertEquals(
-            AppleAddOutcome.Failed(null),
-            appleAddOutcome(attempts, AppleOAuthReturn(pending.state, "other-token", null)) { "other-nonce" },
+            SsoAddOutcome.Failed(null),
+            ssoAddOutcome(SsoProvider.APPLE, attempts, SsoOAuthReturn(pending.state, "other-token", null)) { "other-nonce" },
         )
 
-        val cancelled = attempts.begin(APPLE_OAUTH_PURPOSE_ADD)
+        val cancelled = attempts.begin(SSO_OAUTH_PURPOSE_ADD)
         assertEquals(
-            AppleAddOutcome.Failed("user_cancelled_authorize"),
-            appleAddOutcome(attempts, AppleOAuthReturn(cancelled.state, null, "user_cancelled_authorize")) { cancelled.nonce },
+            SsoAddOutcome.Failed("user_cancelled_authorize"),
+            ssoAddOutcome(SsoProvider.APPLE, attempts, SsoOAuthReturn(cancelled.state, null, "user_cancelled_authorize")) { cancelled.nonce },
         )
     }
 
@@ -151,9 +256,9 @@ class AddSignInOptionsTest {
     fun anUnknownStateRoutesToTheLoginWhichRefusesIt() {
         val store = MemoryStore()
         val attempts = attempts(store)
-        attempts.begin(APPLE_OAUTH_PURPOSE_ADD)
-        assertEquals(AppleOAuthReturnRoute.LOGIN, appleOAuthReturnRoute(attempts, "forged-state"))
-        assertEquals(AppleOAuthReturnRoute.LOGIN, appleOAuthReturnRoute(attempts, null))
+        attempts.begin(SSO_OAUTH_PURPOSE_ADD)
+        assertEquals(SsoOAuthReturnRoute.LOGIN, ssoOAuthReturnRoute(attempts, "forged-state"))
+        assertEquals(SsoOAuthReturnRoute.LOGIN, ssoOAuthReturnRoute(attempts, null))
     }
 
     @Test

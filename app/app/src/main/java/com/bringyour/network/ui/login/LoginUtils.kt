@@ -162,16 +162,25 @@ fun launchBittensorSignMessage(
     }
 }
 
-// ── Sign in with Apple: Apple's OAuth web flow in a Custom Tab ──
-// Apple has no Android SDK. The app opens Apple's authorize page in a Custom
-// Tab; Apple posts the result to the api's /auth/apple/callback, which hands it
-// straight back through `ur://oauth/apple?state=…&id_token=…` (or `&error=…`),
-// handled by the LoginActivity like any other `ur://` link, and turned into the
-// same /auth/login call the Google button makes. `state` ties the return to
-// this launch (it also carries the platform claim the callback reads to pick
-// the `ur://` scheme); `nonce` must come back inside the identity token, so a
-// token minted elsewhere cannot be replayed. The server verifies the token's
-// signature and audience (the Services ID) in /auth/login.
+// ── Sign in with Apple, and with Google in the browser: OAuth web flows in a Custom Tab ──
+// Apple has no Android SDK, and the github (F-Droid) build carries no Play
+// services, so neither has a native sign-in there. The app opens the
+// provider's authorize page in a Custom Tab with the api as the redirect:
+//
+// - Apple posts the result to the api's /auth/apple/callback (form_post).
+// - Google redirects an authorization code to the api's /auth/google/callback,
+//   which exchanges it for the identity token with the ur.io web client's
+//   secret (Google hands an identity token only to a server).
+//
+// Either callback hands the identity token straight back through
+// `ur://oauth/<provider>?state=…&id_token=…` (or `&error=…`), handled by the
+// LoginActivity like any other `ur://` link, and turned into the same
+// /auth/login (or /auth/add-auth) call a native sign-in makes. `state` ties
+// the return to this launch (it also carries the platform claim the callback
+// reads to pick the `ur://` scheme); `nonce` must come back inside the
+// identity token, so a token minted elsewhere cannot be replayed. The server
+// verifies the token's signature and audience (Apple's Services ID, the
+// Google web client id) in /auth/login and /auth/add-auth.
 const val APPLE_OAUTH_AUTHORIZE_URL = "https://appleid.apple.com/auth/authorize"
 // The Apple Services ID: the web flow's client id, the one ur.io signs in with
 const val APPLE_OAUTH_SERVICES_ID = "network.ur.service"
@@ -182,20 +191,44 @@ const val APPLE_OAUTH_RETURN_PATH = "/apple"
 const val APPLE_OAUTH_PLATFORM = "android"
 const val AUTH_JWT_TYPE_APPLE = "apple"
 private const val APPLE_OAUTH_PREFS = "apple_oauth"
-private const val APPLE_OAUTH_MAX_AGE_MILLIS = 10 * 60 * 1000L
+private const val SSO_OAUTH_MAX_AGE_MILLIS = 10 * 60 * 1000L
+
+const val GOOGLE_OAUTH_AUTHORIZE_URL = "https://accounts.google.com/o/oauth2/v2/auth"
+// The ur.io web sign-in client (also the windows, linux and macos browser
+// flows); the api's callback holds its secret. Not the Android client in
+// google.xml, which only the Play services sign-in can use.
+const val GOOGLE_OAUTH_WEB_CLIENT_ID = "338638865390-cg4m0t700mq9073smhn9do81mr640ig1.apps.googleusercontent.com"
+const val GOOGLE_OAUTH_CALLBACK_PATH = "/auth/google/callback"
+const val GOOGLE_OAUTH_RETURN_PATH = "/google"
+const val AUTH_JWT_TYPE_GOOGLE = "google"
+private const val GOOGLE_OAUTH_PREFS = "google_oauth"
+
+/** A provider with a browser flow; `authJwtType` is the auth_jwt_type it signs in with. */
+enum class SsoProvider(val authJwtType: String, val returnPath: String) {
+    APPLE(AUTH_JWT_TYPE_APPLE, APPLE_OAUTH_RETURN_PATH),
+    GOOGLE(AUTH_JWT_TYPE_GOOGLE, GOOGLE_OAUTH_RETURN_PATH),
+}
+
+/**
+ * The login stack's leading sign-in buttons, in the play flavor's order:
+ * Google then Apple where the build offers them (BRINGYOUR_BUNDLE_SSO_GOOGLE),
+ * none otherwise. The browser-flow build (github) lays out its stack from this.
+ */
+fun loginSsoProviders(ssoGoogle: Boolean): List<SsoProvider> =
+    if (ssoGoogle) listOf(SsoProvider.GOOGLE, SsoProvider.APPLE) else listOf()
 
 // Why an attempt was started. The return comes back on the same link either
 // way; the purpose decides who may take it. A login takes only a login
-// attempt, and the add sheet only an add attempt, so an Apple ID being added
-// to the signed-in network can never sign in as itself.
-const val APPLE_OAUTH_PURPOSE_LOGIN = "login"
-const val APPLE_OAUTH_PURPOSE_ADD = "add"
+// attempt, and the add sheet only an add attempt, so an Apple ID or Google
+// account being added to the signed-in network can never sign in as itself.
+const val SSO_OAUTH_PURPOSE_LOGIN = "login"
+const val SSO_OAUTH_PURPOSE_ADD = "add"
 
-class PendingAppleOAuth(
+class PendingSsoOAuth(
     val state: String,
     val nonce: String,
     val createdMillis: Long,
-    val purpose: String = APPLE_OAUTH_PURPOSE_LOGIN,
+    val purpose: String = SSO_OAUTH_PURPOSE_LOGIN,
 )
 
 /** base64url without padding, the encoding of the state and of the random tokens. */
@@ -204,48 +237,66 @@ private fun base64Url(bytes: ByteArray): String =
 
 /**
  * The state of one attempt: base64url of `{"platform":"android","token":…}`.
- * Opaque to Apple; the api callback reads the platform claim to pick the
- * return scheme (`ur://` here), everything else is the random token.
+ * Opaque to the provider; the api callback reads the platform claim to pick
+ * the return scheme (`ur://` here), everything else is the random token.
  */
 fun appleOAuthState(token: String): String =
     base64Url("{\"platform\":\"$APPLE_OAUTH_PLATFORM\",\"token\":\"$token\"}".toByteArray(Charsets.UTF_8))
 
+private fun oauthQueryEncode(value: String): String =
+    java.net.URLEncoder.encode(value, "UTF-8").replace("+", "%20")
+
 /** Apple's authorize url for one attempt; `apiUrl` is the api origin the callback lives on. */
 fun appleOAuthAuthorizeUrl(apiUrl: String, state: String, nonce: String): String {
-    fun enc(value: String): String =
-        java.net.URLEncoder.encode(value, "UTF-8").replace("+", "%20")
     val redirectUri = apiUrl.trimEnd('/') + APPLE_OAUTH_CALLBACK_PATH
     return APPLE_OAUTH_AUTHORIZE_URL +
-            "?client_id=${enc(APPLE_OAUTH_SERVICES_ID)}" +
-            "&redirect_uri=${enc(redirectUri)}" +
-            "&response_type=${enc("code id_token")}" +
+            "?client_id=${oauthQueryEncode(APPLE_OAUTH_SERVICES_ID)}" +
+            "&redirect_uri=${oauthQueryEncode(redirectUri)}" +
+            "&response_type=${oauthQueryEncode("code id_token")}" +
             "&response_mode=form_post" +
-            "&scope=${enc("name email")}" +
-            "&state=${enc(state)}" +
-            "&nonce=${enc(nonce)}"
+            "&scope=${oauthQueryEncode("name email")}" +
+            "&state=${oauthQueryEncode(state)}" +
+            "&nonce=${oauthQueryEncode(nonce)}"
 }
 
-/** Where the one pending attempt is kept. */
-interface AppleOAuthStore {
-    fun load(): PendingAppleOAuth?
-    fun save(pending: PendingAppleOAuth)
+/**
+ * Google's authorize url for one attempt (the code flow; the api's callback
+ * exchanges the code). The same request the desktop apps make, so the
+ * callback url registered for the web client already covers it.
+ */
+fun googleOAuthAuthorizeUrl(apiUrl: String, state: String, nonce: String): String {
+    val redirectUri = apiUrl.trimEnd('/') + GOOGLE_OAUTH_CALLBACK_PATH
+    return GOOGLE_OAUTH_AUTHORIZE_URL +
+            "?client_id=${oauthQueryEncode(GOOGLE_OAUTH_WEB_CLIENT_ID)}" +
+            "&redirect_uri=${oauthQueryEncode(redirectUri)}" +
+            "&response_type=code" +
+            "&scope=${oauthQueryEncode("openid email profile")}" +
+            "&state=${oauthQueryEncode(state)}" +
+            "&nonce=${oauthQueryEncode(nonce)}" +
+            "&prompt=select_account"
+}
+
+/** Where the one pending attempt of a provider is kept. */
+interface SsoOAuthStore {
+    fun load(): PendingSsoOAuth?
+    fun save(pending: PendingSsoOAuth)
     fun clear()
 }
 
 /**
- * One attempt at a time. [take] hands the attempt only to the flow it was
- * started for, and leaves another flow's attempt in place: a login never
- * consumes (or signs in with) the return of an add attempt, and the add sheet
- * never consumes a login's. Times come from `nowMillis` so tests inject the
- * clock.
+ * One attempt at a time per provider. [take] hands the attempt only to the
+ * flow it was started for, and leaves another flow's attempt in place: a login
+ * never consumes (or signs in with) the return of an add attempt, and the add
+ * sheet never consumes a login's. Times come from `nowMillis` so tests inject
+ * the clock.
  */
-class AppleOAuthAttempts(
-    private val store: AppleOAuthStore,
+class SsoOAuthAttempts(
+    private val store: SsoOAuthStore,
     private val nowMillis: () -> Long,
     private val token: () -> String,
 ) {
-    fun begin(purpose: String): PendingAppleOAuth {
-        val pending = PendingAppleOAuth(appleOAuthState(token()), token(), nowMillis(), purpose)
+    fun begin(purpose: String): PendingSsoOAuth {
+        val pending = PendingSsoOAuth(appleOAuthState(token()), token(), nowMillis(), purpose)
         store.save(pending)
         return pending
     }
@@ -262,7 +313,7 @@ class AppleOAuthAttempts(
      * when it does not match or is stale. An attempt for another purpose is
      * not consumed.
      */
-    fun take(state: String?, purpose: String): PendingAppleOAuth? {
+    fun take(state: String?, purpose: String): PendingSsoOAuth? {
         if (state.isNullOrEmpty()) return null
         val pending = store.load() ?: return null
         if (pending.state.isEmpty() || pending.state != state) {
@@ -271,63 +322,79 @@ class AppleOAuthAttempts(
         }
         if (pending.purpose != purpose) return null
         store.clear()
-        if (nowMillis() - pending.createdMillis > APPLE_OAUTH_MAX_AGE_MILLIS) return null
+        if (nowMillis() - pending.createdMillis > SSO_OAUTH_MAX_AGE_MILLIS) return null
         return pending
     }
 }
 
+private fun ssoOAuthToken(): String {
+    val bytes = ByteArray(24)
+    SecureRandom().nextBytes(bytes)
+    return base64Url(bytes)
+}
+
 /**
- * The attempt kept in preferences rather than memory: the browser round trip
- * can outlive this process, and the return must still be matched.
+ * A provider's attempts kept in preferences rather than memory: the browser
+ * round trip can outlive this process, and the return must still be matched.
+ * Each provider has its own preferences, so an Apple attempt and a Google
+ * attempt never replace each other.
  */
-object AppleOAuthSession {
-    private fun token(): String {
-        val bytes = ByteArray(24)
-        SecureRandom().nextBytes(bytes)
-        return base64Url(bytes)
-    }
-
-    fun attempts(context: Context): AppleOAuthAttempts {
-        val prefs = context.getSharedPreferences(APPLE_OAUTH_PREFS, Context.MODE_PRIVATE)
-        val store = object : AppleOAuthStore {
-            override fun load(): PendingAppleOAuth? {
-                val state = prefs.getString("state", "") ?: ""
-                if (state.isEmpty()) return null
-                return PendingAppleOAuth(
-                    state,
-                    prefs.getString("nonce", "") ?: "",
-                    prefs.getLong("created", 0L),
-                    // an attempt saved before purposes were kept was a login
-                    prefs.getString("purpose", null) ?: APPLE_OAUTH_PURPOSE_LOGIN,
-                )
-            }
-
-            override fun save(pending: PendingAppleOAuth) {
-                prefs.edit()
-                    .putString("state", pending.state)
-                    .putString("nonce", pending.nonce)
-                    .putLong("created", pending.createdMillis)
-                    .putString("purpose", pending.purpose)
-                    .apply()
-            }
-
-            override fun clear() {
-                prefs.edit().clear().apply()
-            }
+private fun ssoOAuthAttemptsInPrefs(context: Context, prefsName: String): SsoOAuthAttempts {
+    val prefs = context.getSharedPreferences(prefsName, Context.MODE_PRIVATE)
+    val store = object : SsoOAuthStore {
+        override fun load(): PendingSsoOAuth? {
+            val state = prefs.getString("state", "") ?: ""
+            if (state.isEmpty()) return null
+            return PendingSsoOAuth(
+                state,
+                prefs.getString("nonce", "") ?: "",
+                prefs.getLong("created", 0L),
+                // an attempt saved before purposes were kept was a login
+                prefs.getString("purpose", null) ?: SSO_OAUTH_PURPOSE_LOGIN,
+            )
         }
-        return AppleOAuthAttempts(store, System::currentTimeMillis, ::token)
-    }
 
-    fun begin(context: Context, purpose: String = APPLE_OAUTH_PURPOSE_LOGIN): PendingAppleOAuth =
+        override fun save(pending: PendingSsoOAuth) {
+            prefs.edit()
+                .putString("state", pending.state)
+                .putString("nonce", pending.nonce)
+                .putLong("created", pending.createdMillis)
+                .putString("purpose", pending.purpose)
+                .apply()
+        }
+
+        override fun clear() {
+            prefs.edit().clear().apply()
+        }
+    }
+    return SsoOAuthAttempts(store, System::currentTimeMillis, ::ssoOAuthToken)
+}
+
+/** Apple's pending attempt. */
+object AppleOAuthSession {
+    fun attempts(context: Context): SsoOAuthAttempts = ssoOAuthAttemptsInPrefs(context, APPLE_OAUTH_PREFS)
+
+    fun begin(context: Context, purpose: String = SSO_OAUTH_PURPOSE_LOGIN): PendingSsoOAuth =
         attempts(context).begin(purpose)
 
-    /** The login's attempt for `state`, consumed; see [AppleOAuthAttempts.take]. */
-    fun take(context: Context, state: String?, purpose: String = APPLE_OAUTH_PURPOSE_LOGIN): PendingAppleOAuth? =
+    /** The login's attempt for `state`, consumed; see [SsoOAuthAttempts.take]. */
+    fun take(context: Context, state: String?, purpose: String = SSO_OAUTH_PURPOSE_LOGIN): PendingSsoOAuth? =
         attempts(context).take(state, purpose)
 }
 
-/** Who takes an Apple return. */
-enum class AppleOAuthReturnRoute {
+/** Google's pending browser attempt (the github flavor). */
+object GoogleOAuthSession {
+    fun attempts(context: Context): SsoOAuthAttempts = ssoOAuthAttemptsInPrefs(context, GOOGLE_OAUTH_PREFS)
+}
+
+/** A provider's pending attempts. */
+fun ssoOAuthAttempts(context: Context, provider: SsoProvider): SsoOAuthAttempts = when (provider) {
+    SsoProvider.APPLE -> AppleOAuthSession.attempts(context)
+    SsoProvider.GOOGLE -> GoogleOAuthSession.attempts(context)
+}
+
+/** Who takes a browser sign-in return. */
+enum class SsoOAuthReturnRoute {
     // the login screen (/auth/login)
     LOGIN,
     // the add sign-in method sheet (/auth/add-auth on the signed-in network)
@@ -335,33 +402,108 @@ enum class AppleOAuthReturnRoute {
 }
 
 /**
- * The route of an Apple return, by the purpose of the attempt its state
- * names. Anything that is not a pending add attempt goes to the login, which
- * refuses a stale or forged state as before.
+ * The route of a return, by the purpose of the attempt its state names.
+ * Anything that is not a pending add attempt goes to the login, which refuses
+ * a stale or forged state as before.
  */
-fun appleOAuthReturnRoute(attempts: AppleOAuthAttempts, state: String?): AppleOAuthReturnRoute =
-    if (attempts.purposeOf(state) == APPLE_OAUTH_PURPOSE_ADD) {
-        AppleOAuthReturnRoute.ADD_SIGN_IN
+fun ssoOAuthReturnRoute(attempts: SsoOAuthAttempts, state: String?): SsoOAuthReturnRoute =
+    if (attempts.purposeOf(state) == SSO_OAUTH_PURPOSE_ADD) {
+        SsoOAuthReturnRoute.ADD_SIGN_IN
     } else {
-        AppleOAuthReturnRoute.LOGIN
+        SsoOAuthReturnRoute.LOGIN
     }
-
-/** `ur://oauth/apple?…`: the callback's return for this app. */
-fun isAppleOAuthReturn(uri: Uri): Boolean =
-    uri.scheme == APPLE_OAUTH_RETURN_SCHEME && uri.host == APPLE_OAUTH_RETURN_HOST && uri.path == APPLE_OAUTH_RETURN_PATH
 
 /**
- * Opens Apple's sign-in in a Custom Tab; false when the api origin is unknown
- * or no browser could be opened.
+ * The provider of a callback return (`ur://oauth/apple?…`, `ur://oauth/google?…`),
+ * null for any other link. Pure, on the link's parts, so tests need no Uri.
  */
-fun launchAppleOAuth(context: Context, apiUrl: String?, purpose: String = APPLE_OAUTH_PURPOSE_LOGIN): Boolean {
+fun ssoOAuthReturnProvider(scheme: String?, host: String?, path: String?): SsoProvider? {
+    if (scheme != APPLE_OAUTH_RETURN_SCHEME || host != APPLE_OAUTH_RETURN_HOST) return null
+    return SsoProvider.entries.firstOrNull { it.returnPath == path }
+}
+
+fun ssoOAuthReturnProvider(uri: Uri): SsoProvider? = ssoOAuthReturnProvider(uri.scheme, uri.host, uri.path)
+
+/** `ur://oauth/apple?…`: the callback's return for this app. */
+fun isAppleOAuthReturn(uri: Uri): Boolean = ssoOAuthReturnProvider(uri) == SsoProvider.APPLE
+
+/** `ur://oauth/google?…`: the Google callback's return for this app. */
+fun isGoogleOAuthReturn(uri: Uri): Boolean = ssoOAuthReturnProvider(uri) == SsoProvider.GOOGLE
+
+/** A return's parts, read off the link. */
+data class SsoOAuthReturn(
+    val state: String?,
+    val idToken: String?,
+    val error: String?,
+)
+
+fun ssoOAuthReturn(uri: Uri): SsoOAuthReturn = SsoOAuthReturn(
+    state = uri.getQueryParameter("state"),
+    idToken = uri.getQueryParameter("id_token"),
+    error = uri.getQueryParameter("error"),
+)
+
+sealed class SsoLoginOutcome {
+    // the identity token of this login's attempt, for /auth/login
+    data class SignIn(val authJwt: String, val authJwtType: String) : SsoLoginOutcome()
+    // the provider or callback reported an error, or the token is not this attempt's
+    data class Failed(val error: String?) : SsoLoginOutcome()
+    // no login attempt is waiting for this state (stale, forged, or another flow's)
+    object NoAttempt : SsoLoginOutcome()
+}
+
+/**
+ * Checks a return against the pending login attempt: the state must name it
+ * (consumed here) and the token must carry its nonce. `nonceOf` reads the
+ * token's nonce claim (the server verifies the signature). An add attempt's
+ * return is never a sign-in.
+ */
+fun ssoLoginOutcome(
+    provider: SsoProvider,
+    attempts: SsoOAuthAttempts,
+    ssoReturn: SsoOAuthReturn,
+    nonceOf: (String) -> String?,
+): SsoLoginOutcome {
+    val pending = attempts.take(ssoReturn.state, SSO_OAUTH_PURPOSE_LOGIN) ?: return SsoLoginOutcome.NoAttempt
+    val idToken = ssoReturn.idToken
+    if (ssoReturn.error != null || idToken.isNullOrEmpty()) {
+        return SsoLoginOutcome.Failed(ssoReturn.error)
+    }
+    if (nonceOf(idToken) != pending.nonce) {
+        return SsoLoginOutcome.Failed(null)
+    }
+    return SsoLoginOutcome.SignIn(idToken, provider.authJwtType)
+}
+
+/**
+ * Opens a provider's sign-in in a Custom Tab; false when the api origin is
+ * unknown or no browser could be opened.
+ */
+fun launchSsoOAuth(
+    context: Context,
+    provider: SsoProvider,
+    apiUrl: String?,
+    purpose: String = SSO_OAUTH_PURPOSE_LOGIN,
+): Boolean {
     if (apiUrl.isNullOrEmpty()) {
-        Log.i("LoginUtils", "apple sign-in: no api url for the callback")
+        Log.i("LoginUtils", "${provider.authJwtType} sign-in: no api url for the callback")
         return false
     }
-    val pending = AppleOAuthSession.begin(context, purpose)
-    return launchInBrowser(context, Uri.parse(appleOAuthAuthorizeUrl(apiUrl, pending.state, pending.nonce)))
+    val pending = ssoOAuthAttempts(context, provider).begin(purpose)
+    val authorizeUrl = when (provider) {
+        SsoProvider.APPLE -> appleOAuthAuthorizeUrl(apiUrl, pending.state, pending.nonce)
+        SsoProvider.GOOGLE -> googleOAuthAuthorizeUrl(apiUrl, pending.state, pending.nonce)
+    }
+    return launchInBrowser(context, Uri.parse(authorizeUrl))
 }
+
+/** Apple's sign-in in a Custom Tab; see [launchSsoOAuth]. */
+fun launchAppleOAuth(context: Context, apiUrl: String?, purpose: String = SSO_OAUTH_PURPOSE_LOGIN): Boolean =
+    launchSsoOAuth(context, SsoProvider.APPLE, apiUrl, purpose)
+
+/** Google's sign-in in a Custom Tab, for the build without Play services; see [launchSsoOAuth]. */
+fun launchGoogleOAuth(context: Context, apiUrl: String?, purpose: String = SSO_OAUTH_PURPOSE_LOGIN): Boolean =
+    launchSsoOAuth(context, SsoProvider.GOOGLE, apiUrl, purpose)
 
 /**
  * The display name from the `user` JSON Apple sends with the FIRST

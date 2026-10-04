@@ -1,9 +1,11 @@
 package com.bringyour.network.ui.settings
 
-import com.bringyour.network.ui.login.APPLE_OAUTH_PURPOSE_ADD
-import com.bringyour.network.ui.login.AUTH_JWT_TYPE_APPLE
-import com.bringyour.network.ui.login.AppleOAuthAttempts
 import com.bringyour.network.ui.login.BITTENSOR_BLOCKCHAIN
+import com.bringyour.network.ui.login.SSO_OAUTH_PURPOSE_ADD
+import com.bringyour.network.ui.login.SsoOAuthAttempts
+import com.bringyour.network.ui.login.SsoOAuthReturn
+import com.bringyour.network.ui.login.SsoProvider
+import com.bringyour.network.ui.login.ssoOAuthReturn
 import com.bringyour.network.ui.wallet.BittensorProof
 import com.bringyour.network.ui.wallet.BittensorProofRoute
 import com.bringyour.network.ui.wallet.BittensorReturnAction
@@ -17,9 +19,10 @@ import kotlinx.coroutines.flow.asStateFlow
  * The add sign-in method sheet's options, the same on every app (ur.io
  * AddSignInSheet, apple AddAuthSheetMethods): Apple, Google, a wallet
  * (Solana or Bittensor), and an email or phone with a code. Apple and Google
- * are offered where the flavor's login offers them: the Google SSO flavors
- * (play, solana_dapp, ethos_dapp) sign in with both, and the ungoogle
- * (github) flavor with neither.
+ * are offered where the flavor's login offers them (BRINGYOUR_BUNDLE_SSO_GOOGLE):
+ * every flavor now. The Play services flavors (play, solana_dapp, ethos_dapp)
+ * add Google natively; the ungoogle (github) flavor adds Google in the browser
+ * (launchGoogleOAuth), and every flavor adds Apple in the browser.
  */
 enum class AddAuthMethod { APPLE, GOOGLE, WALLET, EMAIL }
 
@@ -64,61 +67,59 @@ fun bittensorAddWalletAuth(proof: BittensorProof): AddWalletAuth? {
 /** The auth_jwt pair of /auth/add-auth for an SSO identity token. */
 data class AddSsoAuth(val authJwt: String, val authJwtType: String)
 
-/** An Apple return (`ur://oauth/apple?state&id_token|error`) for the add sheet. */
-data class AppleOAuthReturn(
-    val state: String?,
-    val idToken: String?,
-    val error: String?,
-)
-
-sealed class AppleAddOutcome {
-    data class Add(val auth: AddSsoAuth) : AppleAddOutcome()
-    // Apple or the callback reported an error, or the token is not this attempt's
-    data class Failed(val error: String?) : AppleAddOutcome()
+sealed class SsoAddOutcome {
+    data class Add(val auth: AddSsoAuth) : SsoAddOutcome()
+    // the provider or the callback reported an error, or the token is not this attempt's
+    data class Failed(val error: String?) : SsoAddOutcome()
     // no add attempt is waiting for this state: not this sheet's
-    object Stray : AppleAddOutcome()
+    object Stray : SsoAddOutcome()
 }
 
 /**
- * Checks an Apple return against the pending add attempt: the state must
- * name it (consumed here) and the token must carry its nonce. `nonceOf`
- * reads the token's nonce claim (the server verifies the signature).
+ * Checks a browser sign-in return against the provider's pending add attempt:
+ * the state must name it (consumed here) and the token must carry its nonce.
+ * `nonceOf` reads the token's nonce claim (the server verifies the signature).
  */
-fun appleAddOutcome(
-    attempts: AppleOAuthAttempts,
-    appleReturn: AppleOAuthReturn,
+fun ssoAddOutcome(
+    provider: SsoProvider,
+    attempts: SsoOAuthAttempts,
+    ssoReturn: SsoOAuthReturn,
     nonceOf: (String) -> String?,
-): AppleAddOutcome {
-    val pending = attempts.take(appleReturn.state, APPLE_OAUTH_PURPOSE_ADD) ?: return AppleAddOutcome.Stray
-    val idToken = appleReturn.idToken
-    if (appleReturn.error != null || idToken.isNullOrEmpty()) {
-        return AppleAddOutcome.Failed(appleReturn.error)
+): SsoAddOutcome {
+    val pending = attempts.take(ssoReturn.state, SSO_OAUTH_PURPOSE_ADD) ?: return SsoAddOutcome.Stray
+    val idToken = ssoReturn.idToken
+    if (ssoReturn.error != null || idToken.isNullOrEmpty()) {
+        return SsoAddOutcome.Failed(ssoReturn.error)
     }
     if (nonceOf(idToken) != pending.nonce) {
-        return AppleAddOutcome.Failed(null)
+        return SsoAddOutcome.Failed(null)
     }
-    return AppleAddOutcome.Add(AddSsoAuth(idToken, AUTH_JWT_TYPE_APPLE))
+    return SsoAddOutcome.Add(AddSsoAuth(idToken, provider.authJwtType))
 }
 
-/**
- * Hands an Apple return for an add attempt from the LoginActivity (where every
- * `ur://` link arrives) to the add sheet in the main activity. Held for the
- * process: the browser round trip ends in a new LoginActivity, not in the
- * sheet. A process restart drops it, and the user adds Apple again.
- */
-object AppleAddSignInReturns {
-    private val _pending = MutableStateFlow<AppleOAuthReturn?>(null)
-    val pending: StateFlow<AppleOAuthReturn?> = _pending.asStateFlow()
+/** A browser sign-in return for an add attempt, with the provider it came back from. */
+data class SsoAddReturn(val provider: SsoProvider, val ssoReturn: SsoOAuthReturn)
 
-    fun deliver(appleReturn: AppleOAuthReturn) {
-        _pending.value = appleReturn
+/**
+ * Hands a browser sign-in return for an add attempt from the LoginActivity
+ * (where every `ur://` link arrives) to the add sheet in the main activity.
+ * Held for the process: the browser round trip ends in a new LoginActivity,
+ * not in the sheet. A process restart drops it, and the user adds the sign-in
+ * again.
+ */
+object SsoAddSignInReturns {
+    private val _pending = MutableStateFlow<SsoAddReturn?>(null)
+    val pending: StateFlow<SsoAddReturn?> = _pending.asStateFlow()
+
+    fun deliver(addReturn: SsoAddReturn) {
+        _pending.value = addReturn
     }
 
     /** The waiting return, taken once. */
-    fun take(): AppleOAuthReturn? {
-        val appleReturn = _pending.value
+    fun take(): SsoAddReturn? {
+        val addReturn = _pending.value
         _pending.value = null
-        return appleReturn
+        return addReturn
     }
 }
 
@@ -144,7 +145,7 @@ fun bittensorAddReturn(action: BittensorReturnAction): BittensorAddReturn? = whe
 
 /**
  * Hands a Bittensor bridge return for an add-purpose session from the
- * LoginActivity to the add sheet, like [AppleAddSignInReturns].
+ * LoginActivity to the add sheet, like [SsoAddSignInReturns].
  */
 object BittensorAddSignInReturns {
     private val _pending = MutableStateFlow<BittensorAddReturn?>(null)
@@ -175,17 +176,17 @@ private fun returnToAddSheet(activity: android.app.Activity, mainActivity: Class
 }
 
 /**
- * Hands an add attempt's Apple return (`ur://oauth/apple`, which every
- * flavor's LoginActivity receives) to the add sheet.
+ * Hands an add attempt's browser sign-in return (`ur://oauth/apple`, which
+ * every flavor's LoginActivity receives, or `ur://oauth/google` on the github
+ * flavor) to the add sheet.
  */
-fun forwardAppleAddSignInReturn(activity: android.app.Activity, uri: android.net.Uri, mainActivity: Class<*>) {
-    AppleAddSignInReturns.deliver(
-        AppleOAuthReturn(
-            state = uri.getQueryParameter("state"),
-            idToken = uri.getQueryParameter("id_token"),
-            error = uri.getQueryParameter("error"),
-        )
-    )
+fun forwardSsoAddSignInReturn(
+    activity: android.app.Activity,
+    provider: SsoProvider,
+    uri: android.net.Uri,
+    mainActivity: Class<*>,
+) {
+    SsoAddSignInReturns.deliver(SsoAddReturn(provider, ssoOAuthReturn(uri)))
     returnToAddSheet(activity, mainActivity)
 }
 
