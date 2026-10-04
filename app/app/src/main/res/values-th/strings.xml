@@ -10,6 +10,7 @@
     <string name="add_emoji">เพิ่มอีโมจิ</string>
     <string name="add_referral_code">เพิ่มรหัสแนะนำ</string>
     <string name="add_referral_extra_rewards">เพิ่มรหัสการแนะนำเพื่อรับรางวัลเสริม</string>
+    <string name="add_sign_in_method">เพิ่มวิธีลงชื่อเข้าใช้</string>
     <string name="add_sign_in_method_2">เพิ่มวิธีลงชื่อเข้าใช้</string>
     <string name="advanced">ขั้นสูง</string>
     <string name="allow_local_connections">เปิดให้เชื่อมต่อจากอุปกรณ์ในเครือข่ายเดียวกัน</string>
@@ -29,6 +30,7 @@
     <string name="app_split_precedence_note">แอปที่รวมไว้จะมาก่อนเสมอ: หากมีแอปใดถูกรวมไว้ จะมีเฉพาะแอปที่รวมไว้เท่านั้นที่ใช้ VPN และการยกเว้นจะไม่มีผล</string>
     <string name="app_split_rules">กฎแยกเส้นทางแอป</string>
     <string name="app_split_starter">แอปที่แยกเส้นทาง 0 แอป</string>
+    <string name="apple_sign_in_method_added">เพิ่มวิธีลงชื่อเข้าใช้ Apple แล้ว</string>
     <string name="apply_bonus">รับโบนัส</string>
     <string name="apps">แอป</string>
     <string name="are_you_sure_delete_account">คุณยืนยันที่จะลบบัญชีของคุณหรือไม่?</string>
@@ -91,6 +93,7 @@
     <string name="companion">คู่สัญญา</string>
     <string name="connect">เชื่อมต่อ</string>
     <string name="connect_and_open">เชื่อมต่อและเปิดลิงก์</string>
+    <string name="connect_bittensor_wallet_to_add_sign_in_method">เชื่อมต่อกระเป๋า Bittensor เพื่อเพิ่มเป็นวิธีลงชื่อเข้าใช้</string>
     <string name="connect_options">ตัวเลือกการเชื่อมต่อ</string>
     <string name="connect_seeker_wallet">เชื่อมกระเป๋ากับ Saga Genesis หรือ Seeker Pre-Order Token</string>
     <string name="connect_solana_wallet_to_add_sign_in_method">เชื่อมต่อกระเป๋า Solana เพื่อเพิ่มเป็นวิธีลงชื่อเข้าใช้</string>
@@ -264,6 +267,7 @@
     <string name="make_default">ตั้งเป็นกระเป๋ารับยอด</string>
     <string name="manage_subscription">จัดการระบบรายเดือน</string>
     <string name="member">รูปแบบสมาชิก</string>
+    <string name="method">วิธี</string>
     <string name="mock_location_active">กำลังซิงค์กับ %1$s</string>
     <string name="mock_location_disclosure_detectable">แอปสามารถรู้ได้ว่าตำแหน่งเป็นตำแหน่งจำลอง แอปธนาคาร เรียกรถ ส่งของ และเกมบางแอปอาจไม่ยอมทำงานขณะที่เปิดใช้อยู่</string>
     <string name="mock_location_disclosure_device_wide">การตั้งค่านี้จะเปลี่ยนตำแหน่งที่รายงานให้ทุกแอปในอุปกรณ์ของคุณ ไม่ใช่เฉพาะ URnetwork</string>
@@ -492,6 +496,7 @@
     <string name="sign_in_with_google">เข้าสู่ระบบด้วย Google</string>
     <string name="sign_in_with_google_to_add_it">ลงชื่อเข้าใช้ด้วย Google เพื่อเพิ่มเป็นวิธีลงชื่อเข้าใช้</string>
     <string name="sign_in_with_seedphrase">ลงชื่อเข้าใช้ด้วยวลีกู้คืน</string>
+    <string name="sign_in_with_your_apple_id_to">ลงชื่อเข้าใช้ด้วย Apple ID ของคุณเพื่อเพิ่มเป็นวิธีลงชื่อเข้าใช้</string>
     <string name="site_app_email">อีเมล</string>
     <string name="site_save_your_seedphrase">บันทึกซีดเฟรสของคุณ</string>
     <string name="solana_sign_in">เข้าสู่ระบบด้วยเครือข่าย Solana</string>

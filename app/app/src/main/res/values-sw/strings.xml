@@ -10,6 +10,7 @@
     <string name="add_emoji">Ongeza emoji</string>
     <string name="add_referral_code">Ongeza msimbo wa rufaa</string>
     <string name="add_referral_extra_rewards">Ongeza msimbo wa rufaa ili kupata zawadi za ziada</string>
+    <string name="add_sign_in_method">Ongeza njia ya kuingia</string>
     <string name="add_sign_in_method_2">Ongeza Njia ya Kuingia</string>
     <string name="advanced">Za kina</string>
     <string name="allow_local_connections">Ruhusu miunganisho ya ndani</string>
@@ -29,6 +30,7 @@
     <string name="app_split_precedence_note">Programu zilizojumuishwa hupewa kipaumbele: programu yoyote ikijumuishwa, ni programu zilizojumuishwa pekee zinazotumia VPN na utengaji hauna athari.</string>
     <string name="app_split_rules">Sheria za mgawanyo wa programu</string>
     <string name="app_split_starter">Programu 0 zilizogawanywa</string>
+    <string name="apple_sign_in_method_added">Njia ya kuingia ya Apple imeongezwa</string>
     <string name="apply_bonus">Tumia bonasi</string>
     <string name="apps">Programu</string>
     <string name="are_you_sure_delete_account">Una uhakika unataka kufuta akaunti yako?</string>
@@ -91,6 +93,7 @@
     <string name="companion">Mshirika</string>
     <string name="connect">Unganisha</string>
     <string name="connect_and_open">Unganisha na ufungue kiungo</string>
+    <string name="connect_bittensor_wallet_to_add_sign_in_method">Unganisha pochi ya Bittensor ili kuiongeza kama njia ya kuingia.</string>
     <string name="connect_options">Chaguo za kuunganisha</string>
     <string name="connect_seeker_wallet">Unganisha pochi na Saga Genesis au Tokeni ya Agizo la Mapema la Seeker</string>
     <string name="connect_solana_wallet_to_add_sign_in_method">Unganisha pochi ya Solana ili kuiongeza kama njia ya kuingia.</string>
@@ -264,6 +267,7 @@
     <string name="make_default">Fanya chaguo-msingi</string>
     <string name="manage_subscription">Dhibiti usajili</string>
     <string name="member">Mwanachama</string>
+    <string name="method">Njia</string>
     <string name="mock_location_active">Inasawazisha na %1$s</string>
     <string name="mock_location_disclosure_detectable">Programu zinaweza kutambua kuwa mahali ni pa kuigwa. Programu za benki, usafiri, uwasilishaji na baadhi ya michezo zinaweza kukataa kufanya kazi wakati kipengele hiki kimewashwa.</string>
     <string name="mock_location_disclosure_device_wide">Hii hubadilisha mahali panaporipotiwa kwa kila programu kwenye kifaa chako, siyo URnetwork pekee.</string>
@@ -492,6 +496,7 @@
     <string name="sign_in_with_google">Ingia na Google</string>
     <string name="sign_in_with_google_to_add_it">Ingia kwa kutumia Google ili kuiongeza kama njia ya kuingia.</string>
     <string name="sign_in_with_seedphrase">Ingia kwa kifungu cha seed</string>
+    <string name="sign_in_with_your_apple_id_to">Ingia kwa kutumia Apple ID yako ili kuiongeza kama njia ya kuingia.</string>
     <string name="site_app_email">Barua pepe</string>
     <string name="site_save_your_seedphrase">Hifadhi seedphrase yako</string>
     <string name="solana_sign_in">Ingia na Solana</string>

@@ -10,6 +10,7 @@
     <string name="add_emoji">絵文字を追加</string>
     <string name="add_referral_code">紹介コードを追加</string>
     <string name="add_referral_extra_rewards">紹介コードを追加して追加の特典を獲得</string>
+    <string name="add_sign_in_method">サインイン方法を追加</string>
     <string name="add_sign_in_method_2">サインイン方法を追加</string>
     <string name="advanced">詳細</string>
     <string name="allow_local_connections">ローカル接続を許可</string>
@@ -29,6 +30,7 @@
     <string name="app_split_precedence_note">含めるアプリが優先されます。1つでもアプリを含めると、含めたアプリのみがVPNを使用し、除外は無効になります。</string>
     <string name="app_split_rules">アプリ分割ルール</string>
     <string name="app_split_starter">分割アプリ 0 件</string>
+    <string name="apple_sign_in_method_added">Appleのサインイン方法を追加しました</string>
     <string name="apply_bonus">ボーナスを適用</string>
     <string name="apps">アプリ</string>
     <string name="are_you_sure_delete_account">本当にアカウントを削除しますか？</string>
@@ -91,6 +93,7 @@
     <string name="companion">相手</string>
     <string name="connect">接続</string>
     <string name="connect_and_open">接続してリンクを開く</string>
+    <string name="connect_bittensor_wallet_to_add_sign_in_method">Bittensor ウォレットを接続して、サインイン方法として追加します。</string>
     <string name="connect_options">接続オプション</string>
     <string name="connect_seeker_wallet">Saga Genesisまたはシーカー事前予約トークンでウォレットを接続する</string>
     <string name="connect_solana_wallet_to_add_sign_in_method">Solana ウォレットを接続して、サインイン方法として追加します。</string>
@@ -264,6 +267,7 @@
     <string name="make_default">デフォルトに設定</string>
     <string name="manage_subscription">サブスクリプションを管理</string>
     <string name="member">メンバー</string>
+    <string name="method">方法</string>
     <string name="mock_location_active">%1$s と同期中</string>
     <string name="mock_location_disclosure_detectable">アプリは位置情報が仮のものであることを検出できます。銀行、配車、配達、一部のゲームアプリは、この機能がオンの間は動作しない場合があります。</string>
     <string name="mock_location_disclosure_device_wide">これにより、URnetwork だけでなく、デバイス上のすべてのアプリに報告される位置情報が変わります。</string>
@@ -492,6 +496,7 @@
     <string name="sign_in_with_google">Google でサインイン</string>
     <string name="sign_in_with_google_to_add_it">Googleでサインインして、サインイン方法として追加します。</string>
     <string name="sign_in_with_seedphrase">シードフレーズでサインイン</string>
+    <string name="sign_in_with_your_apple_id_to">Apple IDでサインインして、サインイン方法として追加します。</string>
     <string name="site_app_email">メール</string>
     <string name="site_save_your_seedphrase">シードフレーズを保存</string>
     <string name="solana_sign_in">Solanaでサインイン</string>

@@ -10,6 +10,7 @@
     <string name="add_emoji">Emoji toevoegen</string>
     <string name="add_referral_code">Referentiecode toevoegen</string>
     <string name="add_referral_extra_rewards">Voeg een referentiecode toe en verdien extra beloningen</string>
+    <string name="add_sign_in_method">Inlogmethode toevoegen</string>
     <string name="add_sign_in_method_2">Inlogmethode toevoegen</string>
     <string name="advanced">Geavanceerd</string>
     <string name="allow_local_connections">Sta lokale verbindingen toe</string>
@@ -29,6 +30,7 @@
     <string name="app_split_precedence_note">Inbegrepen apps hebben voorrang: zodra er één app is inbegrepen, gebruiken alleen inbegrepen apps de VPN en hebben uitsluitingen geen effect.</string>
     <string name="app_split_rules">App-splitsregels</string>
     <string name="app_split_starter">0 gesplitste apps</string>
+    <string name="apple_sign_in_method_added">Apple-inlogmethode toegevoegd</string>
     <string name="apply_bonus">Bonus toepassen</string>
     <string name="apps">Apps</string>
     <string name="are_you_sure_delete_account">Weet je zeker dat je je account wilt verwijderen?</string>
@@ -91,6 +93,7 @@
     <string name="companion">Tegenpartij</string>
     <string name="connect">Verbinden</string>
     <string name="connect_and_open">Verbind en open de link</string>
+    <string name="connect_bittensor_wallet_to_add_sign_in_method">Koppel een Bittensor-wallet om deze als inlogmethode toe te voegen.</string>
     <string name="connect_options">Verbindingsopties</string>
     <string name="connect_seeker_wallet">Koppel een wallet met het Saga Genesis- of Seeker Pre-Order Token</string>
     <string name="connect_solana_wallet_to_add_sign_in_method">Koppel een Solana-wallet om deze als inlogmethode toe te voegen.</string>
@@ -264,6 +267,7 @@
     <string name="make_default">Als standaard instellen</string>
     <string name="manage_subscription">Abonnement beheren</string>
     <string name="member">Lid</string>
+    <string name="method">Methode</string>
     <string name="mock_location_active">Synchroniseren met %1$s</string>
     <string name="mock_location_disclosure_detectable">Apps kunnen merken dat de locatie gesimuleerd is. Bank-, taxi-, bezorg- en sommige game-apps werken mogelijk niet zolang dit aanstaat.</string>
     <string name="mock_location_disclosure_device_wide">Dit verandert de locatie die aan elke app op je apparaat wordt doorgegeven, niet alleen aan URnetwork.</string>
@@ -492,6 +496,7 @@
     <string name="sign_in_with_google">Log in met Google</string>
     <string name="sign_in_with_google_to_add_it">Log in met Google om dit als inlogmethode toe te voegen.</string>
     <string name="sign_in_with_seedphrase">Inloggen met seedphrase</string>
+    <string name="sign_in_with_your_apple_id_to">Log in met je Apple ID om dit als inlogmethode toe te voegen.</string>
     <string name="site_app_email">E-mail</string>
     <string name="site_save_your_seedphrase">Bewaar je seedphrase</string>
     <string name="solana_sign_in">Inloggen met Solana</string>

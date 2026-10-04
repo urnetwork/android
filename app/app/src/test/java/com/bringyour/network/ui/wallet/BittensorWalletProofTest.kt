@@ -43,8 +43,8 @@ class BittensorWalletProofTest {
         FakeSession(request.walletId, request.purpose, message, request.expectedAddress, refuseWith)
 
     @Test
-    fun `exactly talisman and tao com are offered, talisman first`() {
-        assertEquals(listOf("talisman", "taocom"), BittensorWallets.walletIds)
+    fun `talisman, tao com and walletconnect are offered, in the sdk order`() {
+        assertEquals(listOf("talisman", "taocom", "walletconnect"), BittensorWallets.walletIds)
         assertEquals("android", BittensorWallets.PLATFORM)
     }
 

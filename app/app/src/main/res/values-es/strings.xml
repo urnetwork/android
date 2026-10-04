@@ -13,6 +13,7 @@
     <string name="add_local_split_rule">Enrutar localmente</string>
     <string name="add_referral_code">Añadir código de referencia</string>
     <string name="add_referral_extra_rewards">Añade un código de referencia para ganar recompensas adicionales</string>
+    <string name="add_sign_in_method">Añadir método de inicio de sesión</string>
     <string name="add_sign_in_method_2">Añadir método de inicio de sesión</string>
     <string name="add_tao_for_gas">Añade TAO para el gas</string>
     <string name="advanced">Avanzado</string>
@@ -34,6 +35,7 @@
     <string name="app_split_rules">Reglas de división por app</string>
     <string name="app_split_starter">0 apps divididas</string>
     <string name="apple">Apple</string>
+    <string name="apple_sign_in_method_added">Método de inicio de sesión de Apple añadido</string>
     <string name="apply_bonus">Aplicar bono</string>
     <string name="apps">Apps</string>
     <string name="are_you_sure_delete_account">¿Está seguro de que desea eliminar su cuenta?</string>
@@ -77,6 +79,8 @@
     <string name="bittensor_signature_label">Firma</string>
     <string name="bittensor_signature_placeholder">Pega la firma 0x…</string>
     <string name="bittensor_wallet">Billetera de Bittensor</string>
+    <string name="bittensor_walletconnect_continue">Continúa en tu navegador: escanea el código con la app de tu billetera o abre la billetera en este dispositivo.</string>
+    <string name="bittensor_walletconnect_hint">Nova, Nightly y otras billeteras compatibles con WalletConnect</string>
     <string name="block_ads_and_trackers">Bloquear anuncios y rastreadores</string>
     <string name="blocked">Bloqueadas</string>
     <string name="blocked_locations">Ubicaciones bloqueadas</string>
@@ -130,6 +134,7 @@
     <string name="connect">Conecta</string>
     <string name="connect_and_open">Conectar y abrir enlace</string>
     <string name="connect_bittensor_wallet">Conectar billetera de Bittensor</string>
+    <string name="connect_bittensor_wallet_to_add_sign_in_method">Conecta una billetera de Bittensor para añadirla como método de inicio de sesión.</string>
     <string name="connect_options">Opciones de conexión</string>
     <string name="connect_seeker_wallet">Conecta una billetera con el token Saga Genesis o el token de pre-pedido de Seeker</string>
     <string name="connect_solana_wallet">Conectar billetera de Solana</string>
@@ -423,6 +428,7 @@
     <string name="get_started">Empezar</string>
     <string name="get_urnetwork_free_for_life_by_participating">Obtén URnetwork gratis de por vida participando</string>
     <string name="go_back">Volver</string>
+    <string name="google">Google</string>
     <string name="google_auth_btn_text">Iniciar sesión con Google</string>
     <string name="google_sign_in_method_added">Método de inicio de sesión de Google añadido</string>
     <string name="gossip_connecting">Conectando</string>
@@ -508,6 +514,7 @@
     <string name="make_default">Establecer como predeterminada</string>
     <string name="manage_subscription">Administrar suscripción</string>
     <string name="member">Miembro</string>
+    <string name="method">Método</string>
     <string name="mock_location_active">Sincronizando con %1$s</string>
     <string name="mock_location_disclosure_detectable">Las aplicaciones pueden detectar que la ubicación es simulada. Las aplicaciones de banca, transporte, reparto y algunos juegos pueden negarse a funcionar mientras esté activado.</string>
     <string name="mock_location_disclosure_device_wide">Esto cambia la ubicación que se comunica a todas las aplicaciones de tu dispositivo, no solo a URnetwork.</string>
@@ -784,6 +791,7 @@
     <string name="sign_in_with_google">Iniciar sesión con Google</string>
     <string name="sign_in_with_google_to_add_it">Inicia sesión con Google para añadirlo como método de inicio de sesión.</string>
     <string name="sign_in_with_seedphrase">Iniciar sesión con la frase semilla</string>
+    <string name="sign_in_with_your_apple_id_to">Inicia sesión con tu Apple ID para añadirlo como método de inicio de sesión.</string>
     <string name="site_app_contracts">Contratos</string>
     <string name="site_app_email">Correo electrónico</string>
     <string name="site_app_providers">Proveedores</string>

@@ -10,6 +10,7 @@
     <string name="add_emoji">Προσθήκη emoji</string>
     <string name="add_referral_code">Προσθήκη κωδικού παραπομπής</string>
     <string name="add_referral_extra_rewards">Προσθέστε κωδικό παραπομπής για να κερδίσετε επιπλέον ανταμοιβές</string>
+    <string name="add_sign_in_method">Προσθήκη μεθόδου σύνδεσης</string>
     <string name="add_sign_in_method_2">Προσθήκη μεθόδου σύνδεσης</string>
     <string name="advanced">Για προχωρημένους</string>
     <string name="allow_local_connections">Να επιτρέπονται οι τοπικές συνδέσεις</string>
@@ -29,6 +30,7 @@
     <string name="app_split_precedence_note">Οι συμπεριλαμβανόμενες εφαρμογές έχουν προτεραιότητα: αν συμπεριληφθεί έστω μία εφαρμογή, μόνο αυτές χρησιμοποιούν το VPN και οι εξαιρέσεις δεν ισχύουν.</string>
     <string name="app_split_rules">Κανόνες διαχωρισμού εφαρμογών</string>
     <string name="app_split_starter">0 εφαρμογές σε διαχωρισμό</string>
+    <string name="apple_sign_in_method_added">Η μέθοδος σύνδεσης Apple προστέθηκε</string>
     <string name="apply_bonus">Εφαρμογή μπόνους</string>
     <string name="apps">Εφαρμογές</string>
     <string name="are_you_sure_delete_account">Είστε βέβαιοι ότι θέλετε να διαγράψετε τον λογαριασμό σας;</string>
@@ -91,6 +93,7 @@
     <string name="companion">Συμβαλλόμενος</string>
     <string name="connect">Σύνδεση</string>
     <string name="connect_and_open">Σύνδεση και άνοιγμα συνδέσμου</string>
+    <string name="connect_bittensor_wallet_to_add_sign_in_method">Συνδέστε ένα πορτοφόλι Bittensor για να το προσθέσετε ως μέθοδο σύνδεσης.</string>
     <string name="connect_options">Επιλογές σύνδεσης</string>
     <string name="connect_seeker_wallet">Συνδέστε ένα πορτοφόλι με το Saga Genesis ή το Seeker Pre-Order Token</string>
     <string name="connect_solana_wallet_to_add_sign_in_method">Συνδέστε ένα πορτοφόλι Solana για να το προσθέσετε ως μέθοδο σύνδεσης.</string>
@@ -264,6 +267,7 @@
     <string name="make_default">Ορισμός ως προεπιλογή</string>
     <string name="manage_subscription">Διαχείριση συνδρομής</string>
     <string name="member">Μέλος</string>
+    <string name="method">Μέθοδος</string>
     <string name="mock_location_active">Συγχρονισμός με %1$s</string>
     <string name="mock_location_disclosure_detectable">Οι εφαρμογές μπορούν να αντιληφθούν ότι η τοποθεσία είναι εικονική. Εφαρμογές τραπεζών, μεταφορών, παράδοσης και ορισμένα παιχνίδια ενδέχεται να αρνηθούν να λειτουργήσουν όσο αυτό είναι ενεργό.</string>
     <string name="mock_location_disclosure_device_wide">Αυτό αλλάζει την τοποθεσία που αναφέρεται σε κάθε εφαρμογή στη συσκευή σας, όχι μόνο στο URnetwork.</string>
@@ -492,6 +496,7 @@
     <string name="sign_in_with_google">Σύνδεση με Google</string>
     <string name="sign_in_with_google_to_add_it">Συνδεθείτε με Google για να το προσθέσετε ως μέθοδο σύνδεσης.</string>
     <string name="sign_in_with_seedphrase">Σύνδεση με φράση ανάκτησης</string>
+    <string name="sign_in_with_your_apple_id_to">Συνδεθείτε με το Apple ID σας για να το προσθέσετε ως μέθοδο σύνδεσης.</string>
     <string name="site_app_email">Email</string>
     <string name="site_save_your_seedphrase">Αποθηκεύστε τη seedphrase σας</string>
     <string name="solana_sign_in">Είσοδος με Solana</string>

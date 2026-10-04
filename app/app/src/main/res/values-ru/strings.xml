@@ -13,6 +13,7 @@
     <string name="add_local_split_rule">Направить локально</string>
     <string name="add_referral_code">Добавить реферальный код</string>
     <string name="add_referral_extra_rewards">Добавьте реферальный код, чтобы получить дополнительные награды</string>
+    <string name="add_sign_in_method">Добавить способ входа</string>
     <string name="add_sign_in_method_2">Добавить способ входа</string>
     <string name="add_tao_for_gas">Пополните TAO для оплаты газа</string>
     <string name="advanced">Дополнительно</string>
@@ -34,6 +35,7 @@
     <string name="app_split_rules">Правила разделения приложений</string>
     <string name="app_split_starter">0 приложений в разделении</string>
     <string name="apple">Apple</string>
+    <string name="apple_sign_in_method_added">Способ входа через Apple добавлен</string>
     <string name="apply_bonus">Применить бонус</string>
     <string name="apps">Приложения</string>
     <string name="are_you_sure_delete_account">Вы уверены, что хотите удалить свой аккаунт?</string>
@@ -77,6 +79,8 @@
     <string name="bittensor_signature_label">Подпись</string>
     <string name="bittensor_signature_placeholder">Вставьте подпись 0x…</string>
     <string name="bittensor_wallet">Кошелек Bittensor</string>
+    <string name="bittensor_walletconnect_continue">Продолжите в браузере: отсканируйте код приложением кошелька или откройте кошелек на этом устройстве.</string>
+    <string name="bittensor_walletconnect_hint">Nova, Nightly и другие кошельки с поддержкой WalletConnect</string>
     <string name="block_ads_and_trackers">Блокировать рекламу и трекеры</string>
     <string name="blocked">Заблокировано</string>
     <string name="blocked_locations">Заблокированные локации</string>
@@ -130,6 +134,7 @@
     <string name="connect">Подключить</string>
     <string name="connect_and_open">Подключиться и открыть ссылку</string>
     <string name="connect_bittensor_wallet">Подключить кошелек Bittensor</string>
+    <string name="connect_bittensor_wallet_to_add_sign_in_method">Подключите кошелек Bittensor, чтобы добавить его как способ входа.</string>
     <string name="connect_options">Параметры подключения</string>
     <string name="connect_seeker_wallet">Подключите кошелек с токеном Saga Genesis или Seeker Pre-Order</string>
     <string name="connect_solana_wallet">Подключить кошелек Solana</string>
@@ -423,6 +428,7 @@
     <string name="get_started">Начать</string>
     <string name="get_urnetwork_free_for_life_by_participating">Получите URnetwork бесплатно навсегда, участвуя</string>
     <string name="go_back">Назад</string>
+    <string name="google">Google</string>
     <string name="google_auth_btn_text">Войти через Google</string>
     <string name="google_sign_in_method_added">Способ входа через Google добавлен</string>
     <string name="gossip_connecting">Подключение</string>
@@ -508,6 +514,7 @@
     <string name="make_default">Сделать по умолчанию</string>
     <string name="manage_subscription">Управление подпиской</string>
     <string name="member">Участник</string>
+    <string name="method">Способ</string>
     <string name="mock_location_active">Синхронизация: %1$s</string>
     <string name="mock_location_disclosure_detectable">Приложения могут определить, что местоположение фиктивное. Банковские приложения, сервисы такси и доставки, а также некоторые игры могут отказаться работать, пока эта функция включена.</string>
     <string name="mock_location_disclosure_device_wide">Это изменяет местоположение, которое видят все приложения на вашем устройстве, а не только URnetwork.</string>
@@ -784,6 +791,7 @@
     <string name="sign_in_with_google">Войти через Google</string>
     <string name="sign_in_with_google_to_add_it">Войдите через Google, чтобы добавить этот способ входа.</string>
     <string name="sign_in_with_seedphrase">Войти по сид-фразе</string>
+    <string name="sign_in_with_your_apple_id_to">Войдите с помощью Apple ID, чтобы добавить этот способ входа.</string>
     <string name="site_app_contracts">Контракты</string>
     <string name="site_app_email">Email</string>
     <string name="site_app_providers">Провайдеры</string>
