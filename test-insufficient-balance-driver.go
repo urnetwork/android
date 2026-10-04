@@ -1,8 +1,8 @@
 // test-insufficient-balance-driver.go is the Android half of MAIN's
 // insufficient-balance case (tests/TEST-MAIN.md, tests/runner/RUN-MAIN.md).
 // tests/runner/balance runs `test-insufficient-balance-driver <verb> [arg]`;
-// each verb prints exactly one JSON object on stdout, or exits nonzero with one
-// redacted stderr line.
+// each verb is a separate process and prints exactly one JSON object on
+// stdout, or exits nonzero with one redacted stderr line.
 //
 // It reuses MAIN's Android mechanisms instead of a parallel stack:
 //   - the owned acceptance AVD, started, proven, prepared, animation-frozen,
@@ -19,9 +19,17 @@
 // Never the reserved PERF phones: only an emulator this driver started and
 // whose instance id it proves before every mutation is touched.
 //
-// State persists between verbs in $URNETWORK_INSUFFICIENT_BALANCE_STATE.
-// Credentials are read only from $URNETWORK_INSUFFICIENT_BALANCE_CREDENTIALS
-// and reach the device only as a private file; they are never printed.
+// State persists between verbs in $URNETWORK_INSUFFICIENT_BALANCE_STATE, a
+// fresh private directory per runner case. The runner creates a fresh account
+// per case and passes its private credentials file only as
+// `setup <credentials-file>`; setup records that absolute path in the driver
+// state, and later verbs (redaction, client release at teardown) read the
+// credentials only through it. The retired
+// URNETWORK_INSUFFICIENT_BALANCE_CREDENTIALS is never read. The runner keeps
+// the file until after teardown and deletes the account itself; this driver
+// never does. Credentials reach the device only as a private file and are
+// never printed; teardown uninstalls the app and stops the read-only AVD, so
+// the next case's setup signs in fresh.
 //
 // Build-free: GOWORK=off go run test-insufficient-balance-driver.go (standard
 // library only).
@@ -165,24 +173,22 @@ func (self *execRunner) Kill(pid int) {
 // ---- configuration ----
 
 type config struct {
-	root        string // workspace root
-	here        string // android repo
-	stateDir    string
-	credentials string
-	adb         string
-	emulator    string
-	avd         string
-	headless    bool
+	root     string // workspace root
+	here     string // android repo
+	stateDir string
+	adb      string
+	emulator string
+	avd      string
+	headless bool
 }
 
 func configFromEnv(getenv func(string) string, here string) (config, error) {
 	c := config{
-		root:        getenv("URNETWORK_ROOT"),
-		here:        here,
-		stateDir:    getenv("URNETWORK_INSUFFICIENT_BALANCE_STATE"),
-		credentials: getenv("URNETWORK_INSUFFICIENT_BALANCE_CREDENTIALS"),
-		avd:         getenv("UR_ACCEPT_ANDROID_AVD"),
-		headless:    getenv("UR_ACCEPT_ANDROID_WINDOW") != "1",
+		root:     getenv("URNETWORK_ROOT"),
+		here:     here,
+		stateDir: getenv("URNETWORK_INSUFFICIENT_BALANCE_STATE"),
+		avd:      getenv("UR_ACCEPT_ANDROID_AVD"),
+		headless: getenv("UR_ACCEPT_ANDROID_WINDOW") != "1",
 	}
 	if c.root == "" {
 		c.root = filepath.Dir(here)
@@ -190,8 +196,8 @@ func configFromEnv(getenv func(string) string, here string) (config, error) {
 	if c.avd == "" {
 		c.avd = defaultAvd
 	}
-	if !filepath.IsAbs(c.root) || !filepath.IsAbs(c.stateDir) || !filepath.IsAbs(c.credentials) {
-		return c, errors.New("URNETWORK_ROOT, URNETWORK_INSUFFICIENT_BALANCE_STATE and URNETWORK_INSUFFICIENT_BALANCE_CREDENTIALS must be absolute")
+	if !filepath.IsAbs(c.root) || !filepath.IsAbs(c.stateDir) {
+		return c, errors.New("URNETWORK_ROOT and URNETWORK_INSUFFICIENT_BALANCE_STATE must be absolute")
 	}
 	sdkRoot := getenv("ANDROID_SDK_ROOT")
 	if sdkRoot == "" {
@@ -207,12 +213,19 @@ func configFromEnv(getenv func(string) string, here string) (config, error) {
 
 // ---- credentials ----
 
-// readCredentials accepts the runner's private file: exactly one `email:` and
-// one `password:`, mode without group/world access. Values are never printed.
+// readCredentials accepts the runner's private file: an absolute path to a
+// regular file with exactly one `email:` and one `password:`, mode without
+// group/world access. Values are never printed.
 func readCredentials(path string) (email, password string, err error) {
+	if !filepath.IsAbs(path) {
+		return "", "", errors.New("insufficient-balance credentials file must be an absolute path")
+	}
 	info, err := os.Stat(path)
 	if err != nil {
-		return "", "", fmt.Errorf("insufficient-balance credentials: %w", err)
+		return "", "", fmt.Errorf("insufficient-balance credentials file: %w", err)
+	}
+	if !info.Mode().IsRegular() {
+		return "", "", errors.New("insufficient-balance credentials file must be a regular file")
 	}
 	if info.Mode().Perm()&0077 != 0 {
 		return "", "", errors.New("insufficient-balance credentials must not be group/world readable")
@@ -264,6 +277,9 @@ type driverState struct {
 	NextCommandId int    `json:"next_command_id"`
 	Installed     bool   `json:"installed"`
 	Animations    bool   `json:"animations"`
+	// the runner's per-case file from `setup <credentials-file>`; the only
+	// source of credentials for later verbs
+	CredentialsPath string `json:"credentials_path"`
 }
 
 // ---- device status ----
@@ -655,18 +671,20 @@ func firstApk(dir string, preferUniversal bool) (string, error) {
 	return matches[0], nil
 }
 
-func (self *driver) setup(ctx context.Context) (any, error) {
+// setup reads the case's credentials only from credentialsPath, before it
+// touches the host, and records the path for the later verbs.
+func (self *driver) setup(ctx context.Context, credentialsPath string) (any, error) {
+	email, password, err := readCredentials(credentialsPath)
+	if err != nil {
+		return nil, err
+	}
+	self.secrets = append(self.secrets, email, password)
 	if err := os.MkdirAll(self.config.stateDir, 0700); err != nil {
 		return nil, err
 	}
 	if state, err := self.loadState(); err != nil || state != nil {
 		return nil, errors.New("a previous setup was not torn down")
 	}
-	email, password, err := readCredentials(self.config.credentials)
-	if err != nil {
-		return nil, err
-	}
-	self.secrets = append(self.secrets, email, password)
 	timeoutExecutable, err := self.timeoutExecutable(ctx)
 	if err != nil {
 		return nil, err
@@ -689,9 +707,10 @@ func (self *driver) setup(ctx context.Context) (any, error) {
 		return nil, err
 	}
 	state := &driverState{
-		Serial:     "emulator-" + strconv.Itoa(port),
-		OwnerToken: fmt.Sprintf("insufficient-balance-%d-%d", self.now().Unix(), os.Getpid()),
-		BuildId:    pair.buildId,
+		Serial:          "emulator-" + strconv.Itoa(port),
+		OwnerToken:      fmt.Sprintf("insufficient-balance-%d-%d", self.now().Unix(), os.Getpid()),
+		BuildId:         pair.buildId,
+		CredentialsPath: credentialsPath,
 	}
 	emulatorArgs := []string{"-avd", self.config.avd, "-read-only", "-gpu", "host", "-port", strconv.Itoa(port),
 		"-no-snapshot", "-no-boot-anim", "-netdelay", "none", "-netspeed", "full"}
@@ -894,7 +913,7 @@ func (self *driver) releaseClients(ctx context.Context, state *driverState) erro
 	if err != nil || len(clientIds) == 0 {
 		return err
 	}
-	email, password, err := readCredentials(self.config.credentials)
+	email, password, err := readCredentials(state.CredentialsPath)
 	if err != nil {
 		return err
 	}
@@ -923,21 +942,39 @@ func (self *driver) releaseClients(ctx context.Context, state *driverState) erro
 	return nil
 }
 
+// loadSecrets registers the recorded credentials for redaction in verbs after
+// setup. It is best effort: a verb that needs them reads them itself and fails.
+func (self *driver) loadSecrets() {
+	state, err := self.loadState()
+	if err != nil || state == nil || state.CredentialsPath == "" {
+		return
+	}
+	if email, password, err := readCredentials(state.CredentialsPath); err == nil {
+		self.secrets = append(self.secrets, email, password)
+	}
+}
+
 func (self *driver) dispatch(ctx context.Context, args []string) (any, error) {
 	if len(args) == 0 {
 		return nil, errors.New("usage: test-insufficient-balance-driver <verb> [arg]")
 	}
 	verb := args[0]
+	if verb == "setup" && len(args) != 2 {
+		return nil, errors.New("setup takes exactly one argument, the absolute path of the runner's private credentials file")
+	}
 	wantArgs := 1
-	if verb == "kill-switch" {
+	if verb == "kill-switch" || verb == "setup" {
 		wantArgs = 2
 	}
 	if len(args) != wantArgs {
 		return nil, fmt.Errorf("%s: wrong number of arguments", verb)
 	}
+	if verb != "setup" {
+		self.loadSecrets()
+	}
 	switch verb {
 	case "setup":
-		return self.setup(ctx)
+		return self.setup(ctx, args[1])
 	case "direct-egress":
 		return self.directEgress(ctx)
 	case "connect":
