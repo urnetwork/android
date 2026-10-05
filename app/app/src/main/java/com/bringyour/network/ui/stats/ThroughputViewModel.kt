@@ -12,6 +12,7 @@ import androidx.lifecycle.viewModelScope
 import com.bringyour.network.DeviceManager
 import androidx.compose.ui.graphics.Color
 import com.bringyour.network.ui.shared.models.ProvideControlMode
+import com.bringyour.network.ui.shared.models.ProvideNetworkMode
 import com.bringyour.network.ui.shared.models.provideIndicatorDotColorFor
 import com.bringyour.network.ui.shared.models.provideIndicatorRingColorFor
 import com.bringyour.sdk.Sdk
@@ -238,10 +239,25 @@ class ThroughputViewModel @Inject constructor(
         private set
     var providePaused by mutableStateOf(false)
         private set
+    var provideNetworkMode by mutableStateOf(ProvideNetworkMode.WIFI)
+        private set
     val provideIndicatorColor: Color
         get() = provideIndicatorDotColorFor(provideMode, providePaused)
     val provideIndicatorRingColor: Color?
         get() = provideIndicatorRingColorFor(provideMode, providePaused)
+
+    /**
+     * Why the provider may get no traffic, from the live provide state and
+     * the provider traffic of the window (see `providerIdleReason`)
+     */
+    val providerIdleReason: ProviderIdleReason
+        get() = providerIdleReason(
+            controlMode = provideControlMode,
+            liveProvideMode = provideMode,
+            providePaused = providePaused,
+            provideNetworkMode = provideNetworkMode,
+            recentProviderBytes = providerTransportDistribution.byteCount,
+        )
 
     /**
      * Whether the provider plots show: the provide mode the user picked
@@ -290,6 +306,7 @@ class ThroughputViewModel @Inject constructor(
         provideControlMode = ProvideControlMode.NEVER
         provideMode = Sdk.ProvideModeNone
         providePaused = false
+        provideNetworkMode = ProvideNetworkMode.WIFI
         controllerOwner.setDevice(device)
     }
 
@@ -319,6 +336,24 @@ class ThroughputViewModel @Inject constructor(
         })
         // the provide indicator follows the live effective tier
         device.addProvideModeChangeListener {
+            viewModelScope.launch {
+                refreshProvideState()
+            }
+        }?.let { subs.add(it) }
+        // the idle reason follows the pause, the Wi-Fi-only setting and the
+        // picked mode. The throughput tick goes quiet while the window is
+        // idle, which is exactly when a paused provider needs its reason
+        device.addProvidePausedChangeListener {
+            viewModelScope.launch {
+                refreshProvideState()
+            }
+        }?.let { subs.add(it) }
+        device.addProvideNetworkModeChangeListener {
+            viewModelScope.launch {
+                refreshProvideState()
+            }
+        }?.let { subs.add(it) }
+        device.addProvideControlModeChangeListener {
             viewModelScope.launch {
                 refreshProvideState()
             }
@@ -354,6 +389,8 @@ class ThroughputViewModel @Inject constructor(
             ?: ProvideControlMode.NEVER
         provideMode = device.provideMode
         providePaused = device.providePaused
+        provideNetworkMode = device.provideNetworkMode?.let { ProvideNetworkMode.fromString(it) }
+            ?: ProvideNetworkMode.WIFI
     }
 
     /**
