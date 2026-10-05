@@ -683,6 +683,10 @@
     <string name="provide_mode_always_description">Предоставляет доступ всем, пока приложение запущено.</string>
     <string name="provide_mode_auto_description">Предоставляет доступ всем, пока вы подключены, а в остальное время — только вашим устройствам.</string>
     <string name="provide_mode_network_description">Предоставляет доступ только устройствам вашей сети.</string>
+    <string name="provide_power_mode">При работе от батареи</string>
+    <string name="provide_power_mode_always">Продолжать предоставление</string>
+    <string name="provide_power_mode_charging_only">Приостанавливать до зарядки</string>
+    <string name="provide_power_mode_pause_in_battery_saver">Приостанавливать в режиме энергосбережения</string>
     <string name="provider_connected_duration_hours">%1$d ч %2$d мин</string>
     <string name="provider_connected_duration_minutes">%1$d мин</string>
     <string name="provider_connected_duration_seconds">%1$d с</string>
@@ -691,7 +695,9 @@
     <string name="provider_idle_auto_not_connected">Режим «Автоматически» предоставляет доступ всем только во время вашего подключения. Выберите «Всегда», чтобы зарабатывать и без подключения.</string>
     <string name="provider_idle_network_only">Доступ предоставляется только вашим устройствам. Выберите «Всегда», чтобы предоставлять его всем.</string>
     <string name="provider_idle_no_traffic_yet">Новым провайдерам нужно несколько часов стабильной работы и тест скорости, прежде чем к ним начнут направлять клиентов. Трафик также зависит от спроса в вашем регионе.</string>
+    <string name="provider_idle_paused_battery_saver">Приостановлено: включён режим энергосбережения.</string>
     <string name="provider_idle_paused_no_network">Приостановлено: в текущей сети это устройство не может предоставлять доступ.</string>
+    <string name="provider_idle_paused_not_charging">Приостановлено: это устройство не заряжается.</string>
     <string name="provider_idle_paused_wifi_only">Приостановлено: предоставление разрешено только по Wi-Fi, а это устройство не подключено к Wi-Fi.</string>
     <string name="provider_location_unknown">Локация неизвестна</string>
     <string name="provider_locations_empty">Нет подключенных провайдеров</string>

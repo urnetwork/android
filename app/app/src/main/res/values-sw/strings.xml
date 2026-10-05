@@ -415,6 +415,10 @@
     <string name="profile">Wasifu</string>
     <string name="promoted_locations">Maeneo Yaliyopendekezwa</string>
     <string name="provide_mode">Hali ya utoaji</string>
+    <string name="provide_power_mode">Ikitumia betri</string>
+    <string name="provide_power_mode_always">Endelea kutoa</string>
+    <string name="provide_power_mode_charging_only">Sitisha hadi ichaji</string>
+    <string name="provide_power_mode_pause_in_battery_saver">Sitisha wakati Kiokoa Betri kimewashwa</string>
     <string name="provider_connected_duration_hours">saa %1$d dak %2$d</string>
     <string name="provider_connected_duration_minutes">dak %1$d</string>
     <string name="provider_connected_duration_seconds">sek %1$d</string>
@@ -423,7 +427,9 @@
     <string name="provider_idle_auto_not_connected">Moja kwa moja hushiriki na kila mtu tu ukiwa umeunganishwa. Chagua Daima ili upate mapato hata usipounganishwa.</string>
     <string name="provider_idle_network_only">Inashirikiwa na vifaa vyako tu. Chagua Daima ili kushiriki na kila mtu.</string>
     <string name="provider_idle_no_traffic_yet">Watoa huduma wapya wanahitaji saa kadhaa za kufanya kazi bila kukatika na jaribio la kasi kabla wateja hawajatumwa kwao. Trafiki pia inategemea mahitaji katika eneo lako.</string>
+    <string name="provider_idle_paused_battery_saver">Imesitishwa: Kiokoa Betri kimewashwa.</string>
     <string name="provider_idle_paused_no_network">Imesitishwa: kifaa hiki hakiwezi kutoa kwenye mtandao wake wa sasa.</string>
+    <string name="provider_idle_paused_not_charging">Imesitishwa: kifaa hiki hakichaji.</string>
     <string name="provider_idle_paused_wifi_only">Imesitishwa: utoaji umewekwa kwa Wi-Fi pekee, na kifaa hiki hakiko kwenye Wi-Fi.</string>
     <string name="provider_location_unknown">Mahali hapajulikani</string>
     <string name="provider_locations_empty">Hakuna watoa huduma waliounganishwa</string>

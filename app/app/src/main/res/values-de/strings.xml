@@ -683,6 +683,10 @@
     <string name="provide_mode_always_description">Stellt allen bereit, solange die App läuft.</string>
     <string name="provide_mode_auto_description">Stellt allen bereit, während du verbunden bist, sonst nur deinen eigenen Geräten.</string>
     <string name="provide_mode_network_description">Stellt nur den Geräten deines eigenen Netzwerks bereit.</string>
+    <string name="provide_power_mode">Im Akkubetrieb</string>
+    <string name="provide_power_mode_always">Weiter bereitstellen</string>
+    <string name="provide_power_mode_charging_only">Bis zum Laden pausieren</string>
+    <string name="provide_power_mode_pause_in_battery_saver">Im Energiesparmodus pausieren</string>
     <string name="provider_connected_duration_hours">%1$d Std. %2$d Min.</string>
     <string name="provider_connected_duration_minutes">%1$d Min.</string>
     <string name="provider_connected_duration_seconds">%1$d Sek.</string>
@@ -691,7 +695,9 @@
     <string name="provider_idle_auto_not_connected">Automatisch teilt nur mit allen, solange du verbunden bist. Wähle Immer, um auch im Leerlauf zu verdienen.</string>
     <string name="provider_idle_network_only">Nur mit deinen eigenen Geräten geteilt. Wähle Immer, um mit allen zu teilen.</string>
     <string name="provider_idle_no_traffic_yet">Neue Anbieter brauchen einige Stunden stabile Laufzeit und einen Geschwindigkeitstest, bevor ihnen Clients zugewiesen werden. Der Datenverkehr hängt auch von der Nachfrage in deiner Region ab.</string>
+    <string name="provider_idle_paused_battery_saver">Pausiert: Der Energiesparmodus ist aktiviert.</string>
     <string name="provider_idle_paused_no_network">Pausiert: Dieses Gerät kann in seinem aktuellen Netzwerk nicht bereitstellen.</string>
+    <string name="provider_idle_paused_not_charging">Pausiert: Dieses Gerät wird nicht geladen.</string>
     <string name="provider_idle_paused_wifi_only">Pausiert: Die Bereitstellung ist auf „nur WLAN“ eingestellt, und dieses Gerät ist nicht im WLAN.</string>
     <string name="provider_location_unknown">Standort unbekannt</string>
     <string name="provider_locations_empty">Keine Anbieter verbunden</string>

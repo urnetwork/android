@@ -415,6 +415,10 @@
     <string name="profile">प्रोफ़ाइल</string>
     <string name="promoted_locations">प्रचारित स्थान</string>
     <string name="provide_mode">प्रदान मोड</string>
+    <string name="provide_power_mode">बैटरी पर चलते समय</string>
+    <string name="provide_power_mode_always">प्रदान करना जारी रखें</string>
+    <string name="provide_power_mode_charging_only">चार्ज होने तक रोकें</string>
+    <string name="provide_power_mode_pause_in_battery_saver">बैटरी सेवर में रोकें</string>
     <string name="provider_connected_duration_hours">%1$d घं. %2$d मि.</string>
     <string name="provider_connected_duration_minutes">%1$d मि.</string>
     <string name="provider_connected_duration_seconds">%1$d से.</string>
@@ -423,7 +427,9 @@
     <string name="provider_idle_auto_not_connected">स्वचालित केवल तभी सभी के साथ साझा करता है जब आप कनेक्ट हों। कनेक्ट न होने पर भी कमाने के लिए हमेशा चुनें।</string>
     <string name="provider_idle_network_only">केवल आपके अपने डिवाइस के साथ साझा किया गया। सभी के साथ साझा करने के लिए हमेशा चुनें।</string>
     <string name="provider_idle_no_traffic_yet">नए प्रदाताओं को क्लाइंट भेजे जाने से पहले कई घंटों का स्थिर अपटाइम और एक स्पीड टेस्ट चाहिए। ट्रैफ़िक आपके क्षेत्र में मांग पर भी निर्भर करता है।</string>
+    <string name="provider_idle_paused_battery_saver">रुका हुआ: बैटरी सेवर चालू है।</string>
     <string name="provider_idle_paused_no_network">रुका हुआ: यह डिवाइस अपने मौजूदा नेटवर्क पर प्रदान नहीं कर सकता।</string>
+    <string name="provider_idle_paused_not_charging">रुका हुआ: यह डिवाइस चार्ज नहीं हो रहा है।</string>
     <string name="provider_idle_paused_wifi_only">रुका हुआ: प्रदान करना केवल Wi-Fi पर सेट है, और यह डिवाइस Wi-Fi पर नहीं है।</string>
     <string name="provider_location_unknown">स्थान अज्ञात</string>
     <string name="provider_locations_empty">कोई प्रदाता कनेक्ट नहीं है</string>

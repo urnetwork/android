@@ -415,6 +415,10 @@
     <string name="profile">Profil</string>
     <string name="promoted_locations">Propagované lokace</string>
     <string name="provide_mode">Režim poskytování</string>
+    <string name="provide_power_mode">Při napájení z baterie</string>
+    <string name="provide_power_mode_always">Pokračovat v poskytování</string>
+    <string name="provide_power_mode_charging_only">Pozastavit do nabíjení</string>
+    <string name="provide_power_mode_pause_in_battery_saver">Pozastavit při spořiči baterie</string>
     <string name="provider_connected_duration_hours">%1$d h %2$d min</string>
     <string name="provider_connected_duration_minutes">%1$d min</string>
     <string name="provider_connected_duration_seconds">%1$d s</string>
@@ -423,7 +427,9 @@
     <string name="provider_idle_auto_not_connected">Režim Auto sdílí se všemi jen tehdy, když jste připojeni. Zvolte Vždy a vydělávejte i v nečinnosti.</string>
     <string name="provider_idle_network_only">Sdíleno jen s vašimi vlastními zařízeními. Zvolte Vždy a sdílejte se všemi.</string>
     <string name="provider_idle_no_traffic_yet">Noví poskytovatelé potřebují několik hodin stabilního provozu a test rychlosti, než k nim budou posíláni klienti. Provoz závisí také na poptávce ve vašem regionu.</string>
+    <string name="provider_idle_paused_battery_saver">Pozastaveno: Spořič baterie je zapnutý.</string>
     <string name="provider_idle_paused_no_network">Pozastaveno: toto zařízení nemůže na své aktuální síti poskytovat.</string>
+    <string name="provider_idle_paused_not_charging">Pozastaveno: toto zařízení se nenabíjí.</string>
     <string name="provider_idle_paused_wifi_only">Pozastaveno: poskytování je nastaveno jen na Wi-Fi a toto zařízení není připojeno k Wi-Fi.</string>
     <string name="provider_location_unknown">Neznámá poloha</string>
     <string name="provider_locations_empty">Žádní připojení poskytovatelé</string>

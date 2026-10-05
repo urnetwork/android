@@ -683,6 +683,10 @@
     <string name="provide_mode_always_description">只要应用在运行，就向所有人提供。</string>
     <string name="provide_mode_auto_description">连接期间向所有人提供，否则仅向您自己的设备提供。</string>
     <string name="provide_mode_network_description">仅向您自己网络中的设备提供。</string>
+    <string name="provide_power_mode">使用电池时</string>
+    <string name="provide_power_mode_always">继续提供</string>
+    <string name="provide_power_mode_charging_only">暂停直到充电</string>
+    <string name="provide_power_mode_pause_in_battery_saver">省电模式下暂停</string>
     <string name="provider_connected_duration_hours">%1$d小时%2$d分钟</string>
     <string name="provider_connected_duration_minutes">%1$d分钟</string>
     <string name="provider_connected_duration_seconds">%1$d秒</string>
@@ -691,7 +695,9 @@
     <string name="provider_idle_auto_not_connected">“自动”仅在你连接时与所有人共享。选择“始终”，未连接时也能赚取收益。</string>
     <string name="provider_idle_network_only">仅与你自己的设备共享。选择“始终”即可与所有人共享。</string>
     <string name="provider_idle_no_traffic_yet">新提供商需要数小时的稳定在线时间并完成速度测试，才会有客户端被分配给它们。流量还取决于你所在地区的需求。</string>
+    <string name="provider_idle_paused_battery_saver">已暂停：省电模式已开启。</string>
     <string name="provider_idle_paused_no_network">已暂停：此设备无法在当前网络上提供。</string>
+    <string name="provider_idle_paused_not_charging">已暂停：此设备未在充电。</string>
     <string name="provider_idle_paused_wifi_only">已暂停：提供功能设置为仅限 Wi-Fi，而此设备未连接 Wi-Fi。</string>
     <string name="provider_location_unknown">位置未知</string>
     <string name="provider_locations_empty">未连接任何提供商</string>

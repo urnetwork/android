@@ -415,6 +415,10 @@
     <string name="profile">Προφίλ</string>
     <string name="promoted_locations">Προωθούμενες τοποθεσίες</string>
     <string name="provide_mode">Λειτουργία παροχής</string>
+    <string name="provide_power_mode">Όταν λειτουργεί με μπαταρία</string>
+    <string name="provide_power_mode_always">Συνέχιση παροχής</string>
+    <string name="provide_power_mode_charging_only">Παύση μέχρι τη φόρτιση</string>
+    <string name="provide_power_mode_pause_in_battery_saver">Παύση στην Εξοικονόμηση μπαταρίας</string>
     <string name="provider_connected_duration_hours">%1$d ώ. %2$d λ.</string>
     <string name="provider_connected_duration_minutes">%1$d λ.</string>
     <string name="provider_connected_duration_seconds">%1$d δ.</string>
@@ -423,7 +427,9 @@
     <string name="provider_idle_auto_not_connected">Το Αυτόματο μοιράζεται με όλους μόνο όσο είστε συνδεδεμένοι. Επιλέξτε Πάντα για να κερδίζετε και όταν δεν είστε συνδεδεμένοι.</string>
     <string name="provider_idle_network_only">Κοινοποιείται μόνο στις δικές σας συσκευές. Επιλέξτε Πάντα για κοινή χρήση με όλους.</string>
     <string name="provider_idle_no_traffic_yet">Οι νέοι πάροχοι χρειάζονται αρκετές ώρες σταθερής λειτουργίας και μια δοκιμή ταχύτητας πριν τους αποσταλούν πελάτες. Η κίνηση εξαρτάται επίσης από τη ζήτηση στην περιοχή σας.</string>
+    <string name="provider_idle_paused_battery_saver">Σε παύση: η Εξοικονόμηση μπαταρίας είναι ενεργή.</string>
     <string name="provider_idle_paused_no_network">Σε παύση: αυτή η συσκευή δεν μπορεί να παρέχει στο τρέχον δίκτυό της.</string>
+    <string name="provider_idle_paused_not_charging">Σε παύση: αυτή η συσκευή δεν φορτίζει.</string>
     <string name="provider_idle_paused_wifi_only">Σε παύση: η παροχή έχει οριστεί μόνο για Wi-Fi και αυτή η συσκευή δεν είναι συνδεδεμένη σε Wi-Fi.</string>
     <string name="provider_location_unknown">Άγνωστη τοποθεσία</string>
     <string name="provider_locations_empty">Δεν υπάρχουν συνδεδεμένοι πάροχοι</string>

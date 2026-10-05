@@ -415,6 +415,10 @@
     <string name="profile">Perfil</string>
     <string name="promoted_locations">Locais promovidos</string>
     <string name="provide_mode">Modo de fornecimento</string>
+    <string name="provide_power_mode">Quando estiver na bateria</string>
+    <string name="provide_power_mode_always">Continuar fornecendo</string>
+    <string name="provide_power_mode_charging_only">Pausar até carregar</string>
+    <string name="provide_power_mode_pause_in_battery_saver">Pausar na Economia de bateria</string>
     <string name="provider_connected_duration_hours">%1$d h %2$d min</string>
     <string name="provider_connected_duration_minutes">%1$d min</string>
     <string name="provider_connected_duration_seconds">%1$d s</string>
@@ -423,7 +427,9 @@
     <string name="provider_idle_auto_not_connected">Automático compartilha com todos apenas enquanto você está conectado. Escolha Sempre para ganhar também quando não estiver conectado.</string>
     <string name="provider_idle_network_only">Compartilhado apenas com seus próprios dispositivos. Escolha Sempre para compartilhar com todos.</string>
     <string name="provider_idle_no_traffic_yet">Novos provedores precisam de várias horas de funcionamento estável e de um teste de velocidade antes de receberem clientes. O tráfego também depende da demanda na sua região.</string>
+    <string name="provider_idle_paused_battery_saver">Pausado: a Economia de bateria está ativada.</string>
     <string name="provider_idle_paused_no_network">Pausado: este dispositivo não pode fornecer na rede atual.</string>
+    <string name="provider_idle_paused_not_charging">Pausado: este dispositivo não está carregando.</string>
     <string name="provider_idle_paused_wifi_only">Pausado: o fornecimento está configurado somente para Wi-Fi, e este dispositivo não está no Wi-Fi.</string>
     <string name="provider_location_unknown">Localização desconhecida</string>
     <string name="provider_locations_empty">Nenhum provedor conectado</string>

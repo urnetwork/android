@@ -415,6 +415,10 @@
     <string name="profile">プロフィール</string>
     <string name="promoted_locations">プロモーションロケーション</string>
     <string name="provide_mode">提供モード</string>
+    <string name="provide_power_mode">バッテリー駆動時</string>
+    <string name="provide_power_mode_always">提供を続ける</string>
+    <string name="provide_power_mode_charging_only">充電するまで一時停止</string>
+    <string name="provide_power_mode_pause_in_battery_saver">バッテリー セーバー中は一時停止</string>
     <string name="provider_connected_duration_hours">%1$d時間%2$d分</string>
     <string name="provider_connected_duration_minutes">%1$d分</string>
     <string name="provider_connected_duration_seconds">%1$d秒</string>
@@ -423,7 +427,9 @@
     <string name="provider_idle_auto_not_connected">「自動」は接続中のみ、すべての人と共有します。接続していないときも収益を得るには「常に」を選択してください。</string>
     <string name="provider_idle_network_only">自分のデバイスとのみ共有しています。すべての人と共有するには「常に」を選択してください。</string>
     <string name="provider_idle_no_traffic_yet">新しいプロバイダーには、クライアントが割り当てられる前に数時間の安定した稼働と速度テストが必要です。トラフィックはお住まいの地域の需要にも左右されます。</string>
+    <string name="provider_idle_paused_battery_saver">一時停止中：バッテリー セーバーがオンになっています。</string>
     <string name="provider_idle_paused_no_network">一時停止中：このデバイスは現在のネットワークでは提供できません。</string>
+    <string name="provider_idle_paused_not_charging">一時停止中：このデバイスは充電されていません。</string>
     <string name="provider_idle_paused_wifi_only">一時停止中：提供はWi-Fiのみに設定されていますが、このデバイスはWi-Fiに接続されていません。</string>
     <string name="provider_location_unknown">場所は不明</string>
     <string name="provider_locations_empty">接続中のプロバイダーはありません</string>

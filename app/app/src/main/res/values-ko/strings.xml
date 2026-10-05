@@ -415,6 +415,10 @@
     <string name="profile">프로필</string>
     <string name="promoted_locations">추천 위치</string>
     <string name="provide_mode">제공 모드</string>
+    <string name="provide_power_mode">배터리 사용 시</string>
+    <string name="provide_power_mode_always">계속 제공</string>
+    <string name="provide_power_mode_charging_only">충전할 때까지 일시 중지</string>
+    <string name="provide_power_mode_pause_in_battery_saver">절전 모드에서 일시 중지</string>
     <string name="provider_connected_duration_hours">%1$d시간 %2$d분</string>
     <string name="provider_connected_duration_minutes">%1$d분</string>
     <string name="provider_connected_duration_seconds">%1$d초</string>
@@ -423,7 +427,9 @@
     <string name="provider_idle_auto_not_connected">\'자동\'은 연결되어 있는 동안에만 모든 사람과 공유합니다. 연결하지 않을 때도 수익을 얻으려면 \'항상\'을 선택하세요.</string>
     <string name="provider_idle_network_only">내 기기와만 공유됩니다. 모든 사람과 공유하려면 \'항상\'을 선택하세요.</string>
     <string name="provider_idle_no_traffic_yet">새 제공업체는 클라이언트가 배정되기 전에 몇 시간 동안 안정적으로 가동되고 속도 테스트를 마쳐야 합니다. 트래픽은 해당 지역의 수요에 따라서도 달라집니다.</string>
+    <string name="provider_idle_paused_battery_saver">일시 중지됨: 절전 모드가 켜져 있습니다.</string>
     <string name="provider_idle_paused_no_network">일시 중지됨: 이 기기는 현재 네트워크에서 제공할 수 없습니다.</string>
+    <string name="provider_idle_paused_not_charging">일시 중지됨: 이 기기는 충전 중이 아닙니다.</string>
     <string name="provider_idle_paused_wifi_only">일시 중지됨: 제공이 Wi-Fi 전용으로 설정되어 있는데 이 기기가 Wi-Fi에 연결되어 있지 않습니다.</string>
     <string name="provider_location_unknown">위치 알 수 없음</string>
     <string name="provider_locations_empty">연결된 제공업체가 없습니다</string>
