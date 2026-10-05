@@ -81,7 +81,10 @@
     <string name="bittensor_walletconnect_hint">Nova, Nightly и другие кошельки с поддержкой WalletConnect</string>
     <string name="block_ads_and_trackers">Блокировать рекламу и трекеры</string>
     <string name="blocked">Заблокировано</string>
+    <string name="blocked_location_block_failed">Не удалось заблокировать локацию %1$s. Попробуйте ещё раз.</string>
+    <string name="blocked_location_unblock_failed">Не удалось разблокировать локацию %1$s. Попробуйте ещё раз.</string>
     <string name="blocked_locations">Заблокированные локации</string>
+    <string name="blocked_locations_load_failed">Не удалось загрузить заблокированные локации. Потяните вниз, чтобы попробовать ещё раз.</string>
     <string name="blocks">Блоки</string>
     <string name="bonus_referral_code_label">Бонусный реферальный код</string>
     <string name="browse_locations">Просмотр локаций</string>
@@ -381,6 +384,7 @@
     <string name="edit_network_name">Изменить имя сети</string>
     <string name="edit_profile">Редактировать профиль</string>
     <string name="edit_split_rule">Изменить правило разделения</string>
+    <string name="email_support_at">Пишите в поддержку:</string>
     <string name="emoji_tag">Эмодзи-тег</string>
     <string name="emoji_tag_delete_last">Удалить последний эмодзи</string>
     <string name="emoji_tag_error_empty">Добавьте хотя бы один эмодзи.</string>
@@ -432,6 +436,7 @@
     <string name="feedback_include_logs">Приложить логи к отзыву (необязательно)</string>
     <string name="feedback_label">Поле для отзыва</string>
     <string name="feedback_placeholder">Расскажите нам, что вы думаете на самом деле</string>
+    <string name="feedback_send_failed">Ваш отзыв не отправлен. Проверьте подключение и попробуйте ещё раз.</string>
     <string name="feedback_sending">Отправка…</string>
     <string name="fixed_ip">Фиксированный IP</string>
     <string name="fixed_ip_subtitle">Сохраняет один выход на всю сессию; меняется, только если этот провайдер отключится.</string>
@@ -848,6 +853,7 @@
     <string name="seeker_verify_no_wallet_app">На этом устройстве не найдено приложение кошелька Solana.</string>
     <string name="select_location_provider_content_description">Глобус: выбрать локацию провайдера</string>
     <string name="send">Отправить</string>
+    <string name="send_feedback_contact">Отправьте нам отзыв напрямую, напишите на %1$s или присоединяйтесь к нашему %2$s, чтобы получить поддержку напрямую.</string>
     <string name="send_product_updates">Присылать мне новости о продукте</string>
     <string name="send_reset_link">Отправить ссылку для сброса</string>
     <string name="send_tao_to_mirror">Отправьте около %1$s TAO на %2$s, чтобы покрыть оплату газа.</string>

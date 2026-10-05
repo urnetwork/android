@@ -81,7 +81,10 @@
     <string name="bittensor_walletconnect_hint">Nova, Nightly und andere WalletConnect-Wallets</string>
     <string name="block_ads_and_trackers">Werbung und Tracker blockieren</string>
     <string name="blocked">Blockiert</string>
+    <string name="blocked_location_block_failed">%1$s konnte nicht blockiert werden. Bitte versuche es erneut.</string>
+    <string name="blocked_location_unblock_failed">%1$s konnte nicht entsperrt werden. Bitte versuche es erneut.</string>
     <string name="blocked_locations">Blockierte Standorte</string>
+    <string name="blocked_locations_load_failed">Deine blockierten Standorte konnten nicht geladen werden. Zum erneuten Versuchen nach unten ziehen.</string>
     <string name="blocks">Blöcke</string>
     <string name="bonus_referral_code_label">Bonus-Empfehlungscode</string>
     <string name="browse_locations">Standorte durchsuchen</string>
@@ -381,6 +384,7 @@
     <string name="edit_network_name">Netzwerknamen bearbeiten</string>
     <string name="edit_profile">Profil bearbeiten</string>
     <string name="edit_split_rule">Split-Regel bearbeiten</string>
+    <string name="email_support_at">Schreib dem Support unter</string>
     <string name="emoji_tag">Emoji-Tag</string>
     <string name="emoji_tag_delete_last">Letztes Emoji löschen</string>
     <string name="emoji_tag_error_empty">Füge mindestens ein Emoji hinzu.</string>
@@ -432,6 +436,7 @@
     <string name="feedback_include_logs">Protokolle dem Feedback anhängen (optional)</string>
     <string name="feedback_label">Feedback-Feld</string>
     <string name="feedback_placeholder">Sag uns, was du wirklich denkst</string>
+    <string name="feedback_send_failed">Dein Feedback wurde nicht gesendet. Prüfe deine Verbindung und versuche es erneut.</string>
     <string name="feedback_sending">Wird gesendet…</string>
     <string name="fixed_ip">Feste IP</string>
     <string name="fixed_ip_subtitle">Behält einen Exit für die Sitzung; wechselt nur, wenn dieser Anbieter offline geht.</string>
@@ -848,6 +853,7 @@
     <string name="seeker_verify_no_wallet_app">Auf diesem Gerät wurde keine Solana-Wallet-App gefunden.</string>
     <string name="select_location_provider_content_description">Globus: Anbieter-Standort auswählen</string>
     <string name="send">Sende</string>
+    <string name="send_feedback_contact">Schick uns dein Feedback direkt, schreib uns an %1$s oder tritt unserem %2$s bei, um direkt Hilfe zu bekommen.</string>
     <string name="send_product_updates">Sende mir Produkt-Updates</string>
     <string name="send_reset_link">Link zum Zurücksetzen senden</string>
     <string name="send_tao_to_mirror">Sende etwa %1$s TAO an %2$s, um das Gas zu decken.</string>

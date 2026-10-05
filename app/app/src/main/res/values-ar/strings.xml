@@ -81,7 +81,10 @@
     <string name="bittensor_walletconnect_hint">Nova وNightly ومحافظ WalletConnect الأخرى</string>
     <string name="block_ads_and_trackers">حظر الإعلانات والمتعقبات</string>
     <string name="blocked">محظور</string>
+    <string name="blocked_location_block_failed">تعذّر حظر %1$s. يُرجى المحاولة مرة أخرى.</string>
+    <string name="blocked_location_unblock_failed">تعذّر إلغاء حظر %1$s. يُرجى المحاولة مرة أخرى.</string>
     <string name="blocked_locations">المواقع المحجوبة</string>
+    <string name="blocked_locations_load_failed">تعذّر تحميل المواقع المحظورة. اسحب لأسفل للمحاولة مرة أخرى.</string>
     <string name="blocks">الكتل</string>
     <string name="bonus_referral_code_label">رمز إحالة إضافي</string>
     <string name="browse_locations">تصفح المواقع</string>
@@ -381,6 +384,7 @@
     <string name="edit_network_name">تعديل اسم الشبكة</string>
     <string name="edit_profile">تعديل الملف الشخصي</string>
     <string name="edit_split_rule">تعديل قاعدة التقسيم</string>
+    <string name="email_support_at">راسل الدعم على</string>
     <string name="emoji_tag">وسم الإيموجي</string>
     <string name="emoji_tag_delete_last">حذف آخر إيموجي</string>
     <string name="emoji_tag_error_empty">أضف إيموجي واحدًا على الأقل.</string>
@@ -432,6 +436,7 @@
     <string name="feedback_include_logs">إرفاق السجلات مع الملاحظات (اختياري)</string>
     <string name="feedback_label">مربع التعليقات</string>
     <string name="feedback_placeholder">أخبرنا برأيك</string>
+    <string name="feedback_send_failed">لم تُرسَل ملاحظاتك. تحقّق من اتصالك وحاول مرة أخرى.</string>
     <string name="feedback_sending">جارٍ الإرسال…</string>
     <string name="fixed_ip">IP ثابت</string>
     <string name="fixed_ip_subtitle">يحتفظ بمخرج واحد طوال الجلسة؛ ولا يتغير إلا إذا انقطع اتصال ذلك المزود.</string>
@@ -848,6 +853,7 @@
     <string name="seeker_verify_no_wallet_app">لم يتم العثور على تطبيق محفظة Solana على هذا الجهاز.</string>
     <string name="select_location_provider_content_description">الكرة الأرضية: اختيار موقع المزود</string>
     <string name="send">أرسل</string>
+    <string name="send_feedback_contact">أرسل إلينا ملاحظاتك مباشرة، أو راسلنا على %1$s، أو انضم إلى %2$s للحصول على دعم مباشر.</string>
     <string name="send_product_updates">إرسال تحديثات المنتج لي</string>
     <string name="send_reset_link">إرسال رابط إعادة التعيين</string>
     <string name="send_tao_to_mirror">أرسل نحو %1$s TAO إلى %2$s لتغطية رسوم الغاز.</string>
