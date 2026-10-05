@@ -55,6 +55,12 @@
     <string name="balance_codes_title">Κωδικοί υπολοίπου</string>
     <string name="become_supporter">Αποκτήστε το UR Pro</string>
     <string name="best_available_provider">Καλύτερος διαθέσιμος πάροχος</string>
+    <string name="bittensor_error_address_not_in_wallet">Το πορτοφόλι %1$s σας δεν περιέχει τη διεύθυνση που εισαγάγατε. Προσθέστε ή συνδέστε αυτόν τον λογαριασμό στο πορτοφόλι ή εισαγάγετε μια διεύθυνση που περιέχει.</string>
+    <string name="bittensor_error_extension_not_found">Η επέκταση %1$s δεν βρέθηκε σε αυτό το πρόγραμμα περιήγησης. Εγκαταστήστε την και δοκιμάστε ξανά.</string>
+    <string name="bittensor_error_no_account">Το πορτοφόλι %1$s σας δεν έχει λογαριασμό για υπογραφή. Προσθέστε ή συνδέστε έναν λογαριασμό στο πορτοφόλι και δοκιμάστε ξανά.</string>
+    <string name="bittensor_error_user_rejected">Το αίτημα απορρίφθηκε στο πορτοφόλι σας. Ξεκινήστε ξανά και εγκρίνετέ το για να συνεχίσετε.</string>
+    <string name="bittensor_error_walletconnect_expired">Το αίτημα WalletConnect έληξε πριν απαντήσει το πορτοφόλι. Ξεκινήστε ξανά.</string>
+    <string name="bittensor_error_walletconnect_unavailable">Το WalletConnect δεν είναι διαθέσιμο αυτή τη στιγμή. Δοκιμάστε ξανά αργότερα ή εισαγάγετε τη διεύθυνσή σας χειροκίνητα.</string>
     <string name="bittensor_sign_in">Σύνδεση με Bittensor</string>
     <string name="block_ads_and_trackers">Αποκλεισμός διαφημίσεων και ιχνηλατών</string>
     <string name="blocked">Αποκλεισμένα</string>

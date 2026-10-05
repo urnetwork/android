@@ -55,6 +55,12 @@
     <string name="balance_codes_title">รหัสยอดเงิน</string>
     <string name="become_supporter">รับ UR Pro</string>
     <string name="best_available_provider">ผู้ให้บริการที่ดีที่สุดที่พร้อมเชื่อมต่อ</string>
+    <string name="bittensor_error_address_not_in_wallet">กระเป๋าเงิน %1$s ของคุณไม่มีที่อยู่ที่คุณป้อน เพิ่มหรือเชื่อมต่อบัญชีนั้นในกระเป๋าเงิน หรือป้อนที่อยู่ที่มีอยู่ในกระเป๋าเงิน</string>
+    <string name="bittensor_error_extension_not_found">ไม่พบส่วนขยาย %1$s ในเบราว์เซอร์นี้ ติดตั้งส่วนขยาย แล้วลองอีกครั้ง</string>
+    <string name="bittensor_error_no_account">กระเป๋าเงิน %1$s ของคุณไม่มีบัญชีสำหรับลงนาม เพิ่มหรือเชื่อมต่อบัญชีในกระเป๋าเงิน แล้วลองอีกครั้ง</string>
+    <string name="bittensor_error_user_rejected">คำขอถูกปฏิเสธในกระเป๋าเงินของคุณ เริ่มใหม่และอนุมัติคำขอเพื่อดำเนินการต่อ</string>
+    <string name="bittensor_error_walletconnect_expired">คำขอ WalletConnect หมดอายุก่อนที่กระเป๋าเงินจะตอบกลับ เริ่มใหม่อีกครั้ง</string>
+    <string name="bittensor_error_walletconnect_unavailable">WalletConnect ไม่พร้อมใช้งานในขณะนี้ ลองอีกครั้งในภายหลัง หรือป้อนที่อยู่ของคุณด้วยตนเอง</string>
     <string name="bittensor_sign_in">เข้าสู่ระบบด้วย Bittensor</string>
     <string name="block_ads_and_trackers">บล็อกโฆษณาและตัวติดตาม</string>
     <string name="blocked">ถูกบล็อก</string>

@@ -55,6 +55,12 @@
     <string name="balance_codes_title">बैलेंस कोड्स</string>
     <string name="become_supporter">UR Pro प्राप्त करें</string>
     <string name="best_available_provider">सर्वश्रेष्ठ उपलब्ध प्रदाता</string>
+    <string name="bittensor_error_address_not_in_wallet">आपके %1$s वॉलेट में वह पता नहीं है जो आपने दर्ज किया है। उस खाते को वॉलेट में जोड़ें या कनेक्ट करें, या ऐसा पता दर्ज करें जो वॉलेट में हो।</string>
+    <string name="bittensor_error_extension_not_found">इस ब्राउज़र में %1$s एक्सटेंशन नहीं मिला। इसे इंस्टॉल करें, फिर दोबारा प्रयास करें।</string>
+    <string name="bittensor_error_no_account">आपके %1$s वॉलेट में हस्ताक्षर करने के लिए कोई खाता नहीं है। वॉलेट में कोई खाता जोड़ें या कनेक्ट करें, फिर दोबारा प्रयास करें।</string>
+    <string name="bittensor_error_user_rejected">आपके वॉलेट में अनुरोध अस्वीकार कर दिया गया। जारी रखने के लिए फिर से शुरू करें और अनुरोध को स्वीकृत करें।</string>
+    <string name="bittensor_error_walletconnect_expired">वॉलेट के जवाब देने से पहले WalletConnect अनुरोध की समय-सीमा समाप्त हो गई। फिर से शुरू करें।</string>
+    <string name="bittensor_error_walletconnect_unavailable">WalletConnect अभी उपलब्ध नहीं है। बाद में फिर से प्रयास करें, या अपना पता मैन्युअल रूप से दर्ज करें।</string>
     <string name="bittensor_sign_in">Bittensor से साइन इन करें</string>
     <string name="block_ads_and_trackers">विज्ञापन और ट्रैकर ब्लॉक करें</string>
     <string name="blocked">अवरुद्ध</string>

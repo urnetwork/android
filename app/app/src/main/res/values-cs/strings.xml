@@ -55,6 +55,12 @@
     <string name="balance_codes_title">Kódy zůstatku</string>
     <string name="become_supporter">Získat UR Pro</string>
     <string name="best_available_provider">Nejlepší dostupný poskytovatel</string>
+    <string name="bittensor_error_address_not_in_wallet">Vaše peněženka %1$s neobsahuje adresu, kterou jste zadali. Přidejte nebo připojte tento účet v peněžence, nebo zadejte adresu, kterou obsahuje.</string>
+    <string name="bittensor_error_extension_not_found">Rozšíření %1$s nebylo v tomto prohlížeči nalezeno. Nainstalujte ho a zkuste to znovu.</string>
+    <string name="bittensor_error_no_account">Vaše peněženka %1$s nemá účet, kterým by mohla podepsat. Přidejte nebo připojte účet v peněžence a zkuste to znovu.</string>
+    <string name="bittensor_error_user_rejected">Požadavek byl ve vaší peněžence zamítnut. Začněte znovu a schvalte ho, abyste mohli pokračovat.</string>
+    <string name="bittensor_error_walletconnect_expired">Požadavek WalletConnect vypršel dříve, než peněženka odpověděla. Začněte znovu.</string>
+    <string name="bittensor_error_walletconnect_unavailable">WalletConnect teď není k dispozici. Zkuste to později znovu, nebo zadejte adresu ručně.</string>
     <string name="bittensor_sign_in">Přihlásit se přes Bittensor</string>
     <string name="block_ads_and_trackers">Blokovat reklamy a trackery</string>
     <string name="blocked">Blokováno</string>

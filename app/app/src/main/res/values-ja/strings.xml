@@ -55,6 +55,12 @@
     <string name="balance_codes_title">残高コード</string>
     <string name="become_supporter">UR Proを取得</string>
     <string name="best_available_provider">最適な利用可能プロバイダー</string>
+    <string name="bittensor_error_address_not_in_wallet">お使いの%1$sウォレットに、入力したアドレスがありません。ウォレットでそのアカウントを追加または接続するか、ウォレットにあるアドレスを入力してください。</string>
+    <string name="bittensor_error_extension_not_found">このブラウザーで%1$s拡張機能が見つかりませんでした。インストールしてから、もう一度お試しください。</string>
+    <string name="bittensor_error_no_account">お使いの%1$sウォレットに、署名に使えるアカウントがありません。ウォレットでアカウントを追加または接続してから、もう一度お試しください。</string>
+    <string name="bittensor_error_user_rejected">ウォレットでリクエストが拒否されました。最初からやり直し、リクエストを承認して続行してください。</string>
+    <string name="bittensor_error_walletconnect_expired">ウォレットが応答する前に WalletConnect のリクエストの有効期限が切れました。最初からやり直してください。</string>
+    <string name="bittensor_error_walletconnect_unavailable">WalletConnect は現在利用できません。しばらくしてからもう一度お試しいただくか、アドレスを手動で入力してください。</string>
     <string name="bittensor_sign_in">Bittensorでサインイン</string>
     <string name="block_ads_and_trackers">広告とトラッカーをブロック</string>
     <string name="blocked">ブロック</string>

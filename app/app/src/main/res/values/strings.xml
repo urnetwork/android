@@ -70,10 +70,15 @@
     <string name="bittensor" translatable="false">Bittensor</string>
     <string name="bittensor_choose_wallet">Choose your Bittensor wallet</string>
     <string name="bittensor_continue_in_browser">Continue in your browser and approve the request in the %1$s extension.</string>
+    <string name="bittensor_error_address_not_in_wallet">Your %1$s wallet doesn\'t have the address you entered. Add or connect that account in the wallet, or enter an address it has.</string>
     <string name="bittensor_error_challenge_expired">This request expired. Start again to get a new message to sign.</string>
     <string name="bittensor_error_extension_not_found">The %1$s extension was not found in this browser. Install it, then try again.</string>
     <string name="bittensor_error_invalid_signature">That is not a valid signature. Paste the full 0x signature from your wallet.</string>
     <string name="bittensor_error_message_mismatch">The wallet signed a different request. Start again.</string>
+    <string name="bittensor_error_no_account">Your %1$s wallet has no account to sign with. Add or connect an account in the wallet, then try again.</string>
+    <string name="bittensor_error_user_rejected">The request was declined in your wallet. Start again and approve it to continue.</string>
+    <string name="bittensor_error_walletconnect_expired">The WalletConnect request expired before the wallet answered. Start again.</string>
+    <string name="bittensor_error_walletconnect_unavailable">WalletConnect is not available right now. Try again later, or enter your address manually.</string>
     <string name="bittensor_manual_sign_instructions">Sign this message with the %1$s wallet that holds your coldkey, then paste the address and the signature below.</string>
     <string name="bittensor_message_to_sign">Message to sign</string>
     <string name="bittensor_sign_in">Sign in with Bittensor</string>

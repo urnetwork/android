@@ -55,6 +55,12 @@
     <string name="balance_codes_title">Kody salda</string>
     <string name="become_supporter">Zdobądź UR Pro</string>
     <string name="best_available_provider">Najlepszy dostępny dostawca</string>
+    <string name="bittensor_error_address_not_in_wallet">Twój portfel %1$s nie zawiera wprowadzonego adresu. Dodaj lub połącz to konto w portfelu albo wprowadź adres, który się w nim znajduje.</string>
+    <string name="bittensor_error_extension_not_found">Nie znaleziono rozszerzenia %1$s w tej przeglądarce. Zainstaluj je, a potem spróbuj ponownie.</string>
+    <string name="bittensor_error_no_account">Twój portfel %1$s nie ma konta, którym można podpisać. Dodaj lub połącz konto w portfelu, a potem spróbuj ponownie.</string>
+    <string name="bittensor_error_user_rejected">Żądanie zostało odrzucone w Twoim portfelu. Zacznij od nowa i zatwierdź je, aby kontynuować.</string>
+    <string name="bittensor_error_walletconnect_expired">Żądanie WalletConnect wygasło, zanim portfel odpowiedział. Zacznij od nowa.</string>
+    <string name="bittensor_error_walletconnect_unavailable">WalletConnect jest teraz niedostępny. Spróbuj ponownie później lub wprowadź adres ręcznie.</string>
     <string name="bittensor_sign_in">Zaloguj się przez Bittensor</string>
     <string name="block_ads_and_trackers">Blokuj reklamy i trackery</string>
     <string name="blocked">Zablokowane</string>
