@@ -194,6 +194,36 @@ internal fun connectActionButtons(
     )
 }
 
+internal data class OutOfBalanceNotice(
+    /** "Free data refreshes in {time}." with a Why? link to the data sheet. */
+    val refresh: Boolean,
+    /** Traffic is held in the tunnel until the user upgrades or disconnects. */
+    val held: Boolean,
+)
+
+/**
+ * The notice under the drawer's buttons while out of balance. It leads with
+ * when the free data refreshes, whether or not a connection is requested, so
+ * the upgrade button does not read as the only way back; Why? opens the
+ * "About your data" sheet. The held-traffic line follows only while a
+ * connection is requested.
+ */
+internal fun outOfBalanceNotice(buttons: ConnectActionButtons): OutOfBalanceNotice = OutOfBalanceNotice(
+    refresh = buttons.upgrade,
+    held = buttons.upgrade && buttons.disconnect,
+)
+
+/**
+ * Whether the upgrade screen leads with when the free data refreshes and
+ * offers Wait for refresh: only when a start connect blocked by the balance
+ * opened it (the drawer's out-of-balance button, or a quick connect surface
+ * sent to upgrade). Supporters are never blocked, and get no free grant.
+ */
+internal fun upgradeShowsFreeRefresh(
+    openedByStartConnectBlock: Boolean,
+    currentPlan: Plan,
+): Boolean = openedByStartConnectBlock && currentPlan != Plan.Supporter
+
 /**
  * The session controls the monitor reports to. disconnect is the user's
  * control; the monitor holds it only to make explicit that out of balance

@@ -25,6 +25,10 @@ import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -36,6 +40,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
@@ -44,9 +49,13 @@ import androidx.navigation.NavController
 import com.bringyour.network.R
 import com.bringyour.network.ui.Route
 import com.bringyour.network.ui.components.ButtonStyle
+import com.bringyour.network.ui.components.DataInfoSheet
 import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.components.URSwitch
 import com.bringyour.network.ui.components.UsageBar
+import com.bringyour.network.ui.components.dataInfoShowsFreeRefresh
+import com.bringyour.network.ui.components.rememberFreeRefreshCountdown
+import com.bringyour.network.ui.navigateToUpgradeForBalanceBlock
 import com.bringyour.network.ui.shared.models.ConnectStatus
 import com.bringyour.network.ui.shared.viewmodels.Plan
 import com.bringyour.network.ui.stats.BlockActionsViewModel
@@ -128,6 +137,10 @@ fun ConnectActions(
     // ConnectActions with nothing above it, so no other height contributes.
     val cardPadding = 16.dp
     val cardPaddingPx = with(LocalDensity.current) { cardPadding.roundToPx() }
+
+    // the "About your data" sheet, opened from Why? under the out-of-balance
+    // notice
+    var dataInfoPresented by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -214,7 +227,7 @@ fun ConnectActions(
                     ) {
                         URButton(
                             onClick = {
-                                navController.navigate(Route.Upgrade)
+                                navController.navigateToUpgradeForBalanceBlock()
                             },
                             style = ButtonStyle.OUTLINE,
                             modifier = Modifier
@@ -277,8 +290,36 @@ fun ConnectActions(
                 }
             }
 
-            if (actionButtons.upgrade && actionButtons.disconnect) {
-                // in-app alert, above the fold so it shows in the collapsed peek
+            // in-app alert, above the fold so it shows in the collapsed peek
+            val outOfBalanceNotice = outOfBalanceNotice(actionButtons)
+
+            if (outOfBalanceNotice.refresh) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        stringResource(id = R.string.insufficient_balance_refreshes_in, rememberFreeRefreshCountdown()),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = TextMuted,
+                        modifier = Modifier.weight(1f, fill = false)
+                    )
+                    Text(
+                        stringResource(id = R.string.data_info_why),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Pink,
+                        modifier = Modifier
+                            .clickable(role = Role.Button) { dataInfoPresented = true }
+                            .padding(horizontal = 8.dp, vertical = 4.dp)
+                            .testTag("acceptance.insufficient_balance_why")
+                    )
+                }
+            }
+
+            if (outOfBalanceNotice.held) {
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     stringResource(id = R.string.insufficient_balance_held_notice),
@@ -323,6 +364,15 @@ fun ConnectActions(
                     )
                 }
             }
+
+            DataInfoSheet(
+                presented = dataInfoPresented,
+                onDismiss = { dataInfoPresented = false },
+                startBalanceByteCount = dailyByteCount,
+                availableByteCount = availableBytes,
+                pendingByteCount = pendingBytes,
+                showFreeRefresh = dataInfoShowsFreeRefresh(currentPlan),
+            )
 
             // the fold marker: a zero-height anchor at the bottom of the
             // location + connect block. positionInParent is relative to the
@@ -592,7 +642,8 @@ fun ConnectActions(
                 meanReliabilityWeight = meanReliabilityWeight,
                 totalReferrals = totalReferrals,
                 dailyByteCount = dailyByteCount,
-                onReferralClick = onReferralClick
+                onReferralClick = onReferralClick,
+                showFreeRefresh = dataInfoShowsFreeRefresh(currentPlan),
             )
 
         }

@@ -458,4 +458,68 @@ class InsufficientBalancePolicyTest {
         assertEquals(0, session.disconnects)
         assertEquals(2, session.notices)
     }
+
+    private fun outOfBalanceNoticeFor(
+        insufficientBalance: Boolean,
+        currentPlan: Plan = Plan.Basic,
+        isPollingSubscriptionBalance: Boolean = false,
+        connectStatus: ConnectStatus,
+    ): OutOfBalanceNotice = outOfBalanceNotice(
+        connectActionButtons(
+            insufficientBalance = insufficientBalance,
+            currentPlan = currentPlan,
+            isPollingSubscriptionBalance = isPollingSubscriptionBalance,
+            connectStatus = connectStatus,
+            displayReconnectTunnel = false,
+        )
+    )
+
+    @Test
+    fun outOfBalanceNoticeLeadsWithTheRefreshWhileConnected() {
+        for (status in requestedStatuses) {
+            assertEquals(
+                "$status",
+                OutOfBalanceNotice(refresh = true, held = true),
+                outOfBalanceNoticeFor(insufficientBalance = true, connectStatus = status),
+            )
+        }
+    }
+
+    @Test
+    fun outOfBalanceNoticeShowsTheRefreshWhenDisconnected() {
+        // the upgrade button alone read as a paywall: say when the free data
+        // comes back, with Why? to the data sheet; nothing is held in a tunnel
+        assertEquals(
+            OutOfBalanceNotice(refresh = true, held = false),
+            outOfBalanceNoticeFor(insufficientBalance = true, connectStatus = ConnectStatus.DISCONNECTED),
+        )
+    }
+
+    @Test
+    fun noOutOfBalanceNoticeOutsideTheGate() {
+        val none = OutOfBalanceNotice(refresh = false, held = false)
+        for (status in requestedStatuses + ConnectStatus.DISCONNECTED) {
+            assertEquals("$status funded", none, outOfBalanceNoticeFor(insufficientBalance = false, connectStatus = status))
+            assertEquals(
+                "$status supporter",
+                none,
+                outOfBalanceNoticeFor(insufficientBalance = true, currentPlan = Plan.Supporter, connectStatus = status),
+            )
+            assertEquals(
+                "$status polling",
+                none,
+                outOfBalanceNoticeFor(insufficientBalance = true, isPollingSubscriptionBalance = true, connectStatus = status),
+            )
+        }
+    }
+
+    @Test
+    fun upgradeShowsTheRefreshOnlyWhenABlockedConnectOpenedIt() {
+        assertTrue(upgradeShowsFreeRefresh(openedByStartConnectBlock = true, currentPlan = Plan.Basic))
+        // Get Pro, Account's Change, the onboarding links
+        assertFalse(upgradeShowsFreeRefresh(openedByStartConnectBlock = false, currentPlan = Plan.Basic))
+        // Pro gets no free daily grant
+        assertFalse(upgradeShowsFreeRefresh(openedByStartConnectBlock = true, currentPlan = Plan.Supporter))
+        assertFalse(upgradeShowsFreeRefresh(openedByStartConnectBlock = false, currentPlan = Plan.Supporter))
+    }
 }
