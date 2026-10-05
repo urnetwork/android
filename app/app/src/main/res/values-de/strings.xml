@@ -67,10 +67,15 @@
     <string name="best_value">Bestes Angebot</string>
     <string name="bittensor_choose_wallet">Wähle deine Bittensor-Wallet</string>
     <string name="bittensor_continue_in_browser">Fahre in deinem Browser fort und bestätige die Anfrage in der %1$s-Erweiterung.</string>
+    <string name="bittensor_error_address_not_in_wallet">Deine %1$s-Wallet enthält die eingegebene Adresse nicht. Füge das Konto in der Wallet hinzu oder verbinde es dort. Oder gib eine Adresse ein, die sie enthält.</string>
     <string name="bittensor_error_challenge_expired">Diese Anfrage ist abgelaufen. Starte erneut, um eine neue Nachricht zum Signieren zu erhalten.</string>
     <string name="bittensor_error_extension_not_found">Die %1$s-Erweiterung wurde in diesem Browser nicht gefunden. Installiere sie und versuche es dann erneut.</string>
     <string name="bittensor_error_invalid_signature">Das ist keine gültige Signatur. Füge die vollständige 0x-Signatur aus deiner Wallet ein.</string>
     <string name="bittensor_error_message_mismatch">Die Wallet hat eine andere Anfrage signiert. Starte erneut.</string>
+    <string name="bittensor_error_no_account">Deine %1$s-Wallet hat kein Konto zum Signieren. Füge in der Wallet ein Konto hinzu oder verbinde eins und versuche es dann erneut.</string>
+    <string name="bittensor_error_user_rejected">Die Anfrage wurde in deiner Wallet abgelehnt. Starte erneut und bestätige sie, um fortzufahren.</string>
+    <string name="bittensor_error_walletconnect_expired">Die WalletConnect-Anfrage ist abgelaufen, bevor die Wallet geantwortet hat. Starte erneut.</string>
+    <string name="bittensor_error_walletconnect_unavailable">WalletConnect ist gerade nicht verfügbar. Versuche es später erneut oder gib deine Adresse manuell ein.</string>
     <string name="bittensor_manual_sign_instructions">Signiere diese Nachricht mit der %1$s-Wallet, die deinen Coldkey enthält, und füge dann unten die Adresse und die Signatur ein.</string>
     <string name="bittensor_message_to_sign">Zu signierende Nachricht</string>
     <string name="bittensor_sign_in">Mit Bittensor anmelden</string>

@@ -106,13 +106,63 @@ class BittensorWalletConnectBridgeTest {
         returns.begin(session)
         session.outcomes.add(BittensorProofOutcome.Refused("wallet_error", "User rejected."))
         assertEquals(
-            BittensorReturnAction.Failed("create", "wallet_error", "User rejected."),
+            BittensorReturnAction.Failed("create", "wallet_error", "User rejected.", null, "walletconnect"),
             bittensorReturnAction("ur://bittensor-sign-message?e", 3L, returns),
         )
         assertFalse(returns.waiting)
         // nothing waiting: a later return is the pre-helper handling's
         assertEquals(BittensorReturnAction.Legacy, bittensorReturnAction("ur://bittensor-sign-message?e", 4L, returns))
         assertEquals(R.string.bittensor_error_challenge_expired, BittensorWallets.errorRes("challenge_expired"))
+    }
+
+    @Test
+    fun `a refused return carries the bridge page's code and the session's wallet`() {
+        val returns = BittensorBridgeReturns()
+        val session = BridgeSession("walletconnect", "connect", message, bridgeUrl)
+        returns.begin(session)
+        val pageText = "Your WalletConnect wallet doesn't have the address you entered. Add or connect that account in the wallet and try again, or enter your address manually."
+        session.outcomes.add(BittensorProofOutcome.Refused("wallet_error", pageText, "address_not_in_wallet"))
+        assertEquals(
+            BittensorReturnAction.Failed("connect", "wallet_error", pageText, "address_not_in_wallet", "walletconnect"),
+            bittensorReturnAction("ur://bittensor-sign-message?errorCode=address_not_in_wallet", 3L, returns),
+        )
+        assertFalse(returns.waiting)
+    }
+
+    // the bridge page hands a failure back with its code (sdk
+    // BittensorWalletResult.BridgeErrorCode) and its English text: the app
+    // shows its own translation of a code it knows, else the page's text
+    @Test
+    fun `the bridge page's codes are shown in the app's words and other failures in the page's text`() {
+        val getString = { res: Int, walletName: String? -> "$res:$walletName" }
+        fun text(code: String, detail: String?, bridgeCode: String?) =
+            BittensorWallets.refusalText(code, detail, bridgeCode, "WalletConnect", getString)
+
+        val pageText = "The page's English text."
+        for ((bridgeCode, res, walletName) in listOf(
+            Triple("address_not_in_wallet", R.string.bittensor_error_address_not_in_wallet, "WalletConnect"),
+            Triple("extension_not_found", R.string.bittensor_error_extension_not_found, "WalletConnect"),
+            Triple("no_account", R.string.bittensor_error_no_account, "WalletConnect"),
+            Triple("address_mismatch", R.string.earnings_wallet_mismatch, null),
+            Triple("user_rejected", R.string.bittensor_error_user_rejected, null),
+            Triple("walletconnect_expired", R.string.bittensor_error_walletconnect_expired, null),
+            Triple("walletconnect_unavailable", R.string.bittensor_error_walletconnect_unavailable, null),
+        )) {
+            assertEquals(bridgeCode, res, BittensorWallets.bridgeErrorRes(bridgeCode))
+            assertEquals(bridgeCode, "$res:$walletName", text("wallet_error", pageText, bridgeCode))
+        }
+        // a code this app does not know, the page's own wallet_error, and a
+        // page before the codes (no code): the page's text
+        for (bridgeCode in listOf("wallet_locked", "wallet_error", "invalid_request", null)) {
+            assertNull(bridgeCode, BittensorWallets.bridgeErrorRes(bridgeCode))
+            assertEquals(bridgeCode, pageText, text("wallet_error", pageText, bridgeCode))
+        }
+        // no text either: the generic failure
+        assertEquals("${R.string.login_error}:null", text("wallet_error", null, null))
+        // the session's own refusals show their message, never the detail (the
+        // address that was refused)
+        assertEquals("${R.string.earnings_wallet_mismatch}:null", text("address_mismatch", alice, null))
+        assertEquals("${R.string.bittensor_error_message_mismatch}:null", text("message_mismatch", null, "user_rejected"))
     }
 
     @Test

@@ -55,6 +55,12 @@
     <string name="balance_codes_title">Misimbo ya salio</string>
     <string name="become_supporter">Pata UR Pro</string>
     <string name="best_available_provider">Mtoa huduma bora zaidi anayepatikana</string>
+    <string name="bittensor_error_address_not_in_wallet">Pochi yako ya %1$s haina anwani uliyoweka. Ongeza au unganisha akaunti hiyo kwenye pochi, au weka anwani iliyomo kwenye pochi hiyo.</string>
+    <string name="bittensor_error_extension_not_found">Kiendelezi cha %1$s hakikupatikana kwenye kivinjari hiki. Kisakinishe, kisha ujaribu tena.</string>
+    <string name="bittensor_error_no_account">Pochi yako ya %1$s haina akaunti ya kutia sahihi. Ongeza au unganisha akaunti kwenye pochi, kisha ujaribu tena.</string>
+    <string name="bittensor_error_user_rejected">Ombi lilikataliwa kwenye pochi yako. Anza upya na uliidhinishe ili kuendelea.</string>
+    <string name="bittensor_error_walletconnect_expired">Muda wa ombi la WalletConnect uliisha kabla pochi haijajibu. Anza upya.</string>
+    <string name="bittensor_error_walletconnect_unavailable">WalletConnect haipatikani kwa sasa. Jaribu tena baadaye, au weka anwani yako mwenyewe.</string>
     <string name="bittensor_sign_in">Ingia na Bittensor</string>
     <string name="block_ads_and_trackers">Zuia matangazo na vifuatiliaji</string>
     <string name="blocked">Imezuiwa</string>

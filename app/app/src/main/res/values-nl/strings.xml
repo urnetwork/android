@@ -55,6 +55,12 @@
     <string name="balance_codes_title">Saldocodes</string>
     <string name="become_supporter">UR Pro nemen</string>
     <string name="best_available_provider">Beste beschikbare aanbieder</string>
+    <string name="bittensor_error_address_not_in_wallet">Je %1$s-wallet bevat het ingevoerde adres niet. Voeg dat account in de wallet toe of koppel het, of voer een adres in dat de wallet wel bevat.</string>
+    <string name="bittensor_error_extension_not_found">De %1$s-extensie is niet gevonden in deze browser. Installeer de extensie en probeer het opnieuw.</string>
+    <string name="bittensor_error_no_account">Je %1$s-wallet heeft geen account om mee te ondertekenen. Voeg in de wallet een account toe of koppel er een, en probeer het opnieuw.</string>
+    <string name="bittensor_error_user_rejected">Het verzoek is geweigerd in je wallet. Begin opnieuw en keur het goed om door te gaan.</string>
+    <string name="bittensor_error_walletconnect_expired">Het WalletConnect-verzoek is verlopen voordat de wallet antwoordde. Begin opnieuw.</string>
+    <string name="bittensor_error_walletconnect_unavailable">WalletConnect is op dit moment niet beschikbaar. Probeer het later opnieuw of voer je adres handmatig in.</string>
     <string name="bittensor_sign_in">Inloggen met Bittensor</string>
     <string name="block_ads_and_trackers">Advertenties en trackers blokkeren</string>
     <string name="blocked">Geblokkeerd</string>

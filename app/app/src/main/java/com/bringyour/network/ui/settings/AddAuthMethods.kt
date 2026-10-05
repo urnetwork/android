@@ -126,8 +126,14 @@ object SsoAddSignInReturns {
 /** A WalletConnect bridge return for the add sheet's Bittensor wallet. */
 sealed class BittensorAddReturn {
     data class Proven(val proof: BittensorProof) : BittensorAddReturn()
-    // detail: the wallet's own text for wallet_error
-    data class Failed(val code: String, val detail: String?) : BittensorAddReturn()
+    // detail: the wallet's own text for wallet_error, bridgeCode the bridge
+    // page's code for it (BittensorWallets.refusalText)
+    data class Failed(
+        val code: String,
+        val detail: String?,
+        val bridgeCode: String? = null,
+        val walletId: String = "",
+    ) : BittensorAddReturn()
 }
 
 /**
@@ -139,7 +145,11 @@ fun bittensorAddReturn(action: BittensorReturnAction): BittensorAddReturn? = whe
     is BittensorReturnAction.Proven ->
         if (action.route == BittensorProofRoute.ADD_SIGN_IN) BittensorAddReturn.Proven(action.proof) else null
     is BittensorReturnAction.Failed ->
-        if (action.purpose == BittensorWallets.PURPOSE_ADD) BittensorAddReturn.Failed(action.code, action.detail) else null
+        if (action.purpose == BittensorWallets.PURPOSE_ADD) {
+            BittensorAddReturn.Failed(action.code, action.detail, action.bridgeCode, action.walletId)
+        } else {
+            null
+        }
     BittensorReturnAction.Legacy -> null
 }
 

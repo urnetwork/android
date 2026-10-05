@@ -55,6 +55,12 @@
     <string name="balance_codes_title">Códigos de saldo</string>
     <string name="become_supporter">Obter UR Pro</string>
     <string name="best_available_provider">Melhor provedor disponível</string>
+    <string name="bittensor_error_address_not_in_wallet">A sua carteira %1$s não tem o endereço que introduziu. Adicione ou ligue essa conta na carteira, ou introduza um endereço que ela tenha.</string>
+    <string name="bittensor_error_extension_not_found">A extensão %1$s não foi encontrada neste navegador. Instale-a e tente novamente.</string>
+    <string name="bittensor_error_no_account">A sua carteira %1$s não tem nenhuma conta para assinar. Adicione ou ligue uma conta na carteira e tente novamente.</string>
+    <string name="bittensor_error_user_rejected">O pedido foi recusado na sua carteira. Comece de novo e aprove-o para continuar.</string>
+    <string name="bittensor_error_walletconnect_expired">O pedido WalletConnect expirou antes de a carteira responder. Comece de novo.</string>
+    <string name="bittensor_error_walletconnect_unavailable">O WalletConnect não está disponível neste momento. Tente novamente mais tarde ou introduza o seu endereço manualmente.</string>
     <string name="bittensor_sign_in">Iniciar sessão com Bittensor</string>
     <string name="block_ads_and_trackers">Bloquear anúncios e rastreadores</string>
     <string name="blocked">Bloqueados</string>

@@ -67,10 +67,15 @@
     <string name="best_value">Выгоднее всего</string>
     <string name="bittensor_choose_wallet">Выберите кошелек Bittensor</string>
     <string name="bittensor_continue_in_browser">Продолжите в браузере и подтвердите запрос в расширении %1$s.</string>
+    <string name="bittensor_error_address_not_in_wallet">В вашем кошельке %1$s нет адреса, который вы ввели. Добавьте или подключите этот аккаунт в кошельке либо введите адрес, который в нём есть.</string>
     <string name="bittensor_error_challenge_expired">Срок действия запроса истек. Начните заново, чтобы получить новое сообщение для подписи.</string>
     <string name="bittensor_error_extension_not_found">Расширение %1$s не найдено в этом браузере. Установите его и повторите попытку.</string>
     <string name="bittensor_error_invalid_signature">Это недействительная подпись. Вставьте полную подпись 0x из вашего кошелька.</string>
     <string name="bittensor_error_message_mismatch">Кошелек подписал другой запрос. Начните заново.</string>
+    <string name="bittensor_error_no_account">В вашем кошельке %1$s нет аккаунта для подписи. Добавьте или подключите аккаунт в кошельке и попробуйте еще раз.</string>
+    <string name="bittensor_error_user_rejected">Запрос отклонен в вашем кошельке. Начните заново и подтвердите его, чтобы продолжить.</string>
+    <string name="bittensor_error_walletconnect_expired">Срок действия запроса WalletConnect истек до того, как кошелек ответил. Начните заново.</string>
+    <string name="bittensor_error_walletconnect_unavailable">WalletConnect сейчас недоступен. Повторите попытку позже или введите адрес вручную.</string>
     <string name="bittensor_manual_sign_instructions">Подпишите это сообщение в кошельке %1$s, где хранится ваш coldkey, затем вставьте ниже адрес и подпись.</string>
     <string name="bittensor_message_to_sign">Сообщение для подписи</string>
     <string name="bittensor_sign_in">Войти через Bittensor</string>

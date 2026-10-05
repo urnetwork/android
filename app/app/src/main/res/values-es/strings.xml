@@ -67,10 +67,15 @@
     <string name="best_value">Mejor oferta</string>
     <string name="bittensor_choose_wallet">Elige tu billetera de Bittensor</string>
     <string name="bittensor_continue_in_browser">Continúa en tu navegador y aprueba la solicitud en la extensión de %1$s.</string>
+    <string name="bittensor_error_address_not_in_wallet">Tu billetera %1$s no tiene la dirección que introdujiste. Añade o conecta esa cuenta en la billetera, o introduce una dirección que tenga.</string>
     <string name="bittensor_error_challenge_expired">Esta solicitud caducó. Empieza de nuevo para obtener un mensaje nuevo para firmar.</string>
     <string name="bittensor_error_extension_not_found">No se encontró la extensión de %1$s en este navegador. Instálala y vuelve a intentarlo.</string>
     <string name="bittensor_error_invalid_signature">No es una firma válida. Pega la firma 0x completa de tu billetera.</string>
     <string name="bittensor_error_message_mismatch">La billetera firmó una solicitud diferente. Empieza de nuevo.</string>
+    <string name="bittensor_error_no_account">Tu billetera %1$s no tiene ninguna cuenta con la que firmar. Añade o conecta una cuenta en la billetera y vuelve a intentarlo.</string>
+    <string name="bittensor_error_user_rejected">La solicitud se rechazó en tu billetera. Empieza de nuevo y apruébala para continuar.</string>
+    <string name="bittensor_error_walletconnect_expired">La solicitud de WalletConnect caducó antes de que respondiera la billetera. Empieza de nuevo.</string>
+    <string name="bittensor_error_walletconnect_unavailable">WalletConnect no está disponible en este momento. Inténtalo de nuevo más tarde o introduce tu dirección manualmente.</string>
     <string name="bittensor_manual_sign_instructions">Firma este mensaje con la billetera %1$s que contiene tu coldkey y luego pega abajo la dirección y la firma.</string>
     <string name="bittensor_message_to_sign">Mensaje para firmar</string>
     <string name="bittensor_sign_in">Iniciar sesión con Bittensor</string>

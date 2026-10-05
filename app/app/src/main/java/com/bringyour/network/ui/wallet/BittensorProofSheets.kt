@@ -78,7 +78,11 @@ class SdkBittensorProofSession(
                 )
             )
         }
-        return BittensorProofOutcome.Refused(result.errorCode ?: "", result.errorMessage?.takeIf { it.isNotEmpty() })
+        return BittensorProofOutcome.Refused(
+            result.errorCode ?: "",
+            result.errorMessage?.takeIf { it.isNotEmpty() },
+            result.bridgeErrorCode?.takeIf { it.isNotEmpty() },
+        )
     }
 }
 

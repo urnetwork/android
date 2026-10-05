@@ -6,6 +6,8 @@ import android.util.Base64
 import android.util.Log
 import com.bringyour.network.ui.wallet.BittensorProof
 import com.bringyour.network.ui.wallet.BittensorReturnAction
+import com.bringyour.network.ui.wallet.BittensorWallets
+import com.bringyour.network.ui.wallet.bittensorWalletDisplayName
 import androidx.browser.customtabs.CustomTabsIntent
 import com.bringyour.network.BuildConfig
 import com.bringyour.network.LoginClientCompletion
@@ -85,9 +87,18 @@ fun bittensorProofUri(proof: BittensorProof): Uri = Uri.parse(BITTENSOR_SIGN_RED
 fun bittensorFailureUri(failed: BittensorReturnAction.Failed, message: String): Uri =
     Uri.parse(BITTENSOR_SIGN_REDIRECT_LINK).buildUpon()
         .appendQueryParameter("errorCode", failed.code)
-        .appendQueryParameter("errorMessage", failed.detail ?: message)
+        .appendQueryParameter("errorMessage", message)
         .appendQueryParameter("purpose", failed.purpose)
         .build()
+
+/** The text for a refused bridge return, in this app's words where it has them. */
+fun Context.bittensorRefusalMessage(failed: BittensorReturnAction.Failed): String =
+    BittensorWallets.refusalText(
+        failed.code,
+        failed.detail,
+        failed.bridgeCode,
+        bittensorWalletDisplayName(failed.walletId),
+    ) { res, walletName -> if (walletName == null) getString(res) else getString(res, walletName) }
 
 /**
  * Opens a Bittensor bridge page (sdk BittensorWalletSession.bridgeUrl, e.g.
