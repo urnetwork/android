@@ -90,6 +90,7 @@
     <string name="community_edition">Toleo la jamii</string>
     <string name="community_edition_details">Shiriki katika mtandao na upate ufikiaji wa bure wa toleo la jamii.</string>
     <string name="companion">Mshirika</string>
+    <string name="conn_failed">Imeshindwa kuunganisha</string>
     <string name="connect">Unganisha</string>
     <string name="connect_and_open">Unganisha na ufungue kiungo</string>
     <string name="connect_bittensor_wallet_to_add_sign_in_method">Unganisha pochi ya Bittensor ili kuiongeza kama njia ya kuingia.</string>

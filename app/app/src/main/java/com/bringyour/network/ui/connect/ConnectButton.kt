@@ -145,6 +145,31 @@ fun ConnectButton(
             }
 
             /**
+             * Connect failed: no provider could be reached (the sdk's
+             * CONNECT_FAILED). The warning replaces the grid, as the error
+             * state of the desktop apps' connect canvas does, until a provider
+             * lands or the user retries.
+             */
+            AnimatedVisibility(
+                visible = updatedStatus == ConnectStatus.CONNECT_FAILED && !insufficientBalance,
+                enter = fadeIn(),
+                exit = fadeOut(),
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.icon_warning),
+                        contentDescription = stringResource(id = R.string.conn_failed),
+                        tint = TextMuted
+                    )
+                }
+            }
+
+            /**
              * Polling subscription balance
              */
             AnimatedVisibility(
@@ -162,7 +187,7 @@ fun ConnectButton(
                 }
             }
 
-            if (!insufficientBalance) {
+            if (!insufficientBalance && updatedStatus != ConnectStatus.CONNECT_FAILED) {
                 ConnectingButtonContent(
                     providerGridPoints = providerGridPoints,
                     grid = grid,

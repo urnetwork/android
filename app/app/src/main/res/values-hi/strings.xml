@@ -90,6 +90,7 @@
     <string name="community_edition">कम्युनिटी एडिशन</string>
     <string name="community_edition_details">नेटवर्क में भाग लें और कम्युनिटी एडिशन तक मुफ्त पहुंच प्राप्त करें।</string>
     <string name="companion">साथी</string>
+    <string name="conn_failed">कनेक्ट नहीं हो सका</string>
     <string name="connect">कनेक्ट करें</string>
     <string name="connect_and_open">कनेक्ट करें और लिंक खोलें</string>
     <string name="connect_bittensor_wallet_to_add_sign_in_method">Bittensor वॉलेट को साइन-इन विधि के रूप में जोड़ने के लिए उसे कनेक्ट करें।</string>

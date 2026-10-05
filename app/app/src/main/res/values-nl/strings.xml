@@ -90,6 +90,7 @@
     <string name="community_edition">Community-editie</string>
     <string name="community_edition_details">Neem deel aan het netwerk en krijg gratis toegang tot de community-editie.</string>
     <string name="companion">Tegenpartij</string>
+    <string name="conn_failed">Kan geen verbinding maken</string>
     <string name="connect">Verbinden</string>
     <string name="connect_and_open">Verbind en open de link</string>
     <string name="connect_bittensor_wallet_to_add_sign_in_method">Koppel een Bittensor-wallet om deze als inlogmethode toe te voegen.</string>

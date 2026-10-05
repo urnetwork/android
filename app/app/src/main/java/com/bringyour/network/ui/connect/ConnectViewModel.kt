@@ -407,8 +407,8 @@ constructor(
      * Folds the view controller's raw status and window into the connect failure
      * monitor and hands a failed attempt to MainApplication's whitelist probe,
      * whose own trigger (cellular, network country, cool-down) decides whether
-     * it runs. The raw status matters: CONNECT_FAILED has no ConnectStatus of its
-     * own. Main thread.
+     * it runs. It reads the raw status, so the pure policy needs no ui model.
+     * Main thread.
      */
     private fun checkConnectFailure() {
         val failed = connectFailureMonitor.observe(

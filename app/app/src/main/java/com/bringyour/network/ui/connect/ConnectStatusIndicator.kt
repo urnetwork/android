@@ -59,6 +59,8 @@ fun ConnectStatusIndicator(
         )
         status == ConnectStatus.CONNECTING || status == ConnectStatus.DESTINATION_SET ->
             stringResource(id = R.string.connecting_status_indicator)
+        // no provider could be reached; the drawer offers Retry
+        status == ConnectStatus.CONNECT_FAILED -> stringResource(id = R.string.conn_failed)
         status == ConnectStatus.DISCONNECTED -> when {
             guestMode -> stringResource(id = R.string.ready_to_connect)
             networkName != null -> stringResource(id = R.string.network_name_ready_to_connect, networkName)
@@ -71,6 +73,7 @@ fun ConnectStatusIndicator(
         displayReconnectTunnel || isPollingSubscriptionBalance || (contractStatus?.insufficientBalance == true && currentPlan != Plan.Supporter) -> R.drawable.circle_indicator_yellow
         status == ConnectStatus.CONNECTED -> R.drawable.circle_indicator_green
         status == ConnectStatus.CONNECTING || status == ConnectStatus.DESTINATION_SET -> R.drawable.circle_indicator_yellow
+        status == ConnectStatus.CONNECT_FAILED -> R.drawable.circle_indicator_red
         status == ConnectStatus.DISCONNECTED -> R.drawable.circle_indicator_blue
         else -> R.drawable.circle_indicator_blue
     }
@@ -79,6 +82,7 @@ fun ConnectStatusIndicator(
         ConnectStatus.CONNECTED -> "Connected"
         ConnectStatus.CONNECTING -> "Connecting"
         ConnectStatus.DESTINATION_SET -> "Connecting"
+        ConnectStatus.CONNECT_FAILED -> stringResource(id = R.string.conn_failed)
         ConnectStatus.DISCONNECTED -> "Disconnected"
     }
 
@@ -184,6 +188,23 @@ fun ConnectStatusIndicatorConnected() {
         ConnectStatusIndicator(
             status = ConnectStatus.CONNECTED,
             windowCurrentSize = 32,
+            networkName = "my_network",
+            guestMode = false,
+            displayReconnectTunnel = false,
+            contractStatus = null,
+            currentPlan = Plan.Basic,
+            isPollingSubscriptionBalance = false
+        )
+    }
+}
+
+@Preview
+@Composable
+fun ConnectStatusIndicatorConnectFailed() {
+    URNetworkTheme {
+        ConnectStatusIndicator(
+            status = ConnectStatus.CONNECT_FAILED,
+            windowCurrentSize = 0,
             networkName = "my_network",
             guestMode = false,
             displayReconnectTunnel = false,

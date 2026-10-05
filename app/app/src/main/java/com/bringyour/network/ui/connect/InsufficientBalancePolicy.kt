@@ -163,12 +163,16 @@ internal data class ConnectActionButtons(
     val connect: Boolean,
     val disconnect: Boolean,
     val reconnect: Boolean,
+    val retry: Boolean = false,
 )
 
 /**
  * The drawer's action buttons. In the gate only connect is replaced by upgrade:
  * disconnect remains whenever a connection is requested, so the gate can never
- * strand the user in a tunnel with no exit.
+ * strand the user in a tunnel with no exit. A failed connect (the sdk's
+ * CONNECT_FAILED) offers retry next to disconnect: the session is still
+ * standing, and a retry connects to the selected location again, which rebuilds
+ * the connection (the windows app's Retry; linux keeps the disconnect).
  */
 internal fun connectActionButtons(
     insufficientBalance: Boolean,
@@ -191,6 +195,7 @@ internal fun connectActionButtons(
         connect = !connectionRequested,
         disconnect = connectionRequested && !displayReconnectTunnel,
         reconnect = displayReconnectTunnel,
+        retry = connectStatus == ConnectStatus.CONNECT_FAILED && !displayReconnectTunnel,
     )
 }
 

@@ -90,6 +90,7 @@
     <string name="community_edition">Édition communautaire</string>
     <string name="community_edition_details">Participez au réseau et obtenez un accès gratuit à l’édition communautaire.</string>
     <string name="companion">Partenaire</string>
+    <string name="conn_failed">Connexion impossible</string>
     <string name="connect">Connecte</string>
     <string name="connect_and_open">Se connecter et ouvrir le lien</string>
     <string name="connect_bittensor_wallet_to_add_sign_in_method">Connectez un portefeuille Bittensor pour l\'ajouter comme méthode de connexion.</string>

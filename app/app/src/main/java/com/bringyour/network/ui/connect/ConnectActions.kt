@@ -267,7 +267,36 @@ fun ConnectActions(
                         }
                     }
 
-                    if (actionButtons.disconnect) {
+                    if (actionButtons.retry) {
+                        // the connect failed: retry connects to the selected
+                        // location again, and disconnect stays the way out
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            URButton(
+                                onClick = connect,
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .testTag("acceptance.connect_retry")
+                            ) { buttonTextStyle ->
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.Center
+                                ) {
+                                    Text(
+                                        stringResource(id = R.string.retry),
+                                        style = buttonTextStyle,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis,
+                                        modifier = Modifier.padding(horizontal = 4.dp)
+                                    )
+                                }
+                            }
+
+                            disconnectButton(Modifier.weight(1f))
+                        }
+                    } else if (actionButtons.disconnect) {
                         disconnectButton(Modifier)
                     }
 

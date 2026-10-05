@@ -16,6 +16,7 @@ class InsufficientBalancePolicyTest {
         ConnectStatus.CONNECTING,
         ConnectStatus.DESTINATION_SET,
         ConnectStatus.CONNECTED,
+        ConnectStatus.CONNECT_FAILED,
     )
 
     @Test
@@ -73,6 +74,7 @@ class InsufficientBalancePolicyTest {
                             connect = !requested,
                             disconnect = requested && !reconnect,
                             reconnect = reconnect,
+                            retry = status == ConnectStatus.CONNECT_FAILED && !reconnect,
                         ),
                         connectActionButtons(
                             insufficientBalance = insufficient,
@@ -84,6 +86,58 @@ class InsufficientBalancePolicyTest {
                     )
                 }
             }
+        }
+    }
+
+    @Test
+    fun connectFailedOffersRetryBesideDisconnect() {
+        // the sdk's CONNECT_FAILED: the session is still standing, so disconnect
+        // stays, and retry connects to the selected location again
+        assertEquals(
+            ConnectActionButtons(upgrade = false, connect = false, disconnect = true, reconnect = false, retry = true),
+            connectActionButtons(
+                insufficientBalance = false,
+                currentPlan = Plan.Basic,
+                isPollingSubscriptionBalance = false,
+                connectStatus = ConnectStatus.CONNECT_FAILED,
+                displayReconnectTunnel = false,
+            ),
+        )
+        // a tunnel to reconnect comes first: retrying the providers cannot help it
+        assertEquals(
+            ConnectActionButtons(upgrade = false, connect = false, disconnect = false, reconnect = true, retry = false),
+            connectActionButtons(
+                insufficientBalance = false,
+                currentPlan = Plan.Basic,
+                isPollingSubscriptionBalance = false,
+                connectStatus = ConnectStatus.CONNECT_FAILED,
+                displayReconnectTunnel = true,
+            ),
+        )
+        // out of balance a retry cannot succeed: upgrade and disconnect only
+        assertEquals(
+            ConnectActionButtons(upgrade = true, connect = false, disconnect = true, reconnect = false, retry = false),
+            connectActionButtons(
+                insufficientBalance = true,
+                currentPlan = Plan.Basic,
+                isPollingSubscriptionBalance = false,
+                connectStatus = ConnectStatus.CONNECT_FAILED,
+                displayReconnectTunnel = false,
+            ),
+        )
+    }
+
+    @Test
+    fun onlyAFailedConnectOffersRetry() {
+        for (status in ConnectStatus.entries.filter { it != ConnectStatus.CONNECT_FAILED }) {
+            val buttons = connectActionButtons(
+                insufficientBalance = false,
+                currentPlan = Plan.Basic,
+                isPollingSubscriptionBalance = false,
+                connectStatus = status,
+                displayReconnectTunnel = false,
+            )
+            assertFalse("$status", buttons.retry)
         }
     }
 
