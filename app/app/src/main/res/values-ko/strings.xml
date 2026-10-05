@@ -388,6 +388,8 @@
     <string name="post_quantum_encryption_fallback_note">폴백 사용 중 (임시)</string>
     <string name="post_quantum_identity">포스트 양자 제공업체 신원</string>
     <string name="post_quantum_identity_explanation">제공업체 신원 키는 이 기기에 로컬로 저장됩니다. 어떤 피어의 키가 로컬에 저장된 키와 다르게 표시되면 네트워크 운영자를 신뢰할 수 없다는 뜻입니다.</string>
+    <string name="private_dns_open_settings">네트워크 설정 열기</string>
+    <string name="private_dns_strict_notice">비공개 DNS가 %1$s(으)로 설정되어 있습니다. Android는 URnetwork를 거치지 않고 그곳으로 직접 조회를 보냅니다. 사이트가 로드되지 않으면 비공개 DNS를 자동으로 설정하세요.</string>
     <string name="private_network">프라이빗 네트워크</string>
     <string name="pro_benefits_simple">URnetwork의 최고의 버전.</string>
     <string name="processing_payment">결제 처리 중</string>

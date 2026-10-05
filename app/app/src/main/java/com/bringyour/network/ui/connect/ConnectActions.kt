@@ -1,5 +1,6 @@
 package com.bringyour.network.ui.connect
 
+import android.content.Intent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -29,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInParent
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
@@ -81,6 +83,9 @@ fun ConnectActions(
     connectStatus: ConnectStatus,
     isPollingSubscriptionBalance: Boolean,
     displayReconnectTunnel: Boolean,
+    // the strict Private DNS provider host to warn about, or null for no notice
+    // (see privateDnsStrictNoticeHost). Shown only while connected in strict mode.
+    privateDnsStrictHost: String?,
     insufficientBalance: Boolean,
     usedBytes: Long,
     availableBytes: Long,
@@ -284,6 +289,39 @@ fun ConnectActions(
                         .padding(horizontal = 4.dp)
                         .testTag("acceptance.insufficient_balance_notice")
                 )
+            }
+
+            // Strict Private DNS breaks name resolution while connected: Android
+            // sends DoT straight to the user's provider instead of through the
+            // tunnel. Android has no public Private DNS settings intent, so the
+            // button opens the wireless settings screen.
+            if (privateDnsStrictHost != null) {
+                val context = LocalContext.current
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    stringResource(id = R.string.private_dns_strict_notice, privateDnsStrictHost),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = TextMuted,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 4.dp)
+                        .testTag("acceptance.private_dns_strict_notice")
+                )
+                TextButton(
+                    onClick = {
+                        runCatching {
+                            context.startActivity(
+                                Intent(android.provider.Settings.ACTION_WIRELESS_SETTINGS)
+                                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                            )
+                        }
+                    }
+                ) {
+                    Text(
+                        stringResource(id = R.string.private_dns_open_settings),
+                        color = Pink
+                    )
+                }
             }
 
             // the fold marker: a zero-height anchor at the bottom of the

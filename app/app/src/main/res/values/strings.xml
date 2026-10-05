@@ -666,6 +666,8 @@
     <string name="post_quantum_encryption_fallback_note">Fallback enabled (temporary)</string>
     <string name="post_quantum_identity">Post Quantum Provider Identity</string>
     <string name="post_quantum_identity_explanation">Your provider identity key is stored locally on this device. If any peer\'s key appears different than their locally stored key, it means the network operator cannot be trusted.</string>
+    <string name="private_dns_open_settings">Open network settings</string>
+    <string name="private_dns_strict_notice">Private DNS is set to %1$s. Android sends lookups there directly instead of through URnetwork. If sites stop loading, set Private DNS to Automatic.</string>
     <string name="private_extender">Private extender</string>
     <string name="private_extender_hint">A private extender replaces every discovered extender. Leave it empty to use discovery.</string>
     <string name="private_extender_ip">IP address</string>

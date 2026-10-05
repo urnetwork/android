@@ -510,6 +510,16 @@ class MainApplication : Application() {
     val pendingFeedbackPrefill = kotlinx.coroutines.flow.MutableStateFlow<com.bringyour.network.analytics.FeedbackPrefill?>(null)
 
     /**
+     * The physical network's Private DNS (DoT) mode, mapped from the offline
+     * callback's LinkProperties (API 28+). In strict mode (a user-set hostname)
+     * Android sends every lookup as DoT straight to that host through the tunnel,
+     * bypassing URnetwork's DNS and failing completely when that path is down.
+     * The connect screen reads this to show a muted notice while connected, and
+     * MainService logs it on every builder.establish().
+     */
+    val privateDnsMode = kotlinx.coroutines.flow.MutableStateFlow<PrivateDnsMode>(PrivateDnsMode.Off)
+
+    /**
      * The product-event queue for the active network space (one per process;
      * see [com.bringyour.network.analytics.ClientEvents]). Recreated whenever
      * the active network space changes, flushed when the app goes to the
@@ -1179,6 +1189,17 @@ class MainApplication : Application() {
                 if (offlineCallback !== this || device !== callbackDevice) {
                     return
                 }
+                // Private DNS is a system-wide setting Android reports per
+                // network on LinkProperties (API 28+). Reading it from whichever
+                // physical path updates keeps the mode current.
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                    privateDnsMode.value = privateDnsModeOf(
+                        Build.VERSION.SDK_INT,
+                        linkProperties.isPrivateDnsActive,
+                        linkProperties.privateDnsServerName,
+                    )
+                }
+
                 // Same network, new addressing (DHCP renew, IPv6 renumbering,
                 // AP roam, DNS or route update): old sockets may be stale too.
                 val fingerprint = listOf(

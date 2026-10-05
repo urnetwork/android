@@ -647,6 +647,8 @@
     <string name="post_quantum_encryption_fallback_note">Reserva activada (temporal)</string>
     <string name="post_quantum_identity">Identidad poscuántica del proveedor</string>
     <string name="post_quantum_identity_explanation">Tu clave de identidad de proveedor se guarda localmente en este dispositivo. Si la clave de algún par aparece distinta de la clave guardada localmente, significa que no se puede confiar en el operador de la red.</string>
+    <string name="private_dns_open_settings">Abrir ajustes de red</string>
+    <string name="private_dns_strict_notice">El DNS privado está configurado en %1$s. Android envía las consultas directamente allí en lugar de pasar por URnetwork. Si los sitios dejan de cargar, configura el DNS privado en Automático.</string>
     <string name="private_extender">Extensor privado</string>
     <string name="private_extender_hint">Un extensor privado sustituye a todos los extensores descubiertos. Déjalo vacío para usar la detección.</string>
     <string name="private_extender_ip">Dirección IP</string>

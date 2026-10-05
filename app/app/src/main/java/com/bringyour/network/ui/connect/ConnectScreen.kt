@@ -69,6 +69,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.bringyour.network.MainApplication
+import com.bringyour.network.PrivateDnsMode
+import com.bringyour.network.privateDnsStrictNoticeHost
 import com.bringyour.network.R
 import com.bringyour.sdk.ConnectGrid
 import com.bringyour.sdk.ConnectLocation
@@ -159,6 +161,17 @@ fun ConnectScreen(
     val context = LocalContext.current
     val application = context.applicationContext as? MainApplication
 
+    // Strict Private DNS silently breaks name resolution while connected; warn
+    // only in that state (privateDnsStrictNoticeHost).
+    val privateDnsMode by (
+        application?.privateDnsMode
+            ?: kotlinx.coroutines.flow.MutableStateFlow<PrivateDnsMode>(PrivateDnsMode.Off)
+        ).collectAsState()
+    val privateDnsStrictHost = privateDnsStrictNoticeHost(
+        privateDnsMode,
+        connectStatus == ConnectStatus.CONNECTED,
+    )
+
     val promptReview = {
         val activity = context as? android.app.Activity
         activity?.let {
@@ -230,6 +243,7 @@ fun ConnectScreen(
                 connectStatus = connectStatus,
                 isPollingSubscriptionBalance = subscriptionBalanceViewModel.isPollingSubscriptionBalance,
                 displayReconnectTunnel = connectViewModel.displayReconnectTunnel,
+                privateDnsStrictHost = privateDnsStrictHost,
                 insufficientBalance = displayInsufficientBalance,
                 usedBytes = subscriptionBalanceViewModel.usedBalanceByteCount,
                 pendingBytes = subscriptionBalanceViewModel.pendingBalanceByteCount,

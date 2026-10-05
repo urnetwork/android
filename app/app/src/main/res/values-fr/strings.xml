@@ -388,6 +388,8 @@
     <string name="post_quantum_encryption_fallback_note">Secours activé (temporaire)</string>
     <string name="post_quantum_identity">Identité post-quantique du fournisseur</string>
     <string name="post_quantum_identity_explanation">Votre clé d\'identité de fournisseur est stockée localement sur cet appareil. Si la clé d\'un pair diffère de sa clé stockée localement, cela signifie que l\'opérateur du réseau n\'est pas digne de confiance.</string>
+    <string name="private_dns_open_settings">Ouvrir les paramètres réseau</string>
+    <string name="private_dns_strict_notice">Le DNS privé est réglé sur %1$s. Android y envoie les requêtes directement au lieu de passer par URnetwork. Si les sites ne se chargent plus, réglez le DNS privé sur Automatique.</string>
     <string name="private_network">Réseau privé</string>
     <string name="pro_benefits_simple">La meilleure version d\'URnetwork.</string>
     <string name="processing_payment">Traitement du paiement</string>

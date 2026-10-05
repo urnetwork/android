@@ -749,6 +749,9 @@ import kotlin.concurrent.thread
             }
             }
         app.device?.let { device ->
+            // Uploaded logs then show whether strict Private DNS (DoT) was in
+            // force for a "connected but no DNS" report (see PrivateDnsMode).
+            Log.i(TAG, "[service]private dns mode=${app.privateDnsMode.value.logValue()}")
             val pfd = try {
                 builder.establish()
             } catch (e: Exception) {
@@ -858,6 +861,10 @@ import kotlin.concurrent.thread
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             builder.setMetered(false)
         }
+        Log.i(
+            TAG,
+            "[service]private dns mode=${(application as MainApplication).privateDnsMode.value.logValue()}",
+        )
         val established = try {
             builder.establish()
         } catch (e: Exception) {
