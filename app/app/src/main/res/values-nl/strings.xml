@@ -522,8 +522,11 @@
     <string name="start_earning_join">Om te beginnen met verdienen, sluit je aan bij ons netwerk</string>
     <string name="stay">Blijven</string>
     <string name="stay_in_touch">Blijf in contact</string>
+    <string name="stay_on_this_exit">Bij deze exit blijven</string>
+    <string name="stay_on_this_exit_note">Houdt het IP-adres van deze provider aan totdat die offline gaat.</string>
     <string name="stay_private">Blijf\nvolledig\nprivé en\nanoniem</string>
     <string name="stay_private_description">Blijf volledig privé en anoniem met URnetwork</string>
+    <string name="staying_on_this_exit">Je blijft bij deze exit. Als die offline gaat, kies dan een andere locatie.</string>
     <string name="step_in">Stap het internet binnen zoals het hoort te zijn.</string>
     <string name="step_into_the_internet">Stap het internet in\nzoals het hoort te zijn.</string>
     <string name="step_one">Stap 1</string>

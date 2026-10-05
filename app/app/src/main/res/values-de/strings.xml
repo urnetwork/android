@@ -823,8 +823,11 @@
     <string name="start_free_trial">Kostenlose Testphase starten</string>
     <string name="stay">Bleiben</string>
     <string name="stay_in_touch">In Kontakt bleiben</string>
+    <string name="stay_on_this_exit">Bei diesem Exit bleiben</string>
+    <string name="stay_on_this_exit_note">Behält die IP-Adresse dieses Anbieters, bis er offline geht.</string>
     <string name="stay_private">Bleib\nabsolut\nprivat und\nanonym</string>
     <string name="stay_private_description">Bleib absolut privat und anonym mit URnetwork</string>
+    <string name="staying_on_this_exit">Du bleibst bei diesem Exit. Wenn er offline geht, wähle einen anderen Standort.</string>
     <string name="step_in">Betritt das Internet, wie es sein sollte.</string>
     <string name="step_into_the_internet">Tauche ins Internet ein\nwie es sein sollte.</string>
     <string name="step_one">Schritt 1</string>

@@ -522,8 +522,11 @@
     <string name="start_earning_join">Para empezar a ganar, únete a la red</string>
     <string name="stay">Quedarme</string>
     <string name="stay_in_touch">Mantente en contacto</string>
+    <string name="stay_on_this_exit">Quedarse en esta salida</string>
+    <string name="stay_on_this_exit_note">Mantiene la dirección IP de este proveedor hasta que se desconecte.</string>
     <string name="stay_private">Mantente\ntotalmente\nprivado y\nanónimo</string>
     <string name="stay_private_description">Mantente totalmente privado y anónimo con URnetwork</string>
+    <string name="staying_on_this_exit">Te quedas en esta salida. Si se desconecta, elige otra ubicación.</string>
     <string name="step_in">¡Éntrale al internet como debe ser!</string>
     <string name="step_into_the_internet">Entra a Internet\ncomo debería ser.</string>
     <string name="step_one">Paso 1</string>

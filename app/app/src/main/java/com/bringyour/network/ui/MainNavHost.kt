@@ -1347,6 +1347,13 @@ fun MainNavContent(
                     mockLocationSection = {
                         MockLocationSection(navController = navController)
                     },
+                    stayingClientId = connectViewModel.selectedLocation?.connectLocationId?.clientId?.idStr,
+                    // Stay on this exit reconnects to the one provider, through the
+                    // same connect gate as a location pick, and returns to the grid
+                    onStayOnExit = { location ->
+                        connectViewModel.connect(location)
+                        navController.popBackStack()
+                    },
                 )
             }
 

@@ -823,8 +823,11 @@
     <string name="start_free_trial">开始免费试用</string>
     <string name="stay">留下</string>
     <string name="stay_in_touch">保持联系</string>
+    <string name="stay_on_this_exit">固定使用此出口</string>
+    <string name="stay_on_this_exit_note">保持使用此提供商的 IP 地址，直到它离线。</string>
     <string name="stay_private">保持\n完全\n私密和\n匿名</string>
     <string name="stay_private_description">使用 URnetwork 保持完全私密和匿名</string>
+    <string name="staying_on_this_exit">正在固定使用此出口。如果它离线，请选择其他位置。</string>
     <string name="step_in">进入互联网应有的样子</string>
     <string name="step_into_the_internet">踏入互联网\n如其本应如此。</string>
     <string name="step_one">步骤 1</string>
