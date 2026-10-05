@@ -628,11 +628,19 @@ class MainApplication : Application() {
      * cool-down state lives for the process. ConnectViewModel calls
      * [maybeRunWhitelistProbe] when a connect attempt fails (the sdk's
      * CONNECT_FAILED, or no provider in the window past the time bound, while the
-     * user wants to be connected; see ConnectFailurePolicy). Its block goes to
-     * logcat and, line by line, to the sdk log that feedback uploads.
+     * user wants to be connected; see ConnectFailurePolicy). Only a run the probe
+     * claims gets a worker thread, and it claims one run at a time, so a failure
+     * it declines starts no thread. Its block goes to logcat and, line by line,
+     * to the sdk log that feedback uploads.
      */
     private val whitelistProbe by lazy {
         com.bringyour.network.analytics.WhitelistProbe(
+            runOnWorker = { work ->
+                Thread({
+                    runCatching { work() }
+                        .onFailure { Log.w(TAG, "whitelist probe failed: ${it.message}") }
+                }, "whitelist-probe").start()
+            },
             checkApiReachable = { probeApiReachable() },
             log = { diagnosticLog.info(WHITELIST_PROBE_LOG_TAG, it) },
         )
@@ -640,9 +648,10 @@ class MainApplication : Application() {
 
     /**
      * Runs the whitelist probe once if a connect failed on an RU cellular path.
-     * Reads the data path and the SIM/network country here, does the cheap
-     * trigger pre-check on the caller's thread, and runs the bounded network step
-     * on a worker. The probe's own cool-down bounds repeated failures.
+     * Reads the data path and the SIM/network country here. The probe claims the
+     * run on this thread, checking and setting its trigger, cool-down and run in
+     * flight in one step, and runs the bounded network step on its worker. A
+     * probe failure never fails the caller.
      */
     fun maybeRunWhitelistProbe(connectFailed: Boolean) {
         if (!connectFailed) {
@@ -652,23 +661,8 @@ class MainApplication : Application() {
         val countryIso = runCatching {
             getSystemService(TelephonyManager::class.java)?.networkCountryIso
         }.getOrNull()
-        // Avoid spawning a worker when it is clearly not an RU cellular failure;
-        // the probe re-checks with the real cool-down before it runs.
-        if (
-            !com.bringyour.network.analytics.whitelistProbeShouldRun(
-                isCellular = cellular,
-                countryIso = countryIso,
-                connectFailed = true,
-                nowMillis = System.currentTimeMillis(),
-                lastRunMillis = null,
-            )
-        ) {
-            return
-        }
-        Thread({
-            runCatching { whitelistProbe.maybeRun(cellular, countryIso, true) }
-                .onFailure { Log.w(TAG, "whitelist probe failed: ${it.message}") }
-        }, "whitelist-probe").start()
+        runCatching { whitelistProbe.maybeRun(cellular, countryIso, connectFailed = true) }
+            .onFailure { Log.w(TAG, "whitelist probe failed: ${it.message}") }
     }
 
     private fun isActiveNetworkCellular(): Boolean {

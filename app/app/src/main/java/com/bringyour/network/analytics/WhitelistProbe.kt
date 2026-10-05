@@ -1,5 +1,7 @@
 package com.bringyour.network.analytics
 
+import java.util.concurrent.atomic.AtomicReference
+
 /**
  * A measurement probe for whitelist-only mobile networks (open bug P052,
  * section 16). On some Russian mobile carriers only allow-listed domestic IPs
@@ -9,11 +11,12 @@ package com.bringyour.network.analytics
  * sends feedback with logs (the existing mechanism).
  *
  * It is a measurement, not a bypass: it only touches URnetwork-owned endpoints,
- * adds no new data destination, and is bounded (one run per cool-down, with a
- * per-step timeout). The results decide which carrier is worth building a pilot
- * extender for; they do not change how the app connects.
+ * adds no new data destination, and is bounded (one run at a time and one per
+ * cool-down, with a per-step timeout). The results decide which carrier is worth
+ * building a pilot extender for; they do not change how the app connects.
  *
- * The trigger decision and the result formatting are pure (WhitelistProbeTest).
+ * The trigger decision and the result formatting are pure, and the claim that
+ * keeps concurrent failures to one run is tested with them (WhitelistProbeTest).
  */
 
 /** The SIM/network country ISO that gates the probe (lower-case, TelephonyManager form). */
@@ -84,7 +87,18 @@ fun formatWhitelistProbeLog(steps: List<WhitelistProbeStep>): String {
 }
 
 /**
- * Runs the whitelist probe at most once per cool-down.
+ * Runs the whitelist probe at most once per cool-down and one run at a time.
+ * Safe for concurrent use.
+ *
+ * [maybeRun] claims a run on the caller's thread and hands only a claimed run
+ * to [runOnWorker], which runs it off that thread. The claim checks the
+ * trigger, the cool-down and the run in flight against one read of the probe's
+ * state and moves the state to the new run with a compare-and-set of that read,
+ * so failures reported at the same moment claim one run between them and its
+ * block is written once. A failure while a run is in flight is declined, also
+ * past the cool-down, and leaves the cool-down's start as it was. The claim
+ * ends with its run, also when a step throws, and the cool-down still counts
+ * from the claim.
  *
  * [checkApiReachable] performs step (a): a bounded reachability check of the
  * URnetwork api/platform host (the real implementation does an https GET of the
@@ -102,47 +116,107 @@ fun formatWhitelistProbeLog(steps: List<WhitelistProbeStep>): String {
 class WhitelistProbe(
     private val nowMillis: () -> Long = { System.currentTimeMillis() },
     private val coolDownMillis: Long = WHITELIST_PROBE_COOL_DOWN_MILLIS,
+    private val runOnWorker: (() -> Unit) -> Unit,
     private val checkApiReachable: () -> WhitelistProbeStep,
     private val log: (String) -> Unit,
 ) {
-    @Volatile
-    private var lastRunMillis: Long? = null
+    /**
+     * The start of the cool-down (the last claim, null before the first) and
+     * whether that claim's run has not ended. Never changed in place: each
+     * change is a new instance, so a compare-and-set against the instance that
+     * was read covers both fields, and a claim's instance identifies its run.
+     */
+    private class State(
+        val lastRunMillis: Long?,
+        val running: Boolean,
+    )
 
-    /** Returns true when the probe ran, false when the trigger or the cool-down declined it. */
+    private val state = AtomicReference(State(lastRunMillis = null, running = false))
+
+    /**
+     * Returns true when this failure claimed a run, which then runs on the
+     * worker, and false when the trigger, the cool-down or a run in flight
+     * declined it. A worker that cannot take the run gets the claim ended,
+     * keeping the cool-down, and its exception is rethrown.
+     */
     fun maybeRun(isCellular: Boolean, countryIso: String?, connectFailed: Boolean): Boolean {
-        val now = nowMillis()
-        if (
-            !whitelistProbeShouldRun(
-                isCellular = isCellular,
-                countryIso = countryIso,
-                connectFailed = connectFailed,
-                nowMillis = now,
-                lastRunMillis = lastRunMillis,
-                coolDownMillis = coolDownMillis,
-            )
-        ) {
-            return false
+        val claimed = claim(isCellular, countryIso, connectFailed) ?: return false
+        try {
+            runOnWorker { runClaimed(claimed) }
+        } catch (e: Throwable) {
+            release(claimed)
+            throw e
         }
-        lastRunMillis = now
-        val steps = listOf(
-            checkApiReachable(),
-            WhitelistProbeStep(
-                "alt-whodis-udp53",
-                null,
-                "needs a bindable connect/sdk whodis probe (not on sdk main)",
-            ),
-            WhitelistProbeStep(
-                "carrier-recursive-dns",
-                null,
-                "no URnetwork recursive-resolvable zone (whodis dials the alt host directly)",
-            ),
-            WhitelistProbeStep(
-                "pilot-extender",
-                null,
-                "no pilot domestic extender configured",
-            ),
-        )
-        log(formatWhitelistProbeLog(steps))
         return true
+    }
+
+    /**
+     * Checks one read of the state and claims with a compare-and-set against
+     * that read; a claim or release by another thread in between fails it, and
+     * the check runs again on the new state. Returns the claimed state, or null
+     * when declined.
+     */
+    private fun claim(isCellular: Boolean, countryIso: String?, connectFailed: Boolean): State? {
+        while (true) {
+            val current = state.get()
+            if (current.running) {
+                return null
+            }
+            val now = nowMillis()
+            if (
+                !whitelistProbeShouldRun(
+                    isCellular = isCellular,
+                    countryIso = countryIso,
+                    connectFailed = connectFailed,
+                    nowMillis = now,
+                    lastRunMillis = current.lastRunMillis,
+                    coolDownMillis = coolDownMillis,
+                )
+            ) {
+                return null
+            }
+            val claimed = State(lastRunMillis = now, running = true)
+            if (state.compareAndSet(current, claimed)) {
+                return claimed
+            }
+        }
+    }
+
+    /** The claimed run, on the worker: the steps, then their one block. */
+    private fun runClaimed(claimed: State) {
+        try {
+            val steps = listOf(
+                checkApiReachable(),
+                WhitelistProbeStep(
+                    "alt-whodis-udp53",
+                    null,
+                    "needs a bindable connect/sdk whodis probe (not on sdk main)",
+                ),
+                WhitelistProbeStep(
+                    "carrier-recursive-dns",
+                    null,
+                    "no URnetwork recursive-resolvable zone (whodis dials the alt host directly)",
+                ),
+                WhitelistProbeStep(
+                    "pilot-extender",
+                    null,
+                    "no pilot domestic extender configured",
+                ),
+            )
+            log(formatWhitelistProbeLog(steps))
+        } finally {
+            release(claimed)
+        }
+    }
+
+    /**
+     * Ends the run of [claimed], keeping its cool-down start. Only that claim's
+     * own state is replaced, so ending it twice cannot end a later claim.
+     */
+    private fun release(claimed: State) {
+        state.compareAndSet(
+            claimed,
+            State(lastRunMillis = claimed.lastRunMillis, running = false),
+        )
     }
 }
