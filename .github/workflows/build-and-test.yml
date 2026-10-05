@@ -73,9 +73,9 @@ jobs:
     # minutes rather than burning the afternoon. Observed: ~3.5 min.
     timeout-minutes: 45
     env:
-      # setup-go pins 1.26.5 below, but a `go` directive anywhere in the graph
-      # could still make the toolchain silently self-upgrade to 1.27 and
-      # re-break the bind. `local` turns that into a loud, obvious failure.
+      # setup-go pins the release host's Go below. `local` makes a `go` line
+      # newer than that anywhere in the module graph a loud, obvious failure
+      # instead of a silent switch to another toolchain.
       GOTOOLCHAIN: local
     steps:
       # This repository is ~700 MB, most of it design art under res/ that the
@@ -118,15 +118,17 @@ jobs:
             echo 'func RenderPngV2(data []byte, size int) ([]byte, error) { return RenderPng(data, size) }' >> goidenticons/render_v2_ci_shim.go
           fi
 
-      # NOT `go-version: stable`, which the sdk/connect workflows use. Stable is
-      # 1.27 now, and sdk/build/Makefile says so itself in the build_android
-      # recipe: "gomobile/gobind must be built with go <= 1.26 -- the go 1.27
-      # runtime fatals when this GODEBUG is set", GODEBUG=gotypesalias=0 being
-      # exactly what that recipe exports. sdk/build/go.mod pins 1.26.5.
+      # The Go the release host builds the SDK with: build/all/run.sh requires
+      # exactly 1.27.1, and build/all/build-fdroid.sh installs it for the
+      # F-Droid build. Not `stable`, which moves with every Go release, and not
+      # go-version-file, which would install the minimum sdk/build/go.mod
+      # declares instead. go 1.27 can run the bind since sdk f36da2ab: the
+      # build_android recipe no longer exports GODEBUG=gotypesalias=0, a
+      # setting go 1.27 removed and gomobile exits on at startup.
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version-file: sdk/build/go.mod
+          go-version: "1.27.1"
           cache-dependency-path: sdk/build/go.sum
 
       # gomobile bind generates and compiles the Java half of the binding, and
@@ -150,13 +152,14 @@ jobs:
           "$sdkmanager" --install "ndk;$UR_ANDROID_NDK"
           echo "ANDROID_NDK_HOME=$ANDROID_HOME/ndk/$UR_ANDROID_NDK" >> "$GITHUB_ENV"
 
-      # init_tools, NOT init. `make init` ends with `go clean -cache && go clean
-      # -modcache`, which throws away everything setup-go just restored, and it
-      # `go get`s x/mobile/bind (already pinned as an indirect require in
-      # build/go.mod at the same GOMOBILE_VERSION). init_tools installs the
-      # pinned gomobile/gobind/checksec and stops -- checksec is not optional,
-      # build_android runs it over every .so. This is the split the Makefile
-      # documents and the split :app:buildSdkAcceptance relies on.
+      # init_tools, NOT init. `make init` also `go get`s x/mobile/bind (already
+      # pinned as an indirect require in build/go.mod at the same
+      # GOMOBILE_VERSION), and until sdk 40432c72 it ended with `go clean
+      # -cache && go clean -modcache`, throwing away everything setup-go had
+      # just restored. init_tools installs the pinned gomobile/gobind/checksec
+      # and stops -- checksec is not optional, build_android runs it over every
+      # .so. This is the split the Makefile documents and the split
+      # :app:buildSdkAcceptance relies on.
       - name: Install the pinned gomobile toolchain
         working-directory: sdk/build
         run: make init_tools
