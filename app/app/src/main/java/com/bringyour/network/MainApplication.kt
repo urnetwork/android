@@ -23,6 +23,10 @@ import android.telephony.TelephonyCallback
 import android.telephony.TelephonyDisplayInfo
 import android.telephony.TelephonyManager
 import android.util.Log
+import com.bringyour.network.analytics.WHITELIST_PROBE_HTTP_TIMEOUT_MILLIS
+import com.bringyour.network.analytics.WhitelistProbeStep
+import java.net.HttpURLConnection
+import java.net.URL
 import androidx.core.content.ContextCompat
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.DefaultLifecycleObserver
@@ -532,6 +536,95 @@ class MainApplication : Application() {
 //    val vcManager get() = deviceManager.vcManager
     val api get() = networkSpaceManagerProvider.getNetworkSpace()?.api
     val asyncLocalState get() = networkSpaceManagerProvider.getNetworkSpace()?.asyncLocalState
+
+    /**
+     * The whitelist-network measurement probe (P052). Bounded, URnetwork-owned
+     * endpoints only, local logs only; see WhitelistProbe. Built lazily so its
+     * cool-down state lives for the process. ConnectViewModel calls
+     * [maybeRunWhitelistProbe] when a connect attempt fails (the sdk's
+     * CONNECT_FAILED, or no provider in the window past the time bound, while the
+     * user wants to be connected; see ConnectFailurePolicy).
+     */
+    private val whitelistProbe by lazy {
+        com.bringyour.network.analytics.WhitelistProbe(
+            checkApiReachable = { probeApiReachable() },
+            log = { Log.i(TAG, it) },
+        )
+    }
+
+    /**
+     * Runs the whitelist probe once if a connect failed on an RU cellular path.
+     * Reads the data path and the SIM/network country here, does the cheap
+     * trigger pre-check on the caller's thread, and runs the bounded network step
+     * on a worker. The probe's own cool-down bounds repeated failures.
+     */
+    fun maybeRunWhitelistProbe(connectFailed: Boolean) {
+        if (!connectFailed) {
+            return
+        }
+        val cellular = isActiveNetworkCellular()
+        val countryIso = runCatching {
+            getSystemService(TelephonyManager::class.java)?.networkCountryIso
+        }.getOrNull()
+        // Avoid spawning a worker when it is clearly not an RU cellular failure;
+        // the probe re-checks with the real cool-down before it runs.
+        if (
+            !com.bringyour.network.analytics.whitelistProbeShouldRun(
+                isCellular = cellular,
+                countryIso = countryIso,
+                connectFailed = true,
+                nowMillis = System.currentTimeMillis(),
+                lastRunMillis = null,
+            )
+        ) {
+            return
+        }
+        Thread({
+            runCatching { whitelistProbe.maybeRun(cellular, countryIso, true) }
+                .onFailure { Log.w(TAG, "whitelist probe failed: ${it.message}") }
+        }, "whitelist-probe").start()
+    }
+
+    private fun isActiveNetworkCellular(): Boolean {
+        val connectivityManager =
+            getSystemService(ConnectivityManager::class.java) ?: return false
+        val network = connectivityManager.activeNetwork ?: return false
+        val capabilities = connectivityManager.getNetworkCapabilities(network) ?: return false
+        return capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)
+    }
+
+    /**
+     * Probe step (a): a bounded https GET of the api `/status` endpoint. Reaching
+     * the server with any http response means the control plane is routable; a
+     * timeout or connection error on a whitelist network is the signal we want.
+     * URnetwork-owned endpoint only; no new data destination.
+     */
+    private fun probeApiReachable(): WhitelistProbeStep {
+        val apiUrl = networkSpaceManagerProvider.getNetworkSpace()?.apiUrl?.trimEnd('/')
+        if (apiUrl.isNullOrEmpty()) {
+            return WhitelistProbeStep("api-reachable", null, "no api url")
+        }
+        val statusUrl = "$apiUrl/status"
+        val start = System.currentTimeMillis()
+        return try {
+            val connection = (URL(statusUrl).openConnection() as HttpURLConnection).apply {
+                requestMethod = "GET"
+                connectTimeout = WHITELIST_PROBE_HTTP_TIMEOUT_MILLIS
+                readTimeout = WHITELIST_PROBE_HTTP_TIMEOUT_MILLIS
+                instanceFollowRedirects = false
+            }
+            try {
+                val code = connection.responseCode
+                val elapsed = System.currentTimeMillis() - start
+                WhitelistProbeStep("api-reachable", true, "HTTP $code in ${elapsed}ms")
+            } finally {
+                connection.disconnect()
+            }
+        } catch (e: Exception) {
+            val elapsed = System.currentTimeMillis() - start
+            WhitelistProbeStep("api-reachable", false, "${e.javaClass.simpleName} after ${elapsed}ms")
+        }
+    }
 //    val apiUrl get() = networkSpace?.apiUrl
 //    val platformUrl get() = networkSpace?.platformUrl
 
