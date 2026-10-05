@@ -3,6 +3,7 @@ package com.bringyour.network.ui
 import com.bringyour.network.ui.introduction.LocalIntroConnector
 import com.bringyour.network.ui.introduction.IntroConnectorState
 import com.bringyour.network.ui.introduction.FloatingIntroConnector
+import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.bringyour.network.ui.introduction.IntroductionQuickConnect
 import com.bringyour.network.ui.introduction.IntroductionOffer
@@ -516,6 +517,25 @@ private fun MainNavHostContent(
 
             overlayViewModel.launchSunglassesFlight()
             overlayViewModel.launch(OverlayMode.Upgrade)
+        }
+    }
+
+    /**
+     * The server refused a purchase for a guest network the app did not know
+     * about (SubscriptionBalanceViewModel.guestSignInRequired), which now reads
+     * as a guest: the upgrade route shows the add-sign-in sheet in place of
+     * checkout, and the intro funnel hides itself, so a refusal from the intro
+     * opens the upgrade route on that sheet.
+     */
+    LaunchedEffect(Unit) {
+        subscriptionBalanceViewModel.guestSignInRequiredSequence.collect { sequence ->
+            if (!subscriptionBalanceViewModel.consumeGuestSignInRequiredSequence(sequence)) {
+                return@collect
+            }
+
+            if (navController.currentDestination?.hasRoute<Route.Upgrade>() != true) {
+                navController.navigate(Route.Upgrade)
+            }
         }
     }
 

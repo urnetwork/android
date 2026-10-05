@@ -21,6 +21,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.bringyour.network.R
+import com.bringyour.network.ui.account.PurchaseRefusal
 import com.bringyour.network.ui.components.UpgradeScreenHeader
 import com.bringyour.network.ui.components.tabletReadableColumn
 import com.bringyour.network.ui.shared.viewmodels.PlanViewModel
@@ -44,7 +45,7 @@ fun UpgradeScreen(
         reference: String,
         plan: String,
         onSuccess: (amountUsd: Double) -> Unit,
-        onError: () -> Unit
+        onError: (PurchaseRefusal) -> Unit
     ) -> Unit,
     onStripePaymentSuccess: () -> Unit,
     isCheckingSolanaTransaction: Boolean

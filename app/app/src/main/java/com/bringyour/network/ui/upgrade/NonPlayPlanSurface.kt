@@ -12,6 +12,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import com.bringyour.network.R
 import com.bringyour.network.analytics.ClientEvents
+import com.bringyour.network.ui.account.PurchaseRefusal
 import com.bringyour.network.ui.shared.enums.PlanType
 import com.bringyour.network.ui.shared.viewmodels.SubscriptionBalanceViewModel
 import com.bringyour.network.utils.createPaymentReference
@@ -37,7 +38,7 @@ fun NonPlayPlanSurface(
         reference: String,
         plan: String,
         onSuccess: (amountUsd: Double) -> Unit,
-        onError: () -> Unit
+        onError: (PurchaseRefusal) -> Unit
     ) -> Unit,
     onSolanaUriOpened: (String) -> Unit,
     isCheckingSolanaTransaction: Boolean,
@@ -69,9 +70,14 @@ fun NonPlayPlanSurface(
                     ClientEvents.purchaseFailed(Sdk.EventStoreSolana, ClientEvents.PRODUCT_SOLANA_PRO_YEARLY, plan, false, amountUsd, "USD", "no_wallet")
                 }
             },
-            {
+            { refusal ->
                 isPromptingSolanaPayment = false
-                Toast.makeText(context, context.getString(R.string.payment_not_completed), Toast.LENGTH_SHORT).show()
+                when (refusal) {
+                    // a guest network: the add-sign-in sheet instead of the error
+                    PurchaseRefusal.AddSignInMethod -> subscriptionBalanceViewModel.guestSignInRequired()
+                    PurchaseRefusal.PaymentError ->
+                        Toast.makeText(context, context.getString(R.string.payment_not_completed), Toast.LENGTH_SHORT).show()
+                }
             }
         )
     }

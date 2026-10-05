@@ -44,6 +44,28 @@ object GuestAccount {
     }
 
     /**
+     * The server's code for a checkout or payment intent it refused because the
+     * network is a legacy guest (server refuseGuestPurchase; sdk
+     * PurchaseErrorCodeGuestSignInRequired).
+     */
+    const val PURCHASE_ERROR_GUEST_SIGN_IN_REQUIRED = "guest_sign_in_required"
+
+    /**
+     * What a refused Stripe payment sheet or Solana payment intent leads to. The
+     * server refuses a guest network with `guest_sign_in_required` when the app
+     * did not know it was one (a refreshed guest before its balance loaded):
+     * that opens the add-sign-in sheet, as every upgrade entry of a guest does,
+     * instead of a payment error. Any other refusal is a payment error.
+     */
+    fun purchaseRefusal(code: String?): PurchaseRefusal {
+        return if (code == PURCHASE_ERROR_GUEST_SIGN_IN_REQUIRED) {
+            PurchaseRefusal.AddSignInMethod
+        } else {
+            PurchaseRefusal.PaymentError
+        }
+    }
+
+    /**
      * Whether `isGuest` is settled. A guest claim marks a guest on its own; a
      * jwt without the claim (every refreshed jwt) says nothing until the
      * server's `guest` has loaded once, so until then a refreshed guest reads
@@ -87,6 +109,13 @@ enum class IntroFunnel {
 enum class UpgradeEntry {
     Checkout,
     // add a sign-in method to the current network first; no checkout
+    AddSignInMethod,
+}
+
+enum class PurchaseRefusal {
+    // the payment did not start; the purchase surface says so
+    PaymentError,
+    // the network is a guest: add a sign-in method to it first (GuestConversionSheet)
     AddSignInMethod,
 }
 

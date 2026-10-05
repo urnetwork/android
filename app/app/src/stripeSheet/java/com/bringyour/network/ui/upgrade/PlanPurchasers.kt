@@ -8,6 +8,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.bringyour.network.R
 import com.bringyour.network.analytics.ClientEvents
+import com.bringyour.network.ui.account.GuestAccount
+import com.bringyour.network.ui.account.PurchaseRefusal
 import com.bringyour.network.ui.shared.enums.PlanType
 import com.bringyour.network.ui.shared.viewmodels.PlanViewModel
 import com.bringyour.network.ui.shared.viewmodels.SubscriptionBalanceViewModel
@@ -84,10 +86,16 @@ fun rememberPlanPurchaser(
                 if (yearly) (presentation.offer?.firstYearAmount ?: presentation.yearlyAmount) else presentation.monthlyAmount,
                 presentation.currency,
             )
-            StripeSheetRequest.request(api, plan, subscriptionBalanceViewModel.storefrontCountry) { result, error ->
+            StripeSheetRequest.request(api, plan, subscriptionBalanceViewModel.storefrontCountry) { result, error, refusal ->
                 if (result == null) {
                     subscriptionBalanceViewModel.cancelPurchaseConfirmation()
                     planViewModel.setInProgress(false)
+                    if (refusal == PurchaseRefusal.AddSignInMethod) {
+                        // a guest network: the add-sign-in sheet instead of the error
+                        ClientEvents.purchaseFailed(Sdk.EventStoreStripe, ClientEvents.PRODUCT_STRIPE_PRO, planName, yearly, 0.0, presentation.currency, GuestAccount.PURCHASE_ERROR_GUEST_SIGN_IN_REQUIRED)
+                        subscriptionBalanceViewModel.guestSignInRequired()
+                        return@request
+                    }
                     ClientEvents.purchaseFailed(Sdk.EventStoreStripe, ClientEvents.PRODUCT_STRIPE_PRO, planName, yearly, 0.0, presentation.currency, "prepare")
                     planViewModel.setChangePlanError(listOfNotNull(notCompleted, error).joinToString("\n"))
                     return@request
