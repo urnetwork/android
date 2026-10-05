@@ -13,6 +13,7 @@ enum class ProvidePauseReason {
     NOT_CHARGING,
 }
 
+/** Whether providing is paused, and the first source that pauses it. */
 data class ProvidePauseDecision(
     val paused: Boolean,
     val reason: ProvidePauseReason,
@@ -22,6 +23,7 @@ data class ProvidePauseDecision(
     }
 }
 
+/** The pause sources the decision reads, as the application last saw them. */
 internal data class ProvidePauseFacts(
     /**
      * a network that matches the provide network mode is available

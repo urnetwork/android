@@ -29,6 +29,7 @@ private const val MINUTE_MILLIS = 60_000L
 internal fun nextFreeRefreshMillis(nowMillis: Long): Long =
     Math.floorDiv(nowMillis, DAY_MILLIS) * DAY_MILLIS + DAY_MILLIS
 
+/** Whole hours and minutes until the free data refreshes. */
 internal data class RefreshCountdown(
     val hours: Long,
     val minutes: Long,
@@ -70,6 +71,7 @@ internal fun formatRefreshCountdown(
     minutesOnly(countdown.minutes)
 }
 
+/** The sheet's amounts, formatted. */
 internal data class DataInfo(
     val used: String,
     val pending: String,

@@ -55,6 +55,7 @@ class ExtenderFormModel(
         reloadPrivateExtender()
     }
 
+    /** Reads the legacy private extender again, which needs no controller. */
     fun reloadPrivateExtender() {
         privateExtender = source.readPrivateExtender()
     }

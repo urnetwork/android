@@ -144,6 +144,7 @@ fun DataInfoSheet(
     }
 }
 
+/** One amount: the usage bar's key and name, the amount, and what it means. */
 @Composable
 private fun DataInfoRow(
     label: String,

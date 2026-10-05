@@ -5,6 +5,10 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
+/**
+ * The whitelist-network probe (P052): when it runs (a failed connect on an RU
+ * cellular network, once per cool-down) and the log block it writes.
+ */
 class WhitelistProbeTest {
     private val base = 1_000_000L
 

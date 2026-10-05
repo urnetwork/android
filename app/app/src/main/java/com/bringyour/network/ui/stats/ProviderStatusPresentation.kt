@@ -92,6 +92,7 @@ data class ProviderStatusUi(
     companion object {
         val Empty = ProviderStatusUi()
 
+        /** One read of the controller's state. */
         fun fromSdk(vc: ProviderStatusViewController): ProviderStatusUi {
             val loaded = vc.isLoaded
             val lastFetchError = vc.lastFetchError ?: ""
@@ -168,6 +169,7 @@ enum class ProviderDemandState {
     BARS,
 }
 
+/** What the provider statistics show: the chart area, and whether the "Why?" follows. */
 data class ProviderStatusDisplay(
     val demand: ProviderDemandState,
     /**
@@ -201,7 +203,10 @@ fun providerStatusDisplay(status: ProviderStatusUi): ProviderStatusDisplay {
  * English text for a reason code this app does not know yet.
  */
 sealed interface ProviderStatusLine {
+    /** A reason this app knows, as its string resource. */
     data class Resource(val id: Int) : ProviderStatusLine
+
+    /** A reason this app does not know yet, as the server's English text. */
     data class Text(val text: String) : ProviderStatusLine
 }
 
@@ -282,6 +287,7 @@ data class ProviderDemandHistogram(
     companion object {
         const val BAR_COUNT = 60
 
+        /** The bars of the appearances per minute, oldest first. */
         fun fromCounts(appearancesPerMinute: List<Long>): ProviderDemandHistogram {
             // always 60 bars: the newest 60 minutes, padded with empty minutes
             // on the old side
@@ -309,16 +315,23 @@ sealed interface ProviderStatusValue {
     data class Rate(val bytesPerSecond: Double) : ProviderStatusValue
     // "35 ms"; the unit is not localized
     data class Millis(val millis: Double) : ProviderStatusValue
+    // "{count} of {total} loaded"
     data class CountOfTotal(val count: Long, val total: Long) : ProviderStatusValue
     // a selection weight, with 2 decimals
     data class Weight(val weight: Double) : ProviderStatusValue
     // 0 is best
     data class Tier(val tier: Long) : ProviderStatusValue
+    // shown as it is
     data class Text(val text: String) : ProviderStatusValue
+    // "{value} (needs {minimum})"
     data class WithMinimum(val value: ProviderStatusValue, val minimum: ProviderStatusValue) : ProviderStatusValue
+    // "{value} (at most {maximum})"
     data class WithMaximum(val value: ProviderStatusValue, val maximum: ProviderStatusValue) : ProviderStatusValue
+    // nothing measured yet
     data object NotYet : ProviderStatusValue
+    // a reliability with no history yet
     data object NoHistory : ProviderStatusValue
+    // a weight outside the mode's pool
     data object NotInPool : ProviderStatusValue
 }
 
@@ -470,14 +483,20 @@ fun providerStatusRows(status: ProviderStatusUi): List<ProviderStatusRow> {
  * plain templates in tests.
  */
 interface ProviderStatusValueStrings {
+    /** "{value} (needs {minimum})". */
     fun withMinimum(value: String, minimum: String): String
+
+    /** "{value} (at most {maximum})". */
     fun withMaximum(value: String, maximum: String): String
+
+    /** "{count} of {total} loaded". */
     fun countOfTotal(count: Long, total: Long): String
     val notYet: String
     val noHistory: String
     val notInPool: String
 }
 
+/** The value as its row shows it, with [strings] and [locale]. */
 fun ProviderStatusValue.format(strings: ProviderStatusValueStrings, locale: Locale): String {
     return when (this) {
         is ProviderStatusValue.Percent -> NumberFormat.getPercentInstance(locale).apply {

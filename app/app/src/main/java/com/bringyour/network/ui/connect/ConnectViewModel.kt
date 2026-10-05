@@ -449,6 +449,7 @@ constructor(
         }
     }
 
+    /** Forgets the current attempt and its pending re-check: the device or view controller changed. */
     private fun resetConnectFailureMonitor() {
         connectFailureMonitor.reset()
         connectFailureCheckJob?.cancel()

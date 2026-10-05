@@ -7,6 +7,11 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test
 
+/**
+ * The SN payout line at the foot of the points card: which line shows, the
+ * epoch's times in the reader's zone and locale, and the final USDC payout
+ * while one is pending.
+ */
 class SnPayoutLineTest {
 
     // the SDK's schedule for an epoch closing 2026-10-13 00:00 UTC on the mainnet

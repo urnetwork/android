@@ -5,6 +5,11 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test
 
+/**
+ * The provide pause (P077): one decision from the network, Battery Saver, the
+ * charger and the user's power mode, so no source clears another's pause, the
+ * mode's storage, and the battery facts the decision reads.
+ */
 class ProvidePausePolicyTest {
 
     private data class Row(

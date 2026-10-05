@@ -30,6 +30,7 @@ data class SnPayoutTimes(
     val expiry: String,
 )
 
+/** What the foot of the points card says about payouts. */
 sealed class SnPayoutLine {
     /** no coldkey yet: "Set your Bittensor coldkey to get paid", and the action opens the coldkey flow */
     object SetColdkey : SnPayoutLine()

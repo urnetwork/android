@@ -29,14 +29,14 @@ class ExtenderFormModelTest {
         override fun readPrivateExtender(): ExtenderPrivateUi = privateExtender
     }
 
-    // the derived defaults of a bringyour.com space
+    // the derived defaults of a network.example space
     private val defaults = ExtenderSettingsUi(
-        dnsName = "extender.bringyour.com",
+        dnsName = "extender.network.example",
         dnsNameDefault = true,
-        gossipUrl = "wss://gossip.bringyour.com",
+        gossipUrl = "wss://gossip.network.example",
         gossipUrlDefault = true,
         hosts = listOf("192.0.2.1"),
-        networkHost = "bringyour.com",
+        networkHost = "network.example",
     )
 
     // what an import with another operator's settings leaves in the space: its

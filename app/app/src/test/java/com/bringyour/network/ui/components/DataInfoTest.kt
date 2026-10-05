@@ -13,6 +13,11 @@ import java.time.Instant
 import java.util.Locale
 import java.util.TimeZone
 
+/**
+ * The "About your data" sheet: when the free data refreshes (the next 00:00
+ * UTC, whatever the device time zone), the countdown to it, the Used, Pending
+ * and Available split, the daily amount, and who sees the refresh line.
+ */
 class DataInfoTest {
 
     private val gib = 1024L * 1024 * 1024

@@ -21,11 +21,11 @@ import org.w3c.dom.Element
 class PayoutWalletPromotionTest {
 
     private val removed = LegacyWallet(
-        "wallet-sol", "4Fj9RCwJqHLdLNK28DwWHunHqWapxKbbzeYZLmreSYCM", LegacyChain.SOLANA, hasSeekerToken = false
+        "wallet-sol", "SyntheticRemovedPayoutWa11etForTests1111111", LegacyChain.SOLANA, hasSeekerToken = false
     )
 
     private val promoted = LegacyWallet(
-        "wallet-sol-2", "Bhhbz5CgN4oFEwZvgAS8Pt5SqEubkoQqp8PCcZzJNq9R", LegacyChain.SOLANA, hasSeekerToken = true
+        "wallet-sol-2", "SyntheticPromotedPayoutWa11etForTests111111", LegacyChain.SOLANA, hasSeekerToken = true
     )
 
     private val polygon = LegacyWallet(

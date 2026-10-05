@@ -226,6 +226,7 @@ internal fun outOfBalanceKind(balance: WidgetBalanceSnapshot?): OutOfBalanceKind
     else -> OutOfBalanceKind.EXHAUSTED
 }
 
+/** What the out-of-balance notice shows. */
 internal data class OutOfBalanceNotice(
     /** "Free data refreshes in {time}." with a Why? link to the data sheet. */
     val refresh: Boolean,
@@ -235,7 +236,7 @@ internal data class OutOfBalanceNotice(
     val kind: OutOfBalanceKind = OutOfBalanceKind.UNKNOWN,
     /** "You'll be reconnected when data is available again." */
     val willReconnect: Boolean = false,
-    /** Cancel next to it: a refused start has no Disconnect to stop it. */
+    /** A Cancel action next to it: a refused start has no Disconnect to stop it. */
     val cancel: Boolean = false,
 )
 

@@ -11,6 +11,11 @@ import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
+/**
+ * Why an enabled provider gets no traffic, from this device's own state
+ * (P008, P077): the mode first, then a pause and what caused it, then no
+ * traffic yet, and the line each reason shows.
+ */
 class ProviderIdleReasonTest {
 
     // Sdk.ProvideMode* are compile-time constants, which kotlin inlines: this

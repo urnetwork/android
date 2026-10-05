@@ -4,6 +4,11 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test
 
+/**
+ * A polling controller one screen shows (P008): open only while enabled, with
+ * a device, in the foreground; started only while the screen is visible; and
+ * closed on the device that opened it.
+ */
 class VisibleDeviceControllerOwnerTest {
 
     private val events = mutableListOf<String>()

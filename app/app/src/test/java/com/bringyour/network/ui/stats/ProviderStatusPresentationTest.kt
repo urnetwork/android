@@ -9,6 +9,11 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.util.Locale
 
+/**
+ * What the provider statistics show from the server's provider status (P008):
+ * the "Demand" histogram, the reason line merged with the local idle reason,
+ * the rows of the "Why?" panel, and the chart area's states.
+ */
 class ProviderStatusPresentationTest {
 
     // the English templates of the value keys
