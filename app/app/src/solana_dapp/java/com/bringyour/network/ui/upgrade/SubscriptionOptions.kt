@@ -3,6 +3,7 @@ package com.bringyour.network.ui.upgrade
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import com.bringyour.network.ui.account.PurchaseRefusal
 import com.bringyour.network.ui.shared.viewmodels.PlanViewModel
 import com.bringyour.network.ui.shared.viewmodels.SubscriptionBalanceViewModel
 
@@ -22,7 +23,7 @@ fun SubscriptionOptions(
         reference: String,
         plan: String,
         onSuccess: (amountUsd: Double) -> Unit,
-        onError: () -> Unit
+        onError: (PurchaseRefusal) -> Unit
     ) -> Unit,
     onSolanaUriOpened: (String) -> Unit,
     onStripePaymentSuccess: () -> Unit,

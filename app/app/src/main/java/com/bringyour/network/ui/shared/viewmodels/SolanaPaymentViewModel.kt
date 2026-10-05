@@ -4,6 +4,8 @@ import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bringyour.network.DeviceManager
+import com.bringyour.network.ui.account.GuestAccount
+import com.bringyour.network.ui.account.PurchaseRefusal
 import com.bringyour.sdk.SolanaPaymentIntentArgs
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -80,12 +82,16 @@ class SolanaPaymentViewModel @Inject constructor(
      * `onSuccess` receives the quoted amount in USD. Build the payment url from THAT and
      * never from a constant: the webhook checks the arriving payment against this same
      * number, so a client-side price is how a customer pays and gets nothing.
+     *
+     * `onError` says what the failure leads to: a legacy guest network is refused with
+     * `guest_sign_in_required`, which opens the add-sign-in sheet
+     * (GuestAccount.purchaseRefusal); everything else is a payment error.
      */
     val createSolanaPaymentIntent: (
         reference: String,
         plan: String,
         onSuccess: (amountUsd: Double) -> Unit,
-        onError: () -> Unit
+        onError: (PurchaseRefusal) -> Unit
             ) -> Unit = { reference, plan, onSuccess, onError ->
 
                 val args = SolanaPaymentIntentArgs()
@@ -99,12 +105,12 @@ class SolanaPaymentViewModel @Inject constructor(
                         viewModelScope.launch {
 
                             if (err != null || result == null) {
-                                onError()
+                                onError(PurchaseRefusal.PaymentError)
                                 return@launch
                             }
 
                             if (result.error != null) {
-                                onError()
+                                onError(GuestAccount.purchaseRefusal(result.error.code))
                                 return@launch
                             }
 
@@ -112,7 +118,7 @@ class SolanaPaymentViewModel @Inject constructor(
                             // check is `amount >= quoted - tolerance`, so at zero it is
                             // satisfied by any payment at all, including none.
                             if (result.amountUsd <= 0.0) {
-                                onError()
+                                onError(PurchaseRefusal.PaymentError)
                                 return@launch
                             }
 
@@ -123,7 +129,7 @@ class SolanaPaymentViewModel @Inject constructor(
 
                     }
                 } else {
-                    onError()
+                    onError(PurchaseRefusal.PaymentError)
                 }
     }
 

@@ -304,6 +304,32 @@ class SubscriptionBalanceViewModel @Inject constructor(
     }.stateIn(viewModelScope, SharingStarted.Eagerly, false)
 
     /**
+     * The server refused a payment sheet or a Solana payment intent with
+     * `guest_sign_in_required` (GuestAccount.purchaseRefusal): the network is a
+     * guest the app did not know about. The refusal reads the same live auth
+     * methods as the balance's `guest`, so the network is marked a guest now
+     * (the next balance read keeps it so until a sign-in method is added), and
+     * MainNavHost opens the add-sign-in sheet from guestSignInRequiredSequence.
+     */
+    fun guestSignInRequired() {
+        _serverGuest.value = true
+        _serverGuestLoaded.value = true
+        _guestSignInRequiredSequence.update { it + 1L }
+    }
+
+    private val _guestSignInRequiredSequence = MutableStateFlow(0L)
+    val guestSignInRequiredSequence: StateFlow<Long> = _guestSignInRequiredSequence.asStateFlow()
+    private var consumedGuestSignInRequiredSequence = 0L
+
+    fun consumeGuestSignInRequiredSequence(sequence: Long): Boolean {
+        if (sequence == 0L || sequence <= consumedGuestSignInRequiredSequence) {
+            return false
+        }
+        consumedGuestSignInRequiredSequence = sequence
+        return true
+    }
+
+    /**
      * The confirmation poll ran out its budget (2 minutes) without the server
      * confirming. This used to die as a single log line ("polling timed out") while
      * the user sat on a "You're premium." overlay backed by nothing. Consumed-sequence

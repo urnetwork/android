@@ -1,5 +1,7 @@
 package com.bringyour.network.ui.upgrade
 
+import com.bringyour.network.ui.account.GuestAccount
+import com.bringyour.network.ui.account.PurchaseRefusal
 import com.bringyour.network.ui.shared.enums.PlanType
 import com.bringyour.sdk.Api
 import com.bringyour.sdk.Sdk
@@ -13,6 +15,9 @@ import com.bringyour.sdk.StripePaymentSheetResult
  * card is saved, the 14-day trial starts, the welcome coupon is applied when
  * the caller's offer is active) or a PaymentIntent for the monthly plan (no
  * trial). The result's amounts tell the sheet what the first period costs.
+ * A refusal says what it leads to: a legacy guest network is refused with
+ * `guest_sign_in_required`, which opens the add-sign-in sheet
+ * (GuestAccount.purchaseRefusal) instead of the error.
  */
 object StripeSheetRequest {
 
@@ -23,7 +28,7 @@ object StripeSheetRequest {
         api: Api,
         plan: PlanType,
         storefrontCountry: String?,
-        callback: (StripePaymentSheetResult?, String?) -> Unit,
+        callback: (StripePaymentSheetResult?, String?, PurchaseRefusal) -> Unit,
     ) {
         val args = StripePaymentSheetArgs()
         args.plan = if (plan == PlanType.YEARLY) Sdk.PlanYearly else Sdk.PlanMonthly
@@ -31,10 +36,10 @@ object StripeSheetRequest {
         args.stripeVersion = STRIPE_VERSION
         api.stripePaymentSheet(args) { result, err ->
             when {
-                err != null -> callback(null, err.message ?: "network")
-                result == null -> callback(null, "empty")
-                result.error != null -> callback(null, result.error.message)
-                else -> callback(result, null)
+                err != null -> callback(null, err.message ?: "network", PurchaseRefusal.PaymentError)
+                result == null -> callback(null, "empty", PurchaseRefusal.PaymentError)
+                result.error != null -> callback(null, result.error.message, GuestAccount.purchaseRefusal(result.error.code))
+                else -> callback(result, null, PurchaseRefusal.PaymentError)
             }
         }
     }

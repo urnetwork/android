@@ -122,6 +122,61 @@ class GuestAccountTest {
     }
 
     /**
+     * The server refuses a payment sheet or a Solana payment intent for a guest
+     * network with `guest_sign_in_required` (a refreshed guest the app has not
+     * read the balance of yet). That leads to the add-sign-in sheet, not to a
+     * payment error; every other refusal stays a payment error.
+     */
+    @Test
+    fun guestSignInRequiredRefusalOpensTheAddSignInSheet() {
+        assertEquals("guest_sign_in_required", GuestAccount.PURCHASE_ERROR_GUEST_SIGN_IN_REQUIRED)
+        assertEquals(PurchaseRefusal.AddSignInMethod, GuestAccount.purchaseRefusal("guest_sign_in_required"))
+    }
+
+    @Test
+    fun otherRefusalsArePaymentErrors() {
+        // an older server sends no code; a refused plan or a configuration error has none
+        assertEquals(PurchaseRefusal.PaymentError, GuestAccount.purchaseRefusal(null))
+        assertEquals(PurchaseRefusal.PaymentError, GuestAccount.purchaseRefusal(""))
+        // codes are exact, like the other server codes the app maps
+        assertEquals(PurchaseRefusal.PaymentError, GuestAccount.purchaseRefusal("GUEST_SIGN_IN_REQUIRED"))
+        assertEquals(PurchaseRefusal.PaymentError, GuestAccount.purchaseRefusal("verify_rate_limited"))
+    }
+
+    /**
+     * Every purchase the server can refuse this way carries the refusal to the
+     * guest state instead of the error line: the inline payment sheet (the dapp
+     * flavors), the pay page (F-Droid) and Solana Pay. The sdk results are
+     * native gomobile classes, so the sources are read as text.
+     */
+    @Test
+    fun everyRefusablePurchaseMapsTheCode() {
+        fun read(path: String) = java.io.File("src/$path").readText()
+
+        val sheetRequest = read("main/java/com/bringyour/network/ui/upgrade/StripeSheetRequest.kt")
+        assertTrue(sheetRequest.contains("GuestAccount.purchaseRefusal(result.error.code)"))
+        val solanaIntent = read("main/java/com/bringyour/network/ui/shared/viewmodels/SolanaPaymentViewModel.kt")
+        assertTrue(solanaIntent.contains("onError(GuestAccount.purchaseRefusal(result.error.code))"))
+
+        for (path in listOf(
+            "stripeSheet/java/com/bringyour/network/ui/upgrade/PlanPurchasers.kt",
+            "webPay/java/com/bringyour/network/ui/upgrade/PlanPurchasers.kt",
+        )) {
+            val purchaser = read(path)
+            val refused = purchaser.indexOf("if (refusal == PurchaseRefusal.AddSignInMethod) {")
+            assertTrue("$path does not branch on the refusal", 0 <= refused)
+            val signIn = purchaser.indexOf("subscriptionBalanceViewModel.guestSignInRequired()", refused)
+            val error = purchaser.indexOf("planViewModel.setChangePlanError", refused)
+            assertTrue("$path does not open the sign-in sheet", refused < signIn)
+            assertTrue("$path shows the error for a guest", signIn < error)
+        }
+        val surface = read("main/java/com/bringyour/network/ui/upgrade/NonPlayPlanSurface.kt")
+        assertTrue(
+            surface.contains("PurchaseRefusal.AddSignInMethod -> subscriptionBalanceViewModel.guestSignInRequired()")
+        )
+    }
+
+    /**
      * An instant account is the server's seedphrase path (terms and no login
      * method). The server dropped guest_mode from network create with that
      * path and ignores it, so the app no longer sends guest_mode = true. The

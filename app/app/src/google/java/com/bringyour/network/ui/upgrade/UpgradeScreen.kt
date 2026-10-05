@@ -1,5 +1,6 @@
 package com.bringyour.network.ui.upgrade
 
+import com.bringyour.network.ui.account.PurchaseRefusal
 import com.bringyour.network.ui.components.tabletReadableColumn
 import com.bringyour.network.R
 import androidx.compose.ui.res.stringResource
@@ -42,7 +43,7 @@ fun UpgradeScreen(
         reference: String,
         plan: String,
         onSuccess: (amountUsd: Double) -> Unit,
-        onError: () -> Unit
+        onError: (PurchaseRefusal) -> Unit
     ) -> Unit,
     onStripePaymentSuccess: () -> Unit,
     isCheckingSolanaTransaction: Boolean
