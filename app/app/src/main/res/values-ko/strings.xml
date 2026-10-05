@@ -81,6 +81,7 @@
     <string name="claim">받기</string>
     <string name="claim_multiplier">배율 받기</string>
     <string name="claim_network_name_hint">자동 생성된 이름을 대체할 사용자 지정 네트워크 이름을 만드세요</string>
+    <string name="claims_open_after_finalization">각 에포크의 받기는 해당 지급 목록이 확정된 후 열리며 만료될 때까지 열려 있습니다.</string>
     <string name="clear">지우기</string>
     <string name="client_contracts">클라이언트 계약</string>
     <string name="client_id_copied">클라이언트 ID가 복사되었습니다</string>
@@ -485,6 +486,8 @@
     <string name="send_product_updates">제품 업데이트 소식 받기</string>
     <string name="send_reset_link">재설정 링크 보내기</string>
     <string name="sent">전송됨!</string>
+    <string name="set_coldkey">coldkey 설정</string>
+    <string name="set_coldkey_to_get_paid">지급을 받으려면 Bittensor coldkey를 설정하세요</string>
     <string name="settings">설정</string>
     <string name="share">공유</string>
     <string name="share_logs">로그 공유</string>
@@ -499,6 +502,8 @@
     <string name="sign_in_with_your_apple_id_to">Apple ID로 로그인하여 로그인 방법으로 추가하세요.</string>
     <string name="site_app_email">이메일</string>
     <string name="site_save_your_seedphrase">시드 문구를 저장하세요</string>
+    <string name="sn_payout_schedule">수익은 에포크마다 정산되며, 받기를 하면 SN25α로 Bittensor coldkey에 지급됩니다.</string>
+    <string name="sn_payout_schedule_times">이번 에포크는 %1$s에 끝납니다. 내 몫은 %2$s부터 %3$s까지 받을 수 있습니다.</string>
     <string name="solana_sign_in">Solana로 로그인</string>
     <string name="something_went_wrong">문제가 발생했습니다.</string>
     <string name="sorry_to_see_you_go">저희는 당신이 가는 것을 보게 되어 유감입니다!</string>
@@ -565,6 +570,7 @@
     <string name="upgrade_now">지금 업그레이드하세요</string>
     <string name="upgrade_subscription">구독 업그레이드</string>
     <string name="usdc_solana_network_only">USDC는 Solana 네트워크로만 보내세요. 다른 네트워크로 보낸 USDC는 도착하지 않습니다.</string>
+    <string name="usdc_waiting">마지막 USDC 지급: %1$s USDC 대기 중</string>
     <string name="usdc_wallet_address">USDC 월렛 주소</string>
     <string name="use_most_stable_provider">가장 안정적인 제공업체를 사용합니다</string>
     <string name="use_recommended_settings">권장 설정 사용</string>

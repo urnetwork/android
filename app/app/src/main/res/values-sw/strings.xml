@@ -81,6 +81,7 @@
     <string name="claim">DAI</string>
     <string name="claim_multiplier">Dai Kizidishi</string>
     <string name="claim_network_name_hint">Pata jina la mtandao maalum badala ya lile lililotengenezwa kiotomatiki</string>
+    <string name="claims_open_after_finalization">Madai ya kila kipindi hufunguliwa baada ya orodha yake ya malipo kukamilishwa na hubaki wazi hadi muda wake uishe.</string>
     <string name="clear">Futa</string>
     <string name="client_contracts">Mikataba ya mteja</string>
     <string name="client_id_copied">Kitambulisho cha mteja kimenakiliwa</string>
@@ -485,6 +486,8 @@
     <string name="send_product_updates">Nitumie masasisho ya bidhaa</string>
     <string name="send_reset_link">Tuma Kiungo cha Kuweka Upya</string>
     <string name="sent">Kimetumwa!</string>
+    <string name="set_coldkey">Weka coldkey</string>
+    <string name="set_coldkey_to_get_paid">Weka coldkey yako ya Bittensor ili ulipwe</string>
     <string name="settings">Mipangilio</string>
     <string name="share">Shiriki</string>
     <string name="share_logs">Shiriki logi</string>
@@ -499,6 +502,8 @@
     <string name="sign_in_with_your_apple_id_to">Ingia kwa kutumia Apple ID yako ili kuiongeza kama njia ya kuingia.</string>
     <string name="site_app_email">Barua pepe</string>
     <string name="site_save_your_seedphrase">Hifadhi seedphrase yako</string>
+    <string name="sn_payout_schedule">Mapato hulipwa kila kipindi kwa SN25α kwenye coldkey yako ya Bittensor unapoyadai.</string>
+    <string name="sn_payout_schedule_times">Kipindi hiki kinaisha %1$s. Dai sehemu yako kuanzia %2$s hadi %3$s.</string>
     <string name="solana_sign_in">Ingia na Solana</string>
     <string name="something_went_wrong">Kuna kitu kilienda vibaya.</string>
     <string name="sorry_to_see_you_go">Samahani kuona ukienda!</string>
@@ -565,6 +570,7 @@
     <string name="upgrade_now">Boresha sasa</string>
     <string name="upgrade_subscription">Boresha Usajili</string>
     <string name="usdc_solana_network_only">Tuma USDC kwenye mtandao wa Solana pekee. USDC zilizotumwa kwenye mtandao mwingine hazitafika.</string>
+    <string name="usdc_waiting">Malipo ya mwisho ya USDC: %1$s USDC yanasubiri</string>
     <string name="usdc_wallet_address">Anwani ya pochi ya USDC</string>
     <string name="use_most_stable_provider">Hutumia mtoa huduma thabiti zaidi</string>
     <string name="use_recommended_settings">Tumia mipangilio inayopendekezwa</string>

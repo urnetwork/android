@@ -81,6 +81,7 @@
     <string name="claim">Απαίτηση</string>
     <string name="claim_multiplier">Αξιώστε τον πολλαπλασιαστή</string>
     <string name="claim_network_name_hint">Αποκτήστε ένα προσαρμοσμένο όνομα δικτύου που θα αντικαταστήσει το αυτόματα δημιουργημένο</string>
+    <string name="claims_open_after_finalization">Οι διεκδικήσεις κάθε εποχής ανοίγουν μόλις οριστικοποιηθεί η λίστα πληρωμών της και μένουν ανοιχτές μέχρι να λήξουν.</string>
     <string name="clear">Καθαρισμός</string>
     <string name="client_contracts">Συμβόλαια πελάτη</string>
     <string name="client_id_copied">Το ID πελάτη αντιγράφηκε</string>
@@ -485,6 +486,8 @@
     <string name="send_product_updates">Στείλτε μου ενημερώσεις προϊόντων</string>
     <string name="send_reset_link">Αποστολή συνδέσμου επαναφοράς</string>
     <string name="sent">Στάλθηκε!</string>
+    <string name="set_coldkey">Ορισμός coldkey</string>
+    <string name="set_coldkey_to_get_paid">Ορίστε το Bittensor coldkey σας για να πληρώνεστε</string>
     <string name="settings">Ρυθμίσεις</string>
     <string name="share">Κοινή χρήση</string>
     <string name="share_logs">Κοινοποίηση αρχείων καταγραφής</string>
@@ -499,6 +502,8 @@
     <string name="sign_in_with_your_apple_id_to">Συνδεθείτε με το Apple ID σας για να το προσθέσετε ως μέθοδο σύνδεσης.</string>
     <string name="site_app_email">Email</string>
     <string name="site_save_your_seedphrase">Αποθηκεύστε τη seedphrase σας</string>
+    <string name="sn_payout_schedule">Τα κέρδη εκκαθαρίζονται σε κάθε εποχή και πληρώνονται σε SN25α στο Bittensor coldkey σας όταν τα διεκδικήσετε.</string>
+    <string name="sn_payout_schedule_times">Αυτή η εποχή λήγει στις %1$s. Διεκδικήστε το μερίδιό σας από %2$s έως %3$s.</string>
     <string name="solana_sign_in">Είσοδος με Solana</string>
     <string name="something_went_wrong">Κάτι πήγε στραβά.</string>
     <string name="sorry_to_see_you_go">Λυπούμαστε που φεύγετε!</string>
@@ -565,6 +570,7 @@
     <string name="upgrade_now">Αναβάθμιση τώρα</string>
     <string name="upgrade_subscription">Αναβάθμιση Συνδρομής</string>
     <string name="usdc_solana_network_only">Στείλτε USDC μόνο στο δίκτυο Solana. Τα USDC που στέλνονται σε άλλο δίκτυο δεν θα φτάσουν.</string>
+    <string name="usdc_waiting">Τελική πληρωμή USDC: %1$s USDC σε αναμονή</string>
     <string name="usdc_wallet_address">Διεύθυνση πορτοφολιού USDC</string>
     <string name="use_most_stable_provider">Χρησιμοποιεί τον πιο σταθερό πάροχο</string>
     <string name="use_recommended_settings">Χρήση προτεινόμενων ρυθμίσεων</string>

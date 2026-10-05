@@ -126,7 +126,7 @@
     <string name="claim_sent">Sent</string>
     <string name="claim_your_spot">Claim your spot</string>
     <string name="claims_for_epoch_expired">Claims for epoch %1$d have expired.</string>
-    <string name="claims_open_after_finalization">Claims open 48 hours after an epoch is finalized and stay open for the vault\'s expiry window.</string>
+    <string name="claims_open_after_finalization">Each epoch\'s claims open after its payout list is finalized and stay open until they expire.</string>
     <string name="clear">Clear</string>
     <string name="client_contracts">Client contracts</string>
     <string name="client_id_copied">Client ID copied</string>
@@ -788,6 +788,8 @@
     <string name="send_reset_link">Send Reset Link</string>
     <string name="send_tao_to_mirror">Send about %1$s TAO to %2$s to cover gas.</string>
     <string name="sent">Sent!</string>
+    <string name="set_coldkey">Set coldkey</string>
+    <string name="set_coldkey_to_get_paid">Set your Bittensor coldkey to get paid</string>
     <string name="settings">Settings</string>
     <string name="settings_add_quick_tile">Add quick connect tile</string>
     <string name="settings_add_quick_tile_description">Connect and disconnect from the Quick Settings panel and the lock screen.</string>
@@ -818,6 +820,8 @@
     <string name="site_save_your_seedphrase">Save Your Seedphrase</string>
     <string name="skip">Skip</string>
     <string name="sn_alpha_symbol" translatable="false">SN25α</string>
+    <string name="sn_payout_schedule">Earnings settle every epoch and are paid in SN25α to your Bittensor coldkey when you claim them.</string>
+    <string name="sn_payout_schedule_times">This epoch ends %1$s. Claim your share from %2$s until %3$s.</string>
     <string name="sn_protocol_note">SN25α are your earnings on the UR protocol. The UR protocol is an open source protocol from URnetwork. Connect a Bittensor wallet to settle them as SN25α through the UR protocol.</string>
     <string name="solana" translatable="false">Solana</string>
     <string name="solana_one_time_payment">Paying with USDC on Solana is a one-time yearly payment, with no free trial.</string>
@@ -915,7 +919,7 @@
     <string name="upgrade_subscription">Upgrade Subscription</string>
     <string name="usdc_payouts_until_migration">USDC payouts continue to this wallet until the migration to Bittensor is complete.</string>
     <string name="usdc_solana_network_only">Send USDC on the Solana network only. USDC sent on any other network will not arrive.</string>
-    <string name="usdc_waiting">%1$s USDC waiting</string>
+    <string name="usdc_waiting">Final USDC payout: %1$s USDC waiting</string>
     <string name="usdc_wallet_address">USDC wallet address</string>
     <string name="use_extender_settings">Use extender settings</string>
     <string name="use_most_stable_provider">Use most stable provider</string>

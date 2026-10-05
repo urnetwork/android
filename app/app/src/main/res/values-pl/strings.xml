@@ -81,6 +81,7 @@
     <string name="claim">Odbierz</string>
     <string name="claim_multiplier">Odbierz mnożnik</string>
     <string name="claim_network_name_hint">Uzyskaj własną nazwę sieci, która zastąpi nazwę wygenerowaną automatycznie</string>
+    <string name="claims_open_after_finalization">Odbiór za każdą epokę otwiera się po sfinalizowaniu jej listy wypłat i pozostaje otwarty do wygaśnięcia.</string>
     <string name="clear">Wyczyść</string>
     <string name="client_contracts">Kontrakty klienta</string>
     <string name="client_id_copied">Skopiowano ID klienta</string>
@@ -485,6 +486,8 @@
     <string name="send_product_updates">Wysyłaj mi aktualizacje produktu</string>
     <string name="send_reset_link">Wyślij link do resetowania</string>
     <string name="sent">Wysłano!</string>
+    <string name="set_coldkey">Ustaw coldkey</string>
+    <string name="set_coldkey_to_get_paid">Ustaw swój coldkey Bittensor, aby otrzymywać wypłaty</string>
     <string name="settings">Ustawienia</string>
     <string name="share">Udostępnij</string>
     <string name="share_logs">Udostępnij logi</string>
@@ -499,6 +502,8 @@
     <string name="sign_in_with_your_apple_id_to">Zaloguj się za pomocą Apple ID, aby dodać tę metodę logowania.</string>
     <string name="site_app_email">E-mail</string>
     <string name="site_save_your_seedphrase">Zapisz swoją seedphrase</string>
+    <string name="sn_payout_schedule">Zarobki są rozliczane w każdej epoce i wypłacane w SN25α na Twój coldkey Bittensor, gdy je odbierzesz.</string>
+    <string name="sn_payout_schedule_times">Ta epoka kończy się %1$s. Odbierz swój udział od %2$s do %3$s.</string>
     <string name="solana_sign_in">Zaloguj się za pomocą Solana</string>
     <string name="something_went_wrong">Coś poszło nie tak.</string>
     <string name="sorry_to_see_you_go">Przykro nam, że odchodzisz!</string>
@@ -565,6 +570,7 @@
     <string name="upgrade_now">Uaktualnij teraz</string>
     <string name="upgrade_subscription">Ulepsz subskrypcję</string>
     <string name="usdc_solana_network_only">Wysyłaj USDC wyłącznie w sieci Solana. USDC wysłane w innej sieci nie dotrą.</string>
+    <string name="usdc_waiting">Ostatnia wypłata w USDC: %1$s USDC oczekuje</string>
     <string name="usdc_wallet_address">Adres portfela USDC</string>
     <string name="use_most_stable_provider">Używa najstabilniejszego dostawcy</string>
     <string name="use_recommended_settings">Użyj zalecanych ustawień</string>

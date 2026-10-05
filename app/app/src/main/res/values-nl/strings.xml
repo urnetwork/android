@@ -81,6 +81,7 @@
     <string name="claim">Opeisen</string>
     <string name="claim_multiplier">Claim je vermenigvuldiger</string>
     <string name="claim_network_name_hint">Claim een eigen netwerknaam ter vervanging van je automatisch gegenereerde naam</string>
+    <string name="claims_open_after_finalization">Het opeisen voor elke epoch opent zodra de uitbetalingslijst is afgerond en blijft open tot het verloopt.</string>
     <string name="clear">Wissen</string>
     <string name="client_contracts">Clientcontracten</string>
     <string name="client_id_copied">Client-ID gekopieerd</string>
@@ -485,6 +486,8 @@
     <string name="send_product_updates">Stuur mij productupdates</string>
     <string name="send_reset_link">Herstellink verzenden</string>
     <string name="sent">Verstuurd!</string>
+    <string name="set_coldkey">Coldkey instellen</string>
+    <string name="set_coldkey_to_get_paid">Stel je Bittensor-coldkey in om uitbetaald te worden</string>
     <string name="settings">Instellingen</string>
     <string name="share">Delen</string>
     <string name="share_logs">Logs delen</string>
@@ -499,6 +502,8 @@
     <string name="sign_in_with_your_apple_id_to">Log in met je Apple ID om dit als inlogmethode toe te voegen.</string>
     <string name="site_app_email">E-mail</string>
     <string name="site_save_your_seedphrase">Bewaar je seedphrase</string>
+    <string name="sn_payout_schedule">Verdiensten worden elke epoch afgerekend en in SN25α uitbetaald aan je Bittensor-coldkey wanneer je ze opeist.</string>
+    <string name="sn_payout_schedule_times">Deze epoch eindigt op %1$s. Eis je aandeel op van %2$s tot %3$s.</string>
     <string name="solana_sign_in">Inloggen met Solana</string>
     <string name="something_went_wrong">Er is iets misgegaan.</string>
     <string name="sorry_to_see_you_go">Het spijt ons dat je weggaat!</string>
@@ -565,6 +570,7 @@
     <string name="upgrade_now">Upgrade nu</string>
     <string name="upgrade_subscription">Abonnement upgraden</string>
     <string name="usdc_solana_network_only">Stuur USDC alleen via het Solana-netwerk. USDC die via een ander netwerk wordt verstuurd, komt niet aan.</string>
+    <string name="usdc_waiting">Laatste USDC-uitbetaling: %1$s USDC in afwachting</string>
     <string name="usdc_wallet_address">USDC wallet address</string>
     <string name="use_most_stable_provider">Gebruikt de stabielste provider</string>
     <string name="use_recommended_settings">Aanbevolen instellingen gebruiken</string>

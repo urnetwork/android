@@ -120,7 +120,7 @@
     <string name="claim_sent">Gesendet</string>
     <string name="claim_your_spot">Sichere dir deinen Platz</string>
     <string name="claims_for_epoch_expired">Die Einlösefrist für Epoche %1$d ist abgelaufen.</string>
-    <string name="claims_open_after_finalization">Einlösungen sind 48 Stunden nach dem Abschluss einer Epoche möglich und bleiben für das Ablauffenster des Vaults offen.</string>
+    <string name="claims_open_after_finalization">Die Einlösung einer Epoche öffnet, sobald ihre Auszahlungsliste abgeschlossen ist, und bleibt bis zum Ablauf offen.</string>
     <string name="clear">Löschen</string>
     <string name="client_contracts">Client-Verträge</string>
     <string name="client_id_copied">Client-ID kopiert</string>
@@ -768,6 +768,8 @@
     <string name="send_reset_link">Link zum Zurücksetzen senden</string>
     <string name="send_tao_to_mirror">Sende etwa %1$s TAO an %2$s, um das Gas zu decken.</string>
     <string name="sent">Gesendet!</string>
+    <string name="set_coldkey">Coldkey festlegen</string>
+    <string name="set_coldkey_to_get_paid">Lege deinen Bittensor-Coldkey fest, um ausgezahlt zu werden</string>
     <string name="settings">Einstellungen</string>
     <string name="settings_add_quick_tile">Schnellverbindungs-Kachel hinzufügen</string>
     <string name="settings_add_quick_tile_description">Verbinde und trenne dich über die Schnelleinstellungen und den Sperrbildschirm.</string>
@@ -797,6 +799,8 @@
     <string name="site_app_providers">Provider</string>
     <string name="site_save_your_seedphrase">Sichere deine Seedphrase</string>
     <string name="skip">Überspringen</string>
+    <string name="sn_payout_schedule">Einnahmen werden jede Epoche abgerechnet und in SN25α an deinen Bittensor-Coldkey ausgezahlt, sobald du sie einlöst.</string>
+    <string name="sn_payout_schedule_times">Diese Epoche endet am %1$s. Löse deinen Anteil zwischen %2$s und %3$s ein.</string>
     <string name="solana_one_time_payment">Die Zahlung mit USDC auf Solana ist eine einmalige Jahreszahlung ohne kostenlose Testphase.</string>
     <string name="solana_payment_still_checking">Wir prüfen deine Solana-Zahlung noch. Die Bestätigung im Netzwerk kann ein bis zwei Minuten dauern.</string>
     <string name="solana_sign_in">Mit Solana anmelden</string>
@@ -891,7 +895,7 @@
     <string name="upgrade_subscription">Abonnement upgraden</string>
     <string name="usdc_payouts_until_migration">USDC-Auszahlungen gehen weiterhin an diese Wallet, bis die Migration zu Bittensor abgeschlossen ist.</string>
     <string name="usdc_solana_network_only">Senden Sie USDC nur über das Solana-Netzwerk. USDC, die über ein anderes Netzwerk gesendet werden, kommen nicht an.</string>
-    <string name="usdc_waiting">%1$s USDC ausstehend</string>
+    <string name="usdc_waiting">Letzte USDC-Auszahlung: %1$s USDC ausstehend</string>
     <string name="usdc_wallet_address">USDC-Wallet-Adresse</string>
     <string name="use_extender_settings">Extender-Einstellungen verwenden</string>
     <string name="use_most_stable_provider">Verwendet den stabilsten Anbieter</string>

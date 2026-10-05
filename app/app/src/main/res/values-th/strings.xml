@@ -81,6 +81,7 @@
     <string name="claim">รับ</string>
     <string name="claim_multiplier">รับสิทธิ์ตัวคูณ</string>
     <string name="claim_network_name_hint">รับชื่อเครือข่ายที่กำหนดเองเพื่อแทนที่ชื่อที่สร้างขึ้นอัตโนมัติ</string>
+    <string name="claims_open_after_finalization">การรับของแต่ละอีพอคจะเปิดหลังจากรายการจ่ายเงินของอีพอคนั้นสรุปแล้ว และเปิดอยู่จนกว่าจะหมดอายุ</string>
     <string name="clear">ล้าง</string>
     <string name="client_contracts">สัญญาไคลเอ็นต์</string>
     <string name="client_id_copied">คัดลอก ID ไคลเอ็นต์แล้ว</string>
@@ -485,6 +486,8 @@
     <string name="send_product_updates">ส่งข้อมูลการอัพเดตผลิตภัณฑ์มาที่ฉัน</string>
     <string name="send_reset_link">ส่งลิงก์ตั้งรหัสใหม่</string>
     <string name="sent">ส่งแล้ว!</string>
+    <string name="set_coldkey">ตั้งค่า coldkey</string>
+    <string name="set_coldkey_to_get_paid">ตั้งค่า coldkey Bittensor ของคุณเพื่อรับเงิน</string>
     <string name="settings">การตั้งค่า</string>
     <string name="share">แชร์</string>
     <string name="share_logs">แชร์ไฟล์บันทึก</string>
@@ -499,6 +502,8 @@
     <string name="sign_in_with_your_apple_id_to">ลงชื่อเข้าใช้ด้วย Apple ID ของคุณเพื่อเพิ่มเป็นวิธีลงชื่อเข้าใช้</string>
     <string name="site_app_email">อีเมล</string>
     <string name="site_save_your_seedphrase">บันทึกซีดเฟรสของคุณ</string>
+    <string name="sn_payout_schedule">รายได้จะสรุปทุกอีพอคและจ่ายเป็น SN25α ไปยัง coldkey Bittensor ของคุณเมื่อคุณกดรับ</string>
+    <string name="sn_payout_schedule_times">อีพอคนี้สิ้นสุด %1$s รับส่วนแบ่งของคุณได้ตั้งแต่ %2$s ถึง %3$s</string>
     <string name="solana_sign_in">เข้าสู่ระบบด้วยเครือข่าย Solana</string>
     <string name="something_went_wrong">มีบางอย่างผิดปกติ</string>
     <string name="sorry_to_see_you_go">ขอบคุณที่เคยเป็นส่วนหนึ่งกับเรา เราเสียดายที่ต้องลาจากกัน</string>
@@ -565,6 +570,7 @@
     <string name="upgrade_now">อัพเกรดเดี๋ยวนี้</string>
     <string name="upgrade_subscription">อัพเกรดเป็นสมัครรายเดือน</string>
     <string name="usdc_solana_network_only">ส่ง USDC บนเครือข่าย Solana เท่านั้น USDC ที่ส่งบนเครือข่ายอื่นจะไม่เข้าบัญชี</string>
+    <string name="usdc_waiting">การจ่าย USDC ครั้งสุดท้าย: %1$s USDC รอการโอน</string>
     <string name="usdc_wallet_address">ที่อยู่กระเป๋าเงิน USDC</string>
     <string name="use_most_stable_provider">ใช้ผู้ให้บริการที่เสถียรที่สุด</string>
     <string name="use_recommended_settings">ใช้การตั้งค่าที่แนะนำ</string>

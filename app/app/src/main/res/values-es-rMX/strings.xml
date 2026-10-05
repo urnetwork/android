@@ -81,6 +81,7 @@
     <string name="claim">Reclamar</string>
     <string name="claim_multiplier">Reclamar multiplicador</string>
     <string name="claim_network_name_hint">Reclama un nombre de red personalizado para reemplazar el generado automáticamente</string>
+    <string name="claims_open_after_finalization">Las reclamaciones de cada época se abren cuando se finaliza su lista de pagos y siguen abiertas hasta que vencen.</string>
     <string name="clear">Borrar</string>
     <string name="client_contracts">Contratos de cliente</string>
     <string name="client_id_copied">ID de cliente copiado</string>
@@ -485,6 +486,8 @@
     <string name="send_product_updates">Enviarme actualizaciones de productos</string>
     <string name="send_reset_link">Enviar enlace para restablecer</string>
     <string name="sent">¡Enviado!</string>
+    <string name="set_coldkey">Configurar coldkey</string>
+    <string name="set_coldkey_to_get_paid">Configura tu coldkey de Bittensor para cobrar</string>
     <string name="settings">Ajustes</string>
     <string name="share">Comparte</string>
     <string name="share_logs">Compartir registros</string>
@@ -499,6 +502,8 @@
     <string name="sign_in_with_your_apple_id_to">Inicia sesión con tu Apple ID para agregarlo como método de inicio de sesión.</string>
     <string name="site_app_email">Correo electrónico</string>
     <string name="site_save_your_seedphrase">Guarda tu frase semilla</string>
+    <string name="sn_payout_schedule">Las ganancias se liquidan cada época y se pagan en SN25α a tu coldkey de Bittensor cuando las reclamas.</string>
+    <string name="sn_payout_schedule_times">Esta época termina el %1$s. Reclama tu parte desde el %2$s hasta el %3$s.</string>
     <string name="solana_sign_in">Iniciar sesión con Solana</string>
     <string name="something_went_wrong">Algo salió mal.</string>
     <string name="sorry_to_see_you_go">¡Lamentamos verte ir!</string>
@@ -565,6 +570,7 @@
     <string name="upgrade_now">Actualizar ahora</string>
     <string name="upgrade_subscription">Actualizar suscripción</string>
     <string name="usdc_solana_network_only">Envía USDC solo por la red Solana. Los USDC enviados por cualquier otra red no llegarán.</string>
+    <string name="usdc_waiting">Último pago en USDC: %1$s USDC pendientes</string>
     <string name="usdc_wallet_address">Dirección de la cartera USDC</string>
     <string name="use_most_stable_provider">Usa el proveedor más estable</string>
     <string name="use_recommended_settings">Usar la configuración recomendada</string>
