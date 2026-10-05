@@ -98,11 +98,14 @@ jobs:
       # siblings of the sdk checkout. The directory names must match the
       # replace targets exactly -- `connect`, not whatever a fork is named.
       # glog's default branch is master, so it is cloned without --branch.
+      # gvisor is urnetwork's fork, built from its `go` branch; without it the
+      # module graph does not load ("reading ../../gvisor/go.mod").
       - name: Check out the sibling modules
         run: |
           git clone --depth 1 --branch main https://github.com/urnetwork/connect.git connect
           git clone --depth 1 https://github.com/urnetwork/glog.git glog
           git clone --depth 1 https://github.com/urnetwork/goidenticons.git goidenticons
+          git clone --depth 1 --branch go https://github.com/urnetwork/gvisor.git gvisor
 
       # The sdk references RenderPngV2. goidenticons publishes it today, and an
       # unconditional shim is a REDECLARATION that fails the build. Write it
