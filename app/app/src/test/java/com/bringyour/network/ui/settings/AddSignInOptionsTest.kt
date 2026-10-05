@@ -266,7 +266,7 @@ class AddSignInOptionsTest {
         assertFalse(AddedSignInMethod.APPLE.needsVerification)
         val calls = mutableListOf<String>()
         val flow = AddSignInFlow(object : AddSignInSession<String> {
-            override fun addAuth(args: String, onSuccess: () -> Unit, onError: (String) -> Unit) {
+            override fun addAuth(args: String, onSuccess: () -> Unit, onError: (AddAuthRefusal) -> Unit) {
                 calls += "addAuth:$args"
                 onSuccess()
             }

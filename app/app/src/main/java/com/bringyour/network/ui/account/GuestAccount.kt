@@ -1,6 +1,7 @@
 package com.bringyour.network.ui.account
 
 import com.bringyour.network.ui.components.LoginMode
+import com.bringyour.network.ui.settings.AddAuthRefusal
 
 /**
  * Legacy guest networks (findings A4 and D8 in server/UPGRADE.md).
@@ -124,7 +125,7 @@ enum class PurchaseRefusal {
  * explicit that the conversion never calls it.
  */
 interface GuestConversionSession<A> {
-    fun addAuth(args: A, onSuccess: () -> Unit, onError: (String) -> Unit)
+    fun addAuth(args: A, onSuccess: () -> Unit, onError: (AddAuthRefusal) -> Unit)
     fun refreshJwt()
     fun logout()
 }
@@ -137,7 +138,7 @@ interface GuestConversionSession<A> {
  */
 class GuestConversion<A>(private val session: GuestConversionSession<A>) {
 
-    fun addSignInMethod(args: A, onAdded: () -> Unit, onError: (String) -> Unit) {
+    fun addSignInMethod(args: A, onAdded: () -> Unit, onError: (AddAuthRefusal) -> Unit) {
         session.addAuth(
             args,
             {

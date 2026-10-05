@@ -26,7 +26,7 @@ enum class AddedSignInMethod {
  * thread.
  */
 interface AddSignInSession<A> {
-    fun addAuth(args: A, onSuccess: () -> Unit, onError: (String) -> Unit)
+    fun addAuth(args: A, onSuccess: () -> Unit, onError: (AddAuthRefusal) -> Unit)
 
     /**
      * authVerifySend{user_auth, use_numeric, result_errors}. `transportError` is
@@ -141,7 +141,7 @@ class AddSignInFlow<A>(
         args: A,
         userAuth: String,
         onAdded: () -> Unit,
-        onError: (String) -> Unit,
+        onError: (AddAuthRefusal) -> Unit,
     ) {
         if (step != AddSignInStep.ENTER) {
             return
@@ -163,10 +163,10 @@ class AddSignInFlow<A>(
                     onAdded()
                 }
             },
-            { message ->
+            { refusal ->
                 step = AddSignInStep.ENTER
                 changed()
-                onError(message)
+                onError(refusal)
             }
         )
     }

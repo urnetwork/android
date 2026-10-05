@@ -18,7 +18,10 @@ data class WalletCreateBundle(
     val blockchain: String,
     val publicKey: String,
     val signedMessage: String,
-    val signature: String
+    val signature: String,
+    // the Bittensor wallet the signature was pasted from (null: a wallet signed it),
+    // for a refusal of a signature from another account than the address
+    val manualWalletId: String? = null,
 ) {
     fun toBase64Json(): String {
         val json = JSONObject().apply {
@@ -26,6 +29,7 @@ data class WalletCreateBundle(
             put("publicKey", publicKey)
             put("signedMessage", signedMessage)
             put("signature", signature)
+            manualWalletId?.let { put("manualWalletId", it) }
         }.toString()
         return Base64.encodeToString(
             json.toByteArray(Charsets.UTF_8),
@@ -42,7 +46,8 @@ fun String.toWalletCreateBundle(): WalletCreateBundle? {
             blockchain = json.getString("blockchain"),
             publicKey = json.getString("publicKey"),
             signedMessage = json.getString("signedMessage"),
-            signature = json.getString("signature")
+            signature = json.getString("signature"),
+            manualWalletId = if (json.has("manualWalletId")) json.getString("manualWalletId") else null,
         )
     } catch (e: Exception) {
         // do not log `this` - it is a base64-encoded bundle containing the

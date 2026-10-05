@@ -6,6 +6,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import com.bringyour.network.BuildConfig
 import com.bringyour.network.ui.settings.AddAuthMethodSheet
+import com.bringyour.network.ui.settings.AddAuthRefusal
 import com.bringyour.network.ui.settings.SettingsViewModel
 import com.bringyour.sdk.AddAuthArgs
 import com.solana.mobilewalletadapter.clientlib.ActivityResultSender
@@ -29,7 +30,7 @@ fun GuestConversionSheet(
     val isAddingAuth by settingsViewModel.isAddingAuth.collectAsState()
     val conversion = remember(settingsViewModel) {
         GuestConversion(object : GuestConversionSession<AddAuthArgs> {
-            override fun addAuth(args: AddAuthArgs, onSuccess: () -> Unit, onError: (String) -> Unit) {
+            override fun addAuth(args: AddAuthArgs, onSuccess: () -> Unit, onError: (AddAuthRefusal) -> Unit) {
                 settingsViewModel.addAuth(args, onSuccess, onError)
             }
             override fun refreshJwt() = refreshJwt()

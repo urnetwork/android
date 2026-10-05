@@ -150,6 +150,13 @@ suspend fun startBittensorBridgeProof(
 fun bittensorWalletDisplayName(walletId: String): String = Sdk.bittensorWalletDisplayName(walletId)
 
 /**
+ * The line for a signature pasted from [walletId] that is not from the entered address
+ * ([bittensorSignatureMismatchWallet]): sign the message with that address in the wallet.
+ */
+fun bittensorSignatureMismatchText(context: Context, walletId: String): String =
+    context.getString(R.string.bittensor_error_signature_mismatch, bittensorWalletDisplayName(walletId))
+
+/**
  * The wallet chooser and the manual proof sheet for a [BittensorProofFlow].
  * `onChoose` starts the session for the chosen wallet; `onSubmit` hands the
  * pasted answer to the session.

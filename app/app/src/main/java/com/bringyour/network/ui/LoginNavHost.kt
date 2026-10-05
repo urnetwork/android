@@ -183,7 +183,8 @@ fun LoginNavHost(
                                 publicKey = walletBundle.publicKey,
                                 signedMessage = walletBundle.signedMessage,
                                 signature = walletBundle.signature,
-                                referralCode = referralCode
+                                referralCode = referralCode,
+                                manualWalletId = walletBundle.manualWalletId,
                             )
 
                             LoginCreateNetwork(

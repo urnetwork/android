@@ -156,6 +156,9 @@ class LoginCreateNetworkViewModel @Inject constructor(
                 // walletAuth.blockchain = "solana"
                 walletAuth.blockchain = Uri.decode(params.blockchain)
                 args.walletAuth = walletAuth
+                // a signature from another account than the address comes back
+                // as result.error.code (a 401 error otherwise)
+                args.resultErrors = true
             }
 
         }

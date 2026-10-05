@@ -25,9 +25,9 @@ class AddSignInFlowTest {
         val pendingSends = mutableListOf<(Boolean, VerifySendError?) -> Unit>()
         val pendingVerifies = mutableListOf<(String?) -> Unit>()
 
-        override fun addAuth(args: String, onSuccess: () -> Unit, onError: (String) -> Unit) {
+        override fun addAuth(args: String, onSuccess: () -> Unit, onError: (AddAuthRefusal) -> Unit) {
             calls += "addAuth:$args"
-            addAuthError?.let(onError) ?: onSuccess()
+            addAuthError?.let { onError(AddAuthRefusal(it)) } ?: onSuccess()
         }
 
         override fun sendCode(userAuth: String, done: (Boolean, VerifySendError?) -> Unit) {
@@ -56,7 +56,7 @@ class AddSignInFlowTest {
     private fun addEmail(
         flow: AddSignInFlow<String>,
         onAdded: () -> Unit = {},
-        onError: (String) -> Unit = {},
+        onError: (AddAuthRefusal) -> Unit = {},
     ) {
         flow.add(AddedSignInMethod.PASSWORD, "email-args", " user@example.com ", onAdded, onError)
     }
@@ -135,7 +135,7 @@ class AddSignInFlowTest {
         var error: String? = null
         var added = 0
 
-        addEmail(flow, onAdded = { added += 1 }, onError = { error = it })
+        addEmail(flow, onAdded = { added += 1 }, onError = { error = it.message })
 
         assertEquals("Invalid password", error)
         assertEquals(0, added)
@@ -148,7 +148,7 @@ class AddSignInFlowTest {
         // the guest path: GuestConversion is the sheet's addAuth
         val calls = mutableListOf<String>()
         val conversion = GuestConversion(object : GuestConversionSession<String> {
-            override fun addAuth(args: String, onSuccess: () -> Unit, onError: (String) -> Unit) {
+            override fun addAuth(args: String, onSuccess: () -> Unit, onError: (AddAuthRefusal) -> Unit) {
                 calls += "addAuth:$args"
                 onSuccess()
             }
@@ -157,7 +157,7 @@ class AddSignInFlowTest {
         })
         val session = FakeSession()
         val flow = AddSignInFlow(object : AddSignInSession<String> by session {
-            override fun addAuth(args: String, onSuccess: () -> Unit, onError: (String) -> Unit) {
+            override fun addAuth(args: String, onSuccess: () -> Unit, onError: (AddAuthRefusal) -> Unit) {
                 conversion.addSignInMethod(args, onSuccess, onError)
             }
         }) { 0L }

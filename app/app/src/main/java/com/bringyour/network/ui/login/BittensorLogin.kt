@@ -7,6 +7,7 @@ import com.bringyour.network.ui.wallet.BittensorProofRequest
 import com.bringyour.network.ui.wallet.BittensorProofRoute
 import com.bringyour.network.ui.wallet.BittensorWallets
 import com.bringyour.network.ui.wallet.bittensorProofRoute
+import com.bringyour.network.ui.wallet.bittensorSignatureMismatchWallet
 import com.bringyour.network.ui.wallet.startBittensorProofSession
 import com.bringyour.sdk.Api
 import com.bringyour.sdk.AuthLoginArgs
@@ -19,12 +20,16 @@ private const val TAG = "BittensorLogin"
 /** The wallet_auth blockchain for Bittensor (sdk TAO). */
 const val BITTENSOR_BLOCKCHAIN = "TAO"
 
-/** The create-network bundle for a create-purpose proof. */
+/**
+ * The create-network bundle for a create-purpose proof pasted on the manual sheet: it
+ * names the wallet for a refusal of a signature from another account.
+ */
 fun bittensorCreateBundle(proof: BittensorProof): WalletCreateBundle = WalletCreateBundle(
     blockchain = BITTENSOR_BLOCKCHAIN,
     publicKey = proof.address,
     signedMessage = proof.message,
     signature = proof.signature,
+    manualWalletId = proof.walletId,
 )
 
 /** What a /auth/login answer to a Bittensor proof leads to. */
@@ -33,14 +38,25 @@ sealed class BittensorLoginNext {
     // the wallet has no network yet: sign a fresh challenge, bound to it, to create one
     data class CreateNetwork(val walletId: String, val address: String) : BittensorLoginNext()
     data class Failed(val message: String?) : BittensorLoginNext()
+    // the pasted signature is not from the entered address: sign again in this wallet
+    // (bittensor_error_signature_mismatch)
+    data class SignatureMismatch(val walletId: String) : BittensorLoginNext()
 }
 
+/**
+ * The next step after /auth/login answered a proof pasted on the manual sheet.
+ * `errorCode` is the result error's code: the server's signature_mismatch names the
+ * wallet the proof was pasted from.
+ */
 fun bittensorLoginNext(
     proof: BittensorProof,
     networkJwt: String?,
     unlinkedWallet: Boolean,
     errorMessage: String?,
+    errorCode: String? = null,
 ): BittensorLoginNext = when {
+    bittensorSignatureMismatchWallet(errorCode, proof.walletId) != null ->
+        BittensorLoginNext.SignatureMismatch(proof.walletId)
     errorMessage != null -> BittensorLoginNext.Failed(errorMessage)
     !networkJwt.isNullOrEmpty() -> BittensorLoginNext.SignedIn(networkJwt)
     unlinkedWallet -> BittensorLoginNext.CreateNetwork(proof.walletId, proof.address)
@@ -67,6 +83,9 @@ class BittensorLoginController(
     private val onCreateNetwork: (WalletCreateBundle) -> Unit,
     // opens a browser-bridge page (WalletConnect); false when no browser opened
     private val openUrl: (String) -> Boolean = { false },
+    // the line for a signature pasted from this wallet that is not from the entered
+    // address (bittensorSignatureMismatchText)
+    private val signatureMismatchText: (walletId: String) -> String = { defaultError() },
 ) {
     fun start() {
         setLoginError(null)
@@ -127,12 +146,16 @@ class BittensorLoginController(
         walletAuth.signature = proof.signature
         val args = AuthLoginArgs()
         args.walletAuth = walletAuth
+        // a signature from another account than the address comes back as
+        // result.error.code (a 401 error otherwise)
+        args.resultErrors = true
         api.authLogin(args) { result, err ->
             val next = bittensorLoginNext(
                 proof = proof,
                 networkJwt = result?.network?.byJwt,
                 unlinkedWallet = result?.walletAuth != null,
                 errorMessage = err?.message ?: result?.error?.message,
+                errorCode = result?.error?.code,
             )
             if (next is BittensorLoginNext.SignedIn) {
                 onNetworkJwt(next.networkJwt)
@@ -146,6 +169,7 @@ class BittensorLoginController(
                             ?.let { startSession(it) }
                     }
                     is BittensorLoginNext.Failed -> setLoginError(next.message ?: defaultError())
+                    is BittensorLoginNext.SignatureMismatch -> setLoginError(signatureMismatchText(next.walletId))
                     else -> {}
                 }
             }
