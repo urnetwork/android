@@ -91,26 +91,31 @@ internal class VisibleDeviceControllerOwner<D : Any, C : Any>(
     val controller: C?
         get() = owner.controller
 
+    /** The device the controller opens on; another device closes the old one's. */
     fun setDevice(nextDevice: D?) {
         owner.setDevice(nextDevice)
         reconcile()
     }
 
+    /** Whether the app is in the foreground; the background closes the controller. */
     fun setForeground(nextForeground: Boolean) {
         foreground = nextForeground
         reconcile()
     }
 
+    /** Whether the screen's feature is on; off closes the controller. */
     fun setEnabled(nextEnabled: Boolean) {
         enabled = nextEnabled
         reconcile()
     }
 
+    /** Whether the screen shows; hidden stops the controller and keeps it open. */
     fun setVisible(nextVisible: Boolean) {
         visible = nextVisible
         reconcile()
     }
 
+    /** Closes the controller and forgets the device, when the owner itself ends. */
     fun close() {
         foreground = false
         enabled = false
@@ -118,6 +123,7 @@ internal class VisibleDeviceControllerOwner<D : Any, C : Any>(
         owner.close()
     }
 
+    /** Opens, starts, stops or closes the controller to match the state. */
     private fun reconcile() {
         owner.setForeground(foreground && enabled)
         val openController = owner.controller

@@ -112,6 +112,7 @@ enum class UpgradeEntry {
     AddSignInMethod,
 }
 
+/** What a refused purchase leads to (GuestAccount.purchaseRefusal). */
 enum class PurchaseRefusal {
     // the payment did not start; the purchase surface says so
     PaymentError,

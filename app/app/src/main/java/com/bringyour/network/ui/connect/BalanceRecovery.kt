@@ -47,13 +47,15 @@ internal const val BALANCE_RECOVERY_MAX_RETRIES = 3
 /** How long a retried connection stays out of the block to refill the retries. */
 internal const val BALANCE_RECOVERY_BUDGET_RESET_MILLIS = 10L * 60 * 1000
 
+/** The retry one balance observation asks for. */
 internal sealed interface BalanceRecoveryStep<out T> {
+    /** Nothing to retry now. */
     data object None : BalanceRecoveryStep<Nothing>
 
-    /** Start the connect the gate refused, to the target the user asked for. */
+    /** The connect the gate refused, to the target the user asked for. */
     data class Start<T>(val target: T) : BalanceRecoveryStep<T>
 
-    /** Rebuild the held connection (connect again to its location). */
+    /** The held connection, connected again to its location. */
     data object Rebuild : BalanceRecoveryStep<Nothing>
 }
 
@@ -65,6 +67,7 @@ internal data class BalanceRecoveryState(
     val retriesLeft: Boolean = true,
 )
 
+/** The self-recovery of a connect the balance blocked, as the file header describes. */
 internal class BalanceRecovery<T>(
     private val thresholdBytes: Long = BALANCE_RECOVERY_THRESHOLD_BYTES,
     private val maxRetries: Int = BALANCE_RECOVERY_MAX_RETRIES,
@@ -150,6 +153,10 @@ internal class BalanceRecovery<T>(
         return BalanceRecoveryStep.Start(start.target)
     }
 
+    /**
+     * Arms the recovery at [atMillis] unless it is armed already: only a reading
+     * fetched at or after then can retry.
+     */
     private fun arm(atMillis: Long) {
         if (armedAtMillis == null) {
             armedAtMillis = atMillis

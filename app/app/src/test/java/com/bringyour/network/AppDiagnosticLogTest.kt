@@ -7,6 +7,11 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
+/**
+ * Diagnostics support needs from "send feedback with logs" (P021, P052): each
+ * goes to logcat unchanged and to the sdk log that feedback uploads, one line
+ * per call under its tag, and a failing sdk write never fails the caller.
+ */
 class AppDiagnosticLogTest {
     private val logcat = mutableListOf<String>()
     private val sdkLog = mutableListOf<Pair<String, String>>()
@@ -17,13 +22,13 @@ class AppDiagnosticLogTest {
 
     @Test
     fun privateDnsLineGoesToLogcatUnchangedAndToTheSdkLogAsOneLine() {
-        diagnosticLog.info(SERVICE_LOG_TAG, privateDnsModeLogLine(PrivateDnsMode.Strict("dns.quad9.net")))
+        diagnosticLog.info(SERVICE_LOG_TAG, privateDnsModeLogLine(PrivateDnsMode.Strict("dns.example")))
         diagnosticLog.info(SERVICE_LOG_TAG, privateDnsModeLogLine(PrivateDnsMode.Opportunistic))
         diagnosticLog.info(SERVICE_LOG_TAG, privateDnsModeLogLine(PrivateDnsMode.Off))
 
         assertEquals(
             listOf(
-                "[service]private dns mode=strict(dns.quad9.net)",
+                "[service]private dns mode=strict(dns.example)",
                 "[service]private dns mode=opportunistic",
                 "[service]private dns mode=off",
             ),
@@ -32,7 +37,7 @@ class AppDiagnosticLogTest {
         // the sdk writes each as "[app][service] private dns mode=..."
         assertEquals(
             listOf(
-                "service" to "private dns mode=strict(dns.quad9.net)",
+                "service" to "private dns mode=strict(dns.example)",
                 "service" to "private dns mode=opportunistic",
                 "service" to "private dns mode=off",
             ),

@@ -146,18 +146,18 @@ class ExtenderShareLogicTest {
     fun settingsWithBootstrapDohServersNameThem() {
         val withServers = decode(
             hasSettings = true,
-            settingsHost = "extender.bringyour.com",
-            controlDohUrls = listOf("https://223.5.5.5/dns-query", "https://1.12.12.12/dns-query"),
+            settingsHost = "extender.network.example",
+            controlDohUrls = listOf("https://192.0.2.1/dns-query", "https://203.0.113.1/dns-query"),
         )
 
         // the import line lists them as the settings would set them
         assertEquals(
-            "https://223.5.5.5/dns-query, https://1.12.12.12/dns-query",
+            "https://192.0.2.1/dns-query, https://203.0.113.1/dns-query",
             extenderImportControlDohServers(withServers),
         )
         // and they come with the settings, so taking those is still confirmed
         assertEquals(
-            ExtenderImportStep.ConfirmSettings("extender.bringyour.com"),
+            ExtenderImportStep.ConfirmSettings("extender.network.example"),
             extenderImportStep(withServers, true),
         )
     }
@@ -165,13 +165,13 @@ class ExtenderShareLogicTest {
     @Test
     fun aPayloadThatSetsNoBootstrapDohServersHasNoLine() {
         // settings that name none leave this space's servers alone
-        assertNull(extenderImportControlDohServers(decode(hasSettings = true, settingsHost = "extender.bringyour.com")))
+        assertNull(extenderImportControlDohServers(decode(hasSettings = true, settingsHost = "extender.network.example")))
         // servers ride only in a settings block, and only a decoded payload
         // has one
-        assertNull(extenderImportControlDohServers(decode(controlDohUrls = listOf("https://223.5.5.5/dns-query"))))
+        assertNull(extenderImportControlDohServers(decode(controlDohUrls = listOf("https://192.0.2.1/dns-query"))))
         assertNull(
             extenderImportControlDohServers(
-                decode(ok = false, hasSettings = true, controlDohUrls = listOf("https://223.5.5.5/dns-query"))
+                decode(ok = false, hasSettings = true, controlDohUrls = listOf("https://192.0.2.1/dns-query"))
             )
         )
         assertNull(extenderImportControlDohServers(null))

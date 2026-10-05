@@ -86,6 +86,7 @@ class ProviderStatusViewModel @Inject constructor(
         controllerOwner.setVisible(visible)
     }
 
+    /** Opens the device's controller and follows its polls. */
     private fun openProviderStatus(device: DeviceLocal): ProviderStatusViewController {
         val vc = device.openProviderStatusViewController()
         statusVc = vc
@@ -99,6 +100,7 @@ class ProviderStatusViewModel @Inject constructor(
         return vc
     }
 
+    /** Stops following [vc], stops and closes it, and clears its status. */
     private fun closeProviderStatus(device: DeviceLocal, vc: ProviderStatusViewController) {
         subs.forEach { it.close() }
         subs.clear()
@@ -110,6 +112,7 @@ class ProviderStatusViewModel @Inject constructor(
         }
     }
 
+    /** Reads the open controller's state into [status]. */
     private fun update() {
         val vc = statusVc ?: return
         status = ProviderStatusUi.fromSdk(vc)

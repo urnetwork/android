@@ -82,6 +82,7 @@ sealed interface ReferralNetworkAction {
     data class Update(val networkName: String) : ReferralNetworkAction
 }
 
+/** The action for the network this one signed up with: Add referral code when there is none. */
 internal fun referralNetworkAction(referralNetworkName: String?): ReferralNetworkAction =
     if (referralNetworkName.isNullOrBlank()) {
         ReferralNetworkAction.AddCode

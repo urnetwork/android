@@ -671,6 +671,7 @@ class MainApplication : Application() {
         }, "whitelist-probe").start()
     }
 
+    /** Whether the active network carries cellular transport. */
     private fun isActiveNetworkCellular(): Boolean {
         val connectivityManager =
             getSystemService(ConnectivityManager::class.java) ?: return false

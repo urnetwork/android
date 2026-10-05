@@ -6,6 +6,12 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
+/**
+ * The self-recovery of a connect insufficient balance blocked: the refused
+ * start or the held connection is retried once the balance is back, once per
+ * recovery and a bounded number of times in a row, and never for a user who
+ * did not ask to connect.
+ */
 class BalanceRecoveryTest {
 
     private val low = BALANCE_RECOVERY_THRESHOLD_BYTES - 1

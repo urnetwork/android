@@ -23,7 +23,10 @@ internal class InstallReferrerCheck(private val store: Store) {
 
     /** Whether this install has had its referrer read. */
     interface Store {
+        /** True once a read ended with Play's final answer. */
         fun isChecked(): Boolean
+
+        /** Records the final answer, so no later launch reads again. */
         fun markChecked()
     }
 
@@ -80,6 +83,7 @@ internal class InstallReferrerCheck(private val store: Store) {
             return code.takeIf { CODE.matches(it) }
         }
 
+        /** The decoded, trimmed value of the first [name] in [rawQuery], or null. */
         private fun queryParameter(rawQuery: String?, name: String): String? {
             for (pair in rawQuery.orEmpty().split('&')) {
                 val i = pair.indexOf('=')

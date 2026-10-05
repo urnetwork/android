@@ -22,6 +22,7 @@ class AppDiagnosticLog(
     private val logcat: (String) -> Unit,
     private val sdkLog: (tag: String, line: String) -> Unit,
 ) {
+    /** Writes [text] to logcat as is, and to the sdk log line by line under [tag]. */
     fun info(tag: String, text: String) {
         logcat(text)
         runCatching {

@@ -6,6 +6,11 @@ import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
+/**
+ * When a connect attempt counts as failed (the sdk's CONNECT_FAILED, or no
+ * provider past the time bound while the user wants to be connected), and the
+ * monitor that reports each failed attempt once.
+ */
 class ConnectFailurePolicyTest {
     private val start = 1_000_000L
     private val timeout = CONNECT_FAILURE_TIMEOUT_MILLIS

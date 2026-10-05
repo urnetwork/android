@@ -119,6 +119,11 @@ class ControlDohSettingsViewModel @Inject constructor(
         saveUrls("", listOf(), onSaved)
     }
 
+    /**
+     * Writes [urls] to the space off the main thread and shows the list it read
+     * back. [savedText] is the field's text the urls came from: an answer for
+     * text edited meanwhile is not shown.
+     */
     private fun saveUrls(savedText: String, urls: List<String>, onSaved: () -> Unit) {
         if (saving) {
             return
@@ -152,6 +157,7 @@ class ControlDohSettingsViewModel @Inject constructor(
         }
     }
 
+    /** Sets the field's text and checks each of its lines again. */
     private fun replaceText(next: String) {
         text = next
         validationErrorId = controlDohValidationErrorId(controlDohLinesFromText(next)) { line ->

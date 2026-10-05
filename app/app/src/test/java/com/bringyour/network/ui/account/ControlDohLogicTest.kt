@@ -20,22 +20,21 @@ class ControlDohLogicTest {
         "control_doh_error_too_many",
     )
 
-    // Sdk.regionalControlDohUrls("cn"), v4 first (connect
-    // net_http_doh_regional.go): AliDNS, then DNSPod
-    private val chinaPreset = listOf(
-        "https://223.5.5.5/dns-query",
-        "https://223.6.6.6/dns-query",
-        "https://1.12.12.12/dns-query",
-        "https://120.53.53.53/dns-query",
+    // a preset as Sdk.regionalControlDohUrls returns one: four servers, v4 first
+    private val presetUrls = listOf(
+        "https://192.0.2.1/dns-query",
+        "https://198.51.100.1/dns-query",
+        "https://203.0.113.1/dns-query",
+        "https://192.0.2.2/dns-query",
     )
 
     @Test
     fun aLineEndsAtANewlineOrACarriageReturn() {
         // windows (\r\n), old mac (\r) and unix (\n) line endings read the same
         assertEquals(
-            listOf("https://223.5.5.5/dns-query", "https://223.6.6.6/dns-query", "https://1.12.12.12/dns-query"),
+            listOf("https://192.0.2.1/dns-query", "https://198.51.100.1/dns-query", "https://203.0.113.1/dns-query"),
             controlDohLinesFromText(
-                "https://223.5.5.5/dns-query\r\nhttps://223.6.6.6/dns-query\rhttps://1.12.12.12/dns-query\n"
+                "https://192.0.2.1/dns-query\r\nhttps://198.51.100.1/dns-query\rhttps://203.0.113.1/dns-query\n"
             ),
         )
     }
@@ -43,8 +42,8 @@ class ControlDohLogicTest {
     @Test
     fun blankLinesAndPaddingAreNotServers() {
         assertEquals(
-            listOf("https://223.5.5.5/dns-query", "https://[2400:3200::1]/dns-query"),
-            controlDohLinesFromText("  https://223.5.5.5/dns-query \n\n\t\r\n   \nhttps://[2400:3200::1]/dns-query\t"),
+            listOf("https://192.0.2.1/dns-query", "https://[2001:db8::1]/dns-query"),
+            controlDohLinesFromText("  https://192.0.2.1/dns-query \n\n\t\r\n   \nhttps://[2001:db8::1]/dns-query\t"),
         )
         assertEquals(listOf<String>(), controlDohLinesFromText(""))
         assertEquals(listOf<String>(), controlDohLinesFromText(" \r\n\t\n"))
@@ -53,12 +52,12 @@ class ControlDohLogicTest {
     @Test
     fun aCommaDoesNotSeparateServers() {
         assertEquals(
-            listOf("https://223.5.5.5/dns-query,https://223.6.6.6/dns-query"),
-            controlDohLinesFromText("https://223.5.5.5/dns-query,https://223.6.6.6/dns-query"),
+            listOf("https://192.0.2.1/dns-query,https://198.51.100.1/dns-query"),
+            controlDohLinesFromText("https://192.0.2.1/dns-query,https://198.51.100.1/dns-query"),
         )
         assertEquals(
-            listOf("https://223.5.5.5/dns-query, https://223.6.6.6/dns-query"),
-            controlDohLinesFromText("https://223.5.5.5/dns-query, https://223.6.6.6/dns-query"),
+            listOf("https://192.0.2.1/dns-query, https://198.51.100.1/dns-query"),
+            controlDohLinesFromText("https://192.0.2.1/dns-query, https://198.51.100.1/dns-query"),
         )
     }
 
@@ -66,23 +65,23 @@ class ControlDohLogicTest {
     fun theLinesKeepTheirOrderAndRepeatsForTheSdk() {
         // the order typed is the order tried, and the sdk drops the repeat
         assertEquals(
-            listOf("https://1.12.12.12/dns-query", "https://223.5.5.5/dns-query", "https://1.12.12.12/dns-query"),
+            listOf("https://203.0.113.1/dns-query", "https://192.0.2.1/dns-query", "https://203.0.113.1/dns-query"),
             controlDohLinesFromText(
-                "https://1.12.12.12/dns-query\nhttps://223.5.5.5/dns-query\nhttps://1.12.12.12/dns-query"
+                "https://203.0.113.1/dns-query\nhttps://192.0.2.1/dns-query\nhttps://203.0.113.1/dns-query"
             ),
         )
     }
 
     @Test
     fun thePresetFillsTheFieldOneServerPerLine() {
-        val text = controlDohText(chinaPreset)
+        val text = controlDohText(presetUrls)
 
         assertEquals(
-            "https://223.5.5.5/dns-query\nhttps://223.6.6.6/dns-query\nhttps://1.12.12.12/dns-query\nhttps://120.53.53.53/dns-query",
+            "https://192.0.2.1/dns-query\nhttps://198.51.100.1/dns-query\nhttps://203.0.113.1/dns-query\nhttps://192.0.2.2/dns-query",
             text,
         )
         // and reads back as the same list
-        assertEquals(chinaPreset, controlDohLinesFromText(text))
+        assertEquals(presetUrls, controlDohLinesFromText(text))
         assertEquals("cn", CONTROL_DOH_PRESET_CHINA)
     }
 
@@ -95,9 +94,9 @@ class ControlDohLogicTest {
     @Test
     fun theFirstLineThatFailsIsShown() {
         val answers = mapOf(
-            "https://223.5.5.5/dns-query" to "",
-            "http://223.6.6.6/dns-query" to CONTROL_DOH_ERROR_HTTPS_REQUIRED,
-            "https://dns.alidns.com/dns-query" to CONTROL_DOH_ERROR_IP_REQUIRED,
+            "https://192.0.2.1/dns-query" to "",
+            "http://198.51.100.1/dns-query" to CONTROL_DOH_ERROR_HTTPS_REQUIRED,
+            "https://dns.example/dns-query" to CONTROL_DOH_ERROR_IP_REQUIRED,
         )
         val checked = mutableListOf<String>()
         val validate: (String) -> String = { line ->
@@ -108,14 +107,14 @@ class ControlDohLogicTest {
         assertEquals(
             CONTROL_DOH_ERROR_HTTPS_REQUIRED,
             controlDohValidationErrorId(
-                listOf("https://223.5.5.5/dns-query", "http://223.6.6.6/dns-query", "https://dns.alidns.com/dns-query"),
+                listOf("https://192.0.2.1/dns-query", "http://198.51.100.1/dns-query", "https://dns.example/dns-query"),
                 validate,
             ),
         )
         // the check stops at the first line that fails
-        assertEquals(listOf("https://223.5.5.5/dns-query", "http://223.6.6.6/dns-query"), checked)
+        assertEquals(listOf("https://192.0.2.1/dns-query", "http://198.51.100.1/dns-query"), checked)
 
-        assertEquals("", controlDohValidationErrorId(listOf("https://223.5.5.5/dns-query"), validate))
+        assertEquals("", controlDohValidationErrorId(listOf("https://192.0.2.1/dns-query"), validate))
         assertEquals("", controlDohValidationErrorId(listOf(), validate))
     }
 

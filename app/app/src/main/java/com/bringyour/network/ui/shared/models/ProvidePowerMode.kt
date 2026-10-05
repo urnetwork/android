@@ -17,6 +17,7 @@ enum class ProvidePowerMode {
     companion object {
         val DEFAULT = PAUSE_IN_BATTERY_SAVER
 
+        /** The mode a stored value names, or null for any other value. */
         fun fromString(value: String?): ProvidePowerMode? {
             return when (value?.lowercase()) {
                 "always" -> ALWAYS
@@ -26,6 +27,7 @@ enum class ProvidePowerMode {
             }
         }
 
+        /** The value [value] is stored as. */
         fun toString(value: ProvidePowerMode): String {
             return when (value) {
                 ALWAYS -> "always"
@@ -34,6 +36,7 @@ enum class ProvidePowerMode {
             }
         }
 
+        /** The picker's label for [value]. */
         fun toStringResourceId(value: ProvidePowerMode): Int {
             return when (value) {
                 ALWAYS -> R.string.provide_power_mode_always

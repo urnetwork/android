@@ -6,6 +6,10 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
+/**
+ * The Settings entry to the cloud proxies (P150): the page on the link host or
+ * the default host, an optional one-time sign-in code, and who sees the entry.
+ */
 class CloudProxyTest {
     @Test
     fun urlUsesTheLinkHost() {

@@ -203,6 +203,7 @@ fun ProviderDemandChart(
     }
 }
 
+/** A muted line in the chart's box: loading, unavailable, or not offered in the last hour. */
 @Composable
 private fun DemandChartNote(text: String) {
     Text(

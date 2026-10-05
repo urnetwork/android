@@ -45,6 +45,10 @@ class ProvidePauseState @Inject constructor(
     // set by the application, which decides the pause again on a change
     var onPowerModeChange: ((ProvidePowerMode) -> Unit)? = null
 
+    /**
+     * Stores the user's choice and has the application decide the pause again.
+     * An unchanged mode does nothing.
+     */
     fun setPowerMode(mode: ProvidePowerMode) {
         if (_powerMode.value == mode) {
             return
@@ -56,6 +60,7 @@ class ProvidePauseState @Inject constructor(
         onPowerModeChange?.invoke(mode)
     }
 
+    /** The decision the application applied, for the screens that explain a pause. */
     fun publishDecision(decision: ProvidePauseDecision) {
         _decision.value = decision
     }

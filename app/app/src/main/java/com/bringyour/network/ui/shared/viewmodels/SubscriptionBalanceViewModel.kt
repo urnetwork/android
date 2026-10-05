@@ -321,6 +321,10 @@ class SubscriptionBalanceViewModel @Inject constructor(
     val guestSignInRequiredSequence: StateFlow<Long> = _guestSignInRequiredSequence.asStateFlow()
     private var consumedGuestSignInRequiredSequence = 0L
 
+    /**
+     * True the first time it sees [sequence] of a refusal, which it then marks
+     * handled, so the add-sign-in sheet opens once per refusal.
+     */
     fun consumeGuestSignInRequiredSequence(sequence: Long): Boolean {
         if (sequence == 0L || sequence <= consumedGuestSignInRequiredSequence) {
             return false
