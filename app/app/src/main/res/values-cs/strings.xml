@@ -187,6 +187,7 @@
     <string name="emoji_tag_error_too_many">Použijte nejvýše %1$d emoji.</string>
     <string name="emoji_tag_hint">Vyberte 1 až %1$d emoji, které se zobrazí u vaší sítě.</string>
     <string name="emoji_tag_shuffle">Navrhnout jiné</string>
+    <string name="enabled_under_auto_footer">Seřazeno podle priority: nejprve H1, potom H3, whodis a whodis pump. Pořadí je pevné. Alespoň jeden transport zůstává zapnutý.</string>
     <string name="enjoying_urnetwork">Užíváte si URnetwork?</string>
     <string name="enter">Enter</string>
     <string name="enter_a_bonus_referral_code">Vložte bonusový referální kód</string>

@@ -389,7 +389,7 @@
     <string name="emoji_tag_hint">选择 1 到 %1$d 个表情，显示在你的网络旁边。</string>
     <string name="emoji_tag_shuffle">换一个</string>
     <string name="enabled_under_auto">“自动”模式下启用</string>
-    <string name="enabled_under_auto_footer">按优先顺序列出：先是 H3 和 H1，然后是 whodis，最后是 whodis pump。顺序固定。至少会有一种传输方式保持启用。</string>
+    <string name="enabled_under_auto_footer">按优先顺序列出：先是 H1，然后是 H3、whodis 和 whodis pump。顺序固定。至少会有一种传输方式保持启用。</string>
     <string name="enjoying_urnetwork">喜欢 URnetwork 吗？</string>
     <string name="enter">进入</string>
     <string name="enter_a_bonus_referral_code">输入奖励推荐码</string>

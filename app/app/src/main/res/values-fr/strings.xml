@@ -187,6 +187,7 @@
     <string name="emoji_tag_error_too_many">Utilisez au plus %1$d emojis.</string>
     <string name="emoji_tag_hint">Choisissez 1 à %1$d emojis à afficher à côté de votre réseau.</string>
     <string name="emoji_tag_shuffle">Autre suggestion</string>
+    <string name="enabled_under_auto_footer">Classés par ordre de préférence : H1 d’abord, puis H3, whodis et whodis pump. L’ordre est fixe. Au moins un transport reste activé.</string>
     <string name="enjoying_urnetwork">Vous appréciez URnetwork ?</string>
     <string name="enter">Entrée</string>
     <string name="enter_a_bonus_referral_code">Entrez un code de parrainage bonus</string>

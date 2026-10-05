@@ -187,6 +187,7 @@
     <string name="emoji_tag_error_too_many">Χρησιμοποιήστε το πολύ %1$d emoji.</string>
     <string name="emoji_tag_hint">Επιλέξτε 1 έως %1$d emoji που θα εμφανίζονται δίπλα στο δίκτυό σας.</string>
     <string name="emoji_tag_shuffle">Άλλη πρόταση</string>
+    <string name="enabled_under_auto_footer">Με σειρά προτίμησης: πρώτα H1, μετά H3, whodis και whodis pump. Η σειρά είναι σταθερή. Τουλάχιστον ένας τρόπος μεταφοράς παραμένει ενεργός.</string>
     <string name="enjoying_urnetwork">Απολαμβάνετε το URnetwork;</string>
     <string name="enter">Εισαγωγή</string>
     <string name="enter_a_bonus_referral_code">Εισαγάγετε έναν κωδικό παραπομπής μπόνους</string>
