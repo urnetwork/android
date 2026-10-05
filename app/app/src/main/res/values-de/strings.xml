@@ -129,6 +129,7 @@
     <string name="community_edition">Community Edition</string>
     <string name="community_edition_details">Nimm am Netzwerk teil und erhalte kostenlosen Zugang zur Community Edition.</string>
     <string name="companion">Gegenstelle</string>
+    <string name="conn_failed">Verbindung fehlgeschlagen</string>
     <string name="connect">Verbinde</string>
     <string name="connect_and_open">Verbinden und Link öffnen</string>
     <string name="connect_bittensor_wallet">Bittensor-Wallet verbinden</string>

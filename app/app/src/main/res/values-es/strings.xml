@@ -129,6 +129,7 @@
     <string name="community_edition">Edición comunitaria</string>
     <string name="community_edition_details">Participa en la red y obtén acceso gratuito a la edición comunitaria.</string>
     <string name="companion">Compañero</string>
+    <string name="conn_failed">No se pudo conectar</string>
     <string name="connect">Conecta</string>
     <string name="connect_and_open">Conectar y abrir enlace</string>
     <string name="connect_bittensor_wallet">Conectar billetera de Bittensor</string>

@@ -90,6 +90,7 @@
     <string name="community_edition">커뮤니티 에디션</string>
     <string name="community_edition_details">네트워크에 참여하고 커뮤니티 에디션을 무료로 이용하세요.</string>
     <string name="companion">상대방</string>
+    <string name="conn_failed">연결할 수 없습니다</string>
     <string name="connect">연결</string>
     <string name="connect_and_open">연결하고 링크를 엽니다</string>
     <string name="connect_bittensor_wallet_to_add_sign_in_method">Bittensor 지갑을 연결하여 로그인 방법으로 추가하세요.</string>

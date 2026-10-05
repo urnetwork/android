@@ -129,6 +129,7 @@
     <string name="community_edition">إصدار المجتمع</string>
     <string name="community_edition_details">شارك في الشبكة واحصل على وصول مجاني إلى إصدار المجتمع.</string>
     <string name="companion">الطرف المقابل</string>
+    <string name="conn_failed">تعذّر الاتصال</string>
     <string name="connect">اربط</string>
     <string name="connect_and_open">الاتصال وفتح الرابط</string>
     <string name="connect_bittensor_wallet">ربط محفظة Bittensor</string>

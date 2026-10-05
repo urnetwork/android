@@ -135,6 +135,7 @@
     <string name="community_edition">Community Edition</string>
     <string name="community_edition_details">Get free access to the community edition.</string>
     <string name="companion">Companion</string>
+    <string name="conn_failed">Couldn\'t connect</string>
     <string name="connect">Connect</string>
     <string name="connect_and_open">Connect and open link</string>
     <string name="connect_bittensor_wallet">Connect Bittensor wallet</string>

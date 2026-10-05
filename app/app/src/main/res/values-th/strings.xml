@@ -90,6 +90,7 @@
     <string name="community_edition">ฉบับชุมชน</string>
     <string name="community_edition_details">เข้าร่วมเครือข่ายและรับสิทธิ์เข้าถึงฉบับชุมชนฟรี</string>
     <string name="companion">คู่สัญญา</string>
+    <string name="conn_failed">เชื่อมต่อไม่ได้</string>
     <string name="connect">เชื่อมต่อ</string>
     <string name="connect_and_open">เชื่อมต่อและเปิดลิงก์</string>
     <string name="connect_bittensor_wallet_to_add_sign_in_method">เชื่อมต่อกระเป๋า Bittensor เพื่อเพิ่มเป็นวิธีลงชื่อเข้าใช้</string>

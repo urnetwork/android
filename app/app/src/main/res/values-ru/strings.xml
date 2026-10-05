@@ -129,6 +129,7 @@
     <string name="community_edition">Версия для сообщества</string>
     <string name="community_edition_details">Получите бесплатный доступ к версии для сообщества.</string>
     <string name="companion">Партнёр</string>
+    <string name="conn_failed">Не удалось подключиться</string>
     <string name="connect">Подключить</string>
     <string name="connect_and_open">Подключиться и открыть ссылку</string>
     <string name="connect_bittensor_wallet">Подключить кошелек Bittensor</string>

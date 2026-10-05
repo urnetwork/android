@@ -129,6 +129,7 @@
     <string name="community_edition">社区版</string>
     <string name="community_edition_details">参与网络并免费获得社区版的访问权限。</string>
     <string name="companion">对端</string>
+    <string name="conn_failed">无法连接</string>
     <string name="connect">连接</string>
     <string name="connect_and_open">连接并打开链接</string>
     <string name="connect_bittensor_wallet">连接 Bittensor 钱包</string>

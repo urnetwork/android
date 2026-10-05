@@ -90,6 +90,7 @@
     <string name="community_edition">Komunitní edice</string>
     <string name="community_edition_details">Zapojte se do sítě a získejte bezplatný přístup k komunitní edici.</string>
     <string name="companion">Protějšek</string>
+    <string name="conn_failed">Nepodařilo se připojit</string>
     <string name="connect">Připojit</string>
     <string name="connect_and_open">Připojení a otevření odkazu</string>
     <string name="connect_bittensor_wallet_to_add_sign_in_method">Připojte peněženku Bittensor a přidejte ji jako způsob přihlášení.</string>
