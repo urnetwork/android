@@ -49,6 +49,7 @@ class AppDiagnosticLogTest {
     fun whitelistProbeBlockGoesToTheSdkLogLineByLine() {
         val probe = WhitelistProbe(
             nowMillis = { 1_000_000L },
+            runOnWorker = { it() },
             checkApiReachable = {
                 WhitelistProbeStep("api-reachable", false, "SocketTimeoutException after 5001ms")
             },
