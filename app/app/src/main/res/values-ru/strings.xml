@@ -639,6 +639,7 @@
     <string name="payment_problem">Проблема с оплатой</string>
     <string name="payment_received_title">Платёж получен</string>
     <string name="payout_wallet_updated">Кошелек для выплат обновлен</string>
+    <string name="payouts_now_go_to">Выплаты теперь поступают на %1$s.</string>
     <string name="peer_count_one">1 узел</string>
     <string name="peer_count_other">%d узлов</string>
     <string name="pending_data_key">В ожидании</string>

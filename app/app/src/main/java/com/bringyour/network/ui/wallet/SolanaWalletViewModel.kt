@@ -322,13 +322,18 @@ class SolanaWalletViewModel @Inject constructor(
         isPresentedRemoveDialog = false
     }
 
-    /** the server holds USDC payouts until another wallet is connected */
+    /**
+     * The server makes another active Solana or Polygon wallet of the network the payout
+     * wallet when there is one, and the card then says where payouts go; otherwise it
+     * holds USDC payouts until another wallet is connected.
+     */
     fun removePayoutWallet() {
         val wallet = _legacy.value.payoutWallet ?: return
         if (_connectState.value.busy) {
             return
         }
         val s = source
+        val priorPayoutWalletId = _legacy.value.payoutWalletId
         _connectState.value = SolanaConnectState.Removing
         viewModelScope.launch {
             s.removeWallet(wallet.walletId).onFailure { e ->
@@ -352,6 +357,13 @@ class SolanaWalletViewModel @Inject constructor(
             isPresentedRemoveDialog = false
 
             refreshAfterChange()
+            if (source !== s || _connectState.value != SolanaConnectState.Idle) {
+                return@launch
+            }
+            // a promoted wallet brings the card back: say where payouts go now
+            promotedPayoutWallet(wallet.walletId, priorPayoutWalletId, _legacy.value)?.let { promoted ->
+                _connectState.value = SolanaConnectState.Promoted(promoted)
+            }
         }
     }
 

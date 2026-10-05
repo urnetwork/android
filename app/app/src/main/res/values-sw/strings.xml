@@ -385,6 +385,7 @@
     <string name="pay_with_stripe">Jiunge na Stripe</string>
     <string name="payment_problem">Tatizo la malipo</string>
     <string name="payout_wallet_updated">Pochi ya malipo imesasishwa</string>
+    <string name="payouts_now_go_to">Malipo sasa yanaenda kwa %1$s.</string>
     <string name="peer_count_one">Mshirika 1</string>
     <string name="peer_count_other">Washirika %d</string>
     <string name="pending_data_key">Inasubiri</string>

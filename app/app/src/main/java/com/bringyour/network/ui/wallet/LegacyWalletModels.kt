@@ -94,6 +94,28 @@ data class LegacyWalletUi(
     }
 }
 
+/**
+ * The wallet payouts go to after [removedWalletId] was removed, from the refresh that
+ * followed: removing the payout wallet makes another active Solana or Polygon wallet of
+ * the network the payout wallet when there is one (server fix/remove-wallet-promote).
+ * Null when the removed wallet was not the payout wallet ([priorPayoutWalletId]), when
+ * nothing took its place, or when the new payout wallet is not one the card shows.
+ */
+fun promotedPayoutWallet(
+    removedWalletId: String,
+    priorPayoutWalletId: String?,
+    after: LegacyWalletUi,
+): LegacyWallet? {
+    if (priorPayoutWalletId != removedWalletId) {
+        return null
+    }
+    val payoutWalletId = after.payoutWalletId ?: return null
+    if (payoutWalletId == removedWalletId) {
+        return null
+    }
+    return after.payoutWallet
+}
+
 /** The connect, link and remove flow of the Solana payout wallet. */
 sealed class SolanaConnectState {
     object Idle : SolanaConnectState()
@@ -101,6 +123,8 @@ sealed class SolanaConnectState {
     object ConnectingApp : SolanaConnectState()
     data class Linking(val address: String) : SolanaConnectState()
     data class Linked(val wallet: LegacyWallet) : SolanaConnectState()
+    // removing the payout wallet made this one the payout wallet (promotedPayoutWallet)
+    data class Promoted(val wallet: LegacyWallet) : SolanaConnectState()
     object NoWalletApp : SolanaConnectState()
     data class Failed(val detail: String?) : SolanaConnectState()
     object Removing : SolanaConnectState()

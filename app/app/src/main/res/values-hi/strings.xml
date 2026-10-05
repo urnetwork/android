@@ -385,6 +385,7 @@
     <string name="pay_with_stripe">Stripe के साथ जुड़ें</string>
     <string name="payment_problem">भुगतान में समस्या</string>
     <string name="payout_wallet_updated">पेआउट वॉलेट अपडेट किया गया</string>
+    <string name="payouts_now_go_to">भुगतान अब %1$s पर जाएंगे।</string>
     <string name="peer_count_one">1 पीयर</string>
     <string name="peer_count_other">%d पीयर</string>
     <string name="pending_data_key">लंबित</string>

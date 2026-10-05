@@ -639,6 +639,7 @@
     <string name="payment_problem">付款问题</string>
     <string name="payment_received_title">已收到付款</string>
     <string name="payout_wallet_updated">支付钱包已更新</string>
+    <string name="payouts_now_go_to">支付现在将发送到 %1$s。</string>
     <string name="peer_count_one">1 个对等节点</string>
     <string name="peer_count_other">%d 个对等节点</string>
     <string name="pending_data_key">待处理</string>

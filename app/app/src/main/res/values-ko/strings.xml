@@ -385,6 +385,7 @@
     <string name="pay_with_stripe">Stripe로 가입하기</string>
     <string name="payment_problem">결제 문제</string>
     <string name="payout_wallet_updated">지급 지갑이 업데이트되었습니다</string>
+    <string name="payouts_now_go_to">이제 지급금은 %1$s(으)로 전송됩니다.</string>
     <string name="peer_count_one">피어 1개</string>
     <string name="peer_count_other">피어 %d개</string>
     <string name="pending_data_key">대기 중</string>

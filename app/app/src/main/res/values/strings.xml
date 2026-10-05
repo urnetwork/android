@@ -658,6 +658,7 @@
     <string name="payment_problem">Payment problem</string>
     <string name="payment_received_title">Payment received</string>
     <string name="payout_wallet_updated">Payout wallet updated</string>
+    <string name="payouts_now_go_to">Payouts now go to %1$s.</string>
     <string name="peer_count_one">1 peer</string>
     <string name="peer_count_other">%d peers</string>
     <string name="pending_data_key">Pending</string>

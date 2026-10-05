@@ -385,6 +385,7 @@
     <string name="pay_with_stripe">เข้าร่วมด้วย Stripe</string>
     <string name="payment_problem">ปัญหาการชำระเงิน</string>
     <string name="payout_wallet_updated">อัปเดตกระเป๋ารับยอดจ่ายแล้ว</string>
+    <string name="payouts_now_go_to">การจ่ายจะส่งไปที่ %1$s แล้ว</string>
     <string name="peer_count_one">1 เพียร์</string>
     <string name="peer_count_other">%d เพียร์</string>
     <string name="pending_data_key">รอดำเนินการ</string>

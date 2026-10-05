@@ -639,6 +639,7 @@
     <string name="payment_problem">مشكلة في الدفع</string>
     <string name="payment_received_title">تم استلام الدفعة</string>
     <string name="payout_wallet_updated">تم تحديث محفظة الدفع</string>
+    <string name="payouts_now_go_to">تذهب المدفوعات الآن إلى %1$s.</string>
     <string name="peer_count_one">قرين واحد</string>
     <string name="peer_count_other">%d قرين</string>
     <string name="pending_data_key">معلّق</string>

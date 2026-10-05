@@ -385,6 +385,7 @@
     <string name="pay_with_stripe">Dołącz za pomocą Stripe</string>
     <string name="payment_problem">Problem z płatnością</string>
     <string name="payout_wallet_updated">Zaktualizowano portfel wypłat</string>
+    <string name="payouts_now_go_to">Wypłaty trafiają teraz na %1$s.</string>
     <string name="peer_count_one">1 węzeł</string>
     <string name="peer_count_other">%d węzłów</string>
     <string name="pending_data_key">Oczekujące</string>

@@ -385,6 +385,7 @@
     <string name="pay_with_stripe">Lid worden met Stripe</string>
     <string name="payment_problem">Betalingsprobleem</string>
     <string name="payout_wallet_updated">Uitbetalingswallet bijgewerkt</string>
+    <string name="payouts_now_go_to">Uitbetalingen gaan nu naar %1$s.</string>
     <string name="peer_count_one">1 peer</string>
     <string name="peer_count_other">%d peers</string>
     <string name="pending_data_key">In behandeling</string>
