@@ -416,6 +416,10 @@
     <string name="profile">Profiel</string>
     <string name="promoted_locations">Uitgelichte locaties</string>
     <string name="provide_mode">Leveringsmodus</string>
+    <string name="provide_power_mode">Op batterij</string>
+    <string name="provide_power_mode_always">Blijven leveren</string>
+    <string name="provide_power_mode_charging_only">Pauzeren tot opladen</string>
+    <string name="provide_power_mode_pause_in_battery_saver">Pauzeren bij Batterijbesparing</string>
     <string name="provider_connected_duration_hours">%1$d u %2$d min</string>
     <string name="provider_connected_duration_minutes">%1$d min</string>
     <string name="provider_connected_duration_seconds">%1$d s</string>
@@ -424,7 +428,9 @@
     <string name="provider_idle_auto_not_connected">Auto deelt alleen met iedereen terwijl je verbonden bent. Kies Altijd om ook te verdienen wanneer je niet verbonden bent.</string>
     <string name="provider_idle_network_only">Alleen gedeeld met je eigen apparaten. Kies Altijd om met iedereen te delen.</string>
     <string name="provider_idle_no_traffic_yet">Nieuwe providers hebben enkele uren stabiele uptime en een snelheidstest nodig voordat er clients naar hen worden gestuurd. Verkeer hangt ook af van de vraag in je regio.</string>
+    <string name="provider_idle_paused_battery_saver">Gepauzeerd: Batterijbesparing staat aan.</string>
     <string name="provider_idle_paused_no_network">Gepauzeerd: dit apparaat kan op het huidige netwerk niet leveren.</string>
+    <string name="provider_idle_paused_not_charging">Gepauzeerd: dit apparaat wordt niet opgeladen.</string>
     <string name="provider_idle_paused_wifi_only">Gepauzeerd: leveren is ingesteld op alleen Wi-Fi, en dit apparaat is niet met Wi-Fi verbonden.</string>
     <string name="provider_location_unknown">Locatie onbekend</string>
     <string name="provider_locations_empty">Geen providers verbonden</string>

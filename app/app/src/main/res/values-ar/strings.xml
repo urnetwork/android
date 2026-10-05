@@ -684,6 +684,10 @@
     <string name="provide_mode_always_description">يوفّر للجميع طالما أن التطبيق قيد التشغيل.</string>
     <string name="provide_mode_auto_description">يوفّر للجميع أثناء اتصالك، وإلا فلأجهزتك فقط.</string>
     <string name="provide_mode_network_description">يوفّر فقط لأجهزة شبكتك الخاصة.</string>
+    <string name="provide_power_mode">عند العمل على البطارية</string>
+    <string name="provide_power_mode_always">متابعة التوفير</string>
+    <string name="provide_power_mode_charging_only">إيقاف مؤقت حتى الشحن</string>
+    <string name="provide_power_mode_pause_in_battery_saver">إيقاف مؤقت عند تفعيل توفير شحن البطارية</string>
     <string name="provider_connected_duration_hours">%1$d س %2$d د</string>
     <string name="provider_connected_duration_minutes">%1$d د</string>
     <string name="provider_connected_duration_seconds">%1$d ث</string>
@@ -692,7 +696,9 @@
     <string name="provider_idle_auto_not_connected">وضع «تلقائي» يشارك مع الجميع فقط أثناء اتصالك. اختر «دائمًا» لتكسب حتى عندما لا تكون متصلًا.</string>
     <string name="provider_idle_network_only">تتم المشاركة مع أجهزتك فقط. اختر «دائمًا» للمشاركة مع الجميع.</string>
     <string name="provider_idle_no_traffic_yet">يحتاج المزودون الجدد إلى عدة ساعات من الاتصال المستقر واختبار سرعة قبل أن يُرسَل إليهم العملاء. تعتمد حركة البيانات أيضًا على الطلب في منطقتك.</string>
+    <string name="provider_idle_paused_battery_saver">متوقف مؤقتًا: ميزة توفير شحن البطارية مفعّلة.</string>
     <string name="provider_idle_paused_no_network">متوقف مؤقتًا: لا يمكن لهذا الجهاز التوفير على شبكته الحالية.</string>
+    <string name="provider_idle_paused_not_charging">متوقف مؤقتًا: هذا الجهاز لا يتم شحنه.</string>
     <string name="provider_idle_paused_wifi_only">متوقف مؤقتًا: التوفير مضبوط على الواي فاي فقط، وهذا الجهاز غير متصل بالواي فاي.</string>
     <string name="provider_location_unknown">الموقع غير معروف</string>
     <string name="provider_locations_empty">لم يتم الاتصال بأي مزود خدمة</string>

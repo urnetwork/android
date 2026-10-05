@@ -10,6 +10,8 @@ import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bringyour.network.DeviceManager
+import com.bringyour.network.ProvidePauseReason
+import com.bringyour.network.ProvidePauseState
 import androidx.compose.ui.graphics.Color
 import com.bringyour.network.ui.shared.models.ProvideControlMode
 import com.bringyour.network.ui.shared.models.ProvideNetworkMode
@@ -193,6 +195,7 @@ data class TransportDistributionUi(
 @HiltViewModel
 class ThroughputViewModel @Inject constructor(
     private val deviceManager: DeviceManager,
+    private val providePauseState: ProvidePauseState,
 ) : ViewModel(), DefaultLifecycleObserver {
 
     private var contractVc: ContractViewController? = null
@@ -241,6 +244,12 @@ class ThroughputViewModel @Inject constructor(
         private set
     var provideNetworkMode by mutableStateOf(ProvideNetworkMode.WIFI)
         private set
+    /**
+     * why the app paused providing: no matching network, Battery Saver, or
+     * not charging (see `providePauseDecision`)
+     */
+    var providePauseReason by mutableStateOf(ProvidePauseReason.NONE)
+        private set
     val provideIndicatorColor: Color
         get() = provideIndicatorDotColorFor(provideMode, providePaused)
     val provideIndicatorRingColor: Color?
@@ -257,6 +266,7 @@ class ThroughputViewModel @Inject constructor(
             providePaused = providePaused,
             provideNetworkMode = provideNetworkMode,
             recentProviderBytes = providerTransportDistribution.byteCount,
+            providePauseReason = providePauseReason,
         )
 
     /**
@@ -280,6 +290,11 @@ class ThroughputViewModel @Inject constructor(
         removeDeviceChangeListener = deviceManager.addDeviceChangeListener { device ->
             viewModelScope.launch {
                 setupDevice(device)
+            }
+        }
+        viewModelScope.launch {
+            providePauseState.decision.collect { decision ->
+                providePauseReason = decision.reason
             }
         }
     }

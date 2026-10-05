@@ -416,6 +416,10 @@
     <string name="profile">Profil</string>
     <string name="promoted_locations">Emplacements promus</string>
     <string name="provide_mode">Mode de fourniture</string>
+    <string name="provide_power_mode">Sur batterie</string>
+    <string name="provide_power_mode_always">Continuer à fournir</string>
+    <string name="provide_power_mode_charging_only">Mettre en pause jusqu\'à la recharge</string>
+    <string name="provide_power_mode_pause_in_battery_saver">Mettre en pause avec l\'Économiseur de batterie</string>
     <string name="provider_connected_duration_hours">%1$d h %2$d min</string>
     <string name="provider_connected_duration_minutes">%1$d min</string>
     <string name="provider_connected_duration_seconds">%1$d s</string>
@@ -424,7 +428,9 @@
     <string name="provider_idle_auto_not_connected">Automatique ne partage avec tout le monde que lorsque vous êtes connecté. Choisissez Toujours pour gagner même quand vous n\'êtes pas connecté.</string>
     <string name="provider_idle_network_only">Partagé uniquement avec vos propres appareils. Choisissez Toujours pour partager avec tout le monde.</string>
     <string name="provider_idle_no_traffic_yet">Les nouveaux fournisseurs ont besoin de plusieurs heures de disponibilité stable et d\'un test de vitesse avant de recevoir des clients. Le trafic dépend aussi de la demande dans votre région.</string>
+    <string name="provider_idle_paused_battery_saver">En pause : l\'Économiseur de batterie est activé.</string>
     <string name="provider_idle_paused_no_network">En pause : cet appareil ne peut pas partager sa connexion sur son réseau actuel.</string>
+    <string name="provider_idle_paused_not_charging">En pause : cet appareil n\'est pas en charge.</string>
     <string name="provider_idle_paused_wifi_only">En pause : la fourniture est limitée au Wi-Fi, et cet appareil n\'est pas en Wi-Fi.</string>
     <string name="provider_location_unknown">Emplacement inconnu</string>
     <string name="provider_locations_empty">Aucun fournisseur connecté</string>

@@ -108,6 +108,18 @@ class ProviderStatusPresentationTest {
     }
 
     @Test
+    fun batteryPausesWinOverTheServerReason() {
+        assertEquals(
+            ProviderStatusLine.Resource(R.string.provider_idle_paused_battery_saver),
+            providerStatusLine(ProviderIdleReason.PAUSED_BATTERY_SAVER, Sdk.ProviderStatusReasonNotConnected, "x"),
+        )
+        assertEquals(
+            ProviderStatusLine.Resource(R.string.provider_idle_paused_not_charging),
+            providerStatusLine(ProviderIdleReason.PAUSED_NOT_CHARGING, Sdk.ProviderStatusReasonNone, ""),
+        )
+    }
+
+    @Test
     fun theServerReasonWinsOverNoTrafficYet() {
         assertEquals(
             ProviderStatusLine.Resource(R.string.provider_status_reason_reliability_warming_up),

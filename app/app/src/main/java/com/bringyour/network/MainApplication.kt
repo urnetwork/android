@@ -12,6 +12,7 @@ import android.net.LinkProperties
 import android.net.Network
 import android.net.NetworkCapabilities
 import android.net.VpnService
+import android.os.BatteryManager
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
@@ -221,6 +222,12 @@ class MainApplication : Application() {
     private var performanceDegradedDevice: DeviceLocal? = null
     private var performanceDegradedApplied: Boolean? = null
 
+    // main-looper confined; the pause sources that device.providePaused is
+    // decided from together (see updateProvidePaused)
+    private var provideNetworkAvailable = false
+    private var providePowerSave = false
+    private var provideBattery = BatteryPowerFacts.Unknown
+
     var loginVc: LoginViewController? = null
 
     /** Process-owned, bounded login diagnostics shared with acceptance. */
@@ -356,6 +363,9 @@ class MainApplication : Application() {
 
     @Inject
     lateinit var mockLocationFeeder: MockLocationFeeder
+
+    @Inject
+    lateinit var providePauseState: ProvidePauseState
 
     var vpnRequestStart: Boolean = false
         private set
@@ -866,6 +876,13 @@ class MainApplication : Application() {
      */
     private fun initializeApplicationState() {
         addTunnelLifecycleObservers()
+
+        // a new provide power mode in settings decides the pause again
+        providePauseState.onPowerModeChange = {
+            Handler(mainLooper).post {
+                updateProvidePaused()
+            }
+        }
 
         if (widgetSnapshotWriter == null) {
             widgetSnapshotWriter = com.bringyour.network.widgets.WidgetSnapshotWriter(
@@ -1776,21 +1793,31 @@ class MainApplication : Application() {
 
         powerSaveReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent?) {
+                val action = intent?.action
                 Handler(mainLooper).post {
-                    updatePerformanceDegraded()
+                    if (action == PowerManager.ACTION_POWER_SAVE_MODE_CHANGED) {
+                        updatePerformanceDegraded()
+                    }
+                    updateProvidePower(action)
                 }
             }
         }
         ContextCompat.registerReceiver(
             this,
             powerSaveReceiver,
-            IntentFilter(PowerManager.ACTION_POWER_SAVE_MODE_CHANGED),
-            // This is a protected system broadcast. Exported context
+            IntentFilter().apply {
+                addAction(PowerManager.ACTION_POWER_SAVE_MODE_CHANGED)
+                // the provide pause also follows the charger
+                addAction(Intent.ACTION_POWER_CONNECTED)
+                addAction(Intent.ACTION_POWER_DISCONNECTED)
+            },
+            // These are protected system broadcasts. Exported context
             // receivers reliably accept privileged framework senders across
             // OEM builds while still rejecting non-system spoofing.
             ContextCompat.RECEIVER_EXPORTED,
         )
         updatePerformanceDegraded()
+        updateProvidePower(null)
     }
 
     fun removePowerSaveReceiver() {
@@ -1801,6 +1828,68 @@ class MainApplication : Application() {
             }
         }
         powerSaveReceiver = null
+    }
+
+    /**
+     * Reads Battery Saver and the charger for the provide pause. The plug
+     * state comes from the sticky ACTION_BATTERY_CHANGED, which a null
+     * receiver reads without registering; a power connected or disconnected
+     * broadcast is the newest word on the plug.
+     */
+    private fun updateProvidePower(action: String?) {
+        providePowerSave = runCatching {
+            getSystemService(PowerManager::class.java)?.isPowerSaveMode == true
+        }.getOrDefault(false)
+        val battery = runCatching {
+            ContextCompat.registerReceiver(
+                this,
+                null,
+                IntentFilter(Intent.ACTION_BATTERY_CHANGED),
+                ContextCompat.RECEIVER_EXPORTED,
+            )
+        }.getOrNull()
+        val batteryFacts = battery?.let {
+            batteryPowerFacts(
+                plugged = it.getIntExtra(BatteryManager.EXTRA_PLUGGED, 0),
+                present = it.getBooleanExtra(BatteryManager.EXTRA_PRESENT, true),
+                level = it.getIntExtra(BatteryManager.EXTRA_LEVEL, -1),
+                scale = it.getIntExtra(BatteryManager.EXTRA_SCALE, -1),
+            )
+        } ?: BatteryPowerFacts.Unknown
+        provideBattery = when (action) {
+            Intent.ACTION_POWER_CONNECTED -> batteryFacts.copy(charging = true)
+            Intent.ACTION_POWER_DISCONNECTED -> batteryFacts.copy(charging = false)
+            else -> batteryFacts
+        }
+        updateProvidePaused()
+    }
+
+    /**
+     * Sets device.providePaused from every pause source at once: the matching
+     * network, Battery Saver and the charger, with the provide power mode
+     * (providePauseDecision). Setting it from one source alone would let that
+     * source clear another's pause, as the network callback used to clear any
+     * pause when a network appeared. The decision is published for the
+     * provider card's idle reason.
+     */
+    private fun updateProvidePaused() {
+        val decision = providePauseDecision(
+            ProvidePauseFacts(
+                networkAvailable = provideNetworkAvailable,
+                powerSave = providePowerSave,
+                charging = provideBattery.charging,
+                batteryPct = provideBattery.batteryPct,
+                mode = providePauseState.powerMode.value,
+            )
+        )
+        if (providePauseState.decision.value != decision) {
+            Log.i(
+                TAG,
+                "provide pause paused=${decision.paused} reason=${decision.reason} network=$provideNetworkAvailable powerSave=$providePowerSave charging=${provideBattery.charging} battery=${provideBattery.batteryPct} mode=${providePauseState.powerMode.value}",
+            )
+        }
+        providePauseState.publishDecision(decision)
+        device?.providePaused = decision.paused
     }
 
     private fun addThermalStatusListener() {
@@ -1839,7 +1928,8 @@ class MainApplication : Application() {
                 }
                 availableNetworks.onAvailable(network)
                 Log.i(TAG, "network available provider = $network count=${availableNetworks.size}")
-                callbackDevice?.providePaused = false
+                provideNetworkAvailable = true
+                updateProvidePaused()
             }
 
             override fun onLost(network: Network) {
@@ -1849,7 +1939,8 @@ class MainApplication : Application() {
                 val change = availableNetworks.onLost(network)
                 if (change.topologyChanged) {
                     Log.i(TAG, "network lost provider = $network count=${availableNetworks.size}")
-                    callbackDevice?.providePaused = !change.available
+                    provideNetworkAvailable = change.available
+                    updateProvidePaused()
                 }
             }
         }
@@ -1878,7 +1969,8 @@ class MainApplication : Application() {
             getSystemService(ConnectivityManager::class.java) as ConnectivityManager
         // Until the passive callback reports a matching path, do not expose the
         // device as a provider on a stale path from the previous configuration.
-        callbackDevice?.providePaused = true
+        provideNetworkAvailable = false
+        updateProvidePaused()
         connectivityManager.registerNetworkCallback(
             networkRequest,
             networkCallback!!,
