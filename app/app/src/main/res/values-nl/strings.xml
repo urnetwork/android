@@ -217,6 +217,7 @@
     <string name="feedback_placeholder">Vertel ons eerlijk wat je ervan vindt</string>
     <string name="feedback_sending">Verzenden…</string>
     <string name="fixed_ip">Vast IP-adres</string>
+    <string name="fixed_ip_subtitle">Houdt één exit aan voor de sessie; wisselt alleen als die aanbieder offline gaat.</string>
     <string name="forget_password">Wachtwoord vergeten?</string>
     <string name="forgot_password">Wachtwoord vergeten?</string>
     <string name="free">Gratis</string>

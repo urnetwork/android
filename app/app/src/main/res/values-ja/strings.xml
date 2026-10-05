@@ -217,6 +217,7 @@
     <string name="feedback_placeholder">本音をお聞かせください</string>
     <string name="feedback_sending">送信中…</string>
     <string name="fixed_ip">固定IP</string>
+    <string name="fixed_ip_subtitle">セッション中は同じ出口を使い続けます。そのプロバイダーがオフラインになった場合にのみ変わります。</string>
     <string name="forget_password">パスワードをお忘れですか？</string>
     <string name="forgot_password">パスワードをお忘れですか？</string>
     <string name="free">無料</string>

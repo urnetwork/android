@@ -217,6 +217,7 @@
     <string name="feedback_placeholder">Πείτε μας πώς νιώθετε πραγματικά</string>
     <string name="feedback_sending">Αποστολή…</string>
     <string name="fixed_ip">Σταθερή IP</string>
+    <string name="fixed_ip_subtitle">Διατηρεί μία έξοδο για όλη τη συνεδρία· αλλάζει μόνο αν αυτός ο πάροχος αποσυνδεθεί.</string>
     <string name="forget_password">Ξέχασες τον κωδικό σου;</string>
     <string name="forgot_password">Ξέχασες τον κωδικό σου;</string>
     <string name="free">Δωρεάν</string>

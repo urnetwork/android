@@ -434,6 +434,7 @@
     <string name="feedback_placeholder">Sag uns, was du wirklich denkst</string>
     <string name="feedback_sending">Wird gesendet…</string>
     <string name="fixed_ip">Feste IP</string>
+    <string name="fixed_ip_subtitle">Behält einen Exit für die Sitzung; wechselt nur, wenn dieser Anbieter offline geht.</string>
     <string name="forget_password">Passwort vergessen?</string>
     <string name="forgot_password">Passwort vergessen?</string>
     <string name="free">Kostenlos</string>

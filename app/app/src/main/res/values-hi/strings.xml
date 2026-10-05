@@ -217,6 +217,7 @@
     <string name="feedback_placeholder">हमें बताएं कि आप वास्तव में कैसा महसूस करते हैं</string>
     <string name="feedback_sending">भेजा जा रहा है…</string>
     <string name="fixed_ip">स्थिर IP</string>
+    <string name="fixed_ip_subtitle">पूरे सत्र में एक ही एग्ज़िट रखता है; यह तभी बदलता है जब वह प्रदाता ऑफ़लाइन हो जाए।</string>
     <string name="forget_password">अपना पासवर्ड भूल गए?</string>
     <string name="forgot_password">अपना पासवर्ड भूल गए?</string>
     <string name="free">निःशुल्क</string>

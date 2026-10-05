@@ -217,6 +217,7 @@
     <string name="feedback_placeholder">Tuambie unavyohisi</string>
     <string name="feedback_sending">Inatuma…</string>
     <string name="fixed_ip">IP ya kudumu</string>
+    <string name="fixed_ip_subtitle">Hutumia njia moja ya kutoka kwa kipindi chote; hubadilika tu ikiwa mtoa huduma huyo atatoka mtandaoni.</string>
     <string name="forget_password">Umesahau nenosiri lako?</string>
     <string name="forgot_password">Umesahau nenosiri lako?</string>
     <string name="free">Bure</string>
