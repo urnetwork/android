@@ -645,6 +645,7 @@
     <string name="payment_problem">Zahlungsproblem</string>
     <string name="payment_received_title">Zahlung erhalten</string>
     <string name="payout_wallet_updated">Auszahlungs-Wallet aktualisiert</string>
+    <string name="payouts_now_go_to">Auszahlungen gehen jetzt an %1$s.</string>
     <string name="peer_count_one">1 Peer</string>
     <string name="peer_count_other">%d Peers</string>
     <string name="pending_data_key">Ausstehend</string>

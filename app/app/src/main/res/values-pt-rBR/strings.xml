@@ -391,6 +391,7 @@
     <string name="pay_with_stripe">Junte-se com Stripe</string>
     <string name="payment_problem">Problema no pagamento</string>
     <string name="payout_wallet_updated">Carteira de pagamento atualizada</string>
+    <string name="payouts_now_go_to">Os pagamentos agora vão para %1$s.</string>
     <string name="peer_count_one">1 par</string>
     <string name="peer_count_other">%d pares</string>
     <string name="pending_data_key">Pendente</string>

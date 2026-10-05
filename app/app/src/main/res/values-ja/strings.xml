@@ -391,6 +391,7 @@
     <string name="pay_with_stripe">Stripeで参加する</string>
     <string name="payment_problem">支払いの問題</string>
     <string name="payout_wallet_updated">支払いウォレットを更新しました</string>
+    <string name="payouts_now_go_to">支払いは今後 %1$s に送られます。</string>
     <string name="peer_count_one">1 ピア</string>
     <string name="peer_count_other">%d ピア</string>
     <string name="pending_data_key">保留中</string>

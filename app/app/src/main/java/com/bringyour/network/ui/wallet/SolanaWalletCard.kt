@@ -282,6 +282,8 @@ fun SolanaWalletCard(
 
         val (status, color) = when (state) {
             is SolanaConnectState.Linked -> stringResource(id = R.string.payout_wallet_updated) to Green
+            is SolanaConnectState.Promoted ->
+                stringResource(id = R.string.payouts_now_go_to, SolanaAddress.short(state.wallet.address)) to Green
             is SolanaConnectState.Failed -> solanaFailureText(state) to Red
             else -> null to TextMuted
         }

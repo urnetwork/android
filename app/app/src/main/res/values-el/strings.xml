@@ -391,6 +391,7 @@
     <string name="pay_with_stripe">Εγγραφείτε με Stripe</string>
     <string name="payment_problem">Πρόβλημα πληρωμής</string>
     <string name="payout_wallet_updated">Το πορτοφόλι πληρωμής ενημερώθηκε</string>
+    <string name="payouts_now_go_to">Οι πληρωμές πηγαίνουν πλέον στο %1$s.</string>
     <string name="peer_count_one">1 κόμβος</string>
     <string name="peer_count_other">%d κόμβοι</string>
     <string name="pending_data_key">Σε εκκρεμότητα</string>
