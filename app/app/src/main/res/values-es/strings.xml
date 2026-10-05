@@ -468,8 +468,12 @@
     <string name="includes_free_trial_days">Incluye una prueba gratuita de %1$d días</string>
     <string name="instant_account_no_email_password">No necesitas correo ni contraseña. Tu cuenta está protegida por una frase semilla.</string>
     <string name="insufficient_balance">Saldo insuficiente</string>
+    <string name="insufficient_balance_exhausted">Te quedaste sin datos hasta la renovación gratis o hasta que mejores tu plan.</string>
     <string name="insufficient_balance_held_notice">Tu tráfico se mantiene en el túnel hasta que mejores tu plan o te desconectes.</string>
+    <string name="insufficient_balance_reconnecting">Vuelve a haber datos disponibles. Reconectando…</string>
     <string name="insufficient_balance_refreshes_in">Los datos gratis se renuevan en %1$s.</string>
+    <string name="insufficient_balance_reserved">%1$s están reservados para tus conexiones abiertas. Lo que no usen se devuelve a medida que se cierran.</string>
+    <string name="insufficient_balance_will_reconnect">Te volveremos a conectar cuando vuelva a haber datos disponibles.</string>
     <string name="insufficient_funds">Fondos insuficientes</string>
     <string name="intro_quick_connect_details">Activa y desactiva URnetwork desde Ajustes rápidos y vigílalo desde tu pantalla de inicio.</string>
     <string name="intro_quick_connect_title">Conéctate con un toque</string>

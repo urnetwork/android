@@ -240,8 +240,12 @@
     <string name="included">Uwzględnione</string>
     <string name="instant_account_no_email_password">Bez e-maila i hasła. Twoje konto jest zabezpieczone seedphrase.</string>
     <string name="insufficient_balance">Niewystarczające saldo</string>
+    <string name="insufficient_balance_exhausted">Skończyły Ci się dane do darmowego odnowienia lub przejścia na wyższy plan.</string>
     <string name="insufficient_balance_held_notice">Twój ruch jest zatrzymany w tunelu, dopóki nie przejdziesz na wyższy plan lub się nie rozłączysz.</string>
+    <string name="insufficient_balance_reconnecting">Dane są znów dostępne. Ponowne łączenie…</string>
     <string name="insufficient_balance_refreshes_in">Darmowe dane odnowią się za %1$s.</string>
+    <string name="insufficient_balance_reserved">%1$s jest zarezerwowane dla Twoich otwartych połączeń. To, czego nie wykorzystają, wraca w miarę ich zamykania.</string>
+    <string name="insufficient_balance_will_reconnect">Połączymy Cię ponownie, gdy dane znów będą dostępne.</string>
     <string name="insufficient_funds">Niewystarczające środki</string>
     <string name="invalid_referral_code">Ten kod jest nieprawidłowy</string>
     <string name="ip_address">Adres IP</string>

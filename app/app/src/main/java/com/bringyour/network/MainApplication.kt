@@ -506,6 +506,73 @@ class MainApplication : Application() {
     }
 
     /**
+     * Self-recovery for a connect insufficient balance blocked (BalanceRecovery):
+     * the refused start or the held connection is retried once the balance is
+     * back. Fed on the main thread by InsufficientBalanceNoticeEffect, so it
+     * only ever acts while the app is in front.
+     */
+    private val balanceRecovery = com.bringyour.network.ui.connect.BalanceRecovery<com.bringyour.sdk.ConnectLocation?>()
+
+    /** What the out-of-balance notice says about the recovery. Main thread. */
+    internal val balanceRecoveryState = kotlinx.coroutines.flow.MutableStateFlow(balanceRecovery.state)
+
+    /**
+     * The start connect gate refused a connect the user asked for (to
+     * `location`, or the best available provider when null): wait for the
+     * balance to retry it, and show the upgrade screen meanwhile.
+     */
+    fun startConnectBlocked(location: com.bringyour.sdk.ConnectLocation?) {
+        balanceRecovery.startRefused(location, System.currentTimeMillis())
+        balanceRecoveryState.value = balanceRecovery.state
+        requestUpgradeScreen()
+    }
+
+    /**
+     * The user connected, disconnected, signed out or cancelled the wait:
+     * nothing they asked for is waiting on the balance any more.
+     */
+    fun clearBalanceRecovery() {
+        balanceRecovery.clear()
+        balanceRecoveryState.value = balanceRecovery.state
+    }
+
+    /**
+     * Feeds the recovery the gate, the connect request and the last account
+     * balance, and makes the retry it decides on. True when it retried, so the
+     * caller tells the user.
+     */
+    fun observeBalanceRecovery(gate: Boolean, connectRequested: Boolean): Boolean {
+        val step = balanceRecovery.observe(
+            gate = gate,
+            connectRequested = connectRequested,
+            balance = com.bringyour.network.widgets.WidgetSnapshotStore.loadBalance(this),
+            nowMillis = System.currentTimeMillis(),
+        )
+        balanceRecoveryState.value = balanceRecovery.state
+        val target = when (step) {
+            com.bringyour.network.ui.connect.BalanceRecoveryStep.None -> return false
+            is com.bringyour.network.ui.connect.BalanceRecoveryStep.Start -> step.target
+            com.bringyour.network.ui.connect.BalanceRecoveryStep.Rebuild -> device?.connectLocation
+        }
+        val current = device ?: return false
+        // the gate is not asked again: the recovery decided on a fresh balance,
+        // and a held connection still reports insufficient balance until the
+        // rebuild replaces it
+        val vc = current.openConnectViewController() ?: return false
+        try {
+            Log.i(TAG, "[connect]balance is back: retrying the blocked connect")
+            if (target != null) {
+                vc.connect(target)
+            } else {
+                vc.connectBestAvailable()
+            }
+        } finally {
+            current.closeViewController(vc)
+        }
+        return true
+    }
+
+    /**
      * A campaign email link opened the app on the feedback screen with a
      * pre-filled rating or reason (ur.io/f/<token>?r=n|why=x): the login
      * activity parks the link's values here and the feedback screen consumes
@@ -1995,6 +2062,8 @@ class MainApplication : Application() {
     private fun logoutInternal() {
         stop()
         widgetSnapshotWriter?.clear()
+        // a connect the signed-out account asked for must not start later
+        clearBalanceRecovery()
 
         // the pending product events can only be sent while the jwt is still
         // set; give the queue a bounded moment to drain before it is cleared
@@ -2495,6 +2564,8 @@ class MainApplication : Application() {
         }
         val current = device ?: return
         if (!current.connectEnabled) return
+        // the user's disconnect: a held connection is not reconnected
+        clearBalanceRecovery()
 
         val vc = current.openConnectViewController() ?: run {
             Log.i(TAG, "Unable to open connect controller for VPN disconnect from $source")

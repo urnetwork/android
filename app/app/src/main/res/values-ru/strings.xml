@@ -468,8 +468,12 @@
     <string name="includes_free_trial_days">Включает бесплатный пробный период: %1$d дн.</string>
     <string name="instant_account_no_email_password">Не нужны ни почта, ни пароль. Ваш аккаунт защищён сид-фразой.</string>
     <string name="insufficient_balance">Недостаточно средств</string>
+    <string name="insufficient_balance_exhausted">Данные закончились до бесплатного обновления или повышения тарифа.</string>
     <string name="insufficient_balance_held_notice">Ваш трафик удерживается в туннеле, пока вы не повысите тариф или не отключитесь.</string>
+    <string name="insufficient_balance_reconnecting">Данные снова доступны. Переподключение…</string>
     <string name="insufficient_balance_refreshes_in">Бесплатные данные обновятся через %1$s.</string>
+    <string name="insufficient_balance_reserved">%1$s зарезервировано для ваших открытых подключений. То, что они не используют, возвращается по мере их закрытия.</string>
+    <string name="insufficient_balance_will_reconnect">Вы будете переподключены, когда данные снова станут доступны.</string>
     <string name="insufficient_funds">Недостаточно средств</string>
     <string name="intro_quick_connect_details">Включайте и выключайте URnetwork в быстрых настройках и следите за ним с главного экрана.</string>
     <string name="intro_quick_connect_title">Подключение одним касанием</string>

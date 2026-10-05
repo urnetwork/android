@@ -486,8 +486,12 @@
     <string name="includes_free_trial_days">Includes %1$d day free trial</string>
     <string name="instant_account_no_email_password">No email or password needed. Your account is secured by a seedphrase.</string>
     <string name="insufficient_balance">Insufficient balance</string>
+    <string name="insufficient_balance_exhausted">You\'re out of data until the free refresh or an upgrade.</string>
     <string name="insufficient_balance_held_notice">Your traffic is held in the tunnel until you upgrade or disconnect.</string>
+    <string name="insufficient_balance_reconnecting">Data is available again. Reconnecting…</string>
     <string name="insufficient_balance_refreshes_in">Free data refreshes in %1$s.</string>
+    <string name="insufficient_balance_reserved">%1$s is reserved for your open connections. What they don\'t use is returned as they close.</string>
+    <string name="insufficient_balance_will_reconnect">You\'ll be reconnected when data is available again.</string>
     <string name="insufficient_funds">Insufficient funds</string>
     <string name="intro_quick_connect_details">Turn URnetwork on and off from Quick Settings, and keep an eye on it from your home screen.</string>
     <string name="intro_quick_connect_title">Connect in one tap</string>

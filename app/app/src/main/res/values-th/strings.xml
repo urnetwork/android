@@ -240,8 +240,12 @@
     <string name="included">รวมไว้</string>
     <string name="instant_account_no_email_password">ไม่ต้องใช้อีเมลหรือรหัสผ่าน บัญชีของคุณได้รับการปกป้องด้วยซีดเฟรส</string>
     <string name="insufficient_balance">ยอดเงินไม่เพียงพอ</string>
+    <string name="insufficient_balance_exhausted">ข้อมูลของคุณหมดแล้วจนกว่าจะมีการรีเฟรชฟรีหรืออัปเกรด</string>
     <string name="insufficient_balance_held_notice">ทราฟฟิกของคุณถูกกักไว้ในอุโมงค์จนกว่าคุณจะอัปเกรดหรือตัดการเชื่อมต่อ</string>
+    <string name="insufficient_balance_reconnecting">มีข้อมูลใช้งานได้อีกครั้ง กำลังเชื่อมต่อใหม่…</string>
     <string name="insufficient_balance_refreshes_in">ข้อมูลฟรีจะรีเฟรชในอีก %1$s</string>
+    <string name="insufficient_balance_reserved">%1$s ถูกจองไว้สำหรับการเชื่อมต่อที่เปิดอยู่ของคุณ ส่วนที่ไม่ได้ใช้จะได้รับคืนเมื่อการเชื่อมต่อปิดลง</string>
+    <string name="insufficient_balance_will_reconnect">คุณจะได้รับการเชื่อมต่อใหม่เมื่อมีข้อมูลใช้งานได้อีกครั้ง</string>
     <string name="insufficient_funds">ยอดเงินไม่เพียงพอ</string>
     <string name="invalid_referral_code">โค้ดนี้ไม่ถูกต้อง</string>
     <string name="ip_address">ที่อยู่ IP</string>

@@ -240,8 +240,12 @@
     <string name="included">含める</string>
     <string name="instant_account_no_email_password">メールアドレスやパスワードは不要です。アカウントはシードフレーズで保護されます。</string>
     <string name="insufficient_balance">残高不足</string>
+    <string name="insufficient_balance_exhausted">無料の更新またはアップグレードまで、使えるデータがありません。</string>
     <string name="insufficient_balance_held_notice">アップグレードするか切断するまで、通信はトンネル内に保持されます。</string>
+    <string name="insufficient_balance_reconnecting">データが再び利用可能になりました。再接続しています…</string>
     <string name="insufficient_balance_refreshes_in">無料データはあと %1$s で更新されます。</string>
+    <string name="insufficient_balance_reserved">%1$s が開いている接続のために予約されています。使われなかった分は、接続が閉じるにつれて戻ります。</string>
+    <string name="insufficient_balance_will_reconnect">データが再び利用可能になると、再接続されます。</string>
     <string name="insufficient_funds">残高不足</string>
     <string name="invalid_referral_code">このコードは無効です</string>
     <string name="ip_address">IPアドレス</string>

@@ -468,8 +468,12 @@
     <string name="includes_free_trial_days">包含 %1$d 天免费试用</string>
     <string name="instant_account_no_email_password">无需邮箱或密码。您的账户由助记词保护。</string>
     <string name="insufficient_balance">余额不足</string>
+    <string name="insufficient_balance_exhausted">在免费数据更新或升级之前，你的数据已用完。</string>
     <string name="insufficient_balance_held_notice">在你升级或断开连接之前，你的流量会保留在隧道中。</string>
+    <string name="insufficient_balance_reconnecting">数据已再次可用。正在重新连接…</string>
     <string name="insufficient_balance_refreshes_in">免费数据将在 %1$s 后更新。</string>
+    <string name="insufficient_balance_reserved">%1$s 已为你当前打开的连接预留。未使用的部分会在连接关闭时退回。</string>
+    <string name="insufficient_balance_will_reconnect">数据再次可用时，将为你重新连接。</string>
     <string name="insufficient_funds">资金不足</string>
     <string name="intro_quick_connect_details">在快捷设置中开关 URnetwork，并在主屏幕上随时查看其状态。</string>
     <string name="intro_quick_connect_title">一键连接</string>

@@ -240,8 +240,12 @@
     <string name="included">शामिल</string>
     <string name="instant_account_no_email_password">ईमेल या पासवर्ड की ज़रूरत नहीं। आपका खाता एक सीडफ़्रेज़ से सुरक्षित है।</string>
     <string name="insufficient_balance">अपर्याप्त शेष राशि</string>
+    <string name="insufficient_balance_exhausted">निःशुल्क रीफ़्रेश या अपग्रेड तक आपका डेटा खत्म हो गया है।</string>
     <string name="insufficient_balance_held_notice">जब तक आप अपग्रेड या डिस्कनेक्ट नहीं करते, आपका ट्रैफ़िक टनल में रोका रहता है।</string>
+    <string name="insufficient_balance_reconnecting">डेटा फिर से उपलब्ध है। दोबारा कनेक्ट हो रहा है…</string>
     <string name="insufficient_balance_refreshes_in">निःशुल्क डेटा %1$s में रीफ़्रेश होगा।</string>
+    <string name="insufficient_balance_reserved">%1$s आपके खुले कनेक्शनों के लिए आरक्षित है। वे जो उपयोग नहीं करते, वह उनके बंद होने पर वापस मिल जाता है।</string>
+    <string name="insufficient_balance_will_reconnect">डेटा फिर से उपलब्ध होने पर आपको दोबारा कनेक्ट कर दिया जाएगा।</string>
     <string name="insufficient_funds">अपर्याप्त धन</string>
     <string name="invalid_referral_code">यह कोड मान्य नहीं है</string>
     <string name="ip_address">IP पता</string>

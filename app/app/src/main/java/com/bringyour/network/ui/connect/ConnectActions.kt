@@ -50,6 +50,7 @@ import com.bringyour.network.R
 import com.bringyour.network.ui.Route
 import com.bringyour.network.ui.components.ButtonStyle
 import com.bringyour.network.ui.components.DataInfoSheet
+import com.bringyour.network.ui.components.outOfBalanceKindText
 import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.components.URSwitch
 import com.bringyour.network.ui.components.UsageBar
@@ -75,7 +76,7 @@ import com.bringyour.sdk.ConnectLocation
 import kotlin.math.roundToInt
 
 @Composable
-fun ConnectActions(
+internal fun ConnectActions(
     navController: NavController,
     selectedLocation: ConnectLocation?,
     peerCount: Int,
@@ -96,6 +97,14 @@ fun ConnectActions(
     // (see privateDnsStrictNoticeHost). Shown only while connected in strict mode.
     privateDnsStrictHost: String?,
     insufficientBalance: Boolean,
+    // reserved (Pending) or used up, from the last account balance, and the
+    // reserved amount it names
+    outOfBalanceKind: OutOfBalanceKind,
+    reservedBytes: Long,
+    // a connect insufficient balance blocked, waiting to be retried by itself;
+    // cancelBalanceRecovery is the refused start's Cancel
+    balanceRecovery: BalanceRecoveryState,
+    cancelBalanceRecovery: () -> Unit,
     usedBytes: Long,
     availableBytes: Long,
     pendingBytes: Long,
@@ -291,7 +300,7 @@ fun ConnectActions(
             }
 
             // in-app alert, above the fold so it shows in the collapsed peek
-            val outOfBalanceNotice = outOfBalanceNotice(actionButtons)
+            val outOfBalanceNotice = outOfBalanceNotice(actionButtons, outOfBalanceKind, balanceRecovery)
 
             if (outOfBalanceNotice.refresh) {
                 Spacer(modifier = Modifier.height(8.dp))
@@ -319,6 +328,22 @@ fun ConnectActions(
                 }
             }
 
+            // reserved data comes back as connections close (no time promised);
+            // used up waits for the refresh or an upgrade
+            val outOfBalanceKindText = outOfBalanceKindText(outOfBalanceNotice.kind, reservedBytes)
+            if (outOfBalanceKindText != null) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    outOfBalanceKindText,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = TextMuted,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 4.dp)
+                        .testTag("acceptance.insufficient_balance_kind")
+                )
+            }
+
             if (outOfBalanceNotice.held) {
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
@@ -330,6 +355,36 @@ fun ConnectActions(
                         .padding(horizontal = 4.dp)
                         .testTag("acceptance.insufficient_balance_notice")
                 )
+            }
+
+            if (outOfBalanceNotice.willReconnect) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        stringResource(id = R.string.insufficient_balance_will_reconnect),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = TextMuted,
+                        modifier = Modifier
+                            .weight(1f, fill = false)
+                            .testTag("acceptance.insufficient_balance_will_reconnect")
+                    )
+                    if (outOfBalanceNotice.cancel) {
+                        Text(
+                            stringResource(id = R.string.cancel),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Pink,
+                            modifier = Modifier
+                                .clickable(role = Role.Button) { cancelBalanceRecovery() }
+                                .padding(horizontal = 8.dp, vertical = 4.dp)
+                                .testTag("acceptance.insufficient_balance_cancel_reconnect")
+                        )
+                    }
+                }
             }
 
             // Strict Private DNS breaks name resolution while connected: Android

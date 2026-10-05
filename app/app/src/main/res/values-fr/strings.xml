@@ -240,8 +240,12 @@
     <string name="included">Incluse</string>
     <string name="instant_account_no_email_password">Ni e-mail ni mot de passe. Votre compte est protégé par une phrase de récupération.</string>
     <string name="insufficient_balance">Solde insuffisant</string>
+    <string name="insufficient_balance_exhausted">Vous n’avez plus de données jusqu’au renouvellement gratuit ou à un passage à une offre supérieure.</string>
     <string name="insufficient_balance_held_notice">Votre trafic est retenu dans le tunnel jusqu’à ce que vous passiez à une offre supérieure ou que vous vous déconnectiez.</string>
+    <string name="insufficient_balance_reconnecting">Des données sont de nouveau disponibles. Reconnexion…</string>
     <string name="insufficient_balance_refreshes_in">Les données gratuites seront renouvelées dans %1$s.</string>
+    <string name="insufficient_balance_reserved">%1$s sont réservés à vos connexions ouvertes. Ce qu’elles n’utilisent pas vous est rendu à mesure qu’elles se ferment.</string>
+    <string name="insufficient_balance_will_reconnect">Vous serez reconnecté dès que des données seront de nouveau disponibles.</string>
     <string name="insufficient_funds">Fonds insuffisants</string>
     <string name="invalid_referral_code">Ce code n\'est pas valide</string>
     <string name="ip_address">Adresse IP</string>

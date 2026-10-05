@@ -514,6 +514,119 @@ class InsufficientBalancePolicyTest {
     }
 
     @Test
+    fun reservedWhenOpenConnectionsHoldEnoughToBringDataBack() {
+        // the reported case: barely used, but open (or abandoned) connections
+        // hold the balance as Pending
+        assertEquals(
+            OutOfBalanceKind.RESERVED,
+            outOfBalanceKind(balance(balanceByteCount = 0, openTransferByteCount = 30L * 1024 * 1024 * 1024)),
+        )
+        assertEquals(
+            OutOfBalanceKind.RESERVED,
+            outOfBalanceKind(
+                balance(
+                    balanceByteCount = BALANCE_RECOVERY_THRESHOLD_BYTES - 1,
+                    openTransferByteCount = BALANCE_RECOVERY_THRESHOLD_BYTES,
+                )
+            ),
+        )
+    }
+
+    @Test
+    fun exhaustedWhenLittleOrNothingIsReserved() {
+        assertEquals(OutOfBalanceKind.EXHAUSTED, outOfBalanceKind(balance(balanceByteCount = 0, openTransferByteCount = 0)))
+        assertEquals(
+            OutOfBalanceKind.EXHAUSTED,
+            outOfBalanceKind(balance(balanceByteCount = 0, openTransferByteCount = BALANCE_RECOVERY_THRESHOLD_BYTES - 1)),
+        )
+    }
+
+    @Test
+    fun neitherReservedNorExhaustedWithoutAnOutOfBalanceReading() {
+        assertEquals(OutOfBalanceKind.UNKNOWN, outOfBalanceKind(null))
+        assertEquals(OutOfBalanceKind.UNKNOWN, outOfBalanceKind(balance(isPro = true)))
+        // the reading says data is available: the block is about to clear
+        assertEquals(
+            OutOfBalanceKind.UNKNOWN,
+            outOfBalanceKind(
+                balance(
+                    balanceByteCount = BALANCE_RECOVERY_THRESHOLD_BYTES,
+                    openTransferByteCount = 30L * 1024 * 1024 * 1024,
+                )
+            ),
+        )
+    }
+
+    @Test
+    fun outOfBalanceNoticeSaysReservedOrExhaustedOnlyInTheGate() {
+        for (kind in OutOfBalanceKind.entries) {
+            for (status in requestedStatuses + ConnectStatus.DISCONNECTED) {
+                val gated = connectActionButtons(
+                    insufficientBalance = true,
+                    currentPlan = Plan.Basic,
+                    isPollingSubscriptionBalance = false,
+                    connectStatus = status,
+                    displayReconnectTunnel = false,
+                )
+                assertEquals("$kind $status", kind, outOfBalanceNotice(gated, kind).kind)
+                val funded = connectActionButtons(
+                    insufficientBalance = false,
+                    currentPlan = Plan.Basic,
+                    isPollingSubscriptionBalance = false,
+                    connectStatus = status,
+                    displayReconnectTunnel = false,
+                )
+                assertEquals("$kind $status funded", OutOfBalanceKind.UNKNOWN, outOfBalanceNotice(funded, kind).kind)
+            }
+        }
+    }
+
+    @Test
+    fun outOfBalanceNoticeSaysTheConnectComesBackByItself() {
+        val held = connectActionButtons(
+            insufficientBalance = true,
+            currentPlan = Plan.Basic,
+            isPollingSubscriptionBalance = false,
+            connectStatus = ConnectStatus.CONNECTED,
+            displayReconnectTunnel = false,
+        )
+        val blockedDisconnected = connectActionButtons(
+            insufficientBalance = true,
+            currentPlan = Plan.Basic,
+            isPollingSubscriptionBalance = false,
+            connectStatus = ConnectStatus.DISCONNECTED,
+            displayReconnectTunnel = false,
+        )
+        val ungatedDisconnected = connectActionButtons(
+            insufficientBalance = false,
+            currentPlan = Plan.Basic,
+            isPollingSubscriptionBalance = false,
+            connectStatus = ConnectStatus.DISCONNECTED,
+            displayReconnectTunnel = false,
+        )
+        val waiting = BalanceRecoveryState(startWaiting = false, retriesLeft = true)
+        val startWaiting = BalanceRecoveryState(startWaiting = true, retriesLeft = true)
+        val spent = BalanceRecoveryState(startWaiting = false, retriesLeft = false)
+
+        // a held connection is rebuilt by itself; Disconnect is its way out
+        val heldNotice = outOfBalanceNotice(held, recovery = waiting)
+        assertTrue(heldNotice.willReconnect)
+        assertFalse(heldNotice.cancel)
+        // a refused start waits with Cancel, also once the gate has lifted
+        for (buttons in listOf(blockedDisconnected, ungatedDisconnected)) {
+            val notice = outOfBalanceNotice(buttons, recovery = startWaiting)
+            assertTrue("$buttons", notice.willReconnect)
+            assertTrue("$buttons", notice.cancel)
+        }
+        // nothing the user asked for is waiting: no promise
+        assertFalse(outOfBalanceNotice(blockedDisconnected, recovery = waiting).willReconnect)
+        assertFalse(outOfBalanceNotice(ungatedDisconnected, recovery = waiting).willReconnect)
+        // the retries are used up: no promise
+        assertFalse(outOfBalanceNotice(held, recovery = spent).willReconnect)
+        assertFalse(outOfBalanceNotice(held).willReconnect)
+    }
+
+    @Test
     fun upgradeShowsTheRefreshOnlyWhenABlockedConnectOpenedIt() {
         assertTrue(upgradeShowsFreeRefresh(openedByStartConnectBlock = true, currentPlan = Plan.Basic))
         // Get Pro, Account's Change, the onboarding links
