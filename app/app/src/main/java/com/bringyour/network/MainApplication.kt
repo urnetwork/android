@@ -603,6 +603,60 @@ class MainApplication : Application() {
     }
 
     /**
+     * Reports the mobile network's country to the sdk (P052). The extender
+     * dials of every network space front with the spoof list of that country
+     * while the extender hint cannot be fetched, as on a whitelist-only mobile
+     * network; see NetworkCountryReporter. The value never leaves the device.
+     */
+    private val networkCountryReporter = NetworkCountryReporter(
+        readNetworkCountryIso = {
+            runCatching { getSystemService(TelephonyManager::class.java)?.networkCountryIso }.getOrNull()
+        },
+        report = { countryCode ->
+            Log.i(TAG, "network country = \"$countryCode\"")
+            Sdk.setNetworkCountryCode(countryCode)
+        },
+    )
+    private var networkCountryCallback: ConnectivityManager.NetworkCallback? = null
+
+    /**
+     * Reports the current default network's country, then follows the default
+     * network for the life of the process. It runs before the network space
+     * manager builds its spaces, whose first extender dials already need it,
+     * and it is not tied to the device: the login flow dials too.
+     */
+    private fun addNetworkCountryCallback() {
+        if (networkCountryCallback != null) return
+        val connectivityManager = getSystemService(ConnectivityManager::class.java) ?: return
+        // synchronously: the callback's first delivery is posted, and the
+        // spaces built right after this dial before it lands
+        networkCountryReporter.defaultNetworkChanged(isActiveNetworkCellular())
+        val callback = object : ConnectivityManager.NetworkCallback() {
+            override fun onCapabilitiesChanged(
+                network: Network,
+                networkCapabilities: NetworkCapabilities,
+            ) {
+                if (networkCountryCallback !== this) return
+                networkCountryReporter.defaultNetworkChanged(
+                    networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR),
+                )
+            }
+
+            override fun onLost(network: Network) {
+                if (networkCountryCallback !== this) return
+                networkCountryReporter.defaultNetworkChanged(isCellular = false)
+            }
+        }
+        networkCountryCallback = callback
+        runCatching {
+            connectivityManager.registerDefaultNetworkCallback(callback, Handler(mainLooper))
+        }.onFailure {
+            networkCountryCallback = null
+            Log.w(TAG, "network country callback unavailable: ${it.message}")
+        }
+    }
+
+    /**
      * Probe step (a): a bounded https GET of the api `/status` endpoint. Reaching
      * the server with any http response means the control plane is routable; a
      * timeout or connection error on a whitelist network is the signal we want.
@@ -888,6 +942,11 @@ class MainApplication : Application() {
         // even when the user never opens the provider locations sheet.
         mockLocationController.start()
         mockLocationFeeder.start()
+
+        // The mobile network's country, before the network space manager
+        // builds its spaces: their extender dials front with that country's
+        // spoof list while the extender hint cannot be fetched (P052).
+        addNetworkCountryCallback()
 
         networkSpaceManagerProvider.init(filesDir.absolutePath)
 
