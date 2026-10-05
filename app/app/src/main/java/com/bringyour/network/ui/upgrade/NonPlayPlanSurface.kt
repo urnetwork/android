@@ -57,7 +57,7 @@ fun NonPlayPlanSurface(
             reference,
             plan,
             { quote ->
-                // the quote is the SERVER's: the webhook checks the payment against its
+                // the quote is the server's: the webhook checks the payment against its
                 // amount, and credits the merchant address it names
                 ClientEvents.purchaseStarted(Sdk.EventStoreSolana, ClientEvents.PRODUCT_SOLANA_PRO_YEARLY, plan, false, quote.amountUsd, "USD")
                 if (presentation.offer != null) {

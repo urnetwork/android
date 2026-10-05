@@ -3,7 +3,7 @@ package com.bringyour.network.acceptance
 import com.bringyour.network.utils.SolanaPaymentQuote
 
 /**
- * Checks the Solana Pay request THIS CLIENT built against what the server
+ * Checks the Solana Pay request this client built against what the server
  * quoted: the price and where to pay it.
  *
  * Why this exists as its own contract. Every server-side payment test builds
