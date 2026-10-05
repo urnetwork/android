@@ -179,6 +179,12 @@
     <string name="daily_data_balance_label">Daily Data Balance:</string>
     <string name="data">Data</string>
     <string name="data_bar_explanation">This bar in the app shows you how much free data you are earning from your provider. You can check in any time and adjust your settings to maximize your earnings.</string>
+    <string name="data_info_available">Data you can still use.</string>
+    <string name="data_info_pending">Data reserved for your open connections. What they don\'t use is returned when they close.</string>
+    <string name="data_info_refresh_at">Free data refreshes daily at 00:00 UTC (in %1$s).</string>
+    <string name="data_info_title">About your data</string>
+    <string name="data_info_used">Data you\'ve used so far.</string>
+    <string name="data_info_why">Why?</string>
     <string name="data_usage">Data usage</string>
     <string name="default_daily_data">By default, you get %1$s every day.</string>
     <string name="default_wallet">Default</string>
@@ -470,6 +476,7 @@
     <string name="instant_account_no_email_password">No email or password needed. Your account is secured by a seedphrase.</string>
     <string name="insufficient_balance">Insufficient balance</string>
     <string name="insufficient_balance_held_notice">Your traffic is held in the tunnel until you upgrade or disconnect.</string>
+    <string name="insufficient_balance_refreshes_in">Free data refreshes in %1$s.</string>
     <string name="insufficient_funds">Insufficient funds</string>
     <string name="intro_quick_connect_details">Turn URnetwork on and off from Quick Settings, and keep an eye on it from your home screen.</string>
     <string name="intro_quick_connect_title">Connect in one tap</string>
@@ -932,6 +939,7 @@
     <string name="verify_send_error">Error</string>
     <string name="version_info">Version and build info</string>
     <string name="via_exit">via %1$s</string>
+    <string name="wait_for_refresh">Wait for refresh</string>
     <string name="wallet">Wallet</string>
     <string name="wallet_blocked">This wallet can\'t be used with URnetwork.</string>
     <string name="wallet_connected_to_protocol">Connected to the UR protocol. Claims land here. Alpha accrues from the next epoch after connecting.</string>

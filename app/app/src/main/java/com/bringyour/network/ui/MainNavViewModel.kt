@@ -1,6 +1,7 @@
 package com.bringyour.network.ui
 
 import androidx.lifecycle.ViewModel
+import androidx.navigation.NavController
 import com.bringyour.network.DeviceManager
 import com.bringyour.network.R
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -125,6 +126,21 @@ sealed class Route {
     @Serializable object Extenders : Route()
     @Serializable object ShareExtenders : Route()
     @Serializable object ImportExtenders : Route()
+}
+
+// Set on the upgrade destination's saved state when a start connect blocked by
+// insufficient balance opened it (see upgradeShowsFreeRefresh). Route.Upgrade
+// stays an object, so Route.fromString keeps resolving it.
+const val UPGRADE_OPENED_BY_BALANCE_BLOCK = "upgrade_opened_by_balance_block"
+
+/**
+ * Opens the upgrade screen for a start connect blocked by insufficient
+ * balance: the screen then leads with when the free data refreshes and offers
+ * Wait for refresh. Other upgrade entries navigate to Route.Upgrade directly.
+ */
+fun NavController.navigateToUpgradeForBalanceBlock() {
+    navigate(Route.Upgrade)
+    currentBackStackEntry?.savedStateHandle?.set(UPGRADE_OPENED_BY_BALANCE_BLOCK, true)
 }
 
 

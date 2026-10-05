@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -28,11 +29,16 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.bringyour.network.R
@@ -57,8 +63,15 @@ fun UsageBar(
     showReferrals: Boolean = true,
     // the referral read behind the referral row's figures
     referralCountLoad: SectionLoad = LocalReferralCountLoad.current,
+    // the data sheet says when the free data refreshes; off for Pro, which
+    // gets no free daily grant (see dataInfoShowsFreeRefresh)
+    showFreeRefresh: Boolean = true,
 ) {
     
+    // the "About your data" sheet, opened from the info button by the daily
+    // balance
+    var dataInfoPresented by remember { mutableStateOf(false) }
+
     val totalBytes = usedBytes + pendingBytes + availableBytes
     val cornerRadius = 6.dp
 
@@ -203,13 +216,29 @@ fun UsageBar(
          */
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                stringResource(id = R.string.daily_data_balance_label),
-                style = MaterialTheme.typography.bodyMedium,
-                color = TextMuted
-            )
+            val dataInfoLabel = stringResource(id = R.string.data_info_title)
+            Row(
+                modifier = Modifier.clickable(role = Role.Button) { dataInfoPresented = true },
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    stringResource(id = R.string.daily_data_balance_label),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = TextMuted
+                )
+
+                Spacer(modifier = Modifier.width(4.dp))
+
+                Icon(
+                    Icons.Outlined.Info,
+                    contentDescription = dataInfoLabel,
+                    tint = TextMuted,
+                    modifier = Modifier.size(16.dp)
+                )
+            }
 
             
             Text(
@@ -218,6 +247,15 @@ fun UsageBar(
                 color = TextMuted
             )
         }
+
+        DataInfoSheet(
+            presented = dataInfoPresented,
+            onDismiss = { dataInfoPresented = false },
+            startBalanceByteCount = dailyByteCount,
+            availableByteCount = availableBytes,
+            pendingByteCount = pendingBytes,
+            showFreeRefresh = showFreeRefresh,
+        )
 
         if (!showReferrals) {
             return@Column

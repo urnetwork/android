@@ -128,6 +128,12 @@
     <string name="daily_data_balance_label">일일 데이터 잔액:</string>
     <string name="data">데이터</string>
     <string name="data_bar_explanation">앱의 이 막대는 제공자로부터 얼마나 많은 무료 데이터를 얻고 있는지 보여줍니다. 언제든지 확인하고 설정을 조정하여 수익을 극대화할 수 있습니다.</string>
+    <string name="data_info_available">아직 사용할 수 있는 데이터입니다.</string>
+    <string name="data_info_pending">열려 있는 연결을 위해 예약된 데이터입니다. 사용하지 않은 만큼은 연결이 닫히면 돌아옵니다.</string>
+    <string name="data_info_refresh_at">무료 데이터는 매일 00:00 UTC에 갱신됩니다(%1$s 후).</string>
+    <string name="data_info_title">내 데이터 안내</string>
+    <string name="data_info_used">지금까지 사용한 데이터입니다.</string>
+    <string name="data_info_why">왜 그런가요?</string>
     <string name="data_usage">데이터 사용량</string>
     <string name="default_wallet">기본값</string>
     <string name="delete">삭제</string>
@@ -223,6 +229,7 @@
     <string name="instant_account_no_email_password">이메일이나 비밀번호가 필요 없습니다. 계정은 시드 문구로 보호됩니다.</string>
     <string name="insufficient_balance">잔액 부족</string>
     <string name="insufficient_balance_held_notice">업그레이드하거나 연결을 해제할 때까지 트래픽이 터널 안에 보류됩니다.</string>
+    <string name="insufficient_balance_refreshes_in">무료 데이터는 %1$s 후에 갱신됩니다.</string>
     <string name="insufficient_funds">잔액 부족</string>
     <string name="invalid_referral_code">이 코드는 유효하지 않습니다</string>
     <string name="ip_address">IP 주소</string>
@@ -579,6 +586,7 @@
     <string name="verify_send_error">오류</string>
     <string name="version_info">버전 및 빌드 정보</string>
     <string name="via_exit">%1$s 경유</string>
+    <string name="wait_for_refresh">갱신 기다리기</string>
     <string name="wallet">지갑</string>
     <string name="wallet_sign_in_method_added">지갑 로그인 방법이 추가되었습니다</string>
     <string name="welcome_offer_eyebrow">웰컴 오퍼</string>

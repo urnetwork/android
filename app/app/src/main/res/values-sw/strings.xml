@@ -128,6 +128,12 @@
     <string name="daily_data_balance_label">Salio la data ya kila siku:</string>
     <string name="data">Data</string>
     <string name="data_bar_explanation">Upau huu kwenye programu unaonyesha ni kiasi gani cha data ya bure unachopata kutoka kwa mtoa huduma wako. Unaweza kukagua wakati wowote na kurekebisha mipangilio yako ili kuongeza mapato yako.</string>
+    <string name="data_info_available">Data ambayo bado unaweza kutumia.</string>
+    <string name="data_info_pending">Data iliyohifadhiwa kwa ajili ya miunganisho yako iliyo wazi. Isiyotumika hurejeshwa miunganisho hiyo inapofungwa.</string>
+    <string name="data_info_refresh_at">Data ya bure husasishwa kila siku saa 00:00 UTC (baada ya %1$s).</string>
+    <string name="data_info_title">Kuhusu data yako</string>
+    <string name="data_info_used">Data uliyotumia hadi sasa.</string>
+    <string name="data_info_why">Kwa nini?</string>
     <string name="data_usage">Matumizi ya data</string>
     <string name="default_wallet">Chaguo msingi</string>
     <string name="delete">Futa</string>
@@ -223,6 +229,7 @@
     <string name="instant_account_no_email_password">Hakuna haja ya barua pepe au nenosiri. Akaunti yako inalindwa na seedphrase.</string>
     <string name="insufficient_balance">Salio halitoshi</string>
     <string name="insufficient_balance_held_notice">Trafiki yako imeshikiliwa ndani ya handaki hadi upandishe kiwango au utenganishe.</string>
+    <string name="insufficient_balance_refreshes_in">Data ya bure itasasishwa baada ya %1$s.</string>
     <string name="insufficient_funds">Fedha haitoshi</string>
     <string name="invalid_referral_code">Msimbo huu si sahihi</string>
     <string name="ip_address">Anwani ya IP</string>
@@ -579,6 +586,7 @@
     <string name="verify_send_error">Hitilafu</string>
     <string name="version_info">Taarifa za toleo na ujenzi</string>
     <string name="via_exit">kupitia %1$s</string>
+    <string name="wait_for_refresh">Subiri usasishaji</string>
     <string name="wallet">Pochi</string>
     <string name="wallet_sign_in_method_added">Njia ya kuingia kwa pochi imeongezwa</string>
     <string name="welcome_offer_eyebrow">Ofa ya karibu</string>

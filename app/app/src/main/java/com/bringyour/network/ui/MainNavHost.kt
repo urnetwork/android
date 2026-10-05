@@ -49,6 +49,8 @@ import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.NavigationDrawerItemDefaults
 import androidx.compose.material3.NavigationRailItemDefaults
 import com.bringyour.network.ui.connect.InsufficientBalanceNoticeEffect
+import com.bringyour.network.ui.connect.upgradeShowsFreeRefresh
+import com.bringyour.network.ui.components.LocalUpgradeWaitForRefresh
 import com.bringyour.network.ui.connect.ConnectDrawerState
 import com.bringyour.network.ui.connect.rememberConnectDrawerState
 import androidx.compose.material3.SheetValue
@@ -403,7 +405,7 @@ private fun MainNavHostContent(
             // a connect blocked by insufficient balance: the upgrade the connect
             // screen offers in place of Connect
             selectTopLevelRoute(TopLevelScaffoldRoutes.CONNECT_CONTAINER)
-            navController.navigate(Route.Upgrade)
+            navController.navigateToUpgradeForBalanceBlock()
             return@LaunchedEffect
         }
         // the campaign email links land on Account screens: the widgets page, the
@@ -1395,7 +1397,7 @@ fun MainNavContent(
             exitTransition = NavigationAnimations.exitTransition(),
             popEnterTransition = NavigationAnimations.popEnterTransition(),
             popExitTransition = NavigationAnimations.popExitTransition()
-        ) {
+        ) { backStackEntry ->
             // every upgrade entry lands here; a guest network has no login to
             // come back to, so it adds a sign-in method first and is not sold a plan
             if (GuestAccount.upgradeEntry(isGuestNetwork) == UpgradeEntry.AddSignInMethod) {
@@ -1408,19 +1410,31 @@ fun MainNavContent(
                 )
                 return@composable
             }
-            UpgradeScreen(
-                navController = navController,
-                planViewModel = planViewModel,
-                subscriptionBalanceViewModel = subscriptionBalanceViewModel,
-                setPendingSolanaSubscriptionReference = solanaPaymentViewModel.setPendingSolanaSubscriptionReference,
-                createSolanaPaymentIntent = solanaPaymentViewModel.createSolanaPaymentIntent,
-                onStripePaymentSuccess = {
-                    // the overlay follows the server's confirmation (purchaseConfirmedSequence)
-                    subscriptionBalanceViewModel.confirmPurchase()
-                    navController.popBackStack()
-                },
-                isCheckingSolanaTransaction = isCheckingSolanaTransaction
-            )
+            // opened by a blocked start connect: the header leads with when the
+            // free data refreshes and offers Wait for refresh, which closes it
+            val openedByBalanceBlock =
+                backStackEntry.savedStateHandle.get<Boolean>(UPGRADE_OPENED_BY_BALANCE_BLOCK) == true
+            val waitForRefresh: (() -> Unit)? =
+                if (upgradeShowsFreeRefresh(openedByBalanceBlock, if (isPro) Plan.Supporter else Plan.Basic)) {
+                    { navController.popBackStack() }
+                } else {
+                    null
+                }
+            CompositionLocalProvider(LocalUpgradeWaitForRefresh provides waitForRefresh) {
+                UpgradeScreen(
+                    navController = navController,
+                    planViewModel = planViewModel,
+                    subscriptionBalanceViewModel = subscriptionBalanceViewModel,
+                    setPendingSolanaSubscriptionReference = solanaPaymentViewModel.setPendingSolanaSubscriptionReference,
+                    createSolanaPaymentIntent = solanaPaymentViewModel.createSolanaPaymentIntent,
+                    onStripePaymentSuccess = {
+                        // the overlay follows the server's confirmation (purchaseConfirmedSequence)
+                        subscriptionBalanceViewModel.confirmPurchase()
+                        navController.popBackStack()
+                    },
+                    isCheckingSolanaTransaction = isCheckingSolanaTransaction
+                )
+            }
         }
 
         navigation<Route.AccountContainer>(

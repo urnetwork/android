@@ -173,6 +173,12 @@
     <string name="daily_data_balance_label">Дневной баланс данных:</string>
     <string name="data">Данные</string>
     <string name="data_bar_explanation">Эта шкала в приложении показывает, сколько бесплатных данных вы получаете от своего провайдера. Вы можете проверить это в любое время и настроить параметры для максимизации заработка.</string>
+    <string name="data_info_available">Данные, которые вы ещё можете использовать.</string>
+    <string name="data_info_pending">Данные, зарезервированные для ваших открытых подключений. То, что они не используют, возвращается, когда они закрываются.</string>
+    <string name="data_info_refresh_at">Бесплатные данные обновляются ежедневно в 00:00 UTC (через %1$s).</string>
+    <string name="data_info_title">О ваших данных</string>
+    <string name="data_info_used">Данные, которые вы уже использовали.</string>
+    <string name="data_info_why">Почему?</string>
     <string name="data_usage">Использование данных</string>
     <string name="default_daily_data">По умолчанию вы получаете %1$s каждый день.</string>
     <string name="default_wallet">По умолчанию</string>
@@ -452,6 +458,7 @@
     <string name="instant_account_no_email_password">Не нужны ни почта, ни пароль. Ваш аккаунт защищён сид-фразой.</string>
     <string name="insufficient_balance">Недостаточно средств</string>
     <string name="insufficient_balance_held_notice">Ваш трафик удерживается в туннеле, пока вы не повысите тариф или не отключитесь.</string>
+    <string name="insufficient_balance_refreshes_in">Бесплатные данные обновятся через %1$s.</string>
     <string name="insufficient_funds">Недостаточно средств</string>
     <string name="intro_quick_connect_details">Включайте и выключайте URnetwork в быстрых настройках и следите за ним с главного экрана.</string>
     <string name="intro_quick_connect_title">Подключение одним касанием</string>
@@ -908,6 +915,7 @@
     <string name="verify_send_error">Ошибка</string>
     <string name="version_info">Информация о версии и сборке</string>
     <string name="via_exit">через %1$s</string>
+    <string name="wait_for_refresh">Дождаться обновления</string>
     <string name="wallet">Кошелек</string>
     <string name="wallet_blocked">Этот кошелек нельзя использовать с URnetwork.</string>
     <string name="wallet_connected_to_protocol">Подключено к протоколу UR. Полученные средства поступают сюда. Alpha начисляется со следующей эпохи после подключения.</string>

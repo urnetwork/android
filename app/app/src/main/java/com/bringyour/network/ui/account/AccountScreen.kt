@@ -61,6 +61,7 @@ import com.bringyour.network.ui.components.URNavListItem
 import com.bringyour.network.ui.components.AccountSwitcher
 import com.bringyour.network.ui.components.LoginMode
 import com.bringyour.network.ui.components.UsageBar
+import com.bringyour.network.ui.components.dataInfoShowsFreeRefresh
 import com.bringyour.network.ui.components.overlays.OverlayMode
 import com.bringyour.network.ui.components.redeemTransferBalanceCode.RedeemTransferBalanceCodeSheet
 import com.bringyour.network.ui.shared.viewmodels.OverlayViewModel
@@ -303,7 +304,8 @@ fun AccountScreenContent(
                         } else {
                             navController.navigate(Route.GuestConversion)
                         }
-                    }
+                    },
+                    showFreeRefresh = dataInfoShowsFreeRefresh(currentPlan),
                 )
                 
                 Spacer(modifier = Modifier.height(8.dp))

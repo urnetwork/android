@@ -173,6 +173,12 @@
     <string name="daily_data_balance_label">每日数据余额：</string>
     <string name="data">数据</string>
     <string name="data_bar_explanation">应用中的此条形图显示您从提供者获得了多少免费数据。您可以随时查看并调整设置以最大化收益。</string>
+    <string name="data_info_available">你仍可使用的数据。</string>
+    <string name="data_info_pending">为你当前打开的连接预留的数据。未使用的部分会在连接关闭时退回。</string>
+    <string name="data_info_refresh_at">免费数据每天 00:00 UTC 更新（还有 %1$s）。</string>
+    <string name="data_info_title">关于你的数据</string>
+    <string name="data_info_used">你目前已使用的数据。</string>
+    <string name="data_info_why">为什么？</string>
     <string name="data_usage">数据使用量</string>
     <string name="default_daily_data">默认情况下，您每天可获得 %1$s。</string>
     <string name="default_wallet">默认</string>
@@ -452,6 +458,7 @@
     <string name="instant_account_no_email_password">无需邮箱或密码。您的账户由助记词保护。</string>
     <string name="insufficient_balance">余额不足</string>
     <string name="insufficient_balance_held_notice">在你升级或断开连接之前，你的流量会保留在隧道中。</string>
+    <string name="insufficient_balance_refreshes_in">免费数据将在 %1$s 后更新。</string>
     <string name="insufficient_funds">资金不足</string>
     <string name="intro_quick_connect_details">在快捷设置中开关 URnetwork，并在主屏幕上随时查看其状态。</string>
     <string name="intro_quick_connect_title">一键连接</string>
@@ -908,6 +915,7 @@
     <string name="verify_send_error">错误</string>
     <string name="version_info">版本和构建信息</string>
     <string name="via_exit">经由 %1$s</string>
+    <string name="wait_for_refresh">等待更新</string>
     <string name="wallet">钱包</string>
     <string name="wallet_blocked">此钱包无法用于 URnetwork。</string>
     <string name="wallet_connected_to_protocol">已连接到 UR 协议。领取的收益将存入此处。Alpha 从连接后的下一个周期开始累积。</string>

@@ -173,6 +173,12 @@
     <string name="daily_data_balance_label">Saldo diario de datos:</string>
     <string name="data">Datos</string>
     <string name="data_bar_explanation">Esta barra en la app te muestra cuántos datos gratis estás ganando de tu proveedor. Puedes revisar en cualquier momento y ajustar tus configuraciones para maximizar tus ganancias.</string>
+    <string name="data_info_available">Datos que todavía puedes usar.</string>
+    <string name="data_info_pending">Datos reservados para tus conexiones abiertas. Lo que no usen se devuelve cuando se cierran.</string>
+    <string name="data_info_refresh_at">Los datos gratis se renuevan cada día a las 00:00 UTC (en %1$s).</string>
+    <string name="data_info_title">Acerca de tus datos</string>
+    <string name="data_info_used">Datos que has usado hasta ahora.</string>
+    <string name="data_info_why">¿Por qué?</string>
     <string name="data_usage">Uso de datos</string>
     <string name="default_daily_data">De forma predeterminada, recibes %1$s cada día.</string>
     <string name="default_wallet">Predeterminado</string>
@@ -452,6 +458,7 @@
     <string name="instant_account_no_email_password">No necesitas correo ni contraseña. Tu cuenta está protegida por una frase semilla.</string>
     <string name="insufficient_balance">Saldo insuficiente</string>
     <string name="insufficient_balance_held_notice">Tu tráfico se mantiene en el túnel hasta que mejores tu plan o te desconectes.</string>
+    <string name="insufficient_balance_refreshes_in">Los datos gratis se renuevan en %1$s.</string>
     <string name="insufficient_funds">Fondos insuficientes</string>
     <string name="intro_quick_connect_details">Activa y desactiva URnetwork desde Ajustes rápidos y vigílalo desde tu pantalla de inicio.</string>
     <string name="intro_quick_connect_title">Conéctate con un toque</string>
@@ -908,6 +915,7 @@
     <string name="verify_send_error">Error</string>
     <string name="version_info">Información de versión y compilación</string>
     <string name="via_exit">vía %1$s</string>
+    <string name="wait_for_refresh">Esperar la renovación</string>
     <string name="wallet">Billetera</string>
     <string name="wallet_blocked">Esta billetera no se puede usar con URnetwork.</string>
     <string name="wallet_connected_to_protocol">Conectado al protocolo UR. Lo que reclames llega aquí. El Alpha se acumula a partir de la siguiente época tras conectarte.</string>

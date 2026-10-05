@@ -128,6 +128,12 @@
     <string name="daily_data_balance_label">ยอดคงเหลือข้อมูลรายวัน:</string>
     <string name="data">ข้อมูล</string>
     <string name="data_bar_explanation">แถบนี้ในแอปจะแสดงให้คุณเห็นว่าคุณได้รับข้อมูลฟรีจากผู้ให้บริการมากแค่ไหน คุณสามารถตรวจสอบได้ทุกเมื่อและปรับการตั้งค่าเพื่อเพิ่มรายได้สูงสุด</string>
+    <string name="data_info_available">ข้อมูลที่คุณยังใช้ได้</string>
+    <string name="data_info_pending">ข้อมูลที่จองไว้สำหรับการเชื่อมต่อที่เปิดอยู่ของคุณ ส่วนที่ไม่ได้ใช้จะได้รับคืนเมื่อการเชื่อมต่อปิดลง</string>
+    <string name="data_info_refresh_at">ข้อมูลฟรีจะรีเฟรชทุกวันเวลา 00:00 UTC (อีก %1$s)</string>
+    <string name="data_info_title">เกี่ยวกับข้อมูลของคุณ</string>
+    <string name="data_info_used">ข้อมูลที่คุณใช้ไปแล้ว</string>
+    <string name="data_info_why">ทำไม?</string>
     <string name="data_usage">การใช้ข้อมูล</string>
     <string name="default_wallet">ค่าเริ่มต้น</string>
     <string name="delete">ลบ</string>
@@ -223,6 +229,7 @@
     <string name="instant_account_no_email_password">ไม่ต้องใช้อีเมลหรือรหัสผ่าน บัญชีของคุณได้รับการปกป้องด้วยซีดเฟรส</string>
     <string name="insufficient_balance">ยอดเงินไม่เพียงพอ</string>
     <string name="insufficient_balance_held_notice">ทราฟฟิกของคุณถูกกักไว้ในอุโมงค์จนกว่าคุณจะอัปเกรดหรือตัดการเชื่อมต่อ</string>
+    <string name="insufficient_balance_refreshes_in">ข้อมูลฟรีจะรีเฟรชในอีก %1$s</string>
     <string name="insufficient_funds">ยอดเงินไม่เพียงพอ</string>
     <string name="invalid_referral_code">โค้ดนี้ไม่ถูกต้อง</string>
     <string name="ip_address">ที่อยู่ IP</string>
@@ -579,6 +586,7 @@
     <string name="verify_send_error">ข้อผิดพลาด</string>
     <string name="version_info">เวอร์ชั่นและข้อมูล build</string>
     <string name="via_exit">ผ่าน %1$s</string>
+    <string name="wait_for_refresh">รอการรีเฟรช</string>
     <string name="wallet">กระเป๋า</string>
     <string name="wallet_sign_in_method_added">เพิ่มวิธีลงชื่อเข้าใช้ด้วยกระเป๋าเงินแล้ว</string>
     <string name="welcome_offer_eyebrow">ข้อเสนอต้อนรับ</string>

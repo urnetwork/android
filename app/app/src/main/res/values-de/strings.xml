@@ -173,6 +173,12 @@
     <string name="daily_data_balance_label">Tägliches Datenvolumen:</string>
     <string name="data">Daten</string>
     <string name="data_bar_explanation">Dieser Balken in der App zeigt dir, wie viel kostenlose Daten du von deinem Anbieter erhältst. Du kannst jederzeit nachsehen und deine Einstellungen anpassen, um deine Einnahmen zu maximieren.</string>
+    <string name="data_info_available">Daten, die du noch nutzen kannst.</string>
+    <string name="data_info_pending">Daten, die für deine offenen Verbindungen reserviert sind. Was sie nicht verbrauchen, wird zurückgegeben, wenn sie geschlossen werden.</string>
+    <string name="data_info_refresh_at">Kostenlose Daten werden täglich um 00:00 UTC erneuert (in %1$s).</string>
+    <string name="data_info_title">Über deine Daten</string>
+    <string name="data_info_used">Daten, die du bisher verbraucht hast.</string>
+    <string name="data_info_why">Warum?</string>
     <string name="data_usage">Datennutzung</string>
     <string name="default_daily_data">Standardmäßig erhältst du jeden Tag %1$s.</string>
     <string name="default_wallet">Standard</string>
@@ -452,6 +458,7 @@
     <string name="instant_account_no_email_password">Keine E-Mail und kein Passwort nötig. Dein Konto wird durch eine Seedphrase gesichert.</string>
     <string name="insufficient_balance">Unzureichendes Guthaben</string>
     <string name="insufficient_balance_held_notice">Dein Datenverkehr wird im Tunnel gehalten, bis du upgradest oder die Verbindung trennst.</string>
+    <string name="insufficient_balance_refreshes_in">Kostenlose Daten werden in %1$s erneuert.</string>
     <string name="insufficient_funds">Unzureichende Mittel</string>
     <string name="intro_quick_connect_details">Schalte URnetwork in den Schnelleinstellungen ein und aus und behalte es auf deinem Startbildschirm im Blick.</string>
     <string name="intro_quick_connect_title">Mit einem Tipp verbinden</string>
@@ -908,6 +915,7 @@
     <string name="verify_send_error">Fehler</string>
     <string name="version_info">Versions- und Build-Informationen</string>
     <string name="via_exit">über %1$s</string>
+    <string name="wait_for_refresh">Auf Erneuerung warten</string>
     <string name="wallet">Wallet</string>
     <string name="wallet_blocked">Diese Wallet kann nicht mit URnetwork verwendet werden.</string>
     <string name="wallet_connected_to_protocol">Mit dem UR-Protokoll verbunden. Einlösungen landen hier. Alpha sammelt sich ab der nächsten Epoche nach dem Verbinden an.</string>

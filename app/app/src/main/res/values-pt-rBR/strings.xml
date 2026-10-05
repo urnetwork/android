@@ -128,6 +128,12 @@
     <string name="daily_data_balance_label">Saldo diário de dados:</string>
     <string name="data">Dados</string>
     <string name="data_bar_explanation">Esta barra no aplicativo mostra quanto dado gratuito você está ganhando do seu provedor. Você pode verificar a qualquer momento e ajustar suas configurações para maximizar seus ganhos.</string>
+    <string name="data_info_available">Dados que você ainda pode usar.</string>
+    <string name="data_info_pending">Dados reservados para suas conexões abertas. O que elas não usarem é devolvido quando forem fechadas.</string>
+    <string name="data_info_refresh_at">Os dados grátis são renovados diariamente às 00:00 UTC (em %1$s).</string>
+    <string name="data_info_title">Sobre seus dados</string>
+    <string name="data_info_used">Dados que você usou até agora.</string>
+    <string name="data_info_why">Por quê?</string>
     <string name="data_usage">Uso de dados</string>
     <string name="default_wallet">Padrão</string>
     <string name="delete">Excluir</string>
@@ -223,6 +229,7 @@
     <string name="instant_account_no_email_password">Sem e-mail nem senha. Sua conta é protegida por uma frase-semente.</string>
     <string name="insufficient_balance">Saldo insuficiente</string>
     <string name="insufficient_balance_held_notice">Seu tráfego fica retido no túnel até você fazer upgrade ou desconectar.</string>
+    <string name="insufficient_balance_refreshes_in">Os dados grátis são renovados em %1$s.</string>
     <string name="insufficient_funds">Fundos insuficientes</string>
     <string name="invalid_referral_code">Este código não é válido</string>
     <string name="ip_address">Endereço IP</string>
@@ -579,6 +586,7 @@
     <string name="verify_send_error">Erro</string>
     <string name="version_info">Informações de versão e build</string>
     <string name="via_exit">via %1$s</string>
+    <string name="wait_for_refresh">Aguardar a renovação</string>
     <string name="wallet">Carteira</string>
     <string name="wallet_sign_in_method_added">Método de login com carteira adicionado</string>
     <string name="welcome_offer_eyebrow">Oferta de boas-vindas</string>
