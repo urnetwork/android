@@ -517,8 +517,11 @@
     <string name="start_earning_join">कमाई शुरू करने के लिए, नेटवर्क से जुड़ें</string>
     <string name="stay">यहीं रहें</string>
     <string name="stay_in_touch">संपर्क में रहें</string>
+    <string name="stay_on_this_exit">इसी एग्ज़िट पर रहें</string>
+    <string name="stay_on_this_exit_note">इस प्रदाता का IP पता तब तक बना रहता है जब तक वह ऑफ़लाइन न हो जाए।</string>
     <string name="stay_private">पूरी तरह से\nनिजी और\nगुमनाम रहें</string>
     <string name="stay_private_description">URnetwork के साथ पूरी तरह से निजी और गुमनाम रहें</string>
+    <string name="staying_on_this_exit">आप इसी एग्ज़िट पर बने हुए हैं। अगर यह ऑफ़लाइन हो जाए, तो कोई दूसरी लोकेशन चुनें।</string>
     <string name="step_in">इंटरनेट में कदम रखें जैसा कि यह होना चाहिए</string>
     <string name="step_into_the_internet">इंटरनेट में कदम रखें\nजैसा कि होना चाहिए।</string>
     <string name="step_one">चरण 1</string>

@@ -13,6 +13,7 @@ import com.bringyour.network.ui.stats.IpFamilyColumn
 import com.bringyour.network.ui.stats.tagResId
 import com.bringyour.network.ui.theme.MainBorderBase
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -38,6 +39,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -73,9 +75,11 @@ import com.bringyour.network.ui.components.SwipeToRevealRow
 import com.bringyour.network.ui.indexedLazyListKey
 import com.bringyour.network.ui.shared.viewmodels.PostQuantumIdentityViewModel
 import com.bringyour.network.ui.theme.Black
+import com.bringyour.network.ui.theme.Pink
 import com.bringyour.network.ui.theme.TextFaint
 import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.TopBarTitleTextStyle
+import com.bringyour.sdk.ConnectLocation
 import kotlinx.coroutines.delay
 
 /**
@@ -83,6 +87,10 @@ import kotlinx.coroutines.delay
  * sheet: the list is the point of the view, and a sheet dismisses itself on
  * the same downward drag used to scroll it. Dismissal is the explicit control
  * in the top bar, matching the contract details screen.
+ *
+ * The selected row offers "Stay on this exit" (see [stayOnExitState]), which
+ * hands the provider's client id location to [onStayOnExit]. [stayingClientId]
+ * is the client id of the current location when it is one.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -90,6 +98,8 @@ fun ProviderLocationsScreen(
     navController: NavController,
     getLocationColor: (String) -> Color,
     mockLocationSection: @Composable (() -> Unit)? = null,
+    stayingClientId: String? = null,
+    onStayOnExit: ((ConnectLocation) -> Unit)? = null,
     viewModel: ProviderLocationsViewModel = hiltViewModel(),
     postQuantumIdentityViewModel: PostQuantumIdentityViewModel = hiltViewModel(),
 ) {
@@ -228,6 +238,11 @@ fun ProviderLocationsScreen(
                         indexedLazyListKey("provider-location", index, row.clientId)
                     },
                 ) { _, row ->
+                    val stayState = if (onStayOnExit != null) {
+                        stayOnExitState(row, selectedClientId, stayingClientId)
+                    } else {
+                        StayOnExitState.NONE
+                    }
                     val rowContent: @Composable () -> Unit = {
                         ProviderLocationRowItem(
                             row = row,
@@ -235,6 +250,12 @@ fun ProviderLocationsScreen(
                             nowMillis = nowMillis,
                             getLocationColor = getLocationColor,
                             onSelect = { viewModel.select(row.clientId) },
+                            stayState = stayState,
+                            onStay = {
+                                viewModel.stayOnExitLocation(row)?.let { location ->
+                                    onStayOnExit?.invoke(location)
+                                }
+                            },
                             onRemove = if (RowRemoveControl.Button in providerLocationRemoveControls) {
                                 { viewModel.removeProvider(row.clientId) }
                             } else {
@@ -276,6 +297,8 @@ private fun ProviderLocationRowItem(
     // only when the provider has an identity-verified end-to-end encrypted
     // session; rendered as a small badge to the right of the client id
     pqIdenticon: ImageBitmap? = null,
+    stayState: StayOnExitState = StayOnExitState.NONE,
+    onStay: () -> Unit = {},
 ) {
     val context = LocalContext.current
     val clipboardManager = LocalClipboardManager.current
@@ -368,6 +391,35 @@ private fun ProviderLocationRowItem(
                 color = TextMuted,
                 maxLines = 1,
             )
+
+            when (stayState) {
+                StayOnExitState.OFFER -> {
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Text(
+                        stringResource(R.string.stay_on_this_exit_note),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = TextMuted,
+                    )
+                    TextButton(
+                        onClick = onStay,
+                        contentPadding = PaddingValues(horizontal = 0.dp),
+                    ) {
+                        Text(
+                            stringResource(R.string.stay_on_this_exit),
+                            color = Pink,
+                        )
+                    }
+                }
+                StayOnExitState.STAYING -> {
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Text(
+                        stringResource(R.string.staying_on_this_exit),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = TextMuted,
+                    )
+                }
+                StayOnExitState.NONE -> {}
+            }
         }
 
         // swipe-to-reveal alone is unreachable for TalkBack, Switch Access and

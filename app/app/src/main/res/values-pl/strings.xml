@@ -517,8 +517,11 @@
     <string name="start_earning_join">Aby zacząć zarabiać, dołącz do sieci</string>
     <string name="stay">Zostań</string>
     <string name="stay_in_touch">Bądźmy w kontakcie</string>
+    <string name="stay_on_this_exit">Zostań przy tym wyjściu</string>
+    <string name="stay_on_this_exit_note">Zachowuje adres IP tego dostawcy, dopóki nie przejdzie w tryb offline.</string>
     <string name="stay_private">Zachowaj\npełną\nprywatność i\nanonimowość</string>
     <string name="stay_private_description">Zachowaj pełną prywatność i anonimowość z URnetwork</string>
+    <string name="staying_on_this_exit">Pozostajesz przy tym wyjściu. Jeśli przejdzie w tryb offline, wybierz inną lokalizację.</string>
     <string name="step_in">Wejdź do internetu, jakim powinien być.</string>
     <string name="step_into_the_internet">Wejdź do internetu\ntakiego, jakim powinien być.</string>
     <string name="step_one">Krok 1</string>

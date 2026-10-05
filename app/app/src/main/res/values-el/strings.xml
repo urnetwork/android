@@ -517,8 +517,11 @@
     <string name="start_earning_join">Για να ξεκινήσετε να κερδίζετε, γίνετε μέλος του δικτύου</string>
     <string name="stay">Παραμονή</string>
     <string name="stay_in_touch">Μείνετε σε επαφή</string>
+    <string name="stay_on_this_exit">Παραμονή σε αυτή την έξοδο</string>
+    <string name="stay_on_this_exit_note">Διατηρεί τη διεύθυνση IP αυτού του παρόχου μέχρι να αποσυνδεθεί.</string>
     <string name="stay_private">Παραμείνετε\nεντελώς\nιδιωτικοί και\nανώνυμοι</string>
     <string name="stay_private_description">Παραμείνετε εντελώς ιδιωτικοί και ανώνυμοι με το URnetwork</string>
+    <string name="staying_on_this_exit">Παραμένετε σε αυτή την έξοδο. Αν αποσυνδεθεί, επιλέξτε άλλη τοποθεσία.</string>
     <string name="step_in">Μπείτε στο διαδίκτυο όπως θα έπρεπε να είναι.</string>
     <string name="step_into_the_internet">Μπείτε στο διαδίκτυο\nόπως θα έπρεπε να είναι.</string>
     <string name="step_one">Βήμα 1</string>

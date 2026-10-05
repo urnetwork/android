@@ -517,8 +517,11 @@
     <string name="start_earning_join">수익을 얻기 시작하려면 네트워크에 가입하세요</string>
     <string name="stay">머무르기</string>
     <string name="stay_in_touch">연락 유지하기</string>
+    <string name="stay_on_this_exit">이 출구 유지</string>
+    <string name="stay_on_this_exit_note">이 제공업체가 오프라인이 될 때까지 해당 IP 주소를 유지합니다.</string>
     <string name="stay_private">완전히\n프라이빗하고\n익명으로\n유지하세요</string>
     <string name="stay_private_description">URnetwork로 완전히 프라이빗하고 익명으로 유지하세요</string>
+    <string name="staying_on_this_exit">이 출구를 유지하는 중입니다. 오프라인이 되면 다른 위치를 선택하세요.</string>
     <string name="step_in">인터넷이 마땅히 되어야 할 모습으로 들어가세요</string>
     <string name="step_into_the_internet">인터넷에 들어가세요\n원래 그래야 하는 것처럼.</string>
     <string name="step_one">1단계</string>

@@ -517,8 +517,11 @@
     <string name="start_earning_join">เพื่อเริ่มสร้างรายได้ เข้าร่วมกับระบบเน็ตเวิร์ค</string>
     <string name="stay">อยู่ต่อ</string>
     <string name="stay_in_touch">ติดตามเรา</string>
+    <string name="stay_on_this_exit">ใช้ทางออกนี้ต่อไป</string>
+    <string name="stay_on_this_exit_note">คงที่อยู่ IP ของผู้ให้บริการนี้ไว้จนกว่าจะออฟไลน์</string>
     <string name="stay_private">เป็นส่วนตัว\nอย่างแท้จริง\nไร้ตัวตน\nไร้การติดตาม</string>
     <string name="stay_private_description">เชื่อมต่อด้วยความปลอดภัย ไม่ทิ้งร่องรอยด้วย URnetwork</string>
+    <string name="staying_on_this_exit">กำลังใช้ทางออกนี้ต่อไป หากออฟไลน์ ให้เลือกตำแหน่งอื่น</string>
     <string name="step_in">ก้าวเข้าอินเทอร์เน็ตในแบบที่ควรจะเป็น</string>
     <string name="step_into_the_internet">ก้าวเข้าสู่อินเทอร์เน็ต\nอย่างที่ควรจะเป็น</string>
     <string name="step_one">ขั้นตอนที่ 1</string>

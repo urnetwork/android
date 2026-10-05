@@ -517,8 +517,11 @@
     <string name="start_earning_join">Ili kuanza kupata, jiunge na mtandao</string>
     <string name="stay">Baki</string>
     <string name="stay_in_touch">Kaa nasi</string>
+    <string name="stay_on_this_exit">Baki kwenye njia hii ya kutoka</string>
+    <string name="stay_on_this_exit_note">Huhifadhi anwani ya IP ya mtoa huduma huyu hadi atakapokuwa nje ya mtandao.</string>
     <string name="stay_private">Kaa\nkabisa\nfaragha na\nbila majina</string>
     <string name="stay_private_description">Kaa faragha kabisa na bila majina ukitumia URnetwork</string>
+    <string name="staying_on_this_exit">Unabaki kwenye njia hii ya kutoka. Ikiwa itakuwa nje ya mtandao, chagua eneo lingine.</string>
     <string name="step_in">Ingia kwenye mtandao jinsi unavyopaswa kuwa.</string>
     <string name="step_into_the_internet">Ingia kwenye mtandao\nkama inavyopaswa kuwa.</string>
     <string name="step_one">Hatua ya 1</string>

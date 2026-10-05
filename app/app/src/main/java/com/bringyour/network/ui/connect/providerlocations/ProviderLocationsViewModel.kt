@@ -3,8 +3,11 @@ package com.bringyour.network.ui.connect.providerlocations
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bringyour.network.DeviceManager
+import com.bringyour.sdk.ConnectLocation
+import com.bringyour.sdk.ConnectLocationId
 import com.bringyour.sdk.DeviceLocal
 import com.bringyour.sdk.ProviderLocationsViewController
+import com.bringyour.sdk.Sdk
 import com.bringyour.sdk.Sub
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -177,6 +180,32 @@ class ProviderLocationsViewModel @Inject constructor(
     fun removeProvider(clientId: String) {
         _providerLocations.value = _providerLocations.value.filter { it.clientId != clientId }
         vc?.removeProvider(clientId)
+    }
+
+    /**
+     * The location "Stay on this exit" connects to: this provider alone, by
+     * client id (see [stayOnExitTarget]). Null when the row has no client id.
+     */
+    fun stayOnExitLocation(row: ProviderLocationRow): ConnectLocation? {
+        val target = stayOnExitTarget(row) ?: return null
+        val clientId = try {
+            Sdk.parseId(target.clientId)
+        } catch (e: Exception) {
+            return null
+        }
+        val location = ConnectLocation()
+        val locationId = ConnectLocationId()
+        locationId.clientId = clientId
+        location.connectLocationId = locationId
+        location.name = target.name
+        location.city = target.city
+        location.region = target.region
+        location.country = target.country
+        location.countryCode = target.countryCode
+        // a public exit of the current connection, not one of the user's own
+        // devices, so it keeps the public provide mode it carries traffic under
+        location.networkPeer = false
+        return location
     }
 
     override fun onCleared() {

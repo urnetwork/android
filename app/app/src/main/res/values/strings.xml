@@ -843,8 +843,11 @@
     <string name="start_free_trial">Start free trial</string>
     <string name="stay">Stay</string>
     <string name="stay_in_touch">Stay in touch</string>
+    <string name="stay_on_this_exit">Stay on this exit</string>
+    <string name="stay_on_this_exit_note">Keeps this provider\'s IP address until it goes offline.</string>
     <string name="stay_private">Stay\ncompletely\nprivate and\nanonymous</string>
     <string name="stay_private_description">Stay completely private and anonymous with URnetwork</string>
+    <string name="staying_on_this_exit">Staying on this exit. If it goes offline, choose another location.</string>
     <string name="step_in">Step into the internet as it should be.</string>
     <string name="step_into_the_internet">Step into the internet\nas it should be.</string>
     <string name="step_one">Step 1</string>

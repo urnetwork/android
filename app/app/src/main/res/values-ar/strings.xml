@@ -819,8 +819,11 @@
     <string name="start_free_trial">بدء التجربة المجانية</string>
     <string name="stay">البقاء</string>
     <string name="stay_in_touch">البقاء على اتصال</string>
+    <string name="stay_on_this_exit">البقاء على هذا المخرج</string>
+    <string name="stay_on_this_exit_note">يحتفظ بعنوان IP لهذا المزوّد حتى يصبح غير متصل.</string>
     <string name="stay_private">ابق\nخاصًا\nومجهول الهو\nتمامًا</string>
     <string name="stay_private_description">ابق خاصًا ومجهول الهوية تمامًا مع URnetwork</string>
+    <string name="staying_on_this_exit">أنت باقٍ على هذا المخرج. إذا أصبح غير متصل، فاختر موقعًا آخر.</string>
     <string name="step_in">انطلق إلى الإنترنت كما ينبغي أن يكون.</string>
     <string name="step_into_the_internet">"ادخل إلى الإنترنت\n كما يجب أن يكون."</string>
     <string name="step_one">الخطوة 1</string>

@@ -517,8 +517,11 @@
     <string name="start_earning_join">Chcete-li začít vydělávat, připojte se k síti</string>
     <string name="stay">Zůstat</string>
     <string name="stay_in_touch">Zůstaňte v kontaktu</string>
+    <string name="stay_on_this_exit">Zůstat na tomto výstupu</string>
+    <string name="stay_on_this_exit_note">Ponechá IP adresu tohoto poskytovatele, dokud nepřejde do režimu offline.</string>
     <string name="stay_private">Zůstaňte\nkompletně\nprivátní a\nanonymní</string>
     <string name="stay_private_description">Zůstaňte zcela soukromí a anonymní s URnetwork</string>
+    <string name="staying_on_this_exit">Zůstáváte na tomto výstupu. Pokud přejde do režimu offline, vyberte jinou lokalitu.</string>
     <string name="step_in">Vstupte na internet, jak má být.</string>
     <string name="step_into_the_internet">Vstupte do internetu\njaký by měl být.</string>
     <string name="step_one">Krok 1</string>

@@ -819,8 +819,11 @@
     <string name="start_free_trial">Начать бесплатный пробный период</string>
     <string name="stay">Остаться</string>
     <string name="stay_in_touch">Оставайтесь на связи</string>
+    <string name="stay_on_this_exit">Остаться на этом выходе</string>
+    <string name="stay_on_this_exit_note">Сохраняет IP-адрес этого провайдера, пока он не отключится.</string>
     <string name="stay_private">Оставайтесь\nполностью\nприватными и\nанонимными</string>
     <string name="stay_private_description">Оставайтесь полностью приватными и анонимными с URnetwork</string>
+    <string name="staying_on_this_exit">Вы остаётесь на этом выходе. Если он отключится, выберите другую локацию.</string>
     <string name="step_in">Откройте для себя интернет таким, каким он должен быть.</string>
     <string name="step_into_the_internet">Войдите в интернет\nтаким, каким он должен быть.</string>
     <string name="step_one">Шаг 1</string>
