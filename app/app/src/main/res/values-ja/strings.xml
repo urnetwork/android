@@ -568,6 +568,8 @@
     <string name="upgrade_subscription">サブスクリプションをアップグレード</string>
     <string name="usdc_solana_network_only">USDCはSolanaネットワークでのみ送金してください。他のネットワークで送金したUSDCは届きません。</string>
     <string name="usdc_wallet_address">USDCウォレットアドレス</string>
+    <string name="use_as_proxy_no_vpn">代わりにプロキシとして使用（VPNなし）</string>
+    <string name="use_as_proxy_no_vpn_detail">ur.io を開いて、VPN なしで URnetwork を HTTPS プロキシとして使用します。SOCKS と WireGuard は Pro で利用できます。</string>
     <string name="use_most_stable_provider">最も安定したプロバイダーを使用します</string>
     <string name="use_recommended_settings">推奨設定を使用</string>
     <string name="used_data_key">使用済み</string>

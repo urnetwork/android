@@ -919,6 +919,8 @@
     <string name="usdc_solana_network_only">Send USDC on the Solana network only. USDC sent on any other network will not arrive.</string>
     <string name="usdc_waiting">%1$s USDC waiting</string>
     <string name="usdc_wallet_address">USDC wallet address</string>
+    <string name="use_as_proxy_no_vpn">Use as a proxy instead (no VPN)</string>
+    <string name="use_as_proxy_no_vpn_detail">Opens ur.io to run URnetwork as an HTTPS proxy without the VPN. SOCKS and WireGuard are available on Pro.</string>
     <string name="use_extender_settings">Use extender settings</string>
     <string name="use_most_stable_provider">Use most stable provider</string>
     <string name="use_recommended_settings">Use recommended settings</string>

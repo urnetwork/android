@@ -568,6 +568,8 @@
     <string name="upgrade_subscription">อัพเกรดเป็นสมัครรายเดือน</string>
     <string name="usdc_solana_network_only">ส่ง USDC บนเครือข่าย Solana เท่านั้น USDC ที่ส่งบนเครือข่ายอื่นจะไม่เข้าบัญชี</string>
     <string name="usdc_wallet_address">ที่อยู่กระเป๋าเงิน USDC</string>
+    <string name="use_as_proxy_no_vpn">ใช้เป็นพร็อกซีแทน (ไม่มี VPN)</string>
+    <string name="use_as_proxy_no_vpn_detail">เปิด ur.io เพื่อใช้ URnetwork เป็นพร็อกซี HTTPS โดยไม่ต้องใช้ VPN SOCKS และ WireGuard ใช้ได้กับ Pro</string>
     <string name="use_most_stable_provider">ใช้ผู้ให้บริการที่เสถียรที่สุด</string>
     <string name="use_recommended_settings">ใช้การตั้งค่าที่แนะนำ</string>
     <string name="used_data_key">ใช้แล้ว</string>
