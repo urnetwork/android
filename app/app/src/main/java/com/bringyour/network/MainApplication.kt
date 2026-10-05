@@ -24,6 +24,7 @@ import android.telephony.TelephonyDisplayInfo
 import android.telephony.TelephonyManager
 import android.util.Log
 import com.bringyour.network.analytics.WHITELIST_PROBE_HTTP_TIMEOUT_MILLIS
+import com.bringyour.network.analytics.WHITELIST_PROBE_LOG_TAG
 import com.bringyour.network.analytics.WhitelistProbeStep
 import java.net.HttpURLConnection
 import java.net.URL
@@ -537,18 +538,26 @@ class MainApplication : Application() {
     val api get() = networkSpaceManagerProvider.getNetworkSpace()?.api
     val asyncLocalState get() = networkSpaceManagerProvider.getNetworkSpace()?.asyncLocalState
 
+    // Diagnostics that support needs from "send feedback with logs": logcat plus
+    // the sdk log, which is what feedback uploads (see AppDiagnosticLog).
+    private val diagnosticLog = AppDiagnosticLog(
+        logcat = { Log.i(TAG, it) },
+        sdkLog = { tag, line -> Sdk.logAppInfo(tag, line) },
+    )
+
     /**
      * The whitelist-network measurement probe (P052). Bounded, URnetwork-owned
      * endpoints only, local logs only; see WhitelistProbe. Built lazily so its
      * cool-down state lives for the process. ConnectViewModel calls
      * [maybeRunWhitelistProbe] when a connect attempt fails (the sdk's
      * CONNECT_FAILED, or no provider in the window past the time bound, while the
-     * user wants to be connected; see ConnectFailurePolicy).
+     * user wants to be connected; see ConnectFailurePolicy). Its block goes to
+     * logcat and, line by line, to the sdk log that feedback uploads.
      */
     private val whitelistProbe by lazy {
         com.bringyour.network.analytics.WhitelistProbe(
             checkApiReachable = { probeApiReachable() },
-            log = { Log.i(TAG, it) },
+            log = { diagnosticLog.info(WHITELIST_PROBE_LOG_TAG, it) },
         )
     }
 

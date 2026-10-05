@@ -25,6 +25,9 @@ const val WHITELIST_PROBE_COOL_DOWN_MILLIS = 30L * 60L * 1000L
 /** Per-step network timeout, so the probe stays bounded on a dead path. */
 const val WHITELIST_PROBE_HTTP_TIMEOUT_MILLIS = 5_000
 
+/** The tag of the probe's log block, and of its lines in the sdk log (see AppDiagnosticLog). */
+const val WHITELIST_PROBE_LOG_TAG = "whitelist-probe"
+
 /**
  * Whether to run the probe once now.
  *
@@ -65,7 +68,8 @@ data class WhitelistProbeStep(
 
 /**
  * Formats the probe's steps as one stable local-log block. Local logs only; this
- * never leaves the device except through feedback-with-logs.
+ * never leaves the device except through feedback-with-logs (the app writes it
+ * to logcat and, line by line, to the sdk log that feedback uploads).
  */
 fun formatWhitelistProbeLog(steps: List<WhitelistProbeStep>): String {
     val body = steps.joinToString("\n") { step ->
@@ -76,7 +80,7 @@ fun formatWhitelistProbeLog(steps: List<WhitelistProbeStep>): String {
         }
         "  [$status] ${step.name}: ${step.detail}"
     }
-    return "[whitelist-probe] cellular connect failure in ${WHITELIST_PROBE_COUNTRY_ISO.uppercase()}\n$body"
+    return "[$WHITELIST_PROBE_LOG_TAG] cellular connect failure in ${WHITELIST_PROBE_COUNTRY_ISO.uppercase()}\n$body"
 }
 
 /**
