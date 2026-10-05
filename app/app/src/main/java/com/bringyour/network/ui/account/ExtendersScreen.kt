@@ -94,6 +94,13 @@ fun ExtendersScreen(
         privateSecret = TextFieldValue(privateExtender.secret)
     }
 
+    // each time the screen shows: an import on the import screen goes through
+    // that screen's own view model, so every field is read again rather than
+    // kept from when this screen opened
+    LaunchedEffect(Unit) {
+        viewModel.reload()
+    }
+
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
