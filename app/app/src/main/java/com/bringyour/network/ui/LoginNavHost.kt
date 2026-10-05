@@ -281,6 +281,13 @@ fun LoginNavHost(
                         val createNetworkInstantViewModel: CreateNetworkInstantViewModel = hiltViewModel()
                         val seedphrase by createNetworkInstantViewModel.seedphrase.collectAsState()
 
+                        // the referral link's (or Play install referrer's) code
+                        // applies to an instant account too, as on the
+                        // create-network routes above
+                        LaunchedEffect(referralCode) {
+                            createNetworkInstantViewModel.seedReferralCode(referralCode)
+                        }
+
                         val scope = rememberCoroutineScope()
                         var contentVisible by remember { mutableStateOf(true) }
                         var welcomeVisible by remember { mutableStateOf(false) }
