@@ -56,6 +56,7 @@ import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.wallet.BittensorProofFlow
 import com.bringyour.network.ui.wallet.BittensorProofSheets
 import com.bringyour.network.ui.wallet.BittensorWallets
+import com.bringyour.network.ui.wallet.bittensorWalletDisplayName
 import com.bringyour.sdk.AddAuthArgs
 import com.bringyour.sdk.AuthVerifyArgs
 import com.bringyour.sdk.AuthVerifySendArgs
@@ -210,11 +211,14 @@ fun AddAuthMethodSheet(
                 addWallet(walletAuth)
             },
             openUrl = { url -> launchBittensorBridge(context, url) },
-            refusalError = { code, detail ->
-                if (code == BittensorWallets.ERROR_WALLET && !detail.isNullOrEmpty()) {
-                    detail
-                } else {
-                    context.getString(BittensorWallets.errorRes(code))
+            refusalError = { failed ->
+                BittensorWallets.refusalText(
+                    failed.code,
+                    failed.detail,
+                    failed.bridgeCode,
+                    bittensorWalletDisplayName(failed.walletId),
+                ) { res, walletName ->
+                    if (walletName == null) context.getString(res) else context.getString(res, walletName)
                 }
             },
         )

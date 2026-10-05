@@ -31,8 +31,8 @@ class BittensorAddSignInController(
     private val addWalletAuth: (AddWalletAuth) -> Unit,
     // opens a browser-bridge page (WalletConnect); false when no browser opened
     private val openUrl: (String) -> Boolean = { false },
-    // the message for a refusal code (BittensorWallets.errorRes)
-    private val refusalError: (code: String, detail: String?) -> String = { _, _ -> defaultError() },
+    // the message for a refusal (BittensorWallets.refusalText)
+    private val refusalError: (BittensorAddReturn.Failed) -> String = { defaultError() },
 ) {
     fun start() {
         setError(null)
@@ -57,7 +57,7 @@ class BittensorAddSignInController(
                 setError(null)
                 addWalletAuth(walletAuth)
             }
-            is BittensorAddReturn.Failed -> setError(refusalError(addReturn.code, addReturn.detail))
+            is BittensorAddReturn.Failed -> setError(refusalError(addReturn))
         }
     }
 

@@ -90,6 +90,62 @@ object BittensorWallets {
         ERROR_INVALID_ADDRESS -> R.string.invalid_ss58_address
         else -> R.string.login_error
     }
+
+    // mirror sdk BittensorWalletBridgeError*: the bridge page's own code for
+    // the failure behind a wallet_error it hands back
+    const val BRIDGE_ERROR_ADDRESS_NOT_IN_WALLET = "address_not_in_wallet"
+    const val BRIDGE_ERROR_ADDRESS_MISMATCH = "address_mismatch"
+    const val BRIDGE_ERROR_EXTENSION_NOT_FOUND = "extension_not_found"
+    const val BRIDGE_ERROR_NO_ACCOUNT = "no_account"
+    const val BRIDGE_ERROR_USER_REJECTED = "user_rejected"
+    const val BRIDGE_ERROR_WALLETCONNECT_EXPIRED = "walletconnect_expired"
+    const val BRIDGE_ERROR_WALLETCONNECT_UNAVAILABLE = "walletconnect_unavailable"
+
+    // the bridge codes whose message takes the wallet's name
+    private val bridgeCodesWithWalletName = setOf(
+        BRIDGE_ERROR_ADDRESS_NOT_IN_WALLET,
+        BRIDGE_ERROR_EXTENSION_NOT_FOUND,
+        BRIDGE_ERROR_NO_ACCOUNT,
+    )
+
+    /**
+     * The message for the bridge page's own code, or null for a code this app
+     * does not know (the page's text is shown then).
+     */
+    @StringRes
+    fun bridgeErrorRes(bridgeCode: String?): Int? = when (bridgeCode) {
+        BRIDGE_ERROR_ADDRESS_NOT_IN_WALLET -> R.string.bittensor_error_address_not_in_wallet
+        BRIDGE_ERROR_ADDRESS_MISMATCH -> R.string.earnings_wallet_mismatch
+        BRIDGE_ERROR_EXTENSION_NOT_FOUND -> R.string.bittensor_error_extension_not_found
+        BRIDGE_ERROR_NO_ACCOUNT -> R.string.bittensor_error_no_account
+        BRIDGE_ERROR_USER_REJECTED -> R.string.bittensor_error_user_rejected
+        BRIDGE_ERROR_WALLETCONNECT_EXPIRED -> R.string.bittensor_error_walletconnect_expired
+        BRIDGE_ERROR_WALLETCONNECT_UNAVAILABLE -> R.string.bittensor_error_walletconnect_unavailable
+        else -> null
+    }
+
+    /**
+     * The text for a refusal. A wallet_error from the bridge page is shown in
+     * this app's words for the page's code when the app knows it, else in the
+     * page's own text; any other code by its message ([errorRes]).
+     * [getString] loads a string, formatted with the wallet's name when one is
+     * given.
+     */
+    fun refusalText(
+        code: String,
+        detail: String?,
+        bridgeCode: String?,
+        walletName: String,
+        getString: (res: Int, walletName: String?) -> String,
+    ): String {
+        if (code == ERROR_WALLET) {
+            bridgeErrorRes(bridgeCode)?.let { res ->
+                return getString(res, walletName.takeIf { bridgeCode in bridgeCodesWithWalletName })
+            }
+            if (!detail.isNullOrEmpty()) return detail
+        }
+        return getString(errorRes(code), null)
+    }
 }
 
 /** A signed challenge, ready for /auth/login, /auth/network-create or POST /sn/wallet. */
@@ -103,8 +159,9 @@ data class BittensorProof(
 
 sealed class BittensorProofOutcome {
     data class Proven(val proof: BittensorProof) : BittensorProofOutcome()
-    // detail: the wallet's own text for wallet_error
-    data class Refused(val code: String, val detail: String? = null) : BittensorProofOutcome()
+    // detail: the wallet's own text for wallet_error, and bridgeCode the
+    // bridge page's code for it (sdk BittensorWalletResult.BridgeErrorCode)
+    data class Refused(val code: String, val detail: String? = null, val bridgeCode: String? = null) : BittensorProofOutcome()
 }
 
 /** One challenge: the SDK session, or a fake in tests. */
@@ -127,7 +184,13 @@ sealed class BittensorBridgeReturn {
     // no waiting session, or the return belongs to another flow
     object Ignored : BittensorBridgeReturn()
     data class Proven(val proof: BittensorProof) : BittensorBridgeReturn()
-    data class Refused(val purpose: String, val code: String, val detail: String?) : BittensorBridgeReturn()
+    data class Refused(
+        val purpose: String,
+        val code: String,
+        val detail: String?,
+        val bridgeCode: String? = null,
+        val walletId: String = "",
+    ) : BittensorBridgeReturn()
 }
 
 /**
@@ -162,7 +225,7 @@ class BittensorBridgeReturns {
                     BittensorBridgeReturn.Ignored
                 } else {
                     pending = null
-                    BittensorBridgeReturn.Refused(session.purpose, outcome.code, outcome.detail)
+                    BittensorBridgeReturn.Refused(session.purpose, outcome.code, outcome.detail, outcome.bridgeCode, session.walletId)
                 }
             }
         }
@@ -333,7 +396,14 @@ sealed class BittensorReturnAction {
     // no waiting session: the pre-helper return handling
     object Legacy : BittensorReturnAction()
     data class Proven(val route: BittensorProofRoute, val proof: BittensorProof) : BittensorReturnAction()
-    data class Failed(val purpose: String, val code: String, val detail: String?) : BittensorReturnAction()
+    // the text to show: BittensorWallets.refusalText
+    data class Failed(
+        val purpose: String,
+        val code: String,
+        val detail: String?,
+        val bridgeCode: String? = null,
+        val walletId: String = "",
+    ) : BittensorReturnAction()
 }
 
 fun bittensorReturnAction(
@@ -342,7 +412,7 @@ fun bittensorReturnAction(
     bridgeReturns: BittensorBridgeReturns = BittensorBridgeReturns.shared,
 ): BittensorReturnAction = when (val r = bridgeReturns.take(uri, nowMillis)) {
     BittensorBridgeReturn.Ignored -> BittensorReturnAction.Legacy
-    is BittensorBridgeReturn.Refused -> BittensorReturnAction.Failed(r.purpose, r.code, r.detail)
+    is BittensorBridgeReturn.Refused -> BittensorReturnAction.Failed(r.purpose, r.code, r.detail, r.bridgeCode, r.walletId)
     is BittensorBridgeReturn.Proven -> bittensorProofRoute(r.proof)
         ?.let { BittensorReturnAction.Proven(it, r.proof) }
         ?: BittensorReturnAction.Failed(r.proof.purpose, BittensorWallets.ERROR_PURPOSE_MISMATCH, null)

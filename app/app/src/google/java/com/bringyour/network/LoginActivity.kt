@@ -22,6 +22,7 @@ import com.bringyour.network.ui.LoginNavHost
 import com.bringyour.network.ui.login.BITTENSOR_SIGN_PURPOSE_CONNECT
 import com.bringyour.network.ui.login.BITTENSOR_SIGN_PURPOSE_CREATE
 import com.bringyour.network.ui.login.bittensorFailureUri
+import com.bringyour.network.ui.login.bittensorRefusalMessage
 import com.bringyour.network.ui.login.bittensorProofUri
 import com.bringyour.network.ui.wallet.BittensorProofRequest
 import com.bringyour.network.ui.wallet.BittensorReturnAction
@@ -145,10 +146,7 @@ class LoginActivity : AppCompatActivity() {
                     val bridgeUri = when (action) {
                         BittensorReturnAction.Legacy -> u
                         is BittensorReturnAction.Proven -> bittensorProofUri(action.proof)
-                        is BittensorReturnAction.Failed -> bittensorFailureUri(
-                            action,
-                            getString(BittensorWallets.errorRes(action.code)),
-                        )
+                        is BittensorReturnAction.Failed -> bittensorFailureUri(action, bittensorRefusalMessage(action))
                     }
                     if (bridgeUri.getQueryParameter("purpose") == BITTENSOR_SIGN_PURPOSE_CONNECT && app.device != null) {
                         // the earnings screen's wallet connect: the main activity owns that flow

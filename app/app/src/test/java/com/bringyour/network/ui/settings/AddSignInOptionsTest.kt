@@ -307,8 +307,16 @@ class AddSignInOptionsTest {
         val refused = BittensorBridgeReturns()
         refused.begin(BridgeSession(BittensorWallets.PURPOSE_ADD, BittensorProofOutcome.Refused(BittensorWallets.ERROR_WALLET, "Rejected")))
         assertEquals(
-            BittensorAddReturn.Failed(BittensorWallets.ERROR_WALLET, "Rejected"),
+            BittensorAddReturn.Failed(BittensorWallets.ERROR_WALLET, "Rejected", null, BittensorWallets.WALLET_CONNECT),
             bittensorAddReturn(bittensorReturnAction("ur://bittensor-sign-message?purpose=add", 0L, refused)),
+        )
+
+        // the bridge page's code reaches the sheet with the session's wallet
+        val coded = BittensorBridgeReturns()
+        coded.begin(BridgeSession(BittensorWallets.PURPOSE_ADD, BittensorProofOutcome.Refused(BittensorWallets.ERROR_WALLET, "User rejected.", "user_rejected")))
+        assertEquals(
+            BittensorAddReturn.Failed(BittensorWallets.ERROR_WALLET, "User rejected.", "user_rejected", BittensorWallets.WALLET_CONNECT),
+            bittensorAddReturn(bittensorReturnAction("ur://bittensor-sign-message?purpose=add", 0L, coded)),
         )
     }
 
@@ -333,7 +341,7 @@ class AddSignInOptionsTest {
             setError = { error = it },
             defaultError = { "default" },
             addWalletAuth = { added += it },
-            refusalError = { code, detail -> "$code:$detail" },
+            refusalError = { "${it.code}:${it.detail}:${it.bridgeCode}:${it.walletId}" },
         )
         controller.handleReturn(BittensorAddReturn.Proven(proof(BittensorWallets.PURPOSE_ADD)))
         assertEquals(listOf(AddWalletAuth("TAO", alice, message, signature)), added)
@@ -345,7 +353,11 @@ class AddSignInOptionsTest {
         assertEquals("default", error)
 
         controller.handleReturn(BittensorAddReturn.Failed(BittensorWallets.ERROR_WALLET, "Rejected"))
-        assertEquals("wallet_error:Rejected", error)
+        assertEquals("wallet_error:Rejected:null:", error)
         assertEquals(1, added.size)
+
+        // the bridge page's code and the wallet reach the sheet's text
+        controller.handleReturn(BittensorAddReturn.Failed(BittensorWallets.ERROR_WALLET, "User rejected.", "user_rejected", "walletconnect"))
+        assertEquals("wallet_error:User rejected.:user_rejected:walletconnect", error)
     }
 }
