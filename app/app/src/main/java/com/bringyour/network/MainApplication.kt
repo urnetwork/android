@@ -530,9 +530,10 @@ class MainApplication : Application() {
     /**
      * The whitelist-network measurement probe (P052). Bounded, URnetwork-owned
      * endpoints only, local logs only; see WhitelistProbe. Built lazily so its
-     * cool-down state lives for the process. The connect-failure trigger that
-     * calls [maybeRunWhitelistProbe] is wired by the connect branch
-     * fix/ru-whitelist-bypass (which also adds the SIM-country extender hint).
+     * cool-down state lives for the process. ConnectViewModel calls
+     * [maybeRunWhitelistProbe] when a connect attempt fails (the sdk's
+     * CONNECT_FAILED, or no provider in the window past the time bound, while the
+     * user wants to be connected; see ConnectFailurePolicy).
      */
     private val whitelistProbe by lazy {
         com.bringyour.network.analytics.WhitelistProbe(

@@ -19,6 +19,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bringyour.network.DeviceManager
 import com.bringyour.network.ForegroundDeviceControllerOwner
+import com.bringyour.network.MainApplication
 import com.bringyour.network.TAG
 import com.bringyour.network.ui.shared.models.ConnectStatus
 import com.bringyour.network.ui.theme.BlueLight
@@ -95,6 +96,13 @@ constructor(
 
     // var grid by mutableStateOf<ConnectGrid?>(null)
     private var tunnelConnected = false
+
+    // A failed connect attempt (the sdk's CONNECT_FAILED, or no provider in the
+    // window past the time bound, while the user wants to be connected) is
+    // handed to the whitelist probe, which decides whether to run (P052).
+    private val connectFailureMonitor = ConnectFailureMonitor()
+    private var connectFailureCheckJob: Job? = null
+    private var connectFailureCheckAtMillis: Long? = null
 
     var displayReconnectTunnel by mutableStateOf(false)
         private set
@@ -380,6 +388,7 @@ constructor(
             windowCurrentSize = newWindowCurrentSize
             providerGridPoints = newProviderGridPoints
             ipFamilyPoints = newIpFamilyPoints
+            checkConnectFailure()
         }
     }
 
@@ -394,7 +403,57 @@ constructor(
         }
     }
 
+    /**
+     * Folds the view controller's raw status and window into the connect failure
+     * monitor and hands a failed attempt to MainApplication's whitelist probe,
+     * whose own trigger (cellular, network country, cool-down) decides whether
+     * it runs. The raw status matters: CONNECT_FAILED has no ConnectStatus of its
+     * own. Main thread.
+     */
+    private fun checkConnectFailure() {
+        val failed = connectFailureMonitor.observe(
+            connectRequested = viewControllerDevice?.connectEnabled == true,
+            connectionStatus = connectVc?.connectionStatus,
+            windowProviderCount = windowCurrentSize,
+            nowMillis = System.currentTimeMillis(),
+        )
+        if (failed) {
+            (appContext.applicationContext as? MainApplication)
+                ?.maybeRunWhitelistProbe(connectFailed = true)
+        }
+        scheduleConnectFailureCheck()
+    }
+
+    // The time bound has to be checked even when no status or window event
+    // arrives, so re-check when the pending attempt's bound elapses.
+    private fun scheduleConnectFailureCheck() {
+        val timeoutAtMillis = connectFailureMonitor.timeoutAtMillis()
+        if (timeoutAtMillis == connectFailureCheckAtMillis) {
+            return
+        }
+        connectFailureCheckJob?.cancel()
+        connectFailureCheckJob = null
+        connectFailureCheckAtMillis = timeoutAtMillis
+        if (timeoutAtMillis == null) {
+            return
+        }
+        connectFailureCheckJob = viewModelScope.launch {
+            delay(maxOf(0L, timeoutAtMillis - System.currentTimeMillis()))
+            connectFailureCheckJob = null
+            connectFailureCheckAtMillis = null
+            checkConnectFailure()
+        }
+    }
+
+    private fun resetConnectFailureMonitor() {
+        connectFailureMonitor.reset()
+        connectFailureCheckJob?.cancel()
+        connectFailureCheckJob = null
+        connectFailureCheckAtMillis = null
+    }
+
     private fun updateConnectionStatus() {
+        viewModelScope.launch { checkConnectFailure() }
         connectVc?.let { vc ->
             vc.connectionStatus?.let { status ->
                 ConnectStatus.fromString(status)?.let { statusFromStr ->
@@ -512,6 +571,7 @@ constructor(
         tunnelConnected = false
         displayReconnectTunnel = false
         _contractStatus.value = null
+        resetConnectFailureMonitor()
         if (device == null) {
             _connectStatus.value = ConnectStatus.DISCONNECTED
         } else {
@@ -546,6 +606,7 @@ constructor(
             providerGridPoints = mapOf()
             windowCurrentSize = 0
             lastGridSignature = ""
+            resetConnectFailureMonitor()
         }
     }
 

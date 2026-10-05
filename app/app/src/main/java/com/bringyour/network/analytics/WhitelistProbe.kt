@@ -85,11 +85,12 @@ fun formatWhitelistProbeLog(steps: List<WhitelistProbeStep>): String {
  * [checkApiReachable] performs step (a): a bounded reachability check of the
  * URnetwork api/platform host (the real implementation does an https GET of the
  * api `/status` endpoint). It is injected so the coordinator is unit testable
- * without network I/O. Steps (b) alt whodis on UDP 53 and (d) a pilot domestic
- * extender need a connect/sdk probe that is not on sdk main (it is on the
- * unmerged connect branch), and step (c) a recursive query to a URnetwork zone
- * is not possible because no such recursive-resolvable zone exists (whodis dials
- * the alt host directly). They are recorded as skipped with the reason.
+ * without network I/O. Step (b) alt whodis on UDP 53 needs a bindable
+ * connect/sdk whodis probe, which sdk main does not have; step (d) needs a
+ * configured pilot domestic extender, and none is configured; and step (c) a
+ * recursive query to a URnetwork zone is not possible because no such
+ * recursive-resolvable zone exists (whodis dials the alt host directly). They
+ * are recorded as skipped with the reason.
  *
  * [log] receives the single formatted block, which the caller writes to the app
  * log. [nowMillis] is the clock.
@@ -124,7 +125,7 @@ class WhitelistProbe(
             WhitelistProbeStep(
                 "alt-whodis-udp53",
                 null,
-                "needs a connect/sdk probe (unmerged connect branch fix/ru-whitelist-bypass)",
+                "needs a bindable connect/sdk whodis probe (not on sdk main)",
             ),
             WhitelistProbeStep(
                 "carrier-recursive-dns",
@@ -134,7 +135,7 @@ class WhitelistProbe(
             WhitelistProbeStep(
                 "pilot-extender",
                 null,
-                "no pilot domestic extender configured (SIM-country hint on the connect branch)",
+                "no pilot domestic extender configured",
             ),
         )
         log(formatWhitelistProbeLog(steps))
