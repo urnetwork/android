@@ -105,6 +105,14 @@ import kotlin.concurrent.thread
     // like the IPv4 mask. Not an upstream resolver either.
     val dnsIpv6s = listOf("2001:db8::65:49:70:65")
 
+    // Diagnostics that support needs from "send feedback with logs": logcat plus
+    // the sdk log, which is what feedback uploads (see AppDiagnosticLog). The sdk
+    // writer runs only when called, so holding it loads no SDK code.
+    private val diagnosticLog = AppDiagnosticLog(
+        logcat = { Log.i(TAG, it) },
+        sdkLog = { tag, line -> Sdk.logAppInfo(tag, line) },
+    )
+
     //    private var pfd: ParcelFileDescriptor? = null
     private var packetFlow: PacketFlow? = null
     private var alwaysOnGuardPfd: ParcelFileDescriptor? = null
@@ -751,7 +759,8 @@ import kotlin.concurrent.thread
         app.device?.let { device ->
             // Uploaded logs then show whether strict Private DNS (DoT) was in
             // force for a "connected but no DNS" report (see PrivateDnsMode).
-            Log.i(TAG, "[service]private dns mode=${app.privateDnsMode.value.logValue()}")
+            // Written to the sdk log too, which is what feedback uploads.
+            diagnosticLog.info(SERVICE_LOG_TAG, privateDnsModeLogLine(app.privateDnsMode.value))
             val pfd = try {
                 builder.establish()
             } catch (e: Exception) {
@@ -861,10 +870,9 @@ import kotlin.concurrent.thread
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             builder.setMetered(false)
         }
-        Log.i(
-            TAG,
-            "[service]private dns mode=${(application as MainApplication).privateDnsMode.value.logValue()}",
-        )
+        // logcat only: the guard also runs before first unlock, where no SDK
+        // object may be loaded (see holdDirectBootAlwaysOnGuard)
+        Log.i(TAG, privateDnsModeLogLine((application as MainApplication).privateDnsMode.value))
         val established = try {
             builder.establish()
         } catch (e: Exception) {
