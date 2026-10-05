@@ -33,6 +33,7 @@ import com.bringyour.network.ui.components.referral.GoldOverlayScaffold
 import com.bringyour.network.ui.components.referral.GoldShareButton
 import com.bringyour.network.ui.components.referral.ReferralFrog
 import com.bringyour.network.ui.components.referral.ReferralGoldCodePill
+import com.bringyour.network.ui.components.referral.referralShareMessage
 import com.bringyour.network.ui.theme.ReferralGoldLight
 import com.bringyour.network.ui.theme.URNetworkTheme
 
@@ -118,10 +119,7 @@ fun ReferralCelebrationOverlay(
                         Spacer(modifier = Modifier.height(16.dp))
 
                         GoldShareButton(
-                            shareMessage = stringResource(
-                                id = R.string.referral_share_message,
-                                referralCode
-                            ),
+                            shareMessage = referralShareMessage(referralCode),
                             modifier = Modifier.fillMaxWidth()
                         )
                     }

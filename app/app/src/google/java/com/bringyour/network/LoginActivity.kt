@@ -63,6 +63,18 @@ class LoginActivity : AppCompatActivity() {
     private var referrerClient: InstallReferrerClient? = null
     private var referralCode by mutableStateOf<String?>(null)
 
+    // the install referrer is read once per install (InstallReferrerCheck)
+    private val installReferrerCheck by lazy {
+        val prefs = getSharedPreferences(INSTALL_REFERRER_PREFS, MODE_PRIVATE)
+        InstallReferrerCheck(object : InstallReferrerCheck.Store {
+            override fun isChecked(): Boolean = prefs.getBoolean(INSTALL_REFERRER_CHECKED, false)
+
+            override fun markChecked() {
+                prefs.edit().putBoolean(INSTALL_REFERRER_CHECKED, true).apply()
+            }
+        })
+    }
+
     private val loginViewModel: LoginViewModel by viewModels()
 
     val activityResultSender = ActivityResultSender(this)
@@ -155,8 +167,9 @@ class LoginActivity : AppCompatActivity() {
         } else if (app.device != null) {
             navigateToMain()
             return
-        } else if (app.deviceManager.canRefer) {
-            // fresh install, async check the install referrer
+        } else if (installReferrerCheck.shouldCheck(signedIn = app.device != null)) {
+            // signed out and the install referrer not read yet: a Play install
+            // from a ur.io/c referral link carries the code
             // see https://developer.android.com/google/play/installreferrer/library
 
             referrerClient = InstallReferrerClient.newBuilder(this).build()
@@ -167,14 +180,10 @@ class LoginActivity : AppCompatActivity() {
                             when (responseCode) {
                                 InstallReferrerClient.InstallReferrerResponse.OK -> {
                                     try {
-                                        referrerClient?.installReferrer?.let { details ->
-                                            details.installReferrer?.let {
-                                                val u = Uri.parse(it)
-                                                if (u.scheme == "https" && u.host == "ur.io" && u.path == "/c") {
-                                                    Log.i(TAG, "referrerClient createWithUri $u")
-                                                    createWithUri(Uri.parse(it))
-                                                }
-                                            }
+                                        val referrer = referrerClient?.installReferrer?.installReferrer
+                                        InstallReferrerCheck.referralCode(referrer)?.let { code ->
+                                            Log.i(TAG, "install referrer: referral code")
+                                            referralCode = code
                                         }
                                     } catch (e: Exception) {
                                         // do nothing
@@ -182,7 +191,7 @@ class LoginActivity : AppCompatActivity() {
                                 }
                             }
                         } finally {
-                            app.deviceManager.canRefer = false
+                            installReferrerCheck.finish(responseCode)
 
                             referrerClient?.endConnection()
                             referrerClient = null
@@ -761,3 +770,7 @@ class LoginActivity : AppCompatActivity() {
     }
 
 }
+
+// the install referrer's one-shot flag (InstallReferrerCheck.Store)
+private const val INSTALL_REFERRER_PREFS = "install_referrer"
+private const val INSTALL_REFERRER_CHECKED = "checked"

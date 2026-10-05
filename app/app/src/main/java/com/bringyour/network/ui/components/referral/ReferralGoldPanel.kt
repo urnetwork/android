@@ -220,7 +220,7 @@ fun ReferralGoldPanel(
                 Spacer(modifier = Modifier.height(12.dp))
 
                 GoldShareButton(
-                    shareMessage = stringResource(id = R.string.referral_share_message, referralCode),
+                    shareMessage = referralShareMessage(referralCode),
                     modifier = Modifier.fillMaxWidth()
                 )
             } else if (codeFailed) {
