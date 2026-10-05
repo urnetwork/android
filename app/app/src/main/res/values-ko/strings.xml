@@ -9,7 +9,6 @@
     <string name="add_blocked_location">차단된 위치 추가</string>
     <string name="add_emoji">이모지 추가</string>
     <string name="add_referral_code">추천 코드 추가</string>
-    <string name="add_referral_extra_rewards">추가 보상을 얻으려면 추천 코드를 추가하세요</string>
     <string name="add_sign_in_method">로그인 방법 추가</string>
     <string name="add_sign_in_method_2">로그인 방법 추가</string>
     <string name="advanced">고급</string>
@@ -31,7 +30,6 @@
     <string name="app_split_rules">앱 분할 규칙</string>
     <string name="app_split_starter">분할 앱 0개</string>
     <string name="apple_sign_in_method_added">Apple 로그인 방법이 추가되었습니다</string>
-    <string name="apply_bonus">보너스 적용</string>
     <string name="apps">앱</string>
     <string name="are_you_sure_delete_account">정말로 계정을 삭제하시겠습니까?</string>
     <string name="auth_code">인증 코드</string>
@@ -161,7 +159,6 @@
     <string name="edit_emoji">이모지 편집</string>
     <string name="edit_network_name">네트워크 이름 편집</string>
     <string name="edit_profile">프로필 수정</string>
-    <string name="edit_referral_code">추천 코드 편집</string>
     <string name="edit_split_rule">분할 규칙 편집</string>
     <string name="emoji_tag">이모지 태그</string>
     <string name="emoji_tag_delete_last">마지막 이모지 삭제</string>
@@ -172,6 +169,7 @@
     <string name="emoji_tag_shuffle">다른 추천</string>
     <string name="enjoying_urnetwork">URnetwork가 마음에 드시나요?</string>
     <string name="enter">들어가기</string>
+    <string name="enter_a_bonus_referral_code">보너스 추천 코드를 입력하세요</string>
     <string name="enter_a_password">비밀번호를 입력하세요</string>
     <string name="enter_a_solana_usdc_wallet_address">Solana USDC 지갑 주소를 입력하세요</string>
     <string name="enter_balance_code">잔액 코드를 입력하세요</string>
@@ -341,7 +339,6 @@
     <string name="no_solana_wallet_found">Solana 결제를 처리할 지갑 앱을 찾을 수 없습니다.</string>
     <string name="no_solana_wallets_found">Solana 지갑을 찾을 수 없습니다</string>
     <string name="no_wallets_found_alert_content">이 장치에 설치된 Solana 지갑이 없습니다. 지갑을 설치하고 다시 시도하십시오.</string>
-    <string name="none">없음</string>
     <string name="notifications_label">알림</string>
     <string name="of_total">/ %1$s</string>
     <string name="off">꺼짐</string>
@@ -428,6 +425,7 @@
     <string name="referral_bonus_applied">추천 보너스 적용됨</string>
     <string name="referral_code">추천 코드</string>
     <string name="referral_code_capped">이 코드는 이미 모두 사용되었습니다</string>
+    <string name="referral_code_optional">추천 코드 (선택 사항)</string>
     <string name="referral_network">추천 네트워크</string>
     <string name="referral_network_updated">추천 네트워크가 업데이트되었습니다</string>
     <string name="referral_points">추천 포인트</string>

@@ -44,6 +44,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -52,6 +53,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.bringyour.network.R
+import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.components.URTextInputLabel
 import com.bringyour.network.ui.components.referral.ReferralGoldPanel
 import com.bringyour.network.ui.settings.SettingsViewModel
@@ -68,6 +70,24 @@ import com.bringyour.network.ui.theme.TopBarTitleTextStyle
 import com.bringyour.network.ui.theme.URNetworkTheme
 import com.bringyour.network.ui.wallet.EarningsFormat
 import kotlinx.coroutines.launch
+
+internal const val ACCEPTANCE_REFERRALS_ADD_CODE_TAG = "acceptance.referrals.addCode"
+
+/** What the referral network row offers. */
+sealed interface ReferralNetworkAction {
+    /** No referral network: the primary "Add referral code" action. */
+    data object AddCode : ReferralNetworkAction
+
+    /** The network this one signed up with, and Update. */
+    data class Update(val networkName: String) : ReferralNetworkAction
+}
+
+internal fun referralNetworkAction(referralNetworkName: String?): ReferralNetworkAction =
+    if (referralNetworkName.isNullOrBlank()) {
+        ReferralNetworkAction.AddCode
+    } else {
+        ReferralNetworkAction.Update(referralNetworkName)
+    }
 
 /**
  * Account › Referrals ("Refer and earn"). Everything about the referral program
@@ -242,25 +262,40 @@ fun ReferralsScreenContent(
             Spacer(modifier = Modifier.height(16.dp))
 
             /**
-             * 4. The referral network this network signed up with.
+             * 4. The referral network this network signed up with. With none
+             * yet, the row is the code entry itself: a friend who missed the
+             * field at sign-up adds the code here (support inbox 1698).
              */
             URTextInputLabel(stringResource(id = R.string.referral_network))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    referralNetworkName ?: stringResource(id = R.string.none),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = Color.White
-                )
+            when (val action = referralNetworkAction(referralNetworkName)) {
+                ReferralNetworkAction.AddCode -> {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    URButton(
+                        onClick = onUpdateReferralNetwork,
+                        modifier = Modifier.testTag(ACCEPTANCE_REFERRALS_ADD_CODE_TAG)
+                    ) { buttonTextStyle ->
+                        Text(stringResource(id = R.string.add_referral_code), style = buttonTextStyle)
+                    }
+                }
+                is ReferralNetworkAction.Update -> {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            action.networkName,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color.White
+                        )
 
-                TextButton(onClick = onUpdateReferralNetwork) {
-                    Text(
-                        stringResource(id = R.string.update),
-                        color = BlueMedium
-                    )
+                        TextButton(onClick = onUpdateReferralNetwork) {
+                            Text(
+                                stringResource(id = R.string.update),
+                                color = BlueMedium
+                            )
+                        }
+                    }
                 }
             }
 

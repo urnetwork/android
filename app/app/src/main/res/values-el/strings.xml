@@ -9,7 +9,6 @@
     <string name="add_blocked_location">Προσθήκη αποκλεισμένης τοποθεσίας</string>
     <string name="add_emoji">Προσθήκη emoji</string>
     <string name="add_referral_code">Προσθήκη κωδικού παραπομπής</string>
-    <string name="add_referral_extra_rewards">Προσθέστε κωδικό παραπομπής για να κερδίσετε επιπλέον ανταμοιβές</string>
     <string name="add_sign_in_method">Προσθήκη μεθόδου σύνδεσης</string>
     <string name="add_sign_in_method_2">Προσθήκη μεθόδου σύνδεσης</string>
     <string name="advanced">Για προχωρημένους</string>
@@ -31,7 +30,6 @@
     <string name="app_split_rules">Κανόνες διαχωρισμού εφαρμογών</string>
     <string name="app_split_starter">0 εφαρμογές σε διαχωρισμό</string>
     <string name="apple_sign_in_method_added">Η μέθοδος σύνδεσης Apple προστέθηκε</string>
-    <string name="apply_bonus">Εφαρμογή μπόνους</string>
     <string name="apps">Εφαρμογές</string>
     <string name="are_you_sure_delete_account">Είστε βέβαιοι ότι θέλετε να διαγράψετε τον λογαριασμό σας;</string>
     <string name="auth_code">Κωδικός ταυτοποίησης</string>
@@ -161,7 +159,6 @@
     <string name="edit_emoji">Επεξεργασία emoji</string>
     <string name="edit_network_name">Επεξεργασία ονόματος δικτύου</string>
     <string name="edit_profile">Επεξεργασία προφίλ</string>
-    <string name="edit_referral_code">Επεξεργασία κωδικού παραπομπής</string>
     <string name="edit_split_rule">Επεξεργασία κανόνα διαχωρισμού</string>
     <string name="emoji_tag">Ετικέτα emoji</string>
     <string name="emoji_tag_delete_last">Διαγραφή τελευταίου emoji</string>
@@ -172,6 +169,7 @@
     <string name="emoji_tag_shuffle">Άλλη πρόταση</string>
     <string name="enjoying_urnetwork">Απολαμβάνετε το URnetwork;</string>
     <string name="enter">Εισαγωγή</string>
+    <string name="enter_a_bonus_referral_code">Εισαγάγετε έναν κωδικό παραπομπής μπόνους</string>
     <string name="enter_a_password">Εισαγάγετε έναν κωδικό πρόσβασης</string>
     <string name="enter_a_solana_usdc_wallet_address">Εισαγάγετε μια διεύθυνση πορτοφολιού USDC στο Solana</string>
     <string name="enter_balance_code">Εισαγάγετε τον κωδικό υπολοίπου</string>
@@ -341,7 +339,6 @@
     <string name="no_solana_wallet_found">Δεν βρέθηκε εφαρμογή πορτοφολιού για την πληρωμή Solana.</string>
     <string name="no_solana_wallets_found">Δεν βρέθηκαν πορτοφόλια Solana</string>
     <string name="no_wallets_found_alert_content">Δεν βρέθηκαν πορτοφόλια Solana εγκατεστημένα σε αυτήν τη συσκευή. Εγκαταστήστε ένα πορτοφόλι και δοκιμάστε ξανά.</string>
-    <string name="none">Κανένα</string>
     <string name="notifications_label">Ειδοποιήσεις</string>
     <string name="of_total">από %1$s</string>
     <string name="off">Ανενεργό</string>
@@ -428,6 +425,7 @@
     <string name="referral_bonus_applied">Εφαρμόστηκε μπόνους παραπομπής</string>
     <string name="referral_code">Κωδικός παραπομπής</string>
     <string name="referral_code_capped">Αυτός ο κωδικός έχει εξαντληθεί</string>
+    <string name="referral_code_optional">Κωδικός παραπομπής (προαιρετικό)</string>
     <string name="referral_network">Δίκτυο παραπομπών</string>
     <string name="referral_network_updated">Το δίκτυο παραπομπών ενημερώθηκε</string>
     <string name="referral_points">Πόντοι παραπομπών</string>

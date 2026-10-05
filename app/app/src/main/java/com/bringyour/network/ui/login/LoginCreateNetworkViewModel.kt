@@ -9,24 +9,21 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bringyour.network.NetworkSpaceManagerProvider
-import com.bringyour.network.R
 import com.bringyour.network.TAG
-import com.bringyour.sdk.Api
+import com.bringyour.network.ui.components.referral.ReferralCodeInputController
+import com.bringyour.network.ui.components.referral.apiReferralCodeChecker
 import com.bringyour.sdk.NetworkCreateArgs
 import com.bringyour.sdk.NetworkNameValidationViewController
 import com.bringyour.sdk.Sdk
-import com.bringyour.sdk.ValidateReferralCodeArgs
 import com.bringyour.sdk.WalletAuthArgs
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class LoginCreateNetworkViewModel @Inject constructor(
-    networkSpaceManagerProvider: NetworkSpaceManagerProvider,
+    private val networkSpaceManagerProvider: NetworkSpaceManagerProvider,
 ): ViewModel() {
 
     private var networkNameValidationVc: NetworkNameValidationViewController? = null
@@ -55,16 +52,6 @@ class LoginCreateNetworkViewModel @Inject constructor(
 
     val isValidatingNetworkName: Boolean
         get() = networkNameCheckState == NetworkNameCheckState.CHECKING
-
-//    var presentBonusSheet by mutableStateOf(false)
-//        private set
-
-    private val _presentBonusSheet = MutableStateFlow<Boolean>(false)
-    val presentBonusSheet: StateFlow<Boolean> get() = _presentBonusSheet
-
-    val setPresentBonusSheet: (Boolean) -> Unit = { pb ->
-        _presentBonusSheet.value = pb
-    }
 
     var networkName by mutableStateOf(TextFieldValue(""))
         private set
@@ -95,103 +82,20 @@ class LoginCreateNetworkViewModel @Inject constructor(
         termsAgreed = ta
     }
 
-    private val _referralCode = mutableStateOf(TextFieldValue(""))
-    val referralCode: TextFieldValue get() = _referralCode.value
-    val setReferralCode: (TextFieldValue) -> Unit = { _referralCode.value = it }
-
-    private val _referralCodeIsCapped = MutableStateFlow<Boolean>(false)
-    val referralCodeIsCapped: StateFlow<Boolean> get() = _referralCodeIsCapped
-
-    var isValidReferralCode by mutableStateOf(false)
-        private set
-
-    var isValidatingReferralCode by mutableStateOf(false)
-        private set
-
-    // this is used so we don't display an error state when the form is initialized with a blank value
-    var referralValidationComplete by mutableStateOf(false)
-        private set
-
-    private val _referralCodeInputSupportingTextRes = MutableStateFlow<Int?>(null)
-    val referralCodeInputSupportingTextRes: StateFlow<Int?> get() = _referralCodeInputSupportingTextRes
-
-    // the check itself did not run or did not answer (transport error, or the
-    // server refused the call): the code was never judged, so the form must
-    // not call it invalid
-    private var referralCheckFailed = false
-
-    val validateReferralCode: (Api?, (Boolean) -> Unit) -> Unit = { api, onComplete ->
-
-        if (!isValidatingReferralCode) {
-            isValidatingReferralCode = true
-            referralValidationComplete = false
-
-            val args = ValidateReferralCodeArgs()
-
-
-            try {
-                args.referralCode = _referralCode.value.text
-
-                api?.validateReferralCode(args) { result, err ->
-                    viewModelScope.launch {
-
-                        if (err != null) {
-                            Log.i(TAG, "validateReferralCode callback err: ${err.message}")
-                            isValidReferralCode = false
-                            referralCheckFailed = true
-                        } else {
-                            isValidReferralCode = result?.isValid ?: false
-                            referralCheckFailed = false
-                        }
-
-                        isValidatingReferralCode = false
-                        referralValidationComplete = true
-
-                        _referralCodeIsCapped.value = result?.isCapped ?: false
-
-                        setReferralCodeInputSupportingText()
-
-                        onComplete(isValidReferralCode && !_referralCodeIsCapped.value)
-                    }
-                }
-            } catch (e: Exception) {
-                Log.i(TAG, "${e.message}")
-                isValidReferralCode = false
-                referralCheckFailed = true
-                isValidatingReferralCode = false
-                referralValidationComplete = true
-                setReferralCodeInputSupportingText()
-            }
-
-        }
-
-    }
+    /**
+     * The optional referral code, always visible above Continue: typing
+     * checks it, and the create call carries [ReferralCodeInputController.createCode].
+     */
+    val referralInput = ReferralCodeInputController(
+        viewModelScope,
+        apiReferralCodeChecker { networkSpaceManagerProvider.getNetworkSpace()?.api },
+    )
 
     var networkNameSupportingText by mutableStateOf("")
         private set
 
     val setNetworkNameSupportingText: (String) -> Unit = { msg ->
         networkNameSupportingText = msg
-    }
-
-    val setReferralCodeInputSupportingText: () -> Unit = {
-
-        var msgRes: Int? = null
-
-        if (!isValidatingNetworkName && referralValidationComplete)  {
-
-            if (referralCheckFailed) {
-                msgRes = R.string.something_went_wrong
-            } else if (!isValidReferralCode) {
-                msgRes = R.string.invalid_referral_code
-            }
-
-            if (_referralCodeIsCapped.value) {
-                msgRes = R.string.referral_code_capped
-            }
-        }
-
-        _referralCodeInputSupportingTextRes.value = msgRes
     }
 
     private val networkNameCheck = NetworkNameCheck(
@@ -231,8 +135,8 @@ class LoginCreateNetworkViewModel @Inject constructor(
         args.productUpdatesOptOut = !productUpdates
         args.verifyOtpNumeric = true
 
-        if (isValidReferralCode && !isValidatingReferralCode && !_referralCodeIsCapped.value) {
-            args.referralCode = _referralCode.value.text
+        referralInput.createCode?.let { code ->
+            args.referralCode = code
         }
 
         when(params) {

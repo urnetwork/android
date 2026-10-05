@@ -9,7 +9,6 @@
     <string name="add_blocked_location">Ongeza eneo lililofungwa</string>
     <string name="add_emoji">Ongeza emoji</string>
     <string name="add_referral_code">Ongeza msimbo wa rufaa</string>
-    <string name="add_referral_extra_rewards">Ongeza msimbo wa rufaa ili kupata zawadi za ziada</string>
     <string name="add_sign_in_method">Ongeza njia ya kuingia</string>
     <string name="add_sign_in_method_2">Ongeza Njia ya Kuingia</string>
     <string name="advanced">Za kina</string>
@@ -31,7 +30,6 @@
     <string name="app_split_rules">Sheria za mgawanyo wa programu</string>
     <string name="app_split_starter">Programu 0 zilizogawanywa</string>
     <string name="apple_sign_in_method_added">Njia ya kuingia ya Apple imeongezwa</string>
-    <string name="apply_bonus">Tumia bonasi</string>
     <string name="apps">Programu</string>
     <string name="are_you_sure_delete_account">Una uhakika unataka kufuta akaunti yako?</string>
     <string name="auth_code">Nambari ya uthibitishaji</string>
@@ -161,7 +159,6 @@
     <string name="edit_emoji">Hariri emoji</string>
     <string name="edit_network_name">Hariri jina la mtandao</string>
     <string name="edit_profile">Hariri Wasifu</string>
-    <string name="edit_referral_code">Hariri msimbo wa rufaa</string>
     <string name="edit_split_rule">Hariri sheria ya mgawanyo</string>
     <string name="emoji_tag">Lebo ya emoji</string>
     <string name="emoji_tag_delete_last">Futa emoji ya mwisho</string>
@@ -172,6 +169,7 @@
     <string name="emoji_tag_shuffle">Pendekeza nyingine</string>
     <string name="enjoying_urnetwork">Unafurahia URnetwork?</string>
     <string name="enter">Ingia</string>
+    <string name="enter_a_bonus_referral_code">Weka msimbo wa rufaa wa bonasi</string>
     <string name="enter_a_password">Weka nenosiri</string>
     <string name="enter_a_solana_usdc_wallet_address">Weka anwani ya pochi ya USDC kwenye Solana</string>
     <string name="enter_balance_code">Weka msimbo wa salio</string>
@@ -341,7 +339,6 @@
     <string name="no_solana_wallet_found">Hakuna programu ya pochi iliyopatikana kwa malipo ya Solana.</string>
     <string name="no_solana_wallets_found">Hakuna pochi za Solana zilizopatikana</string>
     <string name="no_wallets_found_alert_content">Hakuna pochi za Solana zilizopatikana zimewekwa kwenye kifaa hiki. Tafadhali sakinisha pochi na ujaribu tena.</string>
-    <string name="none">Hakuna</string>
     <string name="notifications_label">Arifa</string>
     <string name="of_total">kati ya %1$s</string>
     <string name="off">Imezimwa</string>
@@ -428,6 +425,7 @@
     <string name="referral_bonus_applied">Bonasi ya rufaa imetumika</string>
     <string name="referral_code">Msimbo wa rufaa</string>
     <string name="referral_code_capped">Msimbo huu umetumika tayari</string>
+    <string name="referral_code_optional">Msimbo wa rufaa (si lazima)</string>
     <string name="referral_network">Mtandao wa rufaa</string>
     <string name="referral_network_updated">Mtandao wa rufaa umesasishwa</string>
     <string name="referral_points">Pointi za marejeleo</string>

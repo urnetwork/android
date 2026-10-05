@@ -9,7 +9,6 @@
     <string name="add_blocked_location">Přidat blokovanou lokalitu</string>
     <string name="add_emoji">Přidat emoji</string>
     <string name="add_referral_code">Přidání doporučujícího kódu</string>
-    <string name="add_referral_extra_rewards">Přidáním kódu pro doporučení získáte další odměny</string>
     <string name="add_sign_in_method">Přidat způsob přihlášení</string>
     <string name="add_sign_in_method_2">Přidat způsob přihlášení</string>
     <string name="advanced">Pokročilé</string>
@@ -31,7 +30,6 @@
     <string name="app_split_rules">Pravidla rozdělení aplikací</string>
     <string name="app_split_starter">0 rozdělených aplikací</string>
     <string name="apple_sign_in_method_added">Způsob přihlášení Apple byl přidán</string>
-    <string name="apply_bonus">Použít bonus</string>
     <string name="apps">Aplikace</string>
     <string name="are_you_sure_delete_account">Opravdu chcete svůj účet odstranit?</string>
     <string name="auth_code">Ověřovací kód</string>
@@ -161,7 +159,6 @@
     <string name="edit_emoji">Upravit emoji</string>
     <string name="edit_network_name">Upravit název sítě</string>
     <string name="edit_profile">Upravit profil</string>
-    <string name="edit_referral_code">Upravit doporučující kód</string>
     <string name="edit_split_rule">Upravit pravidlo rozdělení</string>
     <string name="emoji_tag">Emoji značka</string>
     <string name="emoji_tag_delete_last">Smazat poslední emoji</string>
@@ -172,6 +169,7 @@
     <string name="emoji_tag_shuffle">Navrhnout jiné</string>
     <string name="enjoying_urnetwork">Užíváte si URnetwork?</string>
     <string name="enter">Enter</string>
+    <string name="enter_a_bonus_referral_code">Vložte bonusový referální kód</string>
     <string name="enter_a_password">Zadejte heslo</string>
     <string name="enter_a_solana_usdc_wallet_address">Zadejte adresu peněženky USDC v síti Solana</string>
     <string name="enter_balance_code">Zadejte kód zůstatku</string>
@@ -341,7 +339,6 @@
     <string name="no_solana_wallet_found">Nebyla nalezena žádná aplikace peněženky pro platbu Solana.</string>
     <string name="no_solana_wallets_found">Nebyly nalezeny žádné peněženky Solana</string>
     <string name="no_wallets_found_alert_content">V tomto zařízení nebyly nalezeny žádné peněženky Solana. Nainstalujte prosím peněženku a zkuste to znovu.</string>
-    <string name="none">Žádné</string>
     <string name="notifications_label">Oznámení</string>
     <string name="of_total">z %1$s</string>
     <string name="off">Vypnuto</string>
@@ -428,6 +425,7 @@
     <string name="referral_bonus_applied">Uplatnění bonusu za doporučení</string>
     <string name="referral_code">Doporující kód</string>
     <string name="referral_code_capped">Tento kód byl již vyčerpán</string>
+    <string name="referral_code_optional">Doporučující kód (nepovinné)</string>
     <string name="referral_network">Síť doporučení</string>
     <string name="referral_network_updated">Síť doporučení byla aktualizována</string>
     <string name="referral_points">Body za doporučení</string>

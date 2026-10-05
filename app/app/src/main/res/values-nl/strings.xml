@@ -9,7 +9,6 @@
     <string name="add_blocked_location">Geblokkeerde locatie toevoegen</string>
     <string name="add_emoji">Emoji toevoegen</string>
     <string name="add_referral_code">Referentiecode toevoegen</string>
-    <string name="add_referral_extra_rewards">Voeg een referentiecode toe en verdien extra beloningen</string>
     <string name="add_sign_in_method">Inlogmethode toevoegen</string>
     <string name="add_sign_in_method_2">Inlogmethode toevoegen</string>
     <string name="advanced">Geavanceerd</string>
@@ -31,7 +30,6 @@
     <string name="app_split_rules">App-splitsregels</string>
     <string name="app_split_starter">0 gesplitste apps</string>
     <string name="apple_sign_in_method_added">Apple-inlogmethode toegevoegd</string>
-    <string name="apply_bonus">Bonus toepassen</string>
     <string name="apps">Apps</string>
     <string name="are_you_sure_delete_account">Weet je zeker dat je je account wilt verwijderen?</string>
     <string name="auth_code">Auth-code</string>
@@ -161,7 +159,6 @@
     <string name="edit_emoji">Emoji bewerken</string>
     <string name="edit_network_name">Netwerknaam bewerken</string>
     <string name="edit_profile">Profiel bewerken</string>
-    <string name="edit_referral_code">Referentiecode bewerken</string>
     <string name="edit_split_rule">Splitsregel bewerken</string>
     <string name="emoji_tag">Emoji-tag</string>
     <string name="emoji_tag_delete_last">Laatste emoji verwijderen</string>
@@ -172,6 +169,7 @@
     <string name="emoji_tag_shuffle">Andere suggestie</string>
     <string name="enjoying_urnetwork">Bevalt URnetwork je?</string>
     <string name="enter">Enter</string>
+    <string name="enter_a_bonus_referral_code">Voer een bonusreferentiecode in</string>
     <string name="enter_a_password">Voer een wachtwoord in</string>
     <string name="enter_a_solana_usdc_wallet_address">Voer een Solana USDC-walletadres in</string>
     <string name="enter_balance_code">Voer saldo-code in</string>
@@ -341,7 +339,6 @@
     <string name="no_solana_wallet_found">Geen wallet-app gevonden voor de Solana-betaling.</string>
     <string name="no_solana_wallets_found">Geen Solana wallets gevonden</string>
     <string name="no_wallets_found_alert_content">Er zijn geen Solana wallets geïnstalleerd op dit apparaat. Installeer een portemonnee en probeer het opnieuw.</string>
-    <string name="none">Geen</string>
     <string name="notifications_label">Notificaties</string>
     <string name="of_total">van %1$s</string>
     <string name="off">Uit</string>
@@ -428,6 +425,7 @@
     <string name="referral_bonus_applied">Referentiecode toegepast</string>
     <string name="referral_code">Referentiecode</string>
     <string name="referral_code_capped">Deze code is al gebruikt</string>
+    <string name="referral_code_optional">Referentiecode (optioneel)</string>
     <string name="referral_network">Referentienetwerk</string>
     <string name="referral_network_updated">Referentienetwerk bijgewerkt</string>
     <string name="referral_points">Doorverwijzingspunten</string>

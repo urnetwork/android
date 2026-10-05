@@ -12,7 +12,6 @@
     <string name="add_emoji">إضافة إيموجي</string>
     <string name="add_local_split_rule">توجيه محلي</string>
     <string name="add_referral_code">إضافة رمز الإحالة</string>
-    <string name="add_referral_extra_rewards">أضف رمز الإحالة لكسب مكافآت إضافية</string>
     <string name="add_sign_in_method">إضافة طريقة تسجيل دخول</string>
     <string name="add_sign_in_method_2">إضافة طريقة تسجيل الدخول</string>
     <string name="add_tao_for_gas">أضف TAO لرسوم الغاز</string>
@@ -36,7 +35,6 @@
     <string name="app_split_starter">0 تطبيقات مقسّمة</string>
     <string name="apple">Apple</string>
     <string name="apple_sign_in_method_added">تمت إضافة طريقة تسجيل الدخول عبر Apple</string>
-    <string name="apply_bonus">تطبيق المكافأة</string>
     <string name="apps">التطبيقات</string>
     <string name="are_you_sure_delete_account">هل أنت متأكد أنك تريد حذف حسابك؟</string>
     <string name="auth_code">رمز المصادقة</string>
@@ -363,7 +361,6 @@
     <string name="edit_emoji">تعديل الإيموجي</string>
     <string name="edit_network_name">تعديل اسم الشبكة</string>
     <string name="edit_profile">تعديل الملف الشخصي</string>
-    <string name="edit_referral_code">تعديل رمز الإحالة</string>
     <string name="edit_split_rule">تعديل قاعدة التقسيم</string>
     <string name="emoji_tag">وسم الإيموجي</string>
     <string name="emoji_tag_delete_last">حذف آخر إيموجي</string>
@@ -376,6 +373,7 @@
     <string name="enabled_under_auto_footer">مرتبة حسب الأفضلية: H3 و H1 أولًا، ثم whodis، ثم whodis pump. الترتيب ثابت. يبقى بروتوكول نقل واحد على الأقل مفعّلًا.</string>
     <string name="enjoying_urnetwork">هل تستمتع بـ URnetwork؟</string>
     <string name="enter">ادخل</string>
+    <string name="enter_a_bonus_referral_code">أدخل رمز الإحالة المكافأة</string>
     <string name="enter_a_password">أدخل كلمة مرور</string>
     <string name="enter_a_solana_usdc_wallet_address">أدخل عنوان محفظة USDC على Solana</string>
     <string name="enter_address_manually">إدخال العنوان يدويًا</string>
@@ -589,7 +587,6 @@
     <string name="no_solana_wallet_found">لم يتم العثور على تطبيق محفظة لمعالجة الدفع عبر Solana.</string>
     <string name="no_solana_wallets_found">لم يتم العثور على محافظ Solana</string>
     <string name="no_wallets_found_alert_content">لم يتم العثور على أي محافظ Solana مثبتة على هذا الجهاز. يرجى تثبيت محفظة والمحاولة مرة أخرى.</string>
-    <string name="none">لا يوجد</string>
     <string name="notifications_label">الإشعارات</string>
     <string name="of_total">من %1$s</string>
     <string name="off">إيقاف</string>
@@ -700,6 +697,7 @@
     <string name="referral_bonus_applied">تم تطبيق مكافأة الإحالة</string>
     <string name="referral_code">رمز الإحالة</string>
     <string name="referral_code_capped">تم استخدام هذا الرمز بالكامل</string>
+    <string name="referral_code_optional">رمز الإحالة (اختياري)</string>
     <string name="referral_network">شبكة الإحالة</string>
     <string name="referral_network_updated">تم تحديث شبكة الإحالة</string>
     <string name="referral_panel_detail">كل إحالة موثّقة تمنح كلاً منكما %1$d جيبي بايت يومياً مجاناً، مدى الحياة.</string>

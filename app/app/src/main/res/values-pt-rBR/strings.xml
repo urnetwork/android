@@ -9,7 +9,6 @@
     <string name="add_blocked_location">Adicionar localização bloqueada</string>
     <string name="add_emoji">Adicionar emoji</string>
     <string name="add_referral_code">Adicionar código de indicação</string>
-    <string name="add_referral_extra_rewards">Adicione um código de indicação para ganhar recompensas extras</string>
     <string name="add_sign_in_method">Adicionar método de login</string>
     <string name="add_sign_in_method_2">Adicionar método de login</string>
     <string name="advanced">Avançado</string>
@@ -31,7 +30,6 @@
     <string name="app_split_rules">Regras de divisão por app</string>
     <string name="app_split_starter">0 apps divididos</string>
     <string name="apple_sign_in_method_added">Método de login Apple adicionado</string>
-    <string name="apply_bonus">Aplicar bônus</string>
     <string name="apps">Apps</string>
     <string name="are_you_sure_delete_account">Tem certeza de que deseja excluir a sua conta?</string>
     <string name="auth_code">Código de autenticação</string>
@@ -161,7 +159,6 @@
     <string name="edit_emoji">Editar emoji</string>
     <string name="edit_network_name">Editar nome da rede</string>
     <string name="edit_profile">Editar perfil</string>
-    <string name="edit_referral_code">Editar código de indicação</string>
     <string name="edit_split_rule">Editar regra de divisão</string>
     <string name="emoji_tag">Tag de emoji</string>
     <string name="emoji_tag_delete_last">Apagar o último emoji</string>
@@ -172,6 +169,7 @@
     <string name="emoji_tag_shuffle">Sugerir outro</string>
     <string name="enjoying_urnetwork">Está gostando do URnetwork?</string>
     <string name="enter">Entra</string>
+    <string name="enter_a_bonus_referral_code">Digite um código de referência bônus</string>
     <string name="enter_a_password">Digite uma senha</string>
     <string name="enter_a_solana_usdc_wallet_address">Digite um endereço de carteira USDC na Solana</string>
     <string name="enter_balance_code">Insira o código de saldo</string>
@@ -341,7 +339,6 @@
     <string name="no_solana_wallet_found">Nenhum app de carteira encontrado para o pagamento em Solana.</string>
     <string name="no_solana_wallets_found">Nenhuma carteira Solana encontrada</string>
     <string name="no_wallets_found_alert_content">Nenhuma carteira Solana foi encontrada instalada neste dispositivo. Instale uma carteira e tente novamente.</string>
-    <string name="none">Nenhum</string>
     <string name="notifications_label">Notificações</string>
     <string name="of_total">de %1$s</string>
     <string name="off">Desativado</string>
@@ -428,6 +425,7 @@
     <string name="referral_bonus_applied">Bônus de indicação aplicado</string>
     <string name="referral_code">Código de indicação</string>
     <string name="referral_code_capped">Este código já foi utilizado</string>
+    <string name="referral_code_optional">Código de indicação (opcional)</string>
     <string name="referral_network">Rede de indicações</string>
     <string name="referral_network_updated">Rede de indicações atualizada</string>
     <string name="referral_points">Pontos de indicação</string>

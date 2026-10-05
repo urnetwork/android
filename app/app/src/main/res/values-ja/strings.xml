@@ -9,7 +9,6 @@
     <string name="add_blocked_location">ブロックされた場所を追加</string>
     <string name="add_emoji">絵文字を追加</string>
     <string name="add_referral_code">紹介コードを追加</string>
-    <string name="add_referral_extra_rewards">紹介コードを追加して追加の特典を獲得</string>
     <string name="add_sign_in_method">サインイン方法を追加</string>
     <string name="add_sign_in_method_2">サインイン方法を追加</string>
     <string name="advanced">詳細</string>
@@ -31,7 +30,6 @@
     <string name="app_split_rules">アプリ分割ルール</string>
     <string name="app_split_starter">分割アプリ 0 件</string>
     <string name="apple_sign_in_method_added">Appleのサインイン方法を追加しました</string>
-    <string name="apply_bonus">ボーナスを適用</string>
     <string name="apps">アプリ</string>
     <string name="are_you_sure_delete_account">本当にアカウントを削除しますか？</string>
     <string name="auth_code">認証コード</string>
@@ -161,7 +159,6 @@
     <string name="edit_emoji">絵文字を編集</string>
     <string name="edit_network_name">ネットワーク名を編集</string>
     <string name="edit_profile">プロフィールを編集</string>
-    <string name="edit_referral_code">紹介コードを編集</string>
     <string name="edit_split_rule">分割ルールを編集</string>
     <string name="emoji_tag">絵文字タグ</string>
     <string name="emoji_tag_delete_last">最後の絵文字を削除</string>
@@ -172,6 +169,7 @@
     <string name="emoji_tag_shuffle">別の候補</string>
     <string name="enjoying_urnetwork">URnetworkを楽しんでいますか？</string>
     <string name="enter">ゴー！</string>
+    <string name="enter_a_bonus_referral_code">ボーナス紹介コードを入力</string>
     <string name="enter_a_password">パスワードを入力</string>
     <string name="enter_a_solana_usdc_wallet_address">Solana USDCウォレットアドレスを入力してください</string>
     <string name="enter_balance_code">残高コードを入力</string>
@@ -341,7 +339,6 @@
     <string name="no_solana_wallet_found">Solana の支払いを処理できるウォレットアプリが見つかりません。</string>
     <string name="no_solana_wallets_found">Solanaウォレットが見つかりません</string>
     <string name="no_wallets_found_alert_content">このデバイスにSolanaウォレットがインストールされていません。ウォレットをインストールして、もう一度お試しください。</string>
-    <string name="none">なし</string>
     <string name="notifications_label">通知</string>
     <string name="of_total">/ %1$s</string>
     <string name="off">オフ</string>
@@ -428,6 +425,7 @@
     <string name="referral_bonus_applied">紹介ボーナス適用済み</string>
     <string name="referral_code">紹介コード</string>
     <string name="referral_code_capped">このコードはすでに使われています</string>
+    <string name="referral_code_optional">紹介コード（任意）</string>
     <string name="referral_network">紹介ネットワーク</string>
     <string name="referral_network_updated">紹介ネットワークを更新しました</string>
     <string name="referral_points">紹介ポイント</string>

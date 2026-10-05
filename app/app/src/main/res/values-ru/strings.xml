@@ -12,7 +12,6 @@
     <string name="add_emoji">Добавить эмодзи</string>
     <string name="add_local_split_rule">Направить локально</string>
     <string name="add_referral_code">Добавить реферальный код</string>
-    <string name="add_referral_extra_rewards">Добавьте реферальный код, чтобы получить дополнительные награды</string>
     <string name="add_sign_in_method">Добавить способ входа</string>
     <string name="add_sign_in_method_2">Добавить способ входа</string>
     <string name="add_tao_for_gas">Пополните TAO для оплаты газа</string>
@@ -36,7 +35,6 @@
     <string name="app_split_starter">0 приложений в разделении</string>
     <string name="apple">Apple</string>
     <string name="apple_sign_in_method_added">Способ входа через Apple добавлен</string>
-    <string name="apply_bonus">Применить бонус</string>
     <string name="apps">Приложения</string>
     <string name="are_you_sure_delete_account">Вы уверены, что хотите удалить свой аккаунт?</string>
     <string name="auth_code">Код аутентификации</string>
@@ -363,7 +361,6 @@
     <string name="edit_emoji">Изменить эмодзи</string>
     <string name="edit_network_name">Изменить имя сети</string>
     <string name="edit_profile">Редактировать профиль</string>
-    <string name="edit_referral_code">Изменить реферальный код</string>
     <string name="edit_split_rule">Изменить правило разделения</string>
     <string name="emoji_tag">Эмодзи-тег</string>
     <string name="emoji_tag_delete_last">Удалить последний эмодзи</string>
@@ -376,6 +373,7 @@
     <string name="enabled_under_auto_footer">Указаны в порядке предпочтения: сначала H3 и H1, затем whodis, затем whodis pump. Порядок фиксирован. Хотя бы один транспорт всегда остаётся включённым.</string>
     <string name="enjoying_urnetwork">Вам нравится URnetwork?</string>
     <string name="enter">Войти</string>
+    <string name="enter_a_bonus_referral_code">Введите бонусный реферальный код</string>
     <string name="enter_a_password">Введите пароль</string>
     <string name="enter_a_solana_usdc_wallet_address">Введите адрес кошелька USDC в сети Solana</string>
     <string name="enter_address_manually">Ввести адрес вручную</string>
@@ -589,7 +587,6 @@
     <string name="no_solana_wallet_found">Не найдено приложение кошелька для оплаты через Solana.</string>
     <string name="no_solana_wallets_found">Кошельки Solana не найдены</string>
     <string name="no_wallets_found_alert_content">На этом устройстве не найдено установленных кошельков Solana. Пожалуйста, установите кошелек и попробуйте снова.</string>
-    <string name="none">Нет</string>
     <string name="notifications_label">Уведомления</string>
     <string name="of_total">из %1$s</string>
     <string name="off">Выкл.</string>
@@ -700,6 +697,7 @@
     <string name="referral_bonus_applied">Реферальный бонус применен</string>
     <string name="referral_code">Реферальный код</string>
     <string name="referral_code_capped">Этот код уже был использован</string>
+    <string name="referral_code_optional">Реферальный код (необязательно)</string>
     <string name="referral_network">Реферальная сеть</string>
     <string name="referral_network_updated">Реферальная сеть обновлена</string>
     <string name="referral_panel_detail">Каждый подтверждённый реферал даёт каждому из вас по %1$d GiB в день бесплатно, навсегда.</string>
