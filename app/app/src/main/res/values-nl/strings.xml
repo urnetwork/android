@@ -566,6 +566,8 @@
     <string name="upgrade_subscription">Abonnement upgraden</string>
     <string name="usdc_solana_network_only">Stuur USDC alleen via het Solana-netwerk. USDC die via een ander netwerk wordt verstuurd, komt niet aan.</string>
     <string name="usdc_wallet_address">USDC wallet address</string>
+    <string name="use_as_proxy_no_vpn">In plaats daarvan als proxy gebruiken (geen VPN)</string>
+    <string name="use_as_proxy_no_vpn_detail">Opent ur.io om URnetwork als HTTPS-proxy zonder de VPN te gebruiken. SOCKS en WireGuard zijn beschikbaar met Pro.</string>
     <string name="use_most_stable_provider">Gebruikt de stabielste provider</string>
     <string name="use_recommended_settings">Aanbevolen instellingen gebruiken</string>
     <string name="used_data_key">Gebruikt</string>

@@ -566,6 +566,8 @@
     <string name="upgrade_subscription">Atualizar assinatura</string>
     <string name="usdc_solana_network_only">Envie USDC apenas na rede Solana. Os USDC enviados em outra rede não vão chegar.</string>
     <string name="usdc_wallet_address">Endereço da carteira USDC</string>
+    <string name="use_as_proxy_no_vpn">Usar como proxy em vez disso (sem VPN)</string>
+    <string name="use_as_proxy_no_vpn_detail">Abre o ur.io para usar a URnetwork como proxy HTTPS sem a VPN. SOCKS e WireGuard estão disponíveis no Pro.</string>
     <string name="use_most_stable_provider">Usa o provedor mais estável</string>
     <string name="use_recommended_settings">Usar configurações recomendadas</string>
     <string name="used_data_key">Utilizado</string>

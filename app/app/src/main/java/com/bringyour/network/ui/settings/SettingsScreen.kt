@@ -65,6 +65,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
@@ -364,6 +365,17 @@ fun SettingsScreen(
         onOpenMockLocationGuide = {
             navController.navigate(Route.MockLocationGuide)
         },
+        showCloudProxyEntry = CloudProxy.entryVisible(accountViewModel.loginMode),
+        onCloudProxyClick = {
+            // Open the existing ur.io cloud proxies page (P150). Opened without a
+            // one-time auth code for now; see CloudProxy for the signed-in follow-up.
+            val linkHostName = (context.applicationContext as? MainApplication)
+                ?.deviceManager?.networkSpace?.linkHostName
+            val proxiesUrl = CloudProxy.proxiesUrl(linkHostName)
+            runCatching {
+                context.startActivity(Intent(Intent.ACTION_VIEW, proxiesUrl.toUri()))
+            }
+        },
     )
 
     if (isPresentingRenameDevice) {
@@ -593,6 +605,8 @@ private fun SettingsScreen(
     mockLocationTarget: MockLocationTarget? = null,
     onToggleMockLocation: () -> Unit = {},
     onOpenMockLocationGuide: () -> Unit = {},
+    showCloudProxyEntry: Boolean = false,
+    onCloudProxyClick: () -> Unit = {},
 ) {
 
     val context = LocalContext.current
@@ -1109,6 +1123,43 @@ private fun SettingsScreen(
                     contentDescription = "Keyboard Arrow Right",
                     tint = TextMuted
                 )
+            }
+
+            // Run URnetwork as a cloud proxy instead of the VPN (P150): opens
+            // ur.io/app/proxies, where the HTTPS proxy is always on and SOCKS and
+            // WireGuard are available on Pro. Hidden for guests (no account).
+            if (showCloudProxyEntry) {
+                Spacer(modifier = Modifier.height(18.dp))
+
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { onCloudProxyClick() }
+                            .padding(vertical = 6.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            stringResource(id = R.string.use_as_proxy_no_vpn),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color.White,
+                            modifier = Modifier.testTag("acceptance.cloud_proxy_entry")
+                        )
+
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Outlined.Outbound,
+                            contentDescription = "Open in browser",
+                            tint = TextMuted
+                        )
+                    }
+
+                    Text(
+                        stringResource(id = R.string.use_as_proxy_no_vpn_detail),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = TextMuted
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(32.dp))

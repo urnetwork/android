@@ -893,6 +893,8 @@
     <string name="usdc_solana_network_only">أرسل USDC على شبكة Solana فقط. لن تصل عملات USDC المُرسَلة عبر أي شبكة أخرى.</string>
     <string name="usdc_waiting">%1$s USDC بانتظار الإرسال</string>
     <string name="usdc_wallet_address">عنوان محفظة USDC</string>
+    <string name="use_as_proxy_no_vpn">استخدمه كبروكسي بدلاً من ذلك (بدون VPN)</string>
+    <string name="use_as_proxy_no_vpn_detail">يفتح ur.io لتشغيل URnetwork كبروكسي HTTPS بدون VPN. تتوفر SOCKS وWireGuard مع Pro.</string>
     <string name="use_extender_settings">استخدام إعدادات الموسّع</string>
     <string name="use_most_stable_provider">استخدام مزود الخدمة الأكثر استقرارًا</string>
     <string name="use_recommended_settings">استخدام الإعدادات الموصى بها</string>

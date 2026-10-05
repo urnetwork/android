@@ -893,6 +893,8 @@
     <string name="usdc_solana_network_only">请仅在 Solana 网络上发送 USDC。通过其他网络发送的 USDC 将无法到账。</string>
     <string name="usdc_waiting">%1$s USDC 待发放</string>
     <string name="usdc_wallet_address">USDC 钱包地址</string>
+    <string name="use_as_proxy_no_vpn">改为用作代理（无 VPN）</string>
+    <string name="use_as_proxy_no_vpn_detail">打开 ur.io，在不使用 VPN 的情况下将 URnetwork 用作 HTTPS 代理。SOCKS 和 WireGuard 需要 Pro。</string>
     <string name="use_extender_settings">使用扩展器设置</string>
     <string name="use_most_stable_provider">使用最稳定的提供商</string>
     <string name="use_recommended_settings">使用推荐设置</string>
