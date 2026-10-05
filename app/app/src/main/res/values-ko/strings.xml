@@ -55,6 +55,7 @@
     <string name="balance_codes_title">잔액 코드</string>
     <string name="become_supporter">UR Pro로 업그레이드</string>
     <string name="best_available_provider">최상의 사용 가능한 제공자</string>
+    <string name="bittensor_error_signature_mismatch">이 서명은 입력한 주소의 서명이 아닙니다. %1$s에서 해당 주소로 메시지에 서명한 다음 서명을 다시 붙여 넣으세요.</string>
     <string name="bittensor_sign_in">Bittensor로 로그인</string>
     <string name="block_ads_and_trackers">광고 및 트래커 차단</string>
     <string name="blocked">차단</string>

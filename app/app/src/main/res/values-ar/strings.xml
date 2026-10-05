@@ -71,6 +71,7 @@
     <string name="bittensor_error_extension_not_found">لم يتم العثور على إضافة %1$s في هذا المتصفح. ثبّتها ثم حاول مرة أخرى.</string>
     <string name="bittensor_error_invalid_signature">هذا ليس توقيعًا صالحًا. الصق توقيع 0x الكامل من محفظتك.</string>
     <string name="bittensor_error_message_mismatch">وقّعت المحفظة طلبًا مختلفًا. ابدأ من جديد.</string>
+    <string name="bittensor_error_signature_mismatch">هذا التوقيع ليس من العنوان الذي أدخلته. في %1$s، وقّع الرسالة باستخدام ذلك العنوان، ثم الصق التوقيع مرة أخرى.</string>
     <string name="bittensor_manual_sign_instructions">وقّع هذه الرسالة باستخدام محفظة %1$s التي تملك مفتاحك البارد (coldkey)، ثم الصق العنوان والتوقيع أدناه.</string>
     <string name="bittensor_message_to_sign">الرسالة المطلوب توقيعها</string>
     <string name="bittensor_sign_in">تسجيل الدخول باستخدام Bittensor</string>

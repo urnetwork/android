@@ -55,6 +55,7 @@
     <string name="balance_codes_title">Códigos de saldo</string>
     <string name="become_supporter">Obtener UR Pro</string>
     <string name="best_available_provider">Mejor proveedor disponible</string>
+    <string name="bittensor_error_signature_mismatch">Esta firma no es de la dirección que ingresaste. En %1$s, firma el mensaje con esa dirección y vuelve a pegar la firma.</string>
     <string name="bittensor_sign_in">Iniciar sesión con Bittensor</string>
     <string name="block_ads_and_trackers">Bloquear anuncios y rastreadores</string>
     <string name="blocked">Bloqueadas</string>

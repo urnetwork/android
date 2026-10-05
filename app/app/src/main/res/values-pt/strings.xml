@@ -55,6 +55,7 @@
     <string name="balance_codes_title">Códigos de saldo</string>
     <string name="become_supporter">Obter UR Pro</string>
     <string name="best_available_provider">Melhor provedor disponível</string>
+    <string name="bittensor_error_signature_mismatch">Esta assinatura não é do endereço que introduziu. Na carteira %1$s, assine a mensagem com esse endereço e, em seguida, cole novamente a assinatura.</string>
     <string name="bittensor_sign_in">Iniciar sessão com Bittensor</string>
     <string name="block_ads_and_trackers">Bloquear anúncios e rastreadores</string>
     <string name="blocked">Bloqueados</string>

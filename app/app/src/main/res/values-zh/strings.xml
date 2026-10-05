@@ -71,6 +71,7 @@
     <string name="bittensor_error_extension_not_found">在此浏览器中未找到 %1$s 扩展。请安装后重试。</string>
     <string name="bittensor_error_invalid_signature">这不是有效的签名。请粘贴钱包中完整的 0x 签名。</string>
     <string name="bittensor_error_message_mismatch">钱包签署了另一个请求。请重新开始。</string>
+    <string name="bittensor_error_signature_mismatch">此签名不是来自您输入的地址。请在 %1$s 中使用该地址签署消息，然后重新粘贴签名。</string>
     <string name="bittensor_manual_sign_instructions">请使用持有您 coldkey 的 %1$s 钱包签署此消息，然后在下方粘贴地址和签名。</string>
     <string name="bittensor_message_to_sign">待签名消息</string>
     <string name="bittensor_sign_in">使用 Bittensor 登录</string>

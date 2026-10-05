@@ -851,6 +851,10 @@ internal fun WalletSection(
                     is WalletConnectState.Blocked -> stringResource(id = R.string.wallet_blocked) to Red
                     is WalletConnectState.Failed ->
                         (connectState.detail ?: stringResource(id = R.string.chain_rpc_unreachable)) to Red
+                    is WalletConnectState.SignatureMismatch -> stringResource(
+                        id = R.string.bittensor_error_signature_mismatch,
+                        bittensorWalletDisplayName(connectState.walletId),
+                    ) to Red
                     is WalletConnectState.Connected -> stringResource(id = R.string.wallet_connected_to_protocol) to Green
                     else -> null to TextMuted
                 }

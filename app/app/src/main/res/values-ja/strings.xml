@@ -55,6 +55,7 @@
     <string name="balance_codes_title">残高コード</string>
     <string name="become_supporter">UR Proを取得</string>
     <string name="best_available_provider">最適な利用可能プロバイダー</string>
+    <string name="bittensor_error_signature_mismatch">この署名は、入力したアドレスによるものではありません。%1$s でそのアドレスを使ってメッセージに署名し、署名をもう一度貼り付けてください。</string>
     <string name="bittensor_sign_in">Bittensorでサインイン</string>
     <string name="block_ads_and_trackers">広告とトラッカーをブロック</string>
     <string name="blocked">ブロック</string>

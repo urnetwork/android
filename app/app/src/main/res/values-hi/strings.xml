@@ -55,6 +55,7 @@
     <string name="balance_codes_title">बैलेंस कोड्स</string>
     <string name="become_supporter">UR Pro प्राप्त करें</string>
     <string name="best_available_provider">सर्वश्रेष्ठ उपलब्ध प्रदाता</string>
+    <string name="bittensor_error_signature_mismatch">यह हस्ताक्षर आपके दर्ज किए गए पते का नहीं है। %1$s में उस पते से संदेश पर हस्ताक्षर करें, फिर हस्ताक्षर दोबारा पेस्ट करें।</string>
     <string name="bittensor_sign_in">Bittensor से साइन इन करें</string>
     <string name="block_ads_and_trackers">विज्ञापन और ट्रैकर ब्लॉक करें</string>
     <string name="blocked">अवरुद्ध</string>

@@ -55,6 +55,7 @@
     <string name="balance_codes_title">Κωδικοί υπολοίπου</string>
     <string name="become_supporter">Αποκτήστε το UR Pro</string>
     <string name="best_available_provider">Καλύτερος διαθέσιμος πάροχος</string>
+    <string name="bittensor_error_signature_mismatch">Αυτή η υπογραφή δεν προέρχεται από τη διεύθυνση που εισαγάγατε. Στο %1$s, υπογράψτε το μήνυμα με αυτήν τη διεύθυνση και, στη συνέχεια, επικολλήστε ξανά την υπογραφή.</string>
     <string name="bittensor_sign_in">Σύνδεση με Bittensor</string>
     <string name="block_ads_and_trackers">Αποκλεισμός διαφημίσεων και ιχνηλατών</string>
     <string name="blocked">Αποκλεισμένα</string>

@@ -71,6 +71,7 @@
     <string name="bittensor_error_extension_not_found">No se encontró la extensión de %1$s en este navegador. Instálala y vuelve a intentarlo.</string>
     <string name="bittensor_error_invalid_signature">No es una firma válida. Pega la firma 0x completa de tu billetera.</string>
     <string name="bittensor_error_message_mismatch">La billetera firmó una solicitud diferente. Empieza de nuevo.</string>
+    <string name="bittensor_error_signature_mismatch">Esta firma no es de la dirección que introdujiste. En %1$s, firma el mensaje con esa dirección y vuelve a pegar la firma.</string>
     <string name="bittensor_manual_sign_instructions">Firma este mensaje con la billetera %1$s que contiene tu coldkey y luego pega abajo la dirección y la firma.</string>
     <string name="bittensor_message_to_sign">Mensaje para firmar</string>
     <string name="bittensor_sign_in">Iniciar sesión con Bittensor</string>

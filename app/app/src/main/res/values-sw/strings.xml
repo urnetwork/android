@@ -55,6 +55,7 @@
     <string name="balance_codes_title">Misimbo ya salio</string>
     <string name="become_supporter">Pata UR Pro</string>
     <string name="best_available_provider">Mtoa huduma bora zaidi anayepatikana</string>
+    <string name="bittensor_error_signature_mismatch">Saini hii haitoki kwenye anwani uliyoweka. Katika %1$s, saini ujumbe kwa anwani hiyo, kisha ubandike saini tena.</string>
     <string name="bittensor_sign_in">Ingia na Bittensor</string>
     <string name="block_ads_and_trackers">Zuia matangazo na vifuatiliaji</string>
     <string name="blocked">Imezuiwa</string>

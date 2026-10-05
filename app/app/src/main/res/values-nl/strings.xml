@@ -55,6 +55,7 @@
     <string name="balance_codes_title">Saldocodes</string>
     <string name="become_supporter">UR Pro nemen</string>
     <string name="best_available_provider">Beste beschikbare aanbieder</string>
+    <string name="bittensor_error_signature_mismatch">Deze handtekening is niet van het adres dat je hebt ingevoerd. Onderteken het bericht in %1$s met dat adres en plak de handtekening daarna opnieuw.</string>
     <string name="bittensor_sign_in">Inloggen met Bittensor</string>
     <string name="block_ads_and_trackers">Advertenties en trackers blokkeren</string>
     <string name="blocked">Geblokkeerd</string>

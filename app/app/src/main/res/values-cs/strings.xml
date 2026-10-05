@@ -55,6 +55,7 @@
     <string name="balance_codes_title">Kódy zůstatku</string>
     <string name="become_supporter">Získat UR Pro</string>
     <string name="best_available_provider">Nejlepší dostupný poskytovatel</string>
+    <string name="bittensor_error_signature_mismatch">Tento podpis nepochází z adresy, kterou jste zadali. V peněžence %1$s podepište zprávu touto adresou a potom podpis vložte znovu.</string>
     <string name="bittensor_sign_in">Přihlásit se přes Bittensor</string>
     <string name="block_ads_and_trackers">Blokovat reklamy a trackery</string>
     <string name="blocked">Blokováno</string>

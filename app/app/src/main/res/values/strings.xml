@@ -74,6 +74,7 @@
     <string name="bittensor_error_extension_not_found">The %1$s extension was not found in this browser. Install it, then try again.</string>
     <string name="bittensor_error_invalid_signature">That is not a valid signature. Paste the full 0x signature from your wallet.</string>
     <string name="bittensor_error_message_mismatch">The wallet signed a different request. Start again.</string>
+    <string name="bittensor_error_signature_mismatch">This signature isn\'t from the address you entered. In %1$s, sign the message with that address, then paste the signature again.</string>
     <string name="bittensor_manual_sign_instructions">Sign this message with the %1$s wallet that holds your coldkey, then paste the address and the signature below.</string>
     <string name="bittensor_message_to_sign">Message to sign</string>
     <string name="bittensor_sign_in">Sign in with Bittensor</string>

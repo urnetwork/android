@@ -71,6 +71,7 @@
     <string name="bittensor_error_extension_not_found">Расширение %1$s не найдено в этом браузере. Установите его и повторите попытку.</string>
     <string name="bittensor_error_invalid_signature">Это недействительная подпись. Вставьте полную подпись 0x из вашего кошелька.</string>
     <string name="bittensor_error_message_mismatch">Кошелек подписал другой запрос. Начните заново.</string>
+    <string name="bittensor_error_signature_mismatch">Эта подпись сделана не с того адреса, который вы ввели. В кошельке %1$s подпишите сообщение с введённого адреса, затем снова вставьте подпись.</string>
     <string name="bittensor_manual_sign_instructions">Подпишите это сообщение в кошельке %1$s, где хранится ваш coldkey, затем вставьте ниже адрес и подпись.</string>
     <string name="bittensor_message_to_sign">Сообщение для подписи</string>
     <string name="bittensor_sign_in">Войти через Bittensor</string>

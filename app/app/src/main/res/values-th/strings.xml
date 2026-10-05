@@ -55,6 +55,7 @@
     <string name="balance_codes_title">รหัสยอดเงิน</string>
     <string name="become_supporter">รับ UR Pro</string>
     <string name="best_available_provider">ผู้ให้บริการที่ดีที่สุดที่พร้อมเชื่อมต่อ</string>
+    <string name="bittensor_error_signature_mismatch">ลายเซ็นนี้ไม่ได้มาจากที่อยู่ที่คุณป้อน ใน %1$s ให้ลงนามข้อความด้วยที่อยู่นั้น แล้ววางลายเซ็นอีกครั้ง</string>
     <string name="bittensor_sign_in">เข้าสู่ระบบด้วย Bittensor</string>
     <string name="block_ads_and_trackers">บล็อกโฆษณาและตัวติดตาม</string>
     <string name="blocked">ถูกบล็อก</string>

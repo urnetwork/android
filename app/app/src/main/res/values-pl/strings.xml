@@ -55,6 +55,7 @@
     <string name="balance_codes_title">Kody salda</string>
     <string name="become_supporter">Zdobądź UR Pro</string>
     <string name="best_available_provider">Najlepszy dostępny dostawca</string>
+    <string name="bittensor_error_signature_mismatch">Ten podpis nie pochodzi z wprowadzonego adresu. W portfelu %1$s podpisz wiadomość tym adresem, a następnie ponownie wklej podpis.</string>
     <string name="bittensor_sign_in">Zaloguj się przez Bittensor</string>
     <string name="block_ads_and_trackers">Blokuj reklamy i trackery</string>
     <string name="blocked">Zablokowane</string>

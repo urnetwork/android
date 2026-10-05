@@ -71,6 +71,7 @@
     <string name="bittensor_error_extension_not_found">Die %1$s-Erweiterung wurde in diesem Browser nicht gefunden. Installiere sie und versuche es dann erneut.</string>
     <string name="bittensor_error_invalid_signature">Das ist keine gültige Signatur. Füge die vollständige 0x-Signatur aus deiner Wallet ein.</string>
     <string name="bittensor_error_message_mismatch">Die Wallet hat eine andere Anfrage signiert. Starte erneut.</string>
+    <string name="bittensor_error_signature_mismatch">Diese Signatur stammt nicht von der eingegebenen Adresse. Signiere die Nachricht in %1$s mit dieser Adresse und füge die Signatur dann erneut ein.</string>
     <string name="bittensor_manual_sign_instructions">Signiere diese Nachricht mit der %1$s-Wallet, die deinen Coldkey enthält, und füge dann unten die Adresse und die Signatur ein.</string>
     <string name="bittensor_message_to_sign">Zu signierende Nachricht</string>
     <string name="bittensor_sign_in">Mit Bittensor anmelden</string>
