@@ -132,9 +132,10 @@ fun connectSolanaOverflowItem(onClick: () -> Unit): OverflowItem = OverflowItem(
 
 /**
  * The legacy USDC payout wallet under the Bittensor wallet section: the card when the
- * network has a payout wallet; otherwise, with USDC waiting and [showWaitingLine] (the
- * Bittensor wallet is connected, so there is no button row to carry the line), the
- * "N USDC waiting" line. Nothing before the first load finished.
+ * network has a payout wallet; otherwise, with the final USDC payout waiting and
+ * [showWaitingLine] (the Bittensor wallet is connected, so there is no button row to
+ * carry the line), the "Final USDC payout: N USDC waiting" line. Nothing before the
+ * first load finished.
  */
 @Composable
 fun LegacyPayoutBlock(
@@ -148,23 +149,27 @@ fun LegacyPayoutBlock(
     if (!legacyLoaded) {
         return
     }
+    val waitingUsd = finalUsdcWaitingUsd(legacy, legacyLoaded)
     val payoutWallet = legacy.payoutWallet
     if (payoutWallet != null) {
         Spacer(modifier = Modifier.height(16.dp))
         SolanaWalletCard(
             wallet = payoutWallet,
-            pendingUsd = if (legacy.hasPending) legacy.pendingUsd else null,
+            pendingUsd = waitingUsd,
             state = state,
             onRemove = onRemove,
             onDismissState = onDismissState
         )
-    } else if (showWaitingLine && legacy.hasPending) {
+    } else if (showWaitingLine && waitingUsd != null) {
         Spacer(modifier = Modifier.height(16.dp))
-        UsdcWaitingLine(pendingUsd = legacy.pendingUsd)
+        UsdcWaitingLine(pendingUsd = waitingUsd)
     }
 }
 
-/** "3.87 USDC waiting" while no payout wallet is connected; the figure the email shows. */
+/**
+ * "Final USDC payout: 3.87 USDC waiting" while no payout wallet is connected; the
+ * figure the email shows. Payouts moved to the UR subnet, so this is the last one.
+ */
 @Composable
 fun UsdcWaitingLine(
     pendingUsd: Double,

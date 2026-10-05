@@ -156,6 +156,10 @@ class EarningsViewModel @Inject constructor(
     private val _claimsError = MutableStateFlow<String?>(null)
     val claimsError: StateFlow<String?> = _claimsError.asStateFlow()
 
+    // the current epoch's schedule from the claims read (the coordinator's policy)
+    private val _schedule = MutableStateFlow<SnEpochScheduleState?>(null)
+    val schedule: StateFlow<SnEpochScheduleState?> = _schedule.asStateFlow()
+
     private val _epochs = MutableStateFlow<List<AccountEpoch>>(emptyList())
     val epochs: StateFlow<List<AccountEpoch>> = _epochs.asStateFlow()
 
@@ -270,6 +274,7 @@ class EarningsViewModel @Inject constructor(
         if (!s.available || _wallet.value == null) {
             _claims.value = emptyList()
             _totalClaimableRao.value = 0
+            _schedule.value = null
             return
         }
         _gasKey.value = s.gasKey()
@@ -280,6 +285,7 @@ class EarningsViewModel @Inject constructor(
             .onSuccess {
                 _claims.value = it.claims
                 _totalClaimableRao.value = it.totalClaimableRao
+                _schedule.value = it.schedule
                 _claimsError.value = null
             }
             .onFailure {
@@ -693,6 +699,7 @@ class EarningsViewModel @Inject constructor(
         _claims.value = emptyList()
         _totalClaimableRao.value = 0
         _claimsError.value = null
+        _schedule.value = null
         _epochs.value = emptyList()
         _epochsLoaded.value = false
         _head.value = null

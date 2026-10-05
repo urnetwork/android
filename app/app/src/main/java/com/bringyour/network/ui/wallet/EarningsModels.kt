@@ -67,6 +67,8 @@ data class EpochClaim(
 data class ClaimsSnapshot(
     val claims: List<EpochClaim>,
     val totalClaimableRao: Long,
+    // the current epoch's schedule; null when the SDK could not read the policy
+    val schedule: SnEpochScheduleState? = null,
 )
 
 /** One finalized epoch of the network's points history. */
@@ -285,7 +287,24 @@ class SampleProtocolSource(
         }
         val list = synchronized(claimList) { claimList.sortedByDescending { it.epoch } }
         return Result.success(
-            ClaimsSnapshot(list, list.filter { it.status == EpochClaimStatus.CLAIMABLE }.sumOf { it.amountRao })
+            ClaimsSnapshot(
+                list,
+                list.filter { it.status == EpochClaimStatus.CLAIMABLE }.sumOf { it.amountRao },
+                sampleSchedule(),
+            )
+        )
+    }
+
+    // epoch 1219 at the sample chain's 12 s blocks: 21,600 blocks to the close, the
+    // 14,400-block finalize offset, then 8 claim epochs plus 1 grace epoch of 50,400
+    private fun sampleSchedule(): SnEpochScheduleState {
+        val blockMillis = 12_000L
+        val end = now + 21_600 * blockMillis
+        return SnEpochScheduleState(
+            epoch = 1_219,
+            endMillis = end,
+            claimOpenMillis = end + 14_400 * blockMillis,
+            expiryMillis = end + (9 * 50_400 - 1) * blockMillis,
         )
     }
 
