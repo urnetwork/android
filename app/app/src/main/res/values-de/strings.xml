@@ -73,6 +73,7 @@
     <string name="bittensor_error_invalid_signature">Das ist keine gültige Signatur. Füge die vollständige 0x-Signatur aus deiner Wallet ein.</string>
     <string name="bittensor_error_message_mismatch">Die Wallet hat eine andere Anfrage signiert. Starte erneut.</string>
     <string name="bittensor_error_no_account">Deine %1$s-Wallet hat kein Konto zum Signieren. Füge in der Wallet ein Konto hinzu oder verbinde eins und versuche es dann erneut.</string>
+    <string name="bittensor_error_signature_mismatch">Diese Signatur stammt nicht von der eingegebenen Adresse. Signiere die Nachricht in %1$s mit dieser Adresse und füge die Signatur dann erneut ein.</string>
     <string name="bittensor_error_user_rejected">Die Anfrage wurde in deiner Wallet abgelehnt. Starte erneut und bestätige sie, um fortzufahren.</string>
     <string name="bittensor_error_walletconnect_expired">Die WalletConnect-Anfrage ist abgelaufen, bevor die Wallet geantwortet hat. Starte erneut.</string>
     <string name="bittensor_error_walletconnect_unavailable">WalletConnect ist gerade nicht verfügbar. Versuche es später erneut oder gib deine Adresse manuell ein.</string>
@@ -265,6 +266,14 @@
     <string name="dev_group_follow_window_detail">Wie lange während einer Ersatzbankphase die neuen Verbindungen einer Website ihrem Exit weiter folgen — frühe Ersatzbankphasen sind meist Fehlalarme; eine, die anhält, läuft auf eine Entfernung hinaus und nimmt keine Flows mehr auf. Aus: verteilt sofort</string>
     <string name="dev_heartbeat">Status-Heartbeat</string>
     <string name="dev_heartbeat_detail">Wie oft eine Zeile mit einer Zusammenfassung des aktuellen Zustands für spätere Analysen ins Log geschrieben wird. Aus: schaltet sie stumm; kürzer erfasst Übergänge, länger behält mehr Puffer</string>
+    <string name="dev_ip_family">Steuerverbindungen</string>
+    <string name="dev_ip_family_auto">Automatisch</string>
+    <string name="dev_ip_family_auto_demoted_detail">Automatisch. %1$s.</string>
+    <string name="dev_ip_family_auto_detail">Nutzt die Adressfamilie, die sich zuerst verbindet, und umgeht eine, die nach dem Verbinden ausfällt.</string>
+    <string name="dev_ip_family_force4">IPv4 erzwingen</string>
+    <string name="dev_ip_family_force4_detail">Steuerverbindungen nutzen nur IPv4. Schalte das in einem reinen IPv6-Netz aus.</string>
+    <string name="dev_ip_family_force6">IPv6 erzwingen</string>
+    <string name="dev_ip_family_force6_detail">Steuerverbindungen nutzen nur IPv6. Schalte das aus, wenn die App den Server nicht erreicht.</string>
     <string name="dev_load_corroboration">Lastabhängige Bestätigung</string>
     <string name="dev_load_corroboration_detail">Zusätzliche stille Ziele, die pro so vielen Flows nötig sind, bevor ein ausgelasteter Exit auf schwache Hinweise hin auf die Ersatzbank gesetzt werden kann: Ein Exit mit 24 Flows braucht bei 8 3 stille Websites statt 2. Aus: behält das feste Minimum</string>
     <string name="dev_log_verbosity">Log-Detailgrad</string>

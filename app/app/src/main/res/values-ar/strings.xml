@@ -73,6 +73,7 @@
     <string name="bittensor_error_invalid_signature">هذا ليس توقيعًا صالحًا. الصق توقيع 0x الكامل من محفظتك.</string>
     <string name="bittensor_error_message_mismatch">وقّعت المحفظة طلبًا مختلفًا. ابدأ من جديد.</string>
     <string name="bittensor_error_no_account">لا تحتوي محفظة %1$s لديك على حساب للتوقيع به. أضف حسابًا أو اربطه في المحفظة، ثم حاول مرة أخرى.</string>
+    <string name="bittensor_error_signature_mismatch">هذا التوقيع ليس من العنوان الذي أدخلته. في %1$s، وقّع الرسالة باستخدام ذلك العنوان، ثم الصق التوقيع مرة أخرى.</string>
     <string name="bittensor_error_user_rejected">تم رفض الطلب في محفظتك. ابدأ من جديد ووافق عليه للمتابعة.</string>
     <string name="bittensor_error_walletconnect_expired">انتهت صلاحية طلب WalletConnect قبل أن تستجيب المحفظة. ابدأ من جديد.</string>
     <string name="bittensor_error_walletconnect_unavailable">WalletConnect غير متاح حاليًا. حاول مرة أخرى لاحقًا، أو أدخل عنوانك يدويًا.</string>
@@ -265,6 +266,14 @@
     <string name="dev_group_follow_window_detail">المدة التي تستمر فيها الاتصالات الجديدة للموقع في متابعة مخرجها بعد بدء الحجر — عادةً ما يكون الحجر المبكر إنذارًا كاذبًا؛ أما الحجر الذي يطول فيتجه نحو الإزالة ويتوقف عن استقبال التدفقات. عند الإيقاف، تُوزَّع فورًا</string>
     <string name="dev_heartbeat">نبض الحالة</string>
     <string name="dev_heartbeat_detail">عدد مرات كتابة سطر يلخّص الحالة الحية في السجل لأغراض التحليل لاحقًا. عند الإيقاف، يتوقف؛ الفترة الأقصر ترصد التحولات، والأطول تحتفظ بمخزن مؤقت أكبر</string>
+    <string name="dev_ip_family">اتصالات التحكم</string>
+    <string name="dev_ip_family_auto">تلقائي</string>
+    <string name="dev_ip_family_auto_demoted_detail">تلقائي. %1$s.</string>
+    <string name="dev_ip_family_auto_detail">يستخدم عائلة العناوين التي تتصل أولًا، ويتجنّب العائلة التي تفشل بعد الاتصال.</string>
+    <string name="dev_ip_family_force4">فرض IPv4</string>
+    <string name="dev_ip_family_force4_detail">تستخدم اتصالات التحكم IPv4 فقط. أوقف هذا الخيار على شبكة تدعم IPv6 فقط.</string>
+    <string name="dev_ip_family_force6">فرض IPv6</string>
+    <string name="dev_ip_family_force6_detail">تستخدم اتصالات التحكم IPv6 فقط. أوقف هذا الخيار إذا تعذّر على التطبيق الوصول إلى الخادم.</string>
     <string name="dev_load_corroboration">التحقق حسب الحمل</string>
     <string name="dev_load_corroboration_detail">عدد الوجهات الصامتة الإضافية المطلوبة لكل هذا العدد من التدفقات قبل أن يمكن حجر مخرج مشغول بناءً على أدلة ضعيفة: المخرج ذو 24 تدفقًا عند القيمة 8 يحتاج إلى 3 مواقع صامتة لا 2. عند الإيقاف، يبقى الحد الأدنى الثابت</string>
     <string name="dev_log_verbosity">مستوى تفاصيل السجل</string>

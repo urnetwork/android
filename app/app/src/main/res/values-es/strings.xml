@@ -73,6 +73,7 @@
     <string name="bittensor_error_invalid_signature">No es una firma válida. Pega la firma 0x completa de tu billetera.</string>
     <string name="bittensor_error_message_mismatch">La billetera firmó una solicitud diferente. Empieza de nuevo.</string>
     <string name="bittensor_error_no_account">Tu billetera %1$s no tiene ninguna cuenta con la que firmar. Añade o conecta una cuenta en la billetera y vuelve a intentarlo.</string>
+    <string name="bittensor_error_signature_mismatch">Esta firma no es de la dirección que introdujiste. En %1$s, firma el mensaje con esa dirección y vuelve a pegar la firma.</string>
     <string name="bittensor_error_user_rejected">La solicitud se rechazó en tu billetera. Empieza de nuevo y apruébala para continuar.</string>
     <string name="bittensor_error_walletconnect_expired">La solicitud de WalletConnect caducó antes de que respondiera la billetera. Empieza de nuevo.</string>
     <string name="bittensor_error_walletconnect_unavailable">WalletConnect no está disponible en este momento. Inténtalo de nuevo más tarde o introduce tu dirección manualmente.</string>
@@ -265,6 +266,14 @@
     <string name="dev_group_follow_window_detail">Durante cuánto tiempo, ya en el banquillo, las conexiones nuevas de un sitio siguen a su salida — los banquillos tempranos suelen ser falsas alarmas; uno que se prolonga tiende a la eliminación y deja de recibir flujos. Si está desactivado, se dispersan de inmediato</string>
     <string name="dev_heartbeat">Latido de estado</string>
     <string name="dev_heartbeat_detail">Con qué frecuencia se escribe en el registro una línea que resume el estado actual para un análisis forense posterior. Si está desactivado, se silencia; un intervalo más corto detecta una transición y uno más largo conserva más búfer</string>
+    <string name="dev_ip_family">Conexiones de control</string>
+    <string name="dev_ip_family_auto">Automático</string>
+    <string name="dev_ip_family_auto_demoted_detail">Automático. %1$s.</string>
+    <string name="dev_ip_family_auto_detail">Usa la familia que se conecta primero y esquiva la que falla después de conectarse.</string>
+    <string name="dev_ip_family_force4">Forzar IPv4</string>
+    <string name="dev_ip_family_force4_detail">Las conexiones de control solo usan IPv4. Desactívalo en una red solo IPv6.</string>
+    <string name="dev_ip_family_force6">Forzar IPv6</string>
+    <string name="dev_ip_family_force6_detail">Las conexiones de control solo usan IPv6. Desactívalo si la app no llega al servidor.</string>
     <string name="dev_load_corroboration">Corroboración por carga</string>
     <string name="dev_load_corroboration_detail">Destinos silenciosos adicionales necesarios por cada esta cantidad de flujos antes de poder mandar al banquillo una salida ocupada con indicios débiles: una salida de 24 flujos con 8 necesita 3 sitios silenciosos, no 2. Si está desactivado, se mantiene el mínimo fijo</string>
     <string name="dev_log_verbosity">Detalle del registro</string>

@@ -73,6 +73,7 @@
     <string name="bittensor_error_invalid_signature">Это недействительная подпись. Вставьте полную подпись 0x из вашего кошелька.</string>
     <string name="bittensor_error_message_mismatch">Кошелек подписал другой запрос. Начните заново.</string>
     <string name="bittensor_error_no_account">В вашем кошельке %1$s нет аккаунта для подписи. Добавьте или подключите аккаунт в кошельке и попробуйте еще раз.</string>
+    <string name="bittensor_error_signature_mismatch">Эта подпись сделана не с того адреса, который вы ввели. В кошельке %1$s подпишите сообщение с введённого адреса, затем снова вставьте подпись.</string>
     <string name="bittensor_error_user_rejected">Запрос отклонен в вашем кошельке. Начните заново и подтвердите его, чтобы продолжить.</string>
     <string name="bittensor_error_walletconnect_expired">Срок действия запроса WalletConnect истек до того, как кошелек ответил. Начните заново.</string>
     <string name="bittensor_error_walletconnect_unavailable">WalletConnect сейчас недоступен. Повторите попытку позже или введите адрес вручную.</string>
@@ -265,6 +266,14 @@
     <string name="dev_group_follow_window_detail">Как долго после начала отстранения новые соединения сайта продолжают следовать за своим выходом — ранние отстранения обычно оказываются ложными тревогами; затянувшееся ведёт к удалению, и выход перестаёт принимать потоки. Если выключено, соединения сразу распределяются</string>
     <string name="dev_heartbeat">Пульс состояния</string>
     <string name="dev_heartbeat_detail">Как часто в лог записывается строка со сводкой текущего состояния для последующего анализа. Если выключено, запись отключается; меньший интервал позволяет заметить переход, больший — сохранить больше буфера</string>
+    <string name="dev_ip_family">Управляющие соединения</string>
+    <string name="dev_ip_family_auto">Автоматически</string>
+    <string name="dev_ip_family_auto_demoted_detail">Автоматически. %1$s.</string>
+    <string name="dev_ip_family_auto_detail">Использует семейство адресов, которое подключится первым, и обходит то, что отказывает после подключения.</string>
+    <string name="dev_ip_family_force4">Только IPv4</string>
+    <string name="dev_ip_family_force4_detail">Управляющие соединения используют только IPv4. Выключите это в сети только с IPv6.</string>
+    <string name="dev_ip_family_force6">Только IPv6</string>
+    <string name="dev_ip_family_force6_detail">Управляющие соединения используют только IPv6. Выключите это, если приложение не может связаться с сервером.</string>
     <string name="dev_load_corroboration">Подтверждение с учётом нагрузки</string>
     <string name="dev_load_corroboration_detail">Сколько дополнительных молчащих адресатов требуется на каждое такое число потоков, прежде чем загруженный выход можно отстранить по косвенным признакам: выходу с 24 потоками при значении 8 нужно 3 молчащих сайта, а не 2. Если выключено, действует фиксированный минимум</string>
     <string name="dev_log_verbosity">Детализация логов</string>
