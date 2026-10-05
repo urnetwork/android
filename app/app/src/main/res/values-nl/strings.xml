@@ -193,6 +193,7 @@
     <string name="emoji_tag_error_too_many">Gebruik maximaal %1$d emoji.</string>
     <string name="emoji_tag_hint">Kies 1 tot %1$d emoji om naast je netwerk te tonen.</string>
     <string name="emoji_tag_shuffle">Andere suggestie</string>
+    <string name="enabled_under_auto_footer">Op volgorde van voorkeur: eerst H1, dan H3, whodis en whodis pump. De volgorde ligt vast. Er blijft altijd minstens één transport ingeschakeld.</string>
     <string name="enjoying_urnetwork">Bevalt URnetwork je?</string>
     <string name="enter">Enter</string>
     <string name="enter_a_bonus_referral_code">Voer een bonusreferentiecode in</string>

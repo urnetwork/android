@@ -394,7 +394,7 @@
     <string name="emoji_tag_hint">Wähle 1 bis %1$d Emoji, die neben deinem Netzwerk erscheinen.</string>
     <string name="emoji_tag_shuffle">Anderen Vorschlag</string>
     <string name="enabled_under_auto">Aktiviert unter „Automatisch“</string>
-    <string name="enabled_under_auto_footer">In der Reihenfolge der Präferenz aufgeführt: zuerst H3 und H1, dann whodis, dann whodis pump. Die Reihenfolge ist fest. Mindestens ein Transport bleibt aktiviert.</string>
+    <string name="enabled_under_auto_footer">In der Reihenfolge der Präferenz aufgeführt: zuerst H1, dann H3, whodis und whodis pump. Die Reihenfolge ist fest. Mindestens ein Transport bleibt aktiviert.</string>
     <string name="enjoying_urnetwork">Gefällt dir URnetwork?</string>
     <string name="enter">Rein</string>
     <string name="enter_a_bonus_referral_code">Gib einen Bonus-Empfehlungscode ein</string>

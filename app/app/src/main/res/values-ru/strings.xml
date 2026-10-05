@@ -394,7 +394,7 @@
     <string name="emoji_tag_hint">Выберите от 1 до %1$d эмодзи, которые будут показаны рядом с вашей сетью.</string>
     <string name="emoji_tag_shuffle">Предложить другой</string>
     <string name="enabled_under_auto">Включены в режиме «Автоматически»</string>
-    <string name="enabled_under_auto_footer">Указаны в порядке предпочтения: сначала H3 и H1, затем whodis, затем whodis pump. Порядок фиксирован. Хотя бы один транспорт всегда остаётся включённым.</string>
+    <string name="enabled_under_auto_footer">Указаны в порядке предпочтения: сначала H1, затем H3, whodis и whodis pump. Порядок фиксирован. Хотя бы один транспорт всегда остаётся включённым.</string>
     <string name="enjoying_urnetwork">Вам нравится URnetwork?</string>
     <string name="enter">Войти</string>
     <string name="enter_a_bonus_referral_code">Введите бонусный реферальный код</string>

@@ -394,7 +394,7 @@
     <string name="emoji_tag_hint">اختر من 1 إلى %1$d إيموجي لعرضها بجانب شبكتك.</string>
     <string name="emoji_tag_shuffle">اقتراح آخر</string>
     <string name="enabled_under_auto">المفعّلة في الوضع «تلقائي»</string>
-    <string name="enabled_under_auto_footer">مرتبة حسب الأفضلية: H3 و H1 أولًا، ثم whodis، ثم whodis pump. الترتيب ثابت. يبقى بروتوكول نقل واحد على الأقل مفعّلًا.</string>
+    <string name="enabled_under_auto_footer">مرتبة حسب الأفضلية: H1 أولًا، ثم H3 وwhodis وwhodis pump. الترتيب ثابت. يبقى بروتوكول نقل واحد على الأقل مفعّلًا.</string>
     <string name="enjoying_urnetwork">هل تستمتع بـ URnetwork؟</string>
     <string name="enter">ادخل</string>
     <string name="enter_a_bonus_referral_code">أدخل رمز الإحالة المكافأة</string>

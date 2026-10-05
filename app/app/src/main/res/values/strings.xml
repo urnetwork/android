@@ -411,7 +411,7 @@
     <string name="emoji_tag_hint">Pick 1 to %1$d emoji to show next to your network.</string>
     <string name="emoji_tag_shuffle">Suggest another</string>
     <string name="enabled_under_auto">Enabled under Auto</string>
-    <string name="enabled_under_auto_footer">Listed in preference order: H3 and H1 first, then whodis, then whodis pump. The order is fixed. At least one transport stays enabled.</string>
+    <string name="enabled_under_auto_footer">Listed in preference order: H1 first, then H3, whodis, and whodis pump. The order is fixed. At least one transport stays enabled.</string>
     <string name="enjoying_urnetwork">Enjoying URnetwork?</string>
     <string name="enter">Enter</string>
     <string name="enter_a_bonus_referral_code">Enter a bonus referral code</string>

@@ -193,6 +193,7 @@
     <string name="emoji_tag_error_too_many">ใช้อีโมจิได้ไม่เกิน %1$d ตัว</string>
     <string name="emoji_tag_hint">เลือกอีโมจิ 1 ถึง %1$d ตัวเพื่อแสดงข้างเครือข่ายของคุณ</string>
     <string name="emoji_tag_shuffle">แนะนำอันอื่น</string>
+    <string name="enabled_under_auto_footer">เรียงตามลำดับความสำคัญ: H1 ก่อน จากนั้น H3, whodis และ whodis pump ลำดับนี้ตายตัว จะมีทรานสปอร์ตอย่างน้อยหนึ่งรายการเปิดอยู่เสมอ</string>
     <string name="enjoying_urnetwork">สนุกกับการใช้ URnetwork ไหม?</string>
     <string name="enter">เข้า</string>
     <string name="enter_a_bonus_referral_code">ป้อนรหัสอ้างอิงโบนัส</string>

@@ -193,6 +193,7 @@
     <string name="emoji_tag_error_too_many">Tumia emoji zisizozidi %1$d.</string>
     <string name="emoji_tag_hint">Chagua emoji 1 hadi %1$d zitakazoonekana kando ya mtandao wako.</string>
     <string name="emoji_tag_shuffle">Pendekeza nyingine</string>
+    <string name="enabled_under_auto_footer">Zimeorodheshwa kwa mpangilio wa upendeleo: H1 kwanza, kisha H3, whodis na whodis pump. Mpangilio ni wa kudumu. Angalau usafirishaji mmoja hubaki umewashwa.</string>
     <string name="enjoying_urnetwork">Unafurahia URnetwork?</string>
     <string name="enter">Ingia</string>
     <string name="enter_a_bonus_referral_code">Weka msimbo wa rufaa wa bonasi</string>
