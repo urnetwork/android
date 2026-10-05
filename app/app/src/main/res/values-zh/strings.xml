@@ -86,7 +86,10 @@
     <string name="bittensor_walletconnect_hint">Nova、Nightly 及其他 WalletConnect 钱包</string>
     <string name="block_ads_and_trackers">拦截广告和跟踪器</string>
     <string name="blocked">已拦截</string>
+    <string name="blocked_location_block_failed">无法屏蔽 %1$s。请重试。</string>
+    <string name="blocked_location_unblock_failed">无法取消屏蔽 %1$s。请重试。</string>
     <string name="blocked_locations">被屏蔽的位置</string>
+    <string name="blocked_locations_load_failed">无法加载您已屏蔽的位置。下拉即可重试。</string>
     <string name="blocks">区块</string>
     <string name="bonus_referral_code_label">奖励推荐码</string>
     <string name="browse_locations">浏览位置</string>
@@ -386,6 +389,7 @@
     <string name="edit_network_name">编辑网络名称</string>
     <string name="edit_profile">编辑个人资料</string>
     <string name="edit_split_rule">编辑分流规则</string>
+    <string name="email_support_at">发送电子邮件给支持团队：</string>
     <string name="emoji_tag">表情标签</string>
     <string name="emoji_tag_delete_last">删除最后一个表情</string>
     <string name="emoji_tag_error_empty">至少添加一个表情。</string>
@@ -437,6 +441,7 @@
     <string name="feedback_include_logs">附加日志到反馈（可选）</string>
     <string name="feedback_label">反馈框</string>
     <string name="feedback_placeholder">告诉我们您的真实感受</string>
+    <string name="feedback_send_failed">您的反馈未发送。请检查网络连接后重试。</string>
     <string name="feedback_sending">正在发送…</string>
     <string name="fixed_ip">固定 IP</string>
     <string name="fixed_ip_subtitle">在整个会话中保持同一个出口；仅当该提供商离线时才会更换。</string>
@@ -853,6 +858,7 @@
     <string name="seeker_verify_no_wallet_app">此设备上未找到 Solana 钱包应用。</string>
     <string name="select_location_provider_content_description">地球图标：选择提供商位置</string>
     <string name="send">发送</string>
+    <string name="send_feedback_contact">直接向我们发送反馈，发送电子邮件至 %1$s，或加入我们的 %2$s 获取直接支持。</string>
     <string name="send_product_updates">向我发送产品更新</string>
     <string name="send_reset_link">发送重置链接</string>
     <string name="send_tao_to_mirror">向 %2$s 发送约 %1$s TAO 以支付 Gas 费。</string>

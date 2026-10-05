@@ -86,7 +86,10 @@
     <string name="bittensor_walletconnect_hint">Nova, Nightly y otras billeteras compatibles con WalletConnect</string>
     <string name="block_ads_and_trackers">Bloquear anuncios y rastreadores</string>
     <string name="blocked">Bloqueadas</string>
+    <string name="blocked_location_block_failed">No se pudo bloquear %1$s. Inténtalo de nuevo.</string>
+    <string name="blocked_location_unblock_failed">No se pudo desbloquear %1$s. Inténtalo de nuevo.</string>
     <string name="blocked_locations">Ubicaciones bloqueadas</string>
+    <string name="blocked_locations_load_failed">No se pudieron cargar tus ubicaciones bloqueadas. Desliza hacia abajo para volver a intentarlo.</string>
     <string name="blocks">Bloques</string>
     <string name="bonus_referral_code_label">Código de referido extra</string>
     <string name="browse_locations">Explorar ubicaciones</string>
@@ -386,6 +389,7 @@
     <string name="edit_network_name">Editar nombre de la red</string>
     <string name="edit_profile">Editar perfil</string>
     <string name="edit_split_rule">Editar regla de división</string>
+    <string name="email_support_at">Escribe a soporte:</string>
     <string name="emoji_tag">Etiqueta de emojis</string>
     <string name="emoji_tag_delete_last">Borrar el último emoji</string>
     <string name="emoji_tag_error_empty">Añade al menos un emoji.</string>
@@ -437,6 +441,7 @@
     <string name="feedback_include_logs">Adjuntar registros al comentario (opcional)</string>
     <string name="feedback_label">Cuadro de comentarios</string>
     <string name="feedback_placeholder">Cuéntanos lo que realmente piensas</string>
+    <string name="feedback_send_failed">No se envió tu comentario. Revisa tu conexión e inténtalo de nuevo.</string>
     <string name="feedback_sending">Enviando…</string>
     <string name="fixed_ip">IP fija</string>
     <string name="fixed_ip_subtitle">Mantiene una sola salida durante la sesión; solo cambia si ese proveedor se desconecta.</string>
@@ -853,6 +858,7 @@
     <string name="seeker_verify_no_wallet_app">No se encontró ninguna app de monedero Solana en este dispositivo.</string>
     <string name="select_location_provider_content_description">Globo: seleccionar ubicación del proveedor</string>
     <string name="send">Envía</string>
+    <string name="send_feedback_contact">Envíanos tus comentarios directamente, escríbenos a %1$s o únete a nuestro %2$s para recibir ayuda directa.</string>
     <string name="send_product_updates">Enviarme actualizaciones de productos</string>
     <string name="send_reset_link">Enviar enlace de restablecimiento</string>
     <string name="send_tao_to_mirror">Envía unos %1$s TAO a %2$s para cubrir el gas.</string>
