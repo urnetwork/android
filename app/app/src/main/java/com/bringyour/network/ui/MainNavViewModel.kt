@@ -107,6 +107,7 @@ sealed class Route {
     @Serializable object Referrals : Route()
     @Serializable object Widgets : Route()
     @Serializable object BlockedRegions: Route()
+    @Serializable object Vless: Route()
     @Serializable object Developer: Route()
     @Serializable object Licenses: Route()
     @Serializable data class LicenseDetail(val index: Int): Route()

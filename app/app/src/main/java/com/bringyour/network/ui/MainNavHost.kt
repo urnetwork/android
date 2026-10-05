@@ -133,6 +133,7 @@ import com.bringyour.network.ui.widgets.WidgetsScreen
 import com.bringyour.network.ui.profile.ProfileScreen
 import com.bringyour.network.ui.profile.ProfileViewModel
 import com.bringyour.network.ui.settings.SettingsScreen
+import com.bringyour.network.ui.settings.VlessSettingsScreen
 import com.bringyour.network.ui.shared.viewmodels.SubscriptionBalanceViewModel
 import com.bringyour.network.ui.wallet.EarningsViewModel
 import com.bringyour.network.ui.wallet.EarningsScreen
@@ -1470,6 +1471,15 @@ fun MainNavContent(
                 earningsViewModel,
                 isPro = isPro
             ) }
+
+            composable<Route.Vless>(
+                enterTransition = NavigationAnimations.enterTransition(),
+                exitTransition = NavigationAnimations.exitTransition(),
+                popEnterTransition = NavigationAnimations.popEnterTransition(),
+                popExitTransition = NavigationAnimations.popExitTransition()
+            ) {
+                VlessSettingsScreen(navController = navController)
+            }
 
             composable<Route.ProviderIdentities>(
                 enterTransition = NavigationAnimations.enterTransition(),

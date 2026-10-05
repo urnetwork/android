@@ -932,6 +932,47 @@
     <string name="verify_send_error">Error</string>
     <string name="version_info">Version and build info</string>
     <string name="via_exit">via %1$s</string>
+    <string name="vless" translatable="false">VLESS</string>
+    <string name="vless_allow_insecure">Allow an insecure certificate</string>
+    <string name="vless_alpn" translatable="false">ALPN</string>
+    <string name="vless_copy_link">Copy link</string>
+    <string name="vless_enabled">Use VLESS</string>
+    <string name="vless_error_address_invalid">Enter the server address.</string>
+    <string name="vless_error_fingerprint_unsupported">This TLS fingerprint is not supported.</string>
+    <string name="vless_error_flow_invalid">The Vision flow works only with the TCP transport and TLS or REALITY security.</string>
+    <string name="vless_error_id_invalid">Enter the user ID (a UUID).</string>
+    <string name="vless_error_link_invalid">This is not a valid VLESS link.</string>
+    <string name="vless_error_link_unsupported">This link uses a VLESS feature this app does not support.</string>
+    <string name="vless_error_network_unsupported">This transport is not supported. Use TCP, WebSocket or HTTPUpgrade.</string>
+    <string name="vless_error_port_invalid">Enter a port from 1 to 65535.</string>
+    <string name="vless_error_public_key_invalid">Enter the REALITY public key.</string>
+    <string name="vless_error_security_unsupported">This security type is not supported. Use TLS, REALITY or none.</string>
+    <string name="vless_error_server_name_required">Enter the server name (SNI) for REALITY.</string>
+    <string name="vless_error_short_id_invalid">The REALITY short ID must be up to 16 hexadecimal characters.</string>
+    <string name="vless_fingerprint">TLS fingerprint</string>
+    <string name="vless_flow">Flow</string>
+    <string name="vless_flow_vision" translatable="false">Vision</string>
+    <string name="vless_host_header">Host header</string>
+    <string name="vless_link">VLESS link</string>
+    <string name="vless_link_copied">VLESS link copied</string>
+    <string name="vless_link_hint">Paste a vless:// link to fill in the settings.</string>
+    <string name="vless_network_httpupgrade" translatable="false">HTTPUpgrade</string>
+    <string name="vless_network_tcp" translatable="false">TCP</string>
+    <string name="vless_network_ws" translatable="false">WebSocket</string>
+    <string name="vless_paste_link">Paste link</string>
+    <string name="vless_path">Path</string>
+    <string name="vless_port">Port</string>
+    <string name="vless_public_key">Public key</string>
+    <string name="vless_security">Security</string>
+    <string name="vless_security_reality" translatable="false">REALITY</string>
+    <string name="vless_security_tls" translatable="false">TLS</string>
+    <string name="vless_server_address">Server address</string>
+    <string name="vless_server_name">Server name (SNI)</string>
+    <string name="vless_settings_description">Connect to URnetwork through your own VLESS server when direct connections are blocked. Your traffic to URnetwork stays encrypted end to end.</string>
+    <string name="vless_settings_next_connect">The VPN uses the new VLESS settings the next time it connects.</string>
+    <string name="vless_settings_saved">VLESS settings saved</string>
+    <string name="vless_short_id">Short ID</string>
+    <string name="vless_user_id">User ID (UUID)</string>
     <string name="wallet">Wallet</string>
     <string name="wallet_blocked">This wallet can\'t be used with URnetwork.</string>
     <string name="wallet_connected_to_protocol">Connected to the UR protocol. Claims land here. Alpha accrues from the next epoch after connecting.</string>

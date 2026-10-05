@@ -1111,6 +1111,32 @@ private fun SettingsScreen(
                 )
             }
 
+            Spacer(modifier = Modifier.height(18.dp))
+
+            /**
+             * VLESS: a VLESS server this network space also dials through
+             */
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable {
+                        navController.navigate(Route.Vless)
+                    }
+                    .padding(vertical = 6.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    stringResource(id = R.string.vless),
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                    contentDescription = stringResource(id = R.string.vless),
+                    tint = TextMuted
+                )
+            }
+
             Spacer(modifier = Modifier.height(32.dp))
 
             // allow notifications
