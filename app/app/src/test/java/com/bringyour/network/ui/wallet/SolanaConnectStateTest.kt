@@ -6,8 +6,9 @@ import org.junit.Test
 
 class SolanaConnectStateTest {
 
+    // a fixture key (sha256 of "urnetwork test solana wallet"), not a wallet
     private val wallet = LegacyWallet(
-        "wallet-sol", "4Fj9RCwJqHLdLNK28DwWHunHqWapxKbbzeYZLmreSYCM", LegacyChain.SOLANA, hasSeekerToken = false
+        "wallet-sol", "GES2rXHpUVwXKtXRDVXUH7uU2BLX3VPUPexTq4uTXuvt", LegacyChain.SOLANA, hasSeekerToken = false
     )
 
     @Test

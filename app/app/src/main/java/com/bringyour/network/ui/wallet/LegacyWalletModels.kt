@@ -319,7 +319,9 @@ class SampleLegacyWalletSource(
 
     companion object {
         const val SAMPLE_WALLET_ID = "sample-wallet-0"
-        const val SAMPLE_SOLANA_ADDRESS = "4Fj9RCwJqHLdLNK28DwWHunHqWapxKbbzeYZLmreSYCM"
+        // a fixture key (sha256 of "urnetwork sample solana wallet" as a public key),
+        // not a wallet: only previews and this sample source show it
+        const val SAMPLE_SOLANA_ADDRESS = "8zvBKDZvQDy2Ld3yARxGZRzLnqceWQLcULJ5vNDk3QoR"
 
         // the server refuses the USDC mint as a payout address
         const val USDC_MINT = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"

@@ -65,7 +65,7 @@ class EarningsScreenLegacyWalletTest {
         show(LegacyWalletUi(listOf(wallet), wallet.walletId, listOf(held)))
 
         compose.onNodeWithText(context.getString(R.string.solana_wallet)).assertIsDisplayed()
-        compose.onNodeWithText("4Fj9…SYCM").assertIsDisplayed()
+        compose.onNodeWithText("8zvB…3QoR").assertIsDisplayed()
         compose.onNodeWithText(context.getString(R.string.default_wallet).uppercase()).assertIsDisplayed()
         compose.onNodeWithTag(EARNINGS_USDC_WAITING_TAG)
             .assertTextEquals(
