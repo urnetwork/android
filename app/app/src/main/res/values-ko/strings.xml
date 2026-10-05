@@ -216,6 +216,7 @@
     <string name="feedback_placeholder">진심으로 말씀해 주세요</string>
     <string name="feedback_sending">보내는 중…</string>
     <string name="fixed_ip">고정 IP</string>
+    <string name="fixed_ip_subtitle">세션 동안 하나의 출구를 유지하며, 해당 제공자가 오프라인이 될 때만 바뀝니다.</string>
     <string name="forget_password">비밀번호를 잊으셨나요?</string>
     <string name="forgot_password">비밀번호를 잊으셨나요?</string>
     <string name="free">무료</string>

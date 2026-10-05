@@ -433,6 +433,7 @@
     <string name="feedback_placeholder">أخبرنا برأيك</string>
     <string name="feedback_sending">جارٍ الإرسال…</string>
     <string name="fixed_ip">IP ثابت</string>
+    <string name="fixed_ip_subtitle">يحتفظ بمخرج واحد طوال الجلسة؛ ولا يتغير إلا إذا انقطع اتصال ذلك المزود.</string>
     <string name="forget_password">هل نسيت كلمة مرورك؟</string>
     <string name="forgot_password">هل نسيت كلمة مرورك؟</string>
     <string name="free">مجاني</string>

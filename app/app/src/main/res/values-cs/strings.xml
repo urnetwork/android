@@ -216,6 +216,7 @@
     <string name="feedback_placeholder">Řekněte nám, jak se skutečně cítíte</string>
     <string name="feedback_sending">Odesílání…</string>
     <string name="fixed_ip">Pevná IP</string>
+    <string name="fixed_ip_subtitle">Ponechá jeden výstup po celou relaci; změní se, jen když se tento poskytovatel odpojí.</string>
     <string name="forget_password">Zapomněli jste heslo?</string>
     <string name="forgot_password">Zapomněli jste heslo?</string>
     <string name="free">Zdarma</string>

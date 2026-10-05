@@ -433,6 +433,7 @@
     <string name="feedback_placeholder">Расскажите нам, что вы думаете на самом деле</string>
     <string name="feedback_sending">Отправка…</string>
     <string name="fixed_ip">Фиксированный IP</string>
+    <string name="fixed_ip_subtitle">Сохраняет один выход на всю сессию; меняется, только если этот провайдер отключится.</string>
     <string name="forget_password">Забыли пароль?</string>
     <string name="forgot_password">Забыли пароль?</string>
     <string name="free">Бесплатно</string>

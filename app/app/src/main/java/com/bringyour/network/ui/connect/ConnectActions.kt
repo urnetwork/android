@@ -457,11 +457,24 @@ fun ConnectActions(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    stringResource(id = R.string.fixed_ip),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = Color.White
-                )
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(end = 12.dp)
+                ) {
+                    Text(
+                        stringResource(id = R.string.fixed_ip),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color.White
+                    )
+                    // a Fixed IP window keeps its one exit for the session
+                    // (connect stickyExit): no hourly rotation, no spare
+                    Text(
+                        stringResource(id = R.string.fixed_ip_subtitle),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = TextMuted
+                    )
+                }
 
                 /**
                  * Fixed IP Switch

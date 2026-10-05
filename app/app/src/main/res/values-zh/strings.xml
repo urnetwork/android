@@ -433,6 +433,7 @@
     <string name="feedback_placeholder">告诉我们您的真实感受</string>
     <string name="feedback_sending">正在发送…</string>
     <string name="fixed_ip">固定 IP</string>
+    <string name="fixed_ip_subtitle">在整个会话中保持同一个出口；仅当该提供商离线时才会更换。</string>
     <string name="forget_password">忘记密码？</string>
     <string name="forgot_password">忘记密码？</string>
     <string name="free">自由</string>

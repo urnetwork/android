@@ -216,6 +216,7 @@
     <string name="feedback_placeholder">Dinos cómo te sientes de verdad</string>
     <string name="feedback_sending">Enviando…</string>
     <string name="fixed_ip">IP fija</string>
+    <string name="fixed_ip_subtitle">Mantiene una sola salida durante la sesión; solo cambia si ese proveedor se desconecta.</string>
     <string name="forget_password">¿Olvidaste tu contraseña?</string>
     <string name="forgot_password">¿Olvidaste tu contraseña?</string>
     <string name="free">Gratis</string>

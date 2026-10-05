@@ -216,6 +216,7 @@
     <string name="feedback_placeholder">Powiedz nam, co naprawdę myślisz</string>
     <string name="feedback_sending">Wysyłanie…</string>
     <string name="fixed_ip">Stały adres IP</string>
+    <string name="fixed_ip_subtitle">Utrzymuje jedno wyjście przez całą sesję; zmienia się tylko wtedy, gdy ten dostawca przejdzie w tryb offline.</string>
     <string name="forget_password">Zapomniałeś hasła?</string>
     <string name="forgot_password">Zapomniałeś hasła?</string>
     <string name="free">Darmowy</string>
