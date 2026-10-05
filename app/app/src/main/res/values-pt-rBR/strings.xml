@@ -241,8 +241,12 @@
     <string name="included">Incluídos</string>
     <string name="instant_account_no_email_password">Sem e-mail nem senha. Sua conta é protegida por uma frase-semente.</string>
     <string name="insufficient_balance">Saldo insuficiente</string>
+    <string name="insufficient_balance_exhausted">Seus dados acabaram até a renovação grátis ou um upgrade.</string>
     <string name="insufficient_balance_held_notice">Seu tráfego fica retido no túnel até você fazer upgrade ou desconectar.</string>
+    <string name="insufficient_balance_reconnecting">Há dados disponíveis novamente. Reconectando…</string>
     <string name="insufficient_balance_refreshes_in">Os dados grátis são renovados em %1$s.</string>
+    <string name="insufficient_balance_reserved">%1$s estão reservados para suas conexões abertas. O que elas não usarem é devolvido à medida que forem fechadas.</string>
+    <string name="insufficient_balance_will_reconnect">Você será reconectado quando houver dados disponíveis novamente.</string>
     <string name="insufficient_funds">Fundos insuficientes</string>
     <string name="invalid_referral_code">Este código não é válido</string>
     <string name="ip_address">Endereço IP</string>

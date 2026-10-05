@@ -241,8 +241,12 @@
     <string name="included">Συμπερίληψη</string>
     <string name="instant_account_no_email_password">Δεν χρειάζεται email ή κωδικός. Ο λογαριασμός σου προστατεύεται από ένα seedphrase.</string>
     <string name="insufficient_balance">Ανεπαρκές υπόλοιπο</string>
+    <string name="insufficient_balance_exhausted">Τα δεδομένα σας έχουν τελειώσει μέχρι τη δωρεάν ανανέωση ή μια αναβάθμιση.</string>
     <string name="insufficient_balance_held_notice">Η κίνησή σας παραμένει στη σήραγγα μέχρι να αναβαθμίσετε ή να αποσυνδεθείτε.</string>
+    <string name="insufficient_balance_reconnecting">Τα δεδομένα είναι ξανά διαθέσιμα. Επανασύνδεση…</string>
     <string name="insufficient_balance_refreshes_in">Τα δωρεάν δεδομένα ανανεώνονται σε %1$s.</string>
+    <string name="insufficient_balance_reserved">%1$s είναι δεσμευμένα για τις ανοιχτές συνδέσεις σας. Ό,τι δεν χρησιμοποιήσουν επιστρέφεται καθώς κλείνουν.</string>
+    <string name="insufficient_balance_will_reconnect">Θα επανασυνδεθείτε όταν υπάρξουν ξανά διαθέσιμα δεδομένα.</string>
     <string name="insufficient_funds">Ανεπαρκή κεφάλαια</string>
     <string name="invalid_referral_code">Αυτός ο κωδικός δεν είναι έγκυρος</string>
     <string name="ip_address">Διεύθυνση IP</string>

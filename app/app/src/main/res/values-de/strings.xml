@@ -469,8 +469,12 @@
     <string name="includes_free_trial_days">Enthält eine %1$d-tägige kostenlose Testphase</string>
     <string name="instant_account_no_email_password">Keine E-Mail und kein Passwort nötig. Dein Konto wird durch eine Seedphrase gesichert.</string>
     <string name="insufficient_balance">Unzureichendes Guthaben</string>
+    <string name="insufficient_balance_exhausted">Deine Daten sind bis zur kostenlosen Erneuerung oder einem Upgrade aufgebraucht.</string>
     <string name="insufficient_balance_held_notice">Dein Datenverkehr wird im Tunnel gehalten, bis du upgradest oder die Verbindung trennst.</string>
+    <string name="insufficient_balance_reconnecting">Daten sind wieder verfügbar. Verbindung wird wiederhergestellt…</string>
     <string name="insufficient_balance_refreshes_in">Kostenlose Daten werden in %1$s erneuert.</string>
+    <string name="insufficient_balance_reserved">%1$s sind für deine offenen Verbindungen reserviert. Was sie nicht verbrauchen, wird zurückgegeben, sobald sie geschlossen werden.</string>
+    <string name="insufficient_balance_will_reconnect">Du wirst wieder verbunden, sobald wieder Daten verfügbar sind.</string>
     <string name="insufficient_funds">Unzureichende Mittel</string>
     <string name="intro_quick_connect_details">Schalte URnetwork in den Schnelleinstellungen ein und aus und behalte es auf deinem Startbildschirm im Blick.</string>
     <string name="intro_quick_connect_title">Mit einem Tipp verbinden</string>

@@ -242,8 +242,10 @@ constructor(
     /**
      * Every in-app connect (the connect button and drawer, a location pick, a
      * link) passes the start connect gate: out of balance it opens the
-     * upgrade screen instead of starting the tunnel. The gate may first fetch
-     * a fresh account balance, so the connect starts from its callback.
+     * upgrade screen instead of starting the tunnel, and the connect waits on
+     * the balance to be retried by itself (MainApplication.startConnectBlocked).
+     * The gate may first fetch a fresh account balance, so the connect starts
+     * from its callback.
      */
     val connect: (ConnectLocation?) -> Unit = { location ->
         val app = appContext as? com.bringyour.network.MainApplication
@@ -260,8 +262,10 @@ constructor(
             app.checkStartConnect { blocked ->
                 if (blocked) {
                     Log.i(TAG, "[connect]blocked: insufficient balance")
-                    app.requestUpgradeScreen()
+                    app.startConnectBlocked(location)
                 } else {
+                    // this connect replaces one still waiting on the balance
+                    app.clearBalanceRecovery()
                     start()
                 }
             }
@@ -488,7 +492,11 @@ constructor(
         addListener { vc -> vc.addSelectedLocationListener { updateSelectedLocation() } }
     }
 
-    val disconnect: () -> Unit = { connectVc?.disconnect() }
+    val disconnect: () -> Unit = {
+        // the user's disconnect: nothing is reconnected by itself after it
+        (appContext as? com.bringyour.network.MainApplication)?.clearBalanceRecovery()
+        connectVc?.disconnect()
+    }
 
     val addTunnelListener: () -> Unit = {
         val device = viewControllerDevice

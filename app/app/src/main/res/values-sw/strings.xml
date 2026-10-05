@@ -241,8 +241,12 @@
     <string name="included">Imejumuishwa</string>
     <string name="instant_account_no_email_password">Hakuna haja ya barua pepe au nenosiri. Akaunti yako inalindwa na seedphrase.</string>
     <string name="insufficient_balance">Salio halitoshi</string>
+    <string name="insufficient_balance_exhausted">Data yako imeisha hadi usasishaji wa bure au hadi upandishe kiwango.</string>
     <string name="insufficient_balance_held_notice">Trafiki yako imeshikiliwa ndani ya handaki hadi upandishe kiwango au utenganishe.</string>
+    <string name="insufficient_balance_reconnecting">Data inapatikana tena. Inaunganisha upya…</string>
     <string name="insufficient_balance_refreshes_in">Data ya bure itasasishwa baada ya %1$s.</string>
+    <string name="insufficient_balance_reserved">%1$s imehifadhiwa kwa ajili ya miunganisho yako iliyo wazi. Isiyotumika hurejeshwa miunganisho hiyo inapofungwa.</string>
+    <string name="insufficient_balance_will_reconnect">Utaunganishwa tena data itakapopatikana tena.</string>
     <string name="insufficient_funds">Fedha haitoshi</string>
     <string name="invalid_referral_code">Msimbo huu si sahihi</string>
     <string name="ip_address">Anwani ya IP</string>

@@ -6,19 +6,26 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.bringyour.network.R
+import com.bringyour.network.ui.connect.outOfBalanceKind
 import com.bringyour.network.ui.theme.TextMuted
+import com.bringyour.network.widgets.WidgetSnapshotStore
 
 /**
  * Set by the upgrade destination when a start connect blocked by insufficient
  * balance opened it (upgradeShowsFreeRefresh): closes the screen to wait for
- * the free data. Every flavor's upgrade screen shows the header, so the line
- * and the button need no per-flavor change.
+ * the free data. Every flavor's upgrade screen shows the header, so the lines
+ * and the button need no per-flavor change. The blocked connect itself waits
+ * on the balance and is retried once it is back (BalanceRecovery).
  */
 val LocalUpgradeWaitForRefresh = compositionLocalOf<(() -> Unit)?> { null }
 
@@ -49,6 +56,25 @@ fun UpgradeScreenHeader() {
                 style = MaterialTheme.typography.bodyLarge,
                 color = TextMuted
             )
+
+            // reserved data may come back before the refresh; used up does not
+            val context = LocalContext.current
+            val balanceChanges by WidgetSnapshotStore.changes.collectAsState()
+            val accountBalance = remember(balanceChanges) { WidgetSnapshotStore.loadBalance(context) }
+            val kindText = outOfBalanceKindText(
+                outOfBalanceKind(accountBalance),
+                accountBalance?.openTransferByteCount ?: 0L,
+            )
+            if (kindText != null) {
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Text(
+                    kindText,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = TextMuted
+                )
+            }
 
             Spacer(modifier = Modifier.height(16.dp))
 

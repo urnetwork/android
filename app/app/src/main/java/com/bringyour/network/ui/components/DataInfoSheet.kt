@@ -22,10 +22,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.bringyour.network.R
+import com.bringyour.network.ui.connect.OutOfBalanceKind
 import com.bringyour.network.ui.theme.BlueMedium
 import com.bringyour.network.ui.theme.Red
 import com.bringyour.network.ui.theme.TextFaint
 import com.bringyour.network.ui.theme.TextMuted
+import com.bringyour.network.utils.formatBalanceBytes
 import kotlinx.coroutines.delay
 
 /**
@@ -194,4 +196,18 @@ fun rememberFreeRefreshCountdown(): String {
             resources.getString(R.string.provider_connected_duration_minutes, minutes.toInt())
         },
     )
+}
+
+/**
+ * The out-of-balance line that says whether the missing data is reserved by
+ * open connections (with the reserved amount) or used up, or null for
+ * neither. Shared by the connect drawer and the upgrade screen a blocked
+ * connect opens.
+ */
+@Composable
+internal fun outOfBalanceKindText(kind: OutOfBalanceKind, reservedByteCount: Long): String? = when (kind) {
+    OutOfBalanceKind.RESERVED ->
+        stringResource(id = R.string.insufficient_balance_reserved, formatBalanceBytes(reservedByteCount))
+    OutOfBalanceKind.EXHAUSTED -> stringResource(id = R.string.insufficient_balance_exhausted)
+    OutOfBalanceKind.UNKNOWN -> null
 }

@@ -199,24 +199,75 @@ internal fun connectActionButtons(
     )
 }
 
+/**
+ * Why the balance is out, from the last account balance: what is missing is
+ * either held by open connections, which return what they do not use as they
+ * close, or used up until the free refresh or an upgrade.
+ */
+internal enum class OutOfBalanceKind {
+    /** No balance known, Pro, or the balance reads available again: say neither. */
+    UNKNOWN,
+    /** Enough is reserved (Pending) that its return could bring data back. */
+    RESERVED,
+    /** Nothing meaningful is reserved: out until the free refresh or an upgrade. */
+    EXHAUSTED,
+}
+
+/**
+ * Reserved or exhausted, by the same threshold the self-recovery waits for
+ * ([BALANCE_RECOVERY_THRESHOLD_BYTES]): reserved when at least that much is
+ * held by open connections. No time is promised for its return; connections
+ * close when they are used up or end.
+ */
+internal fun outOfBalanceKind(balance: WidgetBalanceSnapshot?): OutOfBalanceKind = when {
+    balance == null || balance.isPro -> OutOfBalanceKind.UNKNOWN
+    BALANCE_RECOVERY_THRESHOLD_BYTES <= balance.balanceByteCount -> OutOfBalanceKind.UNKNOWN
+    BALANCE_RECOVERY_THRESHOLD_BYTES <= balance.openTransferByteCount -> OutOfBalanceKind.RESERVED
+    else -> OutOfBalanceKind.EXHAUSTED
+}
+
 internal data class OutOfBalanceNotice(
     /** "Free data refreshes in {time}." with a Why? link to the data sheet. */
     val refresh: Boolean,
     /** Traffic is held in the tunnel until the user upgrades or disconnects. */
     val held: Boolean,
+    /** "{amount} is reserved ..." or "You're out of data ...", or neither. */
+    val kind: OutOfBalanceKind = OutOfBalanceKind.UNKNOWN,
+    /** "You'll be reconnected when data is available again." */
+    val willReconnect: Boolean = false,
+    /** Cancel next to it: a refused start has no Disconnect to stop it. */
+    val cancel: Boolean = false,
 )
 
 /**
  * The notice under the drawer's buttons while out of balance. It leads with
  * when the free data refreshes, whether or not a connection is requested, so
  * the upgrade button does not read as the only way back; Why? opens the
- * "About your data" sheet. The held-traffic line follows only while a
- * connection is requested.
+ * "About your data" sheet. Then whether the data is reserved or used up, and
+ * the held-traffic line while a connection is requested.
+ *
+ * While a connect the user asked for waits on the balance (BalanceRecovery,
+ * null when there is none), it says the app reconnects by itself: for a held
+ * connection, and for a refused start even once the gate has lifted, since
+ * that start can still fire. A refused start gets Cancel, the only way to
+ * stop it.
  */
-internal fun outOfBalanceNotice(buttons: ConnectActionButtons): OutOfBalanceNotice = OutOfBalanceNotice(
-    refresh = buttons.upgrade,
-    held = buttons.upgrade && buttons.disconnect,
-)
+internal fun outOfBalanceNotice(
+    buttons: ConnectActionButtons,
+    kind: OutOfBalanceKind = OutOfBalanceKind.UNKNOWN,
+    recovery: BalanceRecoveryState? = null,
+): OutOfBalanceNotice {
+    val held = buttons.upgrade && buttons.disconnect
+    val startWaiting = recovery?.startWaiting == true
+    val willReconnect = recovery?.retriesLeft == true && (startWaiting || held)
+    return OutOfBalanceNotice(
+        refresh = buttons.upgrade,
+        held = held,
+        kind = if (buttons.upgrade) kind else OutOfBalanceKind.UNKNOWN,
+        willReconnect = willReconnect,
+        cancel = willReconnect && startWaiting,
+    )
+}
 
 /**
  * Whether the upgrade screen leads with when the free data refreshes and

@@ -75,11 +75,15 @@ object QuickConnect {
                 return if (connect && VpnService.prepare(app) != null) Result.NEEDS_CONSENT else Result.APPLIED
             com.bringyour.network.ui.connect.QuickConnectStep.UPGRADE -> {
                 android.util.Log.i("QuickConnect", "connect from $source blocked: insufficient balance")
-                app.requestUpgradeScreen()
+                // the connect waits on the balance and is retried once it is back
+                app.startConnectBlocked(device.connectLocation)
                 return Result.NEEDS_UPGRADE
             }
             com.bringyour.network.ui.connect.QuickConnectStep.CONNECT,
-            com.bringyour.network.ui.connect.QuickConnectStep.DISCONNECT -> {}
+            com.bringyour.network.ui.connect.QuickConnectStep.DISCONNECT -> {
+                // the user's own connect or disconnect replaces any wait
+                app.clearBalanceRecovery()
+            }
         }
         val vc = device.openConnectViewController() ?: return Result.NEEDS_APP
         try {

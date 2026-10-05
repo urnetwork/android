@@ -133,9 +133,15 @@ fun ConnectScreen(
     // ui reads it (MainApplication.checkStartConnect)
     val screenContext = LocalContext.current
     val balanceChanges by com.bringyour.network.widgets.WidgetSnapshotStore.changes.collectAsState()
-    val balanceExhausted = remember(balanceChanges) {
-        accountBalanceExhausted(com.bringyour.network.widgets.WidgetSnapshotStore.loadBalance(screenContext))
+    val accountBalance = remember(balanceChanges) {
+        com.bringyour.network.widgets.WidgetSnapshotStore.loadBalance(screenContext)
     }
+    val balanceExhausted = accountBalanceExhausted(accountBalance)
+    // a connect insufficient balance blocked, waiting to be retried (BalanceRecovery)
+    val balanceRecoveryState by (
+        (screenContext.applicationContext as? MainApplication)?.balanceRecoveryState
+            ?: kotlinx.coroutines.flow.MutableStateFlow(BalanceRecoveryState())
+        ).collectAsState()
     // upgrade shown in place of connect on the account balance alone: make
     // sure that balance is current, so a stale zero does not hide connect
     val balanceGatesConnect = balanceExhausted && connectStatus == ConnectStatus.DISCONNECTED
@@ -245,6 +251,10 @@ fun ConnectScreen(
                 displayReconnectTunnel = connectViewModel.displayReconnectTunnel,
                 privateDnsStrictHost = privateDnsStrictHost,
                 insufficientBalance = displayInsufficientBalance,
+                outOfBalanceKind = outOfBalanceKind(accountBalance),
+                reservedBytes = accountBalance?.openTransferByteCount ?: 0L,
+                balanceRecovery = balanceRecoveryState,
+                cancelBalanceRecovery = { application?.clearBalanceRecovery() },
                 usedBytes = subscriptionBalanceViewModel.usedBalanceByteCount,
                 pendingBytes = subscriptionBalanceViewModel.pendingBalanceByteCount,
                 availableBytes = availableBytes,
