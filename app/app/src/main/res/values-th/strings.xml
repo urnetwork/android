@@ -388,6 +388,8 @@
     <string name="post_quantum_encryption_fallback_note">เปิดใช้โหมดสำรอง (ชั่วคราว)</string>
     <string name="post_quantum_identity">ข้อมูลระบุตัวตนผู้ให้บริการแบบโพสต์ควอนตัม</string>
     <string name="post_quantum_identity_explanation">คีย์ระบุตัวตนผู้ให้บริการของคุณถูกเก็บไว้ในเครื่องนี้ หากคีย์ของเพียร์ใดแตกต่างจากคีย์ที่เก็บไว้ในเครื่อง แสดงว่าผู้ดำเนินการเครือข่ายไม่น่าเชื่อถือ</string>
+    <string name="private_dns_open_settings">เปิดการตั้งค่าเครือข่าย</string>
+    <string name="private_dns_strict_notice">DNS ส่วนตัวตั้งค่าเป็น %1$s แล้ว Android จะส่งการค้นหาไปที่นั่นโดยตรงแทนที่จะผ่าน URnetwork หากเว็บไซต์โหลดไม่ได้ ให้ตั้งค่า DNS ส่วนตัวเป็นอัตโนมัติ</string>
     <string name="private_network">เครือข่ายส่วนตัว</string>
     <string name="pro_benefits_simple">URnetwork เวอร์ชันที่ดีที่สุด</string>
     <string name="processing_payment">กำลังดำเนินการชำระเงิน</string>

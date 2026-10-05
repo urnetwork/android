@@ -388,6 +388,8 @@
     <string name="post_quantum_encryption_fallback_note">Záložní režim zapnut (dočasně)</string>
     <string name="post_quantum_identity">Postkvantová identita poskytovatele</string>
     <string name="post_quantum_identity_explanation">Váš identitní klíč poskytovatele je uložen lokálně v tomto zařízení. Pokud se klíč některého uzlu liší od jeho lokálně uloženého klíče, znamená to, že provozovateli sítě nelze důvěřovat.</string>
+    <string name="private_dns_open_settings">Otevřít nastavení sítě</string>
+    <string name="private_dns_strict_notice">Soukromé DNS je nastaveno na %1$s. Android posílá dotazy přímo tam místo přes URnetwork. Pokud se weby přestanou načítat, nastavte Soukromé DNS na Automaticky.</string>
     <string name="private_network">Soukromá síť</string>
     <string name="pro_benefits_simple">Nejlepší verze URnetwork.</string>
     <string name="processing_payment">Zpracovává se platba</string>

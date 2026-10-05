@@ -647,6 +647,8 @@
     <string name="post_quantum_encryption_fallback_note">Резервный режим включён (временно)</string>
     <string name="post_quantum_identity">Постквантовая идентификация провайдера</string>
     <string name="post_quantum_identity_explanation">Ваш ключ идентификации провайдера хранится локально на этом устройстве. Если ключ какого-либо узла отличается от сохранённого локально, это значит, что оператору сети нельзя доверять.</string>
+    <string name="private_dns_open_settings">Открыть настройки сети</string>
+    <string name="private_dns_strict_notice">Частный DNS задан как %1$s. Android отправляет запросы напрямую туда, а не через URnetwork. Если сайты перестают загружаться, установите для частного DNS значение «Автоматически».</string>
     <string name="private_extender">Частный экстендер</string>
     <string name="private_extender_hint">Частный экстендер заменяет все найденные экстендеры. Оставьте поле пустым, чтобы использовать автоматический поиск.</string>
     <string name="private_extender_ip">IP-адрес</string>

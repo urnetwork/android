@@ -388,6 +388,8 @@
     <string name="post_quantum_encryption_fallback_note">Mbadala umewashwa (kwa muda)</string>
     <string name="post_quantum_identity">Utambulisho wa mtoa huduma wa baada ya kwantamu</string>
     <string name="post_quantum_identity_explanation">Ufunguo wako wa utambulisho wa mtoa huduma huhifadhiwa ndani ya kifaa hiki. Ikiwa ufunguo wa mshirika yeyote unaonekana tofauti na ufunguo wake uliohifadhiwa ndani ya kifaa, inamaanisha mwendeshaji wa mtandao hawezi kuaminiwa.</string>
+    <string name="private_dns_open_settings">Fungua mipangilio ya mtandao</string>
+    <string name="private_dns_strict_notice">DNS ya Faragha imewekwa kuwa %1$s. Android hutuma hoja moja kwa moja huko badala ya kupitia URnetwork. Tovuti zikiacha kupakia, weka DNS ya Faragha kuwa Otomatiki.</string>
     <string name="private_network">Mtandao wa kibinafsi</string>
     <string name="pro_benefits_simple">Toleo bora zaidi la URnetwork.</string>
     <string name="processing_payment">Inashughulikia malipo</string>
