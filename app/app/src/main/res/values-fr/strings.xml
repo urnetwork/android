@@ -9,7 +9,6 @@
     <string name="add_blocked_location">Ajouter un emplacement bloqué</string>
     <string name="add_emoji">Ajouter des emojis</string>
     <string name="add_referral_code">Ajouter un code de parrainage</string>
-    <string name="add_referral_extra_rewards">Ajouter un code de parrainage pour gagner des récompenses supplémentaires</string>
     <string name="add_sign_in_method">Ajouter une méthode de connexion</string>
     <string name="add_sign_in_method_2">Ajouter une méthode de connexion</string>
     <string name="advanced">Avancé</string>
@@ -31,7 +30,6 @@
     <string name="app_split_rules">Règles par application</string>
     <string name="app_split_starter">0 application séparée</string>
     <string name="apple_sign_in_method_added">Méthode de connexion Apple ajoutée</string>
-    <string name="apply_bonus">Appliquer le bonus</string>
     <string name="apps">Applications</string>
     <string name="are_you_sure_delete_account">Êtes-vous sûr de vouloir supprimer votre compte ?</string>
     <string name="auth_code">Code d’authentification</string>
@@ -162,7 +160,6 @@
     <string name="edit_emoji">Modifier les emojis</string>
     <string name="edit_network_name">Modifier le nom du réseau</string>
     <string name="edit_profile">Modifier le profil</string>
-    <string name="edit_referral_code">Modifier le code de parrainage</string>
     <string name="edit_split_rule">Modifier la règle de séparation</string>
     <string name="emoji_tag">Tag emoji</string>
     <string name="emoji_tag_delete_last">Supprimer le dernier emoji</string>
@@ -173,6 +170,7 @@
     <string name="emoji_tag_shuffle">Autre suggestion</string>
     <string name="enjoying_urnetwork">Vous appréciez URnetwork ?</string>
     <string name="enter">Entrée</string>
+    <string name="enter_a_bonus_referral_code">Entrez un code de parrainage bonus</string>
     <string name="enter_a_password">Entrez un mot de passe</string>
     <string name="enter_a_solana_usdc_wallet_address">Saisissez une adresse de portefeuille USDC sur Solana</string>
     <string name="enter_balance_code">Entrez le code de solde</string>
@@ -342,7 +340,6 @@
     <string name="no_solana_wallet_found">Aucune application de portefeuille trouvée pour le paiement Solana.</string>
     <string name="no_solana_wallets_found">Aucun portefeuille Solana trouvé</string>
     <string name="no_wallets_found_alert_content">Aucun portefeuille Solana n\'a été trouvé installé sur cet appareil. Veuillez installer un portefeuille et réessayer.</string>
-    <string name="none">Aucun</string>
     <string name="notifications_label">Notifications</string>
     <string name="of_total">sur %1$s</string>
     <string name="off">Désactivé</string>
@@ -431,6 +428,7 @@
     <string name="referral_bonus_applied">Bonus de parrainage appliqué</string>
     <string name="referral_code">Code de parrainage</string>
     <string name="referral_code_capped">Ce code a déjà été utilisé</string>
+    <string name="referral_code_optional">Code de parrainage (facultatif)</string>
     <string name="referral_network">Réseau de parrainage</string>
     <string name="referral_network_updated">Réseau de parrainage mis à jour</string>
     <string name="referral_points">Points de parrainage</string>

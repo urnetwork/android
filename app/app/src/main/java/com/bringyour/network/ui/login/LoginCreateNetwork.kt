@@ -5,7 +5,6 @@ import android.util.Patterns
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,7 +19,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -36,20 +34,17 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
@@ -71,7 +66,7 @@ import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.components.URInlineErrorText
 import com.bringyour.network.ui.components.URTextInput
 import com.bringyour.network.ui.components.referral.ReferralAppliedChip
-import com.bringyour.network.ui.components.referral.ReferralBonusSheet
+import com.bringyour.network.ui.components.referral.ReferralCodeInput
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.unit.TextUnit
@@ -81,9 +76,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import com.bringyour.network.ui.components.overlays.WelcomeAnimatedOverlayLogin
-import com.bringyour.network.ui.theme.TextMuted
-import com.bringyour.network.ui.theme.ppNeueBitBold
-import com.bringyour.sdk.Api
 
 // Base class with common parameters
 open class CommonLoginParams(
@@ -133,16 +125,14 @@ fun LoginCreateNetwork(
     loginCreateNetworkViewModel: LoginCreateNetworkViewModel = hiltViewModel()
 ) {
 
-    val context = LocalContext.current
-    val application = context.applicationContext as? MainApplication
-    val presentReferralSheet by loginCreateNetworkViewModel.presentBonusSheet.collectAsState()
+    val referralInput = loginCreateNetworkViewModel.referralInput
 
     LaunchedEffect(params.referralCode) {
 
         params.referralCode?.let { code ->
             if (code.isNotEmpty()) {
-                loginCreateNetworkViewModel.setReferralCode(TextFieldValue(code))
-                loginCreateNetworkViewModel.validateReferralCode(application?.api, {})
+                referralInput.setCode(TextFieldValue(code))
+                referralInput.check {}
             }
         }
     }
@@ -168,16 +158,13 @@ fun LoginCreateNetwork(
         networkNameIsValid = loginCreateNetworkViewModel.networkNameIsValid,
         networkNameSupportingText = loginCreateNetworkViewModel.networkNameSupportingText,
         setNetworkNameSupportingText = loginCreateNetworkViewModel.setNetworkNameSupportingText,
-        presentBonusSheet = presentReferralSheet,
-        setPresentBonusSheet = loginCreateNetworkViewModel.setPresentBonusSheet,
-        referralCode = loginCreateNetworkViewModel.referralCode,
-        setReferralCode = loginCreateNetworkViewModel.setReferralCode,
-        validateReferralCode = loginCreateNetworkViewModel.validateReferralCode,
-        isValidReferralCode = loginCreateNetworkViewModel.isValidReferralCode,
-        isValidatingReferralCode = loginCreateNetworkViewModel.isValidatingReferralCode,
-        referralValidationComplete = loginCreateNetworkViewModel.referralValidationComplete,
-        referralCodeInputSupportingTextRes = loginCreateNetworkViewModel.referralCodeInputSupportingTextRes.collectAsState().value,
-        isReferralCodeCapped = loginCreateNetworkViewModel.referralCodeIsCapped.collectAsState().value
+        referralCode = referralInput.code,
+        setReferralCode = referralInput.setCode,
+        checkReferralCode = { referralInput.check {} },
+        isValidReferralCode = referralInput.isValid,
+        isValidatingReferralCode = referralInput.isValidating,
+        isReferralCodeRejected = referralInput.isRejected,
+        referralCodeInputSupportingTextRes = referralInput.supportingTextRes,
    )
 }
 
@@ -204,15 +191,12 @@ fun LoginCreateNetwork(
     createNetworkArgs: (LoginCreateNetworkParams) -> NetworkCreateArgs,
     setNetworkNameSupportingText: (String) -> Unit,
     networkNameSupportingText: String,
-    presentBonusSheet: Boolean,
-    setPresentBonusSheet: (Boolean) -> Unit,
     referralCode: TextFieldValue,
     setReferralCode: (TextFieldValue) -> Unit,
-    validateReferralCode: (Api?, (Boolean) -> Unit) -> Unit,
+    checkReferralCode: () -> Unit,
     isValidReferralCode: Boolean,
     isValidatingReferralCode: Boolean,
-    isReferralCodeCapped: Boolean,
-    referralValidationComplete: Boolean,
+    isReferralCodeRejected: Boolean,
     referralCodeInputSupportingTextRes: Int?
 ) {
     val context = LocalContext.current
@@ -472,10 +456,13 @@ fun LoginCreateNetwork(
                         createNetwork()
                     },
                     networkNameSupportingText = networkNameSupportingText,
-                    setPresentBonusSheet = setPresentBonusSheet,
-                    isValidReferralCode = isValidReferralCode,
-                    isReferralCodeCapped = isReferralCodeCapped,
                     referralCode = referralCode,
+                    setReferralCode = setReferralCode,
+                    checkReferralCode = checkReferralCode,
+                    isValidReferralCode = isValidReferralCode,
+                    isValidatingReferralCode = isValidatingReferralCode,
+                    isReferralCodeRejected = isReferralCodeRejected,
+                    referralCodeInputSupportingTextRes = referralCodeInputSupportingTextRes,
                     isInProgress = inProgress,
                     createNetworkError = createNetworkError,
                     clearCreateNetworkError = {
@@ -483,25 +470,6 @@ fun LoginCreateNetwork(
                     }
                 )
             }
-
-            /**
-             * Referral sheet: accepting a code flips the sheet into the gold
-             * royal-welcome moment before it dismisses itself
-             */
-            ReferralBonusSheet(
-                presented = presentBonusSheet,
-                onDismiss = { setPresentBonusSheet(false) },
-                referralCode = referralCode,
-                setReferralCode = setReferralCode,
-                isValidating = isValidatingReferralCode,
-                isValid = isValidReferralCode,
-                isCapped = isReferralCodeCapped,
-                validationComplete = referralValidationComplete,
-                supportingTextRes = referralCodeInputSupportingTextRes,
-                validate = { onComplete ->
-                    validateReferralCode(application?.api, onComplete)
-                },
-            )
         }
     }
 
@@ -531,10 +499,13 @@ private fun NetworkCreateForm(
     isBtnEnabled: Boolean,
     isInProgress: Boolean,
     onCreateNetwork: () -> Unit,
-    setPresentBonusSheet: (Boolean) -> Unit,
-    isValidReferralCode: Boolean,
-    isReferralCodeCapped: Boolean,
     referralCode: TextFieldValue,
+    setReferralCode: (TextFieldValue) -> Unit,
+    checkReferralCode: () -> Unit,
+    isValidReferralCode: Boolean,
+    isValidatingReferralCode: Boolean,
+    isReferralCodeRejected: Boolean,
+    referralCodeInputSupportingTextRes: Int?,
     createNetworkError: String?,
     clearCreateNetworkError: () -> Unit,
 ) {
@@ -647,7 +618,21 @@ private fun NetworkCreateForm(
                 enabled = !isInProgress,
             )
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(24.dp))
+
+            ReferralCodeInput(
+                referralCode = referralCode,
+                setReferralCode = { newValue ->
+                    setReferralCode(newValue)
+                    clearCreateNetworkError()
+                },
+                isValidating = isValidatingReferralCode,
+                isRejected = isReferralCodeRejected,
+                supportingTextRes = referralCodeInputSupportingTextRes,
+                onDone = checkReferralCode,
+                enabled = !isInProgress,
+                modifier = Modifier.testTag("acceptance.create.referral")
+            )
 
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -655,7 +640,7 @@ private fun NetworkCreateForm(
                 horizontalArrangement = Arrangement.Start
             ) {
 
-                if (isValidReferralCode && !isReferralCodeCapped) {
+                if (isValidReferralCode) {
                     ReferralAppliedChip()
                 } else {
                     Text("")
@@ -692,31 +677,6 @@ private fun NetworkCreateForm(
                     Modifier
                 },
             )
-
-            Spacer(modifier = Modifier.height(32.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center
-            ) {
-                Text(
-                    text = if (referralCode.text.isEmpty()) stringResource(id = R.string.add_referral_code)
-                        else stringResource(id = R.string.edit_referral_code),
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(50))
-                        .clickable {
-                            if (!isInProgress) {
-                                setPresentBonusSheet(true)
-                            }
-                        }
-                        .padding(horizontal = 16.dp, vertical = 8.dp),
-                    style = TextStyle(
-                        color = TextMuted,
-                        fontFamily = ppNeueBitBold,
-                        fontSize = 24.sp
-                    )
-                )
-            }
         }
     }
 }
@@ -735,8 +695,6 @@ private fun LoginNetworkCreatePreview() {
     val mockCreateNetworkArgs: (LoginCreateNetworkParams) -> NetworkCreateArgs = {
         NetworkCreateArgs()
     }
-
-    val mockValidateReferralCode: (Api?, (Boolean) -> Unit) -> Unit = { _, _ -> }
 
     URNetworkTheme {
         Scaffold(
@@ -765,16 +723,13 @@ private fun LoginNetworkCreatePreview() {
                     networkNameIsValid = true,
                     networkNameSupportingText = "",
                     setNetworkNameSupportingText = {},
-                    presentBonusSheet = false,
-                    setPresentBonusSheet = {},
                     referralCode = TextFieldValue(""),
                     setReferralCode = {},
-                    validateReferralCode = mockValidateReferralCode,
+                    checkReferralCode = {},
                     isValidReferralCode = true,
                     isValidatingReferralCode = false,
-                    referralValidationComplete = false,
-                    referralCodeInputSupportingTextRes = null,
-                    isReferralCodeCapped = false
+                    isReferralCodeRejected = false,
+                    referralCodeInputSupportingTextRes = null
                 )
             }
         }

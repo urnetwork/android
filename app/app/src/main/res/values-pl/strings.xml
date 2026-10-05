@@ -9,7 +9,6 @@
     <string name="add_blocked_location">Dodaj zablokowaną lokalizację</string>
     <string name="add_emoji">Dodaj emoji</string>
     <string name="add_referral_code">Dodaj kod polecający</string>
-    <string name="add_referral_extra_rewards">Dodaj kod polecający, aby zdobyć dodatkowe nagrody</string>
     <string name="add_sign_in_method">Dodaj metodę logowania</string>
     <string name="add_sign_in_method_2">Dodaj metodę logowania</string>
     <string name="advanced">Zaawansowane</string>
@@ -31,7 +30,6 @@
     <string name="app_split_rules">Reguły podziału aplikacji</string>
     <string name="app_split_starter">0 podzielonych aplikacji</string>
     <string name="apple_sign_in_method_added">Dodano metodę logowania Apple</string>
-    <string name="apply_bonus">Zastosuj bonus</string>
     <string name="apps">Aplikacje</string>
     <string name="are_you_sure_delete_account">Czy na pewno chcesz usunąć swoje konto?</string>
     <string name="auth_code">Kod uwierzytelniający</string>
@@ -162,7 +160,6 @@
     <string name="edit_emoji">Edytuj emoji</string>
     <string name="edit_network_name">Edytuj nazwę sieci</string>
     <string name="edit_profile">Edytuj profil</string>
-    <string name="edit_referral_code">Edytuj kod polecający</string>
     <string name="edit_split_rule">Edytuj regułę podziału</string>
     <string name="emoji_tag">Tag emoji</string>
     <string name="emoji_tag_delete_last">Usuń ostatnie emoji</string>
@@ -173,6 +170,7 @@
     <string name="emoji_tag_shuffle">Zaproponuj inne</string>
     <string name="enjoying_urnetwork">Czy podoba Ci się URnetwork?</string>
     <string name="enter">Wejdź</string>
+    <string name="enter_a_bonus_referral_code">Wprowadź kod polecający bonus</string>
     <string name="enter_a_password">Wprowadź hasło</string>
     <string name="enter_a_solana_usdc_wallet_address">Wprowadź adres portfela USDC w sieci Solana</string>
     <string name="enter_balance_code">Wpisz kod salda</string>
@@ -342,7 +340,6 @@
     <string name="no_solana_wallet_found">Nie znaleziono aplikacji portfela do obsługi płatności Solana.</string>
     <string name="no_solana_wallets_found">Nie znaleziono portfeli Solana</string>
     <string name="no_wallets_found_alert_content">Nie znaleziono żadnych portfeli Solana zainstalowanych na tym urządzeniu. Zainstaluj portfel i spróbuj ponownie.</string>
-    <string name="none">Brak</string>
     <string name="notifications_label">Powiadomienia</string>
     <string name="of_total">z %1$s</string>
     <string name="off">Wyłączone</string>
@@ -431,6 +428,7 @@
     <string name="referral_bonus_applied">Zastosowano bonus polecający</string>
     <string name="referral_code">Kod polecający</string>
     <string name="referral_code_capped">Ten kod został już wykorzystany</string>
+    <string name="referral_code_optional">Kod polecający (opcjonalnie)</string>
     <string name="referral_network">Sieć poleceń</string>
     <string name="referral_network_updated">Zaktualizowano sieć poleceń</string>
     <string name="referral_points">Punkty za polecenia</string>

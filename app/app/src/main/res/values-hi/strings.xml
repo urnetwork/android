@@ -9,7 +9,6 @@
     <string name="add_blocked_location">अवरुद्ध स्थान जोड़ें</string>
     <string name="add_emoji">इमोजी जोड़ें</string>
     <string name="add_referral_code">रेफरल कोड जोड़ें</string>
-    <string name="add_referral_extra_rewards">अतिरिक्त पुरस्कार पाने के लिए रेफरल कोड जोड़ें</string>
     <string name="add_sign_in_method">साइन-इन विधि जोड़ें</string>
     <string name="add_sign_in_method_2">साइन-इन विधि जोड़ें</string>
     <string name="advanced">उन्नत</string>
@@ -31,7 +30,6 @@
     <string name="app_split_rules">ऐप स्प्लिट नियम</string>
     <string name="app_split_starter">0 स्प्लिट ऐप्स</string>
     <string name="apple_sign_in_method_added">Apple साइन-इन विधि जोड़ी गई</string>
-    <string name="apply_bonus">बोनस लागू करें</string>
     <string name="apps">ऐप्स</string>
     <string name="are_you_sure_delete_account">क्या आप वाकई अपना अकाउंट डिलीट करना चाहते हैं?</string>
     <string name="auth_code">ऑथ कोड</string>
@@ -162,7 +160,6 @@
     <string name="edit_emoji">इमोजी संपादित करें</string>
     <string name="edit_network_name">नेटवर्क का नाम संपादित करें</string>
     <string name="edit_profile">प्रोफ़ाइल संपादित करें</string>
-    <string name="edit_referral_code">रेफरल कोड संपादित करें</string>
     <string name="edit_split_rule">स्प्लिट नियम संपादित करें</string>
     <string name="emoji_tag">इमोजी टैग</string>
     <string name="emoji_tag_delete_last">आख़िरी इमोजी हटाएँ</string>
@@ -173,6 +170,7 @@
     <string name="emoji_tag_shuffle">दूसरा सुझाव</string>
     <string name="enjoying_urnetwork">क्या आप URnetwork का आनंद ले रहे हैं?</string>
     <string name="enter">दर्ज</string>
+    <string name="enter_a_bonus_referral_code">बोनस रेफरल कोड दर्ज करें</string>
     <string name="enter_a_password">पासवर्ड दर्ज करें</string>
     <string name="enter_a_solana_usdc_wallet_address">Solana USDC वॉलेट पता दर्ज करें</string>
     <string name="enter_balance_code">बैलेंस कोड दर्ज करें</string>
@@ -342,7 +340,6 @@
     <string name="no_solana_wallet_found">Solana भुगतान के लिए कोई वॉलेट ऐप नहीं मिला।</string>
     <string name="no_solana_wallets_found">कोई Solana वॉलेट नहीं मिला</string>
     <string name="no_wallets_found_alert_content">इस डिवाइस पर कोई Solana वॉलेट इंस्टॉल नहीं मिला. कृपया एक वॉलेट इंस्टॉल करें और फिर से प्रयास करें.</string>
-    <string name="none">कोई नहीं</string>
     <string name="notifications_label">सूचनाएं</string>
     <string name="of_total">%1$s में से</string>
     <string name="off">बंद</string>
@@ -431,6 +428,7 @@
     <string name="referral_bonus_applied">रेफरल बोनस लागू किया गया</string>
     <string name="referral_code">रेफरल कोड</string>
     <string name="referral_code_capped">यह कोड पहले ही उपयोग हो चुका है</string>
+    <string name="referral_code_optional">रेफरल कोड (वैकल्पिक)</string>
     <string name="referral_network">रेफ़रल नेटवर्क</string>
     <string name="referral_network_updated">रेफ़रल नेटवर्क अपडेट किया गया</string>
     <string name="referral_points">रेफरल पॉइंट</string>

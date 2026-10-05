@@ -12,7 +12,6 @@
     <string name="add_emoji">Add emoji</string>
     <string name="add_local_split_rule">Route locally</string>
     <string name="add_referral_code">Add referral code</string>
-    <string name="add_referral_extra_rewards">Add referral code to earn extra rewards</string>
     <string name="add_sign_in_method">Add sign-in method</string>
     <string name="add_sign_in_method_2">Add Sign-In Method</string>
     <string name="add_tao_for_gas">Add TAO for gas</string>
@@ -37,7 +36,6 @@
     <string name="app_split_starter">0 split apps</string>
     <string name="apple">Apple</string>
     <string name="apple_sign_in_method_added">Apple sign-in method added</string>
-    <string name="apply_bonus">Apply bonus</string>
     <string name="apps">Apps</string>
     <string name="are_you_sure_delete_account">Are you sure you want to delete your account?</string>
     <string name="asset_statements" translatable="false">[{ \"include\": \"https://ur.io/.well-known/assetlinks.json\" }]</string>
@@ -378,7 +376,6 @@
     <string name="edit_emoji">Edit emoji</string>
     <string name="edit_network_name">Edit network name</string>
     <string name="edit_profile">Edit Profile</string>
-    <string name="edit_referral_code">Edit referral code</string>
     <string name="edit_split_rule">Edit split rule</string>
     <string name="email_support_at">Email support at</string>
     <string name="emoji_tag">Emoji tag</string>
@@ -393,6 +390,7 @@
     <string name="enabled_under_auto_footer">Listed in preference order: H3 and H1 first, then whodis, then whodis pump. The order is fixed. At least one transport stays enabled.</string>
     <string name="enjoying_urnetwork">Enjoying URnetwork?</string>
     <string name="enter">Enter</string>
+    <string name="enter_a_bonus_referral_code">Enter a bonus referral code</string>
     <string name="enter_a_password">Enter a password</string>
     <string name="enter_a_solana_usdc_wallet_address">Enter a Solana USDC wallet address</string>
     <string name="enter_address_manually">Enter address manually</string>
@@ -608,7 +606,6 @@
     <string name="no_solana_wallet_found">No wallet app found to handle the Solana payment.</string>
     <string name="no_solana_wallets_found">No Solana Wallets Found</string>
     <string name="no_wallets_found_alert_content">No Solana wallets were found installed on this device. Please install a wallet and try again.</string>
-    <string name="none">None</string>
     <string name="notifications_label">Notifications</string>
     <string name="of_total">of %1$s</string>
     <string name="off">Off</string>
@@ -721,6 +718,7 @@
     <string name="referral_bonus_applied">Referral bonus applied</string>
     <string name="referral_code">Referral code</string>
     <string name="referral_code_capped">This code has been used up</string>
+    <string name="referral_code_optional">Referral code (optional)</string>
     <string name="referral_network">Referral network</string>
     <string name="referral_network_updated">Referral network updated</string>
     <string name="referral_panel_detail">Every verified referral gives each of you %1$d GiB/day for free, for life.</string>

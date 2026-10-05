@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bringyour.network.NetworkSpaceManagerProvider
 import com.bringyour.network.ui.components.referral.ReferralCodeInputController
+import com.bringyour.network.ui.components.referral.apiReferralCodeChecker
 import com.bringyour.sdk.NetworkCreateArgs
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -41,20 +42,13 @@ class CreateNetworkInstantViewModel @Inject constructor(
      * Referral code entry. Instant accounts can be referred too -- the server
      * links the referral on any create path.
      */
-    val referralInput = ReferralCodeInputController(viewModelScope)
-
-    private val _presentBonusSheet = MutableStateFlow(false)
-    val presentBonusSheet: StateFlow<Boolean> = _presentBonusSheet
-
-    val setPresentBonusSheet: (Boolean) -> Unit = { present ->
-        _presentBonusSheet.value = present
-    }
+    val referralInput = ReferralCodeInputController(
+        viewModelScope,
+        apiReferralCodeChecker { networkSpaceManagerProvider.getNetworkSpace()?.api },
+    )
 
     fun validateReferralCode(onComplete: (Boolean) -> Unit) {
-        referralInput.validate(
-            networkSpaceManagerProvider.getNetworkSpace()?.api,
-            onComplete
-        )
+        referralInput.check(onComplete)
     }
 
     /**
@@ -101,8 +95,8 @@ class CreateNetworkInstantViewModel @Inject constructor(
         // no userAuth, userName, password or walletAuth -- the server reads that
         // as the seedphrase path and returns a generated phrase with the network
 
-        if (referralInput.applied) {
-            args.referralCode = referralInput.code.text
+        referralInput.createCode?.let { code ->
+            args.referralCode = code
         }
 
         api.networkCreate(args) { result, err ->

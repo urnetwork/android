@@ -9,7 +9,6 @@
     <string name="add_blocked_location">Agregar ubicación bloqueada</string>
     <string name="add_emoji">Agregar emojis</string>
     <string name="add_referral_code">Agregar código de referencia</string>
-    <string name="add_referral_extra_rewards">Agrega un código de referencia para ganar recompensas adicionales</string>
     <string name="add_sign_in_method">Agregar método de inicio de sesión</string>
     <string name="add_sign_in_method_2">Agregar método de inicio de sesión</string>
     <string name="advanced">Avanzado</string>
@@ -31,7 +30,6 @@
     <string name="app_split_rules">Reglas de división por app</string>
     <string name="app_split_starter">0 apps divididas</string>
     <string name="apple_sign_in_method_added">Método de inicio de sesión de Apple agregado</string>
-    <string name="apply_bonus">Aplicar bono</string>
     <string name="apps">Apps</string>
     <string name="are_you_sure_delete_account">¿Estás seguro de que quieres eliminar tu cuenta?</string>
     <string name="auth_code">Código de autenticación</string>
@@ -162,7 +160,6 @@
     <string name="edit_emoji">Editar emojis</string>
     <string name="edit_network_name">Editar nombre de la red</string>
     <string name="edit_profile">Editar perfil</string>
-    <string name="edit_referral_code">Editar código de referencia</string>
     <string name="edit_split_rule">Editar regla de división</string>
     <string name="emoji_tag">Etiqueta de emojis</string>
     <string name="emoji_tag_delete_last">Borrar el último emoji</string>
@@ -173,6 +170,7 @@
     <string name="emoji_tag_shuffle">Sugerir otro</string>
     <string name="enjoying_urnetwork">¿Disfrutas de URnetwork?</string>
     <string name="enter">Entra</string>
+    <string name="enter_a_bonus_referral_code">Ingresa un código de referencia de bonificación</string>
     <string name="enter_a_password">Ingresa una contraseña</string>
     <string name="enter_a_solana_usdc_wallet_address">Ingresa una dirección de cartera USDC en Solana</string>
     <string name="enter_balance_code">Ingresa el código de saldo</string>
@@ -342,7 +340,6 @@
     <string name="no_solana_wallet_found">No se encontró ninguna app de billetera para el pago con Solana.</string>
     <string name="no_solana_wallets_found">No se encontraron billeteras de Solana</string>
     <string name="no_wallets_found_alert_content">No se encontraron billeteras de Solana instaladas en este dispositivo. Instale una billetera e intente nuevamente.</string>
-    <string name="none">Ninguno</string>
     <string name="notifications_label">Notificaciones</string>
     <string name="of_total">de %1$s</string>
     <string name="off">Desactivado</string>
@@ -431,6 +428,7 @@
     <string name="referral_bonus_applied">Bono de referencia aplicado</string>
     <string name="referral_code">Código de referencia</string>
     <string name="referral_code_capped">Este código ya ha sido utilizado</string>
+    <string name="referral_code_optional">Código de referencia (opcional)</string>
     <string name="referral_network">Red de referidos</string>
     <string name="referral_network_updated">Red de referidos actualizada</string>
     <string name="referral_points">Puntos por referencias</string>

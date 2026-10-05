@@ -12,7 +12,6 @@
     <string name="add_emoji">添加表情</string>
     <string name="add_local_split_rule">本地路由</string>
     <string name="add_referral_code">添加推荐码</string>
-    <string name="add_referral_extra_rewards">添加推荐码以获得额外奖励</string>
     <string name="add_sign_in_method">添加登录方式</string>
     <string name="add_sign_in_method_2">添加登录方式</string>
     <string name="add_tao_for_gas">添加 TAO 以支付 Gas 费</string>
@@ -36,7 +35,6 @@
     <string name="app_split_starter">0 个分流应用</string>
     <string name="apple">Apple</string>
     <string name="apple_sign_in_method_added">已添加 Apple 登录方式</string>
-    <string name="apply_bonus">应用奖励</string>
     <string name="apps">应用</string>
     <string name="are_you_sure_delete_account">您确定要删除您的帐户吗？</string>
     <string name="auth_code">验证码</string>
@@ -363,7 +361,6 @@
     <string name="edit_emoji">编辑表情</string>
     <string name="edit_network_name">编辑网络名称</string>
     <string name="edit_profile">编辑个人资料</string>
-    <string name="edit_referral_code">编辑推荐码</string>
     <string name="edit_split_rule">编辑分流规则</string>
     <string name="emoji_tag">表情标签</string>
     <string name="emoji_tag_delete_last">删除最后一个表情</string>
@@ -376,6 +373,7 @@
     <string name="enabled_under_auto_footer">按优先顺序列出：先是 H3 和 H1，然后是 whodis，最后是 whodis pump。顺序固定。至少会有一种传输方式保持启用。</string>
     <string name="enjoying_urnetwork">喜欢 URnetwork 吗？</string>
     <string name="enter">进入</string>
+    <string name="enter_a_bonus_referral_code">输入奖励推荐码</string>
     <string name="enter_a_password">请输入密码</string>
     <string name="enter_a_solana_usdc_wallet_address">请输入 Solana USDC 钱包地址</string>
     <string name="enter_address_manually">手动输入地址</string>
@@ -589,7 +587,6 @@
     <string name="no_solana_wallet_found">未找到可处理 Solana 付款的钱包应用。</string>
     <string name="no_solana_wallets_found">未找到 Solana 钱包</string>
     <string name="no_wallets_found_alert_content">在此设备上未找到已安装的 Solana 钱包。请安装一个钱包，然后重试。</string>
-    <string name="none">无</string>
     <string name="notifications_label">通知</string>
     <string name="of_total">/ %1$s</string>
     <string name="off">关</string>
@@ -702,6 +699,7 @@
     <string name="referral_bonus_applied">已应用推荐奖励</string>
     <string name="referral_code">推荐码</string>
     <string name="referral_code_capped">此代码已被用完</string>
+    <string name="referral_code_optional">推荐码（可选）</string>
     <string name="referral_network">推荐网络</string>
     <string name="referral_network_updated">推荐网络已更新</string>
     <string name="referral_panel_detail">每一次通过验证的推荐，都会让你们双方各获得每天 %1$d GiB 免费流量，终身有效。</string>

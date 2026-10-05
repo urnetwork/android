@@ -12,7 +12,6 @@
     <string name="add_emoji">Emoji hinzufügen</string>
     <string name="add_local_split_rule">Lokal leiten</string>
     <string name="add_referral_code">Empfehlungscode hinzufügen</string>
-    <string name="add_referral_extra_rewards">Füge einen Empfehlungscode hinzu, um zusätzliche Belohnungen zu erhalten</string>
     <string name="add_sign_in_method">Anmeldemethode hinzufügen</string>
     <string name="add_sign_in_method_2">Anmeldemethode hinzufügen</string>
     <string name="add_tao_for_gas">TAO für Gas hinzufügen</string>
@@ -36,7 +35,6 @@
     <string name="app_split_starter">0 Apps im App-Split</string>
     <string name="apple">Apple</string>
     <string name="apple_sign_in_method_added">Apple-Anmeldemethode hinzugefügt</string>
-    <string name="apply_bonus">Bonus anwenden</string>
     <string name="apps">Apps</string>
     <string name="are_you_sure_delete_account">Bist du sicher, dass du dein Konto löschen möchtest?</string>
     <string name="auth_code">Authentifizierungscode</string>
@@ -363,7 +361,6 @@
     <string name="edit_emoji">Emoji bearbeiten</string>
     <string name="edit_network_name">Netzwerknamen bearbeiten</string>
     <string name="edit_profile">Profil bearbeiten</string>
-    <string name="edit_referral_code">Empfehlungscode bearbeiten</string>
     <string name="edit_split_rule">Split-Regel bearbeiten</string>
     <string name="emoji_tag">Emoji-Tag</string>
     <string name="emoji_tag_delete_last">Letztes Emoji löschen</string>
@@ -376,6 +373,7 @@
     <string name="enabled_under_auto_footer">In der Reihenfolge der Präferenz aufgeführt: zuerst H3 und H1, dann whodis, dann whodis pump. Die Reihenfolge ist fest. Mindestens ein Transport bleibt aktiviert.</string>
     <string name="enjoying_urnetwork">Gefällt dir URnetwork?</string>
     <string name="enter">Rein</string>
+    <string name="enter_a_bonus_referral_code">Gib einen Bonus-Empfehlungscode ein</string>
     <string name="enter_a_password">Gib ein Passwort ein</string>
     <string name="enter_a_solana_usdc_wallet_address">Gib eine Solana USDC-Wallet-Adresse ein</string>
     <string name="enter_address_manually">Adresse manuell eingeben</string>
@@ -589,7 +587,6 @@
     <string name="no_solana_wallet_found">Keine Wallet-App gefunden, die die Solana-Zahlung verarbeiten kann.</string>
     <string name="no_solana_wallets_found">Keine Solana Wallets gefunden</string>
     <string name="no_wallets_found_alert_content">Es wurden keine Solana Wallets auf diesem Gerät gefunden. Bitte installiere eine Wallet und versuche es erneut.</string>
-    <string name="none">Keine</string>
     <string name="notifications_label">Benachrichtigungen</string>
     <string name="of_total">von %1$s</string>
     <string name="off">Aus</string>
@@ -702,6 +699,7 @@
     <string name="referral_bonus_applied">Empfehlungsbonus angewendet</string>
     <string name="referral_code">Empfehlungscode</string>
     <string name="referral_code_capped">Dieser Code wurde bereits verwendet</string>
+    <string name="referral_code_optional">Empfehlungscode (optional)</string>
     <string name="referral_network">Empfehlungsnetzwerk</string>
     <string name="referral_network_updated">Empfehlungsnetzwerk aktualisiert</string>
     <string name="referral_panel_detail">Jede verifizierte Empfehlung bringt Ihnen beiden je %1$d GiB/Tag kostenlos, auf Lebenszeit.</string>

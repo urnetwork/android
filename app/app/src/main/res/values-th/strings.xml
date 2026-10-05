@@ -9,7 +9,6 @@
     <string name="add_blocked_location">เพิ่มตำแหน่งที่ถูกบล็อก</string>
     <string name="add_emoji">เพิ่มอีโมจิ</string>
     <string name="add_referral_code">เพิ่มรหัสแนะนำ</string>
-    <string name="add_referral_extra_rewards">เพิ่มรหัสการแนะนำเพื่อรับรางวัลเสริม</string>
     <string name="add_sign_in_method">เพิ่มวิธีลงชื่อเข้าใช้</string>
     <string name="add_sign_in_method_2">เพิ่มวิธีลงชื่อเข้าใช้</string>
     <string name="advanced">ขั้นสูง</string>
@@ -31,7 +30,6 @@
     <string name="app_split_rules">กฎแยกเส้นทางแอป</string>
     <string name="app_split_starter">แอปที่แยกเส้นทาง 0 แอป</string>
     <string name="apple_sign_in_method_added">เพิ่มวิธีลงชื่อเข้าใช้ Apple แล้ว</string>
-    <string name="apply_bonus">รับโบนัส</string>
     <string name="apps">แอป</string>
     <string name="are_you_sure_delete_account">คุณยืนยันที่จะลบบัญชีของคุณหรือไม่?</string>
     <string name="auth_code">รหัสยืนยัน</string>
@@ -162,7 +160,6 @@
     <string name="edit_emoji">แก้ไขอีโมจิ</string>
     <string name="edit_network_name">แก้ไขชื่อเครือข่าย</string>
     <string name="edit_profile">แก้ไขโปรไฟล์</string>
-    <string name="edit_referral_code">แก้ไขรหัสแนะนำ</string>
     <string name="edit_split_rule">แก้ไขกฎแยกเส้นทาง</string>
     <string name="emoji_tag">แท็กอีโมจิ</string>
     <string name="emoji_tag_delete_last">ลบอีโมจิตัวสุดท้าย</string>
@@ -173,6 +170,7 @@
     <string name="emoji_tag_shuffle">แนะนำอันอื่น</string>
     <string name="enjoying_urnetwork">สนุกกับการใช้ URnetwork ไหม?</string>
     <string name="enter">เข้า</string>
+    <string name="enter_a_bonus_referral_code">ป้อนรหัสอ้างอิงโบนัส</string>
     <string name="enter_a_password">กรอกรหัสผ่าน</string>
     <string name="enter_a_solana_usdc_wallet_address">ป้อนที่อยู่กระเป๋าเงิน USDC บน Solana</string>
     <string name="enter_balance_code">ป้อนรหัสยอดเงิน</string>
@@ -342,7 +340,6 @@
     <string name="no_solana_wallet_found">ไม่พบแอปกระเป๋าเงินสำหรับการชำระเงินด้วย Solana</string>
     <string name="no_solana_wallets_found">ไม่พบกระเป๋า Solana</string>
     <string name="no_wallets_found_alert_content">ไม่พบการติดตั้งแอพกระเป๋า Solana บนเครื่องนี้ โปรดติดตั้ง</string>
-    <string name="none">ไม่มี</string>
     <string name="notifications_label">การแจ้งเตือน</string>
     <string name="of_total">จาก %1$s</string>
     <string name="off">ปิด</string>
@@ -431,6 +428,7 @@
     <string name="referral_bonus_applied">โบนัสจากการแนะนำใช้งานเรียบร้อย</string>
     <string name="referral_code">รหัสการแนะนำ</string>
     <string name="referral_code_capped">โค้ดนี้ถูกใช้หมดแล้ว</string>
+    <string name="referral_code_optional">รหัสการแนะนำ (ไม่บังคับ)</string>
     <string name="referral_network">แนะนำเครือข่าย</string>
     <string name="referral_network_updated">อัปเดตเครือข่ายแนะนำแล้ว</string>
     <string name="referral_points">คะแนนแนะนำ</string>
