@@ -815,7 +815,7 @@
     <string name="remove">Remove</string>
     <string name="remove_rule">Remove rule</string>
     <string name="remove_wallet">Remove wallet</string>
-    <string name="remove_wallet_holds_payouts">USDC payouts are held until another wallet is connected.</string>
+    <string name="remove_wallet_moves_or_holds_payouts">USDC payouts move to another of your Solana or Polygon wallets, or are held until you connect one.</string>
     <string name="resend_reset_link">Resend link</string>
     <string name="resend_verify_code">Resend code</string>
     <string name="reset_it">Reset it.</string>

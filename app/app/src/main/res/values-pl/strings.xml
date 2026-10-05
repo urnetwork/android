@@ -522,6 +522,7 @@
     <string name="remove">Usuń</string>
     <string name="remove_rule">Usuń regułę</string>
     <string name="remove_wallet">Usuń portfel</string>
+    <string name="remove_wallet_moves_or_holds_payouts">Wypłaty w USDC trafią na inny Twój portfel Solana lub Polygon albo zostaną wstrzymane, dopóki nie połączysz takiego portfela.</string>
     <string name="resend_reset_link">Wyślij link ponownie</string>
     <string name="resend_verify_code">Wyślij kod ponownie</string>
     <string name="reset_it">Zresetuj je</string>

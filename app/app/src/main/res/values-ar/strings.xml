@@ -796,7 +796,7 @@
     <string name="remove">أزل</string>
     <string name="remove_rule">إزالة القاعدة</string>
     <string name="remove_wallet">إزالة المحفظة</string>
-    <string name="remove_wallet_holds_payouts">تُحتجز مدفوعات USDC حتى يتم ربط محفظة أخرى.</string>
+    <string name="remove_wallet_moves_or_holds_payouts">تنتقل مدفوعات USDC إلى محفظة Solana أو Polygon أخرى لديك، أو تُحتجز حتى تربط واحدة.</string>
     <string name="resend_reset_link">إعادة إرسال الرابط</string>
     <string name="resend_verify_code">إعادة إرسال الرمز</string>
     <string name="reset_it">إعادة تعيينها</string>

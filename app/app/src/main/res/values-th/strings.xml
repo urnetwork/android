@@ -522,6 +522,7 @@
     <string name="remove">ลบ</string>
     <string name="remove_rule">ลบกฎ</string>
     <string name="remove_wallet">ลบกระเป๋าเงิน</string>
+    <string name="remove_wallet_moves_or_holds_payouts">การจ่าย USDC จะย้ายไปยังกระเป๋าเงิน Solana หรือ Polygon อื่นของคุณ หรือจะถูกพักไว้จนกว่าคุณจะเชื่อมต่อกระเป๋าเงิน</string>
     <string name="resend_reset_link">ส่งลิงก์ใหม่อีกครั้ง</string>
     <string name="resend_verify_code">ส่งโค้ดใหม่</string>
     <string name="reset_it">ตั้งใหม่เลยสิ</string>

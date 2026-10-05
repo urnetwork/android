@@ -14,7 +14,9 @@ import org.w3c.dom.Element
  * Removing the payout wallet makes another active Solana or Polygon wallet of the
  * network the payout wallet when there is one (server fix/remove-wallet-promote).
  * The card then says where payouts go: "Payouts now go to <short address>."
- * (promotedPayoutWallet picks the wallet; payouts_now_go_to is the line).
+ * (promotedPayoutWallet picks the wallet; payouts_now_go_to is the line). Before
+ * the removal, the confirmation says payouts move to another such wallet or are
+ * held while there is none (remove_wallet_moves_or_holds_payouts).
  */
 class PayoutWalletPromotionTest {
 
@@ -120,5 +122,53 @@ class PayoutWalletPromotionTest {
             "the promoted line is not payouts_now_go_to with the short address",
             card.indexOf("R.string.payouts_now_go_to, SolanaAddress.short(state.wallet.address)", promotedCase) > promotedCase,
         )
+    }
+
+    // ---- the remove confirmation, before the removal
+
+    private val confirmation = "USDC payouts move to another of your Solana or Polygon wallets, or are held until you connect one."
+
+    @Test
+    fun `the remove confirmation says payouts move to another wallet or are held`() {
+        // which wallet takes over is the server's choice (the card lists only the payout
+        // wallet), and with none left payouts are held: one line for both
+        val english = strings(File(res, "values"))
+        assertEquals(confirmation, english["remove_wallet_moves_or_holds_payouts"])
+        // the retired line said payouts are always held
+        assertNull(english["remove_wallet_holds_payouts"])
+    }
+
+    @Test
+    fun `the remove confirmation is translated in every locale`() {
+        val locales = res.listFiles { file -> file.name.startsWith("values-") }!!
+            .filter { File(it, "strings.xml").exists() }
+        assertTrue(locales.isNotEmpty())
+        val missing = mutableListOf<String>()
+        for (locale in locales) {
+            val values = strings(locale)
+            assertNull("${locale.name} keeps the retired line", values["remove_wallet_holds_payouts"])
+            val value = values["remove_wallet_moves_or_holds_payouts"]
+            if (value.isNullOrEmpty()) {
+                missing.add(locale.name)
+                continue
+            }
+            assertNotEquals("${locale.name} is English", confirmation, value)
+            for (name in listOf("USDC", "Solana", "Polygon")) {
+                assertTrue("${locale.name} drops $name: $value", value.contains(name))
+            }
+        }
+        assertTrue("not translated: $missing", missing.isEmpty())
+    }
+
+    @Test
+    fun `the remove dialog shows the confirmation`() {
+        val card = File("src/main/java/com/bringyour/network/ui/wallet/SolanaWalletCard.kt").readText()
+        val dialog = card.indexOf("fun RemoveSolanaWalletDialog(")
+        assertTrue("the card has no remove dialog", 0 <= dialog)
+        assertTrue(
+            "the remove dialog does not show remove_wallet_moves_or_holds_payouts",
+            card.indexOf("stringResource(id = R.string.remove_wallet_moves_or_holds_payouts)", dialog) > dialog,
+        )
+        assertFalse("the card still shows the retired line", card.contains("remove_wallet_holds_payouts"))
     }
 }

@@ -522,6 +522,7 @@
     <string name="remove">Verwijderen</string>
     <string name="remove_rule">Regel verwijderen</string>
     <string name="remove_wallet">Verwijder wallet</string>
+    <string name="remove_wallet_moves_or_holds_payouts">USDC-uitbetalingen gaan naar een van je andere Solana- of Polygon-wallets, of worden vastgehouden totdat je er een verbindt.</string>
     <string name="resend_reset_link">Link opnieuw versturen</string>
     <string name="resend_verify_code">Code opnieuw versturen</string>
     <string name="reset_it">Reset het</string>

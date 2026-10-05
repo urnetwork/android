@@ -522,6 +522,7 @@
     <string name="remove">हटाएं</string>
     <string name="remove_rule">नियम हटाएं</string>
     <string name="remove_wallet">वॉलेट हटाएं</string>
+    <string name="remove_wallet_moves_or_holds_payouts">USDC भुगतान आपके किसी दूसरे Solana या Polygon वॉलेट पर चले जाते हैं, या जब तक आप कोई वॉलेट कनेक्ट नहीं करते, तब तक रोक दिए जाते हैं।</string>
     <string name="resend_reset_link">लिंक फिर से भेजें</string>
     <string name="resend_verify_code">कोड फिर से भेजें</string>
     <string name="reset_it">इसे रीसेट करें</string>

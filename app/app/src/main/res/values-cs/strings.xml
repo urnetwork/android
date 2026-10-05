@@ -522,6 +522,7 @@
     <string name="remove">Odstranit</string>
     <string name="remove_rule">Odstranit pravidlo</string>
     <string name="remove_wallet">Odstranit peněženku</string>
+    <string name="remove_wallet_moves_or_holds_payouts">Výplaty v USDC se přesunou na jinou vaši peněženku Solana nebo Polygon, nebo budou zadrženy, dokud nějakou nepřipojíte.</string>
     <string name="resend_reset_link">Znovu odeslat odkaz</string>
     <string name="resend_verify_code">Odeslat kód znovu</string>
     <string name="reset_it">Resetujte si ho</string>

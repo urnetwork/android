@@ -522,6 +522,7 @@
     <string name="remove">제거</string>
     <string name="remove_rule">규칙 제거</string>
     <string name="remove_wallet">지갑 제거</string>
+    <string name="remove_wallet_moves_or_holds_payouts">USDC 지급은 다른 Solana 또는 Polygon 지갑이 있으면 그 지갑으로 옮겨지고, 없으면 지갑을 연결할 때까지 보류됩니다.</string>
     <string name="resend_reset_link">링크 재전송</string>
     <string name="resend_verify_code">코드 재전송</string>
     <string name="reset_it">재설정</string>
