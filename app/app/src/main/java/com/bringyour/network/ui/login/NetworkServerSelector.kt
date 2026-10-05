@@ -38,6 +38,7 @@ import com.bringyour.network.BuildConfig
 import com.bringyour.network.MainApplication
 import com.bringyour.network.R
 import com.bringyour.network.TAG
+import com.bringyour.network.ui.account.ControlDohSettingsDialog
 import com.bringyour.network.ui.components.ButtonStyle
 import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.components.URDialog
@@ -161,6 +162,7 @@ fun NetworkServerSelector(
 
     var isPresenting by remember { mutableStateOf(false) }
     var isPresentingVless by remember { mutableStateOf(false) }
+    var isPresentingControlDoh by remember { mutableStateOf(false) }
     var isFocused by remember { mutableStateOf(false) }
     val textColor = when {
         !enabled -> TextFaint
@@ -203,6 +205,10 @@ fun NetworkServerSelector(
         vlessAvailable = active != null,
         onOpenVless = {
             isPresentingVless = true
+        },
+        controlDohAvailable = active != null,
+        onOpenControlDoh = {
+            isPresentingControlDoh = true
         },
         onDismiss = {
             isPresenting = false
@@ -269,6 +275,18 @@ fun NetworkServerSelector(
             },
         )
     }
+
+    // the active space's bootstrap DoH servers, likewise saved by their own
+    // editor and left alone by Apply. Where the default DoH servers are
+    // blocked (mainland China), a fresh install reaches the api only through
+    // these, so they are set here, before sign-in.
+    if (isPresentingControlDoh) {
+        ControlDohSettingsDialog(
+            onDismiss = {
+                isPresentingControlDoh = false
+            },
+        )
+    }
 }
 
 @Composable
@@ -286,6 +304,8 @@ private fun NetworkApiDialog(
     configuredConnectUrl: String,
     vlessAvailable: Boolean,
     onOpenVless: () -> Unit,
+    controlDohAvailable: Boolean,
+    onOpenControlDoh: () -> Unit,
     onDismiss: () -> Unit,
     onApply: (
         host: String,
@@ -466,6 +486,32 @@ private fun NetworkApiDialog(
                 Icon(
                     Icons.AutoMirrored.Filled.KeyboardArrowRight,
                     contentDescription = stringResource(id = R.string.vless),
+                    tint = TextMuted
+                )
+            }
+
+            // the bootstrap DoH servers of the active network space, which
+            // their own editor saves; Apply does not
+            val controlDohEnabled = enabled && controlDohAvailable
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable(enabled = controlDohEnabled) {
+                        onOpenControlDoh()
+                    }
+                    .padding(vertical = 8.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(id = R.string.control_doh_urls),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = if (controlDohEnabled) Color.White else TextFaint,
+                    modifier = Modifier.weight(1f)
+                )
+                Icon(
+                    Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                    contentDescription = stringResource(id = R.string.control_doh_urls),
                     tint = TextMuted
                 )
             }

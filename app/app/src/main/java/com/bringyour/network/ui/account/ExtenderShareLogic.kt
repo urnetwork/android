@@ -93,6 +93,10 @@ data class ExtenderDecodeUi(
     val count: Int = 0,
     val hasSettings: Boolean = false,
     val settingsHost: String = "",
+    // the bootstrap DoH servers the settings block names (ControlDohLogic.kt),
+    // which replace this space's when the settings are taken; empty when it
+    // names none, and an import then leaves this space's alone
+    val controlDohUrls: List<String> = listOf(),
 )
 
 /** The outcome of an import (K7). */
@@ -155,6 +159,19 @@ fun extenderImportStep(decode: ExtenderDecodeUi?, useSettings: Boolean): Extende
 /** Whether the "use extender settings" switch is offered for a payload (K7). */
 fun extenderUseSettingsOffered(decode: ExtenderDecodeUi?): Boolean =
     decode != null && decode.ok && decode.hasSettings
+
+/**
+ * The bootstrap DoH servers taking a payload's settings would set, as the
+ * import line lists them, or null when it would set none. They come only in
+ * a settings block, and the importer's lookups of the space's names would go
+ * to them, which is why the switch and the confirmation name them.
+ */
+fun extenderImportControlDohServers(decode: ExtenderDecodeUi?): String? {
+    if (decode == null || !extenderUseSettingsOffered(decode) || decode.controlDohUrls.isEmpty()) {
+        return null
+    }
+    return decode.controlDohUrls.joinToString(", ")
+}
 
 /**
  * The localized message for one of the sdk's error key ids. The sdk answers

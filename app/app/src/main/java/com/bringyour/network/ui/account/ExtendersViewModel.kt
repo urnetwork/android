@@ -164,6 +164,7 @@ class ExtendersViewModel @Inject constructor(
             count = result.count.toInt(),
             hasSettings = result.hasSettings,
             settingsHost = result.settingsHost,
+            controlDohUrls = sdkStringListToList(result.controlDohUrls),
         )
     }
 
@@ -175,7 +176,9 @@ class ExtendersViewModel @Inject constructor(
             ?: return ExtenderImportUi(errorKey = IMPORT_ERROR_INVALID)
         if (result.ok) {
             // an import with settings replaces the dns name and the gossip
-            // url, so the form must not keep showing the old ones
+            // url, so the form must not keep showing the old ones. Its
+            // bootstrap DoH servers reload when the extenders screen shows
+            // again (ExtendersScreen).
             settings = settingsUi(vc.settings)
         }
         return ExtenderImportUi(

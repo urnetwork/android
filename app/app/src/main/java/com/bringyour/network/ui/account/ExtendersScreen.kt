@@ -56,8 +56,9 @@ import com.bringyour.network.ui.theme.TopBarTitleTextStyle
 
 /**
  * The Extenders section of the account screen (EXTENDER.md K6): the three
- * settings of this network space, the legacy private extender behind the
- * advanced expander, and the share and import actions of K7.
+ * settings of this network space, its bootstrap DNS-over-HTTPS servers, the
+ * legacy private extender behind the advanced expander, and the share and
+ * import actions of K7.
  *
  * An empty field means the derived default, which the box shows as its
  * placeholder — clearing a box is how a user goes back to the default.
@@ -67,11 +68,18 @@ import com.bringyour.network.ui.theme.TopBarTitleTextStyle
 fun ExtendersScreen(
     navController: NavController,
     viewModel: ExtendersViewModel = hiltViewModel(),
+    controlDohViewModel: ControlDohSettingsViewModel = hiltViewModel(),
 ) {
 
     val context = LocalContext.current
     val settings = viewModel.settings
     val privateExtender = viewModel.privateExtender
+
+    // each time the screen shows: an import with settings, on the import
+    // screen, may have replaced the space's bootstrap DoH servers
+    LaunchedEffect(Unit) {
+        controlDohViewModel.load()
+    }
 
     var dnsName by remember { mutableStateOf(TextFieldValue()) }
     var gossipUrl by remember { mutableStateOf(TextFieldValue()) }
@@ -186,6 +194,18 @@ fun ExtendersScreen(
             ) { style ->
                 Text(stringResource(id = R.string.save), style = style)
             }
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            /**
+             * The servers the space resolves its own names through ahead of
+             * the default DoH servers. They save on their own, and are off
+             * whenever the settings above are (no device to edit).
+             */
+            ControlDohSettingsBlock(
+                viewModel = controlDohViewModel,
+                enabled = viewModel.editable && controlDohViewModel.editable,
+            )
 
             Spacer(modifier = Modifier.height(24.dp))
 

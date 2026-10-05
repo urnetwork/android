@@ -268,6 +268,19 @@ fun ImportExtendersScreen(
                             toggle = { useSettings = !useSettings },
                         )
                     }
+
+                    // the settings would also set bootstrap DoH servers, which
+                    // see this space's lookups: name them before they are taken
+                    extenderImportControlDohServers(decodedShare)?.let { servers ->
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        Text(
+                            stringResource(id = R.string.import_extenders_control_doh_urls, servers),
+                            style = TextStyle(fontSize = 12.sp),
+                            color = TextMuted,
+                        )
+                    }
                 }
 
                 val step = extenderImportStep(decodedShare, useSettings)
@@ -328,7 +341,7 @@ fun ImportExtendersScreen(
     }
 
     // the settings confirmation: which operator host the payload would put in
-    // force here (K7)
+    // force here (K7), and the bootstrap DoH servers it would set
     val settingsHost = confirmSettingsHost
     URDialog(
         visible = settingsHost != null,
@@ -341,6 +354,13 @@ fun ImportExtendersScreen(
                     settingsHost.orEmpty(),
                 ),
             )
+
+            extenderImportControlDohServers(decoded)?.let { servers ->
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                Text(stringResource(id = R.string.import_extenders_control_doh_urls, servers))
+            }
 
             Spacer(modifier = Modifier.height(24.dp))
 
