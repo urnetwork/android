@@ -8,6 +8,7 @@ import com.bringyour.network.ui.account.PurchaseRefusal
 import com.bringyour.network.ui.shared.enums.PlanType
 import com.bringyour.network.ui.shared.viewmodels.PlanViewModel
 import com.bringyour.network.ui.shared.viewmodels.SubscriptionBalanceViewModel
+import com.bringyour.network.utils.SolanaPaymentQuote
 
 /**
  * The Play plan picker: the shared [PlanPicker] over the server's tier and
@@ -28,7 +29,7 @@ fun SubscriptionOptions(
     createSolanaPaymentIntent: (
         reference: String,
         plan: String,
-        onSuccess: (amountUsd: Double) -> Unit,
+        onSuccess: (quote: SolanaPaymentQuote) -> Unit,
         onError: (PurchaseRefusal) -> Unit
     ) -> Unit,
     onSolanaUriOpened: (String) -> Unit,

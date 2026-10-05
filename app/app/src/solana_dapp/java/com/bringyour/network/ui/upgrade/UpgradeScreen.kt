@@ -27,6 +27,7 @@ import com.bringyour.network.ui.components.tabletReadableColumn
 import com.bringyour.network.ui.shared.viewmodels.PlanViewModel
 import com.bringyour.network.ui.shared.viewmodels.SubscriptionBalanceViewModel
 import com.bringyour.network.ui.theme.Black
+import com.bringyour.network.utils.SolanaPaymentQuote
 import com.bringyour.sdk.Sdk
 
 /**
@@ -44,7 +45,7 @@ fun UpgradeScreen(
     createSolanaPaymentIntent: (
         reference: String,
         plan: String,
-        onSuccess: (amountUsd: Double) -> Unit,
+        onSuccess: (quote: SolanaPaymentQuote) -> Unit,
         onError: (PurchaseRefusal) -> Unit
     ) -> Unit,
     onStripePaymentSuccess: () -> Unit,
