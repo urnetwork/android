@@ -81,6 +81,7 @@
     <string name="claim">受け取る</string>
     <string name="claim_multiplier">乗数を受け取る</string>
     <string name="claim_network_name_hint">自動生成されたネットワーク名の代わりに、カスタムのネットワーク名を取得しましょう</string>
+    <string name="claims_open_after_finalization">各エポックの受け取りは、その支払いリストが確定した後に開始され、期限切れになるまで受け付けられます。</string>
     <string name="clear">クリア</string>
     <string name="client_contracts">クライアント契約</string>
     <string name="client_id_copied">クライアントIDをコピーしました</string>
@@ -487,6 +488,8 @@
     <string name="send_product_updates">製品のアップデートを送信する</string>
     <string name="send_reset_link">リセットリンクを送信</string>
     <string name="sent">送信済み！</string>
+    <string name="set_coldkey">coldkey を設定</string>
+    <string name="set_coldkey_to_get_paid">支払いを受け取るには Bittensor の coldkey を設定してください</string>
     <string name="settings">設定</string>
     <string name="share">共有</string>
     <string name="share_logs">ログを共有</string>
@@ -501,6 +504,8 @@
     <string name="sign_in_with_your_apple_id_to">Apple IDでサインインして、サインイン方法として追加します。</string>
     <string name="site_app_email">メール</string>
     <string name="site_save_your_seedphrase">シードフレーズを保存</string>
+    <string name="sn_payout_schedule">収益はエポックごとに確定し、受け取ると SN25α で Bittensor の coldkey に支払われます。</string>
+    <string name="sn_payout_schedule_times">このエポックは %1$s に終了します。あなたの取り分は %2$s から %3$s まで受け取れます。</string>
     <string name="solana_sign_in">Solanaでサインイン</string>
     <string name="something_went_wrong">エラーが発生しました。</string>
     <string name="sorry_to_see_you_go">お見送り残念です！</string>
@@ -567,6 +572,7 @@
     <string name="upgrade_now">今すぐアップグレード</string>
     <string name="upgrade_subscription">サブスクリプションをアップグレード</string>
     <string name="usdc_solana_network_only">USDCはSolanaネットワークでのみ送金してください。他のネットワークで送金したUSDCは届きません。</string>
+    <string name="usdc_waiting">最後の USDC 支払い: %1$s USDC が送金待ち</string>
     <string name="usdc_wallet_address">USDCウォレットアドレス</string>
     <string name="use_as_proxy_no_vpn">代わりにプロキシとして使用（VPNなし）</string>
     <string name="use_as_proxy_no_vpn_detail">ur.io を開いて、VPN なしで URnetwork を HTTPS プロキシとして使用します。SOCKS と WireGuard は Pro で利用できます。</string>

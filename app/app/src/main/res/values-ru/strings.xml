@@ -120,7 +120,7 @@
     <string name="claim_sent">Отправлено</string>
     <string name="claim_your_spot">Займите своё место</string>
     <string name="claims_for_epoch_expired">Срок получения за эпоху %1$d истёк.</string>
-    <string name="claims_open_after_finalization">Получение открывается через 48 часов после завершения эпохи и остаётся доступным в течение срока действия хранилища.</string>
+    <string name="claims_open_after_finalization">Получение за каждую эпоху открывается после утверждения её списка выплат и остаётся открытым до истечения срока.</string>
     <string name="clear">Очистить</string>
     <string name="client_contracts">Контракты клиента</string>
     <string name="client_id_copied">ID клиента скопирован</string>
@@ -770,6 +770,8 @@
     <string name="send_reset_link">Отправить ссылку для сброса</string>
     <string name="send_tao_to_mirror">Отправьте около %1$s TAO на %2$s, чтобы покрыть оплату газа.</string>
     <string name="sent">Отправлено!</string>
+    <string name="set_coldkey">Указать coldkey</string>
+    <string name="set_coldkey_to_get_paid">Укажите свой coldkey Bittensor, чтобы получать выплаты</string>
     <string name="settings">Настройки</string>
     <string name="settings_add_quick_tile">Добавить плитку быстрого подключения</string>
     <string name="settings_add_quick_tile_description">Подключайтесь и отключайтесь с панели быстрых настроек и экрана блокировки.</string>
@@ -799,6 +801,8 @@
     <string name="site_app_providers">Провайдеры</string>
     <string name="site_save_your_seedphrase">Сохраните сид-фразу</string>
     <string name="skip">Пропустить</string>
+    <string name="sn_payout_schedule">Заработок рассчитывается каждую эпоху и выплачивается в SN25α на ваш coldkey Bittensor, когда вы его получаете.</string>
+    <string name="sn_payout_schedule_times">Эта эпоха заканчивается %1$s. Получите свою долю с %2$s до %3$s.</string>
     <string name="solana_one_time_payment">Оплата в USDC в сети Solana — это разовый годовой платёж без бесплатного пробного периода.</string>
     <string name="solana_payment_still_checking">Всё ещё проверяем ваш платёж в Solana. Подтверждение в сети может занять минуту-две.</string>
     <string name="solana_sign_in">Войти через Solana</string>
@@ -893,7 +897,7 @@
     <string name="upgrade_subscription">Улучшить подписку</string>
     <string name="usdc_payouts_until_migration">Выплаты в USDC будут поступать на этот кошелек, пока не завершится переход на Bittensor.</string>
     <string name="usdc_solana_network_only">Отправляйте USDC только в сети Solana. USDC, отправленные в другой сети, не дойдут.</string>
-    <string name="usdc_waiting">%1$s USDC ожидают выплаты</string>
+    <string name="usdc_waiting">Последняя выплата в USDC: %1$s USDC ожидают выплаты</string>
     <string name="usdc_wallet_address">Адрес кошелька USDC</string>
     <string name="use_as_proxy_no_vpn">Использовать как прокси (без VPN)</string>
     <string name="use_as_proxy_no_vpn_detail">Открывает ur.io, чтобы использовать URnetwork как HTTPS-прокси без VPN. SOCKS и WireGuard доступны в Pro.</string>

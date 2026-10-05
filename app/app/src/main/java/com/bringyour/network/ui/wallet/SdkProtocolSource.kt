@@ -174,7 +174,15 @@ class SdkProtocolSource private constructor(
                                 txHash = c.txHash.ifBlank { null },
                             )
                         }
-                        continuation.resume(Result.success(ClaimsSnapshot(claims, result.totalClaimableRao)))
+                        val schedule = result.schedule?.let {
+                            SnEpochScheduleState(
+                                epoch = it.epoch,
+                                endMillis = it.endMillis,
+                                claimOpenMillis = it.claimOpenMillis,
+                                expiryMillis = it.expiryMillis,
+                            )
+                        }
+                        continuation.resume(Result.success(ClaimsSnapshot(claims, result.totalClaimableRao, schedule)))
                     }
                 }
             }

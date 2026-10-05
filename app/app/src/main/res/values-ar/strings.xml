@@ -120,7 +120,7 @@
     <string name="claim_sent">تم الإرسال</string>
     <string name="claim_your_spot">احجز مكانك</string>
     <string name="claims_for_epoch_expired">انتهت صلاحية المطالبات للفترة %1$d.</string>
-    <string name="claims_open_after_finalization">تُفتح المطالبات بعد 48 ساعة من اكتمال الفترة وتظل مفتوحة طوال نافذة انتهاء صلاحية الخزنة.</string>
+    <string name="claims_open_after_finalization">تُفتح المطالبات الخاصة بكل فترة بعد اعتماد قائمة دفعاتها، وتظل مفتوحة حتى تنتهي صلاحيتها.</string>
     <string name="clear">مسح</string>
     <string name="client_contracts">عقود العميل</string>
     <string name="client_id_copied">تم نسخ معرّف العميل</string>
@@ -770,6 +770,8 @@
     <string name="send_reset_link">إرسال رابط إعادة التعيين</string>
     <string name="send_tao_to_mirror">أرسل نحو %1$s TAO إلى %2$s لتغطية رسوم الغاز.</string>
     <string name="sent">تم الإرسال!</string>
+    <string name="set_coldkey">تعيين coldkey</string>
+    <string name="set_coldkey_to_get_paid">عيّن coldkey الخاص بك على Bittensor لتحصل على أرباحك</string>
     <string name="settings">الإعدادات</string>
     <string name="settings_add_quick_tile">إضافة مربع الاتصال السريع</string>
     <string name="settings_add_quick_tile_description">اتصل واقطع الاتصال من لوحة الإعدادات السريعة وشاشة القفل.</string>
@@ -799,6 +801,8 @@
     <string name="site_app_providers">المزوّدون</string>
     <string name="site_save_your_seedphrase">احفظ عبارة الاسترداد</string>
     <string name="skip">تخطي</string>
+    <string name="sn_payout_schedule">تُسوّى الأرباح في كل فترة وتُدفع بعملة SN25α إلى coldkey الخاص بك على Bittensor عند المطالبة بها.</string>
+    <string name="sn_payout_schedule_times">تنتهي هذه الفترة في %1$s. طالِب بحصتك من %2$s حتى %3$s.</string>
     <string name="solana_one_time_payment">الدفع بـ USDC على Solana دفعة سنوية لمرة واحدة، دون تجربة مجانية.</string>
     <string name="solana_payment_still_checking">لا نزال نتحقق من دفعتك عبر Solana. قد يستغرق التأكيد على الشبكة دقيقة أو دقيقتين.</string>
     <string name="solana_sign_in">تسجيل الدخول باستخدام Solana</string>
@@ -893,7 +897,7 @@
     <string name="upgrade_subscription">ترقية الاشتراك</string>
     <string name="usdc_payouts_until_migration">تستمر مدفوعات USDC إلى هذه المحفظة حتى اكتمال الانتقال إلى Bittensor.</string>
     <string name="usdc_solana_network_only">أرسل USDC على شبكة Solana فقط. لن تصل عملات USDC المُرسَلة عبر أي شبكة أخرى.</string>
-    <string name="usdc_waiting">%1$s USDC بانتظار الإرسال</string>
+    <string name="usdc_waiting">آخر دفعة USDC: %1$s USDC بانتظار الإرسال</string>
     <string name="usdc_wallet_address">عنوان محفظة USDC</string>
     <string name="use_as_proxy_no_vpn">استخدمه كبروكسي بدلاً من ذلك (بدون VPN)</string>
     <string name="use_as_proxy_no_vpn_detail">يفتح ur.io لتشغيل URnetwork كبروكسي HTTPS بدون VPN. تتوفر SOCKS وWireGuard مع Pro.</string>

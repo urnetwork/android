@@ -81,6 +81,7 @@
     <string name="claim">Vyzvědněte</string>
     <string name="claim_multiplier">Nárokujte si násobej</string>
     <string name="claim_network_name_hint">Získejte vlastní název sítě, který nahradí automaticky vygenerovaný</string>
+    <string name="claims_open_after_finalization">Nároky za každou epochu se otevřou po finalizaci jejího seznamu výplat a zůstanou otevřené až do vypršení.</string>
     <string name="clear">Vymazat</string>
     <string name="client_contracts">Kontrakty klienta</string>
     <string name="client_id_copied">ID klienta zkopírováno</string>
@@ -487,6 +488,8 @@
     <string name="send_product_updates">Zasílání aktualizací produktů</string>
     <string name="send_reset_link">Odeslat odkaz pro obnovení hesla</string>
     <string name="sent">Odesláno!</string>
+    <string name="set_coldkey">Nastavit coldkey</string>
+    <string name="set_coldkey_to_get_paid">Nastavte svůj Bittensor coldkey, abyste dostávali výplaty</string>
     <string name="settings">Nastavení</string>
     <string name="share">Sdílet</string>
     <string name="share_logs">Sdílet protokoly</string>
@@ -501,6 +504,8 @@
     <string name="sign_in_with_your_apple_id_to">Přihlaste se pomocí svého Apple ID a přidejte jej jako způsob přihlášení.</string>
     <string name="site_app_email">E-mail</string>
     <string name="site_save_your_seedphrase">Uložte si seedphrase</string>
+    <string name="sn_payout_schedule">Výdělky se vypořádávají každou epochu a vyplácejí se v SN25α na váš Bittensor coldkey, když si je vyzvednete.</string>
+    <string name="sn_payout_schedule_times">Tato epocha končí %1$s. Svůj podíl si vyzvedněte od %2$s do %3$s.</string>
     <string name="solana_sign_in">Přihlaste se pomocí Solana</string>
     <string name="something_went_wrong">Něco se pokazilo.</string>
     <string name="sorry_to_see_you_go">Je nám líto, že odcházíte!</string>
@@ -567,6 +572,7 @@
     <string name="upgrade_now">Upgradujte nyní</string>
     <string name="upgrade_subscription">Upgradovat předplatné</string>
     <string name="usdc_solana_network_only">USDC posílejte pouze v síti Solana. USDC odeslané v jiné síti nedorazí.</string>
+    <string name="usdc_waiting">Poslední výplata v USDC: %1$s USDC čeká na odeslání</string>
     <string name="usdc_wallet_address">Adresa peněženky USDC</string>
     <string name="use_as_proxy_no_vpn">Použít jako proxy místo toho (bez VPN)</string>
     <string name="use_as_proxy_no_vpn_detail">Otevře ur.io pro provoz URnetwork jako proxy HTTPS bez VPN. SOCKS a WireGuard jsou dostupné s Pro.</string>

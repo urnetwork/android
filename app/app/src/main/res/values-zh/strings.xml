@@ -120,7 +120,7 @@
     <string name="claim_sent">已发送</string>
     <string name="claim_your_spot">获取您的席位</string>
     <string name="claims_for_epoch_expired">周期 %1$d 的领取已过期。</string>
-    <string name="claims_open_after_finalization">领取在周期确认 48 小时后开放，并在金库的有效期窗口内保持开放。</string>
+    <string name="claims_open_after_finalization">每个周期的领取会在其支付名单确认后开放，并保持开放直到过期。</string>
     <string name="clear">清除</string>
     <string name="client_contracts">客户端合约</string>
     <string name="client_id_copied">客户端 ID 已复制</string>
@@ -770,6 +770,8 @@
     <string name="send_reset_link">发送重置链接</string>
     <string name="send_tao_to_mirror">向 %2$s 发送约 %1$s TAO 以支付 Gas 费。</string>
     <string name="sent">已发送！</string>
+    <string name="set_coldkey">设置 coldkey</string>
+    <string name="set_coldkey_to_get_paid">设置你的 Bittensor coldkey 以获得报酬</string>
     <string name="settings">设置</string>
     <string name="settings_add_quick_tile">添加快速连接图块</string>
     <string name="settings_add_quick_tile_description">从快捷设置面板和锁定屏幕连接或断开连接。</string>
@@ -799,6 +801,8 @@
     <string name="site_app_providers">提供者</string>
     <string name="site_save_your_seedphrase">保存你的助记词</string>
     <string name="skip">跳过</string>
+    <string name="sn_payout_schedule">收益每个周期结算一次，你领取后会以 SN25α 支付到你的 Bittensor coldkey。</string>
+    <string name="sn_payout_schedule_times">本周期于 %1$s 结束。请在 %2$s 至 %3$s 之间领取你的份额。</string>
     <string name="solana_one_time_payment">使用 Solana 上的 USDC 支付为一次性年付，不含免费试用。</string>
     <string name="solana_payment_still_checking">仍在检查您的 Solana 付款。网络确认可能需要一两分钟。</string>
     <string name="solana_sign_in">使用 Solana 登录</string>
@@ -893,7 +897,7 @@
     <string name="upgrade_subscription">升级订阅</string>
     <string name="usdc_payouts_until_migration">在迁移到 Bittensor 完成之前，USDC 支付将继续发送到此钱包。</string>
     <string name="usdc_solana_network_only">请仅在 Solana 网络上发送 USDC。通过其他网络发送的 USDC 将无法到账。</string>
-    <string name="usdc_waiting">%1$s USDC 待发放</string>
+    <string name="usdc_waiting">最后一笔 USDC 付款：%1$s USDC 待发放</string>
     <string name="usdc_wallet_address">USDC 钱包地址</string>
     <string name="use_as_proxy_no_vpn">改为用作代理（无 VPN）</string>
     <string name="use_as_proxy_no_vpn_detail">打开 ur.io，在不使用 VPN 的情况下将 URnetwork 用作 HTTPS 代理。SOCKS 和 WireGuard 需要 Pro。</string>

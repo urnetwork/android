@@ -120,7 +120,7 @@
     <string name="claim_sent">Enviado</string>
     <string name="claim_your_spot">Reclama tu puesto</string>
     <string name="claims_for_epoch_expired">Las reclamaciones de la época %1$d han caducado.</string>
-    <string name="claims_open_after_finalization">Las reclamaciones se abren 48 horas después de que finaliza una época y siguen abiertas durante el periodo de caducidad de la bóveda.</string>
+    <string name="claims_open_after_finalization">Las reclamaciones de cada época se abren cuando se finaliza su lista de pagos y siguen abiertas hasta que vencen.</string>
     <string name="clear">Borrar</string>
     <string name="client_contracts">Contratos de cliente</string>
     <string name="client_id_copied">ID de cliente copiado</string>
@@ -770,6 +770,8 @@
     <string name="send_reset_link">Enviar enlace de restablecimiento</string>
     <string name="send_tao_to_mirror">Envía unos %1$s TAO a %2$s para cubrir el gas.</string>
     <string name="sent">¡Enviado!</string>
+    <string name="set_coldkey">Configurar coldkey</string>
+    <string name="set_coldkey_to_get_paid">Configura tu coldkey de Bittensor para cobrar</string>
     <string name="settings">Ajustes</string>
     <string name="settings_add_quick_tile">Añadir icono de conexión rápida</string>
     <string name="settings_add_quick_tile_description">Conéctate y desconéctate desde el panel de Ajustes rápidos y la pantalla de bloqueo.</string>
@@ -799,6 +801,8 @@
     <string name="site_app_providers">Proveedores</string>
     <string name="site_save_your_seedphrase">Guarda tu frase semilla</string>
     <string name="skip">Omitir</string>
+    <string name="sn_payout_schedule">Las ganancias se liquidan cada época y se pagan en SN25α a tu coldkey de Bittensor cuando las reclamas.</string>
+    <string name="sn_payout_schedule_times">Esta época termina el %1$s. Reclama tu parte desde el %2$s hasta el %3$s.</string>
     <string name="solana_one_time_payment">Pagar con USDC en Solana es un pago anual único, sin prueba gratuita.</string>
     <string name="solana_payment_still_checking">Seguimos comprobando tu pago de Solana. La confirmación en la red puede tardar uno o dos minutos.</string>
     <string name="solana_sign_in">Iniciar sesión con Solana</string>
@@ -893,7 +897,7 @@
     <string name="upgrade_subscription">Actualizar suscripción</string>
     <string name="usdc_payouts_until_migration">Los pagos en USDC seguirán llegando a esta billetera hasta que se complete la migración a Bittensor.</string>
     <string name="usdc_solana_network_only">Envía USDC solo por la red Solana. Los USDC enviados por cualquier otra red no llegarán.</string>
-    <string name="usdc_waiting">%1$s USDC pendientes</string>
+    <string name="usdc_waiting">Último pago en USDC: %1$s USDC pendientes</string>
     <string name="usdc_wallet_address">Dirección del monedero USDC</string>
     <string name="use_as_proxy_no_vpn">Usar como proxy en su lugar (sin VPN)</string>
     <string name="use_as_proxy_no_vpn_detail">Abre ur.io para usar URnetwork como proxy HTTPS sin la VPN. SOCKS y WireGuard están disponibles con Pro.</string>

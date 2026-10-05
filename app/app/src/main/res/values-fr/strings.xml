@@ -81,6 +81,7 @@
     <string name="claim">Réclamer</string>
     <string name="claim_multiplier">Réclamer le multiplicateur</string>
     <string name="claim_network_name_hint">Choisissez un nom de réseau personnalisé pour remplacer celui généré automatiquement</string>
+    <string name="claims_open_after_finalization">Les réclamations de chaque époque s\'ouvrent une fois sa liste de paiements finalisée et restent ouvertes jusqu\'à leur expiration.</string>
     <string name="clear">Effacer</string>
     <string name="client_contracts">Contrats client</string>
     <string name="client_id_copied">ID client copié</string>
@@ -487,6 +488,8 @@
     <string name="send_product_updates">M\'envoyer des mises à jour sur le produit</string>
     <string name="send_reset_link">Envoyer le lien de réinitialisation</string>
     <string name="sent">Envoyé !</string>
+    <string name="set_coldkey">Définir la coldkey</string>
+    <string name="set_coldkey_to_get_paid">Définissez votre coldkey Bittensor pour être payé</string>
     <string name="settings">Paramètres</string>
     <string name="share">Partage</string>
     <string name="share_logs">Partager les journaux</string>
@@ -501,6 +504,8 @@
     <string name="sign_in_with_your_apple_id_to">Connectez-vous avec votre Apple ID pour l\'ajouter comme méthode de connexion.</string>
     <string name="site_app_email">E-mail</string>
     <string name="site_save_your_seedphrase">Enregistrez votre phrase de récupération</string>
+    <string name="sn_payout_schedule">Les gains sont réglés à chaque époque et versés en SN25α sur votre coldkey Bittensor lorsque vous les réclamez.</string>
+    <string name="sn_payout_schedule_times">Cette époque se termine le %1$s. Réclamez votre part du %2$s au %3$s.</string>
     <string name="solana_sign_in">Se connecter avec Solana</string>
     <string name="something_went_wrong">Quelque chose s\'est mal passé.</string>
     <string name="sorry_to_see_you_go">Nous sommes désolés de vous voir partir !</string>
@@ -567,6 +572,7 @@
     <string name="upgrade_now">Mettre à niveau maintenant</string>
     <string name="upgrade_subscription">Mettre à niveau l\'abonnement</string>
     <string name="usdc_solana_network_only">Envoyez des USDC uniquement sur le réseau Solana. Les USDC envoyés sur un autre réseau n\'arriveront pas.</string>
+    <string name="usdc_waiting">Dernier versement en USDC : %1$s USDC en attente</string>
     <string name="usdc_wallet_address">Adresse du portefeuille USDC</string>
     <string name="use_as_proxy_no_vpn">Utiliser comme proxy à la place (sans VPN)</string>
     <string name="use_as_proxy_no_vpn_detail">Ouvre ur.io pour utiliser URnetwork comme proxy HTTPS sans le VPN. SOCKS et WireGuard sont disponibles avec Pro.</string>

@@ -81,6 +81,7 @@
     <string name="claim">दावा करें</string>
     <string name="claim_multiplier">गुणक का दावा करें</string>
     <string name="claim_network_name_hint">अपने-आप बने नाम की जगह लेने के लिए कस्टम नेटवर्क नाम चुनें</string>
+    <string name="claims_open_after_finalization">हर एपोक के दावे उसकी भुगतान सूची अंतिम होने के बाद खुलते हैं और समाप्त होने तक खुले रहते हैं।</string>
     <string name="clear">साफ़ करें</string>
     <string name="client_contracts">क्लाइंट कॉन्ट्रैक्ट</string>
     <string name="client_id_copied">क्लाइंट ID कॉपी किया गया</string>
@@ -487,6 +488,8 @@
     <string name="send_product_updates">मुझे उत्पाद अपडेट भेजें</string>
     <string name="send_reset_link">रीसेट लिंक भेजें</string>
     <string name="sent">भेज दिया गया!</string>
+    <string name="set_coldkey">coldkey सेट करें</string>
+    <string name="set_coldkey_to_get_paid">भुगतान पाने के लिए अपना Bittensor coldkey सेट करें</string>
     <string name="settings">सेटिंग</string>
     <string name="share">शेयर करें</string>
     <string name="share_logs">लॉग साझा करें</string>
@@ -501,6 +504,8 @@
     <string name="sign_in_with_your_apple_id_to">अपने Apple ID से साइन इन करें और उसे साइन-इन विधि के रूप में जोड़ें।</string>
     <string name="site_app_email">ईमेल</string>
     <string name="site_save_your_seedphrase">अपना सीडफ़्रेज़ सहेजें</string>
+    <string name="sn_payout_schedule">कमाई हर एपोक में तय होती है और जब आप उस पर दावा करते हैं, तो SN25α में आपके Bittensor coldkey पर भुगतान की जाती है।</string>
+    <string name="sn_payout_schedule_times">यह एपोक %1$s को समाप्त होता है। अपने हिस्से का दावा %2$s से %3$s तक करें।</string>
     <string name="solana_sign_in">Solana से साइन इन करें</string>
     <string name="something_went_wrong">कुछ गलत हो गया।</string>
     <string name="sorry_to_see_you_go">हमें आपको जाते हुए देखकर दुख हो रहा है!</string>
@@ -567,6 +572,7 @@
     <string name="upgrade_now">अभी अपग्रेड करें</string>
     <string name="upgrade_subscription">सदस्यता अपग्रेड करें</string>
     <string name="usdc_solana_network_only">USDC केवल Solana नेटवर्क पर भेजें। किसी अन्य नेटवर्क पर भेजे गए USDC नहीं पहुंचेंगे।</string>
+    <string name="usdc_waiting">अंतिम USDC भुगतान: %1$s USDC प्रतीक्षा में</string>
     <string name="usdc_wallet_address">USDC वॉलेट पता</string>
     <string name="use_as_proxy_no_vpn">इसके बजाय प्रॉक्सी के रूप में उपयोग करें (कोई VPN नहीं)</string>
     <string name="use_as_proxy_no_vpn_detail">URnetwork को VPN के बिना HTTPS प्रॉक्सी के रूप में चलाने के लिए ur.io खोलता है. SOCKS और WireGuard, Pro में उपलब्ध हैं.</string>
