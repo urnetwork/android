@@ -808,7 +808,7 @@
     <string name="remove">移除</string>
     <string name="remove_rule">移除规则</string>
     <string name="remove_wallet">移除钱包</string>
-    <string name="remove_wallet_holds_payouts">在连接其他钱包之前，USDC 支付将被暂停。</string>
+    <string name="remove_wallet_moves_or_holds_payouts">USDC 支付将转到你的另一个 Solana 或 Polygon 钱包；若没有，则暂停发放，直到你连接一个钱包。</string>
     <string name="resend_reset_link">重新发送链接</string>
     <string name="resend_verify_code">重新发送代码</string>
     <string name="reset_it">重置密码</string>

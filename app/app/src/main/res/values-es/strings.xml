@@ -808,7 +808,7 @@
     <string name="remove">Elimina</string>
     <string name="remove_rule">Eliminar regla</string>
     <string name="remove_wallet">Eliminar cartera</string>
-    <string name="remove_wallet_holds_payouts">Los pagos en USDC quedan retenidos hasta que se conecte otra billetera.</string>
+    <string name="remove_wallet_moves_or_holds_payouts">Los pagos en USDC pasan a otra de tus billeteras de Solana o Polygon, o quedan retenidos hasta que conectes una.</string>
     <string name="resend_reset_link">Reenviar enlace</string>
     <string name="resend_verify_code">Reenviar código</string>
     <string name="reset_it">Restablecerla</string>

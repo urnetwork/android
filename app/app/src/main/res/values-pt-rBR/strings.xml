@@ -534,6 +534,7 @@
     <string name="remove">Remover</string>
     <string name="remove_rule">Remover regra</string>
     <string name="remove_wallet">Remover carteira</string>
+    <string name="remove_wallet_moves_or_holds_payouts">Os pagamentos em USDC passam para outra das suas carteiras Solana ou Polygon, ou ficam retidos até você conectar uma.</string>
     <string name="resend_reset_link">Reenviar link</string>
     <string name="resend_verify_code">Reenviar código</string>
     <string name="reset_it">Redefini-la</string>

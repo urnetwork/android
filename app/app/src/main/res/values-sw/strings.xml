@@ -534,6 +534,7 @@
     <string name="remove">Ondoa</string>
     <string name="remove_rule">Ondoa sheria</string>
     <string name="remove_wallet">Ondoa pochi</string>
+    <string name="remove_wallet_moves_or_holds_payouts">Malipo ya USDC yanahamia kwenye pochi yako nyingine ya Solana au Polygon, au yanashikiliwa hadi uunganishe moja.</string>
     <string name="resend_reset_link">Tuma tena kiungo</string>
     <string name="resend_verify_code">Tuma tena msimbo</string>
     <string name="reset_it">Weka upya</string>

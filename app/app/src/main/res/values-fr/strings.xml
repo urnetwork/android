@@ -534,6 +534,7 @@
     <string name="remove">Supprimer</string>
     <string name="remove_rule">Supprimer la règle</string>
     <string name="remove_wallet">Supprimer le portefeuille</string>
+    <string name="remove_wallet_moves_or_holds_payouts">Les paiements en USDC sont envoyés à un autre de vos portefeuilles Solana ou Polygon, ou retenus jusqu’à ce que vous en connectiez un.</string>
     <string name="resend_reset_link">Renvoyer le lien</string>
     <string name="resend_verify_code">Renvoyer le code</string>
     <string name="reset_it">Réinitialiser</string>

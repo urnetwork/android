@@ -534,6 +534,7 @@
     <string name="remove">削除</string>
     <string name="remove_rule">ルールを削除</string>
     <string name="remove_wallet">ウォレットを削除</string>
+    <string name="remove_wallet_moves_or_holds_payouts">USDC の支払いは、別の Solana または Polygon ウォレットがあればそちらに移り、なければウォレットを接続するまで保留されます。</string>
     <string name="resend_reset_link">リンクを再送信</string>
     <string name="resend_verify_code">コードを再送信</string>
     <string name="reset_it">リセットする</string>

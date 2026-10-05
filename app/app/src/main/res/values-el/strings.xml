@@ -534,6 +534,7 @@
     <string name="remove">Αφαίρεση</string>
     <string name="remove_rule">Αφαίρεση κανόνα</string>
     <string name="remove_wallet">Αφαίρεση πορτοφολιού</string>
+    <string name="remove_wallet_moves_or_holds_payouts">Οι πληρωμές USDC μεταφέρονται σε άλλο πορτοφόλι σας Solana ή Polygon· αν δεν υπάρχει, παραμένουν σε αναμονή μέχρι να συνδέσετε ένα.</string>
     <string name="resend_reset_link">Επανάληψη αποστολής συνδέσμου</string>
     <string name="resend_verify_code">Επανάληψη αποστολής κωδικού</string>
     <string name="reset_it">Επαναφορά</string>

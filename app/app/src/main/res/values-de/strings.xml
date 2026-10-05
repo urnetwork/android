@@ -808,7 +808,7 @@
     <string name="remove">Entferne</string>
     <string name="remove_rule">Regel entfernen</string>
     <string name="remove_wallet">Wallet entfernen</string>
-    <string name="remove_wallet_holds_payouts">USDC-Auszahlungen werden zurückgehalten, bis eine andere Wallet verbunden ist.</string>
+    <string name="remove_wallet_moves_or_holds_payouts">USDC-Auszahlungen gehen an eine andere deiner Solana- oder Polygon-Wallets oder werden zurückgehalten, bis du eine verbindest.</string>
     <string name="resend_reset_link">Link erneut senden</string>
     <string name="resend_verify_code">Code erneut senden</string>
     <string name="reset_it">Zurücksetzen</string>

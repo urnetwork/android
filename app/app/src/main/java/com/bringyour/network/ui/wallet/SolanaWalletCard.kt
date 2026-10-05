@@ -317,7 +317,12 @@ private fun DefaultWalletBadge() {
     }
 }
 
-/** Remove the payout wallet: the server holds USDC payouts until another wallet is connected. */
+/**
+ * Remove the payout wallet: the server makes another of the network's active Solana or
+ * Polygon wallets the payout wallet when there is one, and holds USDC payouts until a
+ * wallet is connected when there is none. Which wallet takes over is the server's choice,
+ * possibly one this card does not list, so the confirmation does not name it.
+ */
 @Composable
 fun RemoveSolanaWalletDialog(
     visible: Boolean,
@@ -338,7 +343,7 @@ fun RemoveSolanaWalletDialog(
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                stringResource(id = R.string.remove_wallet_holds_payouts),
+                stringResource(id = R.string.remove_wallet_moves_or_holds_payouts),
                 style = MaterialTheme.typography.bodyMedium,
                 color = Color.White
             )

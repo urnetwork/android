@@ -808,7 +808,7 @@
     <string name="remove">Удалить</string>
     <string name="remove_rule">Удалить правило</string>
     <string name="remove_wallet">Удалить кошелек</string>
-    <string name="remove_wallet_holds_payouts">Выплаты в USDC приостанавливаются, пока не будет подключен другой кошелек.</string>
+    <string name="remove_wallet_moves_or_holds_payouts">Выплаты в USDC перейдут на другой ваш кошелек Solana или Polygon, а если его нет, будут приостановлены, пока вы не подключите кошелек.</string>
     <string name="resend_reset_link">Отправить ссылку повторно</string>
     <string name="resend_verify_code">Отправить код повторно</string>
     <string name="reset_it">Восстановить</string>
