@@ -58,3 +58,79 @@ internal class ForegroundDeviceControllerOwner<D : Any, C : Any>(
         }
     }
 }
+
+/**
+ * A [ForegroundDeviceControllerOwner] for a polling controller that one screen
+ * shows. The controller is open only while it is enabled (and the device is
+ * set and the app is in the foreground), and it is started only while the
+ * screen is visible. A hidden screen stops it without closing it, so the last
+ * snapshot is there at once when the screen comes back; disabling it or going
+ * to the background closes it.
+ */
+internal class VisibleDeviceControllerOwner<D : Any, C : Any>(
+    open: (D) -> C,
+    close: (D, C) -> Unit,
+    private val start: (C) -> Unit,
+    private val stop: (C) -> Unit,
+) {
+    private var startedController: C? = null
+    private val owner = ForegroundDeviceControllerOwner<D, C>(
+        open = open,
+        close = { device, controller ->
+            // the close stops the controller itself
+            if (startedController === controller) {
+                startedController = null
+            }
+            close(device, controller)
+        },
+    )
+    private var foreground = false
+    private var enabled = false
+    private var visible = false
+
+    val controller: C?
+        get() = owner.controller
+
+    fun setDevice(nextDevice: D?) {
+        owner.setDevice(nextDevice)
+        reconcile()
+    }
+
+    fun setForeground(nextForeground: Boolean) {
+        foreground = nextForeground
+        reconcile()
+    }
+
+    fun setEnabled(nextEnabled: Boolean) {
+        enabled = nextEnabled
+        reconcile()
+    }
+
+    fun setVisible(nextVisible: Boolean) {
+        visible = nextVisible
+        reconcile()
+    }
+
+    fun close() {
+        foreground = false
+        enabled = false
+        visible = false
+        owner.close()
+    }
+
+    private fun reconcile() {
+        owner.setForeground(foreground && enabled)
+        val openController = owner.controller
+        if (openController != null && visible) {
+            if (startedController !== openController) {
+                startedController = openController
+                start(openController)
+            }
+        } else {
+            startedController?.let {
+                startedController = null
+                stop(it)
+            }
+        }
+    }
+}

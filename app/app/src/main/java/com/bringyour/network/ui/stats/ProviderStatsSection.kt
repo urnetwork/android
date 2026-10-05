@@ -15,15 +15,18 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.navigation.NavController
 import com.bringyour.network.R
 import com.bringyour.network.ui.Route
 import com.bringyour.network.ui.components.ProvideModeRow
+import com.bringyour.network.ui.shared.models.ProvideControlMode
 import com.bringyour.network.ui.theme.Red
 import com.bringyour.network.ui.theme.MutedCoral
 import com.bringyour.network.ui.theme.TextFaint
@@ -31,13 +34,27 @@ import com.bringyour.network.ui.theme.TextMuted
 
 /**
  * Provider statistics: local and blocked traffic relayed for remote
- * clients. Tap to open the provider contract details.
+ * clients, and how often the network offered this device to clients. Tap to
+ * open the provider contract details.
  */
 @Composable
 fun ProviderStatsSection(
     navController: NavController,
     throughputViewModel: ThroughputViewModel = hiltViewModel(),
+    providerStatusViewModel: ProviderStatusViewModel = hiltViewModel(),
 ) {
+
+    // the provider status polls under the same gate as the provider plots,
+    // and only while this screen is visible
+    LaunchedEffect(throughputViewModel.providerStatsEnabled) {
+        providerStatusViewModel.setProvidingEnabled(throughputViewModel.providerStatsEnabled)
+    }
+    LifecycleStartEffect(providerStatusViewModel) {
+        providerStatusViewModel.setVisible(true)
+        onStopOrDispose {
+            providerStatusViewModel.setVisible(false)
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -79,6 +96,23 @@ fun ProviderStatsSection(
             onClick = { navController.navigate(Route.Settings) }
         )
 
+        // why an enabled provider may get no traffic: this device's own state
+        // first, then the server's reason. "Change" opens the same settings
+        // as the provide mode row; it never changes the mode itself
+        if (throughputViewModel.provideControlMode != ProvideControlMode.NEVER) {
+            val providerStatus = providerStatusViewModel.status
+            providerStatusLine(
+                idleReason = throughputViewModel.providerIdleReason,
+                serverReason = providerStatus.reason,
+                serverReasonText = providerStatus.reasonText,
+            )?.let { line ->
+                ProviderStatusLineRow(
+                    line = line,
+                    onChange = { navController.navigate(Route.Settings) }
+                )
+            }
+        }
+
         Spacer(modifier = Modifier.height(8.dp))
 
         if (throughputViewModel.providerStatsEnabled) {
@@ -114,6 +148,12 @@ fun ProviderStatsSection(
                 windowSeconds = throughputViewModel.windowSeconds,
                 byteColor = Red,
                 packetColor = MutedCoral,
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            ProviderDemandChart(
+                status = providerStatusViewModel.status,
             )
 
         } else {
