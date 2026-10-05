@@ -47,12 +47,28 @@ class ExtendersViewModel @Inject constructor(
             close = { device, vc -> closeExtenderViewController(device, vc) },
         )
 
-    /** The effective settings, or null while there is no device to read them from. */
-    var settings by mutableStateOf<ExtenderSettingsUi?>(null)
-        private set
+    // what the form shows, read through this view model's controller and the
+    // space -- the same reads whether the screen opens or shows again
+    private val form = ExtenderFormModel(object : ExtenderFormSource {
+        override fun readSettings(): ExtenderSettingsUi? =
+            controllerOwner.controller?.let { settingsUi(it.settings) }
 
-    var privateExtender by mutableStateOf(ExtenderPrivateUi())
-        private set
+        override fun readPrivateExtender(): ExtenderPrivateUi {
+            val netExtender = networkSpace()?.netExtender
+            return ExtenderPrivateUi(
+                ip = netExtender?.ip ?: "",
+                secret = netExtender?.secret ?: "",
+            )
+        }
+    })
+
+    /** The effective settings, or null while there is no device to read them from. */
+    var settings: ExtenderSettingsUi?
+        get() = form.settings
+        private set(value) = form.showSettings(value)
+
+    val privateExtender: ExtenderPrivateUi
+        get() = form.privateExtender
 
     /** Whether the form can be edited at all: signed out there is no device. */
     var editable by mutableStateOf(false)
@@ -70,18 +86,28 @@ class ExtendersViewModel @Inject constructor(
         removeDeviceChangeListener = deviceManager.addDeviceChangeListener { device ->
             viewModelScope.launch {
                 controllerOwner.setDevice(device)
-                loadPrivateExtender()
+                form.reloadPrivateExtender()
             }
         }
     }
 
     override fun onStart(owner: LifecycleOwner) {
         controllerOwner.setForeground(true)
-        loadPrivateExtender()
+        form.reloadPrivateExtender()
     }
 
     override fun onStop(owner: LifecycleOwner) {
         controllerOwner.setForeground(false)
+    }
+
+    /**
+     * Reads every field again from the space (ExtenderFormModel). The
+     * extenders screen calls this each time it shows: an import on the import
+     * screen goes through that screen's own view model, which this one never
+     * hears about.
+     */
+    fun reload() {
+        form.reload()
     }
 
     private fun openExtenderViewController(device: DeviceLocal): ExtenderViewController {
@@ -135,7 +161,7 @@ class ExtendersViewModel @Inject constructor(
         } catch (e: Exception) {
             return false
         }
-        loadPrivateExtender()
+        form.reloadPrivateExtender()
         return true
     }
 
@@ -187,14 +213,6 @@ class ExtendersViewModel @Inject constructor(
 
     private fun networkSpace(): NetworkSpace? =
         deviceManager.device?.networkSpace ?: networkSpaceManagerProvider.getNetworkSpace()
-
-    private fun loadPrivateExtender() {
-        val netExtender = networkSpace()?.netExtender
-        privateExtender = ExtenderPrivateUi(
-            ip = netExtender?.ip ?: "",
-            secret = netExtender?.secret ?: "",
-        )
-    }
 
     private fun settingsUi(settings: ExtenderSettings?): ExtenderSettingsUi? {
         settings ?: return null
