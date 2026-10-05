@@ -1,8 +1,10 @@
 package com.bringyour.network.acceptance
 
+import com.bringyour.network.utils.SolanaPaymentQuote
+
 /**
- * Checks the Solana Pay request THIS CLIENT built against the price the server
- * quoted.
+ * Checks the Solana Pay request THIS CLIENT built against what the server
+ * quoted: the price and where to pay it.
  *
  * Why this exists as its own contract. Every server-side payment test builds
  * the payment itself and so can never catch the client building the wrong one,
@@ -11,17 +13,12 @@ package com.bringyour.network.acceptance
  * the webhook could never match the payment to its intent; the plan was omitted
  * and the server answered "Unknown plan." before the wallet even opened; and
  * the amount and the merchant address were hardcoded in the app, so a price
- * change took money and delivered nothing.
+ * change took money and delivered nothing, and a merchant address the server
+ * rotated would still have been paid at the old one.
  *
  * It lives in acceptanceShared, so the rules are unit-tested on the JVM while
  * the instrumented test supplies the real inputs from the running app.
  */
-
-/** Where a URnetwork USDC payment goes. */
-internal const val SOLANA_MERCHANT_ADDRESS = "4Fj9RCwJqHLdLNK28DwWHunHqWapxKbbzeYZLmreSYCM"
-
-/** USDC on Solana mainnet. USDC exists on many chains; this is the only one accepted. */
-internal const val SOLANA_USDC_MINT = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
 
 /** A Solana Pay reference is a public key: 32 bytes, base58. */
 internal const val SOLANA_REFERENCE_BYTES = 32
@@ -42,8 +39,9 @@ internal data class SolanaPayRequest(
  */
 internal fun solanaPayQuoteProblems(
     request: SolanaPayRequest,
-    quotedAmountUsd: Double,
+    quote: SolanaPaymentQuote,
 ): List<String> {
+    val quotedAmountUsd = quote.amountUsd
     val problems = mutableListOf<String>()
 
     if (!isSolanaPayReference(request.reference)) {
@@ -66,11 +64,11 @@ internal fun solanaPayQuoteProblems(
         problems += "the client built ${quoted(request.url)}, which is not a solana: payment url"
         return problems
     }
-    if (url.recipient != SOLANA_MERCHANT_ADDRESS) {
-        problems += "the payment url pays ${quoted(url.recipient)}, not the merchant address"
+    if (url.recipient != quote.recipient) {
+        problems += "the payment url pays ${quoted(url.recipient)}, not the merchant address the server quoted, ${quoted(quote.recipient)}"
     }
-    if (url.splTokenMint != SOLANA_USDC_MINT) {
-        problems += "the payment url uses mint ${quoted(url.splTokenMint ?: "")}, not USDC on Solana"
+    if (url.splTokenMint != quote.splTokenMint) {
+        problems += "the payment url uses mint ${quoted(url.splTokenMint ?: "")}, not the mint the server quoted, ${quoted(quote.splTokenMint)}"
     }
     if ((url.reference ?: "") != request.reference) {
         problems += "the payment url carries a different reference than the intent registered"

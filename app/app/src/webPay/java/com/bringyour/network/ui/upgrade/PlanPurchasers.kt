@@ -203,7 +203,9 @@ private fun PayPageDialog(page: PayPage, onDone: () -> Unit, onDismiss: () -> Un
 /**
  * Solana Pay on the F-Droid build: a sheet with the payment QR code (for a
  * wallet on another device) and an "Open wallet" button for the `solana:`
- * deep link on this one. The balance is polled when the app returns.
+ * deep link on this one, built from the server's quote. The balance is polled
+ * when the app returns. A quote the sdk refuses to build a payment from (its
+ * error is a plain Exception) is a payment that did not start.
  */
 @Composable
 fun rememberSolanaPayLauncher(): SolanaPayLauncher {
@@ -213,11 +215,11 @@ fun rememberSolanaPayLauncher(): SolanaPayLauncher {
     }
     val context = LocalContext.current
     return remember {
-        SolanaPayLauncher { reference, amountUsd, plan ->
+        SolanaPayLauncher { reference, quote, plan ->
             try {
-                request = buildSolanaPaymentUrl(reference, amountUsd, plan)
+                request = buildSolanaPaymentUrl(reference, quote, plan)
                 true
-            } catch (e: IllegalArgumentException) {
+            } catch (e: Exception) {
                 Toast.makeText(context, context.getString(R.string.payment_not_completed), Toast.LENGTH_LONG).show()
                 false
             }

@@ -6,6 +6,8 @@ import androidx.lifecycle.viewModelScope
 import com.bringyour.network.DeviceManager
 import com.bringyour.network.ui.account.GuestAccount
 import com.bringyour.network.ui.account.PurchaseRefusal
+import com.bringyour.network.utils.SolanaPaymentQuote
+import com.bringyour.network.utils.solanaPaymentQuote
 import com.bringyour.sdk.SolanaPaymentIntentArgs
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -72,16 +74,18 @@ class SolanaPaymentViewModel @Inject constructor(
     }
 
     /**
-     * Register the intent the customer is about to pay against, and hand back the price
-     * the SERVER quoted.
+     * Register the intent the customer is about to pay against, and hand back what the
+     * SERVER quoted: the price and where to pay it.
      *
      * `plan` is required. The server derives the price from pro.yml keyed by plan and
      * answers "Unknown plan." for an empty one -- this used to send only the reference,
      * so every Solana upgrade failed here before the wallet ever opened.
      *
-     * `onSuccess` receives the quoted amount in USD. Build the payment url from THAT and
-     * never from a constant: the webhook checks the arriving payment against this same
-     * number, so a client-side price is how a customer pays and gets nothing.
+     * `onSuccess` receives the quote: the amount in USD, the merchant address and the
+     * mint. Build the payment url from THAT and never from constants: the webhook checks
+     * the arriving payment against this same amount, so a client-side price is how a
+     * customer pays and gets nothing, and the server credits the address it quotes now,
+     * so an address built into the app outlives a rotation.
      *
      * `onError` says what the failure leads to: a legacy guest network is refused with
      * `guest_sign_in_required`, which opens the add-sign-in sheet
@@ -90,7 +94,7 @@ class SolanaPaymentViewModel @Inject constructor(
     val createSolanaPaymentIntent: (
         reference: String,
         plan: String,
-        onSuccess: (amountUsd: Double) -> Unit,
+        onSuccess: (quote: SolanaPaymentQuote) -> Unit,
         onError: (PurchaseRefusal) -> Unit
             ) -> Unit = { reference, plan, onSuccess, onError ->
 
@@ -114,16 +118,19 @@ class SolanaPaymentViewModel @Inject constructor(
                                 return@launch
                             }
 
-                            // A missing or zero quote is never sellable. The webhook's
+                            // A missing or zero quote is never sellable (the webhook's
                             // check is `amount >= quoted - tolerance`, so at zero it is
-                            // satisfied by any payment at all, including none.
-                            if (result.amountUsd <= 0.0) {
+                            // satisfied by any payment at all, including none), and a
+                            // quote that does not say where to pay has nowhere to pay:
+                            // the app keeps no merchant address to fall back to.
+                            val quote = solanaPaymentQuote(result.amountUsd, result.recipient, result.splTokenMint)
+                            if (quote == null) {
                                 onError(PurchaseRefusal.PaymentError)
                                 return@launch
                             }
 
-                            lastIntent = Triple(reference, plan, result.amountUsd)
-                            onSuccess(result.amountUsd)
+                            lastIntent = Triple(reference, plan, quote.amountUsd)
+                            onSuccess(quote)
 
                         }
 

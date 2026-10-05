@@ -31,6 +31,7 @@ import com.bringyour.network.ui.shared.viewmodels.SubscriptionBalanceViewModel
 import com.bringyour.sdk.Sdk
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.URNetworkTheme
+import com.bringyour.network.utils.SolanaPaymentQuote
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -42,7 +43,7 @@ fun UpgradeScreen(
     createSolanaPaymentIntent: (
         reference: String,
         plan: String,
-        onSuccess: (amountUsd: Double) -> Unit,
+        onSuccess: (quote: SolanaPaymentQuote) -> Unit,
         onError: (PurchaseRefusal) -> Unit
     ) -> Unit,
     onStripePaymentSuccess: () -> Unit,

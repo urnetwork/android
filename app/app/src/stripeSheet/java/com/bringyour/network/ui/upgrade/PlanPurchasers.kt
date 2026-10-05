@@ -130,19 +130,27 @@ fun rememberPlanPurchaser(
 
 private class PurchaseInFlight(val plan: String, val trial: Boolean, val price: Double, val currency: String)
 
-/** The dapp flavors open the wallet through the `solana:` deep link. */
+/**
+ * The dapp flavors open the wallet through the `solana:` deep link, built from the
+ * server's quote. A quote the sdk refuses to build a payment from is a payment
+ * that did not start, not a missing wallet: the sdk's error is a plain Exception,
+ * and the Compose uri handler's "no app for this uri" an IllegalArgumentException.
+ */
 @Composable
 fun rememberSolanaPayLauncher(): SolanaPayLauncher {
     val context = LocalContext.current
     val uriHandler = androidx.compose.ui.platform.LocalUriHandler.current
     return remember {
-        SolanaPayLauncher { reference, amountUsd, plan ->
-            try {
-                uriHandler.openUri(buildSolanaPaymentUrl(reference, amountUsd, plan))
-                true
-            } catch (e: IllegalArgumentException) {
+        SolanaPayLauncher { reference, quote, plan ->
+            val url = try {
+                buildSolanaPaymentUrl(reference, quote, plan)
+            } catch (e: Exception) {
                 Toast.makeText(context, context.getString(R.string.payment_not_completed), Toast.LENGTH_LONG).show()
-                false
+                return@SolanaPayLauncher false
+            }
+            try {
+                uriHandler.openUri(url)
+                true
             } catch (e: Exception) {
                 Toast.makeText(context, context.getString(R.string.no_solana_wallet_found), Toast.LENGTH_LONG).show()
                 false

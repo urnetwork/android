@@ -17,37 +17,72 @@ import com.bringyour.sdk.SolanaPaymentUrlArgs
 //     above it. It has rotated at least once already.
 //
 // The amount must always come from SolanaPaymentIntentResult.amountUsd -- the price the
-// server quoted from pro.yml. Never a constant.
-
-// The merchant address and the mainnet USDC mint. These belong in remote config so a
-// rotation does not need an app release; keeping them here is the status quo, but the
-// sdk now validates them, so a malformed value fails loudly instead of sending a
-// payment nowhere recoverable.
-private const val MERCHANT_ADDRESS = "4Fj9RCwJqHLdLNK28DwWHunHqWapxKbbzeYZLmreSYCM"
-private const val USDC_MINT = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
+// server quoted from pro.yml. Never a constant. Where to pay comes with it: the merchant
+// address and the mint (recipient, splTokenMint), the receiver the server credits when it
+// quotes. The app keeps no address of its own, so a rotation on the server reaches it
+// with the next quote, and a quote that does not say where to pay (from a server that
+// predates the fields) is not paid at all.
 
 const val SOLANA_PLAN_MONTHLY = "monthly"
 const val SOLANA_PLAN_YEARLY = "yearly"
 
 /**
+ * What the server quoted for a Solana Pay intent: the amount in USD (paid in USDC) and
+ * where to pay it, the merchant address and the SPL token mint, both base58.
+ */
+data class SolanaPaymentQuote(
+    val amountUsd: Double,
+    val recipient: String,
+    val splTokenMint: String,
+)
+
+/**
+ * The quote in a payment intent result, or null when it cannot be paid: a missing or
+ * non-positive amount (the webhook's check is `amount >= quoted - tolerance`, so a zero
+ * quote is satisfied by any payment at all, including none), or no Solana address for
+ * the merchant or the mint (a server that predates them). There is no fallback address.
+ */
+fun solanaPaymentQuote(
+    amountUsd: Double,
+    recipient: String?,
+    splTokenMint: String?,
+): SolanaPaymentQuote? {
+    // also refuses NaN
+    if (!(0.0 < amountUsd)) {
+        return null
+    }
+    if (recipient == null || !SolanaAddress.isValidSyntax(recipient)) {
+        return null
+    }
+    if (splTokenMint == null || !SolanaAddress.isValidSyntax(splTokenMint)) {
+        return null
+    }
+    return SolanaPaymentQuote(
+        amountUsd = amountUsd,
+        recipient = recipient,
+        splTokenMint = splTokenMint,
+    )
+}
+
+/**
  * Build the wallet deep link for a purchase.
  *
  * @param reference from [createPaymentReference], already registered with the server.
- * @param amountUsd the price the SERVER quoted, from the payment intent result.
+ * @param quote what the SERVER quoted for that intent: the amount and where to pay it.
  * @param plan [SOLANA_PLAN_MONTHLY] or [SOLANA_PLAN_YEARLY], used for the wallet's
- *   description only -- the price comes from amountUsd.
+ *   description only -- the price comes from the quote.
  *
  * Throws if any field would produce a payment that cannot be credited.
  */
 fun buildSolanaPaymentUrl(
     reference: String,
-    amountUsd: Double,
+    quote: SolanaPaymentQuote,
     plan: String,
 ): String {
     val args = SolanaPaymentUrlArgs()
-    args.recipient = MERCHANT_ADDRESS
-    args.amountUsd = amountUsd
-    args.splTokenMint = USDC_MINT
+    args.recipient = quote.recipient
+    args.amountUsd = quote.amountUsd
+    args.splTokenMint = quote.splTokenMint
     args.reference = reference
     args.label = "URnetwork"
     args.message = when (plan) {
