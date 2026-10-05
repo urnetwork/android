@@ -1,5 +1,6 @@
 package com.bringyour.network.ui.stats
 
+import com.bringyour.network.ProvidePauseReason
 import com.bringyour.network.R
 import com.bringyour.network.ui.shared.models.ProvideControlMode
 import com.bringyour.network.ui.shared.models.ProvideNetworkMode
@@ -20,6 +21,7 @@ class ProviderIdleReasonTest {
         providePaused: Boolean = false,
         provideNetworkMode: ProvideNetworkMode = ProvideNetworkMode.ALL,
         recentProviderBytes: Long = 4096,
+        providePauseReason: ProvidePauseReason = ProvidePauseReason.NONE,
     ): ProviderIdleReason {
         return providerIdleReason(
             controlMode = controlMode,
@@ -27,6 +29,7 @@ class ProviderIdleReasonTest {
             providePaused = providePaused,
             provideNetworkMode = provideNetworkMode,
             recentProviderBytes = recentProviderBytes,
+            providePauseReason = providePauseReason,
         )
     }
 
@@ -150,10 +153,119 @@ class ProviderIdleReasonTest {
     }
 
     @Test
+    fun aBatterySaverPauseSaysBatterySaver() {
+        assertEquals(
+            ProviderIdleReason.PAUSED_BATTERY_SAVER,
+            reason(
+                ProvideControlMode.ALWAYS,
+                providePaused = true,
+                provideNetworkMode = ProvideNetworkMode.WIFI,
+                recentProviderBytes = 0,
+                providePauseReason = ProvidePauseReason.BATTERY_SAVER,
+            ),
+        )
+        // Auto while connected
+        assertEquals(
+            ProviderIdleReason.PAUSED_BATTERY_SAVER,
+            reason(
+                ProvideControlMode.AUTO,
+                providePaused = true,
+                providePauseReason = ProvidePauseReason.BATTERY_SAVER,
+            ),
+        )
+    }
+
+    @Test
+    fun aChargingOnlyPauseSaysNotCharging() {
+        assertEquals(
+            ProviderIdleReason.PAUSED_NOT_CHARGING,
+            reason(
+                ProvideControlMode.ALWAYS,
+                providePaused = true,
+                provideNetworkMode = ProvideNetworkMode.WIFI,
+                providePauseReason = ProvidePauseReason.NOT_CHARGING,
+            ),
+        )
+    }
+
+    @Test
+    fun aNetworkPauseStillSaysWhichNetwork() {
+        assertEquals(
+            ProviderIdleReason.PAUSED_WIFI_ONLY,
+            reason(
+                ProvideControlMode.ALWAYS,
+                providePaused = true,
+                provideNetworkMode = ProvideNetworkMode.WIFI,
+                providePauseReason = ProvidePauseReason.NO_NETWORK,
+            ),
+        )
+        assertEquals(
+            ProviderIdleReason.PAUSED_NO_NETWORK,
+            reason(ProvideControlMode.ALWAYS, providePaused = true, providePauseReason = ProvidePauseReason.NO_NETWORK),
+        )
+    }
+
+    @Test
+    fun theModeRulesWinOverABatteryPause() {
+        assertEquals(
+            ProviderIdleReason.NONE,
+            reason(
+                ProvideControlMode.NEVER,
+                liveProvideMode = Sdk.ProvideModeNone,
+                providePaused = true,
+                providePauseReason = ProvidePauseReason.BATTERY_SAVER,
+            ),
+        )
+        assertEquals(
+            ProviderIdleReason.NETWORK_ONLY,
+            reason(
+                ProvideControlMode.NETWORK,
+                liveProvideMode = Sdk.ProvideModeNetwork,
+                providePaused = true,
+                providePauseReason = ProvidePauseReason.NOT_CHARGING,
+            ),
+        )
+        assertEquals(
+            ProviderIdleReason.AUTO_NOT_CONNECTED,
+            reason(
+                ProvideControlMode.AUTO,
+                liveProvideMode = Sdk.ProvideModeNetwork,
+                providePaused = true,
+                providePauseReason = ProvidePauseReason.BATTERY_SAVER,
+            ),
+        )
+    }
+
+    @Test
+    fun aBatteryReasonWithoutAPauseIsNotShown() {
+        // the device's own pause flag decides whether there is a pause
+        assertEquals(
+            ProviderIdleReason.NO_TRAFFIC_YET,
+            reason(
+                ProvideControlMode.ALWAYS,
+                recentProviderBytes = 0,
+                providePauseReason = ProvidePauseReason.BATTERY_SAVER,
+            ),
+        )
+        assertEquals(
+            ProviderIdleReason.NONE,
+            reason(ProvideControlMode.ALWAYS, providePauseReason = ProvidePauseReason.NOT_CHARGING),
+        )
+    }
+
+    @Test
     fun everyReasonButNoneHasItsLine() {
         assertNull(ProviderIdleReason.NONE.messageResourceId)
         assertEquals(R.string.provider_idle_auto_not_connected, ProviderIdleReason.AUTO_NOT_CONNECTED.messageResourceId)
         assertEquals(R.string.provider_idle_network_only, ProviderIdleReason.NETWORK_ONLY.messageResourceId)
+        assertEquals(
+            R.string.provider_idle_paused_battery_saver,
+            ProviderIdleReason.PAUSED_BATTERY_SAVER.messageResourceId,
+        )
+        assertEquals(
+            R.string.provider_idle_paused_not_charging,
+            ProviderIdleReason.PAUSED_NOT_CHARGING.messageResourceId,
+        )
         assertEquals(R.string.provider_idle_paused_wifi_only, ProviderIdleReason.PAUSED_WIFI_ONLY.messageResourceId)
         assertEquals(R.string.provider_idle_paused_no_network, ProviderIdleReason.PAUSED_NO_NETWORK.messageResourceId)
         assertEquals(R.string.provider_idle_no_traffic_yet, ProviderIdleReason.NO_TRAFFIC_YET.messageResourceId)
@@ -163,6 +275,8 @@ class ProviderIdleReasonTest {
     fun onlyTheDeviceStateReasonsAreLocal() {
         assertTrue(ProviderIdleReason.AUTO_NOT_CONNECTED.local)
         assertTrue(ProviderIdleReason.NETWORK_ONLY.local)
+        assertTrue(ProviderIdleReason.PAUSED_BATTERY_SAVER.local)
+        assertTrue(ProviderIdleReason.PAUSED_NOT_CHARGING.local)
         assertTrue(ProviderIdleReason.PAUSED_WIFI_ONLY.local)
         assertTrue(ProviderIdleReason.PAUSED_NO_NETWORK.local)
         assertFalse(ProviderIdleReason.NO_TRAFFIC_YET.local)

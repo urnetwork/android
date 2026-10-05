@@ -108,6 +108,7 @@ import com.bringyour.network.ui.Route
 import com.bringyour.network.ui.components.ButtonStyle
 import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.shared.models.ProvideControlMode
+import com.bringyour.network.ui.shared.models.ProvidePowerMode
 import com.bringyour.network.ui.shared.viewmodels.OverlayViewModel
 import com.bringyour.network.ui.shared.viewmodels.Plan
 import com.bringyour.network.ui.shared.viewmodels.PlanViewModel
@@ -133,6 +134,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.bringyour.network.TAG
 import com.bringyour.network.ui.components.ProvideCellPicker
 import com.bringyour.network.ui.components.ProvideControlModePicker
+import com.bringyour.network.ui.components.ProvidePowerModePicker
 import com.bringyour.network.location.MockLocationStatus
 import com.bringyour.network.location.MockLocationTarget
 import com.bringyour.network.ui.connect.providerlocations.MockLocationViewModel
@@ -337,6 +339,8 @@ fun SettingsScreen(
         version = settingsViewModel.version,
         allowProvideCell = settingsViewModel.allowProvideOnCell.collectAsState().value,
         toggleProvideCell = settingsViewModel.toggleAllowProvideOnCell,
+        providePowerMode = settingsViewModel.providePowerMode.collectAsState().value,
+        setProvidePowerMode = settingsViewModel.setProvidePowerMode,
         authCodeCreate = settingsViewModel.authCodeCreate,
         authCode = authCode,
         isCreatingAuthCode = settingsViewModel.isCreatingAuthCode.collectAsState().value,
@@ -585,6 +589,8 @@ private fun SettingsScreen(
     version: String,
     allowProvideCell: Boolean,
     toggleProvideCell: () -> Unit,
+    providePowerMode: ProvidePowerMode = ProvidePowerMode.DEFAULT,
+    setProvidePowerMode: (ProvidePowerMode) -> Unit = {},
     authCodeCreate: () -> Unit,
     authCode: String?,
     isCreatingAuthCode: Boolean,
@@ -962,6 +968,17 @@ private fun SettingsScreen(
             ProvideCellPicker(
                 allowProvideCell = allowProvideCell,
                 toggleProvideCell = toggleProvideCell
+            )
+
+            Spacer(modifier = Modifier.height(18.dp))
+
+            /**
+             * Providing on battery: keep providing, pause in Battery Saver
+             * (the default), or pause until charging
+             */
+            ProvidePowerModePicker(
+                providePowerMode = providePowerMode,
+                setProvidePowerMode = setProvidePowerMode
             )
 
             Spacer(modifier = Modifier.height(18.dp))

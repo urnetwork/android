@@ -19,11 +19,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bringyour.network.DeviceManager
 import com.bringyour.network.ForegroundDeviceControllerOwner
+import com.bringyour.network.ProvidePauseState
 import com.bringyour.network.TAG
 import com.bringyour.network.ui.shared.models.ProvideControlMode
 import com.bringyour.network.ui.shared.models.provideIndicatorDotColorFor
 import com.bringyour.network.ui.shared.models.provideIndicatorRingColorFor
 import com.bringyour.network.ui.shared.models.ProvideNetworkMode
+import com.bringyour.network.ui.shared.models.ProvidePowerMode
 import com.bringyour.network.ui.theme.Green
 import com.bringyour.network.ui.theme.Red
 import com.bringyour.network.ui.theme.Yellow
@@ -48,6 +50,7 @@ import javax.inject.Inject
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
     private val deviceManager: DeviceManager,
+    private val providePauseState: ProvidePauseState,
     @ApplicationContext private val context: Context
 ): ViewModel(), DefaultLifecycleObserver {
 
@@ -187,6 +190,15 @@ class SettingsViewModel @Inject constructor(
 
         deviceManager.provideNetworkMode = newValue
         _allowProvideOnCell.value = !currentValue
+    }
+
+    /**
+     * When this device provides on battery; stored with the app
+     */
+    val providePowerMode: StateFlow<ProvidePowerMode> = providePauseState.powerMode
+
+    val setProvidePowerMode: (ProvidePowerMode) -> Unit = { mode ->
+        providePauseState.setPowerMode(mode)
     }
 
     private val _isCreatingAuthCode = MutableStateFlow(false)
