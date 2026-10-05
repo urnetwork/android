@@ -43,14 +43,34 @@ sealed class WalletConnectState {
         val signature: String,
         val message: String,
         val detail: String?,
+        // the manual wallet the signature was pasted from (null: the bridge signed)
+        val manualWalletId: String? = null,
     ) : WalletConnectState()
     data class Blocked(val detail: String?) : WalletConnectState()
     data class Connecting(val address: String) : WalletConnectState()
     data class Connected(val wallet: SnWalletState) : WalletConnectState()
     data class Failed(val detail: String?) : WalletConnectState()
+    // the server refused a signature pasted from this manual wallet: it is not from
+    // the entered address (bittensor_error_signature_mismatch)
+    data class SignatureMismatch(val walletId: String) : WalletConnectState()
 
     val busy: Boolean
         get() = this is RequestingChallenge || this is AwaitingSignature || this is Validating || this is Connecting
+}
+
+/**
+ * What a failed POST /sn/wallet shows. The server refuses a well-formed signature that
+ * does not verify for the entered address with [EarningsViewModel.SN_CODE_SIGNATURE_MISMATCH]:
+ * the user signed with another account in their wallet (or signed other text), and the
+ * server cannot say which. Only a manual entry pastes a signature, so only then does the
+ * card say what to do in that wallet; anything else shows the server's message, as before.
+ */
+fun walletConnectFailure(error: Throwable, manualWalletId: String?): WalletConnectState {
+    val code = (error as? SnProtocolException)?.code
+    if (manualWalletId != null && code == EarningsViewModel.SN_CODE_SIGNATURE_MISMATCH) {
+        return WalletConnectState.SignatureMismatch(manualWalletId)
+    }
+    return WalletConnectState.Failed(error.message)
 }
 
 /** Validation of a manually entered address, in the order the checks run. */
@@ -343,7 +363,8 @@ class EarningsViewModel @Inject constructor(
             return
         }
         viewModelScope.launch {
-            validateAndConnect(proof.address, proof.signature, proof.message)
+            // only the manual sheets submit here: the bridge returns through onWalletSigned
+            validateAndConnect(proof.address, proof.signature, proof.message, manualWalletId = proof.walletId)
         }
     }
 
@@ -384,7 +405,7 @@ class EarningsViewModel @Inject constructor(
     fun continueAfterLooksNew() {
         val s = _connectState.value as? WalletConnectState.LooksNew ?: return
         viewModelScope.launch {
-            connect(s.address, s.signature, s.message)
+            connect(s.address, s.signature, s.message, s.manualWalletId)
         }
     }
 
@@ -399,8 +420,14 @@ class EarningsViewModel @Inject constructor(
     /**
      * Every address goes through the same gate before anything else: local syntax,
      * then the unauthenticated server check (blocked wallets are never sent anywhere).
+     * `manualWalletId` is the manual wallet the signature was pasted from (null: the bridge).
      */
-    private suspend fun validateAndConnect(address: String, signature: String, message: String) {
+    private suspend fun validateAndConnect(
+        address: String,
+        signature: String,
+        message: String,
+        manualWalletId: String? = null,
+    ) {
         val a = address.trim()
         val s = source
         if (!s.validateSs58(a)) {
@@ -417,12 +444,12 @@ class EarningsViewModel @Inject constructor(
             validation.banned -> _connectState.value = WalletConnectState.Blocked(validation.message)
             !validation.validSyntax -> _connectState.value = WalletConnectState.InvalidAddress
             !validation.existsOnChain ->
-                _connectState.value = WalletConnectState.LooksNew(a, signature, message, validation.message)
-            else -> connect(a, signature, message)
+                _connectState.value = WalletConnectState.LooksNew(a, signature, message, validation.message, manualWalletId)
+            else -> connect(a, signature, message, manualWalletId)
         }
     }
 
-    private suspend fun connect(address: String, signature: String, message: String) {
+    private suspend fun connect(address: String, signature: String, message: String, manualWalletId: String? = null) {
         _connectState.value = WalletConnectState.Connecting(address)
         source.connectWallet(address, signature, message)
             .onSuccess { w ->
@@ -433,7 +460,7 @@ class EarningsViewModel @Inject constructor(
             }
             .onFailure {
                 Log.i(TAG, "connect wallet: ${it.message}")
-                _connectState.value = WalletConnectState.Failed(it.message)
+                _connectState.value = walletConnectFailure(it, manualWalletId)
             }
     }
 
@@ -754,6 +781,8 @@ class EarningsViewModel @Inject constructor(
         const val SN_CODE_ALREADY_CLAIMED = "already_claimed"
         const val SN_CODE_RPC_UNREACHABLE = "chain_rpc_unreachable"
         const val SN_CODE_CHAIN_NOT_CONFIGURED = "chain_not_configured"
+        // POST /sn/wallet: the signature is not from the entered address (bittensor_error_signature_mismatch)
+        const val SN_CODE_SIGNATURE_MISMATCH = "signature_mismatch"
 
         /** SDK claim failures arrive as "<code>: <reason>"; the sample source sends bare codes. */
         fun claimFailureCode(message: String?): String? =
