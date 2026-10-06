@@ -44,6 +44,6 @@ class BittensorLoginTest {
     @Test
     fun `the create bundle carries the proof as a TAO wallet auth`() {
         val bundle = bittensorCreateBundle(proof.copy(purpose = "create"))
-        assertEquals(WalletCreateBundle("TAO", proof.address, proof.message, proof.signature), bundle)
+        assertEquals(WalletCreateBundle("TAO", proof.address, proof.message, proof.signature, manualWalletId = "taocom"), bundle)
     }
 }

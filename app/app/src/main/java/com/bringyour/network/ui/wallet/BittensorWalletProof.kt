@@ -76,6 +76,11 @@ object BittensorWallets {
     const val ERROR_UNSUPPORTED_WALLET = "unsupported_wallet"
     const val ERROR_NOT_AWAITING = "not_awaiting_wallet"
 
+    // mirror sdk WalletAuthErrorCodeSignatureMismatch (and SnErrorCodeSignatureMismatch):
+    // sign-in, network create, add-auth and POST /sn/wallet refuse a well-formed
+    // signature that is not from the entered address with this server code
+    const val SIGNATURE_MISMATCH = "signature_mismatch"
+
     // a bridge return these codes refuse belongs to another flow (or none):
     // the waiting session ignores it and keeps waiting
     val foreignReturnCodes = setOf(ERROR_NOT_RETURN, ERROR_PURPOSE_MISMATCH, ERROR_UNSUPPORTED_WALLET, ERROR_NOT_AWAITING)
@@ -147,6 +152,15 @@ object BittensorWallets {
         return getString(errorRes(code), null)
     }
 }
+
+/**
+ * The manual wallet to name when the server refused a signature pasted from it as one
+ * from another account than the entered address ([BittensorWallets.SIGNATURE_MISMATCH]),
+ * or null: the error then reads as sent. `manualWalletId` is null when the user pasted
+ * nothing (the bridge signed). The server cannot say which account signed.
+ */
+fun bittensorSignatureMismatchWallet(code: String?, manualWalletId: String?): String? =
+    if (code == BittensorWallets.SIGNATURE_MISMATCH && !manualWalletId.isNullOrEmpty()) manualWalletId else null
 
 /** A signed challenge, ready for /auth/login, /auth/network-create or POST /sn/wallet. */
 data class BittensorProof(

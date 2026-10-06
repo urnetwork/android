@@ -1,6 +1,7 @@
 package com.bringyour.network.ui.account
 
 import com.bringyour.network.ui.components.LoginMode
+import com.bringyour.network.ui.settings.AddAuthRefusal
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -19,9 +20,9 @@ class GuestAccountTest {
         val calls = mutableListOf<String>()
         var addAuthError: String? = null
 
-        override fun addAuth(args: String, onSuccess: () -> Unit, onError: (String) -> Unit) {
+        override fun addAuth(args: String, onSuccess: () -> Unit, onError: (AddAuthRefusal) -> Unit) {
             calls += "addAuth:$args"
-            addAuthError?.let(onError) ?: onSuccess()
+            addAuthError?.let { onError(AddAuthRefusal(it)) } ?: onSuccess()
         }
 
         override fun refreshJwt() { calls += "refreshJwt" }
@@ -74,7 +75,7 @@ class GuestAccountTest {
         val session = FakeSession().apply { addAuthError = "Password must have at least 12 characters" }
         var error: String? = null
 
-        GuestConversion(session).addSignInMethod("user@example.com", { }, { error = it })
+        GuestConversion(session).addSignInMethod("user@example.com", { }, { error = it.message })
 
         assertEquals("Password must have at least 12 characters", error)
         assertEquals(listOf("addAuth:user@example.com"), session.calls)

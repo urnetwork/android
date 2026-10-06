@@ -56,6 +56,8 @@ import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.wallet.BittensorProofFlow
 import com.bringyour.network.ui.wallet.BittensorProofSheets
 import com.bringyour.network.ui.wallet.BittensorWallets
+import com.bringyour.network.ui.wallet.bittensorSignatureMismatchText
+import com.bringyour.network.ui.wallet.bittensorSignatureMismatchWallet
 import com.bringyour.network.ui.wallet.bittensorWalletDisplayName
 import com.bringyour.sdk.AddAuthArgs
 import com.bringyour.sdk.AuthVerifyArgs
@@ -87,7 +89,7 @@ fun AddAuthMethodSheet(
     showSsoOptions: Boolean,
     activityResultSender: ActivityResultSender?,
     isAddingAuth: Boolean,
-    addAuth: (AddAuthArgs, onSuccess: () -> Unit, onError: (String) -> Unit) -> Unit,
+    addAuth: (AddAuthArgs, onSuccess: () -> Unit, onError: (AddAuthRefusal) -> Unit) -> Unit,
     onAdded: () -> Unit,
 ) {
     if (!visible) {
@@ -105,7 +107,7 @@ fun AddAuthMethodSheet(
     val flow = remember {
         AddSignInFlow(
             object : AddSignInSession<AddAuthArgs> {
-                override fun addAuth(args: AddAuthArgs, onSuccess: () -> Unit, onError: (String) -> Unit) {
+                override fun addAuth(args: AddAuthArgs, onSuccess: () -> Unit, onError: (AddAuthRefusal) -> Unit) {
                     addAuth(args, onSuccess, onError)
                 }
 
@@ -180,7 +182,10 @@ fun AddAuthMethodSheet(
     var walletConnectJob by remember { mutableStateOf<kotlinx.coroutines.Job?>(null) }
     var isConnectingWallet by remember { mutableStateOf(false) }
 
-    val addWallet: (WalletAuthArgs) -> Unit = { walletAuth ->
+    // `manualWalletId`: the Bittensor wallet the signature was pasted from (null: a
+    // wallet signed it); a signature from another account than the entered address
+    // names it, any other refusal reads as sent
+    val addWallet: (WalletAuthArgs, String?) -> Unit = { walletAuth, manualWalletId ->
         val args = AddAuthArgs()
         args.walletAuth = walletAuth
         flow.add(
@@ -191,7 +196,11 @@ fun AddAuthMethodSheet(
                 Toast.makeText(context, context.getString(R.string.wallet_sign_in_method_added), Toast.LENGTH_SHORT).show()
                 onAdded()
             },
-            { msg -> addError = msg }
+            { refusal ->
+                addError = bittensorSignatureMismatchWallet(refusal.code, manualWalletId)
+                    ?.let { bittensorSignatureMismatchText(context, it) }
+                    ?: refusal.message
+            }
         )
     }
 
@@ -208,7 +217,7 @@ fun AddAuthMethodSheet(
                 walletAuth.publicKey = auth.publicKey
                 walletAuth.message = auth.message
                 walletAuth.signature = auth.signature
-                addWallet(walletAuth)
+                addWallet(walletAuth, auth.manualWalletId)
             },
             openUrl = { url -> launchBittensorBridge(context, url) },
             refusalError = { failed ->
@@ -269,7 +278,7 @@ fun AddAuthMethodSheet(
                         Toast.makeText(context, context.getString(addedMessage), Toast.LENGTH_SHORT).show()
                         onAdded()
                     },
-                    { msg -> addError = msg }
+                    { refusal -> addError = refusal.message }
                 )
             }
             is SsoAddOutcome.Failed -> {
@@ -320,7 +329,7 @@ fun AddAuthMethodSheet(
                         Toast.makeText(context, context.getString(R.string.sign_in_method_added_successfully), Toast.LENGTH_SHORT).show()
                         onAdded()
                     },
-                    { msg -> addError = msg }
+                    { refusal -> addError = refusal.message }
                 )
             }
             else -> { /* Google/Wallet complete on their own callback, no explicit Add click */ }
@@ -409,7 +418,9 @@ fun AddAuthMethodSheet(
                         // arrives through SsoAddSignInReturns above).
                         GoogleAddAuthButton(
                             addAuth = { args, onSuccess, onError ->
-                                flow.add(AddedSignInMethod.GOOGLE, args, "", onSuccess, onError)
+                                flow.add(AddedSignInMethod.GOOGLE, args, "", onSuccess) { refusal ->
+                                    onError(refusal.message)
+                                }
                             },
                             isAddingAuth = isAddingAuth || flow.busy,
                             onAdded = onAdded,
@@ -477,7 +488,7 @@ fun AddAuthMethodSheet(
                                                                 walletAuth.signature = result.signed.signature
                                                                 walletAuth.message = result.signed.message
                                                                 walletAuth.blockchain = "solana"
-                                                                addWallet(walletAuth)
+                                                                addWallet(walletAuth, null)
                                                             }
                                                             is SolanaChallengeSignResult.NoWalletFound -> {
                                                                 addError = context.getString(R.string.no_compatible_wallet_app_found)

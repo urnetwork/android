@@ -72,6 +72,8 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.unit.TextUnit
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.URNetworkTheme
+import com.bringyour.network.ui.wallet.bittensorSignatureMismatchText
+import com.bringyour.network.ui.wallet.bittensorSignatureMismatchWallet
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -112,7 +114,10 @@ sealed class LoginCreateNetworkParams(
         val publicKey: String,
         val signedMessage: String,
         val signature: String,
-        referralCode: String?
+        referralCode: String?,
+        // the Bittensor wallet the signature was pasted from (null: a wallet signed
+        // it), named when the server refuses a signature from another account
+        val manualWalletId: String? = null,
     ) : LoginCreateNetworkParams(
         referralCode
     )
@@ -301,8 +306,15 @@ fun LoginCreateNetwork(
                         inProgress = false
                     }
                 } else if (result.error != null) {
+                    // a pasted signature from another account than the entered
+                    // address names the wallet; any other refusal reads as sent
+                    val mismatchWallet = bittensorSignatureMismatchWallet(
+                        result.error.code,
+                        (params as? LoginCreateNetworkParams.LoginCreateWalletParams)?.manualWalletId,
+                    )
                     scope.launch {
-                        createNetworkError = result.error.message
+                        createNetworkError = mismatchWallet?.let { bittensorSignatureMismatchText(context, it) }
+                            ?: result.error.message
                         inProgress = false
                     }
                 } else if (result.network != null && result.network.byJwt.isNotEmpty()) {

@@ -330,10 +330,12 @@ class SettingsViewModel @Inject constructor(
     private val _isAddingAuth = MutableStateFlow(false)
     val isAddingAuth: StateFlow<Boolean> = _isAddingAuth
 
+    // the refusal carries the server's code: a pasted Bittensor signature from
+    // another account has its own words (AddAuthMethodSheet)
     val addAuth: (
         args: AddAuthArgs,
         onSuccess: () -> Unit,
-        onError: (String) -> Unit
+        onError: (AddAuthRefusal) -> Unit
     ) -> Unit = { args, onSuccess, onError ->
 
         _isAddingAuth.value = true
@@ -343,18 +345,18 @@ class SettingsViewModel @Inject constructor(
                 _isAddingAuth.value = false
 
                 if (err != null) {
-                    onError(err.message ?: "Failed to add sign-in method")
+                    onError(AddAuthRefusal(err.message ?: "Failed to add sign-in method"))
                 } else if (result?.error != null) {
-                    onError(result.error.message ?: "Failed to add sign-in method")
+                    onError(AddAuthRefusal(result.error.message ?: "Failed to add sign-in method", result.error.code))
                 } else if (result != null) {
                     onSuccess()
                 } else {
-                    onError("Failed to add sign-in method")
+                    onError(AddAuthRefusal("Failed to add sign-in method"))
                 }
             }
         } ?: run {
             _isAddingAuth.value = false
-            onError("Unable to connect. Please try again.")
+            onError(AddAuthRefusal("Unable to connect. Please try again."))
         }
     }
 

@@ -45,7 +45,17 @@ data class AddWalletAuth(
     val publicKey: String,
     val message: String,
     val signature: String,
+    // the Bittensor wallet the signature was pasted from (null: a wallet signed it),
+    // named when the server refuses a signature from another account
+    val manualWalletId: String? = null,
 )
+
+/**
+ * A refused AddAuth: the message to show, and the server's code for it (null for
+ * none). [BittensorWallets.SIGNATURE_MISMATCH] after a pasted Bittensor signature
+ * has its own words (bittensorSignatureMismatchWallet).
+ */
+data class AddAuthRefusal(val message: String, val code: String? = null)
 
 /**
  * The wallet_auth for a Bittensor proof signed to add the wallet, or null for

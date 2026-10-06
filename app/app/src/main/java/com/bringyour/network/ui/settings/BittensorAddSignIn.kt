@@ -72,7 +72,8 @@ class BittensorAddSignInController(
             setError(defaultError())
             return
         }
-        addWalletAuth(walletAuth)
+        // pasted on the manual sheet: a refusal of a signature from another account names this wallet
+        addWalletAuth(walletAuth.copy(manualWalletId = proof.walletId))
     }
 
     private fun startSession(request: BittensorProofRequest) {

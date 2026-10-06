@@ -3,6 +3,7 @@ package com.bringyour.network.ui.login
 import com.bringyour.network.ui.components.tabletForm
 import com.bringyour.network.ui.wallet.BittensorProofFlow
 import com.bringyour.network.ui.wallet.BittensorProofSheets
+import com.bringyour.network.ui.wallet.bittensorSignatureMismatchText
 import android.content.Context
 import android.net.Uri
 import android.util.Log
@@ -226,6 +227,7 @@ fun LoginInitial(
                 navController.navigate("create-network-wallet/${bundle.toBase64Json()}")
             },
             openUrl = { url -> launchBittensorBridge(context, url) },
+            signatureMismatchText = { walletId -> bittensorSignatureMismatchText(context, walletId) },
         )
     }
 
