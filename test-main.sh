@@ -44,9 +44,8 @@
 #
 # The private device unlock code is read from android.unlock_code in tests.yml.
 #
-# Reserved performance devices are always excluded from acceptance:
-#   Pixel 8 Pro (3B161FDJG001KT)
-#   Galaxy S24 Ultra (R5CX21FY6ND)
+# Reserved performance devices (the Pixel 8 Pro and the Galaxy S24 Ultra that
+# reserved_device_serials below names) are always excluded from acceptance.
 set -euo pipefail
 umask 077
 
