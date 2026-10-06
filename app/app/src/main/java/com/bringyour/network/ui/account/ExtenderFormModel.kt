@@ -14,6 +14,13 @@ interface ExtenderFormSource {
 
     /** The legacy private extender, a space value with no controller of its own. */
     fun readPrivateExtender(): ExtenderPrivateUi
+
+    /**
+     * Resets the space's extenders through the sdk controller (EXTENDER.md
+     * E7) and answers the settings the reset leaves, every one the default.
+     * Null while no controller is open, when nothing is reset.
+     */
+    fun resetExtenders(): ExtenderSettingsUi?
 }
 
 /**
@@ -58,5 +65,18 @@ class ExtenderFormModel(
     /** Reads the legacy private extender again, which needs no controller. */
     fun reloadPrivateExtender() {
         privateExtender = source.readPrivateExtender()
+    }
+
+    /**
+     * Resets the space's extenders (E7) and shows what the reset leaves: the
+     * settings it answered with, and the legacy private extender read again,
+     * which the reset removed. Without a controller there is nothing to reset
+     * through: nothing changes and the answer is false.
+     */
+    fun reset(): Boolean {
+        val next = source.resetExtenders() ?: return false
+        settings = next
+        reloadPrivateExtender()
+        return true
     }
 }
