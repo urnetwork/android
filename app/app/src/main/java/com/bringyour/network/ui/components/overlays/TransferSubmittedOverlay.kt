@@ -62,7 +62,7 @@ fun TransferSubmittedOverlay(
                     horizontalArrangement = Arrangement.Center
                 ) {
                     Text(
-                        "Close",
+                        stringResource(id = R.string.close),
                         style = buttonTextStyle,
                         color = Black
                     )

@@ -49,8 +49,8 @@ fun ConnectStatusIndicator(
 ) {
 
     val text = when {
-        isPollingSubscriptionBalance -> "Processing subscription balance..."
-        contractStatus?.insufficientBalance == true && currentPlan != Plan.Supporter -> "Insufficient balance"
+        isPollingSubscriptionBalance -> stringResource(id = R.string.processing_subscription_balance)
+        contractStatus?.insufficientBalance == true && currentPlan != Plan.Supporter -> stringResource(id = R.string.insufficient_balance)
         displayReconnectTunnel -> stringResource(id = R.string.reconnect_tunnel_status_indicator)
         status == ConnectStatus.CONNECTED -> pluralStringResource(
             id = R.plurals.connected_provider_count,

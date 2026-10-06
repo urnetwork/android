@@ -904,7 +904,7 @@ private fun AddRuleRow(
     ) {
         Icon(
             imageVector = Icons.Filled.Add,
-            contentDescription = stringResource(id = R.string.add_a_rule),
+            contentDescription = null,
             tint = if (enabled) Green else TextFaint,
             modifier = Modifier.size(20.dp)
         )

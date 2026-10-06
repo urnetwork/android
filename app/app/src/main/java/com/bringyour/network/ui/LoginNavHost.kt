@@ -26,6 +26,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.bringyour.network.LoginClientCompletion
+import com.bringyour.network.R
 import com.bringyour.network.ui.components.overlays.FullScreenOverlay
 import com.bringyour.network.ui.components.overlays.WelcomeAnimatedOverlayLogin
 import com.bringyour.network.ui.login.AuthCodeLoadingScreen
@@ -322,7 +323,7 @@ fun LoginNavHost(
                                             )
                                             android.widget.Toast.makeText(
                                                 context,
-                                                "Error logging in, please try again.",
+                                                context.getString(R.string.error_logging_in_please_try_again),
                                                 android.widget.Toast.LENGTH_LONG,
                                             ).show()
                                             welcomeVisible = false

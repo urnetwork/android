@@ -677,7 +677,7 @@ private fun DeveloperContent(developerViewModel: DeveloperViewModel) {
         count = reliability?.removalBudgetCount ?: 0,
         presets = DeveloperViewModel.REMOVAL_BUDGET_COUNT_PRESETS,
         onSelect = developerViewModel.setRemovalBudgetCount,
-        zeroLabel = "Off",
+        zeroLabel = stringResource(id = R.string.off),
     )
     DeveloperDurationSetting(
         label = stringResource(id = R.string.dev_removal_budget_window),
@@ -698,7 +698,7 @@ private fun DeveloperContent(developerViewModel: DeveloperViewModel) {
         count = reliability?.blackholeLoadCorroboration ?: 0,
         presets = DeveloperViewModel.LOAD_CORROBORATION_PRESETS,
         onSelect = developerViewModel.setBlackholeLoadCorroboration,
-        zeroLabel = "Off",
+        zeroLabel = stringResource(id = R.string.off),
     )
     DeveloperCountSetting(
         label = stringResource(id = R.string.dev_min_blackhole_destinations),
@@ -706,7 +706,7 @@ private fun DeveloperContent(developerViewModel: DeveloperViewModel) {
         count = reliability?.minBlackholeDestinations ?: 0,
         presets = DeveloperViewModel.MIN_BLACKHOLE_DESTINATIONS_PRESETS,
         onSelect = developerViewModel.setMinBlackholeDestinations,
-        zeroLabel = "Off",
+        zeroLabel = stringResource(id = R.string.off),
     )
     DeveloperToggle(
         label = stringResource(id = R.string.dev_cluster_affinity),
@@ -807,7 +807,7 @@ private fun DeveloperContent(developerViewModel: DeveloperViewModel) {
         count = reliability?.probeSampleHostCount ?: 0,
         presets = DeveloperViewModel.PROBE_SAMPLE_PRESETS,
         onSelect = developerViewModel.setProbeSampleHostCount,
-        zeroLabel = "All",
+        zeroLabel = stringResource(id = R.string.dev_all),
     )
     DeveloperCountSetting(
         label = stringResource(id = R.string.dev_evaluation_pool),
@@ -1097,7 +1097,7 @@ private fun DeveloperCountSetting(
     count: Int,
     presets: List<Int>,
     onSelect: (Int) -> Unit,
-    zeroLabel: String = "Unlimited",
+    zeroLabel: String = stringResource(id = R.string.dev_unlimited),
 ) {
     Row(
         modifier = Modifier

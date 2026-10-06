@@ -9,6 +9,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.bringyour.network.R
@@ -32,13 +33,13 @@ fun FeedbackSubmittedOverlay(
             backgroundColor = Pink,
         ) {
             Text(
-                "Feedback submitted.",
+                stringResource(id = R.string.feedback_submitted),
                 style = MaterialTheme.typography.headlineMedium,
                 color = Black
             )
 
             Text(
-                "Thank you for sharing your feelings <3",
+                stringResource(id = R.string.thanks_for_the_feedback),
                 style = MaterialTheme.typography.headlineLarge,
                 color = Black
             )
@@ -55,7 +56,7 @@ fun FeedbackSubmittedOverlay(
                     horizontalArrangement = Arrangement.Center
                 ) {
                     Text(
-                        "Close",
+                        stringResource(id = R.string.close),
                         style = buttonTextStyle,
                         color = Black
                     )

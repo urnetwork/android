@@ -235,7 +235,7 @@ fun ExtendersScreen(
                     } else {
                         Icons.Filled.KeyboardArrowDown
                     },
-                    contentDescription = stringResource(id = R.string.advanced),
+                    contentDescription = null,
                     tint = TextMuted,
                 )
             }
@@ -363,7 +363,7 @@ private fun ExtenderActionRow(
         Spacer(modifier = Modifier.width(16.dp))
         Icon(
             Icons.AutoMirrored.Filled.KeyboardArrowRight,
-            contentDescription = text,
+            contentDescription = null,
             tint = TextMuted,
         )
     }

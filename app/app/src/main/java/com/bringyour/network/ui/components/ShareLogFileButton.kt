@@ -48,11 +48,11 @@ private fun ShareLogFileButton(logFile: File) {
             putExtra(Intent.EXTRA_STREAM, uri)
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         }
-        context.startActivity(Intent.createChooser(shareIntent, "Share Log File"))
+        context.startActivity(Intent.createChooser(shareIntent, context.getString(R.string.share_logs)))
     }) {
         Icon(
             imageVector = Icons.Default.Share,
-            contentDescription = stringResource(id = R.string.share_logs)
+            contentDescription = null
         )
 
         Spacer(modifier = Modifier.width(8.dp))

@@ -43,7 +43,7 @@ fun FetchLocationsError(
     ) {
         Icon(
             imageVector = Icons.Filled.Warning,
-            contentDescription = stringResource(id = R.string.check_internet),
+            contentDescription = null,
             tint = Yellow
         )
 

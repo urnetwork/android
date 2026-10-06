@@ -37,7 +37,7 @@ fun URNavListItem(
         Row {
             Icon(
                 painterResource(id = iconResourceId),
-                contentDescription = text,
+                contentDescription = null,
                 tint = TextMuted
             )
             Spacer(modifier = Modifier.width(16.dp))

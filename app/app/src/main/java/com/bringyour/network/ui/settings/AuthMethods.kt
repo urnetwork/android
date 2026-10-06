@@ -1,5 +1,8 @@
 package com.bringyour.network.ui.settings
 
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
+import com.bringyour.network.R
 import com.bringyour.network.utils.sdkStringListToList
 import com.bringyour.sdk.NetworkUser
 import com.bringyour.sdk.StringList
@@ -21,23 +24,25 @@ fun parseAuthMethods(networkUser: NetworkUser): List<String> {
     }
     val userAuth = networkUser.userAuth
     if (userAuth.isNotEmpty()) {
-        val methodLabel = if (userAuth.contains("@")) "email" else "phone"
-        if (!methods.contains(methodLabel)) {
-            methods.add(methodLabel)
+        val authType = if (userAuth.contains("@")) "email" else "phone"
+        if (!methods.contains(authType)) {
+            methods.add(authType)
         }
     }
 
     return methods
 }
 
+/** A sign-in method's name as the settings list shows it; Google and Apple are names everywhere. */
+@Composable
 fun methodDisplayName(method: String): String {
     return when (method) {
-        "email" -> "Email"
-        "phone" -> "Phone"
+        "email" -> stringResource(id = R.string.site_app_email)
+        "phone" -> stringResource(id = R.string.site_app_phone)
         "google" -> "Google"
         "apple" -> "Apple"
-        "solana" -> "Solana Wallet"
-        "seedphrase" -> "Seedphrase"
+        "solana" -> stringResource(id = R.string.solana_wallet)
+        "seedphrase" -> stringResource(id = R.string.seedphrase)
         else -> method.replaceFirstChar { it.uppercase() }
     }
 }

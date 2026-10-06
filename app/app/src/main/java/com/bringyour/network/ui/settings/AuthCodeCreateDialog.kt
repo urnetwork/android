@@ -28,7 +28,7 @@ fun AuthCodeCreateDialog(
 
     AlertDialog(
         icon = {
-            Icon(Icons.Filled.AutoAwesome, contentDescription = stringResource(id = R.string.auth_code_created))
+            Icon(Icons.Filled.AutoAwesome, contentDescription = null)
         },
         title = {
             Text(text = stringResource(id = R.string.auth_code_created))

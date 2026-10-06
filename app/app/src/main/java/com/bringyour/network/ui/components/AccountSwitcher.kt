@@ -212,7 +212,7 @@ fun GuestPopup(
     AccountSwitcherPopup(onDismiss = { onDismiss() }) {
         PopupActionRow(
             iconResourceId = R.drawable.main_nav_user_filled,
-            text = "Guest Mode",
+            text = stringResource(id = R.string.guest_mode),
             onClick = {},
             isSelected = true,
         )
@@ -221,7 +221,7 @@ fun GuestPopup(
 
         PopupActionRow(
             iconResourceId = R.drawable.plus,
-            text = "Create Account",
+            text = stringResource(id = R.string.create_account_2),
             onClick = {
                 createAccount()
                 onDismiss()
@@ -262,7 +262,7 @@ fun AuthenticatedPopup(
         HorizontalDivider()
         PopupActionRow(
             iconResourceId = R.drawable.sign_out,
-            text = "Log out",
+            text = stringResource(id = R.string.sign_out),
             modifier = Modifier.testTag("acceptance.account.logout"),
             onClick = {
                 application?.logout()

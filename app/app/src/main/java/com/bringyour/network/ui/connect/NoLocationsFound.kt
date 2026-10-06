@@ -34,7 +34,7 @@ fun NoLocationsFound() {
     ) {
         Icon(
             imageVector = Icons.Filled.Search,
-            contentDescription = stringResource(id = R.string.no_providers_found),
+            contentDescription = null,
             tint = TextMuted
         )
 

@@ -18,6 +18,7 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.imageResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
@@ -56,7 +57,7 @@ fun OnboardingOverlay() {
                 backgroundColor = Yellow,
             ) {
                 Text(
-                    "Nicely done.",
+                    stringResource(id = R.string.nicely_done),
                     style = MaterialTheme.typography.headlineMedium,
                     color = Black
                 )
@@ -64,7 +65,7 @@ fun OnboardingOverlay() {
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Text(
-                    "Step into the internet as it should be.",
+                    stringResource(id = R.string.step_in),
                     style = MaterialTheme.typography.headlineLarge,
                     color = Black
                 )
@@ -84,7 +85,7 @@ fun OnboardingOverlay() {
                         horizontalArrangement = Arrangement.Center
                     ) {
                         Text(
-                            "Enter",
+                            stringResource(id = R.string.enter),
                             style = buttonTextStyle,
                             color = Black
                         )

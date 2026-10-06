@@ -33,7 +33,7 @@ fun NoSolanaWalletsAlert(
                     onDismiss()
                 }
             ) {
-                Text("Ok")
+                Text(stringResource(id = R.string.close))
             }
         },
     )

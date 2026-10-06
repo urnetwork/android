@@ -62,7 +62,7 @@ private fun ExportLogFileLauncher(logFilePath: String) {
     TextButton(onClick = { saveLauncher.launch(suggestedFileName) }) {
         Icon(
             imageVector = Icons.Default.Save,
-            contentDescription = stringResource(id = R.string.save_logs)
+            contentDescription = null
         )
         Spacer(modifier = Modifier.width(8.dp))
         Text(stringResource(id = R.string.save_logs))
