@@ -3,11 +3,14 @@ import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, st
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
-import { checkPair, observeDevices, parseArgs, parseInstalledVersions, PERFORMANCE_SERIALS,
+import { checkPair, observeDevices, parseArgs, parseInstalledVersions, performanceSerials,
   selectAndRetainPair, selectCandidates } from "./physical_apk_pair.mjs";
 
 const APP = "com.bringyour.network";
 const BASE = 1034210530;
+// Synthetic stand-ins for the reserved phones that tests.yml lists.
+const SERIALS = ["3RESERVEDPHONEA", "RESERVEDPHONEB"];
+const pinned = { performanceSerials: SERIALS };
 const split = (abi, suffix) => ({ type: "ONE_OF_MANY", filters: [{ filterType: "ABI", value: abi }],
   outputFile: `${abi}.apk`, versionCode: BASE + suffix });
 const appMetadata = () => ({ version: 3, artifactType: { type: "APK", kind: "Directory" }, elementType: "File",
@@ -19,7 +22,7 @@ const testMetadata = () => ({ version: 3, artifactType: { type: "APK", kind: "Di
   applicationId: `${APP}.test`, variantName: "githubDebugAndroidTest",
   elements: [{ type: "SINGLE", filters: [], outputFile: "test.apk", versionCode: 0 }] });
 const observed = (appCode = BASE + 3, testCode = 0) => ({ type: "physical-apk-devices", schemaVersion: 1, observedAtUnixMs: 123,
-  devices: PERFORMANCE_SERIALS.map(serial => ({ serial, abis: ["arm64-v8a", "armeabi-v7a"], versions: { app: appCode, test: testCode } })) });
+  devices: SERIALS.map(serial => ({ serial, abis: ["arm64-v8a", "armeabi-v7a"], versions: { app: appCode, test: testCode } })) });
 const writeJson = (path, data) => writeFileSync(path, JSON.stringify(data), { mode: 0o600 });
 
 function fixture(t) {
@@ -36,7 +39,7 @@ function fixture(t) {
       abi: name === APP ? element.filters[0]?.value ?? "arm64-v8a" : null });
   }
   const f = { root, generated, artifacts, options, appVersion: BASE + 3, testVersion: 0, commands: [] };
-  f.dependencies = { now: () => 456, invoke(command, args) {
+  f.dependencies = { now: () => 456, performanceSerials: SERIALS, invoke(command, args) {
     f.commands.push({ command, args });
     const output = stdout => ({ status: 0, stdout, stderr: "" });
     if (command === "/fixture/aapt") {
@@ -45,7 +48,7 @@ function fixture(t) {
       return output(`package: name='${data.name}' versionCode='${data.versionCode}' versionName='fixture'\n` +
         (data.abi ? `native-code: '${data.abi}'\n` : ""));
     }
-    assert.equal(command, "adb"); assert.equal(args[0], "-s"); assert.ok(PERFORMANCE_SERIALS.includes(args[1]));
+    assert.equal(command, "adb"); assert.equal(args[0], "-s"); assert.ok(SERIALS.includes(args[1]));
     if (args[2] === "get-state") { assert.equal(args.length, 3); return output("device\n"); }
     if (args[3] === "getprop") { assert.deepEqual(args.slice(2), ["shell", "getprop", "ro.product.cpu.abilist"]); return output("arm64-v8a,armeabi-v7a\n"); }
     assert.deepEqual(args.slice(2), ["shell", "cmd", "package", "list", "packages", "--show-versioncode", APP]);
@@ -57,7 +60,7 @@ function fixture(t) {
 test("root cause: universal .530 would downgrade installed arm64 .533; compatible split replaces at equal code", () => {
   const app = appMetadata();
   assert.ok(app.elements[0].versionCode < observed().devices[0].versions.app);
-  const selected = selectCandidates(app, testMetadata(), observed());
+  const selected = selectCandidates(app, testMetadata(), observed(), pinned);
   assert.equal(selected.app.outputFile, "arm64-v8a.apk");
   assert.equal(selected.app.versionCode, BASE + 3);
   assert.equal(selected.test.versionCode, 0, "instrumentation code is independent of application code");
@@ -65,18 +68,18 @@ test("root cause: universal .530 would downgrade installed arm64 .533; compatibl
 
 test("selection uses the higher installed floor across the pair and rejects a genuinely newer app or test", () => {
   const devices = observed(BASE); devices.devices[1].versions.app = BASE + 3;
-  assert.equal(selectCandidates(appMetadata(), testMetadata(), devices).floors.app, BASE + 3);
+  assert.equal(selectCandidates(appMetadata(), testMetadata(), devices, pinned).floors.app, BASE + 3);
   for (const [appCode, testCode, message] of [[BASE + 4, 0, /app-apk-would-downgrade/], [BASE + 3, 1, /test-apk-would-downgrade/]]) {
-    assert.throws(() => selectCandidates(appMetadata(), testMetadata(), observed(appCode, testCode)), message);
+    assert.throws(() => selectCandidates(appMetadata(), testMetadata(), observed(appCode, testCode), pinned), message);
   }
 });
 
 test("absent/equal versions permit normal install; compatible universal is fallback only", () => {
   const app = appMetadata();
-  assert.equal(selectCandidates(app, testMetadata(), observed(null, null)).app.outputFile, "arm64-v8a.apk");
+  assert.equal(selectCandidates(app, testMetadata(), observed(null, null), pinned).app.outputFile, "arm64-v8a.apk");
   app.elements = app.elements.slice(0, 1);
-  assert.equal(selectCandidates(app, testMetadata(), observed(BASE)).app.outputFile, "universal.apk");
-  assert.throws(() => selectCandidates(app, testMetadata(), observed()), /app-apk-would-downgrade/);
+  assert.equal(selectCandidates(app, testMetadata(), observed(BASE), pinned).app.outputFile, "universal.apk");
+  assert.throws(() => selectCandidates(app, testMetadata(), observed(), pinned), /app-apk-would-downgrade/);
 });
 
 test("metadata rejects mismatched pair, traversal, duplicate candidates, wrong ABI and unobserved devices", () => {
@@ -93,7 +96,7 @@ test("metadata rejects mismatched pair, traversal, duplicate candidates, wrong A
   ]) {
     const app = appMetadata(); const apkTest = testMetadata(); const devices = observed();
     mutation(app, apkTest, devices);
-    assert.throws(() => selectCandidates(app, apkTest, devices));
+    assert.throws(() => selectCandidates(app, apkTest, devices, pinned));
   }
 });
 
@@ -110,9 +113,9 @@ test("installed-version parser handles exact names and absence; errors never bec
 test("observation only reads the two allowlisted devices and fails on unavailable ADB", t => {
   const f = fixture(t); const result = observeDevices(f.dependencies);
   assert.equal(result.devices.length, 2); assert.equal(f.commands.length, 6);
-  assert.deepEqual(new Set(f.commands.map(command => command.args[1])), new Set(PERFORMANCE_SERIALS));
-  assert.throws(() => observeDevices({ invoke: () => ({ status: 1, stdout: "", stderr: "private failure" }) }), /apk-pair-command-failed/);
-  assert.throws(() => observeDevices({ invoke: () => ({ status: 0, stdout: "unauthorized\n" }) }), /performance-device-offline/);
+  assert.deepEqual(new Set(f.commands.map(command => command.args[1])), new Set(SERIALS));
+  assert.throws(() => observeDevices({ ...pinned, invoke: () => ({ status: 1, stdout: "", stderr: "private failure" }) }), /apk-pair-command-failed/);
+  assert.throws(() => observeDevices({ ...pinned, invoke: () => ({ status: 0, stdout: "unauthorized\n" }) }), /performance-device-offline/);
 });
 
 test("selector retains exact compatible APKs mode 0600 and checks manifest codes without any device command", t => {
@@ -181,3 +184,22 @@ test("CLI requires explicit absolute context and does not accept install/downgra
   }
 });
 
+test("the reserved phones come from android.performance_device_serials in tests.yml", () => {
+  const calls = [];
+  const reader = stdout => (command, args) => { calls.push({ command, args }); return { status: 0, stdout, stderr: "" }; };
+  assert.deepEqual(performanceSerials({ readConfig: reader("3RESERVEDPHONEA RESERVEDPHONEB\n") }), SERIALS);
+  assert.match(calls[0].command, /tests\/read-tests-config\.sh$/);
+  assert.deepEqual(calls[0].args, ["get", "android.performance_device_serials"]);
+  for (const stdout of ["", "  \n", "REPLACE_ME", "3RESERVEDPHONEA bad/serial", "3RESERVEDPHONEA 3RESERVEDPHONEA"]) {
+    assert.throws(() => performanceSerials({ readConfig: reader(stdout) }), /android\.performance_device_serials-required/);
+  }
+  assert.throws(() => performanceSerials({ readConfig: () => ({ status: 1, stdout: "", stderr: "private failure" }) }),
+    /android\.performance_device_serials-unreadable/);
+});
+
+test("observation reads exactly the phones tests.yml lists", t => {
+  const f = fixture(t); delete f.dependencies.performanceSerials;
+  f.dependencies.readConfig = () => ({ status: 0, stdout: "RESERVEDPHONEB\n", stderr: "" });
+  assert.deepEqual(observeDevices(f.dependencies).devices.map(device => device.serial), ["RESERVEDPHONEB"]);
+  assert.deepEqual(new Set(f.commands.map(command => command.args[1])), new Set(["RESERVEDPHONEB"]));
+});

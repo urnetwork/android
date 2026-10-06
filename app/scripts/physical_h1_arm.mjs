@@ -10,7 +10,7 @@ import { availableParallelism } from "node:os";
 import { basename, dirname, isAbsolute, join, relative, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { prepareArtifactDirectory, requireArtifactPaths } from "./physical_artifact_directory.mjs";
-import { PERFORMANCE_SERIALS } from "./physical_apk_pair.mjs";
+import { performanceSerials } from "./physical_apk_pair.mjs";
 import { requireNativeConsumerLock, hashNativeInputFile } from "./physical_native_provenance.mjs";
 import { requireRetainedForeground, checkInstrumentationCommandSession, checkCollectorSession } from "./physical_collector_session.mjs";
 import { requireCredentialTargetStopped } from "./physical_credential_ownership.mjs";
@@ -45,7 +45,7 @@ const publish = (path, value) => {
   writeFileSync(path, `${JSON.stringify(value)}\n`, { flag: "wx", mode: 0o600 });
 };
 
-export function parseArgs(argv, cpuCount = availableParallelism()) {
+export function parseArgs(argv, cpuCount = availableParallelism(), dependencies = {}) {
   const mode = argv[0];
   if (mode === "consume") {
     if (argv.length !== 3 || argv[1] !== "--manifest" || !isAbsolute(argv[2])) fail("explicit-consumer-manifest-required");
@@ -64,7 +64,10 @@ export function parseArgs(argv, cpuCount = availableParallelism()) {
   if (requiredKeys.some(key => options[key] === undefined)) fail("explicit-h1-arm-arguments-required");
   options["measurement-mode"] ??= "qualification";
   armMeasurementMode(options);
-  if (!PERFORMANCE_SERIALS.includes(options.serial)) fail("allowlisted-device-required");
+  // the allowed phones come from tests.yml; a reason naming the key survives
+  let serials;
+  try { serials = performanceSerials(dependencies); } catch (error) { fail(error.message); }
+  if (!serials.includes(options.serial)) fail("allowlisted-device-required");
   if (!LABEL.test(options.label) || !LABEL.test(options["build-id"])) fail("safe-arm-identifiers-required");
   if (!["wifi", "cellular"].includes(options.underlay)) fail("explicit-underlay-required");
   for (const key of ["root", "run-dir", "config"]) {

@@ -15,11 +15,13 @@ import { parseArgs as parseCopyArgs } from "./physical_diagnostic_copy.mjs";
 
 const scripts = dirname(fileURLToPath(import.meta.url));
 const root = resolve(scripts, "../../..");
-const args = run => ["run", "--root", root, "--run-dir", run, "--serial", "3B161FDJG001KT", "--label", "h1-frozen",
+// Synthetic stand-ins for the reserved phones that tests.yml lists.
+const PINNED = { performanceSerials: ["3RESERVEDPHONEA", "RESERVEDPHONEB"] };
+const args = run => ["run", "--root", root, "--run-dir", run, "--serial", "3RESERVEDPHONEA", "--label", "h1-frozen",
   "--build-id", "ios-frozen", "--underlay", "wifi", "--config", "/private/credentials.yml", "--cdp-port", "19322",
   "--gomaxprocs", "10", "--max-workers", "4"];
-const context = () => armContext(parseArgs(args("/private/arm-root"), 14), "frozen-native-owner");
-const diagnosticContext = () => armContext(parseArgs([...args("/private/arm-root"), "--measurement-mode", "diagnostic"], 14), "frozen-native-owner");
+const context = () => armContext(parseArgs(args("/private/arm-root"), 14, PINNED), "frozen-native-owner");
+const diagnosticContext = () => armContext(parseArgs([...args("/private/arm-root"), "--measurement-mode", "diagnostic"], 14, PINNED), "frozen-native-owner");
 const fixture = t => {
   const dir = mkdtempSync(join(tmpdir(), "h1-arm-test-"));
   t.after(() => rmSync(dir, { recursive: true, force: true }));
@@ -123,10 +125,20 @@ test("serial, root scope, labels, port and CPU limits fail closed before any inv
   for (const [key, value] of [["--serial", "arbitrary-device"], ["--root", "/"], ["--run-dir", dirname(root)],
     ["--run-dir", `${root}/artifacts`], ["--run-dir", "/private/../tmp/test"], ["--label", "../other-arm"],
     ["--build-id", "x;echo secret"], ["--cdp-port", "0"], ["--underlay", "auto"], ["--max-workers", "5"], ["--gomaxprocs", "11"]]) {
-    assert.throws(() => parseArgs(mutate(key, value), 14), undefined, `${key} ${value}`);
+    assert.throws(() => parseArgs(mutate(key, value), 14, PINNED), undefined, `${key} ${value}`);
   }
-  assert.throws(() => parseArgs([...args("/private/arm-root"), "--profile-rate", "65536"], 14));
-  assert.throws(() => parseArgs([...args("/private/arm-root"), "--label", "second"], 14));
+  assert.throws(() => parseArgs([...args("/private/arm-root"), "--profile-rate", "65536"], 14, PINNED));
+  assert.throws(() => parseArgs([...args("/private/arm-root"), "--label", "second"], 14, PINNED));
+});
+
+test("the allowed phones come from android.performance_device_serials in tests.yml", () => {
+  const reader = stdout => () => ({ status: 0, stdout, stderr: "" });
+  const argv = args("/private/arm-root");
+  assert.equal(parseArgs(argv, 14, { readConfig: reader("RESERVEDPHONEB 3RESERVEDPHONEA\n") }).serial, "3RESERVEDPHONEA");
+  assert.throws(() => parseArgs(argv, 14, { readConfig: reader("RESERVEDPHONEB\n") }), /allowlisted-device-required/);
+  assert.throws(() => parseArgs(argv, 14, { readConfig: reader("") }), /android\.performance_device_serials-required/);
+  assert.throws(() => parseArgs(argv, 14, { readConfig: () => ({ status: 1, stdout: "", stderr: "" }) }),
+    /android\.performance_device_serials-unreadable/);
 });
 
 test("run directory containment follows the chosen workspace rather than a host home prefix", () => {
@@ -139,12 +151,12 @@ test("run directory containment follows the chosen workspace rather than a host 
       return argv;
     };
     for (const run of [workspace, join(workspace, "artifacts"), dirname(workspace), "/"]) {
-      assert.throws(() => parseArgs(forRun(run), 14), /private-run-outside-workspace-required/);
+      assert.throws(() => parseArgs(forRun(run), 14, PINNED), /private-run-outside-workspace-required/);
     }
     const sibling = join(dirname(workspace), "run");
-    assert.equal(parseArgs(forRun(sibling), 14)["run-dir"], sibling);
+    assert.equal(parseArgs(forRun(sibling), 14, PINNED)["run-dir"], sibling);
     const unrelated = workspace.startsWith("/Users/") ? "/tmp" : "/Users";
-    assert.equal(parseArgs(forRun(unrelated), 14)["run-dir"], unrelated);
+    assert.equal(parseArgs(forRun(unrelated), 14, PINNED)["run-dir"], unrelated);
   }
 });
 
@@ -152,7 +164,7 @@ test("prepare owns fresh private leaves and its exact workload passes the existi
   const dir = fixture(t); const run = join(dir, "run"); mkdirSync(run, { mode: 0o700 });
   const config = join(dir, "credentials.yml"); writeFileSync(config, "synthetic: unused\n", { mode: 0o600 });
   const argv = args(run); argv[argv.indexOf("--config") + 1] = config;
-  const options = parseArgs(argv, 14); const c = prepareArm(options);
+  const options = parseArgs(argv, 14, PINNED); const c = prepareArm(options);
   for (const path of [c.artifacts, c.directory]) assert.equal(lstatSync(path).mode & 0o777, 0o700);
   assert.equal(lstatSync(join(c.directory, "traffic-workload.sh")).mode & 0o777, 0o600);
   const proof = captureWorkloadScriptPreflight({ mode: "script-preflight", label: c.label, output: c.workloads });
@@ -187,7 +199,7 @@ test("actual retained PTY satisfies the existing foreground guard and propagates
 // observations and telemetry child are synthetic; no ADB command is launched.
 function collectorLaunchFixture(t) {
   const dir = fixture(t);
-  const c = armContext(parseArgs(args(dir), 14), "fixture-native-owner");
+  const c = armContext(parseArgs(args(dir), 14, PINNED), "fixture-native-owner");
   mkdirSync(c.artifacts, { mode: 0o700 }); mkdirSync(c.directory, { mode: 0o700 });
   const step = h1Steps(c).collector;
   const helper = join(dir, "collector-fixture.mjs");
@@ -310,7 +322,7 @@ const {appendFileSync,readFileSync} = require('node:fs');
 const {join} = require('node:path');
 const args = process.argv.slice(2); const dir = process.env.H1_TARGET_FIXTURE;
 appendFileSync(join(dir,'calls.jsonl'),JSON.stringify(args)+'\\n',{mode:0o600});
-if (args[0] !== '-s' || args[1] !== '3B161FDJG001KT') process.exit(97);
+if (args[0] !== '-s' || args[1] !== '3RESERVEDPHONEA') process.exit(97);
 const command = args.slice(2); const app = 'com.bringyour.network';
 if (command[0] === 'shell' && command[1] === 'pm' && command[2] === 'path' &&
     [app,app+'.test'].includes(command[3]) && command.length === 4) {
@@ -396,9 +408,9 @@ test("explicit diagnostic mode binds rate 65536 through native build, APK assemb
   assert.equal(gate.args[gate.args.indexOf("--mode") + 1], "diagnostic");
   assert.equal(context()["measurement-mode"], "qualification");
   for (const value of ["65536", "profiled-qualification", "", "Diagnostic"]) {
-    assert.throws(() => parseArgs([...args("/private/arm-root"), "--measurement-mode", value], 14));
+    assert.throws(() => parseArgs([...args("/private/arm-root"), "--measurement-mode", value], 14, PINNED));
   }
-  assert.throws(() => parseArgs([...args("/private/arm-root"), "--measurement-mode", "diagnostic", "--measurement-mode", "qualification"], 14));
+  assert.throws(() => parseArgs([...args("/private/arm-root"), "--measurement-mode", "diagnostic", "--measurement-mode", "qualification"], 14, PINNED));
 });
 
 test("diagnostic descriptors use the actual strict command/copy parsers and private sibling artifacts", () => {

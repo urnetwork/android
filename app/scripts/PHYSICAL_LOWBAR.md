@@ -23,20 +23,27 @@ can be applied before this invocation when a previous session needs clearing.
 umask 077
 RUN_DIR=$(mktemp -d /tmp/urnetwork-h1.XXXXXX)
 LABEL="h1-$(date -u +%Y%m%dT%H%M%SZ)"
+SERIAL=$(/Users/builder/urnetwork/tests/read-tests-config.sh get android.performance_device_serials | awk '{print $1}')
 exec node /Users/builder/urnetwork/android/app/scripts/physical_h1_arm.mjs run \
   --root /Users/builder/urnetwork --run-dir "$RUN_DIR" \
-  --serial 3B161FDJG001KT --label "$LABEL" --build-id "$LABEL" \
+  --serial "$SERIAL" --label "$LABEL" --build-id "$LABEL" \
   --underlay wifi --config /Users/builder/urnetwork/.tests.yml \
   --cdp-port 19322 --gomaxprocs 10 --max-workers 4
 ```
 
-Select `R5CX21FY6ND` explicitly for the other allowed phone. `--underlay` is
+The allowed phones are the adb serials listed in `android.performance_device_serials`
+in the workspace's tests.yml (`vault/main/tests.yml`, or the file `UR_ACCEPT_VAULT`
+names), read through `tests/read-tests-config.sh`; none is written in this repository,
+and a missing or malformed key stops the runner with
+`android.performance_device_serials-required`. Select the other listed serial
+explicitly for the other allowed phone. `--underlay` is
 `wifi` or `cellular`; `--cdp-port` must be unused. The supplied run directory
 must be empty, owned, mode 0700 and outside the workspace. The runner creates
 only its private leaves and stores its frozen context in `arm.json`. Core
 limits are checked against `ceil(0.70 * logical_cpus)`; Gradle is capped at four.
 Use mode `dry-run` with the same arguments to print the exact schedule without
-reading credentials, building, contacting a device, or writing artifacts.
+reading credentials, building, contacting a device, or writing artifacts (it
+still reads `android.performance_device_serials` to check `--serial`).
 
 The schedule resolves AAPT, observes/selects the correct APK pair, runs the
 Bash native writer and locked consumer, verifies native ARM64 stripping/linkage
@@ -401,11 +408,12 @@ Neither filenames nor a universal-first search identify the correct artifact.
 Use `physical_apk_pair.mjs` for a normal, data-preserving `adb install -r -t`:
 
 1. Before building, run `observe` to retain read-only version/ABI observations
-   from only `3B161FDJG001KT` and `R5CX21FY6ND`. Other ADB devices are ignored.
+   from only the phones `android.performance_device_serials` lists in tests.yml.
+   Other ADB devices are ignored.
 2. Inside the native consumer lock, after assembling app **and** test APKs with
    the same immutable acceptance build ID, run `select`. It reads Gradle output
    metadata, prefers the compatible ARM64 split, checks both package version
-   floors across the two phones, verifies the actual APK manifests with `aapt`,
+   floors across the listed phones, verifies the actual APK manifests with `aapt`,
    and exclusively retains mode-0600 app/test copies plus hashes. It makes no
    device calls and does not rebuild. Use these retained APKs for the existing
    AAR/strip/packaged-ABI linkage checks before releasing the lock.
