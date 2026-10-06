@@ -521,7 +521,7 @@ fun AccountScreenContent(
             Row {
                 Icon(
                     Icons.Filled.ArrowOutward,
-                    contentDescription = "Visit external link",
+                    contentDescription = null,
                     tint = TextMuted,
                     modifier = Modifier
                         .size(18.dp)

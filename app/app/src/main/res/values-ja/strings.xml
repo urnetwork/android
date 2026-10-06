@@ -503,6 +503,7 @@
     <string name="intro_verifiable_encryption">毎日使える暗号化。</string>
     <string name="intro_widgets_manual">ホーム画面を長押しし、「ウィジェット」を選んで URnetwork を選択します。</string>
     <string name="intro_widgets_tap_to_add">ウィジェットをタップするとホーム画面に追加されます。</string>
+    <string name="invalid_input">無効な入力</string>
     <string name="invalid_referral_code">このコードは無効です</string>
     <string name="invalid_solana_address">有効な Solana アドレスではありません。</string>
     <string name="invalid_ss58_address">有効な Bittensor アドレスではありません。</string>
@@ -938,10 +939,12 @@
     <string name="step_two">ステップ2</string>
     <string name="streak">連続</string>
     <string name="strong_anonymization">強力な匿名化</string>
+    <string name="strong_privacy_laws">厳格なプライバシー法</string>
     <string name="subscribe">購読する</string>
     <string name="subscription_purchased_under_different_account">サブスクリプションは別のアカウントで購入されています。利用するにはそのアカウントでログインしてください。</string>
     <string name="suggested_remote_dns_servers">推奨リモートDNSサーバー</string>
     <string name="suggested_remote_dns_servers_description">接続中の国の候補にはその国の色が付いています。オンにするとリモートDNSサーバーに追加されます。</string>
+    <string name="support">サポート</string>
     <string name="support_us">奪うのではなく与える新しい種類のネットワークの構築を支援してください。</string>
     <string name="supporter">Pro</string>
     <string name="switch_account">アカウントを切り替える</string>
@@ -994,6 +997,7 @@
     <string name="unlink_referral_network">紹介ネットワークのリンクを解除する</string>
     <string name="unlock_speed">さらに高速な速度と、強力な検閲対策や制御データなどの新機能への優先アクセスがロック解除されます。</string>
     <string name="unlock_supporter_tooltip">さらに高速な速度と新機能への優先アクセスをアンロックします。</string>
+    <string name="unstable_connection">不安定な接続</string>
     <string name="unstable_providers_warning">*（不安定な場合があります）</string>
     <string name="update">更新</string>
     <string name="update_notification_settings">Android設定で通知の権限を更新する</string>
@@ -1113,6 +1117,9 @@
     </plurals>
     <plurals name="dev_export_summary">
         <item quantity="other">%1$d 件のログファイルをエクスポートしました（%2$s）</item>
+    </plurals>
+    <plurals name="feedback_star_count">
+        <item quantity="other">星%1$dつ</item>
     </plurals>
     <plurals name="gossip_events_per_minute">
         <item quantity="other">%1$d 件/分</item>

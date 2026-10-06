@@ -503,6 +503,7 @@
     <string name="intro_verifiable_encryption">Шифрование на каждый день.</string>
     <string name="intro_widgets_manual">Нажмите и удерживайте главный экран, выберите «Виджеты» и найдите URnetwork.</string>
     <string name="intro_widgets_tap_to_add">Нажмите на виджет, чтобы добавить его на главный экран.</string>
+    <string name="invalid_input">Недопустимое значение</string>
     <string name="invalid_referral_code">Этот код недействителен</string>
     <string name="invalid_solana_address">Это недействительный адрес Solana.</string>
     <string name="invalid_ss58_address">Это недействительный адрес Bittensor.</string>
@@ -938,10 +939,12 @@
     <string name="step_two">Шаг 2</string>
     <string name="streak">Серия</string>
     <string name="strong_anonymization">Усиленная анонимизация</string>
+    <string name="strong_privacy_laws">Строгие законы о конфиденциальности</string>
     <string name="subscribe">Подписаться</string>
     <string name="subscription_purchased_under_different_account">Ваша подписка была оформлена в другом аккаунте. Войдите в этот аккаунт, чтобы пользоваться ею.</string>
     <string name="suggested_remote_dns_servers">Рекомендуемые удалённые DNS-серверы</string>
     <string name="suggested_remote_dns_servers_description">Предложения для страны подключения отмечены её цветом. Включение добавляет сервер в список удалённых DNS.</string>
+    <string name="support">Поддержка</string>
     <string name="support_us">Поддержите нас в создании нового типа сети, которая дает, а не забирает.</string>
     <string name="supporter">Pro</string>
     <string name="switch_account">Сменить аккаунт</string>
@@ -994,6 +997,7 @@
     <string name="unlink_referral_network">Отвязать реферальную сеть</string>
     <string name="unlock_speed">Вы получите доступ к еще более высоким скоростям и первым получите новые функции, такие как надежные меры по борьбе с цензурой и контроль данных.</string>
     <string name="unlock_supporter_tooltip">Получите доступ к еще более высоким скоростям и первым пробуйте новые функции.</string>
+    <string name="unstable_connection">Нестабильное подключение</string>
     <string name="unstable_providers_warning">* (может быть нестабильным)</string>
     <string name="update">Обновить</string>
     <string name="update_notification_settings">Обновите разрешения для уведомлений в настройках Android</string>
@@ -1128,6 +1132,12 @@
         <item quantity="few">Экспортировано %1$d файла логов (%2$s)</item>
         <item quantity="many">Экспортировано %1$d файлов логов (%2$s)</item>
         <item quantity="other">Экспортировано %1$d файла логов (%2$s)</item>
+    </plurals>
+    <plurals name="feedback_star_count">
+        <item quantity="one">%1$d звезда</item>
+        <item quantity="few">%1$d звезды</item>
+        <item quantity="many">%1$d звёзд</item>
+        <item quantity="other">%1$d звезды</item>
     </plurals>
     <plurals name="gossip_events_per_minute">
         <item quantity="one">%1$d событие/мин</item>

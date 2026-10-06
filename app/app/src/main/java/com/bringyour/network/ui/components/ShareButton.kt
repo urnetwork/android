@@ -42,7 +42,7 @@ fun ShareButton(
             Spacer(modifier = Modifier.width(8.dp))
             Icon(
                 painter = painterResource(id = R.drawable.icon_share),
-                contentDescription = "Share Icon",
+                contentDescription = null,
                 modifier = Modifier.size(16.dp),
                 tint = Color.White
             )

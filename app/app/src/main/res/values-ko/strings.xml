@@ -503,6 +503,7 @@
     <string name="intro_verifiable_encryption">일상을 위한 암호화.</string>
     <string name="intro_widgets_manual">홈 화면을 길게 누르고 위젯을 선택한 다음 URnetwork를 고르세요.</string>
     <string name="intro_widgets_tap_to_add">위젯을 탭하면 홈 화면에 추가됩니다.</string>
+    <string name="invalid_input">잘못된 입력</string>
     <string name="invalid_referral_code">이 코드는 유효하지 않습니다</string>
     <string name="invalid_solana_address">유효한 Solana 주소가 아닙니다.</string>
     <string name="invalid_ss58_address">유효한 Bittensor 주소가 아닙니다.</string>
@@ -938,10 +939,12 @@
     <string name="step_two">2단계</string>
     <string name="streak">연속</string>
     <string name="strong_anonymization">강력한 익명화</string>
+    <string name="strong_privacy_laws">엄격한 개인정보 보호법</string>
     <string name="subscribe">구독하기</string>
     <string name="subscription_purchased_under_different_account">구독이 다른 계정으로 구매되었습니다. 사용하려면 그 계정으로 로그인하세요.</string>
     <string name="suggested_remote_dns_servers">추천 원격 DNS 서버</string>
     <string name="suggested_remote_dns_servers_description">연결된 국가의 추천 항목은 해당 국가의 색상으로 표시됩니다. 켜면 원격 DNS 서버에 추가됩니다.</string>
+    <string name="support">지원</string>
     <string name="support_us">취하지 않고 제공하는 새로운 종류의 네트워크를 구축하는 데 도움을 주세요.</string>
     <string name="supporter">Pro</string>
     <string name="switch_account">계정 전환</string>
@@ -994,6 +997,7 @@
     <string name="unlink_referral_network">추천 네트워크 연결 해제</string>
     <string name="unlock_speed">더 빠른 속도와 강력한 검열 방지 조치, 데이터 제어와 같은 새로운 기능에 대한 우선권을 얻을 수 있습니다.</string>
     <string name="unlock_supporter_tooltip">더 빠른 속도와 새로운 기능에 대한 우선 접근권을 얻으세요.</string>
+    <string name="unstable_connection">불안정한 연결</string>
     <string name="unstable_providers_warning">* (불안정할 수 있음)</string>
     <string name="update">업데이트</string>
     <string name="update_notification_settings">Android 설정에서 알림 권한 업데이트</string>
@@ -1113,6 +1117,9 @@
     </plurals>
     <plurals name="dev_export_summary">
         <item quantity="other">로그 파일 %1$d개를 내보냈습니다(%2$s)</item>
+    </plurals>
+    <plurals name="feedback_star_count">
+        <item quantity="other">별 %1$d개</item>
     </plurals>
     <plurals name="gossip_events_per_minute">
         <item quantity="other">분당 이벤트 %1$d개</item>

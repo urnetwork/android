@@ -503,6 +503,7 @@
     <string name="intro_verifiable_encryption">Κρυπτογράφηση για κάθε μέρα.</string>
     <string name="intro_widgets_manual">Πατήστε παρατεταμένα την αρχική οθόνη, επιλέξτε Γραφικά στοιχεία και διαλέξτε URnetwork.</string>
     <string name="intro_widgets_tap_to_add">Πατήστε ένα γραφικό στοιχείο για να το προσθέσετε στην αρχική οθόνη σας.</string>
+    <string name="invalid_input">Μη έγκυρη τιμή</string>
     <string name="invalid_referral_code">Αυτός ο κωδικός δεν είναι έγκυρος</string>
     <string name="invalid_solana_address">Αυτή δεν είναι έγκυρη διεύθυνση Solana.</string>
     <string name="invalid_ss58_address">Αυτή δεν είναι έγκυρη διεύθυνση Bittensor.</string>
@@ -938,10 +939,12 @@
     <string name="step_two">Βήμα 2</string>
     <string name="streak">Σερί</string>
     <string name="strong_anonymization">Ισχυρή ανωνυμοποίηση</string>
+    <string name="strong_privacy_laws">Αυστηροί νόμοι για την ιδιωτικότητα</string>
     <string name="subscribe">Εγγραφή</string>
     <string name="subscription_purchased_under_different_account">Η συνδρομή σας αγοράστηκε με άλλον λογαριασμό. Συνδεθείτε σε εκείνον τον λογαριασμό για να τη χρησιμοποιήσετε.</string>
     <string name="suggested_remote_dns_servers">Προτεινόμενοι απομακρυσμένοι διακομιστές DNS</string>
     <string name="suggested_remote_dns_servers_description">Οι προτάσεις για τη συνδεδεμένη χώρα επισημαίνονται με το χρώμα της. Αν ενεργοποιήσετε μία, προστίθεται στους απομακρυσμένους διακομιστές DNS.</string>
+    <string name="support">Υποστήριξη</string>
     <string name="support_us">Υποστηρίξτε μας στην οικοδόμηση ενός νέου τύπου δικτύου που δίνει αντί να παίρνει.</string>
     <string name="supporter">Pro</string>
     <string name="switch_account">Αλλαγή λογαριασμού</string>
@@ -994,6 +997,7 @@
     <string name="unlink_referral_network">Αποσύνδεση δικτύου παραπομπών</string>
     <string name="unlock_speed">Θα ξεκλειδώσετε ακόμη πιο γρήγορες ταχύτητες και θα έχετε προτεραιότητα σε νέες δυνατότητες όπως ισχυρά μέτρα κατά της λογοκρισίας και έλεγχο δεδομένων.</string>
     <string name="unlock_supporter_tooltip">Ξεκλειδώστε ακόμη μεγαλύτερες ταχύτητες και αποκτήστε πρώιμη πρόσβαση σε νέες δυνατότητες.</string>
+    <string name="unstable_connection">Ασταθής σύνδεση</string>
     <string name="unstable_providers_warning">* (μπορεί να είναι ασταθές)</string>
     <string name="update">Ενημέρωση</string>
     <string name="update_notification_settings">Ενημέρωση δικαιωμάτων ειδοποιήσεων στις Ρυθμίσεις Android</string>
@@ -1118,6 +1122,10 @@
     <plurals name="dev_export_summary">
         <item quantity="one">Εξήχθη %1$d αρχείο καταγραφής (%2$s)</item>
         <item quantity="other">Εξήχθησαν %1$d αρχεία καταγραφής (%2$s)</item>
+    </plurals>
+    <plurals name="feedback_star_count">
+        <item quantity="one">%1$d αστέρι</item>
+        <item quantity="other">%1$d αστέρια</item>
     </plurals>
     <plurals name="gossip_events_per_minute">
         <item quantity="one">%1$d συμβάν/λεπτό</item>

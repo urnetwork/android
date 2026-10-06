@@ -27,7 +27,9 @@ import androidx.test.uiautomator.UiDevice
 import com.bringyour.network.BuildConfig
 import com.bringyour.network.LoginActivity
 import com.bringyour.network.MainApplication
+import com.bringyour.network.R
 import com.bringyour.network.ui.POST_LOGIN_INTRO_CLOSE_TAG
+import com.bringyour.network.ui.POST_LOGIN_OVERLAY_CLOSE_TAG
 import com.bringyour.network.ui.POST_LOGIN_WELCOME_ENTER_TAG
 import com.bringyour.network.ui.PostLoginUiAction
 import com.bringyour.network.ui.nextPostLoginUiAction
@@ -194,7 +196,7 @@ class MainAcceptanceTest {
         welcomeEnterPresent = tagExists(POST_LOGIN_WELCOME_ENTER_TAG),
         introClosePresent = tagExists(POST_LOGIN_INTRO_CLOSE_TAG),
         closePresent = contentDescriptionExists("close"),
-        closeOverlayPresent = contentDescriptionExists("Close Overlay"),
+        closeOverlayPresent = tagExists(POST_LOGIN_OVERLAY_CLOSE_TAG),
     )
 
     private fun dismissPostLoginUiAction(action: PostLoginUiAction) {
@@ -202,7 +204,7 @@ class MainAcceptanceTest {
             PostLoginUiAction.WelcomeEnter -> hasTestTag(POST_LOGIN_WELCOME_ENTER_TAG)
             PostLoginUiAction.IntroClose -> hasTestTag(POST_LOGIN_INTRO_CLOSE_TAG)
             PostLoginUiAction.Close -> hasContentDescription("close")
-            PostLoginUiAction.CloseOverlay -> hasContentDescription("Close Overlay")
+            PostLoginUiAction.CloseOverlay -> hasTestTag(POST_LOGIN_OVERLAY_CLOSE_TAG)
         }
         val matcher = clickableMatcher(target)
         performTransientUiActionIfPresent(
@@ -480,7 +482,7 @@ class MainAcceptanceTest {
         clickTag("acceptance.connect")
         device.clickVerifiedVpnConsentIfPresent()
         waitFor("connected status", CONNECT_TIMEOUT_MILLIS) {
-            contentDescriptionExists("Connected")
+            contentDescriptionExists(context.getString(R.string.connected))
         }
         capture("${iteration}-connected")
 
@@ -491,7 +493,7 @@ class MainAcceptanceTest {
         clickTag("acceptance.disconnect")
         waitForTag("acceptance.connect", CONNECT_TIMEOUT_MILLIS)
         waitFor("disconnected status", CONNECT_TIMEOUT_MILLIS) {
-            contentDescriptionExists("Disconnected")
+            contentDescriptionExists(context.getString(R.string.disconnected))
         }
         capture("${iteration}-disconnected")
     }

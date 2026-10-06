@@ -45,6 +45,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -317,6 +319,8 @@ fun PopupActionRow(
             .fillMaxWidth()
             .background(bgColor.value)
             .clickable { onClick() }
+            // the check mark shows the current network or guest mode; screen readers hear it
+            .semantics { if (isSelected) selected = true }
             .onFocusChanged { isFocused = it.isFocused }
             .focusable()
             .padding(16.dp),
@@ -325,7 +329,7 @@ fun PopupActionRow(
         Row {
             Icon(
                 painterResource(id = iconResourceId),
-                contentDescription = "Connect",
+                contentDescription = null,
                 modifier = Modifier.width(16.dp)
             )
             Spacer(modifier = Modifier.width(16.dp))
@@ -335,7 +339,7 @@ fun PopupActionRow(
         if (isSelected) {
             Icon(
                 imageVector = Icons.Filled.Check,
-                contentDescription = "Connect",
+                contentDescription = null,
                 modifier = Modifier.width(16.dp),
                 tint = BlueMedium
             )

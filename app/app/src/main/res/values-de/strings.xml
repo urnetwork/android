@@ -503,6 +503,7 @@
     <string name="intro_verifiable_encryption">Verschlüsselung für jeden Tag.</string>
     <string name="intro_widgets_manual">Drücke lange auf deinen Startbildschirm, wähle „Widgets“ und dann URnetwork.</string>
     <string name="intro_widgets_tap_to_add">Tippe auf ein Widget, um es deinem Startbildschirm hinzuzufügen.</string>
+    <string name="invalid_input">Ungültige Eingabe</string>
     <string name="invalid_referral_code">Dieser Code ist ungültig</string>
     <string name="invalid_solana_address">Das ist keine gültige Solana-Adresse.</string>
     <string name="invalid_ss58_address">Das ist keine gültige Bittensor-Adresse.</string>
@@ -938,10 +939,12 @@
     <string name="step_two">Schritt 2</string>
     <string name="streak">Serie</string>
     <string name="strong_anonymization">Starke Anonymisierung</string>
+    <string name="strong_privacy_laws">Strenge Datenschutzgesetze</string>
     <string name="subscribe">Abonnieren</string>
     <string name="subscription_purchased_under_different_account">Dein Abo wurde mit einem anderen Konto gekauft. Melde dich bei diesem Konto an, um es zu nutzen.</string>
     <string name="suggested_remote_dns_servers">Vorgeschlagene externe DNS-Server</string>
     <string name="suggested_remote_dns_servers_description">Vorschläge für das verbundene Land sind mit dessen Farbe markiert. Wenn du einen aktivierst, wird er zu den externen DNS-Servern hinzugefügt.</string>
+    <string name="support">Support</string>
     <string name="support_us">Unterstütze uns beim Aufbau eines neuen Netzwerktyps, der gibt, anstatt zu nehmen.</string>
     <string name="supporter">Pro</string>
     <string name="switch_account">Konto wechseln</string>
@@ -994,6 +997,7 @@
     <string name="unlink_referral_network">Empfehlungsnetzwerk trennen</string>
     <string name="unlock_speed">Du schaltest noch schnellere Geschwindigkeiten frei und erhältst vorrangigen Zugriff auf neue Funktionen wie robuste Anti-Zensur-Maßnahmen und Datenkontrolle.</string>
     <string name="unlock_supporter_tooltip">Schalte noch schnellere Geschwindigkeiten frei und erhalte vorrangigen Zugriff auf neue Funktionen.</string>
+    <string name="unstable_connection">Instabile Verbindung</string>
     <string name="unstable_providers_warning">* (kann instabil sein)</string>
     <string name="update">Aktualisieren</string>
     <string name="update_notification_settings">Benachrichtigungsberechtigungen in deinen Android-Einstellungen aktualisieren</string>
@@ -1118,6 +1122,10 @@
     <plurals name="dev_export_summary">
         <item quantity="one">%1$d Logdatei exportiert (%2$s)</item>
         <item quantity="other">%1$d Logdateien exportiert (%2$s)</item>
+    </plurals>
+    <plurals name="feedback_star_count">
+        <item quantity="one">%1$d Stern</item>
+        <item quantity="other">%1$d Sterne</item>
     </plurals>
     <plurals name="gossip_events_per_minute">
         <item quantity="one">%1$d Ereignis/Min.</item>

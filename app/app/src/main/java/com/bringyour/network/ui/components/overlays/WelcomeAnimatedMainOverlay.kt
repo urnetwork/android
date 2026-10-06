@@ -118,7 +118,7 @@ fun WelcomeAnimatedMainOverlay(
         ) {
             Image(
                 bitmap = backgroundBitmap,
-                contentDescription = "Entrance Background",
+                contentDescription = null,
                 modifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.Crop
             )

@@ -503,6 +503,7 @@
     <string name="intro_verifiable_encryption">تشفير للاستخدام اليومي.</string>
     <string name="intro_widgets_manual">اضغط مطولًا على شاشتك الرئيسية، واختر «الأدوات»، ثم اختر URnetwork.</string>
     <string name="intro_widgets_tap_to_add">اضغط على أداة لإضافتها إلى شاشتك الرئيسية.</string>
+    <string name="invalid_input">إدخال غير صالح</string>
     <string name="invalid_referral_code">هذا الرمز غير صالح</string>
     <string name="invalid_solana_address">هذا ليس عنوان Solana صالحًا.</string>
     <string name="invalid_ss58_address">هذا ليس عنوان Bittensor صالحًا.</string>
@@ -938,10 +939,12 @@
     <string name="step_two">الخطوة2</string>
     <string name="streak">السلسلة</string>
     <string name="strong_anonymization">إخفاء الهوية القوي</string>
+    <string name="strong_privacy_laws">قوانين خصوصية صارمة</string>
     <string name="subscribe">اشتراك</string>
     <string name="subscription_purchased_under_different_account">تم شراء اشتراكك باستخدام حساب مختلف. سجّل الدخول إلى ذلك الحساب لاستخدامه.</string>
     <string name="suggested_remote_dns_servers">خوادم DNS بعيدة مقترحة</string>
     <string name="suggested_remote_dns_servers_description">الاقتراحات الخاصة بالدولة المتصل بها مميّزة بلونها. تشغيل أحدها يضيفه إلى خوادم DNS البعيدة.</string>
+    <string name="support">الدعم</string>
     <string name="support_us">ادعمنا في بناء نوع جديد من الشبكات التي تعطي بدلاً من أن تأخذ.</string>
     <string name="supporter">Pro</string>
     <string name="switch_account">تبديل الحساب</string>
@@ -994,6 +997,7 @@
     <string name="unlink_referral_network">فك ارتباط شبكة الإحالة</string>
     <string name="unlock_speed">ستفتح سرعات أعلى وستحصل على أولوية الوصول إلى ميزات جديدة مثل تدابير قوية لمكافحة الرقابة والتحكم في البيانات.</string>
     <string name="unlock_supporter_tooltip">افتح سرعات أعلى واحصل على أولوية الوصول إلى الميزات الجديدة.</string>
+    <string name="unstable_connection">اتصال غير مستقر</string>
     <string name="unstable_providers_warning">* (قد يكون غير مستقر)</string>
     <string name="update">تحديث</string>
     <string name="update_notification_settings">تحديث أذونات الإشعارات في إعدادات Android</string>
@@ -1138,6 +1142,14 @@
         <item quantity="few">تم تصدير %1$d ملفات سجل (%2$s)</item>
         <item quantity="many">تم تصدير %1$d ملف سجل (%2$s)</item>
         <item quantity="other">تم تصدير %1$d ملف سجل (%2$s)</item>
+    </plurals>
+    <plurals name="feedback_star_count">
+        <item quantity="zero">%1$d نجمة</item>
+        <item quantity="one">نجمة واحدة</item>
+        <item quantity="two">نجمتان</item>
+        <item quantity="few">%1$d نجوم</item>
+        <item quantity="many">%1$d نجمة</item>
+        <item quantity="other">%1$d نجمة</item>
     </plurals>
     <plurals name="gossip_events_per_minute">
         <item quantity="zero">%1$d حدث/دقيقة</item>

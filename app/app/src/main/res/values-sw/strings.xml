@@ -503,6 +503,7 @@
     <string name="intro_verifiable_encryption">Usimbaji fiche kwa matumizi ya kila siku.</string>
     <string name="intro_widgets_manual">Bonyeza na ushikilie skrini ya kwanza, chagua Wijeti, na uchague URnetwork.</string>
     <string name="intro_widgets_tap_to_add">Gusa wijeti ili kuiongeza kwenye skrini ya kwanza.</string>
+    <string name="invalid_input">Ingizo si sahihi</string>
     <string name="invalid_referral_code">Msimbo huu si sahihi</string>
     <string name="invalid_solana_address">Hiyo si anwani halali ya Solana.</string>
     <string name="invalid_ss58_address">Hiyo si anwani halali ya Bittensor.</string>
@@ -938,10 +939,12 @@
     <string name="step_two">Hatua ya 2</string>
     <string name="streak">Mfululizo</string>
     <string name="strong_anonymization">Ufichaji utambulisho mkubwa</string>
+    <string name="strong_privacy_laws">Sheria kali za faragha</string>
     <string name="subscribe">Jisajili</string>
     <string name="subscription_purchased_under_different_account">Usajili wako ulinunuliwa kwa akaunti tofauti. Ingia kwenye akaunti hiyo ili kuutumia.</string>
     <string name="suggested_remote_dns_servers">Seva za DNS za mbali zinazopendekezwa</string>
     <string name="suggested_remote_dns_servers_description">Mapendekezo ya nchi uliyounganishwa nayo yana alama ya rangi yake. Ukiwasha mojawapo, huongezwa kwenye seva za DNS za mbali.</string>
+    <string name="support">Msaada</string>
     <string name="support_us">Tuunge mkono katika kujenga aina mpya ya mtandao ambayo hutoa badala ya kuchukua.</string>
     <string name="supporter">Pro</string>
     <string name="switch_account">Badilisha Akaunti</string>
@@ -994,6 +997,7 @@
     <string name="unlink_referral_network">Ondoa kiungo cha mtandao wa rufaa</string>
     <string name="unlock_speed">Utafungua kasi ya haraka zaidi, na dibs za kwanza kwenye vipengele vipya kama vile hatua thabiti za kupambana na udhibiti na udhibiti wa data.</string>
     <string name="unlock_supporter_tooltip">Fungua kasi ya haraka zaidi na upate vipengele vipya kwanza.</string>
+    <string name="unstable_connection">Muunganisho usio thabiti</string>
     <string name="unstable_providers_warning">* (huenda isiwe imara)</string>
     <string name="update">Sasisha</string>
     <string name="update_notification_settings">Sasisha ruhusa za arifa katika Mipangilio yako ya Android</string>
@@ -1118,6 +1122,10 @@
     <plurals name="dev_export_summary">
         <item quantity="one">Faili %1$d ya kumbukumbu imehamishwa (%2$s)</item>
         <item quantity="other">Faili %1$d za kumbukumbu zimehamishwa (%2$s)</item>
+    </plurals>
+    <plurals name="feedback_star_count">
+        <item quantity="one">nyota %1$d</item>
+        <item quantity="other">nyota %1$d</item>
     </plurals>
     <plurals name="gossip_events_per_minute">
         <item quantity="one">Tukio %1$d/dak</item>

@@ -640,7 +640,7 @@ private fun SettingsScreen(
                 },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, contentDescription = stringResource(id = R.string.back))
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -695,7 +695,7 @@ private fun SettingsScreen(
 
                 Icon(
                     painter = painterResource(id = R.drawable.content_copy),
-                    contentDescription = "Copy",
+                    contentDescription = stringResource(id = R.string.copy),
                     tint = TextMuted,
                     modifier = Modifier.width(16.dp)
                 )
@@ -758,7 +758,7 @@ private fun SettingsScreen(
 
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                    contentDescription = "Keyboard Arrow Right",
+                    contentDescription = null,
                     tint = TextMuted
                 )
             }
@@ -1069,7 +1069,7 @@ private fun SettingsScreen(
 
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                            contentDescription = "Keyboard Arrow Right",
+                            contentDescription = null,
                             tint = TextMuted
                         )
                     }
@@ -1137,7 +1137,7 @@ private fun SettingsScreen(
 
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                    contentDescription = "Keyboard Arrow Right",
+                    contentDescription = null,
                     tint = TextMuted
                 )
             }
@@ -1190,9 +1190,10 @@ private fun SettingsScreen(
                             modifier = Modifier.testTag("acceptance.cloud_proxy_entry")
                         )
 
+                        // decorative: the note below says the row opens the browser
                         Icon(
                             imageVector = Icons.AutoMirrored.Outlined.Outbound,
-                            contentDescription = "Open in browser",
+                            contentDescription = null,
                             tint = TextMuted
                         )
                     }
@@ -1332,7 +1333,7 @@ private fun SettingsScreen(
 
                     Image(
                         painter = painterResource(id = R.drawable.depin_hub),
-                        contentDescription = "Image description",
+                        contentDescription = null,
                         modifier = Modifier.size(24.dp),
                         contentScale = ContentScale.Fit
                     )
@@ -1365,7 +1366,7 @@ private fun SettingsScreen(
                 ) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Outlined.Outbound,
-                        contentDescription = "Right Arrow",
+                        contentDescription = depinHubStr,
                         tint = TextMuted,
                     )
                 }
@@ -1427,7 +1428,7 @@ private fun SettingsScreen(
                                         )
                                     )
                                     Icon(imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                                        contentDescription = "Right Arrow",
+                                        contentDescription = null,
                                         tint = BlueLight,
                                         modifier = Modifier.size(20.dp)
                                     )
@@ -1563,7 +1564,7 @@ private fun SettingsScreen(
                 if (isSeekerHolder) {
                     Icon(
                         Icons.Filled.Check,
-                        contentDescription = "Multiplier claimed",
+                        contentDescription = stringResource(id = R.string.claim_confirmed),
                         tint = Green
                     )
                 } else {
@@ -1616,7 +1617,7 @@ private fun SettingsScreen(
                 ) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Outlined.Outbound,
-                        contentDescription = "Right Arrow",
+                        contentDescription = stringResource(id = R.string.learn_more),
                         tint = TextMuted,
                     )
                 }

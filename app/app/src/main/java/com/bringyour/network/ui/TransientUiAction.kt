@@ -2,6 +2,9 @@ package com.bringyour.network.ui
 
 internal const val POST_LOGIN_WELCOME_ENTER_TAG = "acceptance.welcome.enter"
 internal const val POST_LOGIN_INTRO_CLOSE_TAG = "acceptance.intro.close"
+// the overlays' close button; its content description is translated, so the
+// device tests find it by this tag in every language
+internal const val POST_LOGIN_OVERLAY_CLOSE_TAG = "acceptance.overlay.close"
 
 internal enum class PostLoginUiAction {
     WelcomeEnter,

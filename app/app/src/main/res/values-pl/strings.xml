@@ -503,6 +503,7 @@
     <string name="intro_verifiable_encryption">Szyfrowanie na co dzień.</string>
     <string name="intro_widgets_manual">Przytrzymaj ekran główny, wybierz Widżety i wskaż URnetwork.</string>
     <string name="intro_widgets_tap_to_add">Dotknij widżetu, aby dodać go do ekranu głównego.</string>
+    <string name="invalid_input">Nieprawidłowa wartość</string>
     <string name="invalid_referral_code">Ten kod jest nieprawidłowy</string>
     <string name="invalid_solana_address">To nie jest prawidłowy adres Solana.</string>
     <string name="invalid_ss58_address">To nie jest prawidłowy adres Bittensor.</string>
@@ -938,10 +939,12 @@
     <string name="step_two">Krok 2</string>
     <string name="streak">Seria</string>
     <string name="strong_anonymization">Silna anonimizacja</string>
+    <string name="strong_privacy_laws">Surowe przepisy o ochronie prywatności</string>
     <string name="subscribe">Subskrybuj</string>
     <string name="subscription_purchased_under_different_account">Twoja subskrypcja została kupiona na innym koncie. Zaloguj się na tamto konto, aby z niej korzystać.</string>
     <string name="suggested_remote_dns_servers">Sugerowane zdalne serwery DNS</string>
     <string name="suggested_remote_dns_servers_description">Sugestie dla połączonego kraju są oznaczone jego kolorem. Włączenie jednej z nich dodaje ją do zdalnych serwerów DNS.</string>
+    <string name="support">Wsparcie</string>
     <string name="support_us">Wesprzyj nas w budowaniu nowego rodzaju sieci, która daje zamiast brać.</string>
     <string name="supporter">Pro</string>
     <string name="switch_account">Przełącz konto</string>
@@ -994,6 +997,7 @@
     <string name="unlink_referral_network">Odłącz sieć poleceń</string>
     <string name="unlock_speed">Odblokujesz jeszcze szybsze prędkości i pierwszeństwo do nowych funkcji, takich jak solidne środki przeciw cenzurze i kontrola danych.</string>
     <string name="unlock_supporter_tooltip">Odblokuj jeszcze szybsze prędkości i pierwszeństwo do nowych funkcji.</string>
+    <string name="unstable_connection">Niestabilne połączenie</string>
     <string name="unstable_providers_warning">* (może być niestabilny)</string>
     <string name="update">Aktualizuj</string>
     <string name="update_notification_settings">Zaktualizuj uprawnienia powiadomień w ustawieniach Androida</string>
@@ -1128,6 +1132,12 @@
         <item quantity="few">Wyeksportowano %1$d pliki logów (%2$s)</item>
         <item quantity="many">Wyeksportowano %1$d plików logów (%2$s)</item>
         <item quantity="other">Wyeksportowano %1$d pliku logów (%2$s)</item>
+    </plurals>
+    <plurals name="feedback_star_count">
+        <item quantity="one">%1$d gwiazdka</item>
+        <item quantity="few">%1$d gwiazdki</item>
+        <item quantity="many">%1$d gwiazdek</item>
+        <item quantity="other">%1$d gwiazdki</item>
     </plurals>
     <plurals name="gossip_events_per_minute">
         <item quantity="one">%1$d zdarzenie/min</item>

@@ -37,12 +37,14 @@ import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.SoftwareKeyboardController
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.bringyour.network.R
 import com.bringyour.network.ui.theme.Blue500
 import com.bringyour.network.ui.theme.MainTintedBackgroundBase
 import com.bringyour.network.ui.theme.TextFaint
@@ -88,7 +90,7 @@ fun URSearchInput(
         ) {
             Icon(
                 imageVector = Icons.Filled.Search,
-                contentDescription = "Search Icon",
+                contentDescription = null,
                 tint = TextMuted
             )
 
@@ -135,7 +137,7 @@ fun URSearchInput(
             if (value.text.isNotEmpty()) {
                 Icon(
                     imageVector = Icons.Default.Clear,
-                    contentDescription = "Clear text",
+                    contentDescription = stringResource(id = R.string.clear),
                     modifier = Modifier
                         .clickable {
                             onClear()

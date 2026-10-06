@@ -503,6 +503,7 @@
     <string name="intro_verifiable_encryption">日常使用的加密保护。</string>
     <string name="intro_widgets_manual">长按主屏幕，选择“小组件”，然后选择 URnetwork。</string>
     <string name="intro_widgets_tap_to_add">轻点小组件即可将其添加到主屏幕。</string>
+    <string name="invalid_input">输入无效</string>
     <string name="invalid_referral_code">此代码无效</string>
     <string name="invalid_solana_address">这不是有效的 Solana 地址。</string>
     <string name="invalid_ss58_address">这不是有效的 Bittensor 地址。</string>
@@ -938,10 +939,12 @@
     <string name="step_two">步骤 2</string>
     <string name="streak">连续</string>
     <string name="strong_anonymization">强匿名化</string>
+    <string name="strong_privacy_laws">严格的隐私法</string>
     <string name="subscribe">订阅</string>
     <string name="subscription_purchased_under_different_account">您的订阅是通过另一个账户购买的。请登录该账户以使用订阅。</string>
     <string name="suggested_remote_dns_servers">推荐的远程 DNS 服务器</string>
     <string name="suggested_remote_dns_servers_description">适用于已连接国家的推荐项会以该国家的颜色标记。开启后会将其加入远程 DNS 服务器。</string>
+    <string name="support">支持</string>
     <string name="support_us">支持我们构建一种新的网络，它可以给予而不是索取。</string>
     <string name="supporter">Pro</string>
     <string name="switch_account">切换帐户</string>
@@ -994,6 +997,7 @@
     <string name="unlink_referral_network">解除推荐网络关联</string>
     <string name="unlock_speed">您将解锁更快的速度，并首先获得强大的反审查措施和数据控制等新功能。</string>
     <string name="unlock_supporter_tooltip">解锁更快的速度并首先获得新功能。</string>
+    <string name="unstable_connection">连接不稳定</string>
     <string name="unstable_providers_warning">*（可能不稳定）</string>
     <string name="update">更新</string>
     <string name="update_notification_settings">在您的 Android 设置中更新通知权限</string>
@@ -1113,6 +1117,9 @@
     </plurals>
     <plurals name="dev_export_summary">
         <item quantity="other">已导出 %1$d 个日志文件（%2$s）</item>
+    </plurals>
+    <plurals name="feedback_star_count">
+        <item quantity="other">%1$d 颗星</item>
     </plurals>
     <plurals name="gossip_events_per_minute">
         <item quantity="other">%1$d 个事件/分钟</item>

@@ -503,6 +503,7 @@
     <string name="intro_verifiable_encryption">रोज़मर्रा के इस्तेमाल के लिए एन्क्रिप्शन।</string>
     <string name="intro_widgets_manual">होम स्क्रीन को दबाकर रखें, विजेट चुनें, और URnetwork चुनें।</string>
     <string name="intro_widgets_tap_to_add">किसी विजेट को होम स्क्रीन पर जोड़ने के लिए उस पर टैप करें।</string>
+    <string name="invalid_input">अमान्य इनपुट</string>
     <string name="invalid_referral_code">यह कोड मान्य नहीं है</string>
     <string name="invalid_solana_address">यह मान्य Solana पता नहीं है।</string>
     <string name="invalid_ss58_address">यह मान्य Bittensor पता नहीं है।</string>
@@ -938,10 +939,12 @@
     <string name="step_two">चरण 2</string>
     <string name="streak">स्ट्रीक</string>
     <string name="strong_anonymization">मजबूत गुमनामीकरण</string>
+    <string name="strong_privacy_laws">सख्त निजता कानून</string>
     <string name="subscribe">सदस्यता लें</string>
     <string name="subscription_purchased_under_different_account">आपकी सदस्यता किसी दूसरे खाते से खरीदी गई थी। इसका इस्तेमाल करने के लिए उस खाते में लॉग इन करें।</string>
     <string name="suggested_remote_dns_servers">सुझाए गए रिमोट DNS सर्वर</string>
     <string name="suggested_remote_dns_servers_description">जिस देश से आप कनेक्ट हैं, उसके सुझाव उसी के रंग से चिह्नित होते हैं। किसी को चालू करने पर वह रिमोट DNS सर्वर में जुड़ जाता है।</string>
+    <string name="support">सहायता</string>
     <string name="support_us">एक नए प्रकार के नेटवर्क के निर्माण में हमारा समर्थन करें जो लेने के बजाय देता है।</string>
     <string name="supporter">Pro</string>
     <string name="switch_account">खाता बदलें</string>
@@ -994,6 +997,7 @@
     <string name="unlink_referral_network">रेफ़रल नेटवर्क को अनलिंक करें</string>
     <string name="unlock_speed">आप और भी तेज़ गति अनलॉक करेंगे और आपको मजबूत सेंसरशिप विरोधी उपायों और डेटा नियंत्रण जैसी नई सुविधाओं पर प्राथमिकता मिलेगी।</string>
     <string name="unlock_supporter_tooltip">और भी तेज़ गति अनलॉक करें और नई सुविधाओं तक जल्दी पहुंच प्राप्त करें।</string>
+    <string name="unstable_connection">अस्थिर कनेक्शन</string>
     <string name="unstable_providers_warning">* (अस्थिर हो सकता है)</string>
     <string name="update">अपडेट करें</string>
     <string name="update_notification_settings">अपनी Android सेटिंग में सूचना अनुमतियों को अपडेट करें</string>
@@ -1118,6 +1122,10 @@
     <plurals name="dev_export_summary">
         <item quantity="one">%1$d लॉग फ़ाइल एक्सपोर्ट की गई (%2$s)</item>
         <item quantity="other">%1$d लॉग फ़ाइलें एक्सपोर्ट की गईं (%2$s)</item>
+    </plurals>
+    <plurals name="feedback_star_count">
+        <item quantity="one">%1$d स्टार</item>
+        <item quantity="other">%1$d स्टार</item>
     </plurals>
     <plurals name="gossip_events_per_minute">
         <item quantity="one">%1$d इवेंट/मिनट</item>

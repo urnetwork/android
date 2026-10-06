@@ -508,6 +508,7 @@
     <string name="intro_verifiable_encryption">Encryption for everyday use.</string>
     <string name="intro_widgets_manual">Long-press your home screen, choose Widgets, and pick URnetwork.</string>
     <string name="intro_widgets_tap_to_add">Tap a widget to add it to your home screen.</string>
+    <string name="invalid_input">Invalid input</string>
     <string name="invalid_referral_code">This code is not valid</string>
     <string name="invalid_solana_address">That is not a valid Solana address.</string>
     <string name="invalid_ss58_address">That is not a valid Bittensor address.</string>
@@ -948,10 +949,12 @@
     <string name="step_two">Step 2</string>
     <string name="streak">Streak</string>
     <string name="strong_anonymization">Strong Anonymization</string>
+    <string name="strong_privacy_laws">Strong privacy laws</string>
     <string name="subscribe">Subscribe</string>
     <string name="subscription_purchased_under_different_account">Your subscription was purchased under a different account. Log in to that account to use it.</string>
     <string name="suggested_remote_dns_servers">Suggested remote DNS servers</string>
     <string name="suggested_remote_dns_servers_description">Suggestions for the connected country are marked with its color. Turning one on adds it to the remote DNS servers.</string>
+    <string name="support">Support</string>
     <string name="support_us">Support us in building a new kind of network that gives instead of takes.</string>
     <string name="supporter">Pro</string>
     <string name="switch_account">Switch Account</string>
@@ -1004,6 +1007,7 @@
     <string name="unlink_referral_network">Unlink referral network</string>
     <string name="unlock_speed">You’ll unlock even faster speeds, and first dibs on new features like robust anti-censorship measures and data control.</string>
     <string name="unlock_supporter_tooltip">Unlock even faster speeds and first dibs on new features.</string>
+    <string name="unstable_connection">Unstable connection</string>
     <string name="unstable_providers_warning">* (may be unstable)</string>
     <string name="update">Update</string>
     <string name="update_notification_settings">Update notifications permissions in your Android Settings</string>
@@ -1136,6 +1140,10 @@
     <plurals name="dev_export_summary">
         <item quantity="one">Exported %1$d log file (%2$s)</item>
         <item quantity="other">Exported %1$d log files (%2$s)</item>
+    </plurals>
+    <plurals name="feedback_star_count">
+        <item quantity="one">%1$d star</item>
+        <item quantity="other">%1$d stars</item>
     </plurals>
     <plurals name="gossip_events_per_minute">
         <item quantity="one">%1$d event/min</item>

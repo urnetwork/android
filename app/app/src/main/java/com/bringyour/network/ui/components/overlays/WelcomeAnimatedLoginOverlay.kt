@@ -105,7 +105,7 @@ fun WelcomeAnimatedOverlayLogin() {
 
                 Image(
                     bitmap = backgroundBitmap,
-                    contentDescription = "Entrance Background",
+                    contentDescription = null,
                     modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Crop
                 )
@@ -159,7 +159,7 @@ fun WelcomeAnimatedOverlayLogin() {
                 // Centered mask
                 Image(
                     painter = maskPainter,
-                    contentDescription = "Globe mask",
+                    contentDescription = null,
                     modifier = Modifier
                         .size(baseImageSize)
                         .scale(scale)

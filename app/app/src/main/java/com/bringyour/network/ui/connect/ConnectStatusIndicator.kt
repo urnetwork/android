@@ -78,13 +78,16 @@ fun ConnectStatusIndicator(
         else -> R.drawable.circle_indicator_blue
     }
 
-    val indicatorDescription = if (displayReconnectTunnel) "Reconnect" else when(status) {
-        ConnectStatus.CONNECTED -> "Connected"
-        ConnectStatus.CONNECTING -> "Connecting"
-        ConnectStatus.DESTINATION_SET -> "Connecting"
-        ConnectStatus.CONNECT_FAILED -> stringResource(id = R.string.conn_failed)
-        ConnectStatus.DISCONNECTED -> "Disconnected"
-    }
+    // the device tests read the connected and disconnected states from this
+    val indicatorDescription = stringResource(
+        id = if (displayReconnectTunnel) R.string.reconnect else when (status) {
+            ConnectStatus.CONNECTED -> R.string.connected
+            ConnectStatus.CONNECTING -> R.string.connecting_status_indicator
+            ConnectStatus.DESTINATION_SET -> R.string.connecting_status_indicator
+            ConnectStatus.CONNECT_FAILED -> R.string.conn_failed
+            ConnectStatus.DISCONNECTED -> R.string.disconnected
+        }
+    )
 
     // the provider status is the affordance: tapping it opens the per-provider
     // locations detail, while connecting as well as once connected. Any other

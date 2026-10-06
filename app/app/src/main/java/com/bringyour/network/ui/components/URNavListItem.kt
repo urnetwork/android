@@ -45,7 +45,7 @@ fun URNavListItem(
         }
         Icon(
             imageVector = actionIcon,
-            contentDescription = "Keyboard Arrow Right",
+            contentDescription = null,
             tint = TextMuted
         )
     }

@@ -136,9 +136,10 @@ fun ConnectButton(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
+                    // all the button shows in this state, so it names the button
                     Icon(
                         painter = painterResource(id = R.drawable.icon_warning),
-                        contentDescription = "Insufficient balance",
+                        contentDescription = stringResource(id = R.string.insufficient_balance),
                         tint = TextMuted
                     )
                 }
@@ -203,7 +204,7 @@ fun ConnectButton(
 
         Image(
             painter = painterResource(id = R.drawable.connect_mask),
-            contentDescription = "Connect Mask",
+            contentDescription = null,
             contentScale = ContentScale.Crop,
             modifier = Modifier
                 .size(512.dp)
@@ -249,9 +250,10 @@ private fun ConnectingButtonContent(
             enter = fadeIn(),
             exit = fadeOut(),
         ) {
+            // names the button while it connects
             Image(
                 painter = painterResource(id = R.drawable.connector_globe),
-                contentDescription = "Connecting"
+                contentDescription = stringResource(id = R.string.connecting_status_indicator)
             )
         }
 
@@ -680,7 +682,7 @@ fun GridCanvas(
                 ) {
                     Icon(
                         painter = painterResource(id = R.drawable.icon_warning),
-                        contentDescription = "",
+                        contentDescription = null,
                         tint = TextMuted
                     )
                 }

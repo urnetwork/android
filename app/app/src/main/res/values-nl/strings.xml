@@ -503,6 +503,7 @@
     <string name="intro_verifiable_encryption">Versleuteling voor elke dag.</string>
     <string name="intro_widgets_manual">Houd je startscherm ingedrukt, kies Widgets en selecteer URnetwork.</string>
     <string name="intro_widgets_tap_to_add">Tik op een widget om hem aan je startscherm toe te voegen.</string>
+    <string name="invalid_input">Ongeldige invoer</string>
     <string name="invalid_referral_code">Deze code is niet geldig</string>
     <string name="invalid_solana_address">Dat is geen geldig Solana-adres.</string>
     <string name="invalid_ss58_address">Dat is geen geldig Bittensor-adres.</string>
@@ -938,10 +939,12 @@
     <string name="step_two">Stap 2</string>
     <string name="streak">Reeks</string>
     <string name="strong_anonymization">Sterke anonimisering</string>
+    <string name="strong_privacy_laws">Strenge privacywetgeving</string>
     <string name="subscribe">Abonneren</string>
     <string name="subscription_purchased_under_different_account">Je abonnement is gekocht met een ander account. Log in op dat account om het te gebruiken.</string>
     <string name="suggested_remote_dns_servers">Voorgestelde externe DNS-servers</string>
     <string name="suggested_remote_dns_servers_description">Suggesties voor het verbonden land zijn gemarkeerd met de kleur van dat land. Zet je er een aan, dan wordt die toegevoegd aan de externe DNS-servers.</string>
+    <string name="support">ondersteuning</string>
     <string name="support_us">Steun ons bij het bouwen van een nieuw soort netwerk dat geeft in plaats van neemt.</string>
     <string name="supporter">Pro</string>
     <string name="switch_account">Account wisselen</string>
@@ -994,6 +997,7 @@
     <string name="unlink_referral_network">Referentienetwerk ontkoppelen</string>
     <string name="unlock_speed">Je krijgt nog snellere snelheden en als eerste toegang tot nieuwe functies zoals krachtige anti-censuurmaatregelen en datacontrole.</string>
     <string name="unlock_supporter_tooltip">Ontgrendel nog hogere snelheden en als eerste toegang tot nieuwe functies.</string>
+    <string name="unstable_connection">Instabiele verbinding</string>
     <string name="unstable_providers_warning">* (kan onstabiel zijn)</string>
     <string name="update">Bijwerken</string>
     <string name="update_notification_settings">Werk meldingsrechten bij in je Android-instellingen</string>
@@ -1118,6 +1122,10 @@
     <plurals name="dev_export_summary">
         <item quantity="one">%1$d logbestand geëxporteerd (%2$s)</item>
         <item quantity="other">%1$d logbestanden geëxporteerd (%2$s)</item>
+    </plurals>
+    <plurals name="feedback_star_count">
+        <item quantity="one">%1$d ster</item>
+        <item quantity="other">%1$d sterren</item>
     </plurals>
     <plurals name="gossip_events_per_minute">
         <item quantity="one">%1$d gebeurtenis/min</item>

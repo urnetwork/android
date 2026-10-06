@@ -32,6 +32,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.SoftwareKeyboardController
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
@@ -39,6 +40,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.bringyour.network.R
 import com.bringyour.network.ui.theme.Blue500
 import com.bringyour.network.ui.theme.BlueMedium
 import com.bringyour.network.ui.theme.TextDanger
@@ -140,7 +142,7 @@ fun URTextInput(
                     if (!isValidating && !isValid) {
                         Icon(
                             imageVector = Icons.Filled.Warning,
-                            contentDescription = "Warning",
+                            contentDescription = stringResource(id = R.string.invalid_input),
                             modifier = Modifier.size(16.dp),
                             tint = TextDanger
                         )

@@ -48,8 +48,11 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.SoftwareKeyboardController
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.buildAnnotatedString
@@ -205,7 +208,7 @@ fun FeedbackScreen(
                             Spacer(modifier = Modifier.width(4.dp))
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                                contentDescription = "Right Arrow",
+                                contentDescription = null,
                                 modifier = Modifier.size(16.dp),
                                 tint = if (isSendEnabled) Color.White else Color.Gray
                             )
@@ -456,9 +459,10 @@ private fun FeedbackForm(
                     rememberVectorPainter(image = ImageVector.vectorResource(id = R.drawable.baseline_star_outline_24))
                 }
 
+                // each star names the rating it gives, and a filled one reads as selected
                 Icon(
                     painter = starIcon,
-                    contentDescription = if (index <= starCount) "Filled star" else "Empty star",
+                    contentDescription = pluralStringResource(id = R.plurals.feedback_star_count, count = index, index),
                     tint = Pink,
                     modifier = Modifier
                         .size(32.dp)
@@ -467,6 +471,7 @@ private fun FeedbackForm(
                             setStarCount(index)
                             // starCount.value = index
                         }
+                        .semantics { if (index <= starCount) selected = true }
                 )
                 Spacer(modifier = Modifier.width(8.dp))
             }

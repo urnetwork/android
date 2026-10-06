@@ -503,6 +503,7 @@
     <string name="intro_verifiable_encryption">Cifrado para el día a día.</string>
     <string name="intro_widgets_manual">Mantén pulsada tu pantalla de inicio, elige «Widgets» y selecciona URnetwork.</string>
     <string name="intro_widgets_tap_to_add">Toca un widget para añadirlo a tu pantalla de inicio.</string>
+    <string name="invalid_input">Entrada no válida</string>
     <string name="invalid_referral_code">Este código no es válido</string>
     <string name="invalid_solana_address">Esa no es una dirección de Solana válida.</string>
     <string name="invalid_ss58_address">Esa no es una dirección de Bittensor válida.</string>
@@ -938,10 +939,12 @@
     <string name="step_two">Paso 2</string>
     <string name="streak">Racha</string>
     <string name="strong_anonymization">Anonimización fuerte</string>
+    <string name="strong_privacy_laws">Leyes de privacidad estrictas</string>
     <string name="subscribe">Suscribirse</string>
     <string name="subscription_purchased_under_different_account">Tu suscripción se compró con otra cuenta. Inicia sesión en esa cuenta para usarla.</string>
     <string name="suggested_remote_dns_servers">Servidores DNS remotos sugeridos</string>
     <string name="suggested_remote_dns_servers_description">Las sugerencias del país conectado están marcadas con su color. Al activar una, se añade a los servidores DNS remotos.</string>
+    <string name="support">Soporte</string>
     <string name="support_us">Apóyanos en la construcción de un nuevo tipo de red que da en lugar de tomar.</string>
     <string name="supporter">Pro</string>
     <string name="switch_account">Cambiar cuenta</string>
@@ -994,6 +997,7 @@
     <string name="unlink_referral_network">Desvincular red de referidos</string>
     <string name="unlock_speed">Desbloquearás velocidades aún más rápidas y tendrás prioridad en las nuevas funciones, como medidas anti-censura robustas y control de datos.</string>
     <string name="unlock_supporter_tooltip">Desbloquea velocidades aún más rápidas y obtén acceso prioritario a nuevas funciones.</string>
+    <string name="unstable_connection">Conexión inestable</string>
     <string name="unstable_providers_warning">* (puede ser inestable)</string>
     <string name="update">Actualizar</string>
     <string name="update_notification_settings">Actualizar permisos de notificaciones en la configuración de Android</string>
@@ -1118,6 +1122,10 @@
     <plurals name="dev_export_summary">
         <item quantity="one">Se exportó %1$d archivo de registro (%2$s)</item>
         <item quantity="other">Se exportaron %1$d archivos de registro (%2$s)</item>
+    </plurals>
+    <plurals name="feedback_star_count">
+        <item quantity="one">%1$d estrella</item>
+        <item quantity="other">%1$d estrellas</item>
     </plurals>
     <plurals name="gossip_events_per_minute">
         <item quantity="one">%1$d evento/min</item>

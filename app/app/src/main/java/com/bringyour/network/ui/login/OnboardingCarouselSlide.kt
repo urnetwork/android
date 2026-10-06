@@ -22,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
@@ -60,7 +61,7 @@ fun OnboardingCarouselSlide(
 
             Image(
                 painter = painterResource(id = R.drawable.connect_mask),
-                contentDescription = "Clickable Image",
+                contentDescription = null,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .size(512.dp)
@@ -95,7 +96,7 @@ private fun OnboardingCarouselSlidePreview() {
                 OnboardingCarouselSlide(
                     painterResourceId = R.drawable.onboarding_carousel_1,
                     contentVisible = true,
-                    contentDescription = "See all the world's content with URnetwork"
+                    contentDescription = stringResource(id = R.string.see_world_content_description)
                 ) {
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally

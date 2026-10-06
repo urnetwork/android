@@ -16,7 +16,7 @@ fun NoSolanaWalletsAlert(
 ) {
     AlertDialog(
         icon = {
-            Icon(Icons.Default.Warning, contentDescription = "No wallets found")
+            Icon(Icons.Default.Warning, contentDescription = null)
         },
         title = {
             Text(text = stringResource(id = R.string.no_solana_wallets_found))

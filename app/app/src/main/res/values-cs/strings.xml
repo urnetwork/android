@@ -503,6 +503,7 @@
     <string name="intro_verifiable_encryption">Šifrování pro každý den.</string>
     <string name="intro_widgets_manual">Podržte prst na domovské obrazovce, vyberte Widgety a zvolte URnetwork.</string>
     <string name="intro_widgets_tap_to_add">Klepnutím na widget ho přidáte na domovskou obrazovku.</string>
+    <string name="invalid_input">Neplatný údaj</string>
     <string name="invalid_referral_code">Tento kód není platný</string>
     <string name="invalid_solana_address">To není platná adresa Solana.</string>
     <string name="invalid_ss58_address">To není platná adresa Bittensor.</string>
@@ -938,10 +939,12 @@
     <string name="step_two">Krok 2</string>
     <string name="streak">Série</string>
     <string name="strong_anonymization">Silná anonymizace</string>
+    <string name="strong_privacy_laws">Přísné zákony na ochranu soukromí</string>
     <string name="subscribe">Předplatit</string>
     <string name="subscription_purchased_under_different_account">Vaše předplatné bylo zakoupeno pod jiným účtem. Chcete-li ho používat, přihlaste se k tomuto účtu.</string>
     <string name="suggested_remote_dns_servers">Navrhované vzdálené servery DNS</string>
     <string name="suggested_remote_dns_servers_description">Návrhy pro připojenou zemi jsou označeny její barvou. Zapnutím se server přidá mezi vzdálené servery DNS.</string>
+    <string name="support">Podpora</string>
     <string name="support_us">Podpořte nás při budování nového druhu sítě, která dává, místo aby brala.</string>
     <string name="supporter">Pro</string>
     <string name="switch_account">Přepnutí účtu</string>
@@ -994,6 +997,7 @@
     <string name="unlink_referral_network">Odpojení od referenční sítě</string>
     <string name="unlock_speed">Získáte ještě vyšší rychlosti a jako první budete mít přístup k novým funkcím, jako jsou robustní opatření proti cenzuře a kontrola dat.</string>
     <string name="unlock_supporter_tooltip">Odemkněte si ještě vyšší rychlost a přednostní právo na nové funkce.</string>
+    <string name="unstable_connection">Nestabilní připojení</string>
     <string name="unstable_providers_warning">* (může být nestabilní)</string>
     <string name="update">Aktualizace</string>
     <string name="update_notification_settings">Aktualizace oprávnění k oznámení v nastavení systému Android</string>
@@ -1128,6 +1132,12 @@
         <item quantity="few">Exportovány %1$d soubory logů (%2$s)</item>
         <item quantity="many">Exportováno %1$d souboru logů (%2$s)</item>
         <item quantity="other">Exportováno %1$d souborů logů (%2$s)</item>
+    </plurals>
+    <plurals name="feedback_star_count">
+        <item quantity="one">%1$d hvězdička</item>
+        <item quantity="few">%1$d hvězdičky</item>
+        <item quantity="many">%1$d hvězdičky</item>
+        <item quantity="other">%1$d hvězdiček</item>
     </plurals>
     <plurals name="gossip_events_per_minute">
         <item quantity="one">%1$d událost/min</item>
