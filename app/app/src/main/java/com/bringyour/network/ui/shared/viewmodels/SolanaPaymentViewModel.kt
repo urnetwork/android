@@ -29,21 +29,7 @@ class SolanaPaymentViewModel @Inject constructor(
     @ApplicationContext context: Context,
 ): ViewModel() {
 
-    private val store = PendingSolanaPaymentStore(
-        object : PendingSolanaPaymentStore.Prefs {
-            private val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-
-            override fun getString(key: String): String? = prefs.getString(key, null)
-
-            override fun putStrings(values: Map<String, String?>) {
-                val edit = prefs.edit()
-                values.forEach { (key, value) ->
-                    if (value == null) edit.remove(key) else edit.putString(key, value)
-                }
-                edit.apply()
-            }
-        }
-    )
+    private val store = pendingSolanaPaymentStore(context)
 
     // the last intent the server quoted, so the opened payment persists with its plan
     @Volatile
@@ -139,9 +125,28 @@ class SolanaPaymentViewModel @Inject constructor(
                     onError(PurchaseRefusal.PaymentError)
                 }
     }
-
-    companion object {
-        private const val PREFS_NAME = "pending_solana_payment"
-    }
-
 }
+
+private const val PENDING_SOLANA_PAYMENT_PREFS = "pending_solana_payment"
+
+/**
+ * The pending Solana payment in its preferences, for the view model and for
+ * the sign-out, which clears it: the payment belongs to the network that
+ * signed out.
+ */
+internal fun pendingSolanaPaymentStore(context: Context): PendingSolanaPaymentStore =
+    PendingSolanaPaymentStore(
+        object : PendingSolanaPaymentStore.Prefs {
+            private val prefs = context.getSharedPreferences(PENDING_SOLANA_PAYMENT_PREFS, Context.MODE_PRIVATE)
+
+            override fun getString(key: String): String? = prefs.getString(key, null)
+
+            override fun putStrings(values: Map<String, String?>) {
+                val edit = prefs.edit()
+                values.forEach { (key, value) ->
+                    if (value == null) edit.remove(key) else edit.putString(key, value)
+                }
+                edit.apply()
+            }
+        }
+    )

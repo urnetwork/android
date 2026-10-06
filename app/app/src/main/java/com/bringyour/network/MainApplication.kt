@@ -37,8 +37,12 @@ import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.work.WorkManager
 import com.bringyour.network.location.MockLocationController
 import com.bringyour.network.location.MockLocationFeeder
+import com.bringyour.network.ui.login.SsoProvider
+import com.bringyour.network.ui.login.ssoOAuthAttempts
 import com.bringyour.network.ui.login.toVerifySendError
 import com.bringyour.network.ui.shared.models.ProvideNetworkMode
+import com.bringyour.network.ui.shared.viewmodels.pendingSolanaPaymentStore
+import com.bringyour.network.ui.wallet.BittensorBridgeReturns
 import com.bringyour.sdk.DeviceLocal
 import com.bringyour.sdk.LocalState
 import com.bringyour.sdk.LoginViewController
@@ -2219,6 +2223,17 @@ class MainApplication : Application() {
         widgetSnapshotWriter?.clear()
         // a connect the signed-out account asked for must not start later
         clearBalanceRecovery()
+        // nor may its plan decide the next account's start connect gate, which
+        // reads this until the next connect screen sets its own
+        uiIsPro = false
+        uiPollingSubscriptionBalance = false
+        // what the account left outside the sdk's local state: each network
+        // starts fresh (owner decision 2026-10-05)
+        clearSignedOutNetworkState(
+            ssoAttempts = SsoProvider.entries.map { ssoOAuthAttempts(this, it) },
+            pendingSolanaPayment = pendingSolanaPaymentStore(this),
+            bittensorBridgeReturns = BittensorBridgeReturns.shared,
+        )
 
         // the pending product events can only be sent while the jwt is still
         // set; give the queue a bounded moment to drain before it is cleared
