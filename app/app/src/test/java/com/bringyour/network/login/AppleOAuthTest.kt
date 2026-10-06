@@ -25,11 +25,11 @@ class AppleOAuthTest {
 
     @Test
     fun authorizeUrlCarriesClientRedirectStateAndNonce() {
-        val url = appleOAuthAuthorizeUrl("https://api.bringyour.com/", "st ate", "n&once")
+        val url = appleOAuthAuthorizeUrl("https://api.network.example/", "st ate", "n&once")
         assertEquals(
             "https://appleid.apple.com/auth/authorize" +
                     "?client_id=$APPLE_OAUTH_SERVICES_ID" +
-                    "&redirect_uri=https%3A%2F%2Fapi.bringyour.com%2Fauth%2Fapple%2Fcallback" +
+                    "&redirect_uri=https%3A%2F%2Fapi.network.example%2Fauth%2Fapple%2Fcallback" +
                     "&response_type=code%20id_token" +
                     "&response_mode=form_post" +
                     "&scope=name%20email" +
