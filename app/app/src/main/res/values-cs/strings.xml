@@ -1004,11 +1004,11 @@
     <string name="usdc_solana_network_only">USDC posílejte pouze v síti Solana. USDC odeslané v jiné síti nedorazí.</string>
     <string name="usdc_waiting">Poslední výplata v USDC: %1$s USDC čeká na odeslání</string>
     <string name="usdc_wallet_address">Adresa peněženky USDC</string>
-    <string name="use_as_proxy_no_vpn">Použít jako proxy místo toho (bez VPN)</string>
-    <string name="use_as_proxy_no_vpn_detail">Otevře ur.io pro provoz URnetwork jako proxy HTTPS bez VPN. SOCKS a WireGuard jsou dostupné s Pro.</string>
     <string name="use_extender_settings">Použít nastavení extenderu</string>
     <string name="use_most_stable_provider">Používá nejstabilnějšího poskytovatele</string>
     <string name="use_recommended_settings">Použít doporučené nastavení</string>
+    <string name="use_wireguard_socks_https_proxy">Použít proxy WireGuard / SOCKS / HTTPS</string>
+    <string name="use_wireguard_socks_https_proxy_note">Otevře ur.io v prohlížeči. SOCKS a WireGuard vyžadují Pro.</string>
     <string name="used_data_key">Použité</string>
     <string name="user_auth_label">Email nebo telefon</string>
     <string name="user_auth_placeholder">Zadejte své telefonní číslo nebo e-mail</string>

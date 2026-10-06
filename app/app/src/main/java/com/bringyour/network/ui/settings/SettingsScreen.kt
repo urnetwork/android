@@ -1170,7 +1170,9 @@ private fun SettingsScreen(
 
             // Run URnetwork as a cloud proxy instead of the VPN (P150): opens
             // ur.io/app/proxies, where the HTTPS proxy is always on and SOCKS and
-            // WireGuard are available on Pro. Hidden for guests (no account).
+            // WireGuard are available on Pro. Hidden for guests (no account). The
+            // title and note are the other apps' proxies row strings, so the entry
+            // reads the same on every platform.
             if (showCloudProxyEntry) {
                 Spacer(modifier = Modifier.height(18.dp))
 
@@ -1184,21 +1186,22 @@ private fun SettingsScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            stringResource(id = R.string.use_as_proxy_no_vpn),
+                            stringResource(id = R.string.use_wireguard_socks_https_proxy),
                             style = MaterialTheme.typography.bodyMedium,
                             color = Color.White,
                             modifier = Modifier.testTag("acceptance.cloud_proxy_entry")
                         )
 
+                        // decorative: the note below says the row opens the browser
                         Icon(
                             imageVector = Icons.AutoMirrored.Outlined.Outbound,
-                            contentDescription = "Open in browser",
+                            contentDescription = null,
                             tint = TextMuted
                         )
                     }
 
                     Text(
-                        stringResource(id = R.string.use_as_proxy_no_vpn_detail),
+                        stringResource(id = R.string.use_wireguard_socks_https_proxy_note),
                         style = MaterialTheme.typography.bodySmall,
                         color = TextMuted
                     )

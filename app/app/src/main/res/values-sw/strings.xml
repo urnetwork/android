@@ -1004,11 +1004,11 @@
     <string name="usdc_solana_network_only">Tuma USDC kwenye mtandao wa Solana pekee. USDC zilizotumwa kwenye mtandao mwingine hazitafika.</string>
     <string name="usdc_waiting">Malipo ya mwisho ya USDC: %1$s USDC yanasubiri</string>
     <string name="usdc_wallet_address">Anwani ya pochi ya USDC</string>
-    <string name="use_as_proxy_no_vpn">Tumia kama proksi badala yake (bila VPN)</string>
-    <string name="use_as_proxy_no_vpn_detail">Hufungua ur.io ili kuendesha URnetwork kama proksi ya HTTPS bila VPN. SOCKS na WireGuard zinapatikana kwenye Pro.</string>
     <string name="use_extender_settings">Tumia mipangilio ya kipanuzi</string>
     <string name="use_most_stable_provider">Hutumia mtoa huduma thabiti zaidi</string>
     <string name="use_recommended_settings">Tumia mipangilio inayopendekezwa</string>
+    <string name="use_wireguard_socks_https_proxy">Tumia proksi ya WireGuard / SOCKS / HTTPS</string>
+    <string name="use_wireguard_socks_https_proxy_note">Hufungua ur.io kwenye kivinjari chako. SOCKS na WireGuard zinahitaji Pro.</string>
     <string name="used_data_key">Imetumika</string>
     <string name="user_auth_label">Barua pepe au simu</string>
     <string name="user_auth_placeholder">Weka nambari yako ya simu au barua pepe</string>
