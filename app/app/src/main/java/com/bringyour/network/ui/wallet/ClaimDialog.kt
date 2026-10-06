@@ -240,7 +240,7 @@ private fun ReadyContent(
                 Text(
                     listOfNotNull(
                         shortSs58(gasKey.mirrorSs58),
-                        state.gasTao?.let { "${EarningsFormat.tao(it)} TAO" }
+                        state.gasTao?.let { stringResource(id = R.string.tao_amount_linux, EarningsFormat.tao(it)) }
                     ).joinToString(" · "),
                     style = MaterialTheme.typography.bodyMedium
                 )
@@ -308,7 +308,7 @@ private fun NeedsGasContent(
                 color = TextMuted
             )
             Text(
-                "${EarningsFormat.tao(state.gasTao)} TAO",
+                stringResource(id = R.string.tao_amount_linux, EarningsFormat.tao(state.gasTao)),
                 style = MaterialTheme.typography.bodyMedium
             )
         }

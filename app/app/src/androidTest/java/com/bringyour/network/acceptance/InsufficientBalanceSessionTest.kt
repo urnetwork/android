@@ -23,7 +23,9 @@ import com.bringyour.network.LoginActivity
 import com.bringyour.network.LoginStartupState
 import com.bringyour.network.MainActivity
 import com.bringyour.network.MainApplication
+import com.bringyour.network.R
 import com.bringyour.network.ui.POST_LOGIN_INTRO_CLOSE_TAG
+import com.bringyour.network.ui.POST_LOGIN_OVERLAY_CLOSE_TAG
 import com.bringyour.network.ui.POST_LOGIN_WELCOME_ENTER_TAG
 import com.bringyour.network.ui.PostLoginUiAction
 import com.bringyour.network.ui.nextPostLoginUiAction
@@ -137,7 +139,7 @@ class InsufficientBalanceSessionTest {
         welcomeEnterPresent = tagExists(POST_LOGIN_WELCOME_ENTER_TAG),
         introClosePresent = tagExists(POST_LOGIN_INTRO_CLOSE_TAG),
         closePresent = contentDescriptionExists("close"),
-        closeOverlayPresent = contentDescriptionExists("Close Overlay"),
+        closeOverlayPresent = tagExists(POST_LOGIN_OVERLAY_CLOSE_TAG),
     )
 
     private fun dismissPostLoginUiAction(action: PostLoginUiAction) {
@@ -145,7 +147,7 @@ class InsufficientBalanceSessionTest {
             PostLoginUiAction.WelcomeEnter -> hasTestTag(POST_LOGIN_WELCOME_ENTER_TAG)
             PostLoginUiAction.IntroClose -> hasTestTag(POST_LOGIN_INTRO_CLOSE_TAG)
             PostLoginUiAction.Close -> hasContentDescription("close")
-            PostLoginUiAction.CloseOverlay -> hasContentDescription("Close Overlay")
+            PostLoginUiAction.CloseOverlay -> hasTestTag(POST_LOGIN_OVERLAY_CLOSE_TAG)
         }
         val matcher = clickableMatcher(target)
         performTransientUiActionIfPresent(
@@ -241,7 +243,7 @@ class InsufficientBalanceSessionTest {
         return InsufficientBalanceObservation(
             // the user's request, which only Disconnect may clear
             connectRequested = application.device?.connectEnabled == true,
-            connected = contentDescriptionExists("Connected"),
+            connected = contentDescriptionExists(context.getString(R.string.connected)),
             alert = tagExists(INSUFFICIENT_BALANCE_ALERT_TAG),
             disconnectVisible = tagExists(INSUFFICIENT_BALANCE_DISCONNECT_TAG),
             upgradeVisible = tagExists(INSUFFICIENT_BALANCE_UPGRADE_TAG),

@@ -151,7 +151,7 @@ fun LoginPassword(
                         IconButton(onClick = { navController.popBackStack() }) {
                             Icon(
                                 Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-                                contentDescription = "Back"
+                                contentDescription = stringResource(id = R.string.back)
                             )
                         }
                     },
@@ -269,7 +269,7 @@ fun LoginPasswordForm(
                 Spacer(modifier = Modifier.width(4.dp))
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                    contentDescription = "Right Arrow",
+                    contentDescription = null,
                     modifier = Modifier.size(16.dp),
                     tint = if (!inProgress) Color.White else Color.Gray
                 )

@@ -49,7 +49,8 @@ import com.bringyour.network.ui.theme.URNetworkTheme
 
 @Composable
 fun InfoIconWithOverlay(
-    contentDescription: String = "Info",
+    // what the popup explains; a generic "Learn more" when the caller does not say
+    contentDescription: String = stringResource(id = R.string.learn_more),
     content: @Composable () -> Unit
 ) {
 
@@ -165,7 +166,7 @@ private fun InfoPopupPreview() {
                                 )
                             )
                             Icon(imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                                contentDescription = "Right Arrow",
+                                contentDescription = null,
                                 tint = Color.White,
                                 modifier = Modifier.size(20.dp)
                             )

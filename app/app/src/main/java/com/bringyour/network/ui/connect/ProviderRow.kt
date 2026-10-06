@@ -29,6 +29,9 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -71,6 +74,8 @@ fun ProviderRow(
             .clickable {
                 onClick(1)
             }
+            // the check mark at the end shows the selected row; screen readers hear it
+            .semantics { if (isSelected) selected = true }
             .background(if (isFocused) BlueDark else Color.Transparent)
             .padding(horizontal = 16.dp)
         ,
@@ -135,7 +140,7 @@ fun ProviderRow(
                 if (!isStable) {
                     Icon(
                         painter = painterResource(id = R.drawable.unstable),
-                        contentDescription = "Unstable connection",
+                        contentDescription = stringResource(id = R.string.unstable_connection),
                         tint = Yellow,
                         modifier = Modifier.size(24.dp)
                     )
@@ -146,7 +151,7 @@ fun ProviderRow(
                 if (isStrongPrivacy) {
                     Icon(
                         painter = painterResource(id = R.drawable.privacy_glasses),
-                        contentDescription = "Strong privacy laws",
+                        contentDescription = stringResource(id = R.string.strong_privacy_laws),
                         tint = Green,
                         modifier = Modifier.size(24.dp)
                     )
@@ -158,7 +163,7 @@ fun ProviderRow(
 
             Icon(
                 imageVector = Icons.Filled.Check,
-                contentDescription = "Keyboard Arrow Right",
+                contentDescription = null,
                 tint = if (isSelected) BlueMedium else Black
             )
 

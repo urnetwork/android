@@ -876,8 +876,8 @@ private fun MainNavHostContent(
                                         } else {
                                             Icon(
                                                 painter = painterResource(id = iconRes),
-                                                contentDescription = screen.description,
-                                                modifier = Modifier.testTag("acceptance.nav.${screen.description.lowercase()}")
+                                                contentDescription = stringResource(id = screen.descriptionId),
+                                                modifier = Modifier.testTag(screen.testTag)
                                             )
                                         }
 

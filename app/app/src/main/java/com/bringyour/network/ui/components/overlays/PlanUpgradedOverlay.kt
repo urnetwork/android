@@ -46,14 +46,14 @@ fun PlanUpgradedOverlay(
         ) {
             if (confirmed) {
                 Text(
-                    "You're premium.",
+                    stringResource(id = R.string.you_re_premium),
                     style = MaterialTheme.typography.headlineMedium,
                     color = Black
                 )
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Text(
-                    "Thanks for building the new internet with us.",
+                    stringResource(id = R.string.thanks_for_building_the_new_internet_with_us),
                     style = MaterialTheme.typography.headlineLarge,
                     color = Black
                 )
@@ -86,7 +86,7 @@ fun PlanUpgradedOverlay(
                     horizontalArrangement = Arrangement.Center
                 ) {
                     Text(
-                        "Close",
+                        stringResource(id = R.string.close),
                         style = buttonTextStyle,
                         color = Black
                     )

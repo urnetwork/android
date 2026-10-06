@@ -383,6 +383,8 @@ fun SettingsScreen(
     )
 
     if (isPresentingRenameDevice) {
+        val deviceNameUpdated = stringResource(id = R.string.device_name_updated)
+        val deviceNameUpdateFailed = stringResource(id = R.string.error_updating_device_name)
         URDialog(
             visible = true,
             onDismiss = { isPresentingRenameDevice = false }
@@ -407,8 +409,7 @@ fun SettingsScreen(
                             isPresentingRenameDevice = false
                             scope.launch {
                                 snackbarHostState.showSnackbar(
-                                    message = if (success) "Device name updated"
-                                        else "There was an error updating the device name.",
+                                    message = if (success) deviceNameUpdated else deviceNameUpdateFailed,
                                     withDismissAction = true,
                                     duration = SnackbarDuration.Short
                                 )
@@ -458,13 +459,16 @@ fun SettingsScreen(
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
             Text(
-                "Remove ${pendingRemoveMethod?.let { methodDisplayName(it) } ?: ""}?",
+                stringResource(id = R.string.remove_this_sign_in_method),
                 style = MaterialTheme.typography.headlineSmall,
                 color = Color.White
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                "You won't be able to sign in with this method anymore.",
+                stringResource(
+                    id = R.string.are_you_sure_you_want_to_remove,
+                    pendingRemoveMethod?.let { methodDisplayName(it) } ?: "",
+                ),
                 style = MaterialTheme.typography.bodyMedium,
                 color = Color.White
             )
@@ -489,7 +493,7 @@ fun SettingsScreen(
                 enabled = !isRemovingAuth,
                 isProcessing = isRemovingAuth
             ) { buttonTextStyle ->
-                Text("Remove", style = buttonTextStyle)
+                Text(stringResource(id = R.string.remove), style = buttonTextStyle)
             }
         }
     }
@@ -504,17 +508,21 @@ fun SettingsScreen(
         Column(modifier = Modifier.fillMaxWidth()) {
             val isRegenerate = pendingSeedphraseAction == SeedphraseAction.REGENERATE
             Text(
-                if (isRegenerate) "Regenerate your seedphrase?" else "Generate a seedphrase?",
+                stringResource(
+                    id = if (isRegenerate) R.string.regenerate_seedphrase_title else R.string.generate_a_recovery_seedphrase
+                ),
                 style = MaterialTheme.typography.headlineSmall,
                 color = Color.White
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                if (isRegenerate) {
-                    "Your current seedphrase will stop working. You'll be shown a new one to save."
-                } else {
-                    "A seedphrase lets you recover your account if you lose access. You'll be shown it once."
-                },
+                stringResource(
+                    id = if (isRegenerate) {
+                        R.string.regenerate_seedphrase_body
+                    } else {
+                        R.string.a_seedphrase_lets_you_recover_your_account_2
+                    }
+                ),
                 style = MaterialTheme.typography.bodyMedium,
                 color = Color.White
             )
@@ -536,7 +544,7 @@ fun SettingsScreen(
                 enabled = !isGeneratingSeedphrase && !isRegeneratingSeedphrase,
                 isProcessing = isGeneratingSeedphrase || isRegeneratingSeedphrase
             ) { buttonTextStyle ->
-                Text(if (isRegenerate) "Regenerate" else "Generate", style = buttonTextStyle)
+                Text(stringResource(id = if (isRegenerate) R.string.regenerate else R.string.generate), style = buttonTextStyle)
             }
         }
     }
@@ -640,7 +648,7 @@ private fun SettingsScreen(
                 },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, contentDescription = stringResource(id = R.string.back))
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -670,7 +678,7 @@ private fun SettingsScreen(
              * Client ID
              */
             URTextInputLabel(
-                text = "Client ID"
+                text = stringResource(id = R.string.client_id)
             )
             Row(
                 modifier = Modifier
@@ -695,7 +703,7 @@ private fun SettingsScreen(
 
                 Icon(
                     painter = painterResource(id = R.drawable.content_copy),
-                    contentDescription = "Copy",
+                    contentDescription = stringResource(id = R.string.copy),
                     tint = TextMuted,
                     modifier = Modifier.width(16.dp)
                 )
@@ -758,7 +766,7 @@ private fun SettingsScreen(
 
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                    contentDescription = "Keyboard Arrow Right",
+                    contentDescription = null,
                     tint = TextMuted
                 )
             }
@@ -769,7 +777,7 @@ private fun SettingsScreen(
             /**
              * Seedphrase
              */
-            URTextInputLabel(text = "Seedphrase")
+            URTextInputLabel(text = stringResource(id = R.string.seedphrase))
 
             Row(
                 modifier = Modifier
@@ -779,7 +787,7 @@ private fun SettingsScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    if (hasSeedphrase) "Regenerate Seedphrase" else "Generate Seedphrase",
+                    stringResource(id = if (hasSeedphrase) R.string.regenerate_seedphrase else R.string.generate_seedphrase),
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color.White
                 )
@@ -794,7 +802,7 @@ private fun SettingsScreen(
                             )
                         }) {
                             Text(
-                                if (hasSeedphrase) "Regenerate" else "Generate",
+                                stringResource(id = if (hasSeedphrase) R.string.regenerate else R.string.generate),
                                 color = BlueMedium
                             )
                         }
@@ -802,7 +810,7 @@ private fun SettingsScreen(
                 }
             }
             Text(
-                "A seedphrase lets you recover your account if you lose access.",
+                stringResource(id = R.string.a_seedphrase_lets_you_recover_your_account),
                 style = MaterialTheme.typography.bodySmall,
                 color = TextMuted
             )
@@ -812,7 +820,7 @@ private fun SettingsScreen(
             /**
              * Sign-In Methods
              */
-            URTextInputLabel(text = "Sign-In Methods")
+            URTextInputLabel(text = stringResource(id = R.string.sign_in_methods))
 
             authMethods.forEach { method ->
                 Row(
@@ -833,7 +841,7 @@ private fun SettingsScreen(
                     if (authMethods.size > 1) {
                         TextButton(onClick = { onRemoveAuthMethod(method) }) {
                             Text(
-                                "Remove",
+                                stringResource(id = R.string.remove),
                                 color = TextDanger
                             )
                         }
@@ -843,7 +851,7 @@ private fun SettingsScreen(
 
             TextButton(onClick = onAddAuthMethodClick) {
                 Text(
-                    "Add sign-in method",
+                    stringResource(id = R.string.add_sign_in_method),
                     color = BlueMedium
                 )
             }
@@ -1069,7 +1077,7 @@ private fun SettingsScreen(
 
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                            contentDescription = "Keyboard Arrow Right",
+                            contentDescription = null,
                             tint = TextMuted
                         )
                     }
@@ -1137,7 +1145,7 @@ private fun SettingsScreen(
 
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                    contentDescription = "Keyboard Arrow Right",
+                    contentDescription = null,
                     tint = TextMuted
                 )
             }
@@ -1163,7 +1171,7 @@ private fun SettingsScreen(
 
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                    contentDescription = stringResource(id = R.string.vless),
+                    contentDescription = null,
                     tint = TextMuted
                 )
             }
@@ -1335,7 +1343,7 @@ private fun SettingsScreen(
 
                     Image(
                         painter = painterResource(id = R.drawable.depin_hub),
-                        contentDescription = "Image description",
+                        contentDescription = null,
                         modifier = Modifier.size(24.dp),
                         contentScale = ContentScale.Fit
                     )
@@ -1368,7 +1376,7 @@ private fun SettingsScreen(
                 ) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Outlined.Outbound,
-                        contentDescription = "Right Arrow",
+                        contentDescription = depinHubStr,
                         tint = TextMuted,
                     )
                 }
@@ -1392,7 +1400,7 @@ private fun SettingsScreen(
                 ) {
 
                     Text(
-                        if (currentPlan == Plan.Basic) "Basic" else "Pro",
+                        stringResource(id = if (currentPlan == Plan.Basic) R.string.free else R.string.supporter),
                         style = MaterialTheme.typography.bodyMedium,
                         color = Color.White
                     )
@@ -1430,7 +1438,7 @@ private fun SettingsScreen(
                                         )
                                     )
                                     Icon(imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                                        contentDescription = "Right Arrow",
+                                        contentDescription = null,
                                         tint = BlueLight,
                                         modifier = Modifier.size(20.dp)
                                     )
@@ -1481,7 +1489,7 @@ private fun SettingsScreen(
                 )
                 Icon(
                     Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                    contentDescription = stringResource(id = R.string.dev_open_tools),
+                    contentDescription = null,
                 )
             }
 
@@ -1537,7 +1545,7 @@ private fun SettingsScreen(
                 )
                 Icon(
                     Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                    contentDescription = stringResource(id = R.string.licenses),
+                    contentDescription = null,
                 )
             }
 
@@ -1566,7 +1574,7 @@ private fun SettingsScreen(
                 if (isSeekerHolder) {
                     Icon(
                         Icons.Filled.Check,
-                        contentDescription = "Multiplier claimed",
+                        contentDescription = stringResource(id = R.string.claim_confirmed),
                         tint = Green
                     )
                 } else {
@@ -1619,7 +1627,7 @@ private fun SettingsScreen(
                 ) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Outlined.Outbound,
-                        contentDescription = "Right Arrow",
+                        contentDescription = stringResource(id = R.string.learn_more),
                         tint = TextMuted,
                     )
                 }

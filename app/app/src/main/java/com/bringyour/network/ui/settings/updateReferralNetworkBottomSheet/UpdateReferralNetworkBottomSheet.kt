@@ -85,14 +85,18 @@ fun UpdateReferralNetworkBottomSheet(
     if (viewModel.displayUnlinkAlert) {
         AlertDialog(
             icon = {
-                Icon(Icons.Filled.LinkOff, contentDescription = stringResource(id = R.string.unlink_referral_network))
+                Icon(Icons.Filled.LinkOff, contentDescription = null)
             },
             title = {
                 Text(text = stringResource(id = R.string.unlink_referral_network))
             },
             text = {
                 Text(
-                    text = stringResource(R.string.unlink_alert_description, referralNetworkName ?: "that network")
+                    text = if (referralNetworkName != null) {
+                        stringResource(R.string.unlink_alert_description, referralNetworkName)
+                    } else {
+                        stringResource(R.string.unlink_alert_description_unnamed)
+                    }
                 )
             },
             onDismissRequest = {

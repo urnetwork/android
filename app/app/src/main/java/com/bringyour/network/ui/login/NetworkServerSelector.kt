@@ -485,7 +485,7 @@ private fun NetworkApiDialog(
                 )
                 Icon(
                     Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                    contentDescription = stringResource(id = R.string.vless),
+                    contentDescription = null,
                     tint = TextMuted
                 )
             }
@@ -511,7 +511,7 @@ private fun NetworkApiDialog(
                 )
                 Icon(
                     Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                    contentDescription = stringResource(id = R.string.control_doh_urls),
+                    contentDescription = null,
                     tint = TextMuted
                 )
             }

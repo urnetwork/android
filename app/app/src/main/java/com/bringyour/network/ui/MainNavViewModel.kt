@@ -1,5 +1,6 @@
 package com.bringyour.network.ui
 
+import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
 import androidx.navigation.NavController
 import com.bringyour.network.DeviceManager
@@ -148,31 +149,38 @@ fun NavController.navigateToUpgradeForBalanceBlock() {
 enum class TopLevelScaffoldRoutes(
     val selectedIcon: Int,
     val unselectedIcon: Int,
-    val description: String,
+    // the tab's name for screen readers, since the bar shows only icons
+    @StringRes val descriptionId: Int,
+    // how the device tests find the tab; never shown or read out
+    val testTag: String,
     val route: Route
 ) {
     CONNECT_CONTAINER(
         R.drawable.main_nav_globe_filled,
         R.drawable.main_nav_globe,
-        "Connect",
+        R.string.connect,
+        "acceptance.nav.connect",
         route = Route.ConnectContainer
     ),
     ACCOUNT_CONTAINER(
         R.drawable.main_nav_user_filled,
         R.drawable.main_nav_user,
-        "Account",
+        R.string.account,
+        "acceptance.nav.account",
         route = Route.AccountContainer
     ),
     LEADERBOARD(
         R.drawable.main_nav_user_filled,
         R.drawable.main_nav_user,
-        "Leaderboard",
+        R.string.leaderboard,
+        "acceptance.nav.leaderboard",
         route = Route.Leaderboard
     ),
     SUPPORT(
         R.drawable.main_nav_chat_filled,
         R.drawable.main_nav_chat,
-        "Support",
+        R.string.support,
+        "acceptance.nav.support",
         route = Route.Support
     )
 }

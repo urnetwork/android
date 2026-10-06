@@ -60,6 +60,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
@@ -69,6 +70,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bringyour.network.R
+import com.bringyour.network.ui.POST_LOGIN_OVERLAY_CLOSE_TAG
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.ReferralGold
 import com.bringyour.network.ui.theme.ReferralGoldInk
@@ -455,11 +457,13 @@ fun GoldOverlayScaffold(
             ) {
                 IconButton(
                     onClick = { onDismiss() },
-                    modifier = Modifier.focusRequester(focusRequester)
+                    modifier = Modifier
+                        .focusRequester(focusRequester)
+                        .testTag(POST_LOGIN_OVERLAY_CLOSE_TAG)
                 ) {
                     Icon(
                         imageVector = Icons.Filled.Close,
-                        contentDescription = "Close Overlay",
+                        contentDescription = stringResource(id = R.string.close),
                         tint = Color.White,
                     )
                 }

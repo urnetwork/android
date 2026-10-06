@@ -146,7 +146,7 @@ fun SeedphraseDisplayScreen(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Text(
-                    "⚠️ This is the ONLY time you'll see this.",
+                    stringResource(id = R.string.seedphrase_only_time),
                     style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
                     textAlign = TextAlign.Center,
                     color = Yellow,

@@ -83,7 +83,7 @@ fun ApiErrorScreen(
 
                 Icon(
                     painter = painterResource(id = R.drawable.unstable),
-                    contentDescription = "Unstable connection",
+                    contentDescription = null,
                     modifier = Modifier.size(64.dp)
                 )
 

@@ -9,6 +9,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.bringyour.network.R
@@ -44,13 +45,13 @@ fun PurchasePendingOverlay(
             backgroundColor = Pink,
         ) {
             Text(
-                "Almost there.",
+                stringResource(id = R.string.purchase_pending_title),
                 style = MaterialTheme.typography.headlineMedium,
                 color = Black
             )
 
             Text(
-                "Your purchase is waiting for approval. UR Pro will turn on by itself once it goes through — there's no need to buy again.",
+                stringResource(id = R.string.purchase_pending_body),
                 style = MaterialTheme.typography.headlineLarge,
                 color = Black
             )
@@ -67,7 +68,7 @@ fun PurchasePendingOverlay(
                     horizontalArrangement = Arrangement.Center
                 ) {
                     Text(
-                        "Got it",
+                        stringResource(id = R.string.got_it),
                         style = buttonTextStyle,
                         color = Black
                     )

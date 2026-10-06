@@ -43,7 +43,7 @@ fun OverlayContent(
 
             Icon(
                 painter = painterResource(id = R.drawable.globe_filled),
-                contentDescription = "URnetwork globe filled",
+                contentDescription = null,
                 tint = Black
             )
 

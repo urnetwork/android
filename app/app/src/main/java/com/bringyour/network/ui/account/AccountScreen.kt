@@ -512,7 +512,7 @@ fun AccountScreenContent(
             Row {
                 Icon(
                     Icons.Filled.LocationOn,
-                    contentDescription = stringResource(id = R.string.check_ip),
+                    contentDescription = null,
                     tint = TextMuted
                 )
                 Spacer(modifier = Modifier.width(16.dp))
@@ -521,7 +521,7 @@ fun AccountScreenContent(
             Row {
                 Icon(
                     Icons.Filled.ArrowOutward,
-                    contentDescription = "Visit external link",
+                    contentDescription = null,
                     tint = TextMuted,
                     modifier = Modifier
                         .size(18.dp)

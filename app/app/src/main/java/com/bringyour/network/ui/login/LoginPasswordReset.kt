@@ -152,7 +152,7 @@ fun LoginPasswordReset(
                 title = {},
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, contentDescription = stringResource(id = R.string.back))
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -234,7 +234,7 @@ fun LoginPasswordReset(
                             Spacer(modifier = Modifier.width(4.dp))
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                                contentDescription = "Right Arrow",
+                                contentDescription = null,
                                 modifier = Modifier.size(16.dp),
                                 tint = if (isBtnEnabled) Color.White else Color.Gray
                             )

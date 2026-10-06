@@ -39,6 +39,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -98,6 +100,14 @@ fun ConnectButton(
 
     }
 
+    // one name for the button in each state; the icons it draws are decorative
+    val description = connectButtonDescriptionId(
+        status = updatedStatus,
+        insufficientBalance = insufficientBalance,
+        isPollingSubscriptionBalance = isPollingSubscriptionBalance,
+        displayReconnectTunnel = displayReconnectTunnel,
+    )?.let { stringResource(id = it) }
+
     Box(
         modifier = Modifier
             .size(if (isTv()) 128.dp else 256.dp)
@@ -110,6 +120,7 @@ fun ConnectButton(
             modifier = Modifier
                 .fillMaxSize()
                 .clickable(onClick = onClick)
+                .semantics { if (description != null) contentDescription = description }
                 .zIndex(0f)
         ) {
 
@@ -138,7 +149,7 @@ fun ConnectButton(
                 ) {
                     Icon(
                         painter = painterResource(id = R.drawable.icon_warning),
-                        contentDescription = "Insufficient balance",
+                        contentDescription = null,
                         tint = TextMuted
                     )
                 }
@@ -163,7 +174,7 @@ fun ConnectButton(
                 ) {
                     Icon(
                         painter = painterResource(id = R.drawable.icon_warning),
-                        contentDescription = stringResource(id = R.string.conn_failed),
+                        contentDescription = null,
                         tint = TextMuted
                     )
                 }
@@ -203,7 +214,7 @@ fun ConnectButton(
 
         Image(
             painter = painterResource(id = R.drawable.connect_mask),
-            contentDescription = "Connect Mask",
+            contentDescription = null,
             contentScale = ContentScale.Crop,
             modifier = Modifier
                 .size(512.dp)
@@ -251,7 +262,7 @@ private fun ConnectingButtonContent(
         ) {
             Image(
                 painter = painterResource(id = R.drawable.connector_globe),
-                contentDescription = "Connecting"
+                contentDescription = null
             )
         }
 
@@ -680,7 +691,7 @@ fun GridCanvas(
                 ) {
                     Icon(
                         painter = painterResource(id = R.drawable.icon_warning),
-                        contentDescription = "",
+                        contentDescription = null,
                         tint = TextMuted
                     )
                 }

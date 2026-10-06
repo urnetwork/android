@@ -48,6 +48,7 @@ import com.bringyour.network.R
 import com.bringyour.network.ui.Route
 import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.components.URTextInput
+import com.bringyour.network.ui.components.expandableRow
 import com.bringyour.network.ui.components.tabletReadableColumn
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.TextFaint
@@ -122,7 +123,7 @@ fun ExtendersScreen(
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(
                             Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-                            contentDescription = "Back"
+                            contentDescription = stringResource(id = R.string.back)
                         )
                     }
                 },
@@ -224,6 +225,7 @@ fun ExtendersScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable { advancedExpanded = !advancedExpanded }
+                    .expandableRow(expanded = advancedExpanded) { advancedExpanded = !advancedExpanded }
                     .padding(vertical = 12.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
@@ -235,7 +237,7 @@ fun ExtendersScreen(
                     } else {
                         Icons.Filled.KeyboardArrowDown
                     },
-                    contentDescription = stringResource(id = R.string.advanced),
+                    contentDescription = null,
                     tint = TextMuted,
                 )
             }
@@ -363,7 +365,7 @@ private fun ExtenderActionRow(
         Spacer(modifier = Modifier.width(16.dp))
         Icon(
             Icons.AutoMirrored.Filled.KeyboardArrowRight,
-            contentDescription = text,
+            contentDescription = null,
             tint = TextMuted,
         )
     }
