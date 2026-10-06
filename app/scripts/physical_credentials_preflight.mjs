@@ -165,7 +165,7 @@ export function preflightCredentialParser(options, dependencies = {}) {
       report.toolVersions.go = probe("go-version", "go", ["version"],
         (output) => typeof output === "string" && /^go version go[0-9]+\.[0-9]+(?:\.[0-9]+)?(?:[a-z0-9.-]+)? [a-z0-9]+\/[a-z0-9]+\s*$/.test(output)).trim();
     }
-    // Import in an eval with NO positional helper path: otherwise its CLI
+    // Import in an eval with no positional helper path: otherwise its CLI
     // main guard could mistake argv[1] for direct execution.
     probe("node-helper-contract", process.execPath, ["--input-type=module", "--eval",
       `const m = await import(process.env.URNETWORK_CREDENTIAL_PREFLIGHT_HELPER);

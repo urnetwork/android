@@ -106,7 +106,7 @@ class DiagnosticsLogLocationTest {
         val deleted = clearDiagnosticsLogs(filesDir)
         assertEquals(2, deleted)
 
-        // Settings and non-log files MUST remain untouched
+        // Settings and non-log files must remain untouched
         assertTrue("localstate.db must be preserved", stateDb.exists())
         assertEquals("important user settings and split rules", stateDb.readText())
         assertTrue("shared_prefs must be preserved", prefs.exists())

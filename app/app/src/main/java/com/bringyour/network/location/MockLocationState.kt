@@ -83,7 +83,7 @@ data class MockLocationState(
 // location services; then ACTIVE only while the tunnel is up and a located
 // provider target exists, ELIGIBLE otherwise.
 //
-// The COARSE grant is NOT a gate: the AOSP test providers need no runtime
+// The COARSE grant is not a gate: the AOSP test providers need no runtime
 // permission (§8), so gating here would kill the feature on every GMS
 // device without it. Only the optional FLP mirror is gated, in the
 // controller (§3.2).

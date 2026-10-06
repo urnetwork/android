@@ -19,7 +19,7 @@ import com.bringyour.network.ui.theme.Pink
 import com.bringyour.network.ui.theme.URNetworkTheme
 
 /**
- * Shown when Google Play ACCEPTED a purchase but has not completed it -- it is waiting
+ * Shown when Google Play accepted a purchase but has not completed it -- it is waiting
  * on an approval (a child needing a parent's OK) or an out-of-band payment.
  *
  * This state used to be invisible. `acknowledgePurchases` filters to PURCHASED, found
@@ -28,7 +28,7 @@ import com.bringyour.network.ui.theme.URNetworkTheme
  * go on, concludes it failed, and tries to buy again.
  *
  * So the one job of this overlay is to say: it worked, it is not done yet, and you do
- * NOT need to pay again.
+ * not need to pay again.
  */
 @Composable
 fun PurchasePendingOverlay(

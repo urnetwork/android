@@ -55,7 +55,7 @@ data class BundleNetworkSpaceInstall<S : Any>(
  * Creates or refreshes the bundled space and selects it when it is new or
  * nothing is selected.
  *
- * The legacy-key migration runs FIRST, before the bundled key is read,
+ * The legacy-key migration runs first, before the bundled key is read,
  * created, or bound. That ordering is the sdk's contract for
  * `NetworkSpaceManager.migrateNetworkSpace`: it closes the space object stored
  * under the old key and replaces it, so a space obtained before the call would

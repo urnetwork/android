@@ -170,7 +170,7 @@ fun PointsLeaderboardTab(
     }
 
     // after a seek, ask for the page before the window when the first rows
-    // come into reach. Compose keeps the first visible ROW anchored by its
+    // come into reach. Compose keeps the first visible row anchored by its
     // position key when rows are prepended; only when the header above the
     // rows is on screen would the prepended rows push the old first row down,
     // so that case re-anchors the row explicitly at its last known offset.

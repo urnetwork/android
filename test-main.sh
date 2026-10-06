@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # SPDX-License-Identifier: MPL-2.0
 #
-# Product acceptance test for the LOCAL Android app against the production
+# Product acceptance test for the local Android app against the production
 # ("main") environment.  It builds and installs each shipping target, drives
 # the real Compose UI, creates or restores an instant account, logs out, logs
 # back in with its 24-word secret key, then uses the acceptance account to

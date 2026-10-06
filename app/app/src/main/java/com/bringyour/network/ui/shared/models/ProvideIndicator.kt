@@ -7,7 +7,7 @@ import com.bringyour.network.ui.theme.Yellow
 import com.bringyour.sdk.Sdk
 
 /**
- * The provide indicator colors (apple parity), from the LIVE effective provide
+ * The provide indicator colors (apple parity), from the live effective provide
  * tier. Shared by the settings picker and the provide-mode row on the stats and
  * earnings screens, so the two never disagree:
  *  - Network provide (incl. Auto while idle) = solid green dot

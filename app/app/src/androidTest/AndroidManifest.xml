@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <uses-permission android:name="android.permission.INTERNET" />
 
-    <!-- AGP injects runner settings into the FIRST instrumentation element.
+    <!-- AGP injects runner settings into the first instrumentation element.
          Keep that slot on the default runner; the opt-in component is second. -->
     <instrumentation
         android:name="androidx.test.runner.AndroidJUnitRunner"

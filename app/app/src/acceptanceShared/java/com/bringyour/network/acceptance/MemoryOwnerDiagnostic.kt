@@ -11,7 +11,7 @@ fun writeMemoryOwnerDiagnostic(device: Any, directory: File, label: String): Fil
     val destination = File(directory, "physical-owners-$label.json")
     check(!destination.exists()) { "diagnostic evidence already exists" }
     // Reflection permits compiling the test APK with an ordinary older AAR.
-    // It is NOT a fallback: the pre-traffic census must succeed with the
+    // It is not a fallback: the pre-traffic census must succeed with the
     // freshly attested SDK, and absence of the new binding is a hard failure.
     val writer = try {
         device.javaClass.getMethod("writeMemoryOwnerCensus", String::class.java)

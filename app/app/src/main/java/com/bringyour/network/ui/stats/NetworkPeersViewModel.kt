@@ -67,7 +67,7 @@ class NetworkPeersViewModel @Inject constructor(
     var connectedProvidePeers by mutableStateOf<List<NetworkPeerUi>>(listOf())
         private set
 
-    // ALL connected peers, whether or not they provide — the "You have {n}
+    // All connected peers, whether or not they provide — the "You have {n}
     // other devices online" count. Connecting to a peer still requires
     // provide, which is what the filtered list above captures.
     var connectedCount by mutableStateOf(0)
@@ -88,7 +88,7 @@ class NetworkPeersViewModel @Inject constructor(
 
     // true when the device is providing to same-network peers and can accept a
     // peer connection — drives the connect screen's "discoverable as {name}" line.
-    // Provide paused deliberately does NOT gate this: pause stops public provide
+    // Provide paused deliberately does not gate this: pause stops public provide
     // but keeps the Network mode announced and verifiable, so a paused device is
     // still connectable by its network peers.
     val providerDiscoverable: Boolean

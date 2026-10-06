@@ -517,7 +517,7 @@ fun launchGoogleOAuth(context: Context, apiUrl: String?, purpose: String = SSO_O
     launchSsoOAuth(context, SsoProvider.GOOGLE, apiUrl, purpose)
 
 /**
- * The display name from the `user` JSON Apple sends with the FIRST
+ * The display name from the `user` JSON Apple sends with the first
  * authorization only: `{"name":{"firstName":…,"lastName":…},"email":…}`.
  * Empty when absent or unreadable.
  */

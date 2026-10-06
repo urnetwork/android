@@ -655,7 +655,7 @@ import kotlin.concurrent.thread
         // tunnel address. Without an address builder.establish() throws and
         // the catch retains the previous interface, or with no prior interface
         // leaves no TUN at all. For a kill-switch or connected state that
-        // fails OPEN (traffic to the ISP in the clear). Use a fixed
+        // fails open (traffic to the ISP in the clear). Use a fixed
         // documentation address (same class the always-on guard uses) as a
         // fail-closed fallback: with capture routes it is a blocking blackhole;
         // with no routes (escape) it routes nothing.
@@ -663,9 +663,9 @@ import kotlin.concurrent.thread
         val tunnelAddressIpv6 = configuration.clientIpv6 ?: ESCAPE_FALLBACK_ADDRESS_IPV6
         val ipv6Report = if (isEscape) "bypass" else tunnelAddressIpv6
         if (isEscape) {
-            // Escaping: allow BOTH families. With no app rules every app is in
+            // Escaping: allow both families. With no app rules every app is in
             // scope, so without allowFamily(AF_INET6) the unconfigured IPv6
-            // family would be BLOCKED for every app. IPv4 address only, no
+            // family would be blocked for every app. IPv4 address only, no
             // IPv6 address, no routes, no DNS: Android routes nothing into it
             // and every app keeps its native network and DNS.
             builder.allowFamily(AF_INET)
@@ -959,12 +959,12 @@ import kotlin.concurrent.thread
         // installing a lookup is not free on the go side: it invalidates the
         // flow-owner cache and the recorded app placements, so every live
         // flow's next packet pays a fresh platform call on the single tun
-        // reader for an answer only a NEW flow consumes. This fires on any
+        // reader for an answer only a new flow consumes. This fires on any
         // block-action change and on any package broadcast -- a play store
         // batch update would otherwise replay that burst dozens of times.
         //
         // force bypasses the memo: a package event never changes the pinned
-        // package-name SET, only the uid map frozen inside the lookup, so
+        // package-name set, only the uid map frozen inside the lookup, so
         // the receiver's rebuild would otherwise always be a no-op -- and a
         // reinstalled (uid-recycled) pinned app would keep a stale map.
         if (!force && pinnedPackages == appliedPinnedAppIds) {
@@ -991,7 +991,7 @@ import kotlin.concurrent.thread
 
     /**
      * Rebuilds the pinned-app lookup when packages change. The lookup maps
-     * uid -> package once at construction, and uids are NOT stable across an
+     * uid -> package once at construction, and uids are not stable across an
      * uninstall/reinstall -- worse, Android recycles them, so a stale map can
      * attribute a newly installed app's flows to a pinned package. Cheap to
      * rebuild, so rebuild on any package event.
@@ -1057,14 +1057,14 @@ import kotlin.concurrent.thread
     /**
      * The (allow-list, deny-list) app sets for the tunnel builder.
      *
-     * The sdk names these from the ROUTE's point of view and this inverts
+     * The sdk names these from the route's point of view and this inverts
      * them: a local-routed app bypasses the vpn (builder disallow), a
      * remote-routed app uses it (builder allow).
      *
-     * Pinned apps need care. Pinning holds an app to one exit INSIDE the
+     * Pinned apps need care. Pinning holds an app to one exit inside the
      * tunnel -- it is placement, not membership -- so the sdk deliberately
      * omits pinned apps from both sets. But "allowlist mode" is built from
-     * the allow set ALONE ("excluded by omission" below), so simply omitting
+     * the allow set alone ("excluded by omission" below), so simply omitting
      * a pinned app drops it out of the vpn entirely the moment any other app
      * is included. Union the pinned apps into the allow set exactly when
      * allowlist mode is active; in denylist mode omission is correct, since

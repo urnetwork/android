@@ -3,13 +3,13 @@ package com.bringyour.network.ui.stats
 /**
  * What an app split rule does with the app's traffic.
  *
- * EXCLUDED and INCLUDED are tunnel MEMBERSHIP (enforced by the VpnService
+ * EXCLUDED and INCLUDED are tunnel membership (enforced by the VpnService
  * builder's disallow/allow lists). PINNED is not membership at all: the app
  * uses the tunnel like any other, but all of its flows are held to one exit,
  * so its API session and its CDNs present a single egress IP -- the fix for
  * apps whose images fail to load behind a multi-exit VPN. A pinned app must
  * never reach the builder's allow list, or the VPN would flip to
- * allowlist mode and route ONLY pinned apps.
+ * allowlist mode and route only pinned apps.
  */
 enum class AppSplitMode {
     EXCLUDED,

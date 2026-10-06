@@ -38,7 +38,7 @@ import com.bringyour.network.R
 import com.bringyour.network.ui.components.ButtonStyle
 import com.bringyour.network.ui.components.URButton
 
-// The login stack rule, shared by every flavor (and every app): up to THREE
+// The login stack rule, shared by every flavor (and every app): up to three
 // full-width buttons, then the remaining sign-in methods as square icon tiles,
 // four per row with each row's tiles stretched to fill it (a last row of two is
 // two half-width tiles), the rows as wide as the buttons above. Each flavor only

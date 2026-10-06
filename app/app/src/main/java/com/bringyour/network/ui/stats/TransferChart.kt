@@ -132,7 +132,7 @@ fun TransferChart(
         packetScaleTransition = ScaleTransition(packetScaleTransition.valueAt(now), targetScalePackets.toFloat(), now)
     }
 
-    // Run the ~20fps ticker ONLY while something is actually moving: recent
+    // Run the ~20fps ticker only while something is actually moving: recent
     // traffic still scrolling through the window, or an axis rescale in flight.
     // Otherwise the chart is a static flat line and the ticker pauses (no
     // per-frame work), resuming when new data arrives. The samples series still

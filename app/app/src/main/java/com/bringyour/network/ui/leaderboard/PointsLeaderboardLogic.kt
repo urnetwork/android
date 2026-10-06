@@ -3,8 +3,8 @@ package com.bringyour.network.ui.leaderboard
 /**
  * Pure rules behind the points leaderboard screen, kept free of Compose and of
  * the sdk (whose class init loads the native library) so they unit test on the
- * jvm. The sdk view controller owns the data; these only decide WHEN the
- * screen asks it for more and HOW the emoji editor reads a validation.
+ * jvm. The sdk view controller owns the data; these only decide when the
+ * screen asks it for more and how the emoji editor reads a validation.
  */
 object PointsLeaderboardPaging {
 
@@ -14,7 +14,7 @@ object PointsLeaderboardPaging {
     /**
      * True when the list has scrolled close enough to its end that the next
      * page should be requested. `lastVisibleRowIndex` is the index into the
-     * ROWS (header and footer items excluded); -1 when no row is visible.
+     * rows (header and footer items excluded); -1 when no row is visible.
      * The controller itself refuses a second in-flight page and a page past
      * the end, so this only avoids asking in the first place.
      *
@@ -41,7 +41,7 @@ object PointsLeaderboardPaging {
     /**
      * True when the list has scrolled close enough to the start of a seeked
      * window that the page before it should be requested. `firstVisibleRowIndex`
-     * is the index into the ROWS of the first visible item (negative while the
+     * is the index into the rows of the first visible item (negative while the
      * header above the rows is on screen). Same error gate as forward paging.
      */
     fun shouldLoadMoreBefore(

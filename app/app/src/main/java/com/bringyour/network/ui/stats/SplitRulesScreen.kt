@@ -187,7 +187,7 @@ fun SplitRulesScreen(
                 ruleId = rule.id,
             )
         } else {
-            // create a rule from the action's host values, all initially UNSELECTED:
+            // create a rule from the action's host values, all initially unselected:
             // the common case is picking one or a few server names, so pre-selecting
             // everything just makes the user uncheck the rest
             RuleEditorTarget(

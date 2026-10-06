@@ -120,7 +120,7 @@ class DeviceManager @Inject constructor(
 
     // Device lifecycle listeners: view models wire their SDK subscriptions per
     // device, and the device is (re)created asynchronously (login, network
-    // change) — an init-time `device?.let` silently wires NOTHING when the view
+    // change) — an init-time `device?.let` silently wires nothing when the view
     // model is created first. Sequencing prevents a delayed notification for a
     // retired device from arriving after its replacement.
     private val deviceChanges = SequencedValueListeners<DeviceLocal?>(null)

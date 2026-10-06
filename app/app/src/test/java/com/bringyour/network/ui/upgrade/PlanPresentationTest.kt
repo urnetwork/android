@@ -35,7 +35,7 @@ class PlanPresentationTest {
         val p = PlanPresentations.build(standard, null, StorePrice(39.99, "USD"), StorePrice(4.99, "USD"), Locale.US, rule)
         assertEquals("$39.99", p.yearlyPrice)
         assertEquals("$4.99", p.monthlyPrice)
-        // 39.99 / 12 = 3.3325 -> rounded UP, never understated
+        // 39.99 / 12 = 3.3325 -> rounded up, never understated
         assertEquals("$3.34", p.monthlyEquivalent)
         assertEquals(33, p.savingPercent)
         assertNull(p.offer)

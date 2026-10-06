@@ -138,13 +138,13 @@ private fun DeveloperContent(developerViewModel: DeveloperViewModel) {
     // A diagnostics export is most needed exactly when the connection is
     // broken or the user is signed out -- i.e. exactly when `connected`
     // (reliability != null, which requires a live device) is false. This
-    // section therefore renders ABOVE the !connected guard below rather than
+    // section therefore renders above the !connected guard below rather than
     // being gated on the healthy connection it exists to help diagnose the
     // absence of. The export tolerates a null device on its own
     // (deviceManager.device?.let { ... }), which is what makes that safe.
     URTextInputLabel(text = stringResource(id = R.string.dev_section_diagnostics))
 
-    // ABOVE the export rows on purpose: the order of operations is set the
+    // Above the export rows on purpose: the order of operations is set the
     // level, reproduce the fault, then export. A verbosity control placed
     // under the export actions is found only after the capture it was supposed
     // to widen, and the bundle it produced is the useless one -- close to half
@@ -156,7 +156,7 @@ private fun DeveloperContent(developerViewModel: DeveloperViewModel) {
         onSelect = developerViewModel.setLogVerbosity,
     )
 
-    // Beside the verbosity row and, like it, ABOVE the !connected guard below.
+    // Beside the verbosity row and, like it, above the !connected guard below.
     // An address family that fails after connecting is what makes the api
     // unreachable, so this row is reached while signed out or with the tunnel
     // down -- exactly where a row gated on `connected` would not be drawn.
@@ -233,7 +233,7 @@ private fun DeveloperContent(developerViewModel: DeveloperViewModel) {
     }
 
     // The total size before exporting, and any unavailable source with its
-    // reason, are both shown BEFORE the user commits to a bundle of up to
+    // reason, are both shown before the user commits to a bundle of up to
     // 4x16MB per process -- not afterwards in the summary. The read is
     // directory i/o plus a stat per file across the gomobile bridge, so it
     // happens once on entry, off the main thread.
@@ -896,7 +896,7 @@ private fun DeveloperContent(developerViewModel: DeveloperViewModel) {
     //
     // The provider-qualification prober (the "Probe providers" toggle and the
     // "Probes" counter above) does not share that trap: it resolves hostnames
-    // by querying a public resolver THROUGH the provider channel being probed
+    // by querying a public resolver through the provider channel being probed
     // -- no OS resolver, no tun resolver settings, no [::1]:53 fallback -- so
     // its results are about the provider, not the harness.
 
@@ -911,7 +911,7 @@ private fun DeveloperContent(developerViewModel: DeveloperViewModel) {
  * The glog verbosity of the process that writes the logs, cycling
  * Default -> Verbose -> Trace on tap.
  *
- * The value shown is the one the DEVICE reports, never the one last asked for.
+ * The value shown is the one the device reports, never the one last asked for.
  * A set can be clamped by the sdk or refused outright by a hosted device, and
  * neither throws -- so a level that failed to apply has to be visible here
  * rather than assumed, or the user reproduces a fault believing they are
@@ -933,7 +933,7 @@ private fun DeveloperVerbositySetting(
         LogVerbosityLevel.TRACE -> R.string.dev_log_verbosity_trace
         null -> R.string.dev_log_verbosity_unavailable
     }
-    // the detail line names what THIS level buys, so the cost of the next step
+    // the detail line names what this level buys, so the cost of the next step
     // is read before it is taken rather than discovered in the bundle
     val detail = when (named) {
         LogVerbosityLevel.DEFAULT -> R.string.dev_log_verbosity_default_detail
@@ -992,7 +992,7 @@ private fun DeveloperVerbositySetting(
  * Which address family the control plane dials over, cycling Automatic ->
  * Force IPv4 -> Force IPv6 on tap.
  *
- * Unlike [DeveloperVerbositySetting] this row is ALWAYS live. That row is
+ * Unlike [DeveloperVerbositySetting] this row is always live. That row is
  * inert without a device because there is no process to set a log level on;
  * this policy is process-global sdk state that is always answerable, and the
  * row has to work signed out and with the tunnel down -- those are the states
@@ -1207,7 +1207,7 @@ private fun DeveloperAction(
     Text(
         label,
         style = MaterialTheme.typography.bodyMedium,
-        // a disabled action has to LOOK disabled: an active-looking control
+        // a disabled action has to look disabled: an active-looking control
         // that silently does nothing reads as a broken app, and here the
         // "nothing" is deliberate (an empty selection, or an export already
         // running)

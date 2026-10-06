@@ -17,7 +17,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 /**
- * Why a redeem failed. These MUST stay distinguishable: a transport failure can
+ * Why a redeem failed. These must stay distinguishable: a transport failure can
  * arrive after the server already committed the redeem, so reporting it as "bad
  * code" tells the user their (consumed) code is invalid. The server's `result.error`
  * payload, by contrast, is an authoritative rejection.

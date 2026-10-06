@@ -203,7 +203,7 @@ class VpnPacketFlowConfigurationTest {
     @Test
     fun killSwitchKeepsCapturingEvenWhenNotConnected() {
         // Security regression guard: the kill switch ("Allow local traffic when
-        // disconnected" off) is implemented BY capturing everything with no
+        // disconnected" off) is implemented by capturing everything with no
         // exit. ESCAPE must never release the user's traffic to the ISP while
         // the kill switch is on, even when not connected.
         assertEquals(
@@ -364,7 +364,7 @@ class VpnPacketFlowConfigurationTest {
 
     @Test
     fun killSwitchNeverEscapesRegardlessOfConnectivityOrIncludes() {
-        // This is the CRITICAL regression the first-pass fix introduced:
+        // This is the critical regression the first-pass fix introduced:
         // `!connected -> ESCAPE` silently released user traffic to the ISP in
         // the clear while the kill switch was on. Escaping is never correct
         // while the user asked for capture-without-exit.

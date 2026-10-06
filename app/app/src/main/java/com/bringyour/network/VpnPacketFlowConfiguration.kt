@@ -45,7 +45,7 @@ internal enum class VpnIpv6Policy {
  * Which routing policy to apply when building the VPN packet flow.
  *
  * ESCAPE keeps the tunnel technically up (so provide stays armed) but lets no
- * real app see it: used when the device is offline OR when there is no live
+ * real app see it: used when the device is offline or when there is no live
  * provider exit yet (connected == false). Failing closed on !connected stops
  * other apps being captured into a tunnel that has no working egress, which
  * blackholes their DNS and connectivity.
@@ -68,7 +68,7 @@ internal fun vpnPacketFlowMode(
     includedAppIds: Set<String>,
 ): VpnPacketFlowMode = when {
     offline -> VpnPacketFlowMode.ESCAPE
-    // Escape only when the tunnel is up PURELY for provide (no kill switch,
+    // Escape only when the tunnel is up purely for provide (no kill switch,
     // no connect intent, no live exit). In every other not-connected case the
     // user asked for capture (kill switch) or for their traffic to be held
     // (connect): those must not escape, or they leak to the ISP in the clear.

@@ -43,7 +43,7 @@ fun isGlogFileName(name: String): Boolean =
  * upgrades and then reports an incident that predates the upgrade attaches
  * none of the logs that recorded it.
  *
- * Moving rather than deleting keeps those logs reachable, and doing it BEFORE
+ * Moving rather than deleting keeps those logs reachable, and doing it before
  * `Sdk.setLogDirForProcess` hands the merged set to that same retention pass
  * -- which keeps the four newest and drops the rest -- so this bounds the
  * storage rather than doubling it.
