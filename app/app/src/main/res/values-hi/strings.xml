@@ -901,6 +901,8 @@
     <string name="site_app_contracts">कॉन्ट्रैक्ट</string>
     <string name="site_app_email">ईमेल</string>
     <string name="site_app_providers">प्रदाता</string>
+    <string name="site_payment_error_already_subscribed">आपके पास पहले से Pro है, इसलिए कोई शुल्क नहीं लिया गया। अपनी सदस्यता अपने खाते से प्रबंधित करें।</string>
+    <string name="site_payment_error_plan_unavailable">यह प्लान अभी उपलब्ध नहीं है। बाद में फिर से कोशिश करें।</string>
     <string name="site_save_your_seedphrase">अपना सीडफ़्रेज़ सहेजें</string>
     <string name="skip">छोड़ें</string>
     <string name="sn_payout_schedule">कमाई हर एपोक में तय होती है और जब आप उस पर दावा करते हैं, तो SN25α में आपके Bittensor coldkey पर भुगतान की जाती है।</string>

@@ -901,6 +901,8 @@
     <string name="site_app_contracts">合约</string>
     <string name="site_app_email">电子邮箱</string>
     <string name="site_app_providers">提供者</string>
+    <string name="site_payment_error_already_subscribed">您已拥有 Pro，因此未扣款。请在您的账户中管理订阅。</string>
+    <string name="site_payment_error_plan_unavailable">此方案暂不可用。请稍后重试。</string>
     <string name="site_save_your_seedphrase">保存你的助记词</string>
     <string name="skip">跳过</string>
     <string name="sn_payout_schedule">收益每个周期结算一次，你领取后会以 SN25α 支付到你的 Bittensor coldkey。</string>

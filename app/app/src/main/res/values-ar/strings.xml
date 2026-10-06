@@ -901,6 +901,8 @@
     <string name="site_app_contracts">العقود</string>
     <string name="site_app_email">البريد الإلكتروني</string>
     <string name="site_app_providers">المزوّدون</string>
+    <string name="site_payment_error_already_subscribed">لديك Pro بالفعل، لذا لم يتم تحصيل أي مبلغ. يمكنك إدارة اشتراكك من حسابك.</string>
+    <string name="site_payment_error_plan_unavailable">هذه الخطة غير متاحة حاليًا. حاول مرة أخرى لاحقًا.</string>
     <string name="site_save_your_seedphrase">احفظ عبارة الاسترداد</string>
     <string name="skip">تخطي</string>
     <string name="sn_payout_schedule">تُسوّى الأرباح في كل فترة وتُدفع بعملة SN25α إلى coldkey الخاص بك على Bittensor عند المطالبة بها.</string>
