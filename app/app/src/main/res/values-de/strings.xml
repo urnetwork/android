@@ -937,6 +937,8 @@
     <string name="site_app_email">E-Mail</string>
     <string name="site_app_phone">Telefon</string>
     <string name="site_app_providers">Provider</string>
+    <string name="site_payment_error_already_subscribed">Du hast bereits Pro, es wurde nichts berechnet. Verwalte dein Abo in deinem Konto.</string>
+    <string name="site_payment_error_plan_unavailable">Dieser Tarif ist gerade nicht verfügbar. Versuche es später erneut.</string>
     <string name="site_save_your_seedphrase">Sichere deine Seedphrase</string>
     <string name="skip">Überspringen</string>
     <string name="sn_payout_schedule">Einnahmen werden jede Epoche abgerechnet und in SN25α an deinen Bittensor-Coldkey ausgezahlt, sobald du sie einlöst.</string>

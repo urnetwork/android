@@ -937,6 +937,8 @@
     <string name="site_app_email">อีเมล</string>
     <string name="site_app_phone">โทรศัพท์</string>
     <string name="site_app_providers">ผู้ให้บริการ</string>
+    <string name="site_payment_error_already_subscribed">คุณมี Pro อยู่แล้ว จึงไม่มีการเรียกเก็บเงิน จัดการการสมัครสมาชิกได้จากบัญชีของคุณ</string>
+    <string name="site_payment_error_plan_unavailable">แพ็กเกจนี้ไม่พร้อมใช้งานในขณะนี้ โปรดลองอีกครั้งภายหลัง</string>
     <string name="site_save_your_seedphrase">บันทึกซีดเฟรสของคุณ</string>
     <string name="skip">ข้าม</string>
     <string name="sn_payout_schedule">รายได้จะสรุปทุกอีพอคและจ่ายเป็น SN25α ไปยัง coldkey Bittensor ของคุณเมื่อคุณกดรับ</string>

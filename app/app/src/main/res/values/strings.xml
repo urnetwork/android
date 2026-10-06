@@ -944,6 +944,8 @@
     <string name="site_app_email">Email</string>
     <string name="site_app_phone">Phone</string>
     <string name="site_app_providers">Providers</string>
+    <string name="site_payment_error_already_subscribed">You already have Pro, so nothing was charged. Manage your subscription from your account.</string>
+    <string name="site_payment_error_plan_unavailable">This plan is not available right now. Try again later.</string>
     <string name="site_save_your_seedphrase">Save Your Seedphrase</string>
     <string name="skip">Skip</string>
     <string name="sn_alpha_symbol" translatable="false">SN25α</string>

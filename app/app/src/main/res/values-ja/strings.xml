@@ -937,6 +937,8 @@
     <string name="site_app_email">メール</string>
     <string name="site_app_phone">電話番号</string>
     <string name="site_app_providers">プロバイダー</string>
+    <string name="site_payment_error_already_subscribed">すでに Pro をご利用中のため、請求は発生していません。サブスクリプションはアカウントから管理してください。</string>
+    <string name="site_payment_error_plan_unavailable">このプランは現在ご利用いただけません。後でもう一度お試しください。</string>
     <string name="site_save_your_seedphrase">シードフレーズを保存</string>
     <string name="skip">スキップ</string>
     <string name="sn_payout_schedule">収益はエポックごとに確定し、受け取ると SN25α で Bittensor の coldkey に支払われます。</string>

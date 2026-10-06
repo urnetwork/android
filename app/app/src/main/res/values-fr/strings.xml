@@ -937,6 +937,8 @@
     <string name="site_app_email">E-mail</string>
     <string name="site_app_phone">Téléphone</string>
     <string name="site_app_providers">Fournisseurs</string>
+    <string name="site_payment_error_already_subscribed">Vous avez déjà Pro, donc rien n\'a été facturé. Gérez votre abonnement depuis votre compte.</string>
+    <string name="site_payment_error_plan_unavailable">Cette offre n\'est pas disponible pour le moment. Réessayez plus tard.</string>
     <string name="site_save_your_seedphrase">Enregistrez votre phrase de récupération</string>
     <string name="skip">Passer</string>
     <string name="sn_payout_schedule">Les gains sont réglés à chaque époque et versés en SN25α sur votre coldkey Bittensor lorsque vous les réclamez.</string>

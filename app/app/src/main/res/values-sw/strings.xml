@@ -937,6 +937,8 @@
     <string name="site_app_email">Barua pepe</string>
     <string name="site_app_phone">Simu</string>
     <string name="site_app_providers">Watoa huduma</string>
+    <string name="site_payment_error_already_subscribed">Tayari una Pro, kwa hivyo hukutozwa chochote. Dhibiti usajili wako kutoka kwenye akaunti yako.</string>
+    <string name="site_payment_error_plan_unavailable">Mpango huu haupatikani kwa sasa. Jaribu tena baadaye.</string>
     <string name="site_save_your_seedphrase">Hifadhi seedphrase yako</string>
     <string name="skip">Ruka</string>
     <string name="sn_payout_schedule">Mapato hulipwa kila kipindi kwa SN25α kwenye coldkey yako ya Bittensor unapoyadai.</string>

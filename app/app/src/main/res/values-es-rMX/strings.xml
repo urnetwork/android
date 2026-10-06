@@ -937,6 +937,8 @@
     <string name="site_app_email">Correo electrónico</string>
     <string name="site_app_phone">Teléfono</string>
     <string name="site_app_providers">Proveedores</string>
+    <string name="site_payment_error_already_subscribed">Ya tienes Pro, así que no se te cobró nada. Administra tu suscripción desde tu cuenta.</string>
+    <string name="site_payment_error_plan_unavailable">Este plan no está disponible en este momento. Vuelve a intentarlo más tarde.</string>
     <string name="site_save_your_seedphrase">Guarda tu frase semilla</string>
     <string name="skip">Omitir</string>
     <string name="sn_payout_schedule">Las ganancias se liquidan cada época y se pagan en SN25α a tu coldkey de Bittensor cuando las reclamas.</string>

@@ -937,6 +937,8 @@
     <string name="site_app_email">Email</string>
     <string name="site_app_phone">Телефон</string>
     <string name="site_app_providers">Провайдеры</string>
+    <string name="site_payment_error_already_subscribed">У вас уже есть Pro, поэтому оплата не списана. Управляйте подпиской в своём аккаунте.</string>
+    <string name="site_payment_error_plan_unavailable">Этот тариф сейчас недоступен. Попробуйте позже.</string>
     <string name="site_save_your_seedphrase">Сохраните сид-фразу</string>
     <string name="skip">Пропустить</string>
     <string name="sn_payout_schedule">Заработок рассчитывается каждую эпоху и выплачивается в SN25α на ваш coldkey Bittensor, когда вы его получаете.</string>

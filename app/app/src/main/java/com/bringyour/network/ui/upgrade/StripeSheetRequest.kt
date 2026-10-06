@@ -17,7 +17,8 @@ import com.bringyour.sdk.StripePaymentSheetResult
  * trial). The result's amounts tell the sheet what the first period costs.
  * A refusal says what it leads to: a legacy guest network is refused with
  * `guest_sign_in_required`, which opens the add-sign-in sheet
- * (GuestAccount.purchaseRefusal) instead of the error.
+ * (GuestAccount.purchaseRefusal) instead of the error. Any other failure comes
+ * back as a StripeSheetFailure, which CheckoutRefusal words.
  */
 object StripeSheetRequest {
 
@@ -28,7 +29,7 @@ object StripeSheetRequest {
         api: Api,
         plan: PlanType,
         storefrontCountry: String?,
-        callback: (StripePaymentSheetResult?, String?, PurchaseRefusal) -> Unit,
+        callback: (StripePaymentSheetResult?, StripeSheetFailure?, PurchaseRefusal) -> Unit,
     ) {
         val args = StripePaymentSheetArgs()
         args.plan = if (plan == PlanType.YEARLY) Sdk.PlanYearly else Sdk.PlanMonthly
@@ -36,9 +37,13 @@ object StripeSheetRequest {
         args.stripeVersion = STRIPE_VERSION
         api.stripePaymentSheet(args) { result, err ->
             when {
-                err != null -> callback(null, err.message ?: "network", PurchaseRefusal.PaymentError)
-                result == null -> callback(null, "empty", PurchaseRefusal.PaymentError)
-                result.error != null -> callback(null, result.error.message, GuestAccount.purchaseRefusal(result.error.code))
+                err != null -> callback(null, StripeSheetFailure.NoAnswer(err.message ?: "network"), PurchaseRefusal.PaymentError)
+                result == null -> callback(null, StripeSheetFailure.NoAnswer("empty"), PurchaseRefusal.PaymentError)
+                result.error != null -> callback(
+                    null,
+                    StripeSheetFailure.Refused(result.error.code ?: "", result.error.message ?: ""),
+                    GuestAccount.purchaseRefusal(result.error.code),
+                )
                 else -> callback(result, null, PurchaseRefusal.PaymentError)
             }
         }

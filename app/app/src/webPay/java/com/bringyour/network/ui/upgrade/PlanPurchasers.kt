@@ -114,7 +114,7 @@ fun rememberPlanPurchaser(
                 if (yearly) (presentation.offer?.firstYearAmount ?: presentation.yearlyAmount) else presentation.monthlyAmount,
                 presentation.currency,
             )
-            StripeSheetRequest.request(api, plan, subscriptionBalanceViewModel.storefrontCountry) { result, error, refusal ->
+            StripeSheetRequest.request(api, plan, subscriptionBalanceViewModel.storefrontCountry) { result, failure, refusal ->
                 if (result == null) {
                     subscriptionBalanceViewModel.cancelPurchaseConfirmation()
                     planViewModel.setInProgress(false)
@@ -125,7 +125,10 @@ fun rememberPlanPurchaser(
                         return@request
                     }
                     ClientEvents.purchaseFailed(Sdk.EventStoreStripe, ClientEvents.PRODUCT_STRIPE_PRO, planName, yearly, 0.0, presentation.currency, "prepare")
-                    planViewModel.setChangePlanError(listOfNotNull(notCompleted, error).joinToString("\n"))
+                    // a refusal the app has a line for reads that line, in the reader's language
+                    planViewModel.setChangePlanError(
+                        failure?.let { CheckoutRefusal.message(it, notCompleted) { id -> context.getString(id) } } ?: notCompleted
+                    )
                     return@request
                 }
                 val secret = if (result.intentType == Sdk.StripeIntentTypeSetup) result.setupIntentClientSecret else result.paymentIntentClientSecret

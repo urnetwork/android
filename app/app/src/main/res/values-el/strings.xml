@@ -937,6 +937,8 @@
     <string name="site_app_email">Email</string>
     <string name="site_app_phone">Τηλέφωνο</string>
     <string name="site_app_providers">Πάροχοι</string>
+    <string name="site_payment_error_already_subscribed">Έχετε ήδη Pro, οπότε δεν έγινε καμία χρέωση. Διαχειριστείτε τη συνδρομή σας από τον λογαριασμό σας.</string>
+    <string name="site_payment_error_plan_unavailable">Αυτό το πρόγραμμα δεν είναι διαθέσιμο αυτή τη στιγμή. Δοκιμάστε ξανά αργότερα.</string>
     <string name="site_save_your_seedphrase">Αποθηκεύστε τη seedphrase σας</string>
     <string name="skip">Παράλειψη</string>
     <string name="sn_payout_schedule">Τα κέρδη εκκαθαρίζονται σε κάθε εποχή και πληρώνονται σε SN25α στο Bittensor coldkey σας όταν τα διεκδικήσετε.</string>
