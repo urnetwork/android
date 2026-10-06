@@ -152,7 +152,7 @@ class SolanaPayQuoteTest {
     fun parsingRejectsWhatIsNotAPaymentUrl() {
         assertNull(parseSolanaPayUrl(""))
         assertNull(parseSolanaPayUrl("solana:"))
-        assertNull(parseSolanaPayUrl("https://ur.io"))
+        assertNull(parseSolanaPayUrl("https://site.example"))
         assertNull(parseSolanaPayUrl("solana"))
     }
 

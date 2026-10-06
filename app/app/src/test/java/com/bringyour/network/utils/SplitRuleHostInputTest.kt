@@ -55,13 +55,13 @@ class SplitRuleHostInputTest {
 
     @Test
     fun addressesAreAccepted() {
-        assertEquals("1.2.3.4", SplitRuleHostInput.validate("1.2.3.4").normalized)
+        assertEquals("192.0.2.4", SplitRuleHostInput.validate("192.0.2.4").normalized)
         assertEquals("2001:db8::1", SplitRuleHostInput.validate("2001:db8::1").normalized)
     }
 
     @Test
     fun mappedAddressesAreUnmapped() {
-        assertEquals("1.2.3.4", SplitRuleHostInput.validate("::ffff:1.2.3.4").normalized)
+        assertEquals("192.0.2.4", SplitRuleHostInput.validate("::ffff:192.0.2.4").normalized)
     }
 
     @Test
@@ -157,7 +157,7 @@ class SplitRuleHostInputTest {
     fun signedOrPaddedNumbersAreRefused() {
         // read as numbers, these would be "normalized" into an address or
         // range other than the one typed
-        assertEquals(SplitRuleHostError.BadName, SplitRuleHostInput.validate("+1.2.3.4").error)
+        assertEquals(SplitRuleHostError.BadName, SplitRuleHostInput.validate("+192.0.2.4").error)
         assertEquals(SplitRuleHostError.BadName, SplitRuleHostInput.validate("-1::").error)
         assertEquals(SplitRuleHostError.BadRange, SplitRuleHostInput.validate("10.0.0.0/+8").error)
         assertEquals(SplitRuleHostError.BadRange, SplitRuleHostInput.validate("10.0.0.0/08").error)
@@ -166,8 +166,8 @@ class SplitRuleHostInputTest {
 
     @Test
     fun embeddedIpv4AfterDoubleColonIsAccepted() {
-        assertEquals("::102:304", SplitRuleHostInput.validate("::1.2.3.4").normalized)
-        assertEquals("1::102:304", SplitRuleHostInput.validate("1::1.2.3.4").normalized)
-        assertEquals("1.2.3.4", SplitRuleHostInput.validate("::ffff:1.2.3.4").normalized)
+        assertEquals("::c000:204", SplitRuleHostInput.validate("::192.0.2.4").normalized)
+        assertEquals("1::c000:204", SplitRuleHostInput.validate("1::192.0.2.4").normalized)
+        assertEquals("192.0.2.4", SplitRuleHostInput.validate("::ffff:192.0.2.4").normalized)
     }
 }
