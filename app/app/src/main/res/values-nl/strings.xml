@@ -240,6 +240,8 @@
     <string name="dev_evaluation_pool_detail">Hoeveel providers een vensteruitbreiding pingt en rangschikt per plek die nodig is, waarbij de beste blijven. 1 beoordeelt precies wat nodig is</string>
     <string name="dev_exit_dial_failures">Mislukte verbindingen: %1$d</string>
     <string name="dev_exit_flows">Flows: %1$d</string>
+    <string name="dev_exit_policy_generation">beleidsgeneratie %1$d</string>
+    <string name="dev_exit_policy_generation_unknown">beleidsgeneratie onbekend</string>
     <string name="dev_exits">Exits</string>
     <string name="dev_export_all_logs">Alle logs exporteren (onbewerkt)</string>
     <string name="dev_export_failed">Exporteren mislukt: %1$s</string>
@@ -347,6 +349,11 @@
     <string name="dev_stall_exit">Laten vastlopen</string>
     <string name="dev_standing_reserve">Een reserve-exit warm houden</string>
     <string name="dev_standing_reserve_detail">Maak elk venster één exit groter dan het doel, zodat er al een vervanger verbonden is. Uit wacht tot er een wegvalt om aan te vullen</string>
+    <string name="dev_state_benched">op de bank</string>
+    <string name="dev_state_done">klaar</string>
+    <string name="dev_state_proven">bewezen</string>
+    <string name="dev_state_tier">niveau %1$s</string>
+    <string name="dev_state_warned">gewaarschuwd</string>
     <string name="dev_tcp_collapse_hold">Vastzittende hertransmissies vrijgeven</string>
     <string name="dev_tcp_collapse_hold_detail">Hoe lang hertransmissies worden vastgehouden voordat er één wordt vrijgegeven. Uit wacht 30 s</string>
     <string name="dev_tcp_idle_timeout">Langere TCP-inactiviteitstime-out</string>

@@ -240,6 +240,8 @@
     <string name="dev_evaluation_pool_detail">창 확장 시 필요한 슬롯마다 ping으로 확인하고 순위를 매기는 제공자 수이며, 가장 좋은 제공자를 남깁니다. 1은 필요한 만큼만 평가합니다</string>
     <string name="dev_exit_dial_failures">연결 실패 %1$d회</string>
     <string name="dev_exit_flows">플로우 %1$d개</string>
+    <string name="dev_exit_policy_generation">정책 세대 %1$d</string>
+    <string name="dev_exit_policy_generation_unknown">정책 세대 알 수 없음</string>
     <string name="dev_exits">출구</string>
     <string name="dev_export_all_logs">모든 로그 내보내기(원본)</string>
     <string name="dev_export_failed">내보내기 실패: %1$s</string>
@@ -347,6 +349,11 @@
     <string name="dev_stall_exit">멈추기</string>
     <string name="dev_standing_reserve">예비 출구 대기시켜 두기</string>
     <string name="dev_standing_reserve_detail">각 창을 목표보다 출구 하나만큼 크게 잡아 대체 출구가 이미 연결되어 있게 합니다. 끄면 손실이 생긴 뒤에 보충합니다</string>
+    <string name="dev_state_benched">대기 중</string>
+    <string name="dev_state_done">완료</string>
+    <string name="dev_state_proven">검증됨</string>
+    <string name="dev_state_tier">등급 %1$s</string>
+    <string name="dev_state_warned">경고됨</string>
     <string name="dev_tcp_collapse_hold">막힌 재전송 풀기</string>
     <string name="dev_tcp_collapse_hold_detail">재전송을 보류했다가 하나를 풀어 주기까지의 시간입니다. 끄면 30초를 기다립니다</string>
     <string name="dev_tcp_idle_timeout">더 긴 TCP 유휴 제한 시간</string>

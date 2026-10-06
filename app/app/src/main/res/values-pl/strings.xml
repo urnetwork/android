@@ -240,6 +240,8 @@
     <string name="dev_evaluation_pool_detail">Ilu dostawców rozszerzenie okna pinguje i ocenia na każde potrzebne miejsce, zostawiając najlepszych. 1 ocenia dokładnie tyle, ile trzeba</string>
     <string name="dev_exit_dial_failures">Nieudane połączenia: %1$d</string>
     <string name="dev_exit_flows">Przepływy: %1$d</string>
+    <string name="dev_exit_policy_generation">generacja polityki %1$d</string>
+    <string name="dev_exit_policy_generation_unknown">generacja polityki nieznana</string>
     <string name="dev_exits">Wyjścia</string>
     <string name="dev_export_all_logs">Eksportuj wszystkie logi (surowe)</string>
     <string name="dev_export_failed">Eksport nie powiódł się: %1$s</string>
@@ -347,6 +349,11 @@
     <string name="dev_stall_exit">Zablokuj</string>
     <string name="dev_standing_reserve">Trzymaj zapasowe wyjście w gotowości</string>
     <string name="dev_standing_reserve_detail">Każde okno ma o jedno wyjście więcej niż cel, więc zastępca jest już połączony. Wyłączenie czeka z uzupełnieniem na utratę</string>
+    <string name="dev_state_benched">na ławce</string>
+    <string name="dev_state_done">zakończone</string>
+    <string name="dev_state_proven">sprawdzone</string>
+    <string name="dev_state_tier">poziom %1$s</string>
+    <string name="dev_state_warned">ostrzeżone</string>
     <string name="dev_tcp_collapse_hold">Zwalniaj utknięte retransmisje</string>
     <string name="dev_tcp_collapse_hold_detail">Jak długo retransmisje są wstrzymywane, zanim jedna zostanie zwolniona. Wyłączenie czeka 30 s</string>
     <string name="dev_tcp_idle_timeout">Dłuższy limit bezczynności TCP</string>

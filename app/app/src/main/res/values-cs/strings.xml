@@ -240,6 +240,8 @@
     <string name="dev_evaluation_pool_detail">Kolik poskytovatelů rozšíření okna otestuje pingem a seřadí na každou potřebnou pozici, přičemž si ponechá ty nejlepší. 1 hodnotí přesně tolik, kolik je potřeba</string>
     <string name="dev_exit_dial_failures">Neúspěšná připojení: %1$d</string>
     <string name="dev_exit_flows">Toky: %1$d</string>
+    <string name="dev_exit_policy_generation">generace zásad %1$d</string>
+    <string name="dev_exit_policy_generation_unknown">generace zásad neznámá</string>
     <string name="dev_exits">Výstupy</string>
     <string name="dev_export_all_logs">Exportovat všechny logy (nezpracované)</string>
     <string name="dev_export_failed">Export selhal: %1$s</string>
@@ -347,6 +349,11 @@
     <string name="dev_stall_exit">Zaseknout</string>
     <string name="dev_standing_reserve">Držet záložní výstup připravený</string>
     <string name="dev_standing_reserve_detail">Každé okno má o jeden výstup víc, než je cíl, takže náhrada je už připojená. Vypnuto čeká s doplněním na ztrátu</string>
+    <string name="dev_state_benched">na lavičce</string>
+    <string name="dev_state_done">hotovo</string>
+    <string name="dev_state_proven">ověřený</string>
+    <string name="dev_state_tier">úroveň %1$s</string>
+    <string name="dev_state_warned">varovaný</string>
     <string name="dev_tcp_collapse_hold">Uvolnit uvízlá opakovaná odeslání</string>
     <string name="dev_tcp_collapse_hold_detail">Jak dlouho se opakovaná odeslání zadržují, než se jedno uvolní. Vypnuto čeká 30 s</string>
     <string name="dev_tcp_idle_timeout">Delší časový limit nečinnosti TCP</string>

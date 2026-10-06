@@ -240,6 +240,8 @@
     <string name="dev_evaluation_pool_detail">Combien de fournisseurs une extension de fenêtre teste par ping et classe pour chaque emplacement nécessaire, en gardant les meilleurs. 1 évalue exactement ce qu’il faut</string>
     <string name="dev_exit_dial_failures">Connexions échouées : %1$d</string>
     <string name="dev_exit_flows">Flux : %1$d</string>
+    <string name="dev_exit_policy_generation">génération de politique %1$d</string>
+    <string name="dev_exit_policy_generation_unknown">génération de politique inconnue</string>
     <string name="dev_exits">Sorties</string>
     <string name="dev_export_all_logs">Exporter tous les journaux (bruts)</string>
     <string name="dev_export_failed">Échec de l’export : %1$s</string>
@@ -347,6 +349,11 @@
     <string name="dev_stall_exit">Figer</string>
     <string name="dev_standing_reserve">Garder une sortie de réserve prête</string>
     <string name="dev_standing_reserve_detail">Dimensionne chaque fenêtre avec une sortie de plus que sa cible pour qu’un remplaçant soit déjà connecté. Désactivé attend une perte pour compléter</string>
+    <string name="dev_state_benched">sur la touche</string>
+    <string name="dev_state_done">terminée</string>
+    <string name="dev_state_proven">éprouvée</string>
+    <string name="dev_state_tier">niveau %1$s</string>
+    <string name="dev_state_warned">avertie</string>
     <string name="dev_tcp_collapse_hold">Libérer les retransmissions bloquées</string>
     <string name="dev_tcp_collapse_hold_detail">Combien de temps les retransmissions sont retenues avant d’en libérer une. Désactivé attend 30 s</string>
     <string name="dev_tcp_idle_timeout">Délai d’inactivité TCP plus long</string>

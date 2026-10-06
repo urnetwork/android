@@ -240,6 +240,8 @@
     <string name="dev_evaluation_pool_detail">ウィンドウの拡張時に、必要なスロットごとに ping してランク付けするプロバイダーの数。最も良いものを残します。1 は必要な数だけを評価します</string>
     <string name="dev_exit_dial_failures">接続失敗：%1$d</string>
     <string name="dev_exit_flows">フロー：%1$d</string>
+    <string name="dev_exit_policy_generation">ポリシー世代 %1$d</string>
+    <string name="dev_exit_policy_generation_unknown">ポリシー世代 不明</string>
     <string name="dev_exits">出口</string>
     <string name="dev_export_all_logs">すべてのログをエクスポート（未加工）</string>
     <string name="dev_export_failed">エクスポートに失敗しました：%1$s</string>
@@ -347,6 +349,11 @@
     <string name="dev_stall_exit">停止させる</string>
     <string name="dev_standing_reserve">予備の出口を待機させておく</string>
     <string name="dev_standing_reserve_detail">各ウィンドウを目標より 1 つ多い出口で構成し、代わりの出口を接続済みにしておきます。オフにすると、失われてから補充します</string>
+    <string name="dev_state_benched">待機中</string>
+    <string name="dev_state_done">完了</string>
+    <string name="dev_state_proven">実証済み</string>
+    <string name="dev_state_tier">ティア %1$s</string>
+    <string name="dev_state_warned">警告済み</string>
     <string name="dev_tcp_collapse_hold">詰まった再送を解放</string>
     <string name="dev_tcp_collapse_hold_detail">再送を保留してから 1 つ解放するまでの時間。オフにすると 30 秒待ちます</string>
     <string name="dev_tcp_idle_timeout">TCP のアイドルタイムアウトを延長</string>

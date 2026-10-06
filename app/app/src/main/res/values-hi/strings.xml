@@ -240,6 +240,8 @@
     <string name="dev_evaluation_pool_detail">विंडो विस्तार अपनी ज़रूरत के हर स्लॉट के लिए कितने प्रदाताओं को पिंग और रैंक करता है, और सबसे अच्छे रखता है। 1 ठीक उतने ही जाँचता है जितने चाहिए</string>
     <string name="dev_exit_dial_failures">विफल डायल: %1$d</string>
     <string name="dev_exit_flows">फ़्लो: %1$d</string>
+    <string name="dev_exit_policy_generation">नीति पीढ़ी %1$d</string>
+    <string name="dev_exit_policy_generation_unknown">नीति पीढ़ी अज्ञात</string>
     <string name="dev_exits">एग्ज़िट</string>
     <string name="dev_export_all_logs">सभी लॉग एक्सपोर्ट करें (रॉ)</string>
     <string name="dev_export_failed">एक्सपोर्ट विफल: %1$s</string>
@@ -347,6 +349,11 @@
     <string name="dev_stall_exit">अटकाएँ</string>
     <string name="dev_standing_reserve">एक अतिरिक्त एग्ज़िट तैयार रखें</string>
     <string name="dev_standing_reserve_detail">हर विंडो को उसके लक्ष्य से एक एग्ज़िट बड़ा रखें, ताकि बदलने वाला पहले से कनेक्ट रहे। बंद करने पर कमी भरने के लिए नुकसान का इंतज़ार होता है</string>
+    <string name="dev_state_benched">बेंच पर</string>
+    <string name="dev_state_done">पूरा</string>
+    <string name="dev_state_proven">सिद्ध</string>
+    <string name="dev_state_tier">स्तर %1$s</string>
+    <string name="dev_state_warned">चेतावनी दी गई</string>
     <string name="dev_tcp_collapse_hold">अटके रीट्रांसमिट छोड़ें</string>
     <string name="dev_tcp_collapse_hold_detail">किसी एक को छोड़ने से पहले रीट्रांसमिट कितनी देर रोके जाते हैं। बंद करने पर 30 सेकंड इंतज़ार होता है</string>
     <string name="dev_tcp_idle_timeout">लंबा TCP निष्क्रियता टाइमआउट</string>

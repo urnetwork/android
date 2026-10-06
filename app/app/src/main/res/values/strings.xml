@@ -243,6 +243,8 @@
     <string name="dev_evaluation_pool_detail">How many providers a window expansion pings and ranks per slot it needs, keeping the best. 1 evaluates exactly what it needs</string>
     <string name="dev_exit_dial_failures">%1$d failed dials</string>
     <string name="dev_exit_flows">%1$d flows</string>
+    <string name="dev_exit_policy_generation">policy generation %1$d</string>
+    <string name="dev_exit_policy_generation_unknown">policy generation unknown</string>
     <string name="dev_exits">Exits</string>
     <string name="dev_export_all_logs">Export all logs (raw)</string>
     <string name="dev_export_failed">Export failed: %1$s</string>
@@ -350,6 +352,12 @@
     <string name="dev_stall_exit">Stall</string>
     <string name="dev_standing_reserve">Keep a spare exit warm</string>
     <string name="dev_standing_reserve_detail">Size each window one exit beyond its target so a replacement is already connected. Off waits until a loss to backfill</string>
+    <string name="dev_state_benched">benched</string>
+    <string name="dev_state_done">done</string>
+    <string name="dev_state_p2p" translatable="false">p2p</string>
+    <string name="dev_state_proven">proven</string>
+    <string name="dev_state_tier">tier %1$s</string>
+    <string name="dev_state_warned">warned</string>
     <string name="dev_tcp_collapse_hold">Release stuck retransmits</string>
     <string name="dev_tcp_collapse_hold_detail">How long retransmits are held before one is released. Off waits 30s</string>
     <string name="dev_tcp_idle_timeout">Longer TCP idle timeout</string>
