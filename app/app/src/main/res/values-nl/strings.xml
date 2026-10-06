@@ -240,6 +240,8 @@
     <string name="dev_evaluation_pool_detail">Hoeveel providers een vensteruitbreiding pingt en rangschikt per plek die nodig is, waarbij de beste blijven. 1 beoordeelt precies wat nodig is</string>
     <string name="dev_exit_dial_failures">Mislukte verbindingen: %1$d</string>
     <string name="dev_exit_flows">Flows: %1$d</string>
+    <string name="dev_exit_policy_generation">beleidsgeneratie %1$d</string>
+    <string name="dev_exit_policy_generation_unknown">beleidsgeneratie onbekend</string>
     <string name="dev_exits">Exits</string>
     <string name="dev_export_all_logs">Alle logs exporteren (onbewerkt)</string>
     <string name="dev_export_failed">Exporteren mislukt: %1$s</string>

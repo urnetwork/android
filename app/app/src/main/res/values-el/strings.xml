@@ -240,6 +240,8 @@
     <string name="dev_evaluation_pool_detail">Πόσους παρόχους ελέγχει με ping και κατατάσσει μια επέκταση παραθύρου για κάθε θέση που χρειάζεται, κρατώντας τους καλύτερους. Το 1 αξιολογεί ακριβώς όσους χρειάζονται</string>
     <string name="dev_exit_dial_failures">Αποτυχημένες συνδέσεις: %1$d</string>
     <string name="dev_exit_flows">Ροές: %1$d</string>
+    <string name="dev_exit_policy_generation">γενιά πολιτικής %1$d</string>
+    <string name="dev_exit_policy_generation_unknown">γενιά πολιτικής άγνωστη</string>
     <string name="dev_exits">Έξοδοι</string>
     <string name="dev_export_all_logs">Εξαγωγή όλων των αρχείων καταγραφής (ακατέργαστα)</string>
     <string name="dev_export_failed">Η εξαγωγή απέτυχε: %1$s</string>

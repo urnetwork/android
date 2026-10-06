@@ -240,6 +240,8 @@
     <string name="dev_evaluation_pool_detail">Combien de fournisseurs une extension de fenêtre teste par ping et classe pour chaque emplacement nécessaire, en gardant les meilleurs. 1 évalue exactement ce qu’il faut</string>
     <string name="dev_exit_dial_failures">Connexions échouées : %1$d</string>
     <string name="dev_exit_flows">Flux : %1$d</string>
+    <string name="dev_exit_policy_generation">génération de politique %1$d</string>
+    <string name="dev_exit_policy_generation_unknown">génération de politique inconnue</string>
     <string name="dev_exits">Sorties</string>
     <string name="dev_export_all_logs">Exporter tous les journaux (bruts)</string>
     <string name="dev_export_failed">Échec de l’export : %1$s</string>

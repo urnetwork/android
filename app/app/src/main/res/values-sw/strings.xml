@@ -240,6 +240,8 @@
     <string name="dev_evaluation_pool_detail">Idadi ya watoa huduma ambao upanuzi wa dirisha huwapigia ping na kuwapanga kwa kila nafasi inayohitajika, ukibakiza walio bora. 1 hutathmini idadi inayohitajika tu</string>
     <string name="dev_exit_dial_failures">Miunganisho iliyoshindwa: %1$d</string>
     <string name="dev_exit_flows">Mitiririko: %1$d</string>
+    <string name="dev_exit_policy_generation">kizazi cha sera %1$d</string>
+    <string name="dev_exit_policy_generation_unknown">kizazi cha sera hakijulikani</string>
     <string name="dev_exits">Njia za kutoka</string>
     <string name="dev_export_all_logs">Hamisha kumbukumbu zote (ghafi)</string>
     <string name="dev_export_failed">Uhamishaji umeshindwa: %1$s</string>

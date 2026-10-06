@@ -240,6 +240,8 @@
     <string name="dev_evaluation_pool_detail">Сколько провайдеров расширение окна пингует и ранжирует на каждый нужный слот, оставляя лучших. 1 — оценивать ровно столько, сколько нужно</string>
     <string name="dev_exit_dial_failures">Неудачных попыток соединения: %1$d</string>
     <string name="dev_exit_flows">Потоков: %1$d</string>
+    <string name="dev_exit_policy_generation">поколение политики %1$d</string>
+    <string name="dev_exit_policy_generation_unknown">поколение политики неизвестно</string>
     <string name="dev_exits">Выходы</string>
     <string name="dev_export_all_logs">Экспортировать все логи (необработанные)</string>
     <string name="dev_export_failed">Не удалось экспортировать: %1$s</string>

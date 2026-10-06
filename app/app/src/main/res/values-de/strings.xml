@@ -240,6 +240,8 @@
     <string name="dev_evaluation_pool_detail">Wie viele Anbieter eine Fenstererweiterung pro benötigtem Slot anpingt und bewertet, wobei die besten behalten werden. 1 bewertet genau so viele wie nötig</string>
     <string name="dev_exit_dial_failures">Fehlgeschlagene Verbindungsversuche: %1$d</string>
     <string name="dev_exit_flows">Flows: %1$d</string>
+    <string name="dev_exit_policy_generation">Richtliniengeneration %1$d</string>
+    <string name="dev_exit_policy_generation_unknown">Richtliniengeneration unbekannt</string>
     <string name="dev_exits">Exits</string>
     <string name="dev_export_all_logs">Alle Logs exportieren (roh)</string>
     <string name="dev_export_failed">Export fehlgeschlagen: %1$s</string>

@@ -240,6 +240,8 @@
     <string name="dev_evaluation_pool_detail">Quantos fornecedores uma expansão de janela testa com ping e classifica por cada vaga necessária, ficando com os melhores. 1 avalia exatamente o que precisa</string>
     <string name="dev_exit_dial_failures">Tentativas de ligação falhadas: %1$d</string>
     <string name="dev_exit_flows">Fluxos: %1$d</string>
+    <string name="dev_exit_policy_generation">geração da política %1$d</string>
+    <string name="dev_exit_policy_generation_unknown">geração da política desconhecida</string>
     <string name="dev_exits">Saídas</string>
     <string name="dev_export_all_logs">Exportar todos os logs (em bruto)</string>
     <string name="dev_export_failed">A exportação falhou: %1$s</string>

@@ -240,6 +240,8 @@
     <string name="dev_evaluation_pool_detail">窗口扩展时为每个所需槽位 ping 并排名的提供商数量，保留最佳者。1 表示只评估恰好所需的数量</string>
     <string name="dev_exit_dial_failures">%1$d 次拨号失败</string>
     <string name="dev_exit_flows">%1$d 个流</string>
+    <string name="dev_exit_policy_generation">策略世代 %1$d</string>
+    <string name="dev_exit_policy_generation_unknown">策略世代未知</string>
     <string name="dev_exits">出口</string>
     <string name="dev_export_all_logs">导出所有日志（原始）</string>
     <string name="dev_export_failed">导出失败：%1$s</string>

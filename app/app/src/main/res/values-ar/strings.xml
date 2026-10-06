@@ -240,6 +240,8 @@
     <string name="dev_evaluation_pool_detail">عدد المزودين الذين يرسل إليهم توسيع النافذة ping ويرتّبهم لكل خانة يحتاجها، مع الاحتفاظ بالأفضل. القيمة 1 تقيّم العدد المطلوب بالضبط</string>
     <string name="dev_exit_dial_failures">محاولات اتصال فاشلة: %1$d</string>
     <string name="dev_exit_flows">التدفقات: %1$d</string>
+    <string name="dev_exit_policy_generation">جيل السياسة %1$d</string>
+    <string name="dev_exit_policy_generation_unknown">جيل السياسة غير معروف</string>
     <string name="dev_exits">المخارج</string>
     <string name="dev_export_all_logs">تصدير كل السجلات (خام)</string>
     <string name="dev_export_failed">فشل التصدير: %1$s</string>

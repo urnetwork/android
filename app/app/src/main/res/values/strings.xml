@@ -243,6 +243,8 @@
     <string name="dev_evaluation_pool_detail">How many providers a window expansion pings and ranks per slot it needs, keeping the best. 1 evaluates exactly what it needs</string>
     <string name="dev_exit_dial_failures">%1$d failed dials</string>
     <string name="dev_exit_flows">%1$d flows</string>
+    <string name="dev_exit_policy_generation">policy generation %1$d</string>
+    <string name="dev_exit_policy_generation_unknown">policy generation unknown</string>
     <string name="dev_exits">Exits</string>
     <string name="dev_export_all_logs">Export all logs (raw)</string>
     <string name="dev_export_failed">Export failed: %1$s</string>

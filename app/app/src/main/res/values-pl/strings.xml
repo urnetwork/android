@@ -240,6 +240,8 @@
     <string name="dev_evaluation_pool_detail">Ilu dostawców rozszerzenie okna pinguje i ocenia na każde potrzebne miejsce, zostawiając najlepszych. 1 ocenia dokładnie tyle, ile trzeba</string>
     <string name="dev_exit_dial_failures">Nieudane połączenia: %1$d</string>
     <string name="dev_exit_flows">Przepływy: %1$d</string>
+    <string name="dev_exit_policy_generation">generacja polityki %1$d</string>
+    <string name="dev_exit_policy_generation_unknown">generacja polityki nieznana</string>
     <string name="dev_exits">Wyjścia</string>
     <string name="dev_export_all_logs">Eksportuj wszystkie logi (surowe)</string>
     <string name="dev_export_failed">Eksport nie powiódł się: %1$s</string>

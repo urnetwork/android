@@ -240,6 +240,8 @@
     <string name="dev_evaluation_pool_detail">จำนวนผู้ให้บริการที่การขยายหน้าต่าง ping และจัดอันดับต่อช่องที่ต้องการ แล้วเก็บรายที่ดีที่สุด 1 คือประเมินเท่าที่ต้องการพอดี</string>
     <string name="dev_exit_dial_failures">การเชื่อมต่อล้มเหลว %1$d ครั้ง</string>
     <string name="dev_exit_flows">%1$d โฟลว์</string>
+    <string name="dev_exit_policy_generation">รุ่นนโยบาย %1$d</string>
+    <string name="dev_exit_policy_generation_unknown">รุ่นนโยบายไม่ทราบ</string>
     <string name="dev_exits">ทางออก</string>
     <string name="dev_export_all_logs">ส่งออกล็อกทั้งหมด (ดิบ)</string>
     <string name="dev_export_failed">ส่งออกไม่สำเร็จ: %1$s</string>

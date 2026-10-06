@@ -240,6 +240,8 @@
     <string name="dev_evaluation_pool_detail">ウィンドウの拡張時に、必要なスロットごとに ping してランク付けするプロバイダーの数。最も良いものを残します。1 は必要な数だけを評価します</string>
     <string name="dev_exit_dial_failures">接続失敗：%1$d</string>
     <string name="dev_exit_flows">フロー：%1$d</string>
+    <string name="dev_exit_policy_generation">ポリシー世代 %1$d</string>
+    <string name="dev_exit_policy_generation_unknown">ポリシー世代 不明</string>
     <string name="dev_exits">出口</string>
     <string name="dev_export_all_logs">すべてのログをエクスポート（未加工）</string>
     <string name="dev_export_failed">エクスポートに失敗しました：%1$s</string>

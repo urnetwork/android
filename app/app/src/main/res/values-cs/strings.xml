@@ -240,6 +240,8 @@
     <string name="dev_evaluation_pool_detail">Kolik poskytovatelů rozšíření okna otestuje pingem a seřadí na každou potřebnou pozici, přičemž si ponechá ty nejlepší. 1 hodnotí přesně tolik, kolik je potřeba</string>
     <string name="dev_exit_dial_failures">Neúspěšná připojení: %1$d</string>
     <string name="dev_exit_flows">Toky: %1$d</string>
+    <string name="dev_exit_policy_generation">generace zásad %1$d</string>
+    <string name="dev_exit_policy_generation_unknown">generace zásad neznámá</string>
     <string name="dev_exits">Výstupy</string>
     <string name="dev_export_all_logs">Exportovat všechny logy (nezpracované)</string>
     <string name="dev_export_failed">Export selhal: %1$s</string>

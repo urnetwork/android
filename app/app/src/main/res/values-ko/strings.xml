@@ -240,6 +240,8 @@
     <string name="dev_evaluation_pool_detail">창 확장 시 필요한 슬롯마다 ping으로 확인하고 순위를 매기는 제공자 수이며, 가장 좋은 제공자를 남깁니다. 1은 필요한 만큼만 평가합니다</string>
     <string name="dev_exit_dial_failures">연결 실패 %1$d회</string>
     <string name="dev_exit_flows">플로우 %1$d개</string>
+    <string name="dev_exit_policy_generation">정책 세대 %1$d</string>
+    <string name="dev_exit_policy_generation_unknown">정책 세대 알 수 없음</string>
     <string name="dev_exits">출구</string>
     <string name="dev_export_all_logs">모든 로그 내보내기(원본)</string>
     <string name="dev_export_failed">내보내기 실패: %1$s</string>
