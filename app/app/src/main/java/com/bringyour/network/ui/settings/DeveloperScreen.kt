@@ -1302,6 +1302,24 @@ private fun DeveloperExitRow(
             )
         }
 
+        // the provider's security rules generation, once its first diagnostics
+        // arrive. An exit with a lower number than the others runs older rules
+        val policyGenerationText = when (
+            val policyGenerationLine = exitPolicyGenerationLine(
+                providerDiagnosticsAvailable = exit.providerDiagnosticsAvailable,
+                providerSecurityPolicyGeneration = exit.providerSecurityPolicyGeneration,
+            )
+        ) {
+            is ExitPolicyGenerationLine.Known ->
+                stringResource(id = R.string.dev_exit_policy_generation, policyGenerationLine.generation)
+            ExitPolicyGenerationLine.Unknown ->
+                stringResource(id = R.string.dev_exit_policy_generation_unknown)
+            null -> null
+        }
+        if (policyGenerationText != null) {
+            Text(policyGenerationText, style = MaterialTheme.typography.bodySmall, color = TextMuted)
+        }
+
         Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
             DeveloperAction(label = stringResource(id = R.string.dev_drop_exit), onClick = onDrop)
             DeveloperAction(label = stringResource(id = R.string.dev_stall_exit), onClick = onStall)
