@@ -1004,11 +1004,11 @@
     <string name="usdc_solana_network_only">Wysyłaj USDC wyłącznie w sieci Solana. USDC wysłane w innej sieci nie dotrą.</string>
     <string name="usdc_waiting">Ostatnia wypłata w USDC: %1$s USDC oczekuje</string>
     <string name="usdc_wallet_address">Adres portfela USDC</string>
-    <string name="use_as_proxy_no_vpn">Użyj zamiast tego jako serwera proxy (bez VPN)</string>
-    <string name="use_as_proxy_no_vpn_detail">Otwiera ur.io, aby używać URnetwork jako serwera proxy HTTPS bez VPN. SOCKS i WireGuard są dostępne w Pro.</string>
     <string name="use_extender_settings">Użyj ustawień extendera</string>
     <string name="use_most_stable_provider">Używa najstabilniejszego dostawcy</string>
     <string name="use_recommended_settings">Użyj zalecanych ustawień</string>
+    <string name="use_wireguard_socks_https_proxy">Użyj proxy WireGuard / SOCKS / HTTPS</string>
+    <string name="use_wireguard_socks_https_proxy_note">Otwiera ur.io w przeglądarce. SOCKS i WireGuard wymagają Pro.</string>
     <string name="used_data_key">Wykorzystane</string>
     <string name="user_auth_label">E-mail lub telefon</string>
     <string name="user_auth_placeholder">Wprowadź numer telefonu lub adres e-mail</string>

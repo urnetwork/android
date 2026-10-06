@@ -1004,11 +1004,11 @@
     <string name="usdc_solana_network_only">Στείλτε USDC μόνο στο δίκτυο Solana. Τα USDC που στέλνονται σε άλλο δίκτυο δεν θα φτάσουν.</string>
     <string name="usdc_waiting">Τελική πληρωμή USDC: %1$s USDC σε αναμονή</string>
     <string name="usdc_wallet_address">Διεύθυνση πορτοφολιού USDC</string>
-    <string name="use_as_proxy_no_vpn">Χρήση ως διακομιστή μεσολάβησης (χωρίς VPN)</string>
-    <string name="use_as_proxy_no_vpn_detail">Ανοίγει το ur.io για χρήση του URnetwork ως διακομιστή μεσολάβησης HTTPS χωρίς VPN. Τα SOCKS και WireGuard διατίθενται με το Pro.</string>
     <string name="use_extender_settings">Χρήση ρυθμίσεων επεκτατή</string>
     <string name="use_most_stable_provider">Χρησιμοποιεί τον πιο σταθερό πάροχο</string>
     <string name="use_recommended_settings">Χρήση προτεινόμενων ρυθμίσεων</string>
+    <string name="use_wireguard_socks_https_proxy">Χρήση διακομιστή μεσολάβησης WireGuard / SOCKS / HTTPS</string>
+    <string name="use_wireguard_socks_https_proxy_note">Ανοίγει το ur.io στο πρόγραμμα περιήγησης. Τα SOCKS και WireGuard απαιτούν Pro.</string>
     <string name="used_data_key">Χρησιμοποιημένα</string>
     <string name="user_auth_label">Email ή τηλέφωνο</string>
     <string name="user_auth_placeholder">Εισαγάγετε τον αριθμό τηλεφώνου ή το email σας</string>

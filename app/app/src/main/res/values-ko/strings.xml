@@ -1004,11 +1004,11 @@
     <string name="usdc_solana_network_only">USDC는 Solana 네트워크로만 보내세요. 다른 네트워크로 보낸 USDC는 도착하지 않습니다.</string>
     <string name="usdc_waiting">마지막 USDC 지급: %1$s USDC 대기 중</string>
     <string name="usdc_wallet_address">USDC 월렛 주소</string>
-    <string name="use_as_proxy_no_vpn">대신 프록시로 사용 (VPN 없음)</string>
-    <string name="use_as_proxy_no_vpn_detail">ur.io를 열어 VPN 없이 URnetwork를 HTTPS 프록시로 사용합니다. SOCKS 및 WireGuard는 Pro에서 사용할 수 있습니다.</string>
     <string name="use_extender_settings">익스텐더 설정 사용</string>
     <string name="use_most_stable_provider">가장 안정적인 제공업체를 사용합니다</string>
     <string name="use_recommended_settings">권장 설정 사용</string>
+    <string name="use_wireguard_socks_https_proxy">WireGuard / SOCKS / HTTPS 프록시 사용</string>
+    <string name="use_wireguard_socks_https_proxy_note">브라우저에서 ur.io를 엽니다. SOCKS와 WireGuard는 Pro가 필요합니다.</string>
     <string name="used_data_key">사용됨</string>
     <string name="user_auth_label">이메일 또는 전화번호</string>
     <string name="user_auth_placeholder">전화번호 또는 이메일을 입력하세요</string>
