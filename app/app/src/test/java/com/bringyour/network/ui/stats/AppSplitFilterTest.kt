@@ -17,18 +17,18 @@ class AppSplitFilterTest {
     )
 
     private val apps = listOf(
-        MockApp("com.android.chrome", "Google Chrome"),
-        MockApp("org.mozilla.firefox", "Firefox Browser"),
-        MockApp("com.spotify.music", "Spotify"),
-        MockApp("org.signal.messenger", "Signal"),
-        MockApp("com.duckduckgo.mobile.android", "DuckDuckGo"),
+        MockApp("com.example.notebook", "Example Notebook"),
+        MockApp("org.example.reader", "Reader Browser"),
+        MockApp("com.example.music", "Music"),
+        MockApp("org.example.messenger", "Messenger"),
+        MockApp("com.example.search.mobile", "Search"),
     )
 
     private val labels = apps.associate { it.packageName to it.label }
 
     private val rules = listOf(
-        MockRule("rule-1", "com.android.chrome"),
-        MockRule("rule-2", "org.mozilla.firefox"),
+        MockRule("rule-1", "com.example.notebook"),
+        MockRule("rule-2", "org.example.reader"),
         MockRule("rule-3", "com.example.uninstalled"),
     )
 
@@ -47,39 +47,39 @@ class AppSplitFilterTest {
 
     @Test
     fun filterByAppLabelCaseInsensitive() {
-        val result = AppSplitFilter.filterApps(apps, "CHROME", MockApp::label, MockApp::packageName)
-        assertEquals(listOf("com.android.chrome"), result.map { it.packageName })
+        val result = AppSplitFilter.filterApps(apps, "NOTEBOOK", MockApp::label, MockApp::packageName)
+        assertEquals(listOf("com.example.notebook"), result.map { it.packageName })
 
-        val mixedCase = AppSplitFilter.filterApps(apps, "FiReFoX", MockApp::label, MockApp::packageName)
-        assertEquals(listOf("org.mozilla.firefox"), mixedCase.map { it.packageName })
+        val mixedCase = AppSplitFilter.filterApps(apps, "ReAdEr", MockApp::label, MockApp::packageName)
+        assertEquals(listOf("org.example.reader"), mixedCase.map { it.packageName })
     }
 
     @Test
     fun filterByPackageNameCaseInsensitive() {
-        val result = AppSplitFilter.filterApps(apps, "org.signal", MockApp::label, MockApp::packageName)
-        assertEquals(listOf("org.signal.messenger"), result.map { it.packageName })
+        val result = AppSplitFilter.filterApps(apps, "org.example.mess", MockApp::label, MockApp::packageName)
+        assertEquals(listOf("org.example.messenger"), result.map { it.packageName })
 
-        val duck = AppSplitFilter.filterApps(apps, "duckduckgo", MockApp::label, MockApp::packageName)
-        assertEquals(listOf("com.duckduckgo.mobile.android"), duck.map { it.packageName })
+        val search = AppSplitFilter.filterApps(apps, "search", MockApp::label, MockApp::packageName)
+        assertEquals(listOf("com.example.search.mobile"), search.map { it.packageName })
     }
 
     @Test
     fun queryWithWhitespaceIsTrimmed() {
-        val result = AppSplitFilter.filterApps(apps, "  spotify  ", MockApp::label, MockApp::packageName)
-        assertEquals(listOf("com.spotify.music"), result.map { it.packageName })
+        val result = AppSplitFilter.filterApps(apps, "  music  ", MockApp::label, MockApp::packageName)
+        assertEquals(listOf("com.example.music"), result.map { it.packageName })
 
-        val ruleResult = AppSplitFilter.filterRules(rules, labels, "  chrome  ", MockRule::appId)
+        val ruleResult = AppSplitFilter.filterRules(rules, labels, "  notebook  ", MockRule::appId)
         assertEquals(listOf("rule-1"), ruleResult.map { it.id })
     }
 
     @Test
     fun filterRulesMatchesLabelOrPackageId() {
-        // Matches label "Firefox Browser"
+        // Matches label "Reader Browser"
         val byLabel = AppSplitFilter.filterRules(rules, labels, "browser", MockRule::appId)
         assertEquals(listOf("rule-2"), byLabel.map { it.id })
 
-        // Matches package id "com.android.chrome"
-        val byPackage = AppSplitFilter.filterRules(rules, labels, "android.chrome", MockRule::appId)
+        // Matches package id "com.example.notebook"
+        val byPackage = AppSplitFilter.filterRules(rules, labels, "example.notebook", MockRule::appId)
         assertEquals(listOf("rule-1"), byPackage.map { it.id })
     }
 
@@ -101,14 +101,14 @@ class AppSplitFilterTest {
 
     @Test
     fun multipleMatchesPreserveOriginalOrder() {
-        // "org." matches both Firefox and Signal
+        // "org." matches both the reader and the messenger
         val result = AppSplitFilter.filterApps(apps, "org.", MockApp::label, MockApp::packageName)
-        assertEquals(listOf("org.mozilla.firefox", "org.signal.messenger"), result.map { it.packageName })
+        assertEquals(listOf("org.example.reader", "org.example.messenger"), result.map { it.packageName })
     }
 
     @Test
     fun partialMatchFindsSubstrings() {
         val result = AppSplitFilter.filterApps(apps, "oo", MockApp::label, MockApp::packageName)
-        assertEquals(listOf("com.android.chrome"), result.map { it.packageName }) // "Google Chrome" has "oo"
+        assertEquals(listOf("com.example.notebook"), result.map { it.packageName }) // "Example Notebook" has "oo"
     }
 }

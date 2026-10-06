@@ -66,7 +66,7 @@ class VpnPacketFlowConfigurationTest {
     @Test
     fun activePacketFlowRebuildsWhenSplitRulesChange() {
         val applied = configuration()
-        val desired = configuration(includedAppIds = setOf("com.android.chrome"))
+        val desired = configuration(includedAppIds = setOf("com.example.browser"))
 
         assertTrue(vpnPacketFlowNeedsRebuild(true, applied, desired))
     }
@@ -196,7 +196,7 @@ class VpnPacketFlowConfigurationTest {
     fun offlineAlwaysRoutesToEscapeEvenWhenConnected() {
         assertEquals(
             VpnPacketFlowMode.ESCAPE,
-            vpnPacketFlowMode(offline = true, connected = true, killSwitch = false, connectRequested = false, includedAppIds = setOf("com.android.chrome")),
+            vpnPacketFlowMode(offline = true, connected = true, killSwitch = false, connectRequested = false, includedAppIds = setOf("com.example.browser")),
         )
     }
 
@@ -216,7 +216,7 @@ class VpnPacketFlowConfigurationTest {
     fun killSwitchKeepsAllowingExplicitIncludesWhenNotConnected() {
         assertEquals(
             VpnPacketFlowMode.PER_APP_ALLOWLIST,
-            vpnPacketFlowMode(offline = false, connected = false, killSwitch = true, connectRequested = false, includedAppIds = setOf("com.android.chrome")),
+            vpnPacketFlowMode(offline = false, connected = false, killSwitch = true, connectRequested = false, includedAppIds = setOf("com.example.browser")),
         )
     }
 
@@ -236,7 +236,7 @@ class VpnPacketFlowConfigurationTest {
     fun connectRequestedWithIncludesStaysAllowlistDuringProviderDip() {
         assertEquals(
             VpnPacketFlowMode.PER_APP_ALLOWLIST,
-            vpnPacketFlowMode(offline = false, connected = false, killSwitch = false, connectRequested = true, includedAppIds = setOf("com.android.chrome")),
+            vpnPacketFlowMode(offline = false, connected = false, killSwitch = false, connectRequested = true, includedAppIds = setOf("com.example.browser")),
         )
     }
 
@@ -252,7 +252,7 @@ class VpnPacketFlowConfigurationTest {
     fun connectedWithIncludesRoutesToPerAppAllowlist() {
         assertEquals(
             VpnPacketFlowMode.PER_APP_ALLOWLIST,
-            vpnPacketFlowMode(offline = false, connected = true, killSwitch = false, connectRequested = false, includedAppIds = setOf("com.android.chrome")),
+            vpnPacketFlowMode(offline = false, connected = true, killSwitch = false, connectRequested = false, includedAppIds = setOf("com.example.browser")),
         )
     }
 
@@ -262,7 +262,7 @@ class VpnPacketFlowConfigurationTest {
         // live exit and no capture reason, nothing should be captured.
         assertEquals(
             VpnPacketFlowMode.ESCAPE,
-            vpnPacketFlowMode(offline = false, connected = false, killSwitch = false, connectRequested = false, includedAppIds = setOf("com.android.chrome")),
+            vpnPacketFlowMode(offline = false, connected = false, killSwitch = false, connectRequested = false, includedAppIds = setOf("com.example.browser")),
         )
     }
 
@@ -273,7 +273,7 @@ class VpnPacketFlowConfigurationTest {
     //   first pass:  escape <=> offline || !connected   (defeated the kill switch)
     // ---------------------------------------------------------------------
 
-    private val someIncludes = setOf("com.android.chrome")
+    private val someIncludes = setOf("com.example.browser")
 
     private fun mode(
         offline: Boolean = false,
