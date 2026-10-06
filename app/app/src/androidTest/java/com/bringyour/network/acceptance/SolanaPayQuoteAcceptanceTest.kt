@@ -14,7 +14,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 /**
- * The `usdc-quote` acceptance case: the payment THIS APP builds, checked
+ * The `usdc-quote` acceptance case: the payment this app builds, checked
  * against what a server quoted, the price and where to pay it.
  *
  * It runs on a device because the url is built by the gomobile SDK, which is

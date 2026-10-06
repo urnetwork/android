@@ -75,17 +75,17 @@ class SolanaPaymentViewModel @Inject constructor(
 
     /**
      * Register the intent the customer is about to pay against, and hand back what the
-     * SERVER quoted: the price and where to pay it.
+     * server quoted: the price and where to pay it.
      *
      * `plan` is required. The server derives the price from pro.yml keyed by plan and
      * answers "Unknown plan." for an empty one -- this used to send only the reference,
      * so every Solana upgrade failed here before the wallet ever opened.
      *
      * `onSuccess` receives the quote: the amount in USD, the merchant address and the
-     * mint. Build the payment url from THAT and never from constants: the webhook checks
-     * the arriving payment against this same amount, so a client-side price is how a
-     * customer pays and gets nothing, and the server credits the address it quotes now,
-     * so an address built into the app outlives a rotation.
+     * mint. Build the payment url from the quote and never from constants: the webhook
+     * checks the arriving payment against this same amount, so a client-side price is
+     * how a customer pays and gets nothing, and the server credits the address it
+     * quotes now, so an address built into the app outlives a rotation.
      *
      * `onError` says what the failure leads to: a legacy guest network is refused with
      * `guest_sign_in_required`, which opens the add-sign-in sheet

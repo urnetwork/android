@@ -68,7 +68,7 @@ fun solanaPaymentQuote(
  * Build the wallet deep link for a purchase.
  *
  * @param reference from [createPaymentReference], already registered with the server.
- * @param quote what the SERVER quoted for that intent: the amount and where to pay it.
+ * @param quote what the server quoted for that intent: the amount and where to pay it.
  * @param plan [SOLANA_PLAN_MONTHLY] or [SOLANA_PLAN_YEARLY], used for the wallet's
  *   description only -- the price comes from the quote.
  *
