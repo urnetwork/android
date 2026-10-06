@@ -444,6 +444,7 @@
     <string name="extenders">エクステンダー</string>
     <string name="extenders_active_of_reserve">%1$d / %2$d</string>
     <string name="extenders_no_session">エクステンダーを管理するには、サインインして接続してください。</string>
+    <string name="extenders_reset_done">エクステンダーをリセットしました</string>
     <string name="fast_dns_on_connect">接続時の高速DNS</string>
     <string name="fast_dns_on_connect_description">トンネルのDNSが起動するまで、ローカルネットワーク経由でDNSに応答します。問い合わせ内容がローカルネットワークに知られたり、出口の場所に合わない応答が返されたりする可能性があります。オフの場合、DNSはトンネル経由でのみ解決されます。</string>
     <string name="feedback_header">お問い合わせ</string>
@@ -830,6 +831,8 @@
     <string name="remove_wallet_moves_or_holds_payouts">USDC の支払いは、別の Solana または Polygon ウォレットがあればそちらに移り、なければウォレットを接続するまで保留されます。</string>
     <string name="resend_reset_link">リンクを再送信</string>
     <string name="resend_verify_code">コードを再送信</string>
+    <string name="reset_extenders">エクステンダーをリセット</string>
+    <string name="reset_extenders_confirm">追加したエクステンダーが削除され、エクステンダーについて把握している情報がすべて消去されます。その後、エクステンダーは最初から検出し直されます。</string>
     <string name="reset_it">リセットする</string>
     <string name="reset_link_sent">リセットリンクを送信しました</string>
     <string name="reset_link_sent_to">リセットリンクを次のアドレスに送信しました：</string>

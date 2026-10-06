@@ -444,6 +444,7 @@
     <string name="extenders">Extender</string>
     <string name="extenders_active_of_reserve">%1$d von %2$d</string>
     <string name="extenders_no_session">Melde dich an und verbinde dich, um Extender zu verwalten.</string>
+    <string name="extenders_reset_done">Extender zurückgesetzt</string>
     <string name="fast_dns_on_connect">Schnelles DNS beim Verbinden</string>
     <string name="fast_dns_on_connect_description">Beantwortet DNS-Anfragen über das lokale Netzwerk, während das DNS des Tunnels startet. Dadurch können deine Abfragen im lokalen Netzwerk sichtbar werden, und die Antworten passen möglicherweise nicht zu deinem Exit-Standort. Wenn aus, wird DNS nur über den Tunnel aufgelöst.</string>
     <string name="feedback_header">Kontakt aufnehmen</string>
@@ -830,6 +831,8 @@
     <string name="remove_wallet_moves_or_holds_payouts">USDC-Auszahlungen gehen an eine andere deiner Solana- oder Polygon-Wallets oder werden zurückgehalten, bis du eine verbindest.</string>
     <string name="resend_reset_link">Link erneut senden</string>
     <string name="resend_verify_code">Code erneut senden</string>
+    <string name="reset_extenders">Extender zurücksetzen</string>
+    <string name="reset_extenders_confirm">Dadurch werden die Extender entfernt, die du hinzugefügt hast, und alles gelöscht, was über Extender bekannt ist. Danach werden Extender von Grund auf neu gesucht.</string>
     <string name="reset_it">Zurücksetzen</string>
     <string name="reset_link_sent">Link zum Zurücksetzen gesendet</string>
     <string name="reset_link_sent_to">Link zum Zurücksetzen gesendet an</string>

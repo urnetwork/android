@@ -449,6 +449,7 @@
     <string name="extenders">Extenders</string>
     <string name="extenders_active_of_reserve">%1$d of %2$d</string>
     <string name="extenders_no_session">Sign in and connect to manage extenders.</string>
+    <string name="extenders_reset_done">Extenders reset</string>
     <string name="fast_dns_on_connect">Fast DNS on connect</string>
     <string name="fast_dns_on_connect_description">Answers DNS over the local network while the tunnel\'s DNS starts. This can reveal your lookups to the local network and return answers that don\'t match your exit location. When off, DNS only resolves through the tunnel.</string>
     <string name="feedback_header">Get in touch</string>
@@ -836,6 +837,8 @@
     <string name="remove_wallet_moves_or_holds_payouts">USDC payouts move to another of your Solana or Polygon wallets, or are held until you connect one.</string>
     <string name="resend_reset_link">Resend link</string>
     <string name="resend_verify_code">Resend code</string>
+    <string name="reset_extenders">Reset extenders</string>
+    <string name="reset_extenders_confirm">This removes the extenders you added and clears everything learned about extenders, which are then discovered again from scratch.</string>
     <string name="reset_it">Reset it.</string>
     <string name="reset_link_sent">Reset link sent</string>
     <string name="reset_link_sent_to">Reset link sent to</string>

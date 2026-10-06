@@ -444,6 +444,7 @@
     <string name="extenders">Экстендеры</string>
     <string name="extenders_active_of_reserve">%1$d из %2$d</string>
     <string name="extenders_no_session">Войдите и подключитесь, чтобы управлять экстендерами.</string>
+    <string name="extenders_reset_done">Экстендеры сброшены</string>
     <string name="fast_dns_on_connect">Быстрый DNS при подключении</string>
     <string name="fast_dns_on_connect_description">Отвечает на DNS-запросы через локальную сеть, пока запускается DNS туннеля. Это может раскрыть ваши запросы локальной сети и вернуть ответы, не соответствующие вашему местоположению выхода. Если выключено, DNS разрешается только через туннель.</string>
     <string name="feedback_header">Свяжитесь с нами</string>
@@ -830,6 +831,8 @@
     <string name="remove_wallet_moves_or_holds_payouts">Выплаты в USDC перейдут на другой ваш кошелек Solana или Polygon, а если его нет, будут приостановлены, пока вы не подключите кошелек.</string>
     <string name="resend_reset_link">Отправить ссылку повторно</string>
     <string name="resend_verify_code">Отправить код повторно</string>
+    <string name="reset_extenders">Сбросить экстендеры</string>
+    <string name="reset_extenders_confirm">Добавленные вами экстендеры будут удалены, а всё, что известно об экстендерах, будет стёрто. Затем экстендеры будут найдены заново.</string>
     <string name="reset_it">Восстановить</string>
     <string name="reset_link_sent">Ссылка для сброса отправлена</string>
     <string name="reset_link_sent_to">Ссылка для сброса отправлена на</string>

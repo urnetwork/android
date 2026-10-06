@@ -444,6 +444,7 @@
     <string name="extenders">ตัวขยาย</string>
     <string name="extenders_active_of_reserve">%1$d จาก %2$d</string>
     <string name="extenders_no_session">ลงชื่อเข้าใช้และเชื่อมต่อเพื่อจัดการตัวขยาย</string>
+    <string name="extenders_reset_done">รีเซ็ตตัวขยายแล้ว</string>
     <string name="fast_dns_on_connect">DNS ที่รวดเร็วขณะเชื่อมต่อ</string>
     <string name="fast_dns_on_connect_description">ตอบ DNS ผ่านเครือข่ายภายในขณะที่ DNS ของอุโมงค์กำลังเริ่มทำงาน ซึ่งอาจเปิดเผยการค้นหาของคุณให้เครือข่ายภายในเห็น และอาจได้คำตอบที่ไม่ตรงกับตำแหน่งทางออกของคุณ เมื่อปิดอยู่ DNS จะทำงานผ่านอุโมงค์เท่านั้น</string>
     <string name="feedback_header">ติดต่อเรา</string>
@@ -830,6 +831,8 @@
     <string name="remove_wallet_moves_or_holds_payouts">การจ่าย USDC จะย้ายไปยังกระเป๋าเงิน Solana หรือ Polygon อื่นของคุณ หรือจะถูกพักไว้จนกว่าคุณจะเชื่อมต่อกระเป๋าเงิน</string>
     <string name="resend_reset_link">ส่งลิงก์ใหม่อีกครั้ง</string>
     <string name="resend_verify_code">ส่งโค้ดใหม่</string>
+    <string name="reset_extenders">รีเซ็ตตัวขยาย</string>
+    <string name="reset_extenders_confirm">การดำเนินการนี้จะลบตัวขยายที่คุณเพิ่มไว้และล้างข้อมูลทั้งหมดที่รู้เกี่ยวกับตัวขยาย จากนั้นจะค้นหาตัวขยายใหม่ตั้งแต่ต้น</string>
     <string name="reset_it">ตั้งใหม่เลยสิ</string>
     <string name="reset_link_sent">ลิงก์ตั้งรหัสได้ส่งไปแล้ว</string>
     <string name="reset_link_sent_to">ลิงก์ตั้งรหัสส่งไปที่</string>

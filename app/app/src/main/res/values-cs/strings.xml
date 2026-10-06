@@ -444,6 +444,7 @@
     <string name="extenders">Extendery</string>
     <string name="extenders_active_of_reserve">%1$d z %2$d</string>
     <string name="extenders_no_session">Pro správu extenderů se přihlaste a připojte.</string>
+    <string name="extenders_reset_done">Extendery byly resetovány</string>
     <string name="fast_dns_on_connect">Rychlé DNS při připojení</string>
     <string name="fast_dns_on_connect_description">Odpovídá na dotazy DNS přes místní síť, dokud se spouští DNS tunelu. Místní síť tak může vidět vaše dotazy a odpovědi nemusí odpovídat vašemu výstupnímu umístění. Když je vypnuto, DNS se překládá jen přes tunel.</string>
     <string name="feedback_header">Spojte se s námi</string>
@@ -830,6 +831,8 @@
     <string name="remove_wallet_moves_or_holds_payouts">Výplaty v USDC se přesunou na jinou vaši peněženku Solana nebo Polygon, nebo budou zadrženy, dokud nějakou nepřipojíte.</string>
     <string name="resend_reset_link">Znovu odeslat odkaz</string>
     <string name="resend_verify_code">Odeslat kód znovu</string>
+    <string name="reset_extenders">Resetovat extendery</string>
+    <string name="reset_extenders_confirm">Tím odeberete extendery, které jste přidali, a vymažete vše, co se o extenderech zjistilo. Extendery se pak vyhledají znovu od začátku.</string>
     <string name="reset_it">Resetujte si ho</string>
     <string name="reset_link_sent">Odkaz pro obnovení hesla odeslán</string>
     <string name="reset_link_sent_to">Odkaz pro obnovení zaslán na</string>

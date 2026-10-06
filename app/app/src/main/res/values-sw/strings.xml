@@ -444,6 +444,7 @@
     <string name="extenders">Vipanuzi</string>
     <string name="extenders_active_of_reserve">%1$d kati ya %2$d</string>
     <string name="extenders_no_session">Ingia na uunganishe ili kudhibiti vipanuzi.</string>
+    <string name="extenders_reset_done">Vipanuzi vimewekwa upya</string>
     <string name="fast_dns_on_connect">DNS ya haraka wakati wa kuunganisha</string>
     <string name="fast_dns_on_connect_description">Hujibu DNS kupitia mtandao wa ndani wakati DNS ya tuneli inaanza. Hii inaweza kufichua utafutaji wako kwa mtandao wa ndani na kurudisha majibu yasiyolingana na eneo lako la kutokea. Ikizimwa, DNS husuluhishwa kupitia tuneli pekee.</string>
     <string name="feedback_header">Wasiliana nasi</string>
@@ -830,6 +831,8 @@
     <string name="remove_wallet_moves_or_holds_payouts">Malipo ya USDC yanahamia kwenye pochi yako nyingine ya Solana au Polygon, au yanashikiliwa hadi uunganishe moja.</string>
     <string name="resend_reset_link">Tuma tena kiungo</string>
     <string name="resend_verify_code">Tuma tena msimbo</string>
+    <string name="reset_extenders">Weka upya vipanuzi</string>
+    <string name="reset_extenders_confirm">Hii huondoa vipanuzi ulivyoongeza na kufuta kila kitu kinachojulikana kuhusu vipanuzi. Kisha vipanuzi hugunduliwa upya kuanzia mwanzo.</string>
     <string name="reset_it">Weka upya</string>
     <string name="reset_link_sent">Kiungo cha kuweka upya kimetumwa</string>
     <string name="reset_link_sent_to">Kiungo cha kuweka upya kimetumwa kwa</string>

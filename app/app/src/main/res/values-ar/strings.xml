@@ -444,6 +444,7 @@
     <string name="extenders">الموسّعات</string>
     <string name="extenders_active_of_reserve">%1$d من %2$d</string>
     <string name="extenders_no_session">سجّل الدخول واتصل لإدارة الموسّعات.</string>
+    <string name="extenders_reset_done">تمت إعادة ضبط الموسّعات</string>
     <string name="fast_dns_on_connect">DNS سريع عند الاتصال</string>
     <string name="fast_dns_on_connect_description">يجيب على استعلامات DNS عبر الشبكة المحلية أثناء بدء DNS الخاص بالنفق. قد يكشف هذا عمليات البحث الخاصة بك للشبكة المحلية ويعيد إجابات لا تتوافق مع موقع الخروج. عند الإيقاف، يتم حل DNS عبر النفق فقط.</string>
     <string name="feedback_header">تواصل معنا</string>
@@ -830,6 +831,8 @@
     <string name="remove_wallet_moves_or_holds_payouts">تنتقل مدفوعات USDC إلى محفظة Solana أو Polygon أخرى لديك، أو تُحتجز حتى تربط واحدة.</string>
     <string name="resend_reset_link">إعادة إرسال الرابط</string>
     <string name="resend_verify_code">إعادة إرسال الرمز</string>
+    <string name="reset_extenders">إعادة ضبط الموسّعات</string>
+    <string name="reset_extenders_confirm">سيؤدي هذا إلى إزالة الموسّعات التي أضفتها ومسح كل ما عُرف عن الموسّعات، ثم يُعاد اكتشافها من البداية.</string>
     <string name="reset_it">إعادة تعيينها</string>
     <string name="reset_link_sent">تم إرسال رابط إعادة التعيين</string>
     <string name="reset_link_sent_to">تم إرسال رابط إعادة التعيين إلى</string>

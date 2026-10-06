@@ -444,6 +444,7 @@
     <string name="extenders">익스텐더</string>
     <string name="extenders_active_of_reserve">%2$d개 중 %1$d개</string>
     <string name="extenders_no_session">익스텐더를 관리하려면 로그인하고 연결하세요.</string>
+    <string name="extenders_reset_done">익스텐더를 재설정했습니다</string>
     <string name="fast_dns_on_connect">연결 시 빠른 DNS</string>
     <string name="fast_dns_on_connect_description">터널 DNS가 시작되는 동안 로컬 네트워크를 통해 DNS에 응답합니다. 이로 인해 조회 내용이 로컬 네트워크에 노출되거나 출구 위치와 맞지 않는 응답이 반환될 수 있습니다. 끄면 DNS는 터널을 통해서만 확인됩니다.</string>
     <string name="feedback_header">연락하기</string>
@@ -830,6 +831,8 @@
     <string name="remove_wallet_moves_or_holds_payouts">USDC 지급은 다른 Solana 또는 Polygon 지갑이 있으면 그 지갑으로 옮겨지고, 없으면 지갑을 연결할 때까지 보류됩니다.</string>
     <string name="resend_reset_link">링크 재전송</string>
     <string name="resend_verify_code">코드 재전송</string>
+    <string name="reset_extenders">익스텐더 재설정</string>
+    <string name="reset_extenders_confirm">추가한 익스텐더가 삭제되고 익스텐더에 대해 알고 있던 정보가 모두 지워집니다. 이후 익스텐더를 처음부터 다시 찾습니다.</string>
     <string name="reset_it">재설정</string>
     <string name="reset_link_sent">재설정 링크 전송됨</string>
     <string name="reset_link_sent_to">재설정 링크가 다음 주소로 전송되었습니다:</string>

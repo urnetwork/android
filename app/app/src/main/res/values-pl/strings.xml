@@ -444,6 +444,7 @@
     <string name="extenders">Extendery</string>
     <string name="extenders_active_of_reserve">%1$d z %2$d</string>
     <string name="extenders_no_session">Zaloguj się i połącz, aby zarządzać extenderami.</string>
+    <string name="extenders_reset_done">Zresetowano extendery</string>
     <string name="fast_dns_on_connect">Szybki DNS przy łączeniu</string>
     <string name="fast_dns_on_connect_description">Odpowiada na zapytania DNS przez sieć lokalną, dopóki uruchamia się DNS tunelu. Może to ujawnić Twoje zapytania sieci lokalnej i zwracać odpowiedzi niepasujące do Twojej lokalizacji wyjściowej. Po wyłączeniu DNS jest rozwiązywany tylko przez tunel.</string>
     <string name="feedback_header">Skontaktuj się</string>
@@ -830,6 +831,8 @@
     <string name="remove_wallet_moves_or_holds_payouts">Wypłaty w USDC trafią na inny Twój portfel Solana lub Polygon albo zostaną wstrzymane, dopóki nie połączysz takiego portfela.</string>
     <string name="resend_reset_link">Wyślij link ponownie</string>
     <string name="resend_verify_code">Wyślij kod ponownie</string>
+    <string name="reset_extenders">Resetuj extendery</string>
+    <string name="reset_extenders_confirm">Spowoduje to usunięcie dodanych przez Ciebie extenderów i wyczyszczenie wszystkiego, co wiadomo o extenderach. Extendery zostaną potem wykryte od nowa.</string>
     <string name="reset_it">Zresetuj je</string>
     <string name="reset_link_sent">Link do resetowania wysłany</string>
     <string name="reset_link_sent_to">Link do resetowania wysłany na adres</string>

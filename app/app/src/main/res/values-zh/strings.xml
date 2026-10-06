@@ -444,6 +444,7 @@
     <string name="extenders">扩展器</string>
     <string name="extenders_active_of_reserve">%1$d / %2$d</string>
     <string name="extenders_no_session">登录并连接后即可管理扩展器。</string>
+    <string name="extenders_reset_done">扩展器已重置</string>
     <string name="fast_dns_on_connect">连接时快速 DNS</string>
     <string name="fast_dns_on_connect_description">在隧道 DNS 启动期间通过本地网络应答 DNS。这可能会向本地网络暴露你的查询，并返回与你的出口位置不符的结果。关闭后，DNS 仅通过隧道解析。</string>
     <string name="feedback_header">保持联系</string>
@@ -830,6 +831,8 @@
     <string name="remove_wallet_moves_or_holds_payouts">USDC 支付将转到你的另一个 Solana 或 Polygon 钱包；若没有，则暂停发放，直到你连接一个钱包。</string>
     <string name="resend_reset_link">重新发送链接</string>
     <string name="resend_verify_code">重新发送代码</string>
+    <string name="reset_extenders">重置扩展器</string>
+    <string name="reset_extenders_confirm">这会移除已添加的扩展器，并清除已知的所有扩展器信息，之后将从头重新发现扩展器。</string>
     <string name="reset_it">重置密码</string>
     <string name="reset_link_sent">重置链接已发送</string>
     <string name="reset_link_sent_to">重置链接已发送至</string>
