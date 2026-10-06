@@ -1,7 +1,9 @@
 package com.bringyour.network.ui.account
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /**
@@ -16,17 +18,32 @@ class ExtenderFormModelTest {
     /**
      * One network space, which both screens' view models read: the settings
      * through a controller, none while `controllerOpen` is false, and the
-     * private extender from the space itself.
+     * private extender from the space itself. A reset through the controller
+     * leaves `resetSettings` and no private extender, as the sdk's does
+     * (ExtenderViewController.ResetExtenders), and is counted.
      */
     private class FakeSpace(
         var settings: ExtenderSettingsUi,
         var privateExtender: ExtenderPrivateUi = ExtenderPrivateUi(),
         var controllerOpen: Boolean = true,
+        var resetSettings: ExtenderSettingsUi = settings,
     ) : ExtenderFormSource {
+        var resetCount = 0
+
         override fun readSettings(): ExtenderSettingsUi? =
             if (controllerOpen) settings else null
 
         override fun readPrivateExtender(): ExtenderPrivateUi = privateExtender
+
+        override fun resetExtenders(): ExtenderSettingsUi? {
+            if (!controllerOpen) {
+                return null
+            }
+            resetCount += 1
+            settings = resetSettings
+            privateExtender = ExtenderPrivateUi()
+            return settings
+        }
     }
 
     // the derived defaults of a network.example space
@@ -133,5 +150,50 @@ class ExtenderFormModelTest {
         form.reload()
 
         assertEquals(defaults, form.settings)
+    }
+
+    // what a reset leaves (EXTENDER.md E7): the derived defaults and no hosts
+    private val reset = defaults.copy(hosts = listOf())
+
+    @Test
+    fun aResetShowsTheDefaultsItLeavesAndNoPrivateExtender() {
+        val space = FakeSpace(
+            settings = imported,
+            privateExtender = savedPrivateExtender,
+            resetSettings = reset,
+        )
+        val form = openOn(space)
+        assertEquals(savedPrivateExtender, form.privateExtender)
+
+        assertTrue(form.reset())
+
+        assertEquals(1, space.resetCount)
+        assertEquals(reset, form.settings)
+        // the boxes go back to empty, with the defaults as their placeholders
+        assertEquals("", form.settings?.dnsNameField)
+        assertEquals("", form.settings?.gossipUrlField)
+        assertEquals("extender.network.example", form.settings?.dnsNamePlaceholder)
+        assertEquals(listOf<String>(), form.settings?.hosts)
+        // the private extender the user added is gone from the form too
+        assertEquals(ExtenderPrivateUi(), form.privateExtender)
+    }
+
+    @Test
+    fun withNoControllerAResetChangesNothing() {
+        val space = FakeSpace(
+            settings = imported,
+            privateExtender = savedPrivateExtender,
+            resetSettings = reset,
+        )
+        val form = openOn(space)
+
+        // signed out there is no device to reset through: the screen shows
+        // no confirmation of a reset that did not happen
+        space.controllerOpen = false
+        assertFalse(form.reset())
+
+        assertEquals(0, space.resetCount)
+        assertEquals(imported, form.settings)
+        assertEquals(savedPrivateExtender, form.privateExtender)
     }
 }

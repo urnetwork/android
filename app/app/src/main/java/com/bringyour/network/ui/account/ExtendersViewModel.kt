@@ -24,9 +24,9 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 /**
- * The extender section of the account screen (EXTENDER.md K6, K7): the three
- * edited settings of the space, the legacy private extender behind the
- * advanced expander, and the share and import payloads.
+ * The extender section of the account screen (EXTENDER.md K6, K7, E7): the
+ * three edited settings of the space, the legacy private extender behind the
+ * advanced expander, the share and import payloads, and the reset.
  *
  * Everything but the private extender goes through the sdk's
  * `ExtenderViewController`, which is one implementation of the payload and
@@ -60,6 +60,9 @@ class ExtendersViewModel @Inject constructor(
                 secret = netExtender?.secret ?: "",
             )
         }
+
+        override fun resetExtenders(): ExtenderSettingsUi? =
+            controllerOwner.controller?.let { settingsUi(it.resetExtenders()) }
     })
 
     /** The effective settings, or null while there is no device to read them from. */
@@ -164,6 +167,15 @@ class ExtendersViewModel @Inject constructor(
         form.reloadPrivateExtender()
         return true
     }
+
+    /**
+     * Resets the extenders of the device's space (EXTENDER.md E7): the hosts
+     * and the private extender a user added are removed, everything learned
+     * about extenders is cleared, and the space relearns as on a first run.
+     * The form shows the defaults the reset leaves. False when there is no
+     * device to reset through.
+     */
+    fun resetExtenders(): Boolean = form.reset()
 
     /** The share payload of this space (K7). */
     fun buildShare(includeSettings: Boolean): ExtenderShareUi {

@@ -461,6 +461,7 @@
     <string name="extenders">एक्सटेंडर</string>
     <string name="extenders_active_of_reserve">%2$d में से %1$d</string>
     <string name="extenders_no_session">एक्सटेंडर प्रबंधित करने के लिए साइन इन करें और कनेक्ट करें।</string>
+    <string name="extenders_reset_done">एक्सटेंडर रीसेट हो गए</string>
     <string name="fast_dns_on_connect">कनेक्ट करते समय तेज़ DNS</string>
     <string name="fast_dns_on_connect_description">टनल का DNS शुरू होने तक स्थानीय नेटवर्क से DNS का जवाब देता है। इससे आपके लुकअप स्थानीय नेटवर्क को दिख सकते हैं और ऐसे जवाब मिल सकते हैं जो आपके एग्ज़िट स्थान से मेल नहीं खाते। बंद होने पर DNS केवल टनल से ही रिज़ॉल्व होता है।</string>
     <string name="feedback_header">संपर्क करें</string>
@@ -862,6 +863,8 @@
     <string name="remove_wallet_moves_or_holds_payouts">USDC भुगतान आपके किसी दूसरे Solana या Polygon वॉलेट पर चले जाते हैं, या जब तक आप कोई वॉलेट कनेक्ट नहीं करते, तब तक रोक दिए जाते हैं।</string>
     <string name="resend_reset_link">लिंक फिर से भेजें</string>
     <string name="resend_verify_code">कोड फिर से भेजें</string>
+    <string name="reset_extenders">एक्सटेंडर रीसेट करें</string>
+    <string name="reset_extenders_confirm">इससे आपके जोड़े गए एक्सटेंडर हट जाएंगे और एक्सटेंडर के बारे में जुटाई गई सारी जानकारी मिट जाएगी। इसके बाद एक्सटेंडर शुरू से फिर खोजे जाएंगे।</string>
     <string name="reset_it">इसे रीसेट करें</string>
     <string name="reset_link_sent">रीसेट लिंक भेज दिया गया</string>
     <string name="reset_link_sent_to">रीसेट लिंक भेजा गया</string>

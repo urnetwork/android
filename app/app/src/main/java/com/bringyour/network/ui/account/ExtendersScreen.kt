@@ -12,6 +12,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -19,12 +21,16 @@ import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material3.AlertDialogDefaults
+import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -35,6 +41,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -46,6 +53,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.bringyour.network.R
 import com.bringyour.network.ui.Route
+import com.bringyour.network.ui.components.ButtonStyle
 import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.components.URTextInput
 import com.bringyour.network.ui.components.expandableRow
@@ -58,8 +66,8 @@ import com.bringyour.network.ui.theme.TopBarTitleTextStyle
 /**
  * The Extenders section of the account screen (EXTENDER.md K6): the three
  * settings of this network space, its bootstrap DNS-over-HTTPS servers, the
- * legacy private extender behind the advanced expander, and the share and
- * import actions of K7.
+ * legacy private extender behind the advanced expander, the share and import
+ * actions of K7, and the reset of E7 behind a confirmation.
  *
  * An empty field means the derived default, which the box shows as its
  * placeholder — clearing a box is how a user goes back to the default.
@@ -88,19 +96,27 @@ fun ExtendersScreen(
     var advancedExpanded by remember { mutableStateOf(false) }
     var privateIp by remember { mutableStateOf(TextFieldValue()) }
     var privateSecret by remember { mutableStateOf(TextFieldValue()) }
+    var showResetDialog by remember { mutableStateOf(false) }
+
+    // the boxes as the space holds them
+    val fillSettings = { next: ExtenderSettingsUi ->
+        dnsName = TextFieldValue(next.dnsNameField)
+        gossipUrl = TextFieldValue(next.gossipUrlField)
+        hosts = TextFieldValue(extenderHostsText(next.hosts))
+    }
+    val fillPrivateExtender = { next: ExtenderPrivateUi ->
+        privateIp = TextFieldValue(next.ip)
+        privateSecret = TextFieldValue(next.secret)
+    }
 
     // the form follows the sdk's settings as they load and as an import
     // replaces them
     LaunchedEffect(settings) {
-        settings ?: return@LaunchedEffect
-        dnsName = TextFieldValue(settings.dnsNameField)
-        gossipUrl = TextFieldValue(settings.gossipUrlField)
-        hosts = TextFieldValue(extenderHostsText(settings.hosts))
+        settings?.let(fillSettings)
     }
 
     LaunchedEffect(privateExtender) {
-        privateIp = TextFieldValue(privateExtender.ip)
-        privateSecret = TextFieldValue(privateExtender.secret)
+        fillPrivateExtender(privateExtender)
     }
 
     // each time the screen shows: an import on the import screen goes through
@@ -314,7 +330,106 @@ fun ExtendersScreen(
 
             HorizontalDivider()
 
+            /**
+             * Back to a fresh install's extenders (E7): what a user added is
+             * removed and what was learned is cleared, so it asks first.
+             */
+            ExtenderActionRow(
+                text = stringResource(id = R.string.reset_extenders),
+                onClick = { showResetDialog = true },
+                enabled = viewModel.editable,
+            )
+
+            HorizontalDivider()
+
             Spacer(modifier = Modifier.height(24.dp))
+        }
+    }
+
+    if (showResetDialog) {
+        ResetExtendersDialog(
+            onDismiss = { showResetDialog = false },
+            onConfirm = {
+                showResetDialog = false
+                if (viewModel.resetExtenders()) {
+                    // every box shows what the reset left, an unsaved edit
+                    // too, even when the settings read the same as before
+                    viewModel.settings?.let(fillSettings)
+                    fillPrivateExtender(viewModel.privateExtender)
+                    Toast.makeText(
+                        context,
+                        R.string.extenders_reset_done,
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            },
+        )
+    }
+}
+
+/**
+ * The confirmation of the reset (E7): it says what goes, and the reset runs
+ * only from its warning button.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ResetExtendersDialog(
+    onDismiss: () -> Unit,
+    onConfirm: () -> Unit,
+) {
+    BasicAlertDialog(
+        onDismissRequest = onDismiss,
+    ) {
+        Surface(
+            modifier = Modifier
+                .wrapContentWidth()
+                .wrapContentHeight(),
+            shape = MaterialTheme.shapes.large,
+            tonalElevation = AlertDialogDefaults.TonalElevation
+        ) {
+            Column(modifier = Modifier.padding(16.dp)) {
+
+                Text(
+                    stringResource(id = R.string.reset_extenders),
+                    style = MaterialTheme.typography.headlineSmall
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Text(
+                    stringResource(id = R.string.reset_extenders_confirm),
+                    style = MaterialTheme.typography.bodyLarge
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    URButton(
+                        onClick = onDismiss,
+                        style = ButtonStyle.OUTLINE,
+                        modifier = Modifier.weight(1f)
+                    ) { buttonTextStyle ->
+                        Text(
+                            stringResource(id = R.string.cancel),
+                            style = buttonTextStyle
+                        )
+                    }
+
+                    URButton(
+                        onClick = onConfirm,
+                        style = ButtonStyle.WARNING,
+                        modifier = Modifier.weight(1f)
+                    ) { buttonTextStyle ->
+                        Text(
+                            stringResource(id = R.string.reset_extenders),
+                            style = buttonTextStyle
+                        )
+                    }
+                }
+            }
         }
     }
 }
@@ -352,16 +467,20 @@ private fun ExtenderSettingField(
 private fun ExtenderActionRow(
     text: String,
     onClick: () -> Unit,
+    enabled: Boolean = true,
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick)
+            .clickable(enabled = enabled, onClick = onClick)
             .padding(vertical = 16.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text(text)
+        Text(
+            text,
+            color = if (enabled) Color.Unspecified else TextFaint,
+        )
         Spacer(modifier = Modifier.width(16.dp))
         Icon(
             Icons.AutoMirrored.Filled.KeyboardArrowRight,
