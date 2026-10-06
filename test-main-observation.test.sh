@@ -189,7 +189,7 @@ done
 (
   case_dir="$fixture/selection" mode=normal
   setup_observation
-  for target in emulator-7777 emulator-bad 3B161FDJG001KT R5CX21FY6ND foreign-phone; do
+  for target in emulator-7777 emulator-bad 3RESERVEDPHONEA RESERVEDPHONEB foreign-phone; do
     if observe_p2p_owned_guest "$target" after-break artifact-read; then fail "accepted out-of-context target $target"; fi
   done
   p2p_observation_out=''

@@ -540,10 +540,10 @@ private fun MainNavHostContent(
     }
 
     /**
-     * EVERY billing error reaches the user, with a way out.
+     * Every billing error reaches the user, with a way out.
      *
      * `changePlanError` was set in half a dozen places -- a declined card, a billing
-     * client failure, "Network not found" -- and rendered NOWHERE. A failed purchase
+     * client failure, "Network not found" -- and rendered nowhere. A failed purchase
      * therefore looked exactly like nothing happening: the spinner stopped and the user
      * was left staring at the plan screen with no idea what went wrong or what to do.
      *
@@ -585,7 +585,7 @@ private fun MainNavHostContent(
      * The post-payment confirmation poll exhausted its 2-minute budget without the
      * server confirming the subscription. This used to end in a log line
      * ("polling timed out") -- the honest terminal state is: payment received,
-     * confirmation still in flight, the plan updates by itself, do NOT buy again.
+     * confirmation still in flight, the plan updates by itself, do not buy again.
      */
     var showConfirmationDelayedDialog by remember { mutableStateOf(false) }
 
@@ -603,7 +603,7 @@ private fun MainNavHostContent(
      * The purchase is persisted client-side but the server never gave a terminal
      * answer to the report within the bounded in-session retries (Play flavor). Same
      * honest terminal state as the poll timeout: payment received, confirmation in
-     * flight, do NOT buy again -- the daily reconcile worker carries the report.
+     * flight, do not buy again -- the daily reconcile worker carries the report.
      */
     LaunchedEffect(Unit) {
         planViewModel.purchaseReportDeferredSequence.collect { sequence ->
@@ -671,7 +671,7 @@ private fun MainNavHostContent(
     }
 
     /**
-     * The server verified the Play purchase but it belongs to a DIFFERENT network
+     * The server verified the Play purchase but it belongs to a different network
      * than the one logged in. The purchase is real (it stays acknowledged so Play
      * does not auto-refund it) and the linked network is the one credited -- so no
      * success overlay here, just the honest way out: use the account it was
@@ -702,9 +702,9 @@ private fun MainNavHostContent(
     }
 
     /**
-     * A purchase Play accepted but has NOT completed (awaiting approval, or an
+     * A purchase Play accepted but has not completed (awaiting approval, or an
      * out-of-band payment). There is nothing to poll for -- the PURCHASED state does
-     * not arrive now -- so just tell the user, and do NOT close the screen or claim an
+     * not arrive now -- so just tell the user, and do not close the screen or claim an
      * upgrade.
      *
      * Without this the pending case was silent: the spinner stopped, nothing else

@@ -9,6 +9,22 @@ fail() { echo "FAIL: $*" >&2; exit 1; }
 test_dir="$(mktemp -d "${TMPDIR:-/tmp}/urnetwork-diagnostic-avd.test.XXXXXX")"
 trap 'rm -rf "$test_dir"' EXIT
 
+# The canonical config reader is replaced by a stub that serves
+# android.performance_device_serials from FIXTURE_PERFORMANCE_SERIALS and logs
+# every request. The reserved phones' serials here are synthetic.
+config_reader="$test_dir/read-tests-config.sh"
+vault="$test_dir/tests.yml"
+cat >"$config_reader" <<'READER'
+#!/usr/bin/env bash
+printf '%s|%s\n' "$UR_ACCEPT_VAULT" "$*" >>"$FIXTURE_READER_LOG"
+[ "$FIXTURE_READER_FAIL" = 0 ] || exit 1
+[ "$*" = 'get android.performance_device_serials' ] || exit 64
+printf '%s' "$FIXTURE_PERFORMANCE_SERIALS"
+READER
+chmod 700 "$config_reader"
+export FIXTURE_READER_LOG="$test_dir/reader.log" FIXTURE_READER_FAIL=0
+export FIXTURE_PERFORMANCE_SERIALS='3RESERVEDPHONEA RESERVEDPHONEB'
+
 # Evaluate only the production CLI parser, stopping before any gate, build,
 # credentials, artifacts, or device operation can run.
 parser_source="$(sed -n '/^diagnostic_device=""/,/^acceptance_timeout_seconds=/p' "$here/test-main.sh")"
@@ -48,12 +64,73 @@ if android_acceptance_validate_owned_avd_diagnostic_request \
     peer-to-peer 1 play 1 0 0 0 0 canonical-results.tsv >"$test_dir/rejected.log" 2>&1; then
   fail "owned diagnostic may write canonical results"
 fi
-for bad_serial in emulator-5610 3B161FDJG001KT R5CX21FY6ND; do
-  if parse_request --diagnostic-device="$bad_serial" --diagnostic-case=peer-to-peer \
+if parse_request --diagnostic-device=emulator-5610 --diagnostic-case=peer-to-peer \
+    --flavor=play >"$test_dir/rejected.log" 2>&1; then
+  fail "physical selector may borrow emulator serial emulator-5610"
+fi
+
+# The reserved performance phones come from android.performance_device_serials
+# in tests.yml, read beside the unlock code after the shared gate, never from
+# the repository. A run without a usable value stops instead of reserving
+# nothing, and a physical diagnostic target is checked against the list.
+reserved_source="$(sed -n '/^reserved_serial_lines=/,/^fi$/p' "$here/test-main.sh")"
+[ -n "$reserved_source" ] || fail "production reserved-phone boundary not found"
+reserve_request() (
+  repeat_count=1 skip_build=0 headless=0 keep_emulator=0 keep_fixture=0
+  result_matrix='' profile=full smoke_only=0 targets='github play solana_dapp fdroid'
+  selected_targets='' selected_flavor_value='' flavor_selector_count=0 run_peer_to_peer=1
+  # shellcheck disable=SC2294
+  eval "$parser_source"
+  # shellcheck disable=SC2294
+  eval "$reserved_source"
+  printf '%s\n' "${reserved_device_serials[@]}"
+)
+: >"$FIXTURE_READER_LOG"
+[ "$(reserve_request)" = $'3RESERVEDPHONEA\nRESERVEDPHONEB' ] || \
+  fail "the reserved performance phones did not come from tests.yml"
+grep -Fxq "$vault|get android.performance_device_serials" "$FIXTURE_READER_LOG" || \
+  fail "the reserved phones were not read from android.performance_device_serials in tests.yml"
+for bad_serial in 3RESERVEDPHONEA RESERVEDPHONEB; do
+  if reserve_request --diagnostic-device="$bad_serial" --diagnostic-case=peer-to-peer \
       --flavor=play >"$test_dir/rejected.log" 2>&1; then
-    fail "physical selector may borrow emulator/reserved serial $bad_serial"
+    fail "physical selector may borrow reserved serial $bad_serial"
   fi
+  grep -Fq "reserved for performance testing" "$test_dir/rejected.log" || \
+    fail "the refusal of $bad_serial did not say it is reserved"
 done
+reserve_request --diagnostic-device=nonreserved-phone --diagnostic-case=peer-to-peer \
+  --flavor=github >"$test_dir/accepted.log" 2>&1 || fail "a physical phone outside tests.yml's list was refused"
+for unusable in '' '   ' REPLACE_ME 'RESERVEDPHONEB bad/serial'; do
+  if FIXTURE_PERFORMANCE_SERIALS="$unusable" reserve_request >"$test_dir/reserved.log" 2>&1; then
+    fail "a run without usable reserved phones ('$unusable') was accepted"
+  fi
+  grep -Fq android.performance_device_serials "$test_dir/reserved.log" || \
+    fail "the refusal for '$unusable' did not name android.performance_device_serials"
+done
+if FIXTURE_READER_FAIL=1 reserve_request >"$test_dir/reserved.log" 2>&1; then
+  fail "an unreadable tests.yml reserved nothing and the run continued"
+fi
+grep -Fq android.performance_device_serials "$test_dir/reserved.log" || \
+  fail "the unreadable-config refusal did not name android.performance_device_serials"
+
+# No reserved phone's serial is written anywhere in the repository. The two
+# serials it used to carry are known here only by their SHA-256 digests.
+retired_serial_digests=(
+  8fada973387220c809a4d3f9ce787e63c968c765eab8d0e8e4c98f661b7408f6
+  71c6850bba24293be4428a4cbd5344ee1f67b012e946a8897967ecff0286e88b
+)
+git -C "$here" rev-parse --is-inside-work-tree >/dev/null 2>&1 || \
+  fail "the retired-serial check needs the android checkout"
+retired_serial_hits="$(git -C "$here" grep -I -h -o -w -E '[0-9A-Z]{8,20}' | LC_ALL=C sort -u | \
+  node -e '
+const crypto = require("crypto");
+const digests = new Set(process.argv.slice(1));
+const tokens = require("fs").readFileSync(0, "utf8").split("\n");
+const hits = tokens.filter(token => token && digests.has(crypto.createHash("sha256").update(token).digest("hex")));
+process.stdout.write(String(hits.length));
+' "${retired_serial_digests[@]}")" || fail "the retired-serial check could not scan the repository"
+[ "$retired_serial_hits" = 0 ] || \
+  fail "a reserved performance phone's serial is written in the repository ($retired_serial_hits)"
 
 capture_source="$(sed -n '/^capture_device_fleet()/,/^}/p' "$here/test-main.sh")"
 fleet_source="$(sed -n '/^capture_device_fleet ||/,/^\[ -s "\$device_serials" \]/p' "$here/test-main.sh")"
@@ -72,7 +149,7 @@ exercise_fleet() (
   execution_mode=diagnostic diagnostic_owned_avd=1 diagnostic_device=''
   canonical_solana_serial='' started_emulator_serial=''
   started_emulator=0 emulator_pid='' emulator_owner_token=''
-  reserved_device_serials=(3B161FDJG001KT R5CX21FY6ND)
+  reserved_device_serials=(3RESERVEDPHONEA RESERVEDPHONEB)
   adb=fake_adb emulator=fake-emulator avd_name=test-owned-avd
   timestamp=test headless=1
   die() { echo "$*" >&2; exit 1; }
@@ -81,7 +158,7 @@ exercise_fleet() (
     [ "$*" = 'devices -l' ] || fail "unexpected device action: $*"
     printf 'List of devices attached\n'
     if [ "$cohort" = mixed ]; then
-      printf '%s\n' '3B161FDJG001KT device' 'R5CX21FY6ND offline' \
+      printf '%s\n' '3RESERVEDPHONEA device' 'RESERVEDPHONEB offline' \
         'O1N1XT172304047 device' 'foreign-phone device' 'emulator-5554 device'
     fi
     if [ -e "$run_dir/launched" ]; then
@@ -172,7 +249,7 @@ done
   eval "$(sed -n '/^authorize_selected_device()/,/^}/p' "$here/test-main.sh")"
   execution_mode=diagnostic diagnostic_owned_avd=1 diagnostic_device=emulator-5610
   started_emulator_serial=emulator-5610 peer_serial='' canonical_solana_serial=''
-  reserved_device_serials=(3B161FDJG001KT R5CX21FY6ND)
+  reserved_device_serials=(3RESERVEDPHONEA RESERVEDPHONEB)
   adb=fake-adb avd_name=test-owned-avd emulator_pid=123 emulator_owner_token=test-token
   android_acceptance_runner_owns_emulator() { return 1; }
   android_acceptance_adb_device_ready() { fail "lost ownership fell through to physical readiness"; }

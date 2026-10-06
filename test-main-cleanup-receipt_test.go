@@ -30,7 +30,7 @@ func cleanupReceiptFixture(t *testing.T, body string) string {
 		start := strings.Index(string(source), "\n"+name+"() {\n")
 		if start < 0 {
 			// The pristine implementation has no diagnostic recorder. Run the
-			// existing operation first, then RED on the absent required receipt.
+			// existing operation first, then fail on the absent required receipt.
 			if name == "record_p2p_cleanup_failure" || name == "p2p_cleanup_operation" {
 				continue
 			}

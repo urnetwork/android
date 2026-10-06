@@ -12,7 +12,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
  * A provider reached through extenders is drawn as a filled dot with one ring
  * per extender in that extender's color: stroke 2 dp, a 2 dp gap between the
  * dot and the first ring and between successive rings, and the outermost
- * ring's OUTER edge at the cell edge, so the footprint never grows into a
+ * ring's outer edge at the cell edge, so the footprint never grows into a
  * neighbor — the filled dot shrinks inward by 4 dp per ring instead. At most
  * three rings are drawn; four or more collapse into a dashed third ring.
  *

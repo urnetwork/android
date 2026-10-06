@@ -455,7 +455,7 @@ export function requireNativeConsumerLock(root, dependencies = {}) {
 }
 
 // One mandatory post-writer operation. The consumer wrapper cannot invoke its
-// assembly/copy/linkage command unless this creates BOTH fresh artifacts and
+// assembly/copy/linkage command unless this creates both fresh artifacts and
 // verifies the original before manifest, current sources and native build owner.
 export function prepareNativeConsumer(options, dependencies = {}) {
   const binding = outputBinding(options.output);

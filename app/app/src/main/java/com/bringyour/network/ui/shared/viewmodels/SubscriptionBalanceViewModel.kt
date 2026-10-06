@@ -265,7 +265,7 @@ class SubscriptionBalanceViewModel @Inject constructor(
     val errorFetchingSubscriptionBalance: StateFlow<Boolean> = _errorFetchingSubscriptionBalance
 
     /**
-     * True exactly when the SERVER reports an active subscription
+     * True exactly when the server reports an active subscription
      * (`currentSubscription != null`). This -- not payment evidence, not the jwt's
      * baked-in `pro` claim -- is what the post-purchase overlay is allowed to
      * celebrate. Until it flips true the overlay stays processing-shaped.
@@ -410,7 +410,7 @@ class SubscriptionBalanceViewModel @Inject constructor(
 
             /**
              * If the device or its api is not up yet, the call below dispatches
-             * NOTHING and no callback ever arrives to clear `_isLoading`. It would stay
+             * nothing and no callback ever arrives to clear `_isLoading`. It would stay
              * true forever, and because every fetch is guarded on `!_isLoading.value`,
              * both poll loops -- and every later refresh -- would become silent no-ops
              * for the life of this view model. The balance and the Pro label would then
@@ -445,7 +445,7 @@ class SubscriptionBalanceViewModel @Inject constructor(
                              * The server is the source of truth for Pro, and
                              * `currentSubscription` is non-null exactly when the network is
                              * Pro. The jwt's `pro` claim is baked in when the token is
-                             * issued, so it goes stale on BOTH an upgrade and a lapse.
+                             * issued, so it goes stale on both an upgrade and a lapse.
                              * Refresh the token whenever the two disagree, in either
                              * direction.
                              *
@@ -648,7 +648,7 @@ class SubscriptionBalanceViewModel @Inject constructor(
 
     /**
      * The poll gave up. If it was backed by payment evidence and the server still has
-     * not confirmed, that MUST reach the user as more than a log line. (The last
+     * not confirmed, that must reach the user as more than a log line. (The last
      * fetch may still be in flight -- the dialog copy tolerates the race: "your plan
      * will update automatically".)
      */

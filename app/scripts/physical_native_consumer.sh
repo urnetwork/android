@@ -26,7 +26,7 @@ case "$root:$before:$after:$proof:$writer_receipt" in *$'\n'*|*$'\r'*) fail inva
 for path in "$root" "$before" "$after" "$proof" "$writer_receipt"; do
   case "$path" in /*) ;; *) fail absolute-paths-required ;; esac
 done
-# This entry point owns a new consumer lock AFTER the writer has exited. Do not
+# This entry point owns a new consumer lock after the writer has exited. Do not
 # accidentally inherit the writer role or a stale lock marker from another call.
 for marker in URNETWORK_ANDROID_SDK_OUTPUT_LOCK_HELD URNETWORK_ANDROID_SDK_OUTPUT_LOCK_DIR \
   URNETWORK_ANDROID_SDK_OUTPUT_LOCK_PATH URNETWORK_ANDROID_SDK_OUTPUT_LOCK_FD \

@@ -21,7 +21,7 @@ data class PlanOffer(
  * flavor and the unit tests share them.
  *
  * The picker promises a trial only when the store actually returns a yearly
- * offer with a free phase, and then buys THAT offer: a base plan can be listed
+ * offer with a free phase, and then buys that offer: a base plan can be listed
  * next to a trial offer for the same plan (or without one at all, for an
  * account that already used it, or while a new offer propagates), and the
  * first yearly entry is not necessarily the one with the trial.

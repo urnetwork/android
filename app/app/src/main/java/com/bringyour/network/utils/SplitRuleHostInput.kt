@@ -46,7 +46,7 @@ data class SplitRuleHostValidation(
 /**
  * Validates a hand-typed split rule host, wildcard, or CIDR range.
  *
- * Invariant: NEVER be more permissive than the Go matcher. The Go matcher
+ * Invariant: never be more permissive than the Go matcher. The Go matcher
  * files anything it cannot parse as an exact host name and has no downstream error
  * channel, so an invalid string becomes a rule that is created, saved, and never matched.
  */

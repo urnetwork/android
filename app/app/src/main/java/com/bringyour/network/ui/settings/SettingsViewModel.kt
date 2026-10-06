@@ -70,7 +70,7 @@ class SettingsViewModel @Inject constructor(
     private val _requestPermission = MutableStateFlow(false)
     val requestPermission: StateFlow<Boolean> = _requestPermission
 
-    // the LIVE effective provide mode — drives the provide indicator.
+    // the live effective provide mode — drives the provide indicator.
     // ProvideMode is a bit set: compare per-case, never with ranges.
     private val _provideMode = MutableStateFlow(Sdk.ProvideModeNone)
     val provideMode: StateFlow<Long> = _provideMode
@@ -560,7 +560,7 @@ class SettingsViewModel @Inject constructor(
         device: DeviceLocal,
         vc: AccountPreferencesViewController,
     ) {
-        // Track the LIVE effective provide mode: Network provide (same-network
+        // Track the live effective provide mode: Network provide (same-network
         // peers) is always active, so the provider merely existing
         // (provideEnabled) no longer means the device provides publicly.
         // ProvideMode is a bit set: compare per-case, never with ranges.
@@ -590,7 +590,7 @@ class SettingsViewModel @Inject constructor(
         sub?.let { subs.add(it) }
     }
 
-    // the indicator encodes the LIVE effective provide tier (apple parity):
+    // the indicator encodes the live effective provide tier (apple parity):
     // Network provide (incl. Auto while idle) = solid green dot; Public
     // provide = green dot + outer green ring (yellow while paused, which
     // stops public only); not providing = red dot, no ring

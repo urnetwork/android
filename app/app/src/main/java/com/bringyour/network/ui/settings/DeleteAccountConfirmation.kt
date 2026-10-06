@@ -10,7 +10,7 @@ package com.bringyour.network.ui.settings
  * The comparison ignores surrounding whitespace and case: soft keyboards
  * append a space after an autocomplete accept and may capitalise the first
  * letter despite the field's hint, and neither is the user changing their
- * mind. Whitespace INSIDE the name is still compared.
+ * mind. Whitespace inside the name is still compared.
  */
 object DeleteAccountConfirmation {
 

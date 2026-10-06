@@ -187,7 +187,7 @@ class DiagnosticExportTest {
     @Test
     fun theMissingSourceReasonCarriesNoFilesystemPath() {
         // the reason is copied verbatim into README.txt, the one bundle entry
-        // the sdk writes WITHOUT the redaction transform
+        // the sdk writes without the redaction transform
         val root = Files.createTempDirectory("logroot").toFile()
         try {
             val reason = logSourceUnavailableReason(root.absolutePath, "app")

@@ -36,7 +36,7 @@ data class ExtenderSettingsUi(
 
     /**
      * The derived default behind an empty field, which the box shows as its
-     * placeholder (K6). The sdk reports the EFFECTIVE value, so the default is
+     * placeholder (K6). The sdk reports the effective value, so the default is
      * known only while it is the one in force: a field carrying an override
      * gets no placeholder rather than a placeholder that names the override
      * and calls it the default. Clearing the box and saving brings the real

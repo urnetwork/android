@@ -28,14 +28,14 @@ import kotlin.coroutines.resume
  *
  * A PENDING purchase (parental approval, out-of-band payment) becomes PURCHASED
  * whenever Play decides -- possibly days later, possibly while the app is closed. If
- * nothing acknowledges it within Play's 3-day window, Play auto-refunds an APPROVED
+ * nothing acknowledges it within Play's 3-day window, Play auto-refunds an approved
  * purchase. Before this worker existed the only acknowledgement path was
  * `reconcileExistingSubscriptions` on Activity recreation, i.e. the user had to
  * happen to open the app in time.
  *
  * This worker is also what makes report-before-acknowledge (UPGRADE.md N1) survive
  * process death: it wakes, finds the persisted purchase token or the
- * still-unacknowledged purchase, REPORTS it to the server, and only acknowledges
+ * still-unacknowledged purchase, reports it to the server, and only acknowledges
  * once the server answers a terminal status (PurchaseReporter runs the identical
  * sequence for the in-app path). Every re-report is idempotent server side.
  *

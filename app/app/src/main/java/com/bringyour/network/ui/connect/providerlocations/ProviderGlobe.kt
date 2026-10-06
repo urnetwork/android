@@ -184,7 +184,7 @@ fun ProviderGlobe(
     // Keyed on the whole target, not just the selected id: a provider whose
     // coordinates arrive after its row did must still pull the globe over.
     // Restarting this effect cancels the in-flight animateTo, which leaves the
-    // Animatable at its current value AND velocity — which is exactly what the
+    // Animatable at its current value and velocity — which is exactly what the
     // spring below then continues from.
     LaunchedEffect(centerTarget) {
         if (centerTarget != null) {

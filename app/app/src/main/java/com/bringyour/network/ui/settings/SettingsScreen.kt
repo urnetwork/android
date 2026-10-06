@@ -1076,7 +1076,7 @@ private fun SettingsScreen(
 
                     // ORPHANED is not a togglable state: the test providers are
                     // stuck until URnetwork is re-selected in developer options
-                    // and cleanup retries itself, so a switch that still reads ON
+                    // and cleanup retries itself, so a switch that still reads "on"
                     // would be lying. Every other state stays tappable — an
                     // incomplete setup reaches the guide through this switch.
                     URSwitch(

@@ -17,7 +17,7 @@ class ExtenderShareLogicTest {
     private fun decode(
         ok: Boolean = true,
         errorKey: String = "",
-        networkHost: String = "bringyour.com",
+        networkHost: String = "network.example",
         foreignHost: Boolean = false,
         count: Int = 6,
         hasSettings: Boolean = false,
@@ -126,12 +126,12 @@ class ExtenderShareLogicTest {
 
     @Test
     fun ownNetworkSettingsAreConfirmedToo() {
-        val own = decode(hasSettings = true, settingsHost = "extender.bringyour.com")
+        val own = decode(hasSettings = true, settingsHost = "extender.network.example")
 
         assertTrue(extenderUseSettingsOffered(own))
         assertEquals(ExtenderImportStep.Ready, extenderImportStep(own, false))
         assertEquals(
-            ExtenderImportStep.ConfirmSettings("extender.bringyour.com"),
+            ExtenderImportStep.ConfirmSettings("extender.network.example"),
             extenderImportStep(own, true),
         )
     }
@@ -213,9 +213,9 @@ class ExtenderShareLogicTest {
     @Test
     fun aDefaultSettingShowsAnEmptyFieldAndAnOverrideShowsItself() {
         val defaults = ExtenderSettingsUi(
-            dnsName = "extender.bringyour.com",
+            dnsName = "extender.network.example",
             dnsNameDefault = true,
-            gossipUrl = "wss://gossip.bringyour.com",
+            gossipUrl = "wss://gossip.network.example",
             gossipUrlDefault = true,
         )
 
@@ -238,14 +238,14 @@ class ExtenderShareLogicTest {
     @Test
     fun onlyADefaultIsOfferedAsThePlaceholder() {
         val defaults = ExtenderSettingsUi(
-            dnsName = "extender.bringyour.com",
+            dnsName = "extender.network.example",
             dnsNameDefault = true,
-            gossipUrl = "wss://gossip.bringyour.com",
+            gossipUrl = "wss://gossip.network.example",
             gossipUrlDefault = true,
         )
 
-        assertEquals("extender.bringyour.com", defaults.dnsNamePlaceholder)
-        assertEquals("wss://gossip.bringyour.com", defaults.gossipUrlPlaceholder)
+        assertEquals("extender.network.example", defaults.dnsNamePlaceholder)
+        assertEquals("wss://gossip.network.example", defaults.gossipUrlPlaceholder)
 
         // an overridden field reports the override as its effective value, so
         // there is no default to name until it is cleared and saved

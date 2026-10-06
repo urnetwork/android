@@ -176,7 +176,7 @@ internal object GlobeGeometry {
     }
 
     /**
-     * Fit-center layout: the virtual space is scaled to the SMALLER canvas
+     * Fit-center layout: the virtual space is scaled to the smaller canvas
      * dimension and centered in both, so the globe fits whole and stays
      * centered whatever the box's aspect ratio.
      */

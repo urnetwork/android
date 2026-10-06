@@ -29,11 +29,11 @@ sealed class SolanaChallengeSignResult {
 /**
  * Fetches a fresh, server-issued wallet-auth challenge and has the user's
  * Solana wallet sign it via Mobile Wallet Adapter's raw message-signing API
- * (`signMessagesDetached`), NOT the "Sign In With Solana" convenience API —
+ * (`signMessagesDetached`), not the "Sign In With Solana" convenience API —
  * SIWS wraps the message in a multi-field canonical format that the
  * server's strict challenge parser does not accept.
  *
- * IMPORTANT: call this fresh for every login or create-network attempt.
+ * Call this fresh for every login or create-network attempt.
  * The server marks a challenge used the moment it is checked, whether
  * the check succeeds or fails, so a signed message/signature pair must
  * never be reused across two server calls.

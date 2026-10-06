@@ -1934,6 +1934,40 @@ android_acceptance_is_solana_device() {
   return 1
 }
 
+# The adb serials of the phones reserved for the physical performance harness,
+# one per line. They are read from android.performance_device_serials in
+# tests.yml (separated by spaces) through the canonical config reader, as
+# android.unlock_code is, and never written in this repository. Acceptance must
+# never touch those phones, so a missing, placeholder or malformed value fails
+# rather than reserving nothing.
+android_acceptance_reserved_device_serials() {
+  local config_reader="$1" vault="$2" value serial
+  local -a serials
+  [ -x "$config_reader" ] || {
+    echo "test config reader is missing: $config_reader" >&2
+    return 1
+  }
+  if ! value="$(UR_ACCEPT_VAULT="$vault" "$config_reader" get android.performance_device_serials)"; then
+    echo "could not read android.performance_device_serials from $vault" >&2
+    return 1
+  fi
+  case "$value" in REPLACE_ME*) value='' ;; esac
+  read -r -a serials <<<"$value" || true
+  if [ "${#serials[@]}" -eq 0 ]; then
+    echo "set android.performance_device_serials in $vault to the adb serials of the phones reserved for performance tests, separated by spaces" >&2
+    return 1
+  fi
+  for serial in "${serials[@]}"; do
+    case "$serial" in
+      *[!A-Za-z0-9._:-]*|REPLACE_ME*)
+        echo "android.performance_device_serials in $vault holds a value that is not an adb serial" >&2
+        return 1
+        ;;
+    esac
+  done
+  printf '%s\n' "${serials[@]}"
+}
+
 # This physical phone was explicitly authorized for canonical Solana shipping
 # acceptance. Discovering another compatible phone does not authorize it.
 # Changing the physical lane requires a new explicit authorization and a tracked

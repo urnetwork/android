@@ -16,21 +16,21 @@ import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.coroutines.resume
 
 /**
- * The ONE persist -> report -> acknowledge sequence for Play purchases, shared by the
+ * The one persist -> report -> acknowledge sequence for Play purchases, shared by the
  * in-app path (PlanViewModel) and the durable backstop (PendingPurchaseReconcileWorker).
  *
  * The contract (sdk/purchase_report.go, closing UPGRADE.md finding N1):
  *
- *  1. PERSIST the purchase token the moment Play reports PURCHASED, before anything
+ *  1. Persist the purchase token the moment Play reports PURCHASED, before anything
  *     else, so process death loses nothing.
- *  2. REPORT it to the server (Api.verifyPlayPurchase), retrying on transport failure
+ *  2. Report it to the server (Api.verifyPlayPurchase), retrying on transport failure
  *     or a `pending` answer with Sdk.purchaseReportBackoffMillis between attempts,
- *     until the server answers a TERMINAL status: credited, already_credited,
+ *     until the server answers a terminal status: credited, already_credited,
  *     wrong_network, or invalid.
- *  3. Only THEN acknowledge with Play and drop the persisted token.
+ *  3. Only then acknowledge with Play and drop the persisted token.
  *
  * Acknowledging early destroys the safety net: an acknowledged purchase is never
- * redelivered by Play, so if the server never saw the token (lost webhook AND lost
+ * redelivered by Play, so if the server never saw the token (lost webhook and lost
  * report), the money is gone. wrong_network and invalid still acknowledge -- the
  * purchase is real and Play must not auto-refund it -- but the caller surfaces the
  * situation to the user.
@@ -161,7 +161,7 @@ object PurchaseReporter {
         )
 
     /**
-     * Step 3's tail: the proof reached a terminal answer AND Play acknowledged. The
+     * Step 3's tail: the proof reached a terminal answer and Play acknowledged. The
      * reported-terminal flag stays.
      */
     fun clear(context: Context, purchaseToken: String) {
@@ -234,7 +234,7 @@ object PurchaseReporter {
     /**
      * The full persist -> report -> acknowledge sequence for one purchase.
      *
-     * NEVER acknowledges before a terminal status. On terminal -- including
+     * Never acknowledges before a terminal status. On terminal -- including
      * wrong_network and invalid, where the purchase is real and Play must not
      * auto-refund it -- acknowledges and drops the persisted proof. An acknowledge
      * failure keeps the proof persisted and re-arms the daily worker (re-reporting

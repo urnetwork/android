@@ -11,7 +11,7 @@ import org.junit.Test
  *
  * What this pins is the part that can be wrong without anything failing: the
  * sdk's setter throws nothing, clamps silently and can be refused outright by
- * the device, so the screen's honesty rests entirely on how a level READ BACK
+ * the device, so the screen's honesty rests entirely on how a level read back
  * from the device is interpreted here.
  */
 class LogVerbosityTest {

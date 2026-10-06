@@ -22,7 +22,7 @@ import javax.inject.Inject
  * Publishes the device's extender status for the connect drawer's extender
  * panel (EXTENDER.md K4, K5).
  *
- * The status is read from the DEVICE, not the space: it describes the
+ * The status is read from the device, not the space: it describes the
  * directory whose dials the panel draws, which on other platforms lives in a
  * separate process. The sdk coalesces the change listener to one callback a
  * second, so there is no polling here and no further throttling.

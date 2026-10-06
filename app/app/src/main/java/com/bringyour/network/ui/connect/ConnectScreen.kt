@@ -216,7 +216,7 @@ fun ConnectScreen(
 
     }
 
-    // For a selected network-peer location, resolve the device name from the LIVE peer list so
+    // For a selected network-peer location, resolve the device name from the live peer list so
     // the drawer shows the same label as the peer list (the location name is a connect-time
     // snapshot that can be a stale client id).
     val selectedPeerName = connectViewModel.selectedLocation?.connectLocationId?.clientId?.idStr?.let { cid ->
@@ -346,7 +346,7 @@ fun ConnectActionsSheetScaffold(
     // (phones) NavigationSuiteScaffold consumes the inset — the tab bar itself
     // clears the system bar — so the remainder is zero. Next to a navigation
     // rail (tablet landscape) the sheet reaches the screen edge and the full
-    // inset remains. Adding the RAW inset here double-counted it above the tab
+    // inset remains. Adding the raw inset here double-counted it above the tab
     // bar, so the gap under the connect button varied with the device's nav
     // mode (gesture vs 3-button) instead of staying standard.
     var consumedWindowInsets by remember { mutableStateOf(WindowInsets(0, 0, 0, 0)) }
@@ -356,7 +356,7 @@ fun ConnectActionsSheetScaffold(
             .toDp()
     }
 
-    // The collapsed drawer shows EXACTLY the above-the-fold content — the
+    // The collapsed drawer shows exactly the above-the-fold content — the
     // location row with the connect button — and nothing else (iOS parity: no
     // peers line, no hint of the connection-type selector below the fold). A
     // fixed peek constant cannot do that across devices and font scales. Use

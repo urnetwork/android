@@ -39,7 +39,7 @@
          app. The real gate is the MOCK_LOCATION app op set by that picker.
          Lint's MockLocation check assumes this is test-only scaffolding and
          wants it in src/debug. It has to ship in the release manifest instead:
-         the picker lists an app only if the INSTALLED build declares the
+         the picker lists an app only if the installed build declares the
          permission, and it excludes debuggable builds, so a debug-only
          declaration would make the "sync device location with oldest provider"
          feature impossible to enable for real users. -->

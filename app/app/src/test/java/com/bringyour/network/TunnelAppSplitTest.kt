@@ -20,11 +20,11 @@ class TunnelAppSplitTest {
     fun selfIsRemovedWithoutDroppingOtherIncludedApps() {
         val split = sanitizeTunnelAppSplit(
             "com.bringyour.network",
-            setOf("com.bringyour.network", "com.android.chrome"),
+            setOf("com.bringyour.network", "com.example.browser"),
             emptySet(),
         )
 
-        assertEquals(setOf("com.android.chrome"), split.first)
+        assertEquals(setOf("com.example.browser"), split.first)
     }
 
     @Test
@@ -55,11 +55,11 @@ class TunnelAppSplitTest {
     fun installedAllowlistEntriesSurviveUninstalledStaleEntries() {
         val split = sanitizeTunnelAppSplit(
             "com.bringyour.network",
-            setOf("com.android.chrome", "com.example.uninstalled"),
+            setOf("com.example.browser", "com.example.uninstalled"),
             emptySet(),
-            isPackageInstalled = { it == "com.android.chrome" },
+            isPackageInstalled = { it == "com.example.browser" },
         )
 
-        assertEquals(setOf("com.android.chrome"), split.first)
+        assertEquals(setOf("com.example.browser"), split.first)
     }
 }

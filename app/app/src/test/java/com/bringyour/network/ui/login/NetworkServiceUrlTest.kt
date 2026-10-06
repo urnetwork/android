@@ -34,9 +34,9 @@ class NetworkServiceUrlTest {
 
     @Test
     fun aBlankMigrationHostUsesTheHostItself() {
-        assertEquals("https://api.bringyour.com", derivedServiceUrl("bringyour.com", "", "main", "https", "api"))
-        assertEquals("https://api.bringyour.com", derivedServiceUrl("bringyour.com", "", "", "https", "api"))
-        assertEquals("https://beta-api.bringyour.com", derivedServiceUrl("bringyour.com", "", "beta", "https", "api"))
+        assertEquals("https://api.vpn.example", derivedServiceUrl("vpn.example", "", "main", "https", "api"))
+        assertEquals("https://api.vpn.example", derivedServiceUrl("vpn.example", "", "", "https", "api"))
+        assertEquals("https://beta-api.vpn.example", derivedServiceUrl("vpn.example", "", "beta", "https", "api"))
     }
 
     @Test

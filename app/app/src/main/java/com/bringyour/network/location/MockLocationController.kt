@@ -25,7 +25,7 @@ import kotlinx.coroutines.flow.asStateFlow
 // is safe to read anywhere.
 //
 // Key operational facts driving the shape of this class:
-// - test providers are NEVER auto-removed by the OS — not on crash, force-stop,
+// - test providers are never auto-removed by the OS — not on crash, force-stop,
 //   or uninstall (§6.3) — so start() defensively cleans up when the persisted
 //   toggle is off, and the registered provider-name set is persisted before
 //   registration so a later process can remove exactly what was claimed.
@@ -191,7 +191,7 @@ class MockLocationController @Inject constructor(
         }
         if (resolveStatus() != MockLocationStatus.ACTIVE) {
             // §6.3: nothing removes test providers on process death, and a
-            // toggle left ON does not mean this process armed them — clear
+            // toggle left on does not mean this process armed them — clear
             // anything a previous process left behind
             removeAllTestProviders()
         }
@@ -278,7 +278,7 @@ class MockLocationController @Inject constructor(
         val names = mutableListOf(LocationManager.GPS_PROVIDER, LocationManager.NETWORK_PROVIDER)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             // public + the platform default provider only on 31+; pointless
-            // (and hidden) before that. NEVER "passive" (§3.1).
+            // (and hidden) before that. Never "passive" (§3.1).
             names.add(LocationManager.FUSED_PROVIDER)
         }
         return names
@@ -296,7 +296,7 @@ class MockLocationController @Inject constructor(
             return
         }
         val names = defaultProviderNames()
-        // persist the claimed set BEFORE registering so a crash mid-add still
+        // persist the claimed set before registering so a crash mid-add still
         // leaves an exact cleanup list for the next process (§6.3)
         prefs.edit().putStringSet(PREF_KEY_REGISTERED_PROVIDERS, names.toSet()).apply()
         try {
@@ -369,7 +369,7 @@ class MockLocationController @Inject constructor(
                 android.location.Criteria.ACCURACY_FINE,
             )
         }
-        // MANDATORY: a fresh test provider starts disallowed; without this,
+        // required: a fresh test provider starts disallowed; without this,
         // isProviderEnabled() flips false device-wide and nothing is
         // delivered (§2.3)
         locationManager.setTestProviderEnabled(name, true)
@@ -502,7 +502,7 @@ class MockLocationController @Inject constructor(
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             location.elapsedRealtimeUncertaintyNanos = ELAPSED_REALTIME_UNCERTAINTY_NANOS
         }
-        // both timestamps fresh on EVERY post: a stale/reused
+        // both timestamps fresh on every post: a stale/reused
         // elapsedRealtimeNanos is rejected by the server-side validation and
         // trips FLP monotonicity (§2.4, §6.2)
         location.time = System.currentTimeMillis()

@@ -35,7 +35,7 @@ func TestP2PBulkLogcatFollowsQuiescenceWithoutLosingLiveEvidence(t *testing.T) {
 				start := strings.Index(string(source), "\n"+name+"() {\n")
 				if start < 0 {
 					// The original caller still runs and deterministically exposes
-					// its live bulk read; do not RED merely on an absent new helper.
+					// its live bulk read; do not fail merely on an absent new helper.
 					if name == "collect_p2p_quiescent_logcat" {
 						continue
 					}

@@ -55,9 +55,9 @@ class DnsSettingsUiTest {
     fun regionalSuggestionGeneratesId() {
         val suggestion = RegionalDnsSuggestionUi(
             countryCode = "us",
-            name = "Cloudflare",
-            ipv4 = "1.1.1.1",
+            name = "Example resolver",
+            ipv4 = "192.0.2.53",
         )
-        assertEquals("us-1.1.1.1", suggestion.id)
+        assertEquals("us-192.0.2.53", suggestion.id)
     }
 }

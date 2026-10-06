@@ -70,8 +70,8 @@ data class ContractPeerRowUi(
  * feed for this device's own traffic), subscribes to its row changes, and
  * republishes the rows and the "N new" pending count.
  *
- * ALL of the work -- per-peer grouping into two per-direction newest-first
- * stacks, the closing/eject lifecycle, AND the display ordering (the at-top
+ * All of the work -- per-peer grouping into two per-direction newest-first
+ * stacks, the closing/eject lifecycle, and the display ordering (the at-top
  * active-above-idle sort and the scrolled-away freeze that collects new rows as
  * pending) -- is done by the view controller (shared by every platform). The app
  * only reports its scroll position via [setAtTop] and renders the already-ordered
@@ -208,7 +208,7 @@ class ContractStatsViewModel @Inject constructor(
     private fun update() {
         val vc = contractDetailsVc ?: return
 
-        // the FINAL, already-ordered rows (the activity sort and the scrolled-away
+        // the final, already-ordered rows (the activity sort and the scrolled-away
         // freeze are done inside the view controller); render them in order as-is
         val list = vc.contractRows
 

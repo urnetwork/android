@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # SPDX-License-Identifier: MPL-2.0
 #
-# Product acceptance test for the LOCAL Android app against the production
+# Product acceptance test for the local Android app against the production
 # ("main") environment.  It builds and installs each shipping target, drives
 # the real Compose UI, creates or restores an instant account, logs out, logs
 # back in with its 24-word secret key, then uses the acceptance account to
@@ -44,9 +44,9 @@
 #
 # The private device unlock code is read from android.unlock_code in tests.yml.
 #
-# Reserved performance devices are always excluded from acceptance:
-#   Pixel 8 Pro (3B161FDJG001KT)
-#   Galaxy S24 Ultra (R5CX21FY6ND)
+# The reserved performance phones are always excluded from acceptance. Their adb
+# serials are read from android.performance_device_serials in tests.yml, beside
+# the unlock code; a run without them stops before any device is touched.
 set -euo pipefail
 umask 077
 
@@ -79,7 +79,7 @@ diagnostic_device_origin=attached-physical
 diagnostic_case=""
 diagnostic_device_seen=0
 diagnostic_case_seen=0
-reserved_device_serials=(3B161FDJG001KT R5CX21FY6ND)
+reserved_device_serials=()
 
 for arg in "$@"; do
   case "$arg" in
@@ -170,8 +170,8 @@ if [ "$execution_mode" = diagnostic ]; then
       "$diagnostic_device" "$diagnostic_case" \
       "$flavor_selector_count" "$selected_flavor_value" \
       "$repeat_count" "$skip_build" "$smoke_only" \
-      "$keep_emulator" "$keep_fixture" "$result_matrix" \
-      "${reserved_device_serials[@]}" || exit $?
+      "$keep_emulator" "$keep_fixture" "$result_matrix" || exit $?
+    # the reserved phones are checked once tests.yml has been read, below
     diagnostic_selector="--diagnostic-device=$diagnostic_device"
   fi
 fi
@@ -249,6 +249,22 @@ config_reader="$root/tests/read-tests-config.sh"
 [ -x "$config_reader" ] || die "test config reader is missing: $config_reader"
 UR_ACCEPT_VAULT="$vault" "$config_reader" --ready validate
 android_unlock_code="$(UR_ACCEPT_VAULT="$vault" "$config_reader" get android.unlock_code)"
+# Acceptance never touches the reserved performance phones. Their serials come
+# from tests.yml beside the unlock code, never from this repository, so a run
+# without them stops here, before any build or device work. A physical
+# diagnostic target is checked against them now that they are known.
+reserved_serial_lines="$(android_acceptance_reserved_device_serials "$config_reader" "$vault")" || exit 1
+while IFS= read -r reserved_serial; do
+  reserved_device_serials+=("$reserved_serial")
+done <<<"$reserved_serial_lines"
+if [ "$execution_mode" = diagnostic ] && [ "$diagnostic_owned_avd" -eq 0 ]; then
+  android_acceptance_validate_diagnostic_request \
+    "$diagnostic_device" "$diagnostic_case" \
+    "$flavor_selector_count" "$selected_flavor_value" \
+    "$repeat_count" "$skip_build" "$smoke_only" \
+    "$keep_emulator" "$keep_fixture" "$result_matrix" \
+    "${reserved_device_serials[@]}" || exit $?
+fi
 # Bash 3.2 treats an empty array as unset under nounset. The guarded command
 # expansions below preserve zero optional arguments without disabling set -u.
 gradle_worker_args=()

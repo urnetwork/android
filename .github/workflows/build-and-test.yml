@@ -1,17 +1,17 @@
 # Build and test the Android app on every push and pull request.
 #
-# THIS WORKFLOW DOES NOT RELEASE ANYTHING. No release keystore, no vault, no
+# This workflow does not release anything. No release keystore, no vault, no
 # store upload -- a gate, not a pipeline. See "what this deliberately skips"
 # at the bottom of this comment.
 #
 # Two jobs, because they fail for completely different reasons:
 #
-#   sdk-aar  The Go half. This repo has NO source of its own for the SDK; its
+#   sdk-aar  The Go half. This repo has no source of its own for the SDK; its
 #            only dependency on it is
 #              implementation fileTree(dir: "${bringyourHomeDir}/sdk/build/android",
 #                                      include: ['*.aar', '*.jar'])
 #            (app/app/build.gradle), and nothing is published to download. So
-#            gomobile has to run here or NOTHING in the app compiles -- over a
+#            gomobile has to run here or nothing in the app compiles -- over a
 #            hundred files import com.bringyour.sdk, including the sources the
 #            unit tests pull in. This is the same build/all/android/setup.sh
 #            does locally, and the same shape urnetwork/linux's build-sdk job
@@ -26,7 +26,7 @@
 #     and is a real secret. The release variants get compile*ReleaseKotlin
 #     instead, which never schedules a packaging or validateSigning task.
 #   - The instrumented suite (app/app/src/androidTest, driven by test-main.sh).
-#     It needs an emulator AND a live account fixture from
+#     It needs an emulator and a live account fixture from
 #     vault/main/test-acceptance.yml.
 #   - The localizations sync (build.sh's `npm run gen:android`). The generated
 #     res/values*/strings.xml are committed, so CI does not need the sibling
@@ -61,7 +61,7 @@ env:
   UR_ANDROID_BUILD_TOOLS: "36.0.0"
   # versionName/versionCode are read from app/local.properties, which is
   # git-ignored. Absent, the build shells out to warpctl and dies at
-  # CONFIGURATION time. These values only name the archive; nothing ships.
+  # configuration time. These values only name the archive; nothing ships.
   UR_CI_VERSION: "0.0.0-ci"
   UR_CI_VERSION_CODE: "1"
 
@@ -79,7 +79,7 @@ jobs:
       GOTOOLCHAIN: local
     steps:
       # This repository is ~700 MB, most of it design art under res/ that the
-      # gradle build never reads. checkout's DEFAULT fetch-depth of 1 is what
+      # gradle build never reads. checkout's default fetch-depth of 1 is what
       # keeps that off the runner -- do not set fetch-depth: 0 in either job.
       - name: Check out the Android app
         uses: actions/checkout@v4
@@ -108,7 +108,7 @@ jobs:
           git clone --depth 1 --branch go https://github.com/urnetwork/gvisor.git gvisor
 
       # The sdk references RenderPngV2. goidenticons publishes it today, and an
-      # unconditional shim is a REDECLARATION that fails the build. Write it
+      # unconditional shim is a redeclaration that fails the build. Write it
       # only when the symbol is genuinely absent, so this works against either
       # version of the dependency. Same guard as urnetwork/windows.
       - name: Shim goidenticons RenderPngV2 if unpublished
@@ -155,7 +155,7 @@ jobs:
           "$sdkmanager" --install "ndk;$UR_ANDROID_NDK"
           echo "ANDROID_NDK_HOME=$ANDROID_HOME/ndk/$UR_ANDROID_NDK" >> "$GITHUB_ENV"
 
-      # init_tools, NOT init. `make init` also `go get`s x/mobile/bind (already
+      # init_tools, not init. `make init` also `go get`s x/mobile/bind (already
       # pinned as an indirect require in build/go.mod at the same
       # GOMOBILE_VERSION), and until sdk 40432c72 it ended with `go clean
       # -cache && go clean -modcache`, throwing away everything setup-go had
@@ -240,7 +240,7 @@ jobs:
             "build-tools;$UR_ANDROID_BUILD_TOOLS"
 
       # local.properties is git-ignored, and versionName/versionCode are read
-      # from it AT CONFIGURATION TIME. Without it the build shells out to
+      # from it at configuration time. Without it the build shells out to
       # warp/warpctl/build/<os>/<arch>/warpctl, which does not exist here, and
       # every task fails before it starts -- with an opaque IOException, not a
       # message naming the cause. BUNDLER_RPC_URL and WALLETCONNECT_PROJECT_ID

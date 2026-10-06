@@ -39,7 +39,7 @@ private const val BLOCK_ACTIONS_COALESCE_MILLIS = 100L
 data class BlockActionUi(
     val id: String,
     val timeMillis: Long,
-    // cluster hosts/ips that did NOT match an override (disjoint from the matched sets)
+    // cluster hosts/ips that did not match an override (disjoint from the matched sets)
     val hosts: List<String>,
     val ips: List<String>,
     // the exact hosts/ips that matched an override rule, shown as green chips at the
@@ -61,7 +61,7 @@ data class BlockActionUi(
     // (sdk BlockAction.routeLocalOverridable). BitTorrent and non-public
     // destinations are never overridable
     val routeLocalOverridable: Boolean = false,
-    // short client ids of the exits CURRENTLY carrying flows to this
+    // short client ids of the exits currently carrying flows to this
     // cluster's ips (live join against the flow table). One id is the normal
     // healthy shape; two ids on one row is a site split across egress IPs --
     // the exact event the affinity work exists to prevent
@@ -339,7 +339,7 @@ class BlockActionsViewModel @Inject constructor(
 
     private fun readDestinationExits(): Map<String, Set<String>> {
         // the live destination->exit attribution, joined onto each cluster's
-        // ips below. Pull-model: this reflects the exit CURRENTLY carrying
+        // ips below. Pull-model: this reflects the exit currently carrying
         // each ip, after any re-race or rebind -- so a row growing a second
         // exit chip is a site split across egress IPs, live
         val exitsByIp = mutableMapOf<String, MutableSet<String>>()

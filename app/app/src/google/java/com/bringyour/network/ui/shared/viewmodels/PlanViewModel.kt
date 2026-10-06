@@ -65,7 +65,7 @@ class PlanViewModel @Inject constructor(
     private var consumedRestoredSubscriptionSequence = 0L
 
     /**
-     * A purchase that Google Play accepted but has NOT completed: it is awaiting
+     * A purchase that Google Play accepted but has not completed: it is awaiting
      * approval (a child needing a parent's OK) or an out-of-band payment. The PURCHASED
      * state does not arrive now -- it lands later, and `reconcileExistingSubscriptions`
      * picks it up on the next billing connection.
@@ -80,7 +80,7 @@ class PlanViewModel @Inject constructor(
     private var consumedPurchasePendingSequence = 0L
 
     /**
-     * The server verified the Play purchase but it is linked to a DIFFERENT network
+     * The server verified the Play purchase but it is linked to a different network
      * than this session (terminal `wrong_network` report). The purchase is real --
      * it is still acknowledged so Play does not auto-refund it -- but this session
      * gets no credit, so the user is told it was purchased under a different
@@ -95,7 +95,7 @@ class PlanViewModel @Inject constructor(
      * answering `pending`) within the bounded in-session report attempts. Play has
      * the money; the daily PendingPurchaseReconcileWorker carries the report until
      * the server answers. The user sees "payment received, confirmation delayed" --
-     * NOT a failure (they must not buy again) and NOT a success (the server has not
+     * not a failure (they must not buy again) and not a success (the server has not
      * credited anything yet).
      */
     private val _purchaseReportDeferredSequence = MutableStateFlow(0L)
@@ -439,12 +439,12 @@ class PlanViewModel @Inject constructor(
      * purchase, in order (the shared sequence lives in PurchaseReporter; the
      * PendingPurchaseReconcileWorker runs the same one):
      *
-     *  1. PERSIST the purchase token durably, before anything else.
-     *  2. REPORT it to the server and retry (bounded in-session) until a terminal
+     *  1. Persist the purchase token durably, before anything else.
+     *  2. Report it to the server and retry (bounded in-session) until a terminal
      *     answer.
-     *  3. Only THEN acknowledge with Play and drop the persisted token.
+     *  3. Only then acknowledge with Play and drop the persisted token.
      *
-     * The success overlay and the confirmation poll fire ONLY on a server credit
+     * The success overlay and the confirmation poll fire only on a server credit
      * (credited/already_credited) -- this replaces the old optimistic emit at
      * acknowledge time, where "You're premium." could be backed by nothing.
      * wrong_network and invalid still acknowledge (the purchase is real; Play must
@@ -468,7 +468,7 @@ class PlanViewModel @Inject constructor(
              * Play fires PurchasesUpdatedListener with OK for a PENDING purchase too
              * (pending purchases are enabled -- see enablePendingPurchases above). It is
              * not complete and no PURCHASED state arrives now, so there is nothing to
-             * report or acknowledge -- but the user MUST be told, or the spinner just
+             * report or acknowledge -- but the user must be told, or the spinner just
              * stops and they are left staring at the plan screen assuming it failed.
              */
             val hasPending = purchases.any {
@@ -743,7 +743,7 @@ class PlanViewModel @Inject constructor(
         // a Play answer without a yearly base plan keeps the fallback price: the
         // yearly plan is assumed to exist, and a tap then surfaces the store's
         // error rather than a hidden plan
-        // the regular yearly price is the LAST paid phase: the welcome offer's
+        // the regular yearly price is the last paid phase: the welcome offer's
         // discounted first year sits in front of it
         val yearlyPaid = yearly?.pricingPhases?.pricingPhaseList?.lastOrNull { 0L < it.priceAmountMicros }
         formattedYearlySubscriptionPrice = yearlyPaid?.formattedPrice ?: FALLBACK_YEARLY_PRICE

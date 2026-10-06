@@ -219,20 +219,20 @@ printf '%s\n' \
   '* daemon not running; starting now at tcp:5037' \
   '* daemon started successfully' \
   'List of devices attached' \
-  $'R5CX21FY6ND\toffline product:e3q model:SM_S928U device:e3q' \
+  $'RESERVEDPHONEB\toffline product:e3q model:SM_S928U device:e3q' \
   $'emulator-5554\tdevice product:sdk model:Pixel_7 device:emu transport_id:2' \
-  $'3B161FDJG001KT\tdevice product:husky model:Pixel_8_Pro device:husky' \
+  $'3RESERVEDPHONEA\tdevice product:husky model:Pixel_8_Pro device:husky' \
   $'partner-serial\tdevice product:partner model:Partner_Device device:partner' \
-  $'0B111JEC200229\tunauthorized usb:1-1' \
+  $'0DIAGPHONE001\tunauthorized usb:1-1' \
   $'unrelated-offline\toffline' \
   $'emulator-5556\tdevice product:sdk model:Pixel_7' \
   >"$fleet_raw"
 android_acceptance_select_adb_devices \
   "$fleet_raw" "$fleet_selected" "$fleet_excluded" emulator-5554 \
-  3B161FDJG001KT R5CX21FY6ND || fail "owned AVD was rejected because of unrelated devices"
+  3RESERVEDPHONEA RESERVEDPHONEB || fail "owned AVD was rejected because of unrelated devices"
 [ "$(cat "$fleet_selected")" = emulator-5554 ] || \
   fail "acceptance selected a serial other than its explicitly owned AVD"
-expected_excluded=$'0B111JEC200229\tunauthorized\toutside-acceptance-selection\n3B161FDJG001KT\tdevice\treserved-for-performance\nR5CX21FY6ND\toffline\treserved-for-performance\nemulator-5556\tdevice\toutside-acceptance-selection\npartner-serial\tdevice\toutside-acceptance-selection\nunrelated-offline\toffline\toutside-acceptance-selection'
+expected_excluded=$'0DIAGPHONE001\tunauthorized\toutside-acceptance-selection\n3RESERVEDPHONEA\tdevice\treserved-for-performance\nRESERVEDPHONEB\toffline\treserved-for-performance\nemulator-5556\tdevice\toutside-acceptance-selection\npartner-serial\tdevice\toutside-acceptance-selection\nunrelated-offline\toffline\toutside-acceptance-selection'
 [ "$(cat "$fleet_excluded")" = "$expected_excluded" ] || \
   fail "reserved and unrelated devices were not recorded as exclusions exactly"
 
@@ -240,33 +240,33 @@ expected_excluded=$'0B111JEC200229\tunauthorized\toutside-acceptance-selection\n
 # starts, even a ready foreign emulator or physical phone selects no target.
 android_acceptance_select_adb_devices \
   "$fleet_raw" "$fleet_selected" "$fleet_excluded" '' \
-  3B161FDJG001KT R5CX21FY6ND || fail "unrelated devices prevented owned AVD startup"
+  3RESERVEDPHONEA RESERVEDPHONEB || fail "unrelated devices prevented owned AVD startup"
 [ ! -s "$fleet_selected" ] || fail "initial inventory selected an unowned device"
 for required_state in offline unauthorized unknown; do
   printf '%s\n' 'List of devices attached' "emulator-5554 $required_state" >"$fleet_raw"
   if android_acceptance_select_adb_devices \
       "$fleet_raw" "$fleet_selected" "$fleet_excluded" emulator-5554 \
-      3B161FDJG001KT R5CX21FY6ND >/dev/null 2>&1; then
+      3RESERVEDPHONEA RESERVEDPHONEB >/dev/null 2>&1; then
     fail "required owned AVD in $required_state state was accepted"
   fi
 done
 printf '%s\n' 'List of devices attached' $'foreign\tdevice' >"$fleet_raw"
 if android_acceptance_select_adb_devices \
     "$fleet_raw" "$fleet_selected" "$fleet_excluded" emulator-5554 \
-    3B161FDJG001KT R5CX21FY6ND >/dev/null 2>&1; then
+    3RESERVEDPHONEA RESERVEDPHONEB >/dev/null 2>&1; then
   fail "missing required owned AVD was replaced by a foreign device"
 fi
-printf '%s\n' 'List of devices attached' $'3B161FDJG001KT\tdevice' >"$fleet_raw"
+printf '%s\n' 'List of devices attached' $'3RESERVEDPHONEA\tdevice' >"$fleet_raw"
 if android_acceptance_select_adb_devices \
-    "$fleet_raw" "$fleet_selected" "$fleet_excluded" 3B161FDJG001KT \
-    3B161FDJG001KT R5CX21FY6ND >/dev/null 2>&1; then
+    "$fleet_raw" "$fleet_selected" "$fleet_excluded" 3RESERVEDPHONEA \
+    3RESERVEDPHONEA RESERVEDPHONEB >/dev/null 2>&1; then
   fail "an explicit selection bypassed the reserved performance-device exclusion"
 fi
 printf '%s\n' 'List of devices attached' $'diagnostic-ready\tdevice' \
   $'unrelated\tunauthorized' >"$fleet_raw"
 android_acceptance_select_adb_devices \
   "$fleet_raw" "$fleet_selected" "$fleet_excluded" diagnostic-ready \
-  3B161FDJG001KT R5CX21FY6ND || fail "explicit diagnostic target was blocked by an unrelated device"
+  3RESERVEDPHONEA RESERVEDPHONEB || fail "explicit diagnostic target was blocked by an unrelated device"
 [ "$(cat "$fleet_selected")" = diagnostic-ready ] || \
   fail "diagnostic inventory broadened beyond the explicit serial"
 capture_selection_source="$(sed -n '/^capture_device_fleet()/,/^}/p' "$here/test-main.sh")"
@@ -290,18 +290,18 @@ printf '%s\n' 'List of devices attached' \
   'emulator-5554 device model:Pixel' \
   'foreign-seeker device model:Seeker' \
   'unrelated unauthorized' \
-  '3B161FDJG001KT device' 'R5CX21FY6ND offline' >"$fleet_raw"
+  '3RESERVEDPHONEA device' 'RESERVEDPHONEB offline' >"$fleet_raw"
 canonical_required="emulator-5554"$'\n'"$canonical_solana"
 android_acceptance_select_adb_devices \
   "$fleet_raw" "$fleet_selected" "$fleet_excluded" "$canonical_required" \
-  3B161FDJG001KT R5CX21FY6ND || fail "canonical AVD and authorized Saga were not selected"
+  3RESERVEDPHONEA RESERVEDPHONEB || fail "canonical AVD and authorized Saga were not selected"
 [ "$(cat "$fleet_selected")" = "$canonical_solana"$'\n''emulator-5554' ] || \
   fail "canonical selection did not retain exactly the owned AVD and authorized Saga"
 for bad_required in "$canonical_required"$'\n'"$canonical_solana" \
-    "$canonical_required"$'\n''3B161FDJG001KT' 'bad serial'; do
+    "$canonical_required"$'\n''3RESERVEDPHONEA' 'bad serial'; do
   if android_acceptance_select_adb_devices \
       "$fleet_raw" "$fleet_selected" "$fleet_excluded" "$bad_required" \
-      3B161FDJG001KT R5CX21FY6ND >/dev/null 2>&1; then
+      3RESERVEDPHONEA RESERVEDPHONEB >/dev/null 2>&1; then
     fail "duplicate, reserved, or malformed canonical selection was accepted"
   fi
 done
@@ -315,7 +315,7 @@ for bad_state in absent offline unauthorized duplicate; do
   esac
   if android_acceptance_select_adb_devices \
       "$fleet_dir/bad-physical-raw" "$fleet_selected" "$fleet_excluded" "$canonical_required" \
-      3B161FDJG001KT R5CX21FY6ND >/dev/null 2>&1; then
+      3RESERVEDPHONEA RESERVEDPHONEB >/dev/null 2>&1; then
     fail "required physical Saga in $bad_state state was silently replaced"
   fi
 done
@@ -331,7 +331,7 @@ done
   device_serials="$run_dir/selected"
   captured_device_serials="$run_dir/diagnostic"
   excluded_devices="$run_dir/excluded"
-  reserved_device_serials=(3B161FDJG001KT R5CX21FY6ND)
+  reserved_device_serials=(3RESERVEDPHONEA RESERVEDPHONEB)
   execution_mode=canonical
   canonical_solana_serial="$canonical_solana"
   started_emulator_serial=''
@@ -386,7 +386,7 @@ fi
     fi
   done
   fake_solana_failure=''
-  for unauthorized_serial in foreign-seeker 3B161FDJG001KT R5CX21FY6ND emulator-5554; do
+  for unauthorized_serial in foreign-seeker 3RESERVEDPHONEA RESERVEDPHONEB emulator-5554; do
     : >"$fleet_dir/identity-reads"
     if android_acceptance_validate_canonical_solana_device \
         fake_solana_adb "$unauthorized_serial" >/dev/null 2>&1; then
@@ -403,7 +403,7 @@ fi
   eval "$(sed -n '/^uninstall_acceptance_packages()/,/^}/p' "$here/test-main.sh")"
   execution_mode=canonical
   canonical_solana_serial="$canonical_solana"
-  reserved_device_serials=(3B161FDJG001KT R5CX21FY6ND)
+  reserved_device_serials=(3RESERVEDPHONEA RESERVEDPHONEB)
   started_emulator_serial=emulator-5554
   peer_serial=emulator-5556
   emulator_pid=123
@@ -415,7 +415,7 @@ fi
   android_acceptance_runner_owns_emulator() { [ "${fake_lost_avd:-0}" = 0 ]; }
   runner_owns_peer_emulator() { [ "${fake_lost_peer:-0}" = 0 ]; }
   android_acceptance_uninstall_package() { printf '%s\n' "$3 $4" >>"$fleet_dir/fake-uninstalls"; }
-  for rejected_serial in foreign-seeker 3B161FDJG001KT R5CX21FY6ND; do
+  for rejected_serial in foreign-seeker 3RESERVEDPHONEA RESERVEDPHONEB; do
     if uninstall_acceptance_packages "$rejected_serial" "$fleet_dir/cleanup-test"; then
       fail "cleanup accepted an unselected/reserved target"
     fi
@@ -532,8 +532,8 @@ if android_acceptance_write_device_flavor_plan \
   fail "a removed Android acceptance target was still planned"
 fi
 if android_acceptance_validate_diagnostic_request \
-    0B111JEC200229 peer-to-peer 1 "$dropped_target" 1 0 0 0 0 '' \
-    3B161FDJG001KT R5CX21FY6ND >/dev/null 2>&1; then
+    0DIAGPHONE001 peer-to-peer 1 "$dropped_target" 1 0 0 0 0 '' \
+    3RESERVEDPHONEA RESERVEDPHONEB >/dev/null 2>&1; then
   fail "a removed Android acceptance target was accepted for diagnostics"
 fi
 while IFS=$'\t' read -r device_id device_serial flavor; do
@@ -571,12 +571,12 @@ fi
 printf '%s\n' 'List of devices attached' $'unreserved\tunauthorized usb:1-1' >"$fleet_raw"
 android_acceptance_select_adb_devices \
   "$fleet_raw" "$fleet_selected" "$fleet_excluded" '' \
-  3B161FDJG001KT R5CX21FY6ND || fail "an unrelated unauthorized device aborted enumeration"
+  3RESERVEDPHONEA RESERVEDPHONEB || fail "an unrelated unauthorized device aborted enumeration"
 [ ! -s "$fleet_selected" ] || fail "an unrelated unauthorized device was selected"
 printf '%s\n' 'List of devices attached' $'same\tdevice' $'same\tdevice' >"$fleet_raw"
 if android_acceptance_select_adb_devices \
     "$fleet_raw" "$fleet_selected" "$fleet_excluded" same \
-    3B161FDJG001KT R5CX21FY6ND >/dev/null 2>&1; then
+    3RESERVEDPHONEA RESERVEDPHONEB >/dev/null 2>&1; then
   fail "duplicate attached device serials were accepted"
 fi
 
@@ -590,94 +590,94 @@ if android_acceptance_execution_mode 1 0 >/dev/null 2>&1 || \
 fi
 
 android_acceptance_validate_diagnostic_request \
-  0B111JEC200229 peer-to-peer 1 github 1 0 0 0 0 '' \
-  3B161FDJG001KT R5CX21FY6ND || \
+  0DIAGPHONE001 peer-to-peer 1 github 1 0 0 0 0 '' \
+  3RESERVEDPHONEA RESERVEDPHONEB || \
   fail "the exact bounded GitHub P2P diagnostic request was rejected"
 if android_acceptance_validate_diagnostic_request \
-    3B161FDJG001KT peer-to-peer 1 github 1 0 0 0 0 '' \
-    3B161FDJG001KT R5CX21FY6ND >/dev/null 2>&1; then
+    3RESERVEDPHONEA peer-to-peer 1 github 1 0 0 0 0 '' \
+    3RESERVEDPHONEA RESERVEDPHONEB >/dev/null 2>&1; then
   fail "a reserved performance device was accepted for diagnostic execution"
 fi
 if android_acceptance_validate_diagnostic_request \
     emulator-5554 peer-to-peer 1 github 1 0 0 0 0 '' \
-    3B161FDJG001KT R5CX21FY6ND >/dev/null 2>&1; then
+    3RESERVEDPHONEA RESERVEDPHONEB >/dev/null 2>&1; then
   fail "a peer emulator was accepted as the diagnostic physical device"
 fi
 if android_acceptance_validate_diagnostic_request \
     'unsafe serial' peer-to-peer 1 github 1 0 0 0 0 '' \
-    3B161FDJG001KT R5CX21FY6ND >/dev/null 2>&1; then
+    3RESERVEDPHONEA RESERVEDPHONEB >/dev/null 2>&1; then
   fail "an unsafe diagnostic adb serial was accepted"
 fi
 if android_acceptance_validate_diagnostic_request \
-    0B111JEC200229 password 1 github 1 0 0 0 0 '' \
-    3B161FDJG001KT R5CX21FY6ND >/dev/null 2>&1; then
+    0DIAGPHONE001 password 1 github 1 0 0 0 0 '' \
+    3RESERVEDPHONEA RESERVEDPHONEB >/dev/null 2>&1; then
   fail "a non-P2P diagnostic case was accepted"
 fi
 if android_acceptance_validate_diagnostic_request \
-    0B111JEC200229 peer-to-peer 2 github 1 0 0 0 0 '' \
-    3B161FDJG001KT R5CX21FY6ND >/dev/null 2>&1 || \
+    0DIAGPHONE001 peer-to-peer 2 github 1 0 0 0 0 '' \
+    3RESERVEDPHONEA RESERVEDPHONEB >/dev/null 2>&1 || \
    android_acceptance_validate_diagnostic_request \
-    0B111JEC200229 peer-to-peer 1 github,play 1 0 0 0 0 '' \
-    3B161FDJG001KT R5CX21FY6ND >/dev/null 2>&1; then
+    0DIAGPHONE001 peer-to-peer 1 github,play 1 0 0 0 0 '' \
+    3RESERVEDPHONEA RESERVEDPHONEB >/dev/null 2>&1; then
   fail "a diagnostic request with more than one flavor was accepted"
 fi
 if android_acceptance_validate_diagnostic_request \
-    0B111JEC200229 peer-to-peer 1 github 3 0 0 0 0 '' \
-    3B161FDJG001KT R5CX21FY6ND >/dev/null 2>&1; then
+    0DIAGPHONE001 peer-to-peer 1 github 3 0 0 0 0 '' \
+    3RESERVEDPHONEA RESERVEDPHONEB >/dev/null 2>&1; then
   fail "in-process diagnostic repetition was accepted instead of independent runs"
 fi
 if android_acceptance_validate_diagnostic_request \
-    0B111JEC200229 peer-to-peer 1 github 1 1 0 0 0 '' \
-    3B161FDJG001KT R5CX21FY6ND >/dev/null 2>&1; then
+    0DIAGPHONE001 peer-to-peer 1 github 1 1 0 0 0 '' \
+    3RESERVEDPHONEA RESERVEDPHONEB >/dev/null 2>&1; then
   fail "a diagnostic request was allowed to reuse stale APKs"
 fi
 if android_acceptance_validate_diagnostic_request \
-    0B111JEC200229 peer-to-peer 1 github 1 0 1 0 0 '' \
-    3B161FDJG001KT R5CX21FY6ND >/dev/null 2>&1 || \
+    0DIAGPHONE001 peer-to-peer 1 github 1 0 1 0 0 '' \
+    3RESERVEDPHONEA RESERVEDPHONEB >/dev/null 2>&1 || \
    android_acceptance_validate_diagnostic_request \
-    0B111JEC200229 peer-to-peer 1 github 1 0 0 1 0 '' \
-    3B161FDJG001KT R5CX21FY6ND >/dev/null 2>&1 || \
+    0DIAGPHONE001 peer-to-peer 1 github 1 0 0 1 0 '' \
+    3RESERVEDPHONEA RESERVEDPHONEB >/dev/null 2>&1 || \
    android_acceptance_validate_diagnostic_request \
-    0B111JEC200229 peer-to-peer 1 github 1 0 0 0 1 '' \
-    3B161FDJG001KT R5CX21FY6ND >/dev/null 2>&1; then
+    0DIAGPHONE001 peer-to-peer 1 github 1 0 0 0 1 '' \
+    3RESERVEDPHONEA RESERVEDPHONEB >/dev/null 2>&1; then
   fail "a diagnostic request weakened smoke, emulator, or fixture cleanup"
 fi
 if android_acceptance_validate_diagnostic_request \
-    0B111JEC200229 peer-to-peer 1 github 1 0 0 0 0 proof.tsv \
-    3B161FDJG001KT R5CX21FY6ND >/dev/null 2>&1; then
+    0DIAGPHONE001 peer-to-peer 1 github 1 0 0 0 0 proof.tsv \
+    3RESERVEDPHONEA RESERVEDPHONEB >/dev/null 2>&1; then
   fail "diagnostic selectors were accepted for a canonical result file"
 fi
 
 diagnostic_captured="$fleet_dir/diagnostic-captured"
 diagnostic_selected="$fleet_dir/diagnostic-selected"
-printf '%s\n' 0B111JEC200229 partner-serial >"$diagnostic_captured"
+printf '%s\n' 0DIAGPHONE001 partner-serial >"$diagnostic_captured"
 android_acceptance_select_diagnostic_device \
-  "$diagnostic_captured" "$diagnostic_selected" 0B111JEC200229 \
-  3B161FDJG001KT R5CX21FY6ND || \
+  "$diagnostic_captured" "$diagnostic_selected" 0DIAGPHONE001 \
+  3RESERVEDPHONEA RESERVEDPHONEB || \
   fail "the requested physical serial was not selected from the immutable fleet"
-[ "$(cat "$diagnostic_selected")" = 0B111JEC200229 ] || \
+[ "$(cat "$diagnostic_selected")" = 0DIAGPHONE001 ] || \
   fail "diagnostic selection changed the exact requested serial"
 if android_acceptance_select_diagnostic_device \
     "$diagnostic_captured" "$diagnostic_selected" missing-serial \
-    3B161FDJG001KT R5CX21FY6ND >/dev/null 2>&1; then
+    3RESERVEDPHONEA RESERVEDPHONEB >/dev/null 2>&1; then
   fail "a serial absent from the captured fleet was accepted"
 fi
 if android_acceptance_select_diagnostic_device \
-    "$diagnostic_captured" "$diagnostic_selected" 3B161FDJG001KT \
-    3B161FDJG001KT R5CX21FY6ND >/dev/null 2>&1; then
+    "$diagnostic_captured" "$diagnostic_selected" 3RESERVEDPHONEA \
+    3RESERVEDPHONEA RESERVEDPHONEB >/dev/null 2>&1; then
   fail "the immutable-fleet selector bypassed reserved-device exclusion"
 fi
-printf '%s\n' 0B111JEC200229 0B111JEC200229 >"$diagnostic_captured"
+printf '%s\n' 0DIAGPHONE001 0DIAGPHONE001 >"$diagnostic_captured"
 if android_acceptance_select_diagnostic_device \
-    "$diagnostic_captured" "$diagnostic_selected" 0B111JEC200229 \
-    3B161FDJG001KT R5CX21FY6ND >/dev/null 2>&1; then
+    "$diagnostic_captured" "$diagnostic_selected" 0DIAGPHONE001 \
+    3RESERVEDPHONEA RESERVEDPHONEB >/dev/null 2>&1; then
   fail "a duplicated diagnostic serial was accepted"
 fi
 
 diagnostic_plan="$fleet_dir/diagnostic-plan"
 diagnostic_results="$fleet_dir/diagnostic-results"
-printf '%s\n' $'device-001-0B111JEC200229\t0B111JEC200229\tgithub' >"$diagnostic_plan"
-printf '%s\n' $'device-001-0B111JEC200229\t0B111JEC200229\tgithub\tpeer-to-peer\tPASS\tcovered' \
+printf '%s\n' $'device-001-0DIAGPHONE001\t0DIAGPHONE001\tgithub' >"$diagnostic_plan"
+printf '%s\n' $'device-001-0DIAGPHONE001\t0DIAGPHONE001\tgithub\tpeer-to-peer\tPASS\tcovered' \
   >"$diagnostic_results"
 android_acceptance_verify_diagnostic_result \
   "$diagnostic_plan" "$diagnostic_results" peer-to-peer || \
@@ -811,7 +811,7 @@ env -u URNETWORK_NETWORK_TEST_LOCK_HELD \
   URNETWORK_NETWORK_TESTING=1 \
   URNETWORK_NETWORK_TEST_LOCK_PATH="$network_gate_lock" \
   "$here/test-main.sh" --headless --flavor=github \
-    --diagnostic-device=0B111JEC200229 --diagnostic-case=peer-to-peer \
+    --diagnostic-device=0DIAGPHONE001 --diagnostic-case=peer-to-peer \
     >"$network_gate_dir/diagnostic.log" 2>&1 || android_gate_diagnostic_status=$?
 [ "$android_gate_diagnostic_status" -eq 75 ] || \
   fail "a direct Android diagnostic did not reject live shared ownership with status 75"
@@ -922,8 +922,11 @@ for sdk_lock_marker in "${sdk_lock_markers[@]}"; do
 done
 trap - EXIT
 
-grep -Fq 'reserved_device_serials=(3B161FDJG001KT R5CX21FY6ND)' "$here/test-main.sh" || \
-  fail "the two performance devices are not mandatory runner exclusions"
+# shellcheck disable=SC2016
+grep -Fq 'android_acceptance_reserved_device_serials "$config_reader" "$vault"' "$here/test-main.sh" || \
+  fail "the performance devices are not mandatory runner exclusions"
+grep -Fq 'get android.performance_device_serials' "$here/test-main-lib.sh" || \
+  fail "the performance devices are not read from tests.yml"
 grep -Fq 'targets="github play solana_dapp fdroid"' "$here/test-main.sh" || \
   fail "the canonical no-selector flavor matrix changed"
 if grep -Fq "$dropped_target" \

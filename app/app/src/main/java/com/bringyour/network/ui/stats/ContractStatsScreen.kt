@@ -155,7 +155,7 @@ fun ContractStatsScreen(
     // active rows above idle ones and merges new rows; scrolled away it freezes
     // membership+order and collects new rows behind the "N new" chip.
     //
-    // This tracks the user's INTENT, not the raw first-visible index: when rows
+    // This tracks the user's intent, not the raw first-visible index: when rows
     // merge in at the front, Compose anchors to the first visible item's key and
     // bumps firstVisibleItemIndex to 1, so a raw index==0 check would read false
     // exactly when we need to stay pinned. We therefore only update it from a

@@ -7,11 +7,13 @@
 import { spawnSync } from "node:child_process";
 import { closeSync, constants, existsSync, lstatSync, openSync, readFileSync, readSync, writeFileSync, writeSync } from "node:fs";
 import { basename, dirname, isAbsolute, join, resolve } from "node:path";
-import { pathToFileURL } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { prepareArtifactDirectory, requireArtifactPaths } from "./physical_artifact_directory.mjs";
 import { hashNativeInputFile } from "./physical_native_provenance.mjs";
 
-export const PERFORMANCE_SERIALS = ["3B161FDJG001KT", "R5CX21FY6ND"];
+const READER = fileURLToPath(new URL("../../../tests/read-tests-config.sh", import.meta.url));
+const SERIALS_KEY = "android.performance_device_serials";
+const SERIAL = /^[A-Za-z0-9._:-]+$/;
 const APP = "com.bringyour.network";
 const TEST = `${APP}.test`;
 const ABI = "arm64-v8a";
@@ -20,6 +22,35 @@ class PairError extends Error {}
 const fail = reason => { throw new PairError(reason); };
 const reason = error => error instanceof PairError ? error.message : "apk-pair-evidence-unavailable";
 const code = value => Number.isSafeInteger(value) && value >= 0 && value <= MAX_VERSION_CODE;
+let configuredSerials;
+
+// The adb serials of the phones reserved for performance tests: the only
+// phones this harness touches. They are read once per process from
+// android.performance_device_serials in the workspace's tests.yml through the
+// canonical config reader (UR_ACCEPT_VAULT selects another file), as the
+// acceptance runner reads them, and are never written in this repository. A
+// missing, placeholder or malformed value fails. Tests inject
+// dependencies.performanceSerials or dependencies.readConfig.
+export function performanceSerials(dependencies = {}) {
+  let serials = dependencies.performanceSerials;
+  if (serials === undefined) {
+    if (configuredSerials === undefined || dependencies.readConfig) {
+      let result;
+      try { result = (dependencies.readConfig ?? spawnSync)(READER, ["get", SERIALS_KEY],
+        { encoding: "utf8", timeout: 60_000, maxBuffer: 64 * 1024 }); } catch { fail(`${SERIALS_KEY}-unreadable`); }
+      if (result?.status !== 0 || result.error || result.signal || typeof result.stdout !== "string") fail(`${SERIALS_KEY}-unreadable`);
+      const listed = result.stdout.trim().split(/\s+/).filter(Boolean);
+      if (dependencies.readConfig) serials = listed;
+      else configuredSerials = listed;
+    }
+    serials ??= configuredSerials;
+  }
+  if (!Array.isArray(serials) || !serials.length || new Set(serials).size !== serials.length ||
+      serials.some(serial => typeof serial !== "string" || !SERIAL.test(serial) || serial.startsWith("REPLACE_ME"))) {
+    fail(`${SERIALS_KEY}-required`);
+  }
+  return serials;
+}
 
 function invoke(command, args, dependencies) {
   let result;
@@ -46,7 +77,7 @@ export function parseInstalledVersions(raw) {
 }
 
 export function observeDevices(dependencies = {}) {
-  const devices = PERFORMANCE_SERIALS.map(serial => {
+  const devices = performanceSerials(dependencies).map(serial => {
     if (invoke("adb", ["-s", serial, "get-state"], dependencies).trim() !== "device") fail("performance-device-offline");
     const abis = invoke("adb", ["-s", serial, "shell", "getprop", "ro.product.cpu.abilist"], dependencies).trim().split(",");
     if (!abis.includes(ABI) || abis.some(value => !/^[a-z0-9_-]+$/.test(value))) fail("performance-device-abi-unavailable");
@@ -57,17 +88,17 @@ export function observeDevices(dependencies = {}) {
   return { type: "physical-apk-devices", schemaVersion: 1, observedAtUnixMs: (dependencies.now ?? Date.now)(), devices };
 }
 
-function validateDevices(observed) {
+function validateDevices(observed, serials) {
   if (observed?.type !== "physical-apk-devices" || observed.schemaVersion !== 1 ||
-      !Number.isFinite(observed.observedAtUnixMs) || !Array.isArray(observed.devices) || observed.devices.length !== 2 ||
-      PERFORMANCE_SERIALS.some(serial => observed.devices.filter(device => device.serial === serial).length !== 1) ||
+      !Number.isFinite(observed.observedAtUnixMs) || !Array.isArray(observed.devices) || observed.devices.length !== serials.length ||
+      serials.some(serial => observed.devices.filter(device => device.serial === serial).length !== 1) ||
       observed.devices.some(device => !Array.isArray(device.abis) || !device.abis.includes(ABI) || !device.versions ||
         ["app", "test"].some(key => device.versions[key] !== null && !code(device.versions[key])))) fail("performance-pair-observation-required");
   return observed;
 }
 
-export function selectCandidates(appMetadata, testMetadata, observed) {
-  validateDevices(observed);
+export function selectCandidates(appMetadata, testMetadata, observed, dependencies = {}) {
+  validateDevices(observed, performanceSerials(dependencies));
   if (appMetadata?.applicationId !== APP || testMetadata?.applicationId !== TEST ||
       typeof appMetadata.variantName !== "string" || !/^[A-Za-z][A-Za-z0-9_]*Debug$/.test(appMetadata.variantName) ||
       testMetadata.variantName !== `${appMetadata.variantName}AndroidTest`) fail("matching-debug-apk-pair-required");
@@ -79,7 +110,7 @@ export function selectCandidates(appMetadata, testMetadata, observed) {
           /[\\\0\r\n]/.test(element.outputFile))) fail("complete-apk-metadata-required");
   }
   const floor = key => Math.max(0, ...observed.devices.map(device => device.versions[key] ?? 0));
-  // Prefer the 64-bit split for both pinned phones. The universal APK is lower
+  // Prefer the 64-bit split for the pinned phones. The universal APK is lower
   // by the ABI suffix (currently +3), so first-by-name/universal-first is unsafe.
   const appCandidates = appMetadata.elements.map(element => ({ element,
     rank: element.type === "ONE_OF_MANY" && element.filters.length === 1 &&
@@ -152,9 +183,9 @@ export function selectAndRetainPair(options, dependencies = {}) {
   requireArtifactPaths(binding, destinations);
   if (new Set(destinations.map(path => resolve(path))).size !== 3 || destinations.some(existsSync)) fail("fresh-apk-evidence-required");
   if (!/^[A-Za-z0-9][A-Za-z0-9._-]{0,199}$/.test(options["build-id"])) fail("explicit-acceptance-build-id-required");
-  const observed = validateDevices(readJson(options.observed, true));
+  const observed = validateDevices(readJson(options.observed, true), performanceSerials(dependencies));
   const appMetadata = readJson(options["app-metadata"]); const testMetadata = readJson(options["test-metadata"]);
-  const selected = selectCandidates(appMetadata, testMetadata, observed);
+  const selected = selectCandidates(appMetadata, testMetadata, observed, dependencies);
   const artifacts = {};
   for (const key of ["app", "test"]) {
     const source = join(dirname(options[`${key}-metadata`]), selected[key].outputFile);

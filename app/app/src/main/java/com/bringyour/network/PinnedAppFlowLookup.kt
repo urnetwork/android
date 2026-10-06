@@ -11,7 +11,7 @@ import java.net.InetSocketAddress
 /**
  * Answers "which PINNED app owns this flow" for the Go side's per-app
  * pinning: one ConnectivityManager.getConnectionOwnerUid binder call (API
- * 29+) checked against the pinned apps' uids. Called once per NEW flow (the
+ * 29+) checked against the pinned apps' uids. Called once per new flow (the
  * Go side caches per flow key), never per packet.
  *
  * Immutable by design: the pinned set is baked at construction, and a rules
