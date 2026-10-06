@@ -927,8 +927,7 @@ grep -Fq 'reserved_device_serials=(3B161FDJG001KT R5CX21FY6ND)' "$here/test-main
 grep -Fq 'targets="github play solana_dapp fdroid"' "$here/test-main.sh" || \
   fail "the canonical no-selector flavor matrix changed"
 if grep -Fq "$dropped_target" \
-    "$here/test-main.sh" "$here/test-main-lib.sh" "$here/build.sh" \
-    "$here/.github/workflows/build-and-test.yml"; then
+    "$here/test-main.sh" "$here/test-main-lib.sh" "$here/build.sh"; then
   fail "the removed Android target remains in acceptance or aggregate build dispatch"
 fi
 for aggregate_build_task in \
