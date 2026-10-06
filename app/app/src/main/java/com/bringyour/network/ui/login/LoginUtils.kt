@@ -336,6 +336,14 @@ class SsoOAuthAttempts(
         if (nowMillis() - pending.createdMillis > SSO_OAUTH_MAX_AGE_MILLIS) return null
         return pending
     }
+
+    /**
+     * Drops the pending attempt, whatever its purpose: a sign-out ends every
+     * attempt the app started, so a late return matches none.
+     */
+    fun clear() {
+        store.clear()
+    }
 }
 
 private fun ssoOAuthToken(): String {
