@@ -352,6 +352,12 @@
     <string name="dev_stall_exit">Stall</string>
     <string name="dev_standing_reserve">Keep a spare exit warm</string>
     <string name="dev_standing_reserve_detail">Size each window one exit beyond its target so a replacement is already connected. Off waits until a loss to backfill</string>
+    <string name="dev_state_benched">benched</string>
+    <string name="dev_state_done">done</string>
+    <string name="dev_state_p2p" translatable="false">p2p</string>
+    <string name="dev_state_proven">proven</string>
+    <string name="dev_state_tier">tier %1$s</string>
+    <string name="dev_state_warned">warned</string>
     <string name="dev_tcp_collapse_hold">Release stuck retransmits</string>
     <string name="dev_tcp_collapse_hold_detail">How long retransmits are held before one is released. Off waits 30s</string>
     <string name="dev_tcp_idle_timeout">Longer TCP idle timeout</string>

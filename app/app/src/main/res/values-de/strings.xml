@@ -349,6 +349,11 @@
     <string name="dev_stall_exit">Hängen lassen</string>
     <string name="dev_standing_reserve">Einen Ersatz-Exit bereithalten</string>
     <string name="dev_standing_reserve_detail">Bemisst jedes Fenster einen Exit über seinem Ziel, damit bereits ein Ersatz verbunden ist. Aus: füllt erst nach einem Verlust nach</string>
+    <string name="dev_state_benched">auf der Ersatzbank</string>
+    <string name="dev_state_done">fertig</string>
+    <string name="dev_state_proven">bewährt</string>
+    <string name="dev_state_tier">Stufe %1$s</string>
+    <string name="dev_state_warned">gewarnt</string>
     <string name="dev_tcp_collapse_hold">Hängende Neuübertragungen freigeben</string>
     <string name="dev_tcp_collapse_hold_detail">Wie lange Neuübertragungen zurückgehalten werden, bevor eine freigegeben wird. Aus: wartet 30 s</string>
     <string name="dev_tcp_idle_timeout">Längeres TCP-Leerlauf-Timeout</string>

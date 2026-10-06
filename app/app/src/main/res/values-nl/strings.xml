@@ -349,6 +349,11 @@
     <string name="dev_stall_exit">Laten vastlopen</string>
     <string name="dev_standing_reserve">Een reserve-exit warm houden</string>
     <string name="dev_standing_reserve_detail">Maak elk venster één exit groter dan het doel, zodat er al een vervanger verbonden is. Uit wacht tot er een wegvalt om aan te vullen</string>
+    <string name="dev_state_benched">op de bank</string>
+    <string name="dev_state_done">klaar</string>
+    <string name="dev_state_proven">bewezen</string>
+    <string name="dev_state_tier">niveau %1$s</string>
+    <string name="dev_state_warned">gewaarschuwd</string>
     <string name="dev_tcp_collapse_hold">Vastzittende hertransmissies vrijgeven</string>
     <string name="dev_tcp_collapse_hold_detail">Hoe lang hertransmissies worden vastgehouden voordat er één wordt vrijgegeven. Uit wacht 30 s</string>
     <string name="dev_tcp_idle_timeout">Langere TCP-inactiviteitstime-out</string>

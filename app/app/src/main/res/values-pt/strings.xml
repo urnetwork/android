@@ -349,6 +349,11 @@
     <string name="dev_stall_exit">Bloquear</string>
     <string name="dev_standing_reserve">Manter uma saída de reserva pronta</string>
     <string name="dev_standing_reserve_detail">Dimensiona cada janela com uma saída a mais do que o objetivo para que um substituto já esteja ligado. Desativado espera por uma perda para repor</string>
+    <string name="dev_state_benched">no banco</string>
+    <string name="dev_state_done">concluída</string>
+    <string name="dev_state_proven">comprovada</string>
+    <string name="dev_state_tier">nível %1$s</string>
+    <string name="dev_state_warned">avisada</string>
     <string name="dev_tcp_collapse_hold">Libertar retransmissões presas</string>
     <string name="dev_tcp_collapse_hold_detail">Durante quanto tempo as retransmissões ficam retidas antes de uma ser libertada. Desativado espera 30 s</string>
     <string name="dev_tcp_idle_timeout">Tempo de inatividade TCP mais longo</string>

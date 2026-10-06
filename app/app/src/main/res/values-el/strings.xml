@@ -349,6 +349,11 @@
     <string name="dev_stall_exit">Κόλλημα</string>
     <string name="dev_standing_reserve">Μια εφεδρική έξοδος σε ετοιμότητα</string>
     <string name="dev_standing_reserve_detail">Κάθε παράθυρο έχει μία έξοδο πάνω από τον στόχο, ώστε μια αντικατάσταση να είναι ήδη συνδεδεμένη. Η απενεργοποίηση περιμένει μια απώλεια για να συμπληρώσει</string>
+    <string name="dev_state_benched">στον πάγκο</string>
+    <string name="dev_state_done">ολοκληρώθηκε</string>
+    <string name="dev_state_proven">αποδεδειγμένη</string>
+    <string name="dev_state_tier">βαθμίδα %1$s</string>
+    <string name="dev_state_warned">με προειδοποίηση</string>
     <string name="dev_tcp_collapse_hold">Αποδέσμευση κολλημένων αναμεταδόσεων</string>
     <string name="dev_tcp_collapse_hold_detail">Για πόσο συγκρατούνται οι αναμεταδόσεις πριν αποδεσμευτεί μία. Η απενεργοποίηση περιμένει 30 δ</string>
     <string name="dev_tcp_idle_timeout">Μεγαλύτερο χρονικό όριο αδράνειας TCP</string>

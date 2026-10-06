@@ -349,6 +349,11 @@
     <string name="dev_stall_exit">使停滞</string>
     <string name="dev_standing_reserve">保持一个备用出口预热</string>
     <string name="dev_standing_reserve_detail">让每个窗口比目标多一个出口，以便替补已提前连接。关闭时等到出现损失后再补充</string>
+    <string name="dev_state_benched">被隔离</string>
+    <string name="dev_state_done">已完成</string>
+    <string name="dev_state_proven">已验证</string>
+    <string name="dev_state_tier">层级 %1$s</string>
+    <string name="dev_state_warned">已警告</string>
     <string name="dev_tcp_collapse_hold">释放卡住的重传</string>
     <string name="dev_tcp_collapse_hold_detail">重传在释放其中一个之前被保留的时长。关闭时等待 30 秒</string>
     <string name="dev_tcp_idle_timeout">更长的 TCP 空闲超时</string>

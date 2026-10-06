@@ -349,6 +349,11 @@
     <string name="dev_stall_exit">Kwamisha</string>
     <string name="dev_standing_reserve">Weka njia ya akiba ya kutoka tayari</string>
     <string name="dev_standing_reserve_detail">Panga kila dirisha liwe na njia moja ya kutoka zaidi ya lengo lake ili mbadala uwe tayari umeunganishwa. Kuzima kunasubiri hasara kabla ya kujaza</string>
+    <string name="dev_state_benched">imewekwa benchi</string>
+    <string name="dev_state_done">imekamilika</string>
+    <string name="dev_state_proven">imethibitishwa</string>
+    <string name="dev_state_tier">daraja %1$s</string>
+    <string name="dev_state_warned">imeonywa</string>
     <string name="dev_tcp_collapse_hold">Achilia utumaji upya uliokwama</string>
     <string name="dev_tcp_collapse_hold_detail">Muda ambao utumaji upya huzuiliwa kabla ya mmoja kuachiliwa. Kuzima kunasubiri sekunde 30</string>
     <string name="dev_tcp_idle_timeout">Muda mrefu zaidi wa kutotumika wa TCP</string>

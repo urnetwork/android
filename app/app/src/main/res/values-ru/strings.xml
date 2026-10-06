@@ -349,6 +349,11 @@
     <string name="dev_stall_exit">Заморозить</string>
     <string name="dev_standing_reserve">Держать запасной выход наготове</string>
     <string name="dev_standing_reserve_detail">Делает каждое окно на один выход больше целевого размера, чтобы замена уже была подключена. Если выключено, пополнение происходит только после потери</string>
+    <string name="dev_state_benched">отстранён</string>
+    <string name="dev_state_done">завершён</string>
+    <string name="dev_state_proven">проверен</string>
+    <string name="dev_state_tier">уровень %1$s</string>
+    <string name="dev_state_warned">предупреждён</string>
     <string name="dev_tcp_collapse_hold">Отпускать застрявшие повторные передачи</string>
     <string name="dev_tcp_collapse_hold_detail">Как долго удерживаются повторные передачи, прежде чем одна будет отпущена. Если выключено, ожидание 30 с</string>
     <string name="dev_tcp_idle_timeout">Увеличенный тайм-аут простоя TCP</string>

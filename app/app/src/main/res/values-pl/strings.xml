@@ -349,6 +349,11 @@
     <string name="dev_stall_exit">Zablokuj</string>
     <string name="dev_standing_reserve">Trzymaj zapasowe wyjście w gotowości</string>
     <string name="dev_standing_reserve_detail">Każde okno ma o jedno wyjście więcej niż cel, więc zastępca jest już połączony. Wyłączenie czeka z uzupełnieniem na utratę</string>
+    <string name="dev_state_benched">na ławce</string>
+    <string name="dev_state_done">zakończone</string>
+    <string name="dev_state_proven">sprawdzone</string>
+    <string name="dev_state_tier">poziom %1$s</string>
+    <string name="dev_state_warned">ostrzeżone</string>
     <string name="dev_tcp_collapse_hold">Zwalniaj utknięte retransmisje</string>
     <string name="dev_tcp_collapse_hold_detail">Jak długo retransmisje są wstrzymywane, zanim jedna zostanie zwolniona. Wyłączenie czeka 30 s</string>
     <string name="dev_tcp_idle_timeout">Dłuższy limit bezczynności TCP</string>

@@ -349,6 +349,11 @@
     <string name="dev_stall_exit">ทำให้ค้าง</string>
     <string name="dev_standing_reserve">เตรียมทางออกสำรองไว้หนึ่งแห่ง</string>
     <string name="dev_standing_reserve_detail">กำหนดแต่ละหน้าต่างให้มีทางออกมากกว่าเป้าหมายหนึ่งแห่ง เพื่อให้มีตัวแทนเชื่อมต่อไว้แล้ว ปิดเพื่อรอให้เสียก่อนแล้วจึงเติม</string>
+    <string name="dev_state_benched">ถูกพักไว้</string>
+    <string name="dev_state_done">เสร็จแล้ว</string>
+    <string name="dev_state_proven">พิสูจน์แล้ว</string>
+    <string name="dev_state_tier">ระดับ %1$s</string>
+    <string name="dev_state_warned">ถูกเตือน</string>
     <string name="dev_tcp_collapse_hold">ปล่อยการส่งซ้ำที่ติดค้าง</string>
     <string name="dev_tcp_collapse_hold_detail">การส่งซ้ำถูกระงับไว้นานเท่าใดก่อนปล่อยหนึ่งรายการ ปิดเพื่อรอ 30 วินาที</string>
     <string name="dev_tcp_idle_timeout">หมดเวลาไม่ใช้งาน TCP ที่นานขึ้น</string>

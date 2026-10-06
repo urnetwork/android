@@ -349,6 +349,11 @@
     <string name="dev_stall_exit">إيقاف</string>
     <string name="dev_standing_reserve">إبقاء مخرج احتياطي جاهزًا</string>
     <string name="dev_standing_reserve_detail">يجعل حجم كل نافذة أكبر من هدفها بمخرج واحد ليكون البديل متصلًا مسبقًا. عند الإيقاف، ينتظر حدوث فقدان قبل التعويض</string>
+    <string name="dev_state_benched">محجور</string>
+    <string name="dev_state_done">منتهٍ</string>
+    <string name="dev_state_proven">مُثبت</string>
+    <string name="dev_state_tier">الفئة %1$s</string>
+    <string name="dev_state_warned">مُنذَر</string>
     <string name="dev_tcp_collapse_hold">تحرير عمليات إعادة الإرسال العالقة</string>
     <string name="dev_tcp_collapse_hold_detail">المدة التي تُحتجز فيها عمليات إعادة الإرسال قبل تحرير إحداها. عند الإيقاف، ينتظر 30 ثانية</string>
     <string name="dev_tcp_idle_timeout">مهلة خمول أطول لـ TCP</string>

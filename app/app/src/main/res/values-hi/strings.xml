@@ -349,6 +349,11 @@
     <string name="dev_stall_exit">अटकाएँ</string>
     <string name="dev_standing_reserve">एक अतिरिक्त एग्ज़िट तैयार रखें</string>
     <string name="dev_standing_reserve_detail">हर विंडो को उसके लक्ष्य से एक एग्ज़िट बड़ा रखें, ताकि बदलने वाला पहले से कनेक्ट रहे। बंद करने पर कमी भरने के लिए नुकसान का इंतज़ार होता है</string>
+    <string name="dev_state_benched">बेंच पर</string>
+    <string name="dev_state_done">पूरा</string>
+    <string name="dev_state_proven">सिद्ध</string>
+    <string name="dev_state_tier">स्तर %1$s</string>
+    <string name="dev_state_warned">चेतावनी दी गई</string>
     <string name="dev_tcp_collapse_hold">अटके रीट्रांसमिट छोड़ें</string>
     <string name="dev_tcp_collapse_hold_detail">किसी एक को छोड़ने से पहले रीट्रांसमिट कितनी देर रोके जाते हैं। बंद करने पर 30 सेकंड इंतज़ार होता है</string>
     <string name="dev_tcp_idle_timeout">लंबा TCP निष्क्रियता टाइमआउट</string>

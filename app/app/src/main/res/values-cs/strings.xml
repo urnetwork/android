@@ -349,6 +349,11 @@
     <string name="dev_stall_exit">Zaseknout</string>
     <string name="dev_standing_reserve">Držet záložní výstup připravený</string>
     <string name="dev_standing_reserve_detail">Každé okno má o jeden výstup víc, než je cíl, takže náhrada je už připojená. Vypnuto čeká s doplněním na ztrátu</string>
+    <string name="dev_state_benched">na lavičce</string>
+    <string name="dev_state_done">hotovo</string>
+    <string name="dev_state_proven">ověřený</string>
+    <string name="dev_state_tier">úroveň %1$s</string>
+    <string name="dev_state_warned">varovaný</string>
     <string name="dev_tcp_collapse_hold">Uvolnit uvízlá opakovaná odeslání</string>
     <string name="dev_tcp_collapse_hold_detail">Jak dlouho se opakovaná odeslání zadržují, než se jedno uvolní. Vypnuto čeká 30 s</string>
     <string name="dev_tcp_idle_timeout">Delší časový limit nečinnosti TCP</string>
