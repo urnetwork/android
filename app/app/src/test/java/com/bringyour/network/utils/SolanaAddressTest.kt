@@ -7,7 +7,8 @@ import org.junit.Test
 
 class SolanaAddressTest {
 
-    private val key = "4Fj9RCwJqHLdLNK28DwWHunHqWapxKbbzeYZLmreSYCM"
+    // a fixture key (sha256 of "urnetwork test solana wallet"), not a wallet
+    private val key = "GES2rXHpUVwXKtXRDVXUH7uU2BLX3VPUPexTq4uTXuvt"
 
     @Test
     fun `a base58 32 byte public key is valid syntax`() {
@@ -59,8 +60,8 @@ class SolanaAddressTest {
 
     @Test
     fun `short keeps the first and last four characters`() {
-        assertEquals("4Fj9…SYCM", SolanaAddress.short(key))
-        assertEquals("4Fj9…SYCM", SolanaAddress.short(" $key "))
+        assertEquals("GES2…Xuvt", SolanaAddress.short(key))
+        assertEquals("GES2…Xuvt", SolanaAddress.short(" $key "))
         assertEquals("7Xk9aQ2m3fQa", SolanaAddress.short("7Xk9aQ2m3fQa"))
     }
 }

@@ -12,7 +12,8 @@ import org.junit.Test
  */
 class LinkSolanaWalletTest {
 
-    private val address = "4Fj9RCwJqHLdLNK28DwWHunHqWapxKbbzeYZLmreSYCM"
+    // a fixture key (sha256 of "urnetwork test solana wallet"), not a wallet
+    private val address = "GES2rXHpUVwXKtXRDVXUH7uU2BLX3VPUPexTq4uTXuvt"
 
     /** Answers with fixed results and records the calls the link makes. */
     private class RecordingSource(
