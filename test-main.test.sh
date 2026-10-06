@@ -223,7 +223,7 @@ printf '%s\n' \
   $'emulator-5554\tdevice product:sdk model:Pixel_7 device:emu transport_id:2' \
   $'3RESERVEDPHONEA\tdevice product:husky model:Pixel_8_Pro device:husky' \
   $'partner-serial\tdevice product:partner model:Partner_Device device:partner' \
-  $'0B111JEC200229\tunauthorized usb:1-1' \
+  $'0DIAGPHONE001\tunauthorized usb:1-1' \
   $'unrelated-offline\toffline' \
   $'emulator-5556\tdevice product:sdk model:Pixel_7' \
   >"$fleet_raw"
@@ -232,7 +232,7 @@ android_acceptance_select_adb_devices \
   3RESERVEDPHONEA RESERVEDPHONEB || fail "owned AVD was rejected because of unrelated devices"
 [ "$(cat "$fleet_selected")" = emulator-5554 ] || \
   fail "acceptance selected a serial other than its explicitly owned AVD"
-expected_excluded=$'0B111JEC200229\tunauthorized\toutside-acceptance-selection\n3RESERVEDPHONEA\tdevice\treserved-for-performance\nRESERVEDPHONEB\toffline\treserved-for-performance\nemulator-5556\tdevice\toutside-acceptance-selection\npartner-serial\tdevice\toutside-acceptance-selection\nunrelated-offline\toffline\toutside-acceptance-selection'
+expected_excluded=$'0DIAGPHONE001\tunauthorized\toutside-acceptance-selection\n3RESERVEDPHONEA\tdevice\treserved-for-performance\nRESERVEDPHONEB\toffline\treserved-for-performance\nemulator-5556\tdevice\toutside-acceptance-selection\npartner-serial\tdevice\toutside-acceptance-selection\nunrelated-offline\toffline\toutside-acceptance-selection'
 [ "$(cat "$fleet_excluded")" = "$expected_excluded" ] || \
   fail "reserved and unrelated devices were not recorded as exclusions exactly"
 
@@ -532,7 +532,7 @@ if android_acceptance_write_device_flavor_plan \
   fail "a removed Android acceptance target was still planned"
 fi
 if android_acceptance_validate_diagnostic_request \
-    0B111JEC200229 peer-to-peer 1 "$dropped_target" 1 0 0 0 0 '' \
+    0DIAGPHONE001 peer-to-peer 1 "$dropped_target" 1 0 0 0 0 '' \
     3RESERVEDPHONEA RESERVEDPHONEB >/dev/null 2>&1; then
   fail "a removed Android acceptance target was accepted for diagnostics"
 fi
@@ -590,7 +590,7 @@ if android_acceptance_execution_mode 1 0 >/dev/null 2>&1 || \
 fi
 
 android_acceptance_validate_diagnostic_request \
-  0B111JEC200229 peer-to-peer 1 github 1 0 0 0 0 '' \
+  0DIAGPHONE001 peer-to-peer 1 github 1 0 0 0 0 '' \
   3RESERVEDPHONEA RESERVEDPHONEB || \
   fail "the exact bounded GitHub P2P diagnostic request was rejected"
 if android_acceptance_validate_diagnostic_request \
@@ -609,53 +609,53 @@ if android_acceptance_validate_diagnostic_request \
   fail "an unsafe diagnostic adb serial was accepted"
 fi
 if android_acceptance_validate_diagnostic_request \
-    0B111JEC200229 password 1 github 1 0 0 0 0 '' \
+    0DIAGPHONE001 password 1 github 1 0 0 0 0 '' \
     3RESERVEDPHONEA RESERVEDPHONEB >/dev/null 2>&1; then
   fail "a non-P2P diagnostic case was accepted"
 fi
 if android_acceptance_validate_diagnostic_request \
-    0B111JEC200229 peer-to-peer 2 github 1 0 0 0 0 '' \
+    0DIAGPHONE001 peer-to-peer 2 github 1 0 0 0 0 '' \
     3RESERVEDPHONEA RESERVEDPHONEB >/dev/null 2>&1 || \
    android_acceptance_validate_diagnostic_request \
-    0B111JEC200229 peer-to-peer 1 github,play 1 0 0 0 0 '' \
+    0DIAGPHONE001 peer-to-peer 1 github,play 1 0 0 0 0 '' \
     3RESERVEDPHONEA RESERVEDPHONEB >/dev/null 2>&1; then
   fail "a diagnostic request with more than one flavor was accepted"
 fi
 if android_acceptance_validate_diagnostic_request \
-    0B111JEC200229 peer-to-peer 1 github 3 0 0 0 0 '' \
+    0DIAGPHONE001 peer-to-peer 1 github 3 0 0 0 0 '' \
     3RESERVEDPHONEA RESERVEDPHONEB >/dev/null 2>&1; then
   fail "in-process diagnostic repetition was accepted instead of independent runs"
 fi
 if android_acceptance_validate_diagnostic_request \
-    0B111JEC200229 peer-to-peer 1 github 1 1 0 0 0 '' \
+    0DIAGPHONE001 peer-to-peer 1 github 1 1 0 0 0 '' \
     3RESERVEDPHONEA RESERVEDPHONEB >/dev/null 2>&1; then
   fail "a diagnostic request was allowed to reuse stale APKs"
 fi
 if android_acceptance_validate_diagnostic_request \
-    0B111JEC200229 peer-to-peer 1 github 1 0 1 0 0 '' \
+    0DIAGPHONE001 peer-to-peer 1 github 1 0 1 0 0 '' \
     3RESERVEDPHONEA RESERVEDPHONEB >/dev/null 2>&1 || \
    android_acceptance_validate_diagnostic_request \
-    0B111JEC200229 peer-to-peer 1 github 1 0 0 1 0 '' \
+    0DIAGPHONE001 peer-to-peer 1 github 1 0 0 1 0 '' \
     3RESERVEDPHONEA RESERVEDPHONEB >/dev/null 2>&1 || \
    android_acceptance_validate_diagnostic_request \
-    0B111JEC200229 peer-to-peer 1 github 1 0 0 0 1 '' \
+    0DIAGPHONE001 peer-to-peer 1 github 1 0 0 0 1 '' \
     3RESERVEDPHONEA RESERVEDPHONEB >/dev/null 2>&1; then
   fail "a diagnostic request weakened smoke, emulator, or fixture cleanup"
 fi
 if android_acceptance_validate_diagnostic_request \
-    0B111JEC200229 peer-to-peer 1 github 1 0 0 0 0 proof.tsv \
+    0DIAGPHONE001 peer-to-peer 1 github 1 0 0 0 0 proof.tsv \
     3RESERVEDPHONEA RESERVEDPHONEB >/dev/null 2>&1; then
   fail "diagnostic selectors were accepted for a canonical result file"
 fi
 
 diagnostic_captured="$fleet_dir/diagnostic-captured"
 diagnostic_selected="$fleet_dir/diagnostic-selected"
-printf '%s\n' 0B111JEC200229 partner-serial >"$diagnostic_captured"
+printf '%s\n' 0DIAGPHONE001 partner-serial >"$diagnostic_captured"
 android_acceptance_select_diagnostic_device \
-  "$diagnostic_captured" "$diagnostic_selected" 0B111JEC200229 \
+  "$diagnostic_captured" "$diagnostic_selected" 0DIAGPHONE001 \
   3RESERVEDPHONEA RESERVEDPHONEB || \
   fail "the requested physical serial was not selected from the immutable fleet"
-[ "$(cat "$diagnostic_selected")" = 0B111JEC200229 ] || \
+[ "$(cat "$diagnostic_selected")" = 0DIAGPHONE001 ] || \
   fail "diagnostic selection changed the exact requested serial"
 if android_acceptance_select_diagnostic_device \
     "$diagnostic_captured" "$diagnostic_selected" missing-serial \
@@ -667,17 +667,17 @@ if android_acceptance_select_diagnostic_device \
     3RESERVEDPHONEA RESERVEDPHONEB >/dev/null 2>&1; then
   fail "the immutable-fleet selector bypassed reserved-device exclusion"
 fi
-printf '%s\n' 0B111JEC200229 0B111JEC200229 >"$diagnostic_captured"
+printf '%s\n' 0DIAGPHONE001 0DIAGPHONE001 >"$diagnostic_captured"
 if android_acceptance_select_diagnostic_device \
-    "$diagnostic_captured" "$diagnostic_selected" 0B111JEC200229 \
+    "$diagnostic_captured" "$diagnostic_selected" 0DIAGPHONE001 \
     3RESERVEDPHONEA RESERVEDPHONEB >/dev/null 2>&1; then
   fail "a duplicated diagnostic serial was accepted"
 fi
 
 diagnostic_plan="$fleet_dir/diagnostic-plan"
 diagnostic_results="$fleet_dir/diagnostic-results"
-printf '%s\n' $'device-001-0B111JEC200229\t0B111JEC200229\tgithub' >"$diagnostic_plan"
-printf '%s\n' $'device-001-0B111JEC200229\t0B111JEC200229\tgithub\tpeer-to-peer\tPASS\tcovered' \
+printf '%s\n' $'device-001-0DIAGPHONE001\t0DIAGPHONE001\tgithub' >"$diagnostic_plan"
+printf '%s\n' $'device-001-0DIAGPHONE001\t0DIAGPHONE001\tgithub\tpeer-to-peer\tPASS\tcovered' \
   >"$diagnostic_results"
 android_acceptance_verify_diagnostic_result \
   "$diagnostic_plan" "$diagnostic_results" peer-to-peer || \
@@ -811,7 +811,7 @@ env -u URNETWORK_NETWORK_TEST_LOCK_HELD \
   URNETWORK_NETWORK_TESTING=1 \
   URNETWORK_NETWORK_TEST_LOCK_PATH="$network_gate_lock" \
   "$here/test-main.sh" --headless --flavor=github \
-    --diagnostic-device=0B111JEC200229 --diagnostic-case=peer-to-peer \
+    --diagnostic-device=0DIAGPHONE001 --diagnostic-case=peer-to-peer \
     >"$network_gate_dir/diagnostic.log" 2>&1 || android_gate_diagnostic_status=$?
 [ "$android_gate_diagnostic_status" -eq 75 ] || \
   fail "a direct Android diagnostic did not reject live shared ownership with status 75"
