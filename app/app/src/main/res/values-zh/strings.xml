@@ -138,6 +138,7 @@
     <string name="client_statistics">客户端统计</string>
     <string name="clients">客户端</string>
     <string name="close">关闭</string>
+    <string name="collapsed">已收起</string>
     <string name="commitment_issues">承诺问题？</string>
     <string name="community_edition">社区版</string>
     <string name="community_edition_details">参与网络并免费获得社区版的访问权限。</string>
@@ -440,6 +441,7 @@
     <string name="exclude_app">从 VPN 排除</string>
     <string name="exclude_app_description">此应用将绕过隧道。</string>
     <string name="excluded">已排除</string>
+    <string name="expanded">已展开</string>
     <string name="expires">到期</string>
     <string name="expiry_time">到期时间</string>
     <string name="extender_default_value">默认：%1$s</string>

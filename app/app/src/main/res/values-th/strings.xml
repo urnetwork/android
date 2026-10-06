@@ -138,6 +138,7 @@
     <string name="client_statistics">สถิติไคลเอ็นต์</string>
     <string name="clients">ไคลเอ็นต์</string>
     <string name="close">ปิด</string>
+    <string name="collapsed">ยุบแล้ว</string>
     <string name="commitment_issues">ยังตัดสินใจไม่ได้ใช่ไหม?</string>
     <string name="community_edition">ฉบับชุมชน</string>
     <string name="community_edition_details">เข้าร่วมเครือข่ายและรับสิทธิ์เข้าถึงฉบับชุมชนฟรี</string>
@@ -440,6 +441,7 @@
     <string name="exclude_app">ยกเว้นจาก VPN</string>
     <string name="exclude_app_description">แอปนี้จะไม่ผ่านอุโมงค์</string>
     <string name="excluded">ยกเว้น</string>
+    <string name="expanded">ขยายแล้ว</string>
     <string name="expires">หมดอายุ</string>
     <string name="expiry_time">เวลาหมดอายุ</string>
     <string name="extender_default_value">ค่าเริ่มต้น: %1$s</string>

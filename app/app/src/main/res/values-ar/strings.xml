@@ -138,6 +138,7 @@
     <string name="client_statistics">إحصائيات العميل</string>
     <string name="clients">العملاء</string>
     <string name="close">إغلاق</string>
+    <string name="collapsed">تم التصغير</string>
     <string name="commitment_issues">مشاكل في الالتزام؟</string>
     <string name="community_edition">إصدار المجتمع</string>
     <string name="community_edition_details">شارك في الشبكة واحصل على وصول مجاني إلى إصدار المجتمع.</string>
@@ -440,6 +441,7 @@
     <string name="exclude_app">استثناء من VPN</string>
     <string name="exclude_app_description">يتجاوز هذا التطبيق النفق.</string>
     <string name="excluded">مستثنى</string>
+    <string name="expanded">تم التوسيع</string>
     <string name="expires">ينتهي</string>
     <string name="expiry_time">وقت الانتهاء</string>
     <string name="extender_default_value">الافتراضي: %1$s</string>

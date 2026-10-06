@@ -141,6 +141,7 @@
     <string name="client_statistics">Client statistics</string>
     <string name="clients">Clients</string>
     <string name="close">Close</string>
+    <string name="collapsed">Collapsed</string>
     <string name="commitment_issues">Commitment issues?</string>
     <string name="community_edition">Community Edition</string>
     <string name="community_edition_details">Get free access to the community edition.</string>
@@ -445,6 +446,7 @@
     <string name="exclude_app">Exclude from VPN</string>
     <string name="exclude_app_description">This app bypasses the tunnel.</string>
     <string name="excluded">Excluded</string>
+    <string name="expanded">Expanded</string>
     <string name="expires">Expires</string>
     <string name="expiry_time">Expiry time</string>
     <string name="extender_default_value">Default: %1$s</string>

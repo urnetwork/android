@@ -138,6 +138,7 @@
     <string name="client_statistics">Статистика клиента</string>
     <string name="clients">Клиенты</string>
     <string name="close">Закрыть</string>
+    <string name="collapsed">Свёрнуто</string>
     <string name="commitment_issues">Не хотите регистрироваться?</string>
     <string name="community_edition">Версия для сообщества</string>
     <string name="community_edition_details">Получите бесплатный доступ к версии для сообщества.</string>
@@ -440,6 +441,7 @@
     <string name="exclude_app">Исключить из VPN</string>
     <string name="exclude_app_description">Это приложение обходит туннель.</string>
     <string name="excluded">Исключённые</string>
+    <string name="expanded">Развёрнуто</string>
     <string name="expires">Истекает</string>
     <string name="expiry_time">Время истечения</string>
     <string name="extender_default_value">По умолчанию: %1$s</string>

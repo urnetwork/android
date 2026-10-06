@@ -138,6 +138,7 @@
     <string name="client_statistics">Statystyki klienta</string>
     <string name="clients">Klienci</string>
     <string name="close">Zamknij</string>
+    <string name="collapsed">Zwinięto</string>
     <string name="commitment_issues">Problemy z zobowiązaniem?</string>
     <string name="community_edition">Edycja społecznościowa</string>
     <string name="community_edition_details">Dołącz do sieci i uzyskaj bezpłatny dostęp do wersji społecznościowej.</string>
@@ -440,6 +441,7 @@
     <string name="exclude_app">Wyklucz z VPN</string>
     <string name="exclude_app_description">Ta aplikacja omija tunel.</string>
     <string name="excluded">Wykluczone</string>
+    <string name="expanded">Rozwinięto</string>
     <string name="expires">Wygasa</string>
     <string name="expiry_time">Czas wygaśnięcia</string>
     <string name="extender_default_value">Domyślnie: %1$s</string>

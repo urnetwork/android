@@ -138,6 +138,7 @@
     <string name="client_statistics">Takwimu za mteja</string>
     <string name="clients">Wateja</string>
     <string name="close">Funga</string>
+    <string name="collapsed">Imekunjwa</string>
     <string name="commitment_issues">Masuala ya kujitolea?</string>
     <string name="community_edition">Toleo la jamii</string>
     <string name="community_edition_details">Shiriki katika mtandao na upate ufikiaji wa bure wa toleo la jamii.</string>
@@ -440,6 +441,7 @@
     <string name="exclude_app">Tenga kutoka VPN</string>
     <string name="exclude_app_description">Programu hii inaepuka tuneli.</string>
     <string name="excluded">Imetengwa</string>
+    <string name="expanded">Imepanuliwa</string>
     <string name="expires">Inaisha</string>
     <string name="expiry_time">Muda wa kumalizika</string>
     <string name="extender_default_value">Chaguomsingi: %1$s</string>

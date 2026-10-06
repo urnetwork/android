@@ -48,6 +48,7 @@ import com.bringyour.network.R
 import com.bringyour.network.ui.Route
 import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.components.URTextInput
+import com.bringyour.network.ui.components.expandableRow
 import com.bringyour.network.ui.components.tabletReadableColumn
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.TextFaint
@@ -224,6 +225,7 @@ fun ExtendersScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable { advancedExpanded = !advancedExpanded }
+                    .expandableRow(expanded = advancedExpanded) { advancedExpanded = !advancedExpanded }
                     .padding(vertical = 12.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,

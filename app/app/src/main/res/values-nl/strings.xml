@@ -138,6 +138,7 @@
     <string name="client_statistics">Clientstatistieken</string>
     <string name="clients">Clients</string>
     <string name="close">Sluiten</string>
+    <string name="collapsed">Samengevouwen</string>
     <string name="commitment_issues">Problemen met commitment?</string>
     <string name="community_edition">Community-editie</string>
     <string name="community_edition_details">Neem deel aan het netwerk en krijg gratis toegang tot de community-editie.</string>
@@ -440,6 +441,7 @@
     <string name="exclude_app">Uitsluiten van VPN</string>
     <string name="exclude_app_description">Deze app omzeilt de tunnel.</string>
     <string name="excluded">Uitgesloten</string>
+    <string name="expanded">Uitgevouwen</string>
     <string name="expires">Vervalt</string>
     <string name="expiry_time">Vervaltijd</string>
     <string name="extender_default_value">Standaard: %1$s</string>

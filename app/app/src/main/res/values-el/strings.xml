@@ -138,6 +138,7 @@
     <string name="client_statistics">Στατιστικά πελάτη</string>
     <string name="clients">Πελάτες</string>
     <string name="close">Κλείσιμο</string>
+    <string name="collapsed">Συμπτυγμένο</string>
     <string name="commitment_issues">Προβλήματα δέσμευσης;</string>
     <string name="community_edition">Έκδοση κοινότητας</string>
     <string name="community_edition_details">Συμμετέχετε στο δίκτυο και αποκτήστε δωρεάν πρόσβαση στην έκδοση κοινότητας.</string>
@@ -440,6 +441,7 @@
     <string name="exclude_app">Εξαίρεση από το VPN</string>
     <string name="exclude_app_description">Αυτή η εφαρμογή παρακάμπτει το τούνελ.</string>
     <string name="excluded">Εξαίρεση</string>
+    <string name="expanded">Αναπτυγμένο</string>
     <string name="expires">Λήγει</string>
     <string name="expiry_time">Χρόνος λήξης</string>
     <string name="extender_default_value">Προεπιλογή: %1$s</string>

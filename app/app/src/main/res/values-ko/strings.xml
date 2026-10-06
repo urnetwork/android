@@ -138,6 +138,7 @@
     <string name="client_statistics">클라이언트 통계</string>
     <string name="clients">클라이언트</string>
     <string name="close">닫기</string>
+    <string name="collapsed">접힘</string>
     <string name="commitment_issues">결정하기 어려우신가요?</string>
     <string name="community_edition">커뮤니티 에디션</string>
     <string name="community_edition_details">네트워크에 참여하고 커뮤니티 에디션을 무료로 이용하세요.</string>
@@ -440,6 +441,7 @@
     <string name="exclude_app">VPN에서 제외</string>
     <string name="exclude_app_description">이 앱은 터널을 우회합니다.</string>
     <string name="excluded">제외</string>
+    <string name="expanded">펼쳐짐</string>
     <string name="expires">만료</string>
     <string name="expiry_time">만료 시간</string>
     <string name="extender_default_value">기본값: %1$s</string>

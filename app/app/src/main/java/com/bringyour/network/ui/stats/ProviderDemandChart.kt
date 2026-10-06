@@ -42,6 +42,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bringyour.network.R
+import com.bringyour.network.ui.components.expandableRow
 import com.bringyour.network.ui.theme.Amber
 import com.bringyour.network.ui.theme.BlueMedium
 import com.bringyour.network.ui.theme.Green
@@ -286,6 +287,7 @@ private fun ProviderStatusWhy(rows: List<ProviderStatusRow>) {
             modifier = Modifier
                 .fillMaxWidth()
                 .clickable { expanded = !expanded }
+                .expandableRow(expanded = expanded) { expanded = !expanded }
                 .padding(vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {

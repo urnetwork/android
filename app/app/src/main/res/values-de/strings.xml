@@ -138,6 +138,7 @@
     <string name="client_statistics">Client-Statistiken</string>
     <string name="clients">Clients</string>
     <string name="close">Schließen</string>
+    <string name="collapsed">Eingeklappt</string>
     <string name="commitment_issues">Bindungsprobleme?</string>
     <string name="community_edition">Community Edition</string>
     <string name="community_edition_details">Nimm am Netzwerk teil und erhalte kostenlosen Zugang zur Community Edition.</string>
@@ -440,6 +441,7 @@
     <string name="exclude_app">Vom VPN ausschließen</string>
     <string name="exclude_app_description">Diese App umgeht den Tunnel.</string>
     <string name="excluded">Ausgeschlossen</string>
+    <string name="expanded">Ausgeklappt</string>
     <string name="expires">Läuft ab</string>
     <string name="expiry_time">Ablaufzeit</string>
     <string name="extender_default_value">Standard: %1$s</string>

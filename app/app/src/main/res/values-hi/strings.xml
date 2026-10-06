@@ -138,6 +138,7 @@
     <string name="client_statistics">क्लाइंट आँकड़े</string>
     <string name="clients">क्लाइंट्स</string>
     <string name="close">बंद करें</string>
+    <string name="collapsed">संक्षिप्त</string>
     <string name="commitment_issues">प्रतिबद्धता संबंधी समस्याएं?</string>
     <string name="community_edition">कम्युनिटी एडिशन</string>
     <string name="community_edition_details">नेटवर्क में भाग लें और कम्युनिटी एडिशन तक मुफ्त पहुंच प्राप्त करें।</string>
@@ -440,6 +441,7 @@
     <string name="exclude_app">VPN से बाहर रखें</string>
     <string name="exclude_app_description">यह ऐप टनल को बायपास करता है।</string>
     <string name="excluded">बाहर रखे गए</string>
+    <string name="expanded">विस्तृत</string>
     <string name="expires">समाप्त होता है</string>
     <string name="expiry_time">समाप्ति समय</string>
     <string name="extender_default_value">डिफ़ॉल्ट: %1$s</string>

@@ -138,6 +138,7 @@
     <string name="client_statistics">Statistiky klienta</string>
     <string name="clients">Klienti</string>
     <string name="close">Zavřít</string>
+    <string name="collapsed">Sbaleno</string>
     <string name="commitment_issues">Problémy s angažovaností?</string>
     <string name="community_edition">Komunitní edice</string>
     <string name="community_edition_details">Zapojte se do sítě a získejte bezplatný přístup k komunitní edici.</string>
@@ -440,6 +441,7 @@
     <string name="exclude_app">Vyloučit z VPN</string>
     <string name="exclude_app_description">Tato aplikace obchází tunel.</string>
     <string name="excluded">Vyloučeno</string>
+    <string name="expanded">Rozbaleno</string>
     <string name="expires">Vyprší</string>
     <string name="expiry_time">Čas vypršení</string>
     <string name="extender_default_value">Výchozí: %1$s</string>

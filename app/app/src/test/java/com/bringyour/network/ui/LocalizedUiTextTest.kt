@@ -10,7 +10,7 @@ import org.junit.Test
  * What the app shows or speaks comes from the string catalogs, and TalkBack
  * reads each thing once. A lint-style check over the Kotlin and resource XML
  * of the source sets that ship (the unit test, device test and shared fixture
- * sets never reach a user), with three rules.
+ * sets never reach a user), with four rules.
  *
  * - Spoken: TalkBack reads a content description as written, so an English
  *   literal there is read in English in every language (about 70 icons were).
@@ -29,6 +29,11 @@ import org.junit.Test
  *   ("Licenses, Licenses"). Beside means in the icon's own block, or in
  *   another slot of the call that block is an argument of (an AlertDialog's
  *   icon and title).
+ * - Expandable: a chevron that switches between an expand and a collapse
+ *   glyph (KeyboardArrowUp and KeyboardArrowDown, ExpandLess and ExpandMore,
+ *   ...) shows a row's state that TalkBack does not read from a decorative
+ *   icon. The row it sits in sets a stateDescription, directly or through
+ *   Modifier.expandableRow.
  *
  * In every rule a literal in an if, when or elvis branch counts, and one
  * nested in a call's parentheses (a format argument of stringResource, say)
@@ -65,6 +70,9 @@ class LocalizedUiTextTest {
     // icons whose label may repeat the text beside them; none so far
     private val repeatedAllowed = emptyMap<String, String>()
 
+    // state chevrons whose row may leave its state unsaid; none so far
+    private val expandableAllowed = emptyMap<String, String>()
+
     // a contentDescription argument or semantics property, up to its '='
     private val describedPattern = Regex("""\bcontentDescription\s*=(?!=)""")
     // a val, var or parameter named *Description that is given a value or default
@@ -74,6 +82,12 @@ class LocalizedUiTextTest {
     // a call of Icon or Image, up to its '('
     private val iconPattern = Regex("""\b(?:Icon|Image)\s*\(""")
     private val textPattern = Regex("""\bText\s*\(""")
+    // a glyph of an expand or collapse chevron, by its family and direction
+    private val stateGlyphPattern = Regex(
+        """\b(KeyboardArrow|KeyboardDoubleArrow|ArrowDrop|ExpandCircle|Expand|Unfold)(Up|Down|Less|More)\b"""
+    )
+    // what announces a row's state: the property itself, or the helper that sets it
+    private val stateDescriptionPattern = Regex("""\bstateDescription\b|\.expandableRow\s*\(""")
 
     // the names whose value is shown: text, *Text, *Label, title, *Title, placeholder, *Placeholder
     private val shownName = """(?:text|\w*Text|\w*Label|title|\w*Title|placeholder|\w*Placeholder)"""
@@ -98,7 +112,12 @@ class LocalizedUiTextTest {
     )
 
     /** The three rules' findings over a set of sources, each as "path:line: expression". */
-    private class Findings(val spoken: List<String>, val shown: List<String>, val repeated: List<String>)
+    private class Findings(
+        val spoken: List<String>,
+        val shown: List<String>,
+        val repeated: List<String>,
+        val expandable: List<String>,
+    )
 
     // gradle runs unit tests with the module directory as the working
     // directory; the other candidates cover runners that start a level up
@@ -130,6 +149,7 @@ class LocalizedUiTextTest {
             spoken = (sources.flatMap { spokenLiterals(it) } + xml.flatMap { it.spoken }).sorted(),
             shown = (sources.flatMap { shownLiterals(it) } + xml.flatMap { it.shown }).sorted(),
             repeated = sources.flatMap { repeatedLabels(it) }.sorted(),
+            expandable = sources.flatMap { silentStateChevrons(it) }.sorted(),
         )
     }
 
@@ -209,6 +229,37 @@ class LocalizedUiTextTest {
         return found
     }
 
+    /**
+     * Each icon that switches between an expand and a collapse glyph while the
+     * row it sits in sets no stateDescription, in a Kotlin source. The row is
+     * the call whose block holds the icon: the call before a trailing lambda,
+     * or the call a lambda argument is passed to.
+     */
+    private fun silentStateChevrons(source: KotlinSource): List<String> {
+        val text = source.text
+        val found = mutableListOf<String>()
+        for (match in iconPattern.findAll(text)) {
+            if (!source.isCode(match.range.first) || source.inPreview(match.range.first)) continue
+            val image = source.argument(match.range.last, "imageVector", 0) ?: continue
+            val glyphs = stateGlyphPattern.findAll(text.substring(image)).map { it.value }.toSet()
+            if (glyphs.size < 2) continue
+            val block = source.innerOpen[match.range.first]
+            if (block < 0) continue
+            val blockEnd = source.closeOf[block] ?: (text.length - 1)
+            val before = (block - 1 downTo 0).firstOrNull { !text[it].isWhitespace() }
+            val row = when {
+                text[block] == '{' && before != null && text[before] == ')' && source.openOf[before] != null ->
+                    source.openOf[before]!!..blockEnd
+                text[block] == '{' && 0 <= source.innerOpen[block] && text[source.innerOpen[block]] == '(' ->
+                    source.innerOpen[block]..(source.closeOf[source.innerOpen[block]] ?: blockEnd)
+                else -> block..blockEnd
+            }
+            val stated = stateDescriptionPattern.findAll(text.substring(row)).any { source.isCode(row.first + it.range.first) }
+            if (!stated) found.add(source.finding(image))
+        }
+        return found
+    }
+
     /** Each literal text attribute in a resource or manifest file: content descriptions, and the visible ones. */
     private fun xmlFindings(path: String, source: String): Findings {
         // blank comments but keep their line breaks
@@ -227,7 +278,7 @@ class LocalizedUiTextTest {
                 shown.add(finding)
             }
         }
-        return Findings(spoken = spoken, shown = shown, repeated = emptyList())
+        return Findings(spoken = spoken, shown = shown, repeated = emptyList(), expandable = emptyList())
     }
 
     @Test
@@ -254,6 +305,15 @@ class LocalizedUiTextTest {
             "icons are labeled with the text beside them, so TalkBack reads it twice. Make the icon decorative (contentDescription = null)",
             scanShipped().repeated,
             repeatedAllowed,
+        )
+    }
+
+    @Test
+    fun `no expandable row hides its state`() {
+        assertNoFindings(
+            "rows show expanded or collapsed with a chevron that TalkBack does not read. Give the row Modifier.expandableRow (a stateDescription and the expand and collapse actions)",
+            scanShipped().expandable,
+            expandableAllowed,
         )
     }
 
@@ -394,6 +454,45 @@ class LocalizedUiTextTest {
     }
 
     @Test
+    fun `the expandable scan reports a state chevron whose row says nothing and nothing else`() {
+        val source = KotlinSource(
+            path = "Sample.kt",
+            text = """
+                @Composable
+                fun Sample(open: Boolean, onToggle: () -> Unit) {
+                    Row(modifier = Modifier.clickable { onToggle() }) {
+                        Text(stringResource(id = R.string.advanced))
+                        Icon(
+                            if (open) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown,
+                            contentDescription = null,
+                        )
+                    }
+                    Row(modifier = Modifier.clickable { onToggle() }.semantics { stateDescription = state }) {
+                        Icon(if (open) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore, contentDescription = null)
+                    }
+                    Row(modifier = Modifier.clickable { onToggle() }.expandableRow(expanded = open) { onToggle() }) {
+                        Icon(imageVector = if (open) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown, contentDescription = null)
+                    }
+                    Row(modifier = Modifier.clickable(role = Role.DropdownList) { onToggle() }) {
+                        Icon(Icons.Filled.KeyboardArrowDown, contentDescription = null)
+                    }
+                    Row(modifier = Modifier.clickable { onToggle() }) {
+                        // stateDescription in a comment says nothing
+                        Icon(if (open) Icons.Filled.ArrowDropUp else Icons.Filled.ArrowDropDown, contentDescription = null)
+                    }
+                }
+            """.trimIndent(),
+        )
+        assertEquals(
+            listOf(
+                "Sample.kt:6: if (open) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown",
+                "Sample.kt:21: if (open) Icons.Filled.ArrowDropUp else Icons.Filled.ArrowDropDown",
+            ),
+            silentStateChevrons(source),
+        )
+    }
+
+    @Test
     fun `the resource scan reports literal text attributes and nothing else`() {
         val layout = """
             <ImageView android:contentDescription="Logo" />
@@ -424,6 +523,8 @@ private class KotlinSource(val path: String, val text: String) {
     val innerOpen = IntArray(text.length)
     // the closing bracket of each opening one
     val closeOf = HashMap<Int, Int>()
+    // the opening bracket of each closing one
+    val openOf = HashMap<Int, Int>()
     private val previewBodies = mutableListOf<IntRange>()
 
     init {
@@ -434,7 +535,10 @@ private class KotlinSource(val path: String, val text: String) {
             if (kinds[i] != Kind.CODE) continue
             when (text[i]) {
                 '(', '[', '{' -> open.addLast(i)
-                ')', ']', '}' -> open.removeLastOrNull()?.let { closeOf[it] = i }
+                ')', ']', '}' -> open.removeLastOrNull()?.let {
+                    closeOf[it] = i
+                    openOf[i] = it
+                }
             }
         }
         // a preview function, not @PreviewParameter on one of its parameters
