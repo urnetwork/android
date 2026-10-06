@@ -1253,42 +1253,26 @@ private fun DeveloperExitRow(
             )
         }
 
-        val state = buildString {
-            append(exit.windowType.ifEmpty { "auto" })
-            // the platform's rank for this provider. only the best rank present
-            // is raced until it is at the flow cap, so a tier above the minimum
-            // with 0 flows is a spare, not a failure. effectiveTier is the rank
-            // selection actually uses (tier plus live demerits); when it
-            // differs the exit is demoted and "tier N→M" makes that visible
-            append(" · tier ")
-            append(exit.tier)
-            if (exit.effectiveTier > exit.tier) {
-                append("→")
-                append(exit.effectiveTier)
+        // window type, tier, warning state and lifecycle parts, each word a
+        // string resource except the sdk's own tokens (see exitStateTexts)
+        val state = exitStateTexts(
+            ExitStateFields(
+                windowType = exit.windowType,
+                tier = exit.tier,
+                effectiveTier = exit.effectiveTier,
+                quarantined = exit.quarantined,
+                warning = exit.warning,
+                warningCause = exit.warningCause,
+                done = exit.done,
+                p2pOnly = exit.p2pOnly,
+                proven = exit.proven,
+            )
+        ).map { text ->
+            when (text) {
+                is ExitStateText.Resource -> stringResource(text.id, *text.formatArgs.toTypedArray())
+                is ExitStateText.SdkToken -> text.token
             }
-            // the warning state, by name. "benched" is a quarantine (a soft
-            // verdict held against a loaded exit -- it stops taking new
-            // placements while its flows keep running, and receive progress
-            // acquits it); otherwise the resize pass's cause: draining
-            // (healthy, retiring), starved (upstream failing dials), or
-            // unhealthy (a verdict demoted or deferred). Before the cause
-            // existed every one of these displayed as "draining", which made
-            // benches read as retirements.
-            when {
-                exit.quarantined -> append(" · benched")
-                exit.warning -> {
-                    append(" · ")
-                    append(exit.warningCause.ifEmpty { "warned" })
-                }
-            }
-            if (exit.done) append(" · done")
-            if (exit.p2pOnly) append(" · p2p")
-            // a probe pass (or the exit's own traffic) proved this provider
-            // dials real destinations within the qualification window. Absence
-            // of the chip is "not yet proven", never "bad" -- the probe design
-            // records no negative state to show
-            if (exit.proven) append(" · proven")
-        }
+        }.joinToString(" · ")
         Text(state, style = MaterialTheme.typography.bodySmall, color = TextMuted)
 
         // shown only when the exit has reported upstream dials it could not

@@ -1,5 +1,6 @@
 package com.bringyour.network.ui.settings
 
+import com.bringyour.network.R
 import java.io.File
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
@@ -8,11 +9,14 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /**
- * The developer screen's exit readout shows the security rules generation of
- * each exit's provider: the number once the provider's diagnostics arrive,
- * "unknown" for a provider that reports its policy without one, and nothing
- * before its first diagnostics. The sdk carried no generation before, so no
- * readout could show which exits run older rules.
+ * The developer screen's exit readout. Its state line is built from string
+ * resources (the dev_state_* keys the Windows and Linux pages use) and the
+ * sdk's own tokens, never English literals. Its policy line shows the
+ * security rules generation of each exit's provider: the number once the
+ * provider's diagnostics arrive, "unknown" for a provider that reports its
+ * policy without one, and nothing before its first diagnostics. The sdk
+ * carried no generation before, so no readout could show which exits run
+ * older rules.
  */
 class DeveloperExitPresentationTest {
     companion object {
@@ -35,6 +39,81 @@ class DeveloperExitPresentationTest {
             return Regex("<string name=\"$name\">(.*?)</string>", RegexOption.DOT_MATCHES_ALL)
                 .find(xml)?.groupValues?.get(1)
         }
+    }
+
+    private val healthyExit = ExitStateFields(
+        windowType = "quality",
+        tier = 1,
+        effectiveTier = 1,
+        quarantined = false,
+        warning = false,
+        warningCause = "",
+        done = false,
+        p2pOnly = false,
+        proven = true,
+    )
+
+    @Test
+    fun everyStateWordIsAStringResource() {
+        val benched = healthyExit.copy(
+            tier = 1,
+            effectiveTier = 3,
+            quarantined = true,
+            warning = true,
+            warningCause = "unhealthy",
+            done = true,
+            p2pOnly = true,
+        )
+        assertEquals(
+            listOf(
+                ExitStateText.SdkToken("quality"),
+                ExitStateText.Resource(R.string.dev_state_tier, listOf("1→3")),
+                ExitStateText.Resource(R.string.dev_state_benched),
+                ExitStateText.Resource(R.string.dev_state_done),
+                ExitStateText.Resource(R.string.dev_state_p2p),
+                ExitStateText.Resource(R.string.dev_state_proven),
+            ),
+            exitStateTexts(benched),
+        )
+    }
+
+    @Test
+    fun anExitWithoutAWindowTypeReadsTheSdksAutoToken() {
+        assertEquals(
+            ExitStateText.SdkToken("auto"),
+            exitStateTexts(healthyExit.copy(windowType = "")).first(),
+        )
+        assertEquals(
+            ExitStateText.SdkToken("speed"),
+            exitStateTexts(healthyExit.copy(windowType = "speed")).first(),
+        )
+    }
+
+    @Test
+    fun theTierShowsALiveDemotion() {
+        val cases = listOf(
+            Triple(1, 1, "1"),
+            Triple(1, 3, "1→3"),
+            // a promotion is not shown: only a demotion explains a spare
+            Triple(2, 1, "2"),
+        )
+        for ((tier, effectiveTier, want) in cases) {
+            assertEquals(
+                "tier $tier effective $effectiveTier",
+                ExitStateText.Resource(R.string.dev_state_tier, listOf(want)),
+                exitStateTexts(healthyExit.copy(tier = tier, effectiveTier = effectiveTier))[1],
+            )
+        }
+    }
+
+    @Test
+    fun aWarningShowsTheSdksCauseOrWarned() {
+        val starved = healthyExit.copy(warning = true, warningCause = "starved", proven = false)
+        assertEquals(ExitStateText.SdkToken("starved"), exitStateTexts(starved).last())
+        val warned = starved.copy(warningCause = "")
+        assertEquals(ExitStateText.Resource(R.string.dev_state_warned), exitStateTexts(warned).last())
+        // a healthy, unproven exit has no warning part and no proven part
+        assertEquals(2, exitStateTexts(healthyExit.copy(proven = false)).size)
     }
 
     @Test
