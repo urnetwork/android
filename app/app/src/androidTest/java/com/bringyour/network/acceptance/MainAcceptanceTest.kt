@@ -8,6 +8,7 @@ import android.os.Build
 import android.util.Base64
 import android.util.Log
 import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.ComposeTimeoutException
 import androidx.compose.ui.test.hasAnyDescendant
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasContentDescription
@@ -29,6 +30,7 @@ import com.bringyour.network.LoginActivity
 import com.bringyour.network.MainApplication
 import com.bringyour.network.R
 import com.bringyour.network.ui.POST_LOGIN_INTRO_CLOSE_TAG
+import com.bringyour.network.ui.POST_LOGIN_MAIN_READY_TAG
 import com.bringyour.network.ui.POST_LOGIN_OVERLAY_CLOSE_TAG
 import com.bringyour.network.ui.POST_LOGIN_WELCOME_ENTER_TAG
 import com.bringyour.network.ui.PostLoginUiAction
@@ -229,13 +231,20 @@ class MainAcceptanceTest {
                     action = action,
                     mainNavigationPresent = action == null && tagExists("acceptance.nav.connect"),
                     signupFormErrorPresent = passwordSignup && tagExists(ACCEPTANCE_CREATE_NETWORK_ERROR_TAG),
+                    mainNavigationReady = tagExists(POST_LOGIN_MAIN_READY_TAG),
                 )
             }
 
             override fun dismiss(action: PostLoginUiAction) = dismissPostLoginUiAction(action)
             override fun waitForIdle() = compose.waitForIdle()
-            override fun waitUntil(timeoutMillis: Long, condition: () -> Boolean) =
-                compose.waitUntil(timeoutMillis, condition)
+            override fun waitUntil(timeoutMillis: Long, condition: () -> Boolean) {
+                try {
+                    compose.waitUntil(timeoutMillis, condition)
+                } catch (_: ComposeTimeoutException) {
+                    // The shared wait owns the overall deadline. Only this
+                    // bounded poll timeout is expected; driver failures escape.
+                }
+            }
 
             override fun timeout(): Nothing {
                 val state = (context.applicationContext as MainApplication).loginStartupState.value

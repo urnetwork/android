@@ -343,7 +343,7 @@ out a later closure after readiness. No keyguard/crash cause has been establishe
 
 For iOS-profile memory work, build the app and Android-test APK with both
 `-PurnetworkMemoryProfile=ios-memory-audit-v2` and a unique
-`-PurnetworkAcceptanceBuildId=LABEL`; the Gradle default is Android's 40-MiB
+`-PurnetworkAcceptanceBuildId=LABEL`; the Gradle default is Android's 64-MiB
 profile and is invalid for this campaign. Run
 `PhysicalLowbarSessionTest` with the same `acceptanceBuildId` instrumentation
 argument, after the credential-staging gate below has passed. The test keeps
@@ -358,8 +358,15 @@ are `phase`, `connect` (`h1`, `h3`, or `auto`),
 `h3`, or `auto`, `disconnect`, `stop-provide`, `snapshot`,
 `heap-profile`, `owner-census`, `goroutine-stacks`, `trim-memory`, and `finish`.
 The three diagnostic file commands are explicitly opt-in and cannot qualify a
-performance/memory acceptance arm. `finish` is required: it joins the
-sampler, writes `physical-summary.json`, disconnects both roles, and logs out.
+performance/memory acceptance arm. `finish` is required, but acknowledgement
+only ends role work. A test-owned native observer preserves the native cadence
+through logout, DeviceLocal cancellation and actual joined shutdown. The outer
+instrumentation owner checks the old Java drainer join, drains the old native
+ring, releases scoped device/controller holders, forces a fresh terminal read,
+and independently attempts summary and raw native-receipt writes. No blocking
+join is added to app Close, UI callbacks or shared worker callbacks; no GC is
+forced. Exporter open/append/flush/close failures and dropped rows remain failed
+across all phases, even if later cleanup writes succeed.
 The host must own this instrumentation command for the entire session: launch
 it in a retained PTY/session or supervised process and join it after `finish`.
 Do not background `adb shell am instrument` from a one-shot shell, whose exit
@@ -619,8 +626,11 @@ effective values must be exactly 32-MiB device admission and 32-MiB Go soft
 limit, with selected `memoryProfile=ios-memory-audit-v2` and live
 `goMemoryProfileRateBytes=0`; a requested-profile echo or a smaller observed runtime is not
 a substitute. A missing build flag
-selects Android's 28/40-MiB policy and makes the cohort incomparable. A unique
-build ID by itself does not prove the memory profile.
+selects normal Android's 64/64-MiB admission/Go soft-limit caps (both clamped
+to the effective memory-class allowance) and makes the cohort incomparable.
+MEMSTEADY requires the v2 32/32-MiB surrogate on both allowlisted PERF phones
+from `android.performance_device_serials`; no other attached phone substitutes.
+A unique build ID by itself does not prove the memory profile.
 
 ```sh
 umask 077
@@ -687,7 +697,7 @@ Do not reconstruct the budget graph in Kotlin or substitute the older primitive
 ring sample's timestamp. Export failure produces a sampler error and invalidates
 qualification. The opt-in is restored at teardown; normal apps install no
 diagnostic counters, collector, or ticker. The existing 15-second primitive
-sampler remains independently drained and the absolute iOS 28 MiB gate applies.
+sampler remains independently drained and the absolute iOS v2 32 MiB gate applies.
 
 Provider quiet means connected=false, provideEnabled=true, tunnelStarted=true:
 Android keeps that service running without establishing a client VPN. The
@@ -1106,9 +1116,15 @@ node app/scripts/physical_quiet_phase.mjs --serial "$SERIAL" \
 # Pull the per-sample file; physical-summary.json is not a substitute.
 adb -s "$SERIAL" exec-out run-as com.bringyour.network \
   cat files/acceptance/physical-memory.ndjson >"$PRIVATE_DIR/physical-memory.ndjson" || exit 2
+adb -s "$SERIAL" exec-out run-as com.bringyour.network \
+  cat files/acceptance/physical-memory-status.ndjson >"$PRIVATE_DIR/physical-memory-status.ndjson" || exit 2
+adb -s "$SERIAL" exec-out run-as com.bringyour.network \
+  cat files/acceptance/physical-diagnostics.ndjson >"$PRIVATE_DIR/physical-diagnostics.ndjson" || exit 2
 node app/scripts/physical_quiet_gate.mjs \
   --start "$PRIVATE_DIR/quiet-start.json" --end "$PRIVATE_DIR/quiet-end.json" \
   --memory "$PRIVATE_DIR/physical-memory.ndjson" --telemetry "$TELEMETRY_FILE" \
+  --status-runtime "$PRIVATE_DIR/physical-memory-status.ndjson" \
+  --diagnostics "$PRIVATE_DIR/physical-diagnostics.ndjson" \
   --phase "$QUIET_PHASE" --role "$QUIET_ROLE" --underlay "$UNDERLAY" \
   >"$PRIVATE_DIR/quiet-gate.json"
 ```
@@ -1125,7 +1141,7 @@ separate gates; this helper covers workload telemetry and the quiet window,
 not overall website correctness or the full campaign.
 
 Exit 2 rejects missing/short/interrupted evidence as `INCOMPLETE_QUIET_WINDOW`;
-any retained runtime sample above 28 MiB is `FAILED_MEMORY_LIMIT`, including
+any retained runtime sample above 32 MiB is `FAILED_MEMORY_LIMIT`, including
 active samples before quiet. A below-threshold peak or instrumentation exit 0
 does not override either result. Only exit 0 allows normal `finish`/collector
 stop. On failure or safety timeout still finish and clean up, but preserve the
@@ -1134,8 +1150,34 @@ sessions may finish early and do not qualify memory. Finally pull the joined
 sampler output again so teardown samples are retained and checked as well.
 The teardown recheck uses the same gate arguments plus
 `--live-gate "$PRIVATE_DIR/quiet-gate.json"`, writing a separate output. This
-requires the retained schema-3 live collector proof, bound to the 32-MiB cap, for the same workload
-owner; it never substitutes a late collector or claims one is currently live.
+requires an eligible retained schema-4 live collector proof bound to the cap,
+session/build/process and exact memory/status/diagnostic file prefixes. A failed
+live proof stays failed. Pull all four final streams after actual instrumentation
+join, before cleanup. Supply mandatory `--status-runtime`, `--diagnostics`,
+`--teardown`, `--producer-summary`, `--finish-status`, `--instrumentation-owner`,
+`--native-inputs` and
+the exact `--finish-command-id`; the existing Go/H1 owners retain these paths.
+The optional `--teardown-fallback` names the independently archived
+`physical-memory-teardown-incomplete.json` on a primary/join failure. Keep the
+primary failure sticky, bind any selected fallback to the exact owner/session/
+build/PID/finish/observer, and preserve known duplicate/unqualified high values
+as auxiliary evidence rather than independent native events. The startup
+session clears its prior fallback, and no fallback can qualify.
+The teardown input is `physical-memory-teardown.json`, not an old quiet-file
+reread. Require native cancel/join/terminal sequences and complete retained
+owner/ready/terminal/native linkage schemas. Missing/stale terminal, any failed
+join, overflow, failed writer or malformed policy/identity cannot qualify.
+
+Report device/teardown/status/diagnostic primary event counts separately. Gate
+all their retained total-minus-released values, status's separate same-MemStats
+Sys-minus-HeapReleased snapshot, and retained trim before/after representations.
+The diagnostic-only H1 arm also retains all owner-census before/after values;
+it never qualifies rate-zero memory. Auxiliary representations can repeat and
+are not independent samples. Ambiguous prior-profile maintenance is explicitly
+unqualified. Preserve readable high values even beside invalid fields. Internal
+unrecorded policy reads are outside instrumentation; no continuous peak between
+observations is claimed. Quiet count/span/cadence remain unchanged. No late
+collector or historical receipt substitutes for current live/native proof.
 
 For a controlled provider, install its exact client ID through standard input
 as the private `files/acceptance/physical-expected-peer-id` file before issuing
@@ -1353,6 +1395,39 @@ or unknown targets preserve credentials and fail cleanup. Require exit 0 and
 `owned-finished-session-credentials-removed` before new staging. Failed or
 interrupted handoffs do not authorize setup rollback or adoption of stale
 credentials.
+
+For an already failed prospectively owned arm, explicit `finish-failed`
+cleans only that arm's credential and original marker. It requires matching
+handoff/session/failed-terminal records with a known joined exit or signal,
+absent recorded host processes, a stopped target, and a complete bounded
+package-filtered `dumpsys activity processes` response with no active
+instrumentation. Unsupported, malformed or truncated output preserves custody.
+All liveness/evidence and original file-identity checks run again before removal.
+This operation does not stop processes, adopt an unknown file, or produce
+normal-finish or memory proof.
+
+If instrumentation joined normally with exit 0 but the arm failed during
+startup, add `--failed-arm "$ARM_DIR/arm.json"` using the original arm manifest.
+This narrower branch also requires its matching failed result, current-session
+startup-error evidence and no ready/workload/finish receipt. It does not treat
+a successful instrumentation exit as a successful arm, or relax the stopped
+target and original credential-identity checks. Omit this argument for the
+existing interrupted/failed-instrumentation branch.
+
+```sh
+node app/scripts/physical_credential_ownership.mjs finish-failed \
+  --ownership "$ARTIFACT_DIR/$LABEL.credential-owner.json" \
+  --serial "$SERIAL" --label "$LABEL" --build-id "$ACCEPTANCE_BUILD_ID" \
+  --instrumentation-owner "$ARTIFACT_DIR/$LABEL.instrumentation-owner.json"
+```
+
+Require exit 0 and `owned-failed-session-credentials-removed` before new staging;
+retain the private `.failed-finish.json` beside the original failed arm.
+`qualificationEligible` remains false. A read-only refusal does not consume
+ownership: a later explicitly requested invocation can recheck the same owned
+file after the cause is resolved. Any attempted removal is terminal, including
+a lost/ambiguous remote reply; never retry or infer removal from that failure.
+No automatic retry changes the original arm's failed classification.
 
 The stale unmarked `diag9` credential predates this proof and **cannot be
 adopted or automatically deleted**. Request explicit user approval for that
@@ -1585,17 +1660,18 @@ ACK-pending-resend-preemption counters. This is required when the opposite
 phone drives traffic through the device: client topology counters alone do not
 describe provider memory or recovery churn. The Pack/receive values are
 device-wide shared budgets, not one selected flow's queue. The
-steady streamline signal is `goRuntimeBytes`:
-five quiet connected minutes after burst ownership drains should have p50 and
-p95 at or below 24 MiB. Keep
-the active peak and time-to-recover separate, and investigate every sample over
-the 28-MiB active diagnostic threshold. Neither threshold is Android whole-app
-PSS or an iOS Network Extension `phys_footprint` ceiling.
+current qualification signal is `goRuntimeBytes`: every sample must remain at
+or below 32 MiB, including active traffic, five quiet connected minutes after
+burst ownership drains, and teardown. Keep active peak and time-to-recover
+separate. The earlier 24-MiB quiet / 28-MiB active thresholds describe historical
+qualification only; preserve those measurements and verdicts unchanged.
+The current Go ceiling is neither Android whole-app PSS nor an iOS Network
+Extension `phys_footprint` ceiling.
 
 Ordinary Android and Apple SDK libraries start the Go runtime with
 `memprofilerate=0`. Android and iOS also use the same `GOGC=25` pacing for the
-24-MiB campaign; a looser Android heap float is not a valid surrogate for the
-iOS Network Extension. A private diagnostic build can opt in before native
+32/32-MiB iOS-profile campaign; a looser Android heap float is not a valid
+surrogate for the iOS Network Extension. A private diagnostic build can opt in before native
 runtime initialization with `-PurnetworkMemoryProfileRateBytes=65536`; the
 Gradle value is passed to both the AAR linker and the diagnostic app API.
 `heap-profile` forces a GC and writes a private pprof file, so it is useful only
@@ -1739,7 +1815,13 @@ frames, paths, IDs, endpoints, or tokens. Heap profiles are likewise private.
 Correlate aggregate heap allocation owners with owner-count/capacity deltas and
 a deterministic owner release test before proposing a lifecycle fix. Confirm
 any fix in a fresh unprofiled, fully attested arm with **every** runtime sample
-at or below 25,165,824 bytes and unchanged page/Fast.com performance gates.
+at or below 33,554,432 bytes and unchanged page/Fast.com performance gates.
+
+### Historical mobile calibration and qualification
+
+The calibration and measurement history below retains its original 24/28-MiB
+thresholds, profile inputs, and verdicts. It is not a new v2 qualification or a
+claim that the separate signed-iOS `phys_footprint <50 MiB` gate passed.
 
 `packetPressureDropCount` is a cumulative overload counter, not a pool leak:
 the <=24-MiB mobile profile samples exact packet-root bytes every fourth ingress

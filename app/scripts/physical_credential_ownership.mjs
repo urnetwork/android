@@ -6,7 +6,7 @@
 import { spawnSync } from "node:child_process";
 import { createHash, randomUUID } from "node:crypto";
 import { closeSync, existsSync, fstatSync, linkSync, lstatSync, openSync, readFileSync, unlinkSync, writeFileSync } from "node:fs";
-import { dirname, resolve } from "node:path";
+import { dirname, join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import { prepareArtifactDirectory, requireArtifactPaths } from "./physical_artifact_directory.mjs";
 import { requireVerifiedNativeInputs } from "./physical_native_provenance.mjs";
@@ -23,12 +23,14 @@ class OwnershipError extends Error {}
 const fail = reason => { throw new OwnershipError(reason); };
 export const credentialOwnershipReason = error => error instanceof OwnershipError ? error.message : "credential-ownership-unavailable";
 
-function privateRead(path) {
+function privateText(path, maxBytes = 16_384) {
   const stat = lstatSync(path);
   if (!stat.isFile() || stat.isSymbolicLink() || stat.uid !== process.getuid() ||
-      (stat.mode & 0o7777) !== 0o600 || stat.nlink !== 1 || stat.size > 16_384) fail("private-credential-ownership-required");
-  return JSON.parse(readFileSync(path, "utf8"));
+      (stat.mode & 0o7777) !== 0o600 || stat.nlink !== 1 || stat.size > maxBytes) fail("private-credential-ownership-required");
+  return readFileSync(path, "utf8");
 }
+
+const privateRead = path => JSON.parse(privateText(path));
 
 function publish(path, value) {
   const binding = prepareArtifactDirectory(dirname(path));
@@ -50,7 +52,7 @@ export function prepareCredentialOwnership(options, dependencies = {}) {
   const binding = prepareArtifactDirectory(options["artifact-dir"] ?? dirname(options.output));
   requireArtifactPaths(binding, [options.output, options.ownership, options["native-inputs"]]);
   if (resolve(options.ownership) === resolve(options.output) ||
-      ["", ".handoff.json", ".rollback.json", ".finish.json", ".operation"].some(suffix => existsSync(`${options.ownership}${suffix}`))) {
+      ["", ".handoff.json", ".rollback.json", ".finish.json", ".failed-finish.json", ".operation"].some(suffix => existsSync(`${options.ownership}${suffix}`))) {
     fail("fresh-credential-ownership-required");
   }
   const native = (dependencies.verifyNativeInputs ?? requireVerifiedNativeInputs)(options["native-inputs"], options["build-id"]);
@@ -121,7 +123,9 @@ export function requireCredentialOwnership(options, handedOff = false) {
       staged.type !== "physical-credential-staging" || staged.destinationOwned !== true) fail("joined-credential-staging-required");
   if (!handedOff && existsSync(`${options.ownership}.handoff.json`)) fail("credential-already-handed-to-instrumentation");
   if (existsSync(`${options.ownership}.rollback.json`)) fail("credential-setup-already-terminal");
-  if (existsSync(`${options.ownership}.finish.json`)) fail("credential-session-cleanup-already-terminal");
+  if (existsSync(`${options.ownership}.finish.json`) || existsSync(`${options.ownership}.failed-finish.json`)) {
+    fail("credential-session-cleanup-already-terminal");
+  }
   return owner;
 }
 
@@ -317,6 +321,158 @@ export function finishCredentialSession(options, dependencies = {}) {
   return report;
 }
 
+// This is cleanup authority for an already failed, prospectively owned arm,
+// never successful finish evidence. A normal AM exit needs the original arm's
+// observed startup failure; missing/ambiguous child exits stay owned.
+function requireFailedInstrumentation(options, owner, dependencies) {
+  const path = options["instrumentation-owner"];
+  if (!path) fail("explicit-failed-credential-session-required");
+  requireArtifactPaths(prepareArtifactDirectory(dirname(options.ownership)),
+    [path, `${path}.terminal.json`, `${options.ownership}.handoff.json`]);
+  const handoff = privateRead(`${options.ownership}.handoff.json`);
+  const session = privateRead(path); const terminal = privateRead(`${path}.terminal.json`);
+  const component = `${PACKAGE}.test/`;
+  const exited = Number.isInteger(terminal.exitCode) && terminal.exitCode >= 0 && terminal.exitCode <= 255 && terminal.signal === null;
+  const signalled = terminal.exitCode === null && ["SIGINT", "SIGTERM", "SIGHUP", "SIGKILL", "SIGABRT", "SIGSEGV", "SIGPIPE"].includes(terminal.signal);
+  const failed = terminal.state === "failed" && (terminal.exitCode !== 0 || terminal.interrupted === true);
+  const complete = terminal.state === "complete" && terminal.exitCode === 0 && terminal.signal === null && terminal.interrupted === false;
+  if (handoff.type !== "physical-credential-handoff" || handoff.schemaVersion !== 2 || handoff.contextHash !== owner.contextHash ||
+      !validSession(handoff.sessionId) || handoff.instrumentationOwner !== resolve(path) ||
+      session.schema !== 1 || session.type !== "instrumentation-session" || session.state !== "running" ||
+      session.ownerId !== handoff.sessionId || session.serialHash !== owner.serialHash || session.label !== owner.label ||
+      session.nativeInputHash !== owner.nativeInputHash || session.nativeBuildOwner !== owner.nativeBuildOwner ||
+      session.targetPackage !== PACKAGE || session.className !== `${PACKAGE}.acceptance.PhysicalLowbarSessionTest` ||
+      ![`${component}androidx.test.runner.AndroidJUnitRunner`, `${component}${PACKAGE}.acceptance.PhysicalCredentialDiagnosticRunner`].includes(session.component) ||
+      !Number.isSafeInteger(session.supervisorPid) || session.supervisorPid <= 0 || !Number.isSafeInteger(session.adbPid) || session.adbPid <= 0 ||
+      session.supervisorPid === session.adbPid || !validHash(session.supervisorIdentity) || !validHash(session.adbIdentity) ||
+      !Number.isFinite(handoff.hostTimeUnixMs) || !Number.isFinite(session.startedHostTimeUnixMs) ||
+      session.startedHostTimeUnixMs < handoff.hostTimeUnixMs ||
+      !(failed || complete) || typeof terminal.interrupted !== "boolean" || !(exited || signalled) ||
+      !Number.isFinite(terminal.completedHostTimeUnixMs) || terminal.completedHostTimeUnixMs < session.startedHostTimeUnixMs ||
+      Object.entries(session).some(([key, value]) => key !== "state" && JSON.stringify(terminal[key]) !== JSON.stringify(value))) {
+    fail("joined-matching-failed-instrumentation-required");
+  }
+  const stopped = dependencies.hostProcessStopped ?? (pid => {
+    try { process.kill(pid, 0); return false; } catch (error) { return error?.code === "ESRCH"; }
+  });
+  if (stopped(session.supervisorPid) !== true || stopped(session.adbPid) !== true) fail("instrumentation-host-owners-must-be-joined");
+  let failedArm;
+  if (complete || options["failed-arm"] !== undefined) {
+    if (!options["failed-arm"]) fail("explicit-failed-arm-evidence-required");
+    const manifestPath = resolve(options["failed-arm"]);
+    const run = dirname(manifestPath); const artifacts = dirname(resolve(options.ownership));
+    const directory = join(artifacts, owner.label); const statusPath = join(directory, "physical-finish-status.json");
+    requireArtifactPaths(prepareArtifactDirectory(run), [manifestPath, join(run, "result.json")]);
+    const arm = privateRead(manifestPath); const result = privateRead(join(run, "result.json"));
+    if (manifestPath !== join(run, "arm.json") || arm.manifest !== manifestPath || arm.mode !== "run" || arm["run-dir"] !== run ||
+        artifacts !== join(run, "private") || arm.artifacts !== artifacts || arm.directory !== directory || arm.finishStatus !== statusPath ||
+        arm.owner !== resolve(path) || arm.owner !== join(artifacts, `${owner.label}.instrumentation-owner.json`) ||
+        arm.credentialOwner !== resolve(options.ownership) || arm.credentialOwner !== join(artifacts, `${owner.label}.credential-owner.json`) ||
+        arm.serial !== options.serial || arm.label !== owner.label || arm["build-id"] !== owner.buildId || arm.buildOwner !== owner.nativeBuildOwner ||
+        !["qualification", "diagnostic"].includes(arm["measurement-mode"]) || result.measurementMode !== arm["measurement-mode"] ||
+        result.type !== "scoped-h1-arm" || result.schemaVersion !== 2 || result.eligible !== false || result.qualificationEligible !== false ||
+        result.classification !== `SCOPED_H1_${arm["measurement-mode"] === "diagnostic" ? "DIAGNOSTIC_" : ""}FAILED` ||
+        result.memoryQualified !== false || result.cleanupComplete !== false || result.measurements !== null ||
+        !Array.isArray(result.errors) || !result.errors.includes("instrumentation-ready-error") ||
+        !Array.isArray(result.completedSteps) || !["credential-stage", "finish-status-final"].every(step => result.completedSteps.includes(step)) ||
+        ["instrumentation-ready", "workload", "finish", "credential-finish"].some(step => result.completedSteps.includes(step)) ||
+        existsSync(`${path}.ready.json`)) fail("matching-failed-startup-arm-required");
+    // Reuse the manifest's original directory identities, not a replacement
+    // tree assembled around copied private receipts after the arm finished.
+    if (!Array.isArray(arm.directoryBindings) || arm.directoryBindings.length !== 3) fail("matching-failed-startup-arm-required");
+    for (const expected of [run, artifacts, directory]) {
+      const bindings = arm.directoryBindings.filter(binding => binding?.directory === expected);
+      if (bindings.length !== 1) fail("matching-failed-startup-arm-required");
+      requireArtifactPaths(bindings[0], [join(expected, "identity-check")]);
+    }
+    const status = privateRead(statusPath);
+    const capture = privateRead(join(directory, "finish-status-final.outcome.json"));
+    const observations = privateText(join(directory, "startup-status-observations.jsonl"), 256 * 1024)
+      .trimEnd().split("\n").map(line => JSON.parse(line));
+    const observed = observations.at(-1);
+    // Device wall time is independent of the host. The host's live-PID
+    // observation supplies the causal interval; fresh status checks bind the
+    // retained app session ID without inventing a pre-ready owner receipt.
+    if (status.type !== "status" || status.state !== "error" || status.phase !== "startup" || status.commandId !== "0" ||
+        status.buildId !== owner.buildId || !validSession(status.sessionId) || !Number.isSafeInteger(status.pid) || status.pid <= 0 ||
+        !Number.isFinite(status.elapsedMs) || status.elapsedMs < 0 ||
+        capture.eligible !== true || capture.exitCode !== 0 || capture.signal !== null || capture.timedOut !== false ||
+        observations.some((row, index) => row?.type !== "startup-status-observation" || row.schemaVersion !== 1 || row.sequence !== index + 1) ||
+        observed.outcome !== "current-error" || observed.currentBuild !== true || observed.observedBuildId !== owner.buildId ||
+        observed.observedPid !== status.pid || observed.observedState !== "error" || observed.targetPidMatches !== true ||
+        observed.exitCode !== 0 || observed.signalled !== false || observed.transportFailed !== false || observed.stderrBytes !== 0 ||
+        !Number.isSafeInteger(observed.stdoutBytes) || observed.stdoutBytes <= 0 ||
+        !Number.isFinite(observed.hostTimeUnixMs) || observed.hostTimeUnixMs < session.startedHostTimeUnixMs ||
+        observed.hostTimeUnixMs > terminal.completedHostTimeUnixMs) fail("matching-failed-startup-status-required");
+    failedArm = { arm, result, status, capture, observations };
+  }
+  return { evidence: hash(JSON.stringify([owner, handoff, session, terminal, failedArm])), failedStatus: failedArm?.status };
+}
+
+// The supported package-filtered processes dump has a fixed prologue and tail.
+// Keep raw process details in memory; unsupported/partial output is not absence.
+export function requireCredentialInstrumentationStopped(serial, invoke) {
+  const result = invoke(["-s", serial, "shell", "dumpsys", "activity", "processes", PACKAGE]);
+  const text = result?.stdout;
+  if (result?.status !== 0 || result.error || result.signal || result.stderr?.trim() || typeof text !== "string" ||
+      Buffer.byteLength(text) > 64 * 1024 || text.includes("\0")) fail("credential-instrumentation-not-proven-stopped");
+  const lines = text.replaceAll("\r\n", "\n").trimEnd().split("\n");
+  const header = "ACTIVITY MANAGER RUNNING PROCESSES (dumpsys activity processes)";
+  const tail = /^  mForceBackgroundCheck=(true|false)$/;
+  const known = /^\s*(?:OOM levels:|-?[0-9]+: [A-Z_]+ \([ 0-9,K]+\)|Process OOM control \([0-9]+ total, non-act at [0-9]+, non-svc at [0-9]+\):|Process LRU list \(sorted by oom_adj, [0-9]+ total, non-act at [0-9]+, non-svc at [0-9]+\):|m(?:Home|Previous)Process: (?:null|ProcessRecord\{[^{}\r\n]+\})|All Active App Child Processes:|proc #[0-9]+: PhantomProcessRecord \{[^{}\r\n]+\}|user #[0-9]+ uid=[0-9]+ pid=[0-9]+ ppid=[0-9]+ knownSince=[+a-zA-Z0-9.-]+ killed=(?:true|false) *|lastCpuTime=[0-9]+ +(?:timeUsed=[0-9]+ )?oom adj=-?[0-9]+ seq=[0-9]+ *|mPreviousProcessVisibleTime: [+a-zA-Z0-9.-]+|mDeviceIdle(?:ExceptIdle|Temp)?Allowlist=\[[0-9, ]*\]|mFgs(?:BootCompleted)?StartTempAllowList:|mForceBackgroundCheck=(?:true|false))$/;
+  if (lines[0] !== header || !tail.test(lines.at(-1)) || lines.filter(line => line === header).length !== 1 ||
+      lines.filter(line => tail.test(line)).length !== 1 || !lines.includes("  OOM levels:") ||
+      !lines.some(line => /^  Process LRU list \(/.test(line)) ||
+      lines.slice(1).some(line => line.trim() && !known.test(line))) {
+    fail("credential-instrumentation-not-proven-stopped");
+  }
+}
+
+// Explicit failed-session cleanup removes only the original credential/marker
+// after both host children and the target/instrumentation are proven absent.
+export function finishFailedCredentialSession(options, dependencies = {}) {
+  const report = { type: "physical-credential-failed-session-cleanup", schemaVersion: 1, eligible: false,
+    qualificationEligible: false, reason: "credential-failed-session-cleanup-unavailable", ownershipVerified: false, destinationRemoved: false };
+  let removalAttempted = false;
+  try {
+    withOwnerLock(options, () => {
+      const owner = requireCredentialOwnership(options, true);
+      const failed = requireFailedInstrumentation(options, owner, dependencies);
+      const invoke = adbInvocation(dependencies, 64 * 1024);
+      const requireFailedStatus = () => {
+        if (!failed.failedStatus) return;
+        const result = invoke(["-s", options.serial, "shell", "run-as", PACKAGE, "cat", "files/acceptance/physical-status"]);
+        if (result?.status !== 0 || result.error || result.signal || result.stderr?.trim() || typeof result.stdout !== "string" ||
+            Buffer.byteLength(result.stdout) > 64 * 1024) fail("exact-failed-arm-status-required");
+        let status;
+        try { status = JSON.parse(result.stdout); } catch { fail("exact-failed-arm-status-required"); }
+        if (hash(JSON.stringify(status)) !== hash(JSON.stringify(failed.failedStatus))) fail("exact-failed-arm-status-required");
+      };
+      requireCredentialTargetStopped(options.serial, invoke);
+      requireCredentialInstrumentationStopped(options.serial, invoke);
+      requireFailedStatus();
+      remote(owner, "check", options.serial, invoke);
+      report.ownershipVerified = true;
+      const current = requireCredentialOwnership(options, true);
+      if (requireFailedInstrumentation(options, current, dependencies).evidence !== failed.evidence) fail("failed-credential-session-evidence-changed");
+      requireFailedStatus();
+      requireCredentialInstrumentationStopped(options.serial, invoke);
+      requireCredentialTargetStopped(options.serial, invoke);
+      removalAttempted = true;
+      remote(owner, "finish", options.serial, invoke);
+      report.destinationRemoved = true;
+      report.eligible = true;
+      report.reason = "owned-failed-session-credentials-removed";
+      publish(`${options.ownership}.failed-finish.json`, report);
+    });
+  } catch (error) { report.eligible = false; report.reason = credentialOwnershipReason(error); }
+  if (!report.eligible && removalAttempted) {
+    try { if (!existsSync(`${options.ownership}.failed-finish.json`)) publish(`${options.ownership}.failed-finish.json`, report); }
+    catch { /* retain ambiguous custody; no retry or success is manufactured */ }
+  }
+  return report;
+}
+
 export function rollbackCredentialSetup(options, dependencies = {}) {
   const report = { type: "physical-credential-rollback", schemaVersion: 1, eligible: false,
     reason: "credential-rollback-unavailable", ownershipVerified: false, destinationRemoved: false };
@@ -346,16 +502,18 @@ export function rollbackCredentialSetup(options, dependencies = {}) {
 }
 
 export function parseArgs(argv) {
-  if (!["rollback", "finish"].includes(argv[0])) fail("explicit-credential-rollback-or-finish-required");
+  if (!["rollback", "finish", "finish-failed"].includes(argv[0])) fail("explicit-credential-rollback-or-finish-required");
   const options = { mode: argv[0] };
-  const keys = ["ownership", "serial", "label", "build-id", ...(argv[0] === "finish" ? ["instrumentation-owner", "finish-command-id"] : [])];
+  const requiredKeys = ["ownership", "serial", "label", "build-id", ...(argv[0] !== "rollback" ? ["instrumentation-owner"] : []),
+    ...(argv[0] === "finish" ? ["finish-command-id"] : [])];
+  const keys = [...requiredKeys, ...(argv[0] === "finish-failed" ? ["failed-arm"] : [])];
   for (let i = 1; i < argv.length; i += 2) {
     const key = argv[i]?.slice(2);
     if (!argv[i]?.startsWith("--") || !keys.includes(key) ||
         !argv[i + 1] || argv[i + 1].startsWith("--") || options[key] !== undefined) fail("invalid-credential-rollback-arguments");
     options[key] = argv[i + 1];
   }
-  if (keys.some(key => !options[key]) || !validLabel(options.label) || !validLabel(options["build-id"]) ||
+  if (requiredKeys.some(key => !options[key]) || !validLabel(options.label) || !validLabel(options["build-id"]) ||
       (options.mode === "finish" && !validLabel(options["finish-command-id"]))) {
     fail("explicit-credential-ownership-context-required");
   }
@@ -365,7 +523,8 @@ export function parseArgs(argv) {
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   try {
     const options = parseArgs(process.argv.slice(2));
-    const report = options.mode === "finish" ? finishCredentialSession(options) : rollbackCredentialSetup(options);
+    const report = options.mode === "finish" ? finishCredentialSession(options) :
+      options.mode === "finish-failed" ? finishFailedCredentialSession(options) : rollbackCredentialSetup(options);
     process.stdout.write(`${JSON.stringify(report)}\n`);
     if (!report.eligible) process.exitCode = 2;
   } catch (error) {

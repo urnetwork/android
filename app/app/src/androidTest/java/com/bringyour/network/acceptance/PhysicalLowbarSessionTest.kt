@@ -19,11 +19,13 @@ import com.bringyour.sdk.ConnectLocation
 import com.bringyour.sdk.ConnectLocationId
 import com.bringyour.sdk.ConnectViewController
 import com.bringyour.sdk.DeviceLocal
+import com.bringyour.sdk.MemoryTeardownObservation
 import com.bringyour.sdk.PacketStats
 import com.bringyour.sdk.PeerViewController
 import com.bringyour.sdk.Sdk
 import java.io.File
 import java.io.FileOutputStream
+import java.util.UUID
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicLong
 import java.util.concurrent.atomic.AtomicReference
@@ -66,6 +68,24 @@ class PhysicalLowbarSessionTest {
     private val activeClientLedger = ActiveClientLedger(File(acceptanceDir, "active-client-ids"))
     private val expectedPeerFile = File(acceptanceDir, "physical-expected-peer-id")
     private val startupGoroutinesFile = File(acceptanceDir, "physical-startup-goroutines.txt")
+    private val statusRuntimeFile = File(acceptanceDir, "physical-memory-status.ndjson")
+    private val teardownMemoryFile = File(acceptanceDir, "physical-memory-teardown.json")
+    private val teardownFallbackFile = File(acceptanceDir, "physical-memory-teardown-incomplete.json")
+    private val memorySessionId = UUID.randomUUID().toString()
+    private val statusRuntimeReadCount = AtomicLong()
+    private val statusRuntimePeak = AtomicLong()
+    private val statusRuntimeBreaches = AtomicLong()
+    private val statusAuxiliaryRuntimePeak = AtomicLong()
+    private val statusAuxiliaryRuntimeBreaches = AtomicLong()
+    private val statusMaintenanceValueCount = AtomicLong()
+    private val diagnosticBatchesProduced = AtomicLong()
+    private val diagnosticBatchesFlushed = AtomicLong()
+    private val diagnosticRuntimePeak = AtomicLong()
+    private val diagnosticRuntimeBreaches = AtomicLong()
+    private val diagnosticCommandCount = AtomicLong()
+    private val exporterFailed = AtomicBoolean(false)
+    private val memoryTeardown = MemoryTeardownState()
+    private var activeCommandId = "0"
     private var credentialDiagnostics = false
     private var carrierBaseline = emptyMap<String, PhysicalCarrierBytes>()
     private val peerTimingEvidence = PhysicalPeerTimingEvidence()
@@ -248,15 +268,28 @@ class PhysicalLowbarSessionTest {
     }
 
     private fun snapshot(application: MainApplication, startElapsedMs: Long): JSONObject {
-        val sdk = Sdk.getMemoryStats()
-        val javaRuntime = Runtime.getRuntime()
         val device = application.device
+        val sdk = physicalSnapshotMemoryStats(device, { it.memoryStats }, { Sdk.getMemoryStats() })
+        val runtimeReadTime = System.currentTimeMillis()
+        val runtimeReadSequence = retainStatusRuntime(
+            sdk.totalRuntimeByteCount, sdk.memoryLimitByteCount, sdk.memoryProfileRateByteCount,
+            runtimeReadTime, SystemClock.elapsedRealtime() - startElapsedMs,
+            memStatsRuntimeBytes = sdk.systemByteCount - sdk.heapReleasedByteCount,
+            trimCount = sdk.idleMemoryTrimCount, trimBefore = sdk.lastIdleMemoryTrimBeforeByteCount,
+            trimAfter = sdk.lastIdleMemoryTrimAfterByteCount,
+        )
+        val javaRuntime = Runtime.getRuntime()
         val result = JSONObject()
             .put("type", "sample")
             .put("memoryProfile", MainApplication.MEMORY_PROFILE_NAME)
             .put("pid", Process.myPid())
+            .put("sessionId", memorySessionId)
+            .put("buildId", BuildConfig.URNETWORK_ACCEPTANCE_BUILD_ID)
+            .put("runtimeReadSequence", runtimeReadSequence)
+            .put("teardownObserverId", memoryTeardown.observer?.observerId.orEmpty())
+            .put("teardownBeginTimeUnixMs", memoryTeardown.beginTimeUnixMs)
             .put("elapsedMs", SystemClock.elapsedRealtime() - startElapsedMs)
-            .put("timeUnixMs", System.currentTimeMillis())
+            .put("timeUnixMs", runtimeReadTime)
             .put("phase", phase)
             .put("goHeapLiveBytes", sdk.heapLiveByteCount)
             .put("goHeapGoalBytes", sdk.heapGoalByteCount)
@@ -410,8 +443,16 @@ class PhysicalLowbarSessionTest {
         startUnixMs: Long,
         schema: Int,
         dropped: Long,
-    ): JSONObject = JSONObject()
+    ): JSONObject {
+        check(schema == 13 && dropped >= 0) { "physical-memory-batch-invalid" }
+        for (field in listOf("unix_millis", "go_total_bytes", "go_limit_bytes", "memory_profile_rate_bytes")) {
+            physicalMemoryLong(sample.opt(field))
+        }
+        return JSONObject()
         .put("type", "sample")
+        .put("sessionId", memorySessionId)
+        .put("buildId", BuildConfig.URNETWORK_ACCEPTANCE_BUILD_ID)
+        .put("pid", Process.myPid())
         .put("memoryProfile", MainApplication.MEMORY_PROFILE_NAME)
         .put("samplerSchema", schema)
         .put("samplerDropped", dropped)
@@ -538,12 +579,12 @@ class PhysicalLowbarSessionTest {
         .put("platformTransportBudgetUsedBytes", sample.optLong("transport_budget_used_bytes"))
         .put("platformTransportBudgetUsedCount", sample.optLong("transport_budget_used_count"))
         .put("platformTransportBudgetPendingH1Count", sample.optLong("transport_budget_pending_h1"))
-        .put("idleMemoryTrimCount", sample.optLong("idle_reclaims"))
+        .put("idleMemoryTrimCount", physicalMemoryLong(sample.opt("idle_reclaims")))
         .put("idleMemoryTrimDeferredCount", sample.optLong("idle_reclaim_deferred"))
         .put("idleMemoryTrimBelowTargetCount", sample.optLong("idle_reclaim_below_target"))
         .put("idleMemoryTrimCooldownCount", sample.optLong("idle_reclaim_cooldown"))
-        .put("lastIdleMemoryTrimBeforeBytes", sample.optLong("last_idle_reclaim_before_bytes"))
-        .put("lastIdleMemoryTrimAfterBytes", sample.optLong("last_idle_reclaim_after_bytes"))
+        .put("lastIdleMemoryTrimBeforeBytes", physicalMemoryLong(sample.opt("last_idle_reclaim_before_bytes")))
+        .put("lastIdleMemoryTrimAfterBytes", physicalMemoryLong(sample.opt("last_idle_reclaim_after_bytes")))
         .put("physicalFootprintBytes", sample.optLong("physical_bytes"))
         .put("physicalFootprintPeakBytes", sample.optLong("physical_peak_bytes"))
         .put("physicalPressureSignalCount", sample.optLong("physical_pressure_signals"))
@@ -555,11 +596,15 @@ class PhysicalLowbarSessionTest {
         .put("javaHeapUsedBytes", Runtime.getRuntime().let { it.totalMemory() - it.freeMemory() })
         .put("threadCount", File("/proc/self/task").list()?.size ?: -1)
         .put("fdCount", File("/proc/self/fd").list()?.size ?: -1)
+    }
 
     private class SampleSummary {
         val count = AtomicLong()
         val thresholdBreaches = AtomicLong()
         val peakGoRuntimeBytes = AtomicLong()
+        val auxiliaryRuntimePeak = AtomicLong()
+        val auxiliaryRuntimeBreaches = AtomicLong()
+        val maintenanceValueCount = AtomicLong()
         val peakGoHeapLiveBytes = AtomicLong()
         val peakAndroidPssKib = AtomicLong()
         val peakGoroutines = AtomicLong()
@@ -580,6 +625,12 @@ class PhysicalLowbarSessionTest {
         fun observe(sample: JSONObject) {
             count.incrementAndGet()
             updateMax(peakGoRuntimeBytes, sample.optLong("goRuntimeBytes"))
+            for (field in listOf("lastIdleMemoryTrimBeforeBytes", "lastIdleMemoryTrimAfterBytes")) {
+                val bytes = physicalMemoryLong(sample.opt(field))
+                if (sample.optLong("idleMemoryTrimCount") > 0 || bytes > 0) maintenanceValueCount.incrementAndGet()
+                updateMax(auxiliaryRuntimePeak, bytes)
+                if (bytes > GO_RUNTIME_SPIKE_BYTES) auxiliaryRuntimeBreaches.incrementAndGet()
+            }
             updateMax(peakGoHeapLiveBytes, sample.optLong("goHeapLiveBytes"))
             updateMax(peakAndroidPssKib, sample.optLong("androidPssKib"))
             updateMax(peakGoroutines, sample.optLong("goroutines"))
@@ -659,6 +710,7 @@ class PhysicalLowbarSessionTest {
         stopped: AtomicBoolean,
         summary: SampleSummary,
     ) = thread(name = "physical-lowbar-memory", isDaemon = true) {
+        retainPhysicalMemoryExporterFailure(exporterFailed) {
         FileOutputStream(samplesFile, false).bufferedWriter().use { writer ->
             FileOutputStream(diagnosticsFile, false).bufferedWriter().use { diagnostics ->
                 var nextSample = SystemClock.elapsedRealtime()
@@ -667,25 +719,28 @@ class PhysicalLowbarSessionTest {
                         val device = checkNotNull(application.device)
                         // One SDK batch owns its timestamp and atomic root/child
                         // snapshots. Never reconstruct its budget graph in Kotlin.
-                        diagnostics.append(device.transferDiagnosticSnapshotJson())
-                        diagnostics.flush()
-                        val batch = JSONObject(device.takeMemorySamplesJson())
-                        val schema = batch.optInt("schema")
-                        val dropped = batch.optLong("dropped")
-                        val samples = batch.getJSONArray("samples")
-                        buildList {
-                            for (i in 0 until samples.length()) {
-                                add(
-                                    primitiveSample(
-                                        samples.getJSONObject(i),
-                                        startUnixMs,
-                                        schema,
-                                        if (i == 0) dropped else 0,
-                                    ),
-                                )
+                        val batch = device.transferDiagnosticSnapshotJson()
+                        val sequence = diagnosticBatchesProduced.incrementAndGet()
+                        val parts = batch.lineSequence().filter { it.isNotBlank() }.map { JSONObject(it) }.toList()
+                        check(parts.count { it.optString("part") == "memory" } == 1) { "physical-diagnostic-runtime-missing" }
+                        for (record in parts) {
+                            if (record.optString("part") == "memory") {
+                                val bytes = physicalMemoryLong(record.opt("go_total_bytes"))
+                                physicalMemoryLong(record.opt("go_limit_bytes"))
+                                physicalMemoryLong(record.opt("memory_profile_rate_bytes"))
+                                diagnosticRuntimePeak.updateAndGet { current -> maxOf(current, bytes) }
+                                if (bytes > GO_RUNTIME_SPIKE_BYTES) diagnosticRuntimeBreaches.incrementAndGet()
                             }
+                            record.put("diagnosticBatchSequence", sequence).put("pid", Process.myPid())
+                                .put("sessionId", memorySessionId).put("buildId", BuildConfig.URNETWORK_ACCEPTANCE_BUILD_ID)
+                                .put("memoryProfile", MainApplication.MEMORY_PROFILE_NAME).put("phase", phase)
+                            diagnostics.append(record.toString()).append('\n')
                         }
+                        diagnostics.flush()
+                        diagnosticBatchesFlushed.incrementAndGet()
+                        takePrimitiveSamples(device, startUnixMs)
                     }.getOrElse { error ->
+                        exporterFailed.set(true)
                         listOf(
                             JSONObject()
                                 .put("type", "sample-error")
@@ -705,6 +760,7 @@ class PhysicalLowbarSessionTest {
                     if (sleepMillis > 0) SystemClock.sleep(sleepMillis)
                 }
             }
+        }
         }
     }
 
@@ -1030,9 +1086,10 @@ class PhysicalLowbarSessionTest {
                     stats.remoteIngressByteCount > 0
             }
             "free-memory" -> {
-                val before = Sdk.getMemoryStats().totalRuntimeByteCount
+                diagnosticCommandCount.incrementAndGet()
+                val before = retainCommandRuntime(startElapsedMs, "free-memory-before")
                 Sdk.freeMemory()
-                val after = Sdk.getMemoryStats().totalRuntimeByteCount
+                val after = retainCommandRuntime(startElapsedMs, "free-memory-after")
                 status(
                     id,
                     "complete",
@@ -1043,9 +1100,10 @@ class PhysicalLowbarSessionTest {
                 return false
             }
             "trim-memory" -> {
-                val before = Sdk.getMemoryStats().totalRuntimeByteCount
+                diagnosticCommandCount.incrementAndGet()
+                val before = retainCommandRuntime(startElapsedMs, "trim-memory-before")
                 Sdk.trimMemory()
-                val after = Sdk.getMemoryStats().totalRuntimeByteCount
+                val after = retainCommandRuntime(startElapsedMs, "trim-memory-after")
                 status(
                     id,
                     "complete",
@@ -1056,6 +1114,7 @@ class PhysicalLowbarSessionTest {
                 return false
             }
             "owner-census" -> {
+                diagnosticCommandCount.incrementAndGet()
                 val owners = writeMemoryOwnerDiagnostic(device, acceptanceDir, argument)
                 status(
                     id,
@@ -1084,11 +1143,12 @@ class PhysicalLowbarSessionTest {
                 return false
             }
             "heap-profile" -> {
+                diagnosticCommandCount.incrementAndGet()
                 require(argument.isNotEmpty()) { "heap profile label is required" }
                 val profile = File(acceptanceDir, "physical-heap-$argument.pprof")
-                val before = Sdk.getMemoryStats().totalRuntimeByteCount
+                val before = retainCommandRuntime(startElapsedMs, "heap-profile-before")
                 Sdk.writeHeapProfile(profile.absolutePath)
-                val after = Sdk.getMemoryStats().totalRuntimeByteCount
+                val after = retainCommandRuntime(startElapsedMs, "heap-profile-after")
                 status(
                     id,
                     "complete",
@@ -1104,6 +1164,7 @@ class PhysicalLowbarSessionTest {
             }
             "snapshot" -> Unit
             "finish" -> {
+                beginMemoryTeardown(device, id)
                 stopClient(connectVc, device)
                 stopProvider(application, device)
                 status(id, "complete", application, startElapsedMs)
@@ -1134,6 +1195,9 @@ class PhysicalLowbarSessionTest {
         commandFile.delete()
         statusFile.delete()
         samplesFile.delete()
+        statusRuntimeFile.delete()
+        teardownMemoryFile.delete()
+        teardownFallbackFile.delete()
         diagnosticsFile.delete()
         summaryFile.delete()
         startupGoroutinesFile.delete()
@@ -1150,25 +1214,61 @@ class PhysicalLowbarSessionTest {
         val summary = SampleSummary()
         val startElapsedMs = SystemClock.elapsedRealtime()
         val startUnixMs = System.currentTimeMillis()
-        var connectVc: ConnectViewController? = null
-        var peerVc: PeerViewController? = null
-        var sampler: Thread? = null
-        var activeCommandId = "0"
+        var sessionFailure: Throwable? = null
         val previousDiagnosticOptIn = Sdk.setTransferDiagnosticSnapshotsEnabled(true)
-
         try {
             withPhysicalCredentialCheckpoints(
                 checkpoint = ::credentialCheckpoint,
                 launchLoggedOut = { launchLoggedOutApp(application) },
                 login = { loginWithPassword(application, ledgerFailure) },
             )
-            val device = checkNotNull(application.device)
-            connectVc = device.openConnectViewController().also { it.start() }
-            peerVc = device.openPeerViewController().also { it.start() }
+            runOwnedDeviceSession(application, startElapsedMs, startUnixMs, stopped, summary, ledgerFailure)
+        } catch (error: Throwable) {
+            sessionFailure = error
+            runCatching { failureStatus(activeCommandId, application, startElapsedMs, error) }
+                .onFailure(error::addSuppressed)
+            throw error
+        } finally {
+            // A separate helper scope releases the original device/Java bridge
+            // holders before the outer owner requests the terminal native read.
+            if (!memoryTeardown.ownerScopeEntered) {
+                closeOwnedDeviceScope(application, application.device, null, null, null, stopped, startUnixMs, summary)
+            }
+            runCatching { Sdk.setTransferDiagnosticSnapshotsEnabled(previousDiagnosticOptIn) }
+                .onFailure { memoryTeardown.failures.add("restore-diagnostics") }
+            runCatching { removeAllocationListener() }
+                .onFailure { memoryTeardown.failures.add("remove-allocation-listener") }
+            memoryTeardown.referencesReleased = true
+            memoryTeardown.referencesReleasedTimeUnixMs = System.currentTimeMillis()
+            val finalError = runCatching { finishMemoryTeardown(summary) }.exceptionOrNull()
+            if (finalError != null) {
+                if (sessionFailure != null) sessionFailure.addSuppressed(finalError) else throw finalError
+            }
+        }
+    }
+
+    /** Only this scope retains device/controller wrappers during live commands. */
+    private fun runOwnedDeviceSession(
+        application: MainApplication,
+        startElapsedMs: Long,
+        startUnixMs: Long,
+        stopped: AtomicBoolean,
+        summary: SampleSummary,
+        ledgerFailure: AtomicReference<Throwable?>,
+    ) {
+        memoryTeardown.ownerScopeEntered = true
+        var device: DeviceLocal? = null
+        var connectVc: ConnectViewController? = null
+        var peerVc: PeerViewController? = null
+        var sampler: Thread? = null
+        try {
+            val activeDevice = checkNotNull(application.device)
+            device = activeDevice
+            connectVc = activeDevice.openConnectViewController().also { it.start() }
+            peerVc = activeDevice.openPeerViewController().also { it.start() }
             sampler = startSampler(application, startElapsedMs, startUnixMs, stopped, summary)
             phase = "ready"
             status("0", "ready", application, startElapsedMs)
-
             var lastCommandId = ""
             val deadline = startElapsedMs + MAX_SESSION_MILLIS
             var finished = false
@@ -1184,45 +1284,209 @@ class PhysicalLowbarSessionTest {
                     if (id != lastCommandId) {
                         lastCommandId = id
                         activeCommandId = id
-                        finished = commandResult(
-                            text,
-                            application,
-                            device,
-                            checkNotNull(connectVc),
-                            checkNotNull(peerVc),
-                            startElapsedMs,
-                        )
+                        finished = commandResult(text, application, activeDevice,
+                            checkNotNull(connectVc), checkNotNull(peerVc), startElapsedMs)
                     }
                 }
                 SystemClock.sleep(COMMAND_POLL_MILLIS)
             }
             assertTrue("physical session reached its safety timeout", finished)
-        } catch (error: Throwable) {
-            runCatching { failureStatus(activeCommandId, application, startElapsedMs, error) }
-                .onFailure(error::addSuppressed)
-            throw error
         } finally {
-            // This process-wide opt-in affects only future constructions; the
-            // retained device's counters remain valid through its teardown.
-            Sdk.setTransferDiagnosticSnapshotsEnabled(previousDiagnosticOptIn)
-            removeAllocationListener()
-            stopped.set(true)
-            sampler?.join(5_000)
-            val device = application.device
-            if (device != null) {
-                runCatching { connectVc?.let { stopClient(it, device) } }
-                runCatching { stopProvider(application, device) }
-                runCatching {
-                    peerVc?.stop()
-                    peerVc?.let(device::closePeerViewController)
+            closeOwnedDeviceScope(application, device, connectVc, peerVc, sampler, stopped, startUnixMs, summary)
+            device = null
+            connectVc = null
+            peerVc = null
+            sampler = null
+        }
+    }
+
+    /** Native channel ownership is independent of every holder in this scope. */
+    private class MemoryTeardownState {
+        var observer: MemoryTeardownObservation? = null
+        var ownerScopeEntered = false
+        var finishCommandId = ""
+        var beginTimeUnixMs = 0L
+        var deviceDrainerJoined = false
+        var deviceRingDrained = false
+        var deviceJoined = false
+        var referencesReleased = false
+        var referencesReleasedTimeUnixMs = 0L
+        val failures = mutableListOf<String>()
+    }
+
+    private fun beginMemoryTeardown(device: DeviceLocal, commandId: String) {
+        if (memoryTeardown.observer != null) return
+        memoryTeardown.finishCommandId = commandId
+        memoryTeardown.beginTimeUnixMs = System.currentTimeMillis()
+        memoryTeardown.observer = device.beginMemoryTeardownObservation()
+    }
+
+    /** This join is on the instrumentation thread, never inside a UI callback. */
+    private fun closeOwnedDeviceScope(
+        application: MainApplication,
+        device: DeviceLocal?,
+        connectVc: ConnectViewController?,
+        peerVc: PeerViewController?,
+        sampler: Thread?,
+        stopped: AtomicBoolean,
+        startUnixMs: Long,
+        summary: SampleSummary,
+    ) {
+        fun attempt(stage: String, action: () -> Unit) {
+            runCatching(action).onFailure { memoryTeardown.failures.add(stage) }
+        }
+        if (device != null) {
+            attempt("observer-begin") { beginMemoryTeardown(device, activeCommandId) }
+            attempt("stop-client") { connectVc?.let { stopClient(it, device) } }
+            attempt("stop-provider") { stopProvider(application, device) }
+            attempt("close-peer-controller") { peerVc?.stop(); peerVc?.let(device::closePeerViewController) }
+            attempt("close-connect-controller") { connectVc?.stop(); connectVc?.let(device::closeConnectViewController) }
+        }
+        closePhysicalMemoryOwner(
+            stop = { stopped.set(true) },
+            joinDrainer = {
+                requirePhysicalMemoryDrainerJoined(sampler, exporterFailed)
+                memoryTeardown.deviceDrainerJoined = true
+            },
+            // Only this request runs on the UI thread. Both waits stay here.
+            logout = { instrumentation.runOnMainSync { application.logout() } },
+            joinDevice = {
+                check(memoryTeardown.observer?.waitForDeviceClose(120_000) == true) { "physical-device-unjoined" }
+                memoryTeardown.deviceJoined = true
+            },
+            drainDeviceRing = {
+                val joinedDevice = checkNotNull(device)
+                FileOutputStream(samplesFile, true).bufferedWriter().use { writer ->
+                    for (record in takePrimitiveSamples(joinedDevice, startUnixMs)) {
+                        summary.observe(record)
+                        writer.append(record.toString()).append('\n')
+                    }
+                    writer.flush()
                 }
-                runCatching {
-                    connectVc?.stop()
-                    connectVc?.let(device::closeConnectViewController)
-                }
+                memoryTeardown.deviceRingDrained = true
+            },
+            failed = { stage -> memoryTeardown.failures.add(stage) },
+        )
+    }
+
+    private fun takePrimitiveSamples(device: DeviceLocal, startUnixMs: Long): List<JSONObject> {
+        val batch = JSONObject(device.takeMemorySamplesJson())
+        val schemaValue = physicalMemoryLong(batch.opt("schema"))
+        val dropped = physicalMemoryLong(batch.opt("dropped"))
+        check(schemaValue == 13L && dropped >= 0) { "physical-memory-batch-invalid" }
+        val schema = schemaValue.toInt()
+        val samples = batch.getJSONArray("samples")
+        check(samples.length() > 0 || dropped == 0L) { "physical-memory-empty-dropped-batch" }
+        return buildList {
+            for (i in 0 until samples.length()) {
+                add(primitiveSample(samples.getJSONObject(i), startUnixMs, schema, if (i == 0) dropped else 0))
             }
-            writePrivate(summaryFile, "${summary.json()}\n")
-            instrumentation.runOnMainSync { application.logout() }
+        }
+    }
+
+    /** Retains an existing GetMemoryStats read; this makes no new Go read. */
+    private fun retainStatusRuntime(runtimeBytes: Long, limitBytes: Long, rateBytes: Long, timeUnixMs: Long, elapsedMs: Long,
+        readKind: String = "status", memStatsRuntimeBytes: Long, trimCount: Long, trimBefore: Long, trimAfter: Long): Long {
+        val sequence = statusRuntimeReadCount.incrementAndGet()
+        statusRuntimePeak.updateAndGet { current -> maxOf(current, runtimeBytes) }
+        if (runtimeBytes > GO_RUNTIME_SPIKE_BYTES) statusRuntimeBreaches.incrementAndGet()
+        statusAuxiliaryRuntimePeak.updateAndGet { current -> maxOf(current, memStatsRuntimeBytes, trimBefore, trimAfter) }
+        for (bytes in listOf(memStatsRuntimeBytes, trimBefore, trimAfter)) {
+            if (bytes > GO_RUNTIME_SPIKE_BYTES) statusAuxiliaryRuntimeBreaches.incrementAndGet()
+        }
+        for (bytes in listOf(trimBefore, trimAfter)) {
+            if (trimCount > 0 || bytes > 0) statusMaintenanceValueCount.incrementAndGet()
+        }
+        val record = JSONObject()
+            .put("type", "status-runtime").put("sequence", sequence).put("readKind", readKind)
+            .put("timeUnixMs", timeUnixMs).put("elapsedMs", elapsedMs).put("phase", phase)
+            .put("pid", Process.myPid()).put("sessionId", memorySessionId)
+            .put("buildId", BuildConfig.URNETWORK_ACCEPTANCE_BUILD_ID)
+            .put("memoryProfile", MainApplication.MEMORY_PROFILE_NAME)
+            .put("goRuntimeBytes", runtimeBytes).put("goMemoryLimitBytes", limitBytes)
+            .put("goMemoryProfileRateBytes", rateBytes)
+            .put("goMemStatsRuntimeBytes", memStatsRuntimeBytes).put("idleMemoryTrimCount", trimCount)
+            .put("lastIdleMemoryTrimBeforeBytes", trimBefore).put("lastIdleMemoryTrimAfterBytes", trimAfter)
+        try {
+            FileOutputStream(statusRuntimeFile, true).bufferedWriter().use { writer ->
+                writer.append(record.toString()).append('\n')
+                writer.flush()
+            }
+        } catch (error: Throwable) {
+            exporterFailed.set(true)
+            throw error
+        }
+        return sequence
+    }
+
+    /** Keeps the existing diagnostic before/after reads in the same denominator. */
+    private fun retainCommandRuntime(startElapsedMs: Long, readKind: String): Long {
+        val stats = Sdk.getMemoryStats()
+        retainStatusRuntime(stats.totalRuntimeByteCount, stats.memoryLimitByteCount, stats.memoryProfileRateByteCount,
+            System.currentTimeMillis(), SystemClock.elapsedRealtime() - startElapsedMs, readKind,
+            stats.systemByteCount - stats.heapReleasedByteCount, stats.idleMemoryTrimCount,
+            stats.lastIdleMemoryTrimBeforeByteCount, stats.lastIdleMemoryTrimAfterByteCount)
+        return stats.totalRuntimeByteCount
+    }
+
+    /** Force a fresh native terminal only after the device holder scope exits. */
+    private fun finishMemoryTeardown(summary: SampleSummary) {
+        val observer = memoryTeardown.observer
+        val native = if (observer == null) JSONObject().put("state", "failed") else JSONObject(
+            if (memoryTeardown.failures.isEmpty() && !exporterFailed.get() && memoryTeardown.deviceJoined &&
+                memoryTeardown.deviceDrainerJoined && memoryTeardown.deviceRingDrained) {
+                observer.finishAndTakeJson(5_000)
+            } else observer.abortAndTakeJson(5_000),
+        )
+        val samples = native.optJSONArray("samples")
+        var teardownPeak = 0L
+        var teardownBreaches = 0L
+        for (i in 0 until (samples?.length() ?: 0)) {
+            val value = physicalMemoryLong(checkNotNull(samples).getJSONObject(i).opt("goRuntimeBytes"))
+            teardownPeak = maxOf(teardownPeak, value)
+            if (value > GO_RUNTIME_SPIKE_BYTES) teardownBreaches++
+        }
+        val count = samples?.length() ?: 0
+        val summaryJson = summary.json()
+            .put("type", "physical-memory-producer-summary").put("schemaVersion", 1)
+            .put("memoryProfile", MainApplication.MEMORY_PROFILE_NAME)
+            .put("buildId", BuildConfig.URNETWORK_ACCEPTANCE_BUILD_ID).put("sessionId", memorySessionId).put("pid", Process.myPid())
+            .put("observerId", observer?.observerId.orEmpty()).put("finishCommandId", memoryTeardown.finishCommandId)
+            .put("exporterFailed", exporterFailed.get()).put("failureCount", memoryTeardown.failures.size)
+            .put("devicePrimitiveCount", summary.count.get())
+            .put("statusRuntimeReadCount", statusRuntimeReadCount.get())
+            .put("teardownPrimitiveCount", count)
+            .put("diagnosticRuntimeReadCount", diagnosticBatchesFlushed.get())
+            .put("combinedRetainedRuntimeEventCount", summary.count.get() + statusRuntimeReadCount.get() + count + diagnosticBatchesFlushed.get())
+            .put("peakGoRuntimeBytes", maxOf(summary.peakGoRuntimeBytes.get(), statusRuntimePeak.get(), teardownPeak,
+                diagnosticRuntimePeak.get(), summary.auxiliaryRuntimePeak.get(), statusAuxiliaryRuntimePeak.get()))
+            .put("goRuntimeThresholdBreachCount", summary.thresholdBreaches.get() + statusRuntimeBreaches.get() + teardownBreaches + diagnosticRuntimeBreaches.get())
+            .put("statusMemStatsSnapshotCount", statusRuntimeReadCount.get())
+            .put("auxiliaryMaintenanceValueCount", summary.maintenanceValueCount.get() + statusMaintenanceValueCount.get())
+            .put("auxiliaryRuntimeBreachValueCount", summary.auxiliaryRuntimeBreaches.get() + statusAuxiliaryRuntimeBreaches.get())
+            .put("auxiliaryValuesAreIndependentSamples", false)
+            .put("sampleScope", "retained-runtime-events-not-all-internal-reads-or-continuous-peak")
+        fun receipt(summaryFlushed: Boolean): JSONObject = JSONObject().put("type", "physical-memory-teardown").put("schemaVersion", 1)
+            .put("memoryProfile", MainApplication.MEMORY_PROFILE_NAME)
+            .put("buildId", BuildConfig.URNETWORK_ACCEPTANCE_BUILD_ID).put("sessionId", memorySessionId).put("pid", Process.myPid())
+            .put("observerId", observer?.observerId.orEmpty()).put("finishCommandId", memoryTeardown.finishCommandId)
+            .put("deviceDrainerJoined", memoryTeardown.deviceDrainerJoined).put("deviceRingDrained", memoryTeardown.deviceRingDrained)
+            .put("deviceJoined", memoryTeardown.deviceJoined).put("referencesReleased", memoryTeardown.referencesReleased)
+            .put("referencesReleasedTimeUnixMs", memoryTeardown.referencesReleasedTimeUnixMs)
+            .put("statusRuntimeReadCount", statusRuntimeReadCount.get()).put("failureCount", memoryTeardown.failures.size)
+            .put("devicePrimitiveCount", summary.count.get()).put("diagnosticBatchesProduced", diagnosticBatchesProduced.get())
+            .put("diagnosticBatchesFlushed", diagnosticBatchesFlushed.get()).put("diagnosticCommandCount", diagnosticCommandCount.get())
+            .put("exporterFailed", exporterFailed.get()).put("filesFlushed", summaryFlushed && !exporterFailed.get())
+            .put("producerSummary", summaryJson).put("native", native)
+        writePhysicalMemoryEvidence(
+            summary = { writePrivate(summaryFile, summaryJson.toString() + "\n") },
+            native = { summaryFlushed -> writePrivate(teardownMemoryFile, receipt(summaryFlushed).toString() + "\n") },
+            fallback = { writePrivate(teardownFallbackFile, receipt(false).toString() + "\n") },
+            failed = { stage -> memoryTeardown.failures.add(stage) },
+        )
+        memoryTeardown.observer = null
+        check(memoryTeardown.failures.isEmpty() && !exporterFailed.get() && native.optString("state") == "complete") {
+            "physical-memory-teardown-incomplete"
         }
     }
 
@@ -1235,6 +1499,6 @@ class PhysicalLowbarSessionTest {
         const val COMMAND_POLL_MILLIS = 250L
         const val SAMPLE_INTERVAL_MILLIS = 5_000L
         const val MAX_SESSION_MILLIS = 10_200_000L
-        const val GO_RUNTIME_SPIKE_BYTES = 28L * 1024 * 1024
+        const val GO_RUNTIME_SPIKE_BYTES = 32L * 1024 * 1024
     }
 }

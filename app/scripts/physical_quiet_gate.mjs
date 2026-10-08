@@ -3,6 +3,8 @@
 // Host-only evidence gate. Never starts traffic, changes a device, or finishes
 // instrumentation. Status capture is a read-only adb call; all files are private.
 import { spawnSync } from "node:child_process";
+import { evaluateMemoryTeardown, evaluateStatusRuntimeReads, evaluateDiagnosticRuntimeReads,
+  evaluateAuxiliaryRuntimeValues, memoryEvidencePrefix } from "./physical_memory_teardown.mjs";
 import { readFileSync, realpathSync, writeFileSync } from "node:fs";
 import { pathToFileURL } from "node:url";
 import { evaluateEligibility } from "./physical_lowbar_capture.mjs";
@@ -38,7 +40,8 @@ function roleMatches(status, role) {
 // supplies the upper bound and trailing-coverage check before publication.
 export function evaluateQuietSamples(memory, phase, startElapsedMs, endElapsedMs = Infinity) {
   const reasons = new Set();
-  const inWindow = memory.filter((record) => validTime(record.elapsedMs) &&
+  if (memory.some(record => !record || typeof record !== "object" || Array.isArray(record))) reasons.add("quiet-memory-row-invalid");
+  const inWindow = memory.filter((record) => validTime(record?.elapsedMs) &&
     startElapsedMs <= record.elapsedMs && record.elapsedMs <= endElapsedMs);
   if (inWindow.some((record) => record.type !== "sample")) reasons.add("quiet-sampler-error");
   const samples = inWindow.filter((record) => record.type === "sample");
@@ -63,7 +66,7 @@ export function evaluateQuietSamples(memory, phase, startElapsedMs, endElapsedMs
 
 // Boundary envelopes come from --capture-status, not host/device clock
 // subtraction. Device elapsed time brackets memory; host time brackets dumpsys.
-export function evaluateQuietWindow({ start, end, memory, telemetry, phase, role, underlay }) {
+export function evaluateQuietWindow({ start, end, memory, telemetry, phase, role, underlay, statusRuntime, diagnostics, strictRetainedEvidence = false }) {
   const reasons = new Set();
   const fail = (reason) => reasons.add(reason);
   if (!/^quiet-[A-Za-z0-9._-]+$/.test(phase ?? "")) fail("explicit-quiet-phase-required");
@@ -95,22 +98,34 @@ export function evaluateQuietWindow({ start, end, memory, telemetry, phase, role
     fail("quiet-boundaries-shorter-than-300-seconds");
   }
 
-  const allSamples = memory.filter((record) => record.type === "sample");
+  const primitiveSamples = memory.filter((record) => record?.type === "sample");
+  if (primitiveSamples.length !== memory.length) fail("primitive-memory-row-invalid");
+  if (primitiveSamples.some(record => record.samplerDropped !== 0 || strictRetainedEvidence && record.samplerSchema !== 13)) fail("primitive-memory-dropped-or-schema-invalid");
+  const statusSamples = statusRuntime ?? [firstStatus, lastStatus].filter(Boolean);
+  if (statusRuntime) evaluateStatusRuntimeReads(statusRuntime, [firstStatus, lastStatus]).forEach(fail);
+  const diagnostic = diagnostics ? evaluateDiagnosticRuntimeReads(diagnostics, firstStatus) : { samples: [], reasons: [] };
+  diagnostic.reasons.forEach(fail);
+  const auxiliary = evaluateAuxiliaryRuntimeValues(memory, statusSamples, [], strictRetainedEvidence);
+  auxiliary.reasons.forEach(fail);
+  const allSamples = [...memory, ...statusSamples, ...diagnostic.samples];
   let peakGoRuntimeBytes = 0;
   for (const record of allSamples) {
-    if (record.memoryProfile !== MEMORY_AUDIT_PROFILE) fail("sampler-memory-profile-not-ios");
-    if (record.goMemoryLimitBytes !== GO_MEMORY_LIMIT_BYTES) fail("sampler-go-memory-limit-not-32-mib");
-    if (record.goMemoryProfileRateBytes !== QUALIFICATION_PROFILE_RATE_BYTES) {
+    if (record?.memoryProfile !== MEMORY_AUDIT_PROFILE) fail("sampler-memory-profile-not-ios");
+    if (record?.goMemoryLimitBytes !== GO_MEMORY_LIMIT_BYTES) fail("sampler-go-memory-limit-not-32-mib");
+    if (record?.goMemoryProfileRateBytes !== QUALIFICATION_PROFILE_RATE_BYTES) {
       fail("sampler-memory-profile-rate-not-zero");
     }
-    if (!Number.isFinite(record.goRuntimeBytes) || record.goRuntimeBytes <= 0) {
+    if (!Number.isSafeInteger(record?.goRuntimeBytes) || record.goRuntimeBytes <= 0) {
       fail("memory-measurement-missing");
     } else {
       peakGoRuntimeBytes = Math.max(peakGoRuntimeBytes, record.goRuntimeBytes);
     }
   }
+  peakGoRuntimeBytes = Math.max(peakGoRuntimeBytes, auxiliary.auxiliaryPeakGoRuntimeBytes);
   if (peakGoRuntimeBytes > GO_RUNTIME_LIMIT_BYTES) fail("go-runtime-above-32-mib");
   const workloads = start?.workloads;
+  const validTelemetry = telemetry.filter(record => record && typeof record === "object" && !Array.isArray(record));
+  if (validTelemetry.length !== telemetry.length) fail("telemetry-row-invalid");
   let workloadCoverage = { eligible: false, sampleCount: 0 };
   if (!workloads?.ownerId || workloads.ownerId !== end?.workloads?.ownerId ||
       workloads.label !== phase?.slice("quiet-".length) || !validTime(workloads.startedHostTimeUnixMs) ||
@@ -118,7 +133,7 @@ export function evaluateQuietWindow({ start, end, memory, telemetry, phase, role
       workloads.completedHostTimeUnixMs > start?.hostTimeUnixMs || !workloads.collector?.pid) {
     fail("workload-collector-evidence-required");
   } else {
-    workloadCoverage = evaluateWorkloadCoverage(telemetry, workloads.startedHostTimeUnixMs, end?.hostTimeUnixMs, workloads.label);
+    workloadCoverage = evaluateWorkloadCoverage(validTelemetry, workloads.startedHostTimeUnixMs, end?.hostTimeUnixMs, workloads.label);
     if (!workloadCoverage.eligible) fail("workload-collector-coverage-incomplete");
   }
   const { samples, sampleDurationMs, reasons: sampleReasons } = evaluateQuietSamples(
@@ -129,11 +144,11 @@ export function evaluateQuietWindow({ start, end, memory, telemetry, phase, role
   const quietPeakGoRuntimeBytes = samples.reduce((peak, record) =>
     Number.isFinite(record.goRuntimeBytes) ? Math.max(peak, record.goRuntimeBytes) : peak, 0);
   const goRuntimeBreachSampleCount = allSamples.filter((record) =>
-    record.goRuntimeBytes > GO_RUNTIME_LIMIT_BYTES).length;
+    Number.isSafeInteger(record?.goRuntimeBytes) && record.goRuntimeBytes > GO_RUNTIME_LIMIT_BYTES).length;
   const quietGoRuntimeBreachSampleCount = samples.filter((record) =>
     record.goRuntimeBytes > GO_RUNTIME_LIMIT_BYTES).length;
 
-  const hostSamples = telemetry.filter((record) => record.type === "sample");
+  const hostSamples = validTelemetry.filter((record) => record.type === "sample");
   // Include the samples on either side, so an absent collector tail cannot
   // masquerade as continuous connected coverage.
   const before = hostSamples.findLastIndex((record) => record.startTimeUnixMs <= start?.hostTimeUnixMs);
@@ -161,7 +176,7 @@ export function evaluateQuietWindow({ start, end, memory, telemetry, phase, role
   }
   return {
     type: "quiet-window-gate",
-    schemaVersion: 3,
+    schemaVersion: 4,
     eligible: reasons.size === 0,
     classification: reasons.has("go-runtime-above-32-mib") ? "FAILED_MEMORY_LIMIT" :
       reasons.has("ios-memory-profile-rate-not-zero") || reasons.has("sampler-memory-profile-rate-not-zero") ?
@@ -179,6 +194,12 @@ export function evaluateQuietWindow({ start, end, memory, telemetry, phase, role
     boundaryDurationMs: Number.isFinite(boundaryDurationMs) ? boundaryDurationMs : null,
     sampleDurationMs,
     sampleCount: samples.length,
+    devicePrimitiveCount: memory.length,
+    statusRuntimeReadCount: statusSamples.length,
+    diagnosticRuntimeReadCount: diagnostic.samples.length,
+    combinedRuntimeReadCount: allSamples.length,
+    combinedRetainedRuntimeEventCount: allSamples.length,
+    auxiliary: { ...auxiliary, reasons: auxiliary.reasons },
     telemetrySampleCount: covered.length,
     workloadTelemetrySampleCount: workloadCoverage.sampleCount,
     peakGoRuntimeBytes,
@@ -192,15 +213,16 @@ export function evaluateQuietWindow({ start, end, memory, telemetry, phase, role
   };
 }
 
-function readNdjson(path, liveAppend = false) {
-  let contents = readFileSync(path, "utf8");
+function parseNdjson(contents, liveAppend = false) {
   if (liveAppend) contents = contents.slice(0, contents.lastIndexOf("\n") + 1);
-  return contents.split(/\r?\n/).filter((line) => line.trim()).map(JSON.parse);
+  return contents.split(/\r?\n/).filter((line) => line.trim()).map(line => {
+    try { return JSON.parse(line); } catch { return { type: "malformed-retained-row" }; }
+  });
 }
 
 export function parseArgs(argv) {
   const options = {};
-  const names = new Set(["capture-status", "serial", "start", "end", "memory", "telemetry", "phase", "role", "underlay", "live-gate"]);
+  const names = new Set(["capture-status", "serial", "start", "end", "memory", "telemetry", "phase", "role", "underlay", "live-gate", "status-runtime", "diagnostics", "teardown", "teardown-fallback", "producer-summary", "finish-status", "instrumentation-owner", "finish-command-id", "native-inputs"]);
   for (let i = 0; i < argv.length; i += 2) {
     const name = argv[i]?.replace(/^--/, "");
     if (!argv[i]?.startsWith("--") || !names.has(name) || !argv[i + 1] || argv[i + 1].startsWith("--")) {
@@ -210,8 +232,9 @@ export function parseArgs(argv) {
     options[name] = argv[i + 1];
   }
   const required = options["capture-status"] ? ["capture-status", "serial"] :
-    ["start", "end", "memory", "telemetry", "phase", "role", "underlay"];
-  const allowed = options["capture-status"] ? required : [...required, "live-gate"];
+    ["start", "end", "memory", "status-runtime", "diagnostics", "telemetry", "phase", "role", "underlay",
+      ...(options["live-gate"] ? ["teardown", "producer-summary", "finish-status", "instrumentation-owner", "finish-command-id", "native-inputs"] : [])];
+  const allowed = options["capture-status"] ? required : [...required, "live-gate", ...(options["live-gate"] ? ["teardown-fallback"] : [])];
   if (required.some((name) => !options[name]) || Object.keys(options).some((name) => !allowed.includes(name))) {
     throw new Error("missing or incompatible quiet-gate arguments");
   }
@@ -231,14 +254,37 @@ function main() {
   }
   const start = JSON.parse(readFileSync(options.start, "utf8"));
   const end = JSON.parse(readFileSync(options.end, "utf8"));
+  let retainedReadFailed = false;
+  const readContents = path => {
+    try { return readFileSync(path, "utf8"); } catch { retainedReadFailed = true; return ""; }
+  };
+  const memoryContents = readContents(options.memory);
+  const memory = parseNdjson(memoryContents);
+  const statusContents = readContents(options["status-runtime"]);
+  const statusRuntime = parseNdjson(statusContents);
+  const diagnosticContents = readContents(options.diagnostics);
+  const diagnostics = parseNdjson(diagnosticContents);
   const result = evaluateQuietWindow({
     start,
     end,
-    memory: readNdjson(options.memory),
-    telemetry: readNdjson(options.telemetry, true),
+    memory,
+    statusRuntime,
+    diagnostics, strictRetainedEvidence: true,
+    telemetry: parseNdjson(readContents(options.telemetry), true),
     phase: options.phase, role: options.role, underlay: options.underlay,
   });
-  result.workloadOwnerId = start.workloads?.ownerId ?? null;
+  if (retainedReadFailed) {
+    result.eligible = result.connectedClientEvidence = false;
+    result.reasons.push("retained-runtime-evidence-unavailable");
+    if (result.classification === "QUIET_WINDOW_COMPLETE") result.classification = "INCOMPLETE_QUIET_WINDOW";
+  }
+  result.workloadOwnerId = start?.workloads?.ownerId ?? null;
+  result.memoryPrefix = { ...memoryEvidencePrefix(memoryContents), eventCount: memory.length };
+  result.statusPrefix = { ...memoryEvidencePrefix(statusContents), eventCount: statusRuntime.length };
+  result.diagnosticPrefix = { ...memoryEvidencePrefix(diagnosticContents), eventCount: diagnostics.filter(row => row?.part === "memory").length };
+  result.sessionId = start?.status?.sessionId ?? null;
+  result.buildId = start?.status?.buildId ?? null;
+  result.pid = start?.status?.pid ?? null;
   result.hostTimeUnixMs = Date.now();
   result.evaluationMode = options["live-gate"] ? "offline-teardown" : "live";
   result.collectorLiveAtGate = false;
@@ -249,7 +295,7 @@ function main() {
     if (realpathSync(options.telemetry) !== realpathSync(workloads.collector.path)) throw new Error();
     if (options["live-gate"]) {
       const proof = JSON.parse(readFileSync(options["live-gate"], "utf8"));
-      if (proof.type !== "quiet-window-gate" || proof.schemaVersion !== 3 || proof.evaluationMode !== "live" ||
+      if (proof.type !== "quiet-window-gate" || proof.schemaVersion !== 4 || proof.eligible !== true || proof.evaluationMode !== "live" ||
           proof.goRuntimeLimitBytes !== GO_RUNTIME_LIMIT_BYTES ||
           proof.collectorLiveAtGate !== true || proof.workloadOwnerId !== workloads.ownerId ||
           !validTime(proof.hostTimeUnixMs) || proof.hostTimeUnixMs < end.hostTimeUnixMs) throw new Error();
@@ -264,6 +310,33 @@ function main() {
     result.reasons.push("collector-not-live-at-final-gate");
     if (!["FAILED_MEMORY_LIMIT", "INVALID_MEMORY_PROFILE", "INVALID_RATE_ZERO"].includes(result.classification)) {
       result.classification = "INCOMPLETE_ACTIVE_COVERAGE";
+    }
+  }
+  if (options["live-gate"]) {
+    const readOptional = path => {
+      let contents;
+      try { contents = readFileSync(path, "utf8"); } catch { return null; }
+      if (!contents.trim()) return null;
+      try { return JSON.parse(contents); } catch { return { type: "malformed-retained-evidence" }; }
+    };
+    const ownerPath = options["instrumentation-owner"];
+    const finishEnvelope = readOptional(options["finish-status"]);
+    const teardown = evaluateMemoryTeardown({ teardown: readOptional(options.teardown), fallback: readOptional(options["teardown-fallback"]),
+      producerSummary: readOptional(options["producer-summary"]), memory, statusRuntime, diagnostics,
+      finish: finishEnvelope?.status ?? finishEnvelope, owner: readOptional(ownerPath),
+      ready: readOptional(`${ownerPath}.ready.json`), terminal: readOptional(`${ownerPath}.terminal.json`),
+      nativeProof: readOptional(options["native-inputs"]), liveGate: readOptional(options["live-gate"]), memoryContents,
+      statusContents, diagnosticContents, expectedFinishCommandId: options["finish-command-id"] });
+    result.teardown = teardown;
+    result.peakGoRuntimeBytes = Math.max(result.peakGoRuntimeBytes, teardown.peakGoRuntimeBytes);
+    result.goRuntimeBreachSampleCount = teardown.goRuntimeBreachSampleCount;
+    result.combinedRuntimeReadCount = teardown.combinedRuntimeReadCount;
+    result.combinedRetainedRuntimeEventCount = teardown.combinedRetainedRuntimeEventCount;
+    result.teardownPrimitiveCount = teardown.counts.teardownPrimitiveCount;
+    if (!teardown.eligible) {
+      result.eligible = result.connectedClientEvidence = false;
+      result.reasons.push(...teardown.reasons);
+      result.classification = result.peakGoRuntimeBytes > GO_RUNTIME_LIMIT_BYTES ? "FAILED_MEMORY_LIMIT" : "INCOMPLETE_TEARDOWN";
     }
   }
   process.stdout.write(`${JSON.stringify(result)}\n`);

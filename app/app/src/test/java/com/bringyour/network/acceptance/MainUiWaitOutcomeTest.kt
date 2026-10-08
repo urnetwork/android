@@ -1,7 +1,9 @@
 package com.bringyour.network.acceptance
 
 import com.bringyour.network.ui.PostLoginUiAction
+import com.bringyour.network.ui.postLoginMainNavigationReady
 import com.bringyour.network.ui.login.signupFormErrorIsTerminal
+import java.util.concurrent.CancellationException
 import java.util.concurrent.TimeUnit
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
@@ -19,6 +21,7 @@ class MainUiWaitOutcomeTest {
                 action = null,
                 mainNavigationPresent = false,
                 signupFormErrorPresent = true,
+                mainNavigationReady = false,
             ),
         )
     }
@@ -29,7 +32,7 @@ class MainUiWaitOutcomeTest {
             for (mainPresent in listOf(false, true)) {
                 assertEquals(
                     MainUiWaitOutcome.SIGNUP_FORM_ERROR,
-                    mainUiWaitOutcome(action, mainPresent, signupFormErrorPresent = true),
+                    mainUiWaitOutcome(action, mainPresent, signupFormErrorPresent = true, mainNavigationReady = true),
                 )
             }
         }
@@ -44,7 +47,7 @@ class MainUiWaitOutcomeTest {
                 } else {
                     MainUiWaitOutcome.PENDING
                 }
-                assertEquals(expected, mainUiWaitOutcome(action, mainPresent, false))
+                assertEquals(expected, mainUiWaitOutcome(action, mainPresent, false, true))
             }
         }
     }
@@ -113,6 +116,84 @@ class MainUiWaitOutcomeTest {
     }
 
     @Test
+    fun visibleNavigationWaitsForTheDelayedIntroDecisionAndDismissal() {
+        val screen = FakeMainUi().apply {
+            mainPresent = true
+            mainReady = postLoginMainNavigationReady(false, false, false, true, false)
+            // The balance resolves after navigation is already visible. The
+            // decision must be applied before the same navigation is trusted.
+            after(1_000) { mainReady = postLoginMainNavigationReady(false, false, true, true, false) }
+            after(1_250) {
+                mainPresent = false
+                mainReady = postLoginMainNavigationReady(false, false, true, false, true)
+                action = PostLoginUiAction.IntroClose
+            }
+            after(1_500) {
+                mainPresent = true
+                mainReady = postLoginMainNavigationReady(false, false, true, false, false)
+            }
+        }
+        var submits = 0
+        submitPasswordSignupAndWait({ submits += 1 }) { waitForMainUi(screen, 90_000) }
+
+        assertEquals(1_500L, screen.elapsedMillis)
+        assertEquals(listOf(PostLoginUiAction.IntroClose), screen.dismissed)
+        assertEquals(1, submits)
+        assertEquals(0, screen.timeouts)
+    }
+
+    @Test
+    fun visibleNavigationWithAnUnresolvedIntroKeepsTheOriginalDeadline() {
+        val screen = FakeMainUi().apply { mainPresent = true; mainReady = false }
+        val error = assertThrows(AssertionError::class.java) { waitForMainUi(screen, 90_000) }
+        assertSame(screen.timeoutError, error)
+        assertEquals(90_000L, screen.elapsedMillis)
+        assertEquals(1, screen.timeouts)
+        assertTrue(screen.dismissed.isEmpty())
+    }
+
+    @Test
+    fun readySignalDoesNotReplaceTheRequiredNavigationNode() {
+        val screen = FakeMainUi().apply {
+            mainReady = true
+            after(250) { mainPresent = true }
+        }
+        waitForMainUi(screen, 90_000)
+        assertEquals(250L, screen.elapsedMillis)
+    }
+
+    @Test
+    fun signupErrorRemainsTerminalWhileTheIntroDecisionIsPending() {
+        val screen = FakeMainUi(errorPresent = true).apply { mainPresent = true; mainReady = false }
+        assertThrows(SignupFormError::class.java) { waitForMainUi(screen, 90_000) }
+        assertEquals(0L, screen.elapsedMillis)
+        assertEquals(0, screen.timeouts)
+        assertTrue(screen.dismissed.isEmpty())
+    }
+
+    @Test
+    fun cancellationDuringTheBoundedWaitPropagatesUnchanged() {
+        val cancelled = CancellationException("synthetic cancellation")
+        val screen = FakeMainUi().apply { after(125) { mainPresent = true; throw cancelled } }
+        val error = assertThrows(CancellationException::class.java) { waitForMainUi(screen, 90_000) }
+        assertSame(cancelled, error)
+        assertEquals(125L, screen.elapsedMillis)
+        assertEquals(0, screen.timeouts)
+        assertTrue(screen.dismissed.isEmpty())
+    }
+
+    @Test
+    fun observationFailureDuringTheBoundedWaitPropagatesUnchanged() {
+        val observationFailure = AssertionError("synthetic observation failure")
+        val screen = FakeMainUi().apply { after(125) { mainPresent = true; throw observationFailure } }
+        val error = assertThrows(AssertionError::class.java) { waitForMainUi(screen, 90_000) }
+        assertSame(observationFailure, error)
+        assertEquals(125L, screen.elapsedMillis)
+        assertEquals(0, screen.timeouts)
+        assertTrue(screen.dismissed.isEmpty())
+    }
+
+    @Test
     fun pendingSignupRetainsExactNinetySecondDeadlineAndOriginalTimeout() {
         val screen = FakeMainUi(inProgress = true)
         var submits = 0
@@ -171,6 +252,7 @@ class MainUiWaitOutcomeTest {
         var elapsedMillis = 0L
         var action: PostLoginUiAction? = null
         var mainPresent = false
+        var mainReady = true
         var timeouts = 0
         val timeoutError = AssertionError("original post-login timeout")
         val dismissed = mutableListOf<PostLoginUiAction>()
@@ -185,6 +267,7 @@ class MainUiWaitOutcomeTest {
             action,
             mainPresent,
             signupFormErrorIsTerminal(errorPresent, inProgress),
+            mainReady,
         )
 
         override fun dismiss(action: PostLoginUiAction) {
@@ -203,7 +286,7 @@ class MainUiWaitOutcomeTest {
                     events.removeFirst().second.invoke(this)
                 } else {
                     elapsedMillis = deadline
-                    if (!condition()) throw AssertionError("poll timeout")
+                    return
                 }
             }
         }

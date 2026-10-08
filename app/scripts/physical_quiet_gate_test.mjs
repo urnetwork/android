@@ -15,6 +15,10 @@ function evidence(role = "client", durationMs = REQUIRED_QUIET_MS) {
     hostTimeUnixMs: base + elapsedMs,
     workloads,
     status: { type: "status", state: "complete", phase, pid: 42, commandId,
+      sessionId: "fixture-session", buildId: "fixture-build", goRuntimeBytes: 20 * 1024 * 1024,
+      goMemStatsRuntimeBytes: 20 * 1024 * 1024, idleMemoryTrimCount: 0,
+      lastIdleMemoryTrimBeforeBytes: 0, lastIdleMemoryTrimAfterBytes: 0,
+      runtimeReadSequence: commandId === "quiet-start" ? 1 : 2, timeUnixMs: base + elapsedMs,
       memoryProfile: "ios-memory-audit-v2",
       goMemoryProfileRateBytes: 0,
       goMemoryLimitBytes: 32 * 1024 * 1024, trackedMemory: { targetBytes: 32 * 1024 * 1024 },
@@ -24,6 +28,9 @@ function evidence(role = "client", durationMs = REQUIRED_QUIET_MS) {
   return {
     role, phase, underlay: "wifi", start: status(0, "quiet-start"), end: status(durationMs, "quiet-end"),
     memory: Array.from({ length: 21 }, (_, i) => ({ type: "sample", phase,
+      pid: 42, sessionId: "fixture-session", buildId: "fixture-build",
+      samplerSchema: 13, timeUnixMs: base + durationMs * i / 20,
+      idleMemoryTrimCount: 0, lastIdleMemoryTrimBeforeBytes: 0, lastIdleMemoryTrimAfterBytes: 0,
       memoryProfile: "ios-memory-audit-v2",
       goMemoryProfileRateBytes: 0,
       goMemoryLimitBytes: 32 * 1024 * 1024,
@@ -299,7 +306,7 @@ test("historical burst values remain visible; a new global breach is not a quiet
   input.memory.forEach((sample) => { sample.goRuntimeBytes = 22_904_864; });
   input.memory[1].goRuntimeBytes = 24_723_488;
   for (const [index, bytes] of [25_509_920, 26_050_592, 26_353_696].entries()) {
-    input.memory.unshift({ type: "sample", elapsedMs: -15_000 * (index + 1), phase: "traffic",
+    input.memory.unshift({ ...input.memory[0], type: "sample", elapsedMs: -15_000 * (index + 1), phase: "traffic",
       memoryProfile: "ios-memory-audit-v2",
       goMemoryLimitBytes: 32 * 1024 * 1024, goMemoryProfileRateBytes: 0, goRuntimeBytes: bytes });
   }
@@ -355,7 +362,7 @@ test("status capture is read-only, private, fresh and never overwrites prior evi
   }
 });
 
-test("CLI rejects missing evidence safely and accepts valid offline evidence without adb", () => {
+test("CLI requires fresh native teardown in addition to valid live quiet evidence without adb", () => {
   const directory = mkdtempSync(join(tmpdir(), "physical-quiet-gate-test-"));
   try {
     const input = evidence();
@@ -375,27 +382,130 @@ test("CLI rejects missing evidence safely and accepts valid offline evidence wit
       writeFileSync(file, Array.isArray(value) ? value.map(JSON.stringify).join("\n") + "\n" : JSON.stringify(value));
       args.push(`--${name}`, file);
     }
-    args.push("--phase", input.phase, "--role", input.role, "--underlay", input.underlay);
+    const statusRuntimePath = join(directory, "status-runtime.ndjson");
+    writeFileSync(statusRuntimePath, [input.start.status, input.end.status].map(row => JSON.stringify({ ...row,
+      type: "status-runtime", sequence: row.runtimeReadSequence })).join("\n") + "\n");
+    const diagnosticsPath = join(directory, "diagnostics.ndjson");
+    writeFileSync(diagnosticsPath, ["state", "memory", "memory_device_transport", "memory_device_transfer"].map(part => JSON.stringify({
+      ...input.start.status, part, diagnosticBatchSequence: 1, unix_millis: input.start.status.timeUnixMs,
+      go_total_bytes: 20 * 1024 * 1024, go_limit_bytes: 33554432, memory_profile_rate_bytes: 0,
+      device_memory_target_bytes: 33554432 })).join("\n") + "\n");
+    args.push("--status-runtime", statusRuntimePath, "--diagnostics", diagnosticsPath,
+      "--phase", input.phase, "--role", input.role, "--underlay", input.underlay);
     const run = () => spawnSync(process.execPath, [new URL("./physical_quiet_gate.mjs", import.meta.url).pathname, ...args], { encoding: "utf8" });
     let result = run();
     assert.equal(result.status, 0, result.stderr);
     assert.equal(JSON.parse(result.stdout).eligible, true);
     const liveGate = join(directory, "live-gate.json");
     writeFileSync(liveGate, result.stdout);
-    // Collector has now finished. It must have been live at the original gate;
-    // only its retained proof permits a teardown-memory offline recheck.
+    // Collector has now finished. Its old proof still needs a fresh native
+    // lifecycle receipt and the host's normal instrumentation join.
     writeFileSync(join(directory, "telemetry.json"), readFileSync(join(directory, "telemetry.json"), "utf8") +
       '\n{"type":"summary"}\n');
     result = run();
     assert.equal(result.status, 2);
     assert.ok(JSON.parse(result.stdout).reasons.includes("collector-not-live-at-final-gate"));
+    const teardownArgs = [];
     const offline = () => spawnSync(process.execPath, [new URL("./physical_quiet_gate.mjs", import.meta.url).pathname,
-      ...args, "--live-gate", liveGate], { encoding: "utf8" });
+      ...args, "--live-gate", liveGate, ...teardownArgs], { encoding: "utf8" });
     result = offline();
-    assert.equal(result.status, 0, result.stderr);
-    assert.equal(JSON.parse(result.stdout).evaluationMode, "offline-teardown");
+    assert.equal(result.status, 2, "unchanged quiet file cannot prove native teardown");
+    assert.equal(result.stdout, "");
+    assert.match(result.stderr, /quiet-gate evidence unavailable/);
+    const beginTime = input.end.status.timeUnixMs + 1;
+    const identity = { pid: 42, sessionId: "fixture-session", buildId: "fixture-build" };
+    const native = { type: "device-memory-teardown", schemaVersion: 1, observerId: "fixture-observer", deviceTargetBytes: 33554432,
+      state: "complete", failure: "", intervalNanos: 15000000000, capacity: 16, produced: 4, drained: 4, dropped: 0,
+      cancelSequence: 2, joinSequence: 3, terminalSequence: 4, observerJoined: true,
+      samples: ["begin", "cancelled", "joined", "terminal"].map((stage, index) => ({ sequence: index + 1, stage,
+        timeUnixMs: beginTime + index, elapsedNanos: index, goRuntimeBytes: 20 * 1024 * 1024,
+        goMemoryLimitBytes: 33554432, goMemoryProfileRateBytes: 0 })) };
+    const finish = { ...input.end.status, phase: "finish", commandId: "fixture-finish", timeUnixMs: beginTime,
+      runtimeReadSequence: 3, teardownObserverId: native.observerId, teardownBeginTimeUnixMs: beginTime };
+    writeFileSync(statusRuntimePath, readFileSync(statusRuntimePath, "utf8") +
+      JSON.stringify({ ...finish, type: "status-runtime", sequence: 3 }) + "\n");
+    const owner = { schema: 1, type: "instrumentation-session", state: "running", ownerId: "00000000-0000-0000-0000-000000000001",
+      startedHostTimeUnixMs: input.start.hostTimeUnixMs, label: "fixture-label", serialHash: "b".repeat(64),
+      nativeInputHash: "a".repeat(64), nativeBuildOwner: "fixture-native-owner", supervisorPid: 100, adbPid: 101,
+      supervisorIdentity: "c".repeat(64), adbIdentity: "d".repeat(64),
+      foreground: { inputTTY: true, outputTTY: true, processGroup: 100, foregroundGroup: 100 },
+      targetPackage: "com.bringyour.network", className: "com.bringyour.network.acceptance.PhysicalLowbarSessionTest",
+      component: "com.bringyour.network.test/androidx.test.runner.AndroidJUnitRunner" };
+    const ownerPath = join(directory, "owner.json");
+    writeFileSync(ownerPath, JSON.stringify(owner));
+    writeFileSync(`${ownerPath}.ready.json`, JSON.stringify({ schema: 1, type: "instrumentation-session-ready",
+      ownerId: owner.ownerId, serialHash: owner.serialHash, targetPid: 42, elapsedMs: 0, hostTimeUnixMs: input.start.hostTimeUnixMs }));
+    writeFileSync(`${ownerPath}.terminal.json`, JSON.stringify({ ...owner, state: "complete", exitCode: 0,
+      signal: null, interrupted: false, completedHostTimeUnixMs: Date.now() }));
+    const teardownPath = join(directory, "teardown.json");
+    const producerSummary = { ...identity, type: "physical-memory-producer-summary", schemaVersion: 1, memoryProfile: "ios-memory-audit-v2",
+      finishCommandId: finish.commandId, observerId: native.observerId, peakGoRuntimeBytes: 20 * 1024 * 1024,
+      devicePrimitiveCount: input.memory.length, teardownPrimitiveCount: 4, statusRuntimeReadCount: 3, diagnosticRuntimeReadCount: 1,
+      combinedRetainedRuntimeEventCount: input.memory.length + 8, statusMemStatsSnapshotCount: 3,
+      auxiliaryMaintenanceValueCount: 0, auxiliaryRuntimeBreachValueCount: 0, exporterFailed: false, failureCount: 0 };
+    const producerSummaryPath = join(directory, "producer-summary.json");
+    writeFileSync(producerSummaryPath, JSON.stringify(producerSummary));
+    writeFileSync(teardownPath, JSON.stringify({ ...identity, type: "physical-memory-teardown", schemaVersion: 1,
+      memoryProfile: "ios-memory-audit-v2", native, observerId: native.observerId, finishCommandId: finish.commandId,
+      deviceDrainerJoined: true, deviceRingDrained: true, deviceJoined: true, referencesReleased: true,
+      referencesReleasedTimeUnixMs: beginTime + 2, filesFlushed: true, statusRuntimeReadCount: 3, failureCount: 0,
+      devicePrimitiveCount: input.memory.length, diagnosticBatchesProduced: 1, diagnosticBatchesFlushed: 1,
+      exporterFailed: false, diagnosticCommandCount: 0, producerSummary }));
+    const finishPath = join(directory, "finish.json");
+    writeFileSync(finishPath, JSON.stringify(finish));
+    const nativeProofPath = join(directory, "native-proof.json");
+    writeFileSync(nativeProofPath, JSON.stringify({ type: "physical-native-input-verification", schemaVersion: 1, eligible: true,
+      classification: "NATIVE_INPUTS_VERIFIED", buildId: identity.buildId, buildOwner: owner.nativeBuildOwner,
+      inputHash: owner.nativeInputHash, beforeSha256: "e".repeat(64), afterSha256: "f".repeat(64) }));
+    teardownArgs.push("--teardown", teardownPath, "--finish-status", finishPath,
+      "--instrumentation-owner", ownerPath, "--finish-command-id", finish.commandId, "--native-inputs", nativeProofPath,
+      "--producer-summary", producerSummaryPath);
+    result = offline();
+    assert.equal(result.status, 0, result.stderr || result.stdout);
+    const completeTeardown = JSON.parse(result.stdout);
+    assert.equal(completeTeardown.teardown.eligible, true);
+    assert.equal(completeTeardown.combinedRuntimeReadCount, input.memory.length + 3 + 1 + 4);
+    assert.equal(completeTeardown.combinedRetainedRuntimeEventCount, input.memory.length + 3 + 1 + 4);
+    assert.equal(completeTeardown.teardownPrimitiveCount, 4);
+    assert.equal(completeTeardown.memoryPrefix.eventCount, input.memory.length);
+    assert.equal(completeTeardown.teardown.producerPeakRepresentationCount, 2);
+    const originalTeardown = readFileSync(teardownPath, "utf8");
+    const fallbackPath = join(directory, "teardown-fallback.json");
+    const fallback = JSON.parse(originalTeardown);
+    fallback.filesFlushed = false; fallback.failureCount = 1;
+    fallback.native.samples[1].goRuntimeBytes = GO_RUNTIME_LIMIT_BYTES + 1;
+    writeFileSync(fallbackPath, JSON.stringify(fallback));
+    writeFileSync(teardownPath, "incomplete primary write");
+    teardownArgs.push("--teardown-fallback", fallbackPath);
+    result = offline();
+    assert.equal(result.status, 2);
+    assert.equal(JSON.parse(result.stdout).peakGoRuntimeBytes, GO_RUNTIME_LIMIT_BYTES + 1);
+    assert.equal(JSON.parse(result.stdout).teardown.counts.teardownPrimitiveCount, 4);
+    assert.equal(JSON.parse(result.stdout).teardown.fallbackState, "selected-ineligible");
+    teardownArgs.splice(-2);
+    writeFileSync(teardownPath, originalTeardown);
+    writeFileSync(producerSummaryPath, JSON.stringify({ ...producerSummary, peakGoRuntimeBytes: GO_RUNTIME_LIMIT_BYTES + 1, exporterFailed: true }));
+    result = offline();
+    assert.equal(result.status, 2);
+    assert.equal(JSON.parse(result.stdout).peakGoRuntimeBytes, GO_RUNTIME_LIMIT_BYTES + 1);
+    assert.equal(JSON.parse(result.stdout).teardown.producerRuntimeBreachRepresentationCount, 1);
+    const nativeWithProducerHigh = JSON.parse(originalTeardown);
+    nativeWithProducerHigh.producerSummary.peakGoRuntimeBytes = GO_RUNTIME_LIMIT_BYTES + 3;
+    writeFileSync(teardownPath, JSON.stringify(nativeWithProducerHigh));
+    writeFileSync(producerSummaryPath, '{"private-malformed-summary":');
+    result = offline();
+    assert.equal(result.status, 2);
+    const malformedProducer = JSON.parse(result.stdout);
+    assert.equal(malformedProducer.teardown.producerPeakRepresentationCount, 2,
+      "nonempty invalid summary is retained as one invalid representation beside the native summary");
+    assert.equal(malformedProducer.teardown.unqualifiedProducerPeakRepresentationCount, 1);
+    assert.equal(malformedProducer.peakGoRuntimeBytes, GO_RUNTIME_LIMIT_BYTES + 3);
+    assert.ok(malformedProducer.teardown.reasons.includes("producer-memory-summary-malformed"));
+    assert.equal(result.stdout.includes("private-malformed-summary"), false);
+    writeFileSync(teardownPath, originalTeardown);
+    writeFileSync(producerSummaryPath, JSON.stringify(producerSummary));
     const currentProof = JSON.parse(readFileSync(liveGate));
-    for (const mutation of [{ schemaVersion: 2 }, { goRuntimeLimitBytes: 25_165_824 }]) {
+    for (const mutation of [{ schemaVersion: 2 }, { goRuntimeLimitBytes: 25_165_824 }, { eligible: false }]) {
       writeFileSync(liveGate, JSON.stringify({ ...currentProof, ...mutation }));
       assert.equal(offline().status, 2, "old or mismatched gate proof must not be requalified");
     }
@@ -407,7 +517,58 @@ test("CLI rejects missing evidence safely and accepts valid offline evidence wit
     result = offline();
     assert.equal(result.status, 2);
     assert.equal(JSON.parse(result.stdout).classification, "FAILED_MEMORY_LIMIT");
+    writeFileSync(memoryPath, readFileSync(memoryPath, "utf8") + "null\n");
+    const originalStatusRuntime = readFileSync(statusRuntimePath, "utf8");
+    writeFileSync(statusRuntimePath, originalStatusRuntime + "null\n");
+    result = offline();
+    assert.equal(result.status, 2);
+    const malformed = JSON.parse(result.stdout);
+    assert.equal(malformed.peakGoRuntimeBytes, GO_RUNTIME_LIMIT_BYTES + 1);
+    assert.equal(malformed.combinedRetainedRuntimeEventCount, input.memory.length + 2 + 4 + 1 + 4);
+    assert.equal(malformed.teardown.counts.devicePrimitiveCount, input.memory.length + 2);
+    writeFileSync(statusRuntimePath, originalStatusRuntime);
     writeFileSync(memoryPath, originalMemory);
+    // A partial exporter append is still one retained invalid row. Parsing it
+    // must not erase a readable later high or the producer's known peak.
+    writeFileSync(memoryPath, originalMemory + '{"private-truncated-value":\n' +
+      JSON.stringify({ ...input.memory.at(-1), phase: "finish", elapsedMs: 400_000,
+        goRuntimeBytes: GO_RUNTIME_LIMIT_BYTES + 1 }) + "\n");
+    result = offline();
+    assert.equal(result.status, 2);
+    const truncatedWithHigh = JSON.parse(result.stdout);
+    assert.equal(truncatedWithHigh.classification, "FAILED_MEMORY_LIMIT");
+    assert.equal(truncatedWithHigh.peakGoRuntimeBytes, GO_RUNTIME_LIMIT_BYTES + 1);
+    assert.equal(truncatedWithHigh.teardown.counts.devicePrimitiveCount, input.memory.length + 2);
+    assert.equal(truncatedWithHigh.combinedRetainedRuntimeEventCount, input.memory.length + 10);
+    assert.equal(result.stdout.includes("private-truncated-value"), false);
+    writeFileSync(memoryPath, originalMemory + '{"private-truncated-tail":');
+    writeFileSync(producerSummaryPath, JSON.stringify({ ...producerSummary,
+      peakGoRuntimeBytes: GO_RUNTIME_LIMIT_BYTES + 2, exporterFailed: true, failureCount: 1 }));
+    result = offline();
+    assert.equal(result.status, 2);
+    const truncatedWithProducer = JSON.parse(result.stdout);
+    assert.equal(truncatedWithProducer.classification, "FAILED_MEMORY_LIMIT");
+    assert.equal(truncatedWithProducer.peakGoRuntimeBytes, GO_RUNTIME_LIMIT_BYTES + 2);
+    assert.equal(truncatedWithProducer.teardown.producerRuntimeBreachRepresentationCount, 1);
+    assert.equal(truncatedWithProducer.teardown.counts.devicePrimitiveCount, input.memory.length + 1);
+    assert.equal(truncatedWithProducer.combinedRetainedRuntimeEventCount, input.memory.length + 9);
+    assert.equal(result.stdout.includes("private-truncated-tail"), false);
+    // Failed acquisition leaves no primitive file at all, but other retained
+    // native/summary evidence must still publish a failed, non-quiet aggregate.
+    const memoryArgument = args.indexOf("--memory") + 1;
+    args[memoryArgument] = join(directory, "missing-memory.ndjson");
+    result = offline();
+    assert.equal(result.status, 2);
+    const missingWithProducer = JSON.parse(result.stdout);
+    assert.equal(missingWithProducer.classification, "FAILED_MEMORY_LIMIT");
+    assert.equal(missingWithProducer.peakGoRuntimeBytes, GO_RUNTIME_LIMIT_BYTES + 2);
+    assert.equal(missingWithProducer.teardown.counts.devicePrimitiveCount, 0);
+    assert.equal(missingWithProducer.combinedRetainedRuntimeEventCount, 8);
+    assert.ok(missingWithProducer.reasons.includes("retained-runtime-evidence-unavailable"));
+    assert.equal(missingWithProducer.sampleCount, 0, "failed acquisition must not manufacture quiet samples");
+    args[memoryArgument] = memoryPath;
+    writeFileSync(memoryPath, originalMemory);
+    writeFileSync(producerSummaryPath, JSON.stringify(producerSummary));
     const proof = JSON.parse(readFileSync(liveGate)); proof.workloadOwnerId = "different-owner";
     writeFileSync(liveGate, JSON.stringify(proof));
     assert.equal(offline().status, 2);

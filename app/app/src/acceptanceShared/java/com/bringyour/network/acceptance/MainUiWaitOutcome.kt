@@ -14,9 +14,10 @@ internal fun mainUiWaitOutcome(
     action: PostLoginUiAction?,
     mainNavigationPresent: Boolean,
     signupFormErrorPresent: Boolean,
+    mainNavigationReady: Boolean,
 ): MainUiWaitOutcome = when {
     signupFormErrorPresent -> MainUiWaitOutcome.SIGNUP_FORM_ERROR
-    action == null && mainNavigationPresent -> MainUiWaitOutcome.READY
+    action == null && mainNavigationPresent && mainNavigationReady -> MainUiWaitOutcome.READY
     else -> MainUiWaitOutcome.PENDING
 }
 
@@ -26,6 +27,7 @@ internal data class MainUiWaitEvidence(
     val action: PostLoginUiAction?,
     val mainNavigationPresent: Boolean,
     val signupFormErrorPresent: Boolean,
+    val mainNavigationReady: Boolean,
 )
 
 /** Test-only boundary for the existing UI wait; it has no submit or API operation. */
@@ -34,6 +36,7 @@ internal interface MainUiWaitDriver {
     fun observe(): MainUiWaitEvidence
     fun dismiss(action: PostLoginUiAction)
     fun waitForIdle()
+    /** Returns at the bounded poll deadline; all other failures propagate. */
     fun waitUntil(timeoutMillis: Long, condition: () -> Boolean)
     fun timeout(): Nothing
 }
@@ -44,6 +47,7 @@ internal fun waitForMainUi(driver: MainUiWaitDriver, timeoutMillis: Long) {
         evidence.action,
         evidence.mainNavigationPresent,
         evidence.signupFormErrorPresent,
+        evidence.mainNavigationReady,
     )
     while (true) {
         val evidence = driver.observe()
@@ -60,11 +64,9 @@ internal fun waitForMainUi(driver: MainUiWaitDriver, timeoutMillis: Long) {
         val remainingMillis = TimeUnit.NANOSECONDS
             .toMillis(deadlineNanos - driver.nowNanos())
             .coerceIn(1, 1_000)
-        runCatching {
-            driver.waitUntil(remainingMillis) {
-                val current = driver.observe()
-                outcome(current) != MainUiWaitOutcome.PENDING || current.action != evidence.action
-            }
+        driver.waitUntil(remainingMillis) {
+            val current = driver.observe()
+            outcome(current) != MainUiWaitOutcome.PENDING || current.action != evidence.action
         }
     }
 }

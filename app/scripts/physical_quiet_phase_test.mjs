@@ -18,6 +18,7 @@ function fixture(t, base = 1_000_000) {
   let reads = 0;
   let collectorLagMs = 0;
   let current = { type: "status", state: "complete", commandId: "traffic-end", phase: "traffic",
+    goRuntimeBytes: 20 * 1024 * 1024,
     memoryProfile: "ios-memory-audit-v2",
     goMemoryProfileRateBytes: 0,
     goMemoryLimitBytes: 32 * 1024 * 1024, trackedMemory: { targetBytes: 32 * 1024 * 1024 },

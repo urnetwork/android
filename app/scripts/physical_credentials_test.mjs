@@ -8,8 +8,11 @@ import { join } from "node:path";
 import test from "node:test";
 import { credentialLineStructure, credentialPayload, credentialScripts, credentialStageDiagnostic, inspectPhysicalCredentialLines,
   diagnosePhysicalPublication, parseArgs, sentinelScripts, stagePhysicalCredentials } from "./physical_credentials.mjs";
-import { finishCredentialSession, handoffCredentialOwnership, rollbackCredentialSetup } from "./physical_credential_ownership.mjs";
+import { finishCredentialSession, finishFailedCredentialSession, handoffCredentialOwnership, rollbackCredentialSetup,
+  parseArgs as parseOwnershipArgs, requireCredentialInstrumentationStopped } from "./physical_credential_ownership.mjs";
 import { runInstrumentationSession } from "./physical_collector_session.mjs";
+import { prepareArtifactDirectory } from "./physical_artifact_directory.mjs";
+import { armContext } from "./physical_h1_arm.mjs";
 
 const USER = "physical-fixture@example.invalid";
 const PASSWORD = "  p'\"$(touch INJECTED) `touch OTHER` \\ ; & Unicode-雪  ";
@@ -122,6 +125,440 @@ function ownershipFixture(t) {
   };
   return f;
 }
+
+const stoppedProcessDump = `ACTIVITY MANAGER RUNNING PROCESSES (dumpsys activity processes)
+  OOM levels:
+    -900: SYSTEM_ADJ (   45,056K)
+  Process OOM control (2 total, non-act at 1, non-svc at 1):
+  mHomeProcess: ProcessRecord{fixture 4321:example.synthetic/u0a1}
+  mPreviousProcess: null
+  Process LRU list (sorted by oom_adj, 2 total, non-act at 1, non-svc at 1):
+  All Active App Child Processes:
+    proc #0: PhantomProcessRecord {fixture 7654:4321:example.synthetic/10001}
+      user #0 uid=10001 pid=7654 ppid=4321 knownSince=1s2ms killed=false
+      lastCpuTime=0  oom adj=0 seq=1
+  mPreviousProcessVisibleTime: 0
+  mDeviceIdleAllowlist=[10001]
+  mDeviceIdleExceptIdleAllowlist=[]
+  mDeviceIdleTempAllowlist=[]
+  mFgsStartTempAllowList:
+  mFgsBootCompletedStartTempAllowList:
+  mForceBackgroundCheck=false
+`;
+
+function failedOwnershipFixture(t, outcome = { exitCode: null, signal: "SIGHUP", interrupted: true }) {
+  const f = ownershipFixture(t); f.stage(); const evidence = f.completed();
+  const path = f.options["instrumentation-owner"];
+  evidence.owner.component = "com.bringyour.network.test/androidx.test.runner.AndroidJUnitRunner";
+  Object.assign(evidence.terminal, evidence.owner, outcome, { state: "failed" });
+  writeFileSync(path, JSON.stringify(evidence.owner));
+  writeFileSync(`${path}.terminal.json`, JSON.stringify(evidence.terminal));
+  rmSync(`${path}.ready.json`);
+  f.failedEvidence = evidence;
+  f.dumpResult = { status: 0, signal: null, stdout: stoppedProcessDump, stderr: "" };
+  const invoke = f.deps.ownershipAdb;
+  f.deps.ownershipAdb = args => args[3] === "dumpsys" ? f.dumpResult : invoke(args);
+  return f;
+}
+
+// Use the real arm path model and original directory identities. AM succeeds
+// while the arm observes a startup error, before any ready receipt or workload.
+function failedArmOwnershipFixture(t, measurementMode = "qualification") {
+  const f = ownershipFixture(t);
+  const arm = armContext({ mode: "run", root: join(f.directory, "synthetic-checkout"), "run-dir": f.directory,
+    serial: f.options.serial, label: f.options.label, "build-id": f.options["build-id"],
+    "measurement-mode": measurementMode }, f.native.buildOwner);
+  mkdirSync(arm.artifacts, { mode: 0o700 }); mkdirSync(arm.directory, { mode: 0o700 });
+  arm.directoryBindings = [f.directory, arm.artifacts, arm.directory].map(path => prepareArtifactDirectory(path));
+  Object.assign(f.options, { output: join(arm.artifacts, `${arm.label}.credential-staging.json`), ownership: arm.credentialOwner,
+    "native-inputs": arm.proof, "instrumentation-owner": arm.owner, "failed-arm": arm.manifest });
+  f.stage(); const evidence = f.completed();
+  evidence.owner.component = "com.bringyour.network.test/androidx.test.runner.AndroidJUnitRunner";
+  Object.assign(evidence.terminal, { component: evidence.owner.component });
+  writeFileSync(arm.owner, JSON.stringify(evidence.owner));
+  writeFileSync(`${arm.owner}.terminal.json`, JSON.stringify(evidence.terminal));
+  rmSync(`${arm.owner}.ready.json`);
+  const status = { type: "status", pid: 1234, buildId: arm["build-id"], sessionId: "33333333-3333-4333-8333-333333333333",
+    state: "error", phase: "startup", commandId: "0", elapsedMs: 500,
+    extra: { stage: "auth-discovery", failure: "synthetic-discovery-failure" } };
+  const observations = [{ type: "startup-status-observation", schemaVersion: 1, sequence: 1,
+    hostTimeUnixMs: evidence.owner.startedHostTimeUnixMs + 500, outcome: "current-error", observedBuildId: status.buildId,
+    currentBuild: true, observedPid: status.pid, observedState: "error", targetPidMatches: true,
+    exitCode: 0, signalled: false, transportFailed: false, stdoutBytes: Buffer.byteLength(JSON.stringify(status)), stderrBytes: 0 }];
+  const capture = { eligible: true, exitCode: 0, signal: null, timedOut: false };
+  const result = { type: "scoped-h1-arm", schemaVersion: 2, eligible: false,
+    classification: `SCOPED_H1_${measurementMode === "diagnostic" ? "DIAGNOSTIC_" : ""}FAILED`,
+    measurementMode, qualificationEligible: false, memoryQualified: false, cleanupComplete: false, measurements: null,
+    errors: ["instrumentation-ready-error"], completedSteps: ["credential-stage", "finish-status-final"] };
+  const resultPath = join(f.directory, "result.json");
+  const observationsPath = join(arm.directory, "startup-status-observations.jsonl");
+  const capturePath = join(arm.directory, "finish-status-final.outcome.json");
+  f.saveFailedArm = () => {
+    for (const [path, value] of [[arm.manifest, arm], [resultPath, result], [arm.finishStatus, status], [capturePath, capture]]) {
+      writeFileSync(path, JSON.stringify(value), { mode: 0o600 });
+    }
+    writeFileSync(observationsPath, observations.map(row => JSON.stringify(row)).join("\n") + "\n", { mode: 0o600 });
+  };
+  f.saveFailedArm();
+  Object.assign(f, { arm, failedEvidence: evidence, armResult: result, retainedStatus: status, observations, capture,
+    resultPath, observationsPath, capturePath, statusReads: 0, finishStatus: structuredClone(status),
+    dumpResult: { status: 0, signal: null, stdout: stoppedProcessDump, stderr: "" } });
+  const invoke = f.deps.ownershipAdb;
+  f.deps.ownershipAdb = args => {
+    if (args[3] === "dumpsys") return f.dumpResult;
+    if (args.at(-1) === "files/acceptance/physical-status") f.statusReads++;
+    return invoke(args);
+  };
+  return f;
+}
+
+function assertFailedArmRefused(f, result) {
+  assert.equal(result.eligible, false, JSON.stringify(result)); assert.equal(result.qualificationEligible, false);
+  assert.equal(result.destinationRemoved, false); assert.deepEqual(readFileSync(f.destination), credentialPayload(f.values));
+  assert.equal(existsSync(f.marker), true);
+  for (const suffix of [".failed-finish.json", ".finish.json", ".rollback.json", ".operation"]) {
+    assert.equal(existsSync(`${f.options.ownership}${suffix}`), false, `refusal must preserve authority: ${suffix}`);
+  }
+  assertNoSecrets(result);
+}
+
+test("normally joined failed-arm startup cleanup uses the original failed verdict and exact app session", t => {
+  for (const mode of ["qualification", "diagnostic"]) {
+    const f = failedArmOwnershipFixture(t, mode);
+    const retained = [f.arm.manifest, f.resultPath, f.arm.owner, `${f.arm.owner}.terminal.json`, f.arm.finishStatus]
+      .map(path => [path, readFileSync(path)]);
+    assert.equal(finishCredentialSession(f.options, f.deps).eligible, false, "startup failure cannot become a normal finish");
+    const result = finishFailedCredentialSession(f.options, f.deps);
+    assert.equal(result.eligible, true, JSON.stringify(result));
+    assert.equal(result.reason, "owned-failed-session-credentials-removed");
+    assert.equal(result.qualificationEligible, false); assert.equal(result.ownershipVerified, true); assert.equal(result.destinationRemoved, true);
+    assert.equal(f.statusReads, 2, "both fresh status reads must bind the retained app session");
+    assert.equal(existsSync(f.destination), false); assert.equal(existsSync(f.marker), false);
+    assert.equal(existsSync(`${f.options.ownership}.finish.json`), false);
+    assert.equal(statSync(`${f.options.ownership}.failed-finish.json`).mode & 0o7777, 0o600);
+    for (const [path, bytes] of retained) assert.deepEqual(readFileSync(path), bytes, "cleanup cannot rewrite failed-arm evidence");
+    assert.equal(finishFailedCredentialSession(f.options, f.deps).eligible, false, "completed cleanup is terminal");
+    assertNoSecrets(result);
+  }
+});
+
+test("normally joined failed-arm cleanup requires explicit evidence and preserves refused authority", t => {
+  const f = failedArmOwnershipFixture(t); const manifest = f.options["failed-arm"];
+  delete f.options["failed-arm"];
+  const before = f.calls.length; const refused = finishFailedCredentialSession(f.options, f.deps);
+  assertFailedArmRefused(f, refused); assert.equal(f.calls.length, before); assert.equal(f.statusReads, 0);
+  f.options["failed-arm"] = manifest;
+  const result = finishFailedCredentialSession(f.options, f.deps);
+  assert.equal(result.eligible, true, JSON.stringify(result)); assert.equal(result.qualificationEligible, false);
+});
+
+test("normally joined failed-arm cleanup refuses false success foreign bindings and unobserved errors", t => {
+  for (const kind of ["success", "qualified", "memory-qualified", "classification", "missing-error", "workload",
+    "arm-build", "arm-native-owner", "arm-session-path", "handoff-session", "status-build", "status-session-missing",
+    "status-complete", "observed-pid", "observed-unbound", "observed-after-owner", "capture-failed", "directory-identity", "ready"]) {
+    const f = failedArmOwnershipFixture(t);
+    if (kind === "success") f.armResult.eligible = true;
+    if (kind === "qualified") f.armResult.qualificationEligible = true;
+    if (kind === "memory-qualified") f.armResult.memoryQualified = true;
+    if (kind === "classification") f.armResult.classification = "SCOPED_H1_COMPLETE";
+    if (kind === "missing-error") f.armResult.errors = [];
+    if (kind === "workload") f.armResult.completedSteps.push("workload");
+    if (kind === "arm-build") f.arm["build-id"] = "foreign-build";
+    if (kind === "arm-native-owner") f.arm.buildOwner = "foreign-build-owner";
+    if (kind === "arm-session-path") f.arm.owner = join(f.arm.artifacts, "foreign-session.json");
+    if (kind === "handoff-session") {
+      f.failedEvidence.handoff.sessionId = "22222222-2222-4222-8222-222222222222";
+      writeFileSync(`${f.options.ownership}.handoff.json`, JSON.stringify(f.failedEvidence.handoff));
+    }
+    if (kind === "status-build") f.retainedStatus.buildId = "foreign-build";
+    if (kind === "status-session-missing") delete f.retainedStatus.sessionId;
+    if (kind === "status-complete") f.retainedStatus.state = "complete";
+    if (kind === "observed-pid") f.observations[0].observedPid++;
+    if (kind === "observed-unbound") f.observations[0].targetPidMatches = false;
+    if (kind === "observed-after-owner") f.observations[0].hostTimeUnixMs = f.failedEvidence.terminal.completedHostTimeUnixMs + 1;
+    if (kind === "capture-failed") f.capture.exitCode = 1;
+    if (kind === "directory-identity") f.arm.directoryBindings[0].inode++;
+    if (kind === "ready") writeFileSync(`${f.options["instrumentation-owner"]}.ready.json`, JSON.stringify(f.failedEvidence.ready), { mode: 0o600 });
+    f.saveFailedArm();
+    const before = f.calls.length; const result = finishFailedCredentialSession(f.options, f.deps);
+    assertFailedArmRefused(f, result); assert.equal(f.calls.length, before, kind); assert.equal(f.statusReads, 0, kind);
+  }
+});
+
+test("normally joined failed-arm cleanup refuses foreign or unreadable fresh app status", t => {
+  for (const kind of ["build", "session", "pid", "success", "malformed", "transport"]) {
+    const f = failedArmOwnershipFixture(t);
+    if (kind === "build") f.finishStatus.buildId = "foreign-build";
+    if (kind === "session") f.finishStatus.sessionId = "44444444-4444-4444-8444-444444444444";
+    if (kind === "pid") f.finishStatus.pid++;
+    if (kind === "success") f.finishStatus.state = "complete";
+    if (kind === "malformed") f.finishResult = { status: 0, stdout: "{" };
+    if (kind === "transport") f.finishResult = { status: null, stdout: "", error: { code: "ETIMEDOUT" } };
+    const before = f.calls.length; const result = finishFailedCredentialSession(f.options, f.deps);
+    assertFailedArmRefused(f, result); assert.equal(result.reason, "exact-failed-arm-status-required", kind);
+    assert.equal(f.calls.length, before, kind); assert.equal(f.statusReads, 1, kind);
+  }
+});
+
+test("normally joined failed-arm cleanup refuses live host target and instrumentation owners", t => {
+  for (const kind of ["supervisor", "adb", "target", "instrumentation", "unknown-process-dump"]) {
+    const f = failedArmOwnershipFixture(t);
+    if (kind === "supervisor") f.deps.hostProcessStopped = pid => pid !== f.failedEvidence.owner.supervisorPid;
+    if (kind === "adb") f.deps.hostProcessStopped = pid => pid !== f.failedEvidence.owner.adbPid;
+    if (kind === "target") f.targetResult = { status: 0, stdout: "1234\n", stderr: "" };
+    if (kind === "instrumentation") f.dumpResult.stdout = stoppedProcessDump.replace("  OOM levels:", "  Active instrumentation:\n  OOM levels:");
+    if (kind === "unknown-process-dump") f.dumpResult.stdout = "";
+    const before = f.calls.length; const result = finishFailedCredentialSession(f.options, f.deps);
+    assertFailedArmRefused(f, result); assert.equal(f.calls.length, before, kind); assert.equal(f.statusReads, 0, kind);
+  }
+});
+
+test("normally joined failed-arm cleanup rechecks fresh app session after credential inspection", t => {
+  const f = failedArmOwnershipFixture(t); const invoke = f.deps.ownershipAdb; let changed = false;
+  f.deps.ownershipAdb = args => {
+    const result = invoke(args);
+    if (args[3] === "-T" && args.at(-1).includes("credential-owner-check-complete")) {
+      changed = true; f.finishStatus.sessionId = "44444444-4444-4444-8444-444444444444";
+    }
+    return result;
+  };
+  const result = finishFailedCredentialSession(f.options, f.deps);
+  assert.equal(changed, true); assert.equal(f.statusReads, 2); assertFailedArmRefused(f, result);
+  assert.equal(result.ownershipVerified, true); assert.equal(result.reason, "exact-failed-arm-status-required");
+  f.finishStatus = structuredClone(f.retainedStatus); f.deps.ownershipAdb = invoke;
+  const cleanup = finishFailedCredentialSession(f.options, f.deps);
+  assert.equal(cleanup.eligible, true, JSON.stringify(cleanup)); assert.equal(cleanup.qualificationEligible, false);
+});
+
+test("normally joined failed-arm cleanup detects changed retained proof before removal", t => {
+  for (const kind of ["arm", "result", "status", "observation", "terminal"]) {
+    const f = failedArmOwnershipFixture(t); const invoke = f.deps.ownershipAdb; let changed = false;
+    f.deps.ownershipAdb = args => {
+      const result = invoke(args);
+      if (args[3] === "-T" && args.at(-1).includes("credential-owner-check-complete")) {
+        changed = true;
+        if (kind === "arm") f.arm.syntheticChangedEvidence = true;
+        if (kind === "result") f.armResult.errors.push("synthetic-new-error");
+        if (kind === "status") f.retainedStatus.elapsedMs++;
+        if (kind === "observation") f.observations[0].stdoutBytes++;
+        if (kind === "terminal") {
+          f.failedEvidence.terminal.completedHostTimeUnixMs++;
+          writeFileSync(`${f.options["instrumentation-owner"]}.terminal.json`, JSON.stringify(f.failedEvidence.terminal));
+        }
+        f.saveFailedArm();
+      }
+      return result;
+    };
+    const result = finishFailedCredentialSession(f.options, f.deps);
+    assert.equal(changed, true, kind); assertFailedArmRefused(f, result);
+    assert.equal(result.reason, "failed-credential-session-evidence-changed", kind);
+  }
+});
+
+test("normally joined failed-arm cleanup retains changed remote ownership and consumes only attempted removal", t => {
+  for (const kind of ["credential", "marker"]) {
+    const f = failedArmOwnershipFixture(t); const invoke = f.deps.ownershipAdb; let changed = false;
+    f.deps.ownershipAdb = args => {
+      const result = invoke(args);
+      if (args[3] === "-T" && args.at(-1).includes("credential-owner-check-complete")) {
+        changed = true; writeFileSync(kind === "credential" ? f.destination : f.marker, "synthetic-replacement");
+      }
+      return result;
+    };
+    const result = finishFailedCredentialSession(f.options, f.deps);
+    assert.equal(changed, true, kind); assert.equal(result.eligible, false); assert.equal(result.destinationRemoved, false);
+    assert.equal(result.reason, "credential-remote-ownership-unproven");
+    assert.equal(existsSync(f.destination), true); assert.equal(existsSync(f.marker), true);
+    assert.equal(existsSync(`${f.options.ownership}.failed-finish.json`), true, "attempted removal is terminal");
+    const before = f.calls.length; assert.equal(finishFailedCredentialSession(f.options, f.deps).eligible, false);
+    assert.equal(f.calls.length, before, "an attempted removal cannot be retried"); assertNoSecrets(result);
+  }
+});
+
+test("failed-session cleanup removes only exact owned credentials after verified failed joins", t => {
+  for (const outcome of [{ exitCode: null, signal: "SIGHUP", interrupted: true },
+    { exitCode: 2, signal: null, interrupted: false }, { exitCode: 0, signal: null, interrupted: true }]) {
+    const f = failedOwnershipFixture(t, outcome);
+    const unrelated = join(f.app, "files/acceptance/unrelated-evidence"); writeFileSync(unrelated, "preserved", { mode: 0o600 });
+    assert.equal(finishCredentialSession(f.options, f.deps).eligible, false, "failed cleanup cannot weaken normal finish");
+    const result = finishFailedCredentialSession(f.options, f.deps);
+    assert.equal(result.eligible, true, JSON.stringify(result));
+    assert.equal(result.reason, "owned-failed-session-credentials-removed");
+    assert.equal(result.qualificationEligible, false); assert.equal(result.ownershipVerified, true);
+    assert.equal(result.destinationRemoved, true); assert.equal(existsSync(f.destination), false); assert.equal(existsSync(f.marker), false);
+    assert.equal(readFileSync(unrelated, "utf8"), "preserved");
+    assert.equal(statSync(`${f.options.ownership}.failed-finish.json`).mode & 0o7777, 0o600);
+    assert.equal(existsSync(`${f.options.ownership}.finish.json`), false);
+    assert.equal(finishFailedCredentialSession(f.options, f.deps).eligible, false, "failed cleanup is terminal, not retry permission");
+    assertNoSecrets(result);
+  }
+});
+
+test("failed-session cleanup refuses mismatched or ambiguous handoff session and terminal evidence", t => {
+  for (const kind of ["handoff-missing", "handoff-context", "handoff-session", "handoff-path", "handoff-legacy", "session-native",
+    "session-component", "terminal-session", "terminal-missing", "terminal-complete", "terminal-unknown-exit", "terminal-before-start", "owner-mode"]) {
+    const f = failedOwnershipFixture(t); const e = f.failedEvidence; const path = f.options["instrumentation-owner"];
+    if (kind === "handoff-context") e.handoff.contextHash = "f".repeat(64);
+    if (kind === "handoff-session") e.handoff.sessionId = "22222222-2222-4222-8222-222222222222";
+    if (kind === "handoff-path") e.handoff.instrumentationOwner = join(f.directory, "another-owner.json");
+    if (kind === "handoff-legacy") e.handoff.schemaVersion = 1;
+    if (kind === "session-native") e.owner.nativeInputHash = "e".repeat(64);
+    if (kind === "session-component") e.owner.component = "example.synthetic/UnknownRunner";
+    if (kind === "terminal-session") e.terminal.ownerId = "22222222-2222-4222-8222-222222222222";
+    if (kind === "terminal-complete") Object.assign(e.terminal, { state: "complete", exitCode: 0, signal: null, interrupted: false });
+    if (kind === "terminal-unknown-exit") Object.assign(e.terminal, { exitCode: null, signal: null });
+    if (kind === "terminal-before-start") e.terminal.completedHostTimeUnixMs = e.owner.startedHostTimeUnixMs - 1;
+    writeFileSync(path, JSON.stringify(e.owner)); writeFileSync(`${path}.terminal.json`, JSON.stringify(e.terminal));
+    writeFileSync(`${f.options.ownership}.handoff.json`, JSON.stringify(e.handoff));
+    if (kind === "handoff-missing") rmSync(`${f.options.ownership}.handoff.json`);
+    if (kind === "terminal-missing") rmSync(`${path}.terminal.json`);
+    if (kind === "owner-mode") chmodSync(path, 0o644);
+    const before = f.calls.length; const result = finishFailedCredentialSession(f.options, f.deps);
+    assert.equal(result.eligible, false, kind); assert.equal(result.destinationRemoved, false, kind);
+    assert.equal(f.calls.length, before, "invalid host evidence cannot reach credential inspection");
+    assert.deepEqual(readFileSync(f.destination), credentialPayload(f.values)); assert.equal(existsSync(f.marker), true); assertNoSecrets(result);
+  }
+});
+
+test("failed-session cleanup refuses live or unproven host app and instrumentation owners", t => {
+  for (const kind of ["supervisor-live", "adb-live", "target-live", "target-unknown", "instrumentation-live", "dump-error"]) {
+    const f = failedOwnershipFixture(t);
+    if (kind === "supervisor-live") f.deps.hostProcessStopped = pid => pid !== f.failedEvidence.owner.supervisorPid;
+    if (kind === "adb-live") f.deps.hostProcessStopped = pid => pid !== f.failedEvidence.owner.adbPid;
+    if (kind === "target-live") f.targetResult = { status: 0, stdout: "1234\n", stderr: "" };
+    if (kind === "target-unknown") f.targetResult = { status: 1, stdout: "", stderr: "synthetic-transport-error" };
+    if (kind === "instrumentation-live") f.dumpResult.stdout = stoppedProcessDump.replace("  OOM levels:", "  Active instrumentation:\n    Instrumentation #0: synthetic\n  OOM levels:");
+    if (kind === "dump-error") f.dumpResult.error = { code: "ETIMEDOUT" };
+    const before = f.calls.length; const result = finishFailedCredentialSession(f.options, f.deps);
+    assert.equal(result.eligible, false, kind); assert.equal(result.destinationRemoved, false, kind);
+    assert.equal(f.calls.length, before, "live or unknown consumer cannot inspect credentials");
+    assert.deepEqual(readFileSync(f.destination), credentialPayload(f.values)); assert.equal(existsSync(f.marker), true); assertNoSecrets(result);
+  }
+});
+
+test("failed-session process dump parser refuses unknown truncated active and failed responses", () => {
+  const invoke = result => args => {
+    assert.deepEqual(args, ["-s", "fake-device", "shell", "dumpsys", "activity", "processes", "com.bringyour.network"]);
+    return { status: 0, signal: null, stdout: stoppedProcessDump, stderr: "", ...result };
+  };
+  requireCredentialInstrumentationStopped("fake-device", invoke({}));
+  requireCredentialInstrumentationStopped("fake-device", invoke({ stdout: stoppedProcessDump.replaceAll("\n", "\r\n") }));
+  for (const result of [{ status: 1 }, { signal: "SIGHUP" }, { error: { code: "ENOBUFS" } }, { stderr: "permission denied" },
+    { stdout: "" }, { stdout: "Unknown command: instrumentation\n" }, { stdout: stoppedProcessDump.split("\n").slice(0, -2).join("\n") },
+    { stdout: stoppedProcessDump.replace("  OOM levels:", "  unknown-body") },
+    { stdout: stoppedProcessDump.replace("  OOM levels:", "  Active instrumentation:\n  OOM levels:") },
+    { stdout: stoppedProcessDump + stoppedProcessDump }, { stdout: stoppedProcessDump + "x".repeat(65536) }]) {
+    assert.throws(() => requireCredentialInstrumentationStopped("fake-device", invoke(result)), /credential-instrumentation-not-proven-stopped/);
+  }
+});
+
+test("failed-session process dump accepts bounded optional child CPU time but not unknown fields", () => {
+  const dump = stoppedProcessDump.replace("lastCpuTime=0  oom", "lastCpuTime=1  timeUsed=17 oom");
+  const check = stdout => requireCredentialInstrumentationStopped("fake-device", () => ({ status: 0, signal: null, stdout, stderr: "" }));
+  check(dump);
+  for (const malformed of [dump.replace("timeUsed=17", "timeUsed=-1"), dump.replace("timeUsed=17", "timeUsed=unknown"),
+    dump.replace("timeUsed=17", "timeUsed=17 timeUsed=18"), dump.replace("timeUsed=17", "unknownField=17"),
+    dump.replace("  OOM levels:", "  Active instrumentation:\n  OOM levels:")]) {
+    assert.throws(() => check(malformed), /credential-instrumentation-not-proven-stopped/);
+  }
+});
+
+test("failed-session cleanup preserves changed credential identity permissions and markers", t => {
+  for (const kind of ["changed-bytes", "same-content-replaced", "credential-mode", "marker-mode", "missing-marker", "changed-marker", "credential-symlink", "marker-symlink"]) {
+    const f = failedOwnershipFixture(t);
+    if (kind === "changed-bytes") writeFileSync(f.destination, "synthetic-replacement");
+    if (kind === "same-content-replaced") { rmSync(f.destination); writeFileSync(f.destination, credentialPayload(f.values), { mode: 0o600 }); }
+    if (kind === "credential-mode") chmodSync(f.destination, 0o644);
+    if (kind === "marker-mode") chmodSync(f.marker, 0o644);
+    if (kind === "missing-marker") rmSync(f.marker);
+    if (kind === "changed-marker") writeFileSync(f.marker, "different-marker");
+    if (kind === "credential-symlink") { rmSync(f.destination); symlinkSync(f.options.config, f.destination); }
+    if (kind === "marker-symlink") { rmSync(f.marker); symlinkSync(f.options.config, f.marker); }
+    const result = finishFailedCredentialSession(f.options, f.deps);
+    assert.equal(result.eligible, false, kind); assert.equal(result.destinationRemoved, false, kind);
+    assert.equal(existsSync(f.destination), true, kind); assert.equal(readFileSync(f.options.config, "utf8"), "version: 1\n"); assertNoSecrets(result);
+  }
+});
+
+test("failed-session cleanup rechecks changed evidence liveness and credentials after ownership inspection", t => {
+  for (const kind of ["terminal", "host", "target", "instrumentation", "credential", "marker"]) {
+    const f = failedOwnershipFixture(t); const invoke = f.deps.ownershipAdb;
+    let changed = false;
+    f.deps.ownershipAdb = args => {
+      const result = invoke(args);
+      if (args[3] === "-T" && args.at(-1).includes("credential-owner-check-complete")) {
+        changed = true;
+        if (kind === "terminal") {
+          f.failedEvidence.terminal.completedHostTimeUnixMs++;
+          writeFileSync(`${f.options["instrumentation-owner"]}.terminal.json`, JSON.stringify(f.failedEvidence.terminal));
+        }
+        if (kind === "host") f.deps.hostProcessStopped = () => false;
+        if (kind === "target") f.targetResult = { status: 0, stdout: "1234\n", stderr: "" };
+        if (kind === "instrumentation") f.dumpResult.stdout = stoppedProcessDump.replace("  OOM levels:", "  Active instrumentation:\n  OOM levels:");
+        if (kind === "credential") writeFileSync(f.destination, "synthetic-replacement");
+        if (kind === "marker") writeFileSync(f.marker, "different-marker");
+      }
+      return result;
+    };
+    const result = finishFailedCredentialSession(f.options, f.deps);
+    assert.equal(changed, true, kind); assert.equal(result.eligible, false, kind); assert.equal(result.destinationRemoved, false, kind);
+    assert.equal(existsSync(f.destination), true, kind); assert.equal(existsSync(f.marker), true, kind); assertNoSecrets(result);
+  }
+});
+
+test("failed-session CLI requires an exact prospective owner without finish or force bypasses", () => {
+  const args = ["finish-failed", "--ownership", "/synthetic/owner.json", "--serial", "fake-device", "--label", "fixture-arm",
+    "--build-id", "fixture-build", "--instrumentation-owner", "/synthetic/instrumentation.json"];
+  assert.equal(parseOwnershipArgs(args).mode, "finish-failed");
+  assert.equal(parseOwnershipArgs([...args, "--failed-arm", "/synthetic/arm.json"])["failed-arm"], "/synthetic/arm.json");
+  assert.throws(() => parseOwnershipArgs([...args, "--failed-arm", "/synthetic/arm.json", "--failed-arm", "/synthetic/other.json"]));
+  assert.throws(() => parseOwnershipArgs(args.slice(0, -2)));
+  assert.throws(() => parseOwnershipArgs([...args, "--force", "true"]));
+  assert.throws(() => parseOwnershipArgs([...args, "--finish-command-id", "made-up-finish"]));
+  assert.throws(() => parseOwnershipArgs(["finish", ...args.slice(1)]), /explicit-credential-ownership-context-required/);
+  assert.throws(() => parseOwnershipArgs(["finish", ...args.slice(1), "--finish-command-id", "fixture-finish", "--failed-arm", "/synthetic/arm.json"]));
+  assert.throws(() => parseOwnershipArgs(["rollback", ...args.slice(1, -2), "--failed-arm", "/synthetic/arm.json"]));
+});
+
+test("failed-session readonly refusals preserve authority for a later explicit owned cleanup", t => {
+  for (const kind of ["dump", "target", "host"]) {
+    const f = failedOwnershipFixture(t);
+    if (kind === "dump") f.dumpResult.stdout = "";
+    if (kind === "target") f.targetResult = { status: 1, stdout: "", stderr: "synthetic-temporary-transport-error" };
+    if (kind === "host") f.deps.hostProcessStopped = () => false;
+    const result = finishFailedCredentialSession(f.options, f.deps);
+    assert.equal(result.eligible, false); assert.equal(result.destinationRemoved, false);
+    assert.equal(existsSync(`${f.options.ownership}.failed-finish.json`), false, "readonly refusal must not consume cleanup authority");
+    assert.deepEqual(readFileSync(f.destination), credentialPayload(f.values)); assert.equal(existsSync(f.marker), true);
+    f.dumpResult.stdout = stoppedProcessDump; f.targetResult = undefined; f.deps.hostProcessStopped = () => true;
+    // This explicit second invocation performs all checks again; no helper
+    // retry, reinterpretation of failure, or broader destination is allowed.
+    const cleanup = finishFailedCredentialSession(f.options, f.deps);
+    assert.equal(cleanup.eligible, true, JSON.stringify(cleanup)); assert.equal(cleanup.qualificationEligible, false);
+    assert.equal(existsSync(f.destination), false); assert.equal(existsSync(f.marker), false);
+  }
+});
+
+test("failed-session ambiguous removal remains terminal whether or not the destination disappeared", t => {
+  for (const completed of [false, true]) {
+    const f = failedOwnershipFixture(t); const invoke = f.deps.ownershipAdb; let removals = 0;
+    f.deps.ownershipAdb = args => {
+      if (args[3] === "-T" && args.at(-1).includes("credential-owner-finish-complete")) {
+        removals++;
+        if (completed) assert.equal(invoke(args).status, 0);
+        return { status: null, stdout: "", stderr: "", error: { code: "ETIMEDOUT" } };
+      }
+      return invoke(args);
+    };
+    const result = finishFailedCredentialSession(f.options, f.deps);
+    assert.equal(removals, 1); assert.equal(result.eligible, false); assert.equal(result.destinationRemoved, false);
+    assert.equal(existsSync(`${f.options.ownership}.failed-finish.json`), true);
+    assert.equal(existsSync(f.destination), !completed); assert.equal(existsSync(f.marker), !completed);
+    assert.equal(finishFailedCredentialSession(f.options, f.deps).eligible, false);
+    assert.equal(removals, 1, "unknown removal outcome must not authorize a second attempt");
+    assertNoSecrets(result);
+  }
+});
 
 test("package-replacement startup is rejected before credentials are read or staged", t => {
   for (const targetResult of [
@@ -866,13 +1303,25 @@ test("device count, blank, mode, byte length and digest mismatches fail before p
 
 test("post-process metadata corruption fails closed without guessing ownership of a completed publication", (t) => {
   const f = fixture(t); const original = f.adb;
+  let publicationCalls = 0; let corruptedLines = 0;
   f.adb = (...args) => {
     const result = original(...args);
-    if (f.calls.length === 2 && result.status === 0) result.stdout = result.stdout.split("\n")
-      .map((line) => /^\d+ \d+ \d+ /.test(line) ? "private malformed metadata" : line).join("\n");
+    const script = args[0].at(-1);
+    if (script.includes("publication-owned") && script.includes("publication-step create")) {
+      publicationCalls++;
+      assert.equal(result.status, 0, "fault injection follows a completed publication");
+      result.stdout = result.stdout.split("\n").map(line => {
+        // wc may pad its quoted byte-count field on macOS. Match the complete
+        // protocol row, then prove exactly one intended field set was changed.
+        if (!/^\s*\d+\s+\d+\s+\d+\s+[0-7]{3,4}\s+[a-f0-9]{64}\s*$/.test(line)) return line;
+        corruptedLines++;
+        return "private malformed metadata";
+      }).join("\n");
+    }
     return result;
   };
   const report = stagePhysicalCredentials(f.options, f.deps);
+  assert.equal(publicationCalls, 1); assert.equal(corruptedLines, 1, "publication metadata must actually be corrupted");
   assert.equal(report.eligible, false);
   assert.equal(report.reason, "published-credential-structure-mismatch");
   assert.deepEqual(readdirSync(join(f.app, "files/acceptance")), ["credentials"]);

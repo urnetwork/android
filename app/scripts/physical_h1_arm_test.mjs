@@ -1,7 +1,9 @@
 import assert from "node:assert/strict";
-import { spawnSync } from "node:child_process";
+import childProcess, { spawnSync } from "node:child_process";
 import { existsSync, mkdtempSync, mkdirSync, writeFileSync, readFileSync, lstatSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
+import { createServer } from "node:net";
+import { syncBuiltinESMExports } from "node:module";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import test from "node:test";
@@ -39,6 +41,220 @@ class FakeDriver {
   async join(handle, timeoutMs) { assert.ok(timeoutMs > 0); this.events.push(`join:${handle.id}`); this.finished.add(handle.id); }
   async stop(handle) { this.events.push(`stop:${handle.id}`); }
 }
+
+// The actual waitReady implementation consumes an explicit sequence through
+// fake ADB. The clock advances only at its polling boundary, never by sleeps.
+async function startupReadinessFixture(t, statuses, { owner = true, targets = [], onSleep, live = true, timeoutMs = 3000 } = {}) {
+  const directory = fixture(t); const c = { ...context(), directory, owner: join(directory, "instrumentation-owner.json") };
+  if (owner) writeFileSync(c.owner, "{}\n", { mode: 0o600 });
+  const driver = new HostArmDriver(c); const handle = { live }; driver.handles.set("instrumentation", handle);
+  const original = childProcess.spawnSync; let statusReads = 0; let targetReads = 0; let elapsed = 0; let sleeps = 0;
+  childProcess.spawnSync = (command, args) => {
+    assert.equal(command, "adb", "startup fixture cannot run arbitrary commands");
+    assert.deepEqual(args.slice(0, 3), ["-s", c.serial, "shell"]);
+    if (args[3] === "pidof") {
+      assert.deepEqual(args.slice(3), ["pidof", "com.bringyour.network"]);
+      const value = targets[targetReads++] ?? "4321\n";
+      return typeof value === "string" ? { status: 0, stdout: value, stderr: "" } : value;
+    }
+    assert.deepEqual(args.slice(3), ["run-as", "com.bringyour.network", "cat", "files/acceptance/physical-status"]);
+    assert.equal(existsSync(c.owner), true, "owner must be published before startup attribution");
+    const value = statuses[statusReads++];
+    assert.notEqual(value, undefined, "fixture's explicit status sequence was exhausted");
+    return value?.transport ?? { status: 0, stdout: typeof value === "string" ? value : JSON.stringify(value), stderr: "" };
+  };
+  syncBuiltinESMExports();
+  let failure;
+  try {
+    await driver.waitReady({ timeoutMs }, { now: () => elapsed, sleep: async ms => {
+      assert.equal(ms, 500); sleeps++; elapsed += ms; onSleep?.({ c, handle, sleeps });
+    } });
+  } catch (error) { failure = error; }
+  finally { childProcess.spawnSync = original; syncBuiltinESMExports(); }
+  const path = join(directory, "startup-status-observations.jsonl");
+  const rows = existsSync(path) ? readFileSync(path, "utf8").trim().split("\n").map(line => JSON.parse(line)) : [];
+  return { failure, rows, statusReads, targetReads, sleeps, path };
+}
+
+const startupStatus = change => ({ type: "status", buildId: "ios-frozen", pid: 4321,
+  state: "ready", phase: "ready", ...change });
+
+test("startup readiness ignores prior-build errors until the current live status is ready", async t => {
+  const result = await startupReadinessFixture(t, [startupStatus({ buildId: "previous-build", state: "error", phase: "startup" }), startupStatus()]);
+  assert.equal(result.failure, undefined, "a prior-build error must not abort the new instrumentation owner");
+  assert.equal(result.statusReads, 2); assert.equal(result.sleeps, 1);
+  assert.deepEqual(result.rows.map(row => row.outcome), ["different-build", "current-ready"]);
+  assert.equal(result.rows[0].observedBuildId, "previous-build"); assert.equal(result.rows[0].currentBuild, false);
+  assert.equal(result.rows[1].targetPidMatches, true); assert.equal(lstatSync(result.path).mode & 0o7777, 0o600);
+});
+
+test("startup readiness ignores another process error before interpreting its state", async t => {
+  const result = await startupReadinessFixture(t, [startupStatus({ pid: 9876, state: "error", phase: "startup" }), startupStatus()]);
+  assert.equal(result.failure, undefined);
+  assert.deepEqual(result.rows.map(row => row.outcome), ["target-not-current", "current-ready"]);
+  assert.equal(result.rows[0].targetPidMatches, false); assert.equal(result.statusReads, 2);
+});
+
+test("startup readiness rejects a current live error without polling it into success", async t => {
+  const result = await startupReadinessFixture(t, [startupStatus({ state: "error", phase: "startup", extra: { secret: "synthetic-secret-not-for-receipt" } })],
+    { onSleep: () => assert.fail("a current error must remain terminal") });
+  assert.match(result.failure?.message ?? "", /instrumentation-ready-error/);
+  assert.equal(result.statusReads, 1); assert.equal(result.sleeps, 0);
+  assert.deepEqual(result.rows.map(row => row.outcome), ["current-error"]);
+  assert.doesNotMatch(readFileSync(result.path, "utf8"), /synthetic-secret|extra/);
+});
+
+test("startup readiness waits for owner publication and rejects a replaced target", async t => {
+  const result = await startupReadinessFixture(t, [startupStatus(), startupStatus()], { owner: false,
+    targets: ["4321\n", "9876\n", "4321\n", "4321\n"],
+    onSleep: ({ c, sleeps }) => { if (sleeps === 1) writeFileSync(c.owner, "{}\n", { mode: 0o600 }); } });
+  assert.equal(result.failure, undefined);
+  assert.deepEqual(result.rows.map(row => row.outcome), ["await-owner", "target-not-current", "current-ready"]);
+  assert.equal(result.statusReads, 2); assert.equal(result.targetReads, 4);
+});
+
+test("startup readiness retains unattributed rows and never turns an expired or dead owner ready", async t => {
+  const missing = { transport: { status: 1, stdout: "", stderr: "synthetic-missing-file" } };
+  const invalid = await startupReadinessFixture(t, ["malformed", startupStatus({ buildId: null }), missing], { timeoutMs: 1500 });
+  assert.match(invalid.failure?.message ?? "", /instrumentation-ready-deadline/);
+  assert.deepEqual(invalid.rows.map(row => row.outcome), ["unattributed-status", "different-build", "unattributed-status", "deadline"]);
+  assert.doesNotMatch(readFileSync(invalid.path, "utf8"), /synthetic-missing-file|malformed/);
+  const exited = await startupReadinessFixture(t, [startupStatus()], { live: false });
+  assert.match(exited.failure?.message ?? "", /instrumentation-exited-before-ready/);
+  assert.equal(exited.statusReads, 0); assert.deepEqual(exited.rows.map(row => row.outcome), ["owner-exited"]);
+});
+
+test("pre-ready finish failure still joins finite instrumentation cleanup before final evidence", async () => {
+  const driver = new FakeDriver("instrumentation-ready");
+  const joined = Promise.withResolvers(); const terminal = Promise.withResolvers();
+  let live = true;
+  const handle = { id: "instrumentation", get live() { return live; }, done: terminal.promise };
+  const execute = driver.execute.bind(driver);
+  driver.execute = async step => {
+    if (step.id === "finish") { driver.events.push(step.id); throw new Error("synthetic-unbound-ready"); }
+    return execute(step);
+  };
+  driver.start = async step => { assert.equal(step.id, "instrumentation"); return handle; };
+  driver.join = async (child, timeoutMs) => {
+    assert.equal(child, handle); assert.equal(timeoutMs, LIMITS.finish);
+    driver.events.push("join:instrumentation"); joined.resolve();
+    await terminal.promise;
+    driver.finished.add(child.id);
+  };
+  driver.stop = async () => { driver.events.push("stop:instrumentation"); live = false; terminal.resolve(); };
+  const operation = orchestrateH1(context(), driver);
+  try {
+    const first = await Promise.race([joined.promise.then(() => "join"), operation.then(() => "returned")]);
+    assert.equal(first, "join", "finish rejection must not bypass instrumentation join");
+    assert.equal(live, true); assert.equal(driver.events.includes("memory-final"), false);
+    assert.equal(driver.events.includes("credential-finish"), false);
+    live = false; terminal.resolve();
+    const result = await operation;
+    assert.equal(result.eligible, false); assert.equal(result.memoryQualified, false); assert.equal(result.cleanupComplete, false);
+    assert.ok(driver.events.indexOf("join:instrumentation") < driver.events.indexOf("memory-final"));
+    for (const step of ["stop:instrumentation", "credential-rollback", "credential-finish", "clients-cleanup", "start:collector"]) {
+      assert.equal(driver.events.includes(step), false, step);
+    }
+  } finally { live = false; terminal.resolve(); await operation; }
+});
+
+test("finish publication failure after readiness joins without authorizing normal credential cleanup", async () => {
+  const driver = new FakeDriver("finish");
+  const result = await orchestrateH1(context(), driver);
+  assert.ok(driver.finished.has("instrumentation"));
+  assert.equal(driver.events.includes("stop:instrumentation"), false);
+  for (const step of ["credential-finish", "credential-rollback", "clients-cleanup"]) assert.equal(driver.events.includes(step), false, step);
+  assert.equal(result.eligible, false); assert.equal(result.cleanupComplete, false);
+  assert.equal(result.memoryQualified, false, "failed finish cannot qualify memory");
+});
+
+test("unjoined instrumentation cannot trigger final reads or credential cleanup", async () => {
+  for (const c of [context(), diagnosticContext()]) {
+    const driver = new FakeDriver();
+    driver.start = async step => ({ id: step.id, live: true });
+    driver.join = async child => {
+      driver.events.push(`join:${child.id}`);
+      if (child.id === "instrumentation") throw new Error("synthetic-withheld-join");
+    };
+    driver.stop = async child => { driver.events.push(`stop:${child.id}`); throw new Error("synthetic-withheld-stop-join"); };
+    const result = await orchestrateH1(c, driver);
+    assert.equal(driver.events.filter(step => step === "join:instrumentation").length, 1);
+    assert.equal(driver.events.filter(step => step === "stop:instrumentation").length, 1);
+    for (const step of [...h1Steps(c).afterJoin.map(step => step.id), "memory-teardown-gate", "diagnostic-memory",
+      "credential-rollback", "credential-finish", "clients-cleanup"]) {
+      assert.equal(driver.events.includes(step), false, step);
+    }
+    assert.equal(result.eligible, false); assert.equal(result.memoryQualified, false); assert.equal(result.cleanupComplete, false);
+  }
+});
+
+// A socket barrier ends the actual PTY child's finite cleanup only when the
+// canonical schedule reaches join. No polling or elapsed-time guess proves it.
+async function failedInstrumentationPty(t, signal) {
+  const directory = fixture(t); const c = { ...context(), directory };
+  const connection = Promise.withResolvers(); const socketPath = join(directory, "child.sock");
+  const server = createServer(socket => {
+    socket.setEncoding("utf8");
+    socket.once("data", text => {
+      const message = JSON.parse(text);
+      connection.resolve({ socket, pid: message.pid });
+    });
+  });
+  await new Promise((done, reject) => { server.once("error", reject); server.listen(socketPath, done); });
+  const code = `import {connect} from 'node:net';
+    const socket=connect(${JSON.stringify(socketPath)});
+    socket.once('connect',()=>socket.write(JSON.stringify({pid:process.pid})));
+    socket.once('data',()=>{
+      process.stdout.write('finite-cleanup-ended\\n'); socket.end();
+      ${signal ? "process.kill(process.pid,'SIGHUP');" : "process.exitCode=7;"}
+    });`;
+  const driver = new HostArmDriver(c); const events = [];
+  let handle; let child; let stopCount = 0;
+  driver.assertInputs = () => {};
+  driver.start = async step => {
+    assert.equal(step.id, "instrumentation");
+    handle = launchPrivate({ id: step.id, command: process.execPath, args: ["--input-type=module", "-e", code],
+      retained: true, timeoutMs: 10_000 }, c, process.stdin.isTTY ? {} : { ptyInput: "ignore" });
+    child = await connection.promise;
+    return handle;
+  };
+  driver.execute = async step => {
+    events.push(step.id);
+    if (["instrumentation-ready", "finish"].includes(step.id)) throw new Error("synthetic-pre-ready-failure");
+  };
+  driver.join = async (owned, timeoutMs) => {
+    assert.equal(owned, handle); assert.equal(timeoutMs, LIMITS.finish);
+    events.push("join:instrumentation"); child.socket.write("close");
+    return HostArmDriver.prototype.join.call(driver, owned, timeoutMs);
+  };
+  driver.stop = async owned => { stopCount++; return HostArmDriver.prototype.stop.call(driver, owned); };
+  try {
+    const result = await orchestrateH1(c, driver);
+    assert.equal(events.filter(step => step === "join:instrumentation").length, 1, "failed readiness must still join the actual child");
+    assert.equal(stopCount, 0, "joined failed child must not receive a second interruption");
+    const outcome = await handle.done;
+    assert.equal(handle.live, false); assert.equal(outcome.eligible, false); assert.equal(outcome.timedOut, false);
+    assert.notEqual(outcome.exitCode, 0);
+    if (!signal) assert.equal(outcome.exitCode, 7);
+    assert.deepEqual(JSON.parse(readFileSync(join(directory, "instrumentation.outcome.json"))), outcome);
+    assert.match(readFileSync(handle.outputPath, "utf8"), /finite-cleanup-ended/);
+    assert.throws(() => process.kill(child.pid, 0), error => error.code === "ESRCH", "actual owned child must be gone after join");
+    for (const step of ["credential-rollback", "credential-finish", "clients-cleanup"]) assert.equal(events.includes(step), false, step);
+    assert.equal(result.eligible, false); assert.equal(result.memoryQualified, false); assert.equal(result.cleanupComplete, false);
+  } finally {
+    if (handle?.live) { handle.interrupt(); await handle.done; }
+    child?.socket.destroy();
+    await new Promise(done => server.close(done));
+  }
+}
+
+test("joined nonzero instrumentation PTY retains custody without a second interruption", async t => {
+  await failedInstrumentationPty(t, false);
+});
+
+test("pre-ready SIGHUP instrumentation PTY is joined without credential adoption", async t => {
+  await failedInstrumentationPty(t, true);
+});
 
 test("the real schedule binds one root, identifiers and rate zero through Bash writer/consumer", () => {
   const c = context(); const plan = h1Steps(c);
@@ -594,4 +810,192 @@ test("cleanup failure publishes the safe private receipt before failing and cann
   assert.doesNotMatch(readFileSync(path, "utf8"), /private-network-client/);
   await assert.rejects(retainClientCleanupResult(dir, async () => { throw new Error("another"); }, () => ({ changed: true })));
   assert.deepEqual(JSON.parse(readFileSync(path)), report, "prior failure receipt is never overwritten");
+});
+
+test("the final gate consumes separate native and status reads with exact finish ownership", () => {
+  const c = context(); const plan = h1Steps(c);
+  for (const [flag, path] of [["--status-runtime", c.finalStatusRuntime], ["--teardown", c.teardownMemory],
+    ["--diagnostics", c.finalDiagnostics], ["--native-inputs", c.proof],
+    ["--teardown-fallback", c.teardownFallback], ["--producer-summary", join(c.directory, "physical-summary.json")],
+    ["--finish-status", c.finishStatus], ["--instrumentation-owner", c.owner], ["--finish-command-id", c.finishId]]) {
+    assert.equal(plan.teardown.args[plan.teardown.args.indexOf(flag) + 1], path);
+  }
+  for (const id of ["status-runtime-final", "native-teardown-final", "finish-status-final"]) {
+    assert.ok(plan.afterJoin.some(step => step.id === id));
+  }
+});
+
+test("an unjoined instrumentation owner cannot claim memory qualification", async () => {
+  const driver = new FakeDriver();
+  driver.join = async handle => {
+    if (handle.id === "instrumentation") throw new Error("fixture-join-withheld");
+  };
+  const result = await orchestrateH1(context(), driver);
+  assert.equal(result.eligible, false);
+  assert.equal(result.memoryQualified, false);
+});
+
+test("failed final primitive acquisition still evaluates teardown without manufacturing qualification", async () => {
+  const driver = new FakeDriver("memory-final");
+  const result = await orchestrateH1(context(), driver);
+  assert.equal(result.eligible, false);
+  assert.equal(result.memoryQualified, false);
+  for (const id of ["status-runtime-final", "diagnostics-final", "native-teardown-final", "summary-final", "memory-teardown-gate"]) {
+    assert.ok(driver.events.includes(id), `retained failure evidence still needs ${id}`);
+  }
+  assert.equal(driver.events.filter(id => id === "memory-teardown-gate").length, 1);
+  assert.equal(driver.events.filter(id => id === "quiet-start").length, 1);
+  assert.equal(driver.events.filter(id => id === "quiet-end").length, 1);
+  assert.equal(result.completedSteps.includes("memory-final"), false);
+});
+
+test("diagnostic all-read counts retain native and status peaks without qualifying them", () => {
+  const policy = { memoryProfile: "ios-memory-audit-v2", goMemoryLimitBytes: 33554432,
+    goMemoryProfileRateBytes: 65536, goRuntimeBytes: 20000000, goMemStatsRuntimeBytes: 20000000,
+    idleMemoryTrimCount: 0, lastIdleMemoryTrimBeforeBytes: 0, lastIdleMemoryTrimAfterBytes: 0 };
+  const records = [{ ...policy, type: "sample", elapsedMs: 0, samplerDropped: 0 }];
+  const samples = ["begin", "cancelled", "joined", "terminal"].map((stage, i) => ({ ...policy, stage, sequence: i + 1 }));
+  samples[1].goRuntimeBytes = 33554433;
+  const identity = { pid: 42, sessionId: "fixture-session", buildId: "fixture-build" };
+  const teardown = { ...identity, memoryProfile: policy.memoryProfile, native: { state: "complete", observerJoined: true,
+    dropped: 0, samples, joinSequence: 3, terminalSequence: 4 }, deviceDrainerJoined: true,
+    deviceRingDrained: true, deviceJoined: true, referencesReleased: true, failureCount: 0, statusRuntimeReadCount: 1,
+    devicePrimitiveCount: 1, diagnosticBatchesProduced: 1, diagnosticBatchesFlushed: 1, exporterFailed: false,
+    observerId: "fixture-observer", finishCommandId: "fixture-finish" };
+  const producerSummary = { ...identity, type: "physical-memory-producer-summary", schemaVersion: 1, memoryProfile: policy.memoryProfile,
+    finishCommandId: teardown.finishCommandId, observerId: teardown.observerId, peakGoRuntimeBytes: 33554434,
+    devicePrimitiveCount: 1, teardownPrimitiveCount: 4, statusRuntimeReadCount: 1, diagnosticRuntimeReadCount: 1,
+    combinedRetainedRuntimeEventCount: 7, statusMemStatsSnapshotCount: 1, auxiliaryMaintenanceValueCount: 0,
+    auxiliaryRuntimeBreachValueCount: 0, exporterFailed: false, failureCount: 0 };
+  teardown.producerSummary = { ...producerSummary };
+  const statusRuntime = [{ ...policy, goRuntimeBytes: 33554434 }];
+  const diagnostics = ["state", "memory", "memory_device_transport", "memory_device_transfer"].map(part => ({ ...identity,
+    memoryProfile: policy.memoryProfile, part, diagnosticBatchSequence: 1, unix_millis: 1, go_total_bytes: 20000000,
+    go_limit_bytes: 33554432, memory_profile_rate_bytes: 65536, device_memory_target_bytes: 33554432 }));
+  const result = evaluateDiagnosticMemory(records, { teardown, producerSummary, statusRuntime, diagnostics });
+  assert.equal(result.qualificationEligible, false);
+  assert.equal(result.combinedRuntimeReadCount, 7);
+  assert.equal(result.goRuntimeBreachSampleCount, 2);
+  assert.equal(result.peakGoRuntimeBytes, 33554434);
+  const ownerCensus = census();
+  ownerCensus.before.runtime_bytes = 33554435;
+  const withCensus = evaluateDiagnosticMemory(records, { teardown, producerSummary, statusRuntime, diagnostics, ownerCensuses: [ownerCensus] });
+  assert.equal(withCensus.qualificationEligible, false);
+  assert.equal(withCensus.peakGoRuntimeBytes, 33554435);
+  assert.equal(withCensus.auxiliary.auxiliaryCensusValueCount, 2);
+  assert.equal(withCensus.auxiliary.auxiliaryRuntimeBreachValueCount, 3);
+  assert.equal(withCensus.combinedRetainedRuntimeEventCount, 7);
+  const foreign = structuredClone(teardown);
+  foreign.sessionId = "foreign-session";
+  delete foreign.producerSummary;
+  const high = { ...samples[1], goRuntimeBytes: 33554436 };
+  foreign.native.samples = [high, structuredClone(high), null, {}, { sequence: 99, goRuntimeBytes: "invalid" }];
+  let failed;
+  try { evaluateDiagnosticMemory(records, { teardown, fallback: foreign, producerSummary, statusRuntime, diagnostics }); }
+  catch (error) { failed = error.diagnosticMemory; }
+  assert.equal(failed.eligible, false);
+  assert.equal(failed.qualificationEligible, false);
+  assert.equal(failed.peakGoRuntimeBytes, 33554436);
+  assert.equal(failed.auxiliary.nativeConflictRepresentationCount, 3);
+  assert.equal(failed.auxiliary.unqualifiedNativeConflictRepresentationCount, 3);
+  assert.equal(failed.auxiliary.auxiliaryRuntimeBreachValueCount, 3,
+    "one distinct foreign high plus two already-retained producer peak representations");
+  assert.equal(failed.combinedRetainedRuntimeEventCount, 7);
+  assert.ok(failed.reasons.includes("native-conflict-runtime-value-invalid"));
+});
+
+test("failed native receipt acquisition pulls one fallback and cannot qualify an H1 arm", async t => {
+  const directory = fixture(t);
+  const c = { ...context(), directory, teardownMemory: join(directory, "primary.json"),
+    teardownFallback: join(directory, "fallback.json"), owner: join(directory, "owner.json") };
+  const driver = new HostArmDriver(c);
+  driver.assertInputs = () => {};
+  const events = [];
+  driver.command = async step => {
+    events.push(step.id);
+    if (step.id === "native-teardown-final") throw new Error("synthetic primary writer failure");
+    assert.equal(step.args.at(-1), "files/acceptance/physical-memory-teardown-incomplete.json");
+    writeFileSync(step.stdout, JSON.stringify({ native: { samples: [{ goRuntimeBytes: 33554433 }] } }), { mode: 0o600 });
+    return { outputPath: step.stdout };
+  };
+  await assert.rejects(driver.execute(h1Steps(c).afterJoin.find(step => step.id === "native-teardown-final")));
+  assert.deepEqual(events, ["native-teardown-final", "native-teardown-fallback"]);
+  assert.equal(JSON.parse(readFileSync(c.teardownFallback)).native.samples[0].goRuntimeBytes, 33554433);
+  const result = await orchestrateH1(context(), new FakeDriver("native-teardown-final"));
+  assert.equal(result.memoryQualified, false);
+});
+
+test("native header row bounds determine one emergency artifact acquisition", async t => {
+  for (const count of [4, 3, 17]) {
+    const directory = fixture(t);
+    const c = { ...context(), directory, teardownMemory: join(directory, "primary.json"),
+      teardownFallback: join(directory, "fallback.json"), owner: join(directory, "owner.json"),
+      finishStatus: join(directory, "finish.json") };
+    const identity = { sessionId: "fixture-session", buildId: c["build-id"], pid: 42 };
+    const observerId = "fixture-observer";
+    const primary = { ...identity, type: "physical-memory-teardown", schemaVersion: 1,
+      memoryProfile: "ios-memory-audit-v2", finishCommandId: c.finishId, observerId,
+      deviceDrainerJoined: true, deviceRingDrained: true, deviceJoined: true,
+      referencesReleased: true, filesFlushed: true, failureCount: 0, exporterFailed: false,
+      native: { type: "device-memory-teardown", schemaVersion: 1, deviceTargetBytes: 33554432,
+        state: "complete", failure: "", observerJoined: true, observerId, dropped: 0,
+        capacity: 16, intervalNanos: 15000000000, produced: count, drained: count,
+        samples: Array.from({ length: count }, (_, i) => ({ sequence: i + 1, goRuntimeBytes: 20000000 })) } };
+    writeFileSync(c.finishStatus, JSON.stringify({ ...identity, commandId: c.finishId, teardownObserverId: observerId }), { mode: 0o600 });
+    writeFileSync(`${c.owner}.ready.json`, JSON.stringify({ targetPid: 42 }), { mode: 0o600 });
+    writeFileSync(`${c.owner}.terminal.json`, JSON.stringify({ state: "complete", exitCode: 0, signal: null, interrupted: false }), { mode: 0o600 });
+    const driver = new HostArmDriver(c);
+    driver.assertInputs = () => {};
+    const events = [];
+    driver.command = async step => {
+      events.push(step.id);
+      const retained = structuredClone(primary);
+      if (step.id === "native-teardown-fallback") retained.native.samples[1].goRuntimeBytes = 33554433;
+      writeFileSync(step.stdout, JSON.stringify(retained), { mode: 0o600 });
+      return { outputPath: step.stdout };
+    };
+    const operation = driver.execute(h1Steps(c).afterJoin.find(step => step.id === "native-teardown-final"));
+    if (count === 4) {
+      await operation;
+      assert.deepEqual(events, ["native-teardown-final"]);
+    } else {
+      await assert.rejects(operation);
+      assert.deepEqual(events, ["native-teardown-final", "native-teardown-fallback"]);
+      assert.equal(JSON.parse(readFileSync(c.teardownFallback)).native.samples[1].goRuntimeBytes, 33554433);
+    }
+  }
+});
+
+test("diagnostic invalid evidence publishes its known high before propagating failure", async t => {
+  const directory = fixture(t);
+  const c = { ...diagnosticContext(), directory, artifacts: directory, finalMemory: join(directory, "memory.ndjson"),
+    finalStatusRuntime: join(directory, "status.ndjson"), finalDiagnostics: join(directory, "diagnostics.ndjson"),
+    teardownMemory: join(directory, "native.json"), teardownFallback: join(directory, "fallback.json"),
+    finishStatus: join(directory, "finish.json"), owner: join(directory, "owner.json") };
+  writeFileSync(c.finalMemory, JSON.stringify(memorySample(0, 33554433)) + "\nnull\n", { mode: 0o600 });
+  const driver = new HostArmDriver(c);
+  driver.assertInputs = () => {};
+  let retainedError;
+  try { await driver.execute(h1Steps(c).diagnosticMemory); } catch (error) { retainedError = error; }
+  assert.ok(retainedError);
+  const retained = JSON.parse(readFileSync(join(directory, "diagnostic-memory.json")));
+  assert.equal(retained.eligible, false);
+  assert.equal(retained.qualificationEligible, false);
+  assert.equal(retained.peakGoRuntimeBytes, 33554433);
+  assert.equal(retained.counts.devicePrimitiveCount, 2);
+  const fake = new FakeDriver("memory-final");
+  const execute = fake.execute.bind(fake);
+  fake.execute = async step => {
+    if (step.id === "diagnostic-memory") {
+      fake.events.push(step.id);
+      throw retainedError;
+    }
+    return execute(step);
+  };
+  const result = await orchestrateH1(diagnosticContext(), fake);
+  assert.equal(result.eligible, false);
+  assert.equal(result.memoryQualified, false);
+  assert.ok(fake.events.includes("diagnostic-memory"));
+  assert.equal(result.completedSteps.includes("memory-final"), false);
+  assert.equal(result.diagnosticMemory.peakGoRuntimeBytes, 33554433);
 });

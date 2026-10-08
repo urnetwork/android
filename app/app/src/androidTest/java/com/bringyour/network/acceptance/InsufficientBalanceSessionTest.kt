@@ -6,6 +6,7 @@ import android.content.Intent
 import android.os.SystemClock
 import android.util.Log
 import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.ComposeTimeoutException
 import androidx.compose.ui.test.hasAnyDescendant
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasContentDescription
@@ -25,6 +26,7 @@ import com.bringyour.network.MainActivity
 import com.bringyour.network.MainApplication
 import com.bringyour.network.R
 import com.bringyour.network.ui.POST_LOGIN_INTRO_CLOSE_TAG
+import com.bringyour.network.ui.POST_LOGIN_MAIN_READY_TAG
 import com.bringyour.network.ui.POST_LOGIN_OVERLAY_CLOSE_TAG
 import com.bringyour.network.ui.POST_LOGIN_WELCOME_ENTER_TAG
 import com.bringyour.network.ui.PostLoginUiAction
@@ -167,13 +169,20 @@ class InsufficientBalanceSessionTest {
                     action = action,
                     mainNavigationPresent = action == null && tagExists("acceptance.nav.connect"),
                     signupFormErrorPresent = false,
+                    mainNavigationReady = tagExists(POST_LOGIN_MAIN_READY_TAG),
                 )
             }
 
             override fun dismiss(action: PostLoginUiAction) = dismissPostLoginUiAction(action)
             override fun waitForIdle() = compose.waitForIdle()
-            override fun waitUntil(timeoutMillis: Long, condition: () -> Boolean) =
-                compose.waitUntil(timeoutMillis, condition)
+            override fun waitUntil(timeoutMillis: Long, condition: () -> Boolean) {
+                try {
+                    compose.waitUntil(timeoutMillis, condition)
+                } catch (_: ComposeTimeoutException) {
+                    // The shared wait owns the overall deadline. Only this
+                    // bounded poll timeout is expected; driver failures escape.
+                }
+            }
 
             override fun timeout(): Nothing {
                 val state = application.loginStartupState.value

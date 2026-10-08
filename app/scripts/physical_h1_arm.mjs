@@ -18,6 +18,8 @@ import { credentialPayload } from "./physical_credentials.mjs";
 import { requireCredentialParserPreflight } from "./physical_credentials_preflight.mjs";
 import { requireCompletedWorkloads } from "./physical_workload_receipt.mjs";
 import { GO_RUNTIME_LIMIT_BYTES, MEMORY_AUDIT_PROFILE } from "./physical_memory_profile.mjs";
+import { evaluateRuntimeReads, evaluateDiagnosticRuntimeReads, evaluateAuxiliaryRuntimeValues, selectMemoryTeardownReceipt,
+  evaluateProducerMemorySummaries } from "./physical_memory_teardown.mjs";
 
 const SELF = fileURLToPath(import.meta.url);
 const SCRIPTS = dirname(SELF);
@@ -115,6 +117,10 @@ export function armContext(options, buildOwner = `h1-${options.label}-${randomUU
     parser: a("credential-parser.json"), collector: p("collector-owner.json"), telemetry: p("telemetry.ndjson"),
     workloads: p("workloads.json"), start: p("quiet-start.json"), end: p("quiet-end.json"),
     memory: p("physical-memory.ndjson"), finalMemory: p("physical-memory-final.ndjson"),
+    statusRuntime: p("physical-memory-status.ndjson"), finalStatusRuntime: p("physical-memory-status-final.ndjson"),
+    diagnostics: p("physical-diagnostics.ndjson"), finalDiagnostics: p("physical-diagnostics-final.ndjson"),
+    teardownMemory: p("physical-memory-teardown.json"), finishStatus: p("physical-finish-status.json"),
+    teardownFallback: p("physical-memory-teardown-incomplete.json"),
     liveGate: p("quiet-gate.json"), finalGate: p("teardown-gate.json"),
     connectId: `h1-${options.label}`, finishId: `finish-${options.label}` };
 }
@@ -129,6 +135,8 @@ export function h1Steps(c) {
     args: [join(c.scripts, helper), ...args], ...extra });
   const adb = (id, args, extra = {}) => ({ id, kind: "command", command: "adb", args: ["-s", c.serial, ...args], ...extra });
   const gateArgs = memory => ["--start", c.start, "--end", c.end, "--memory", memory,
+    "--status-runtime", memory === c.finalMemory ? c.finalStatusRuntime : c.statusRuntime,
+    "--diagnostics", memory === c.finalMemory ? c.finalDiagnostics : c.diagnostics,
     "--telemetry", c.telemetry, "--phase", `quiet-${c.label}`, "--role", "client", "--underlay", c.underlay];
   const diagnostic = armMeasurementMode(c) === "diagnostic";
   const profileRate = String(armProfileRate(c));
@@ -211,14 +219,24 @@ export function h1Steps(c) {
         node("quiet-end", "physical_quiet_phase.mjs", ["--serial", c.serial, "--start", c.start, "--output", c.end], { timeoutMs: LIMITS.quiet }),
       ]),
       adb("memory-live", ["exec-out", "run-as", APP, "cat", "files/acceptance/physical-memory.ndjson"], { stdout: c.memory }),
+      adb("status-runtime-live", ["exec-out", "run-as", APP, "cat", "files/acceptance/physical-memory-status.ndjson"], { stdout: c.statusRuntime }),
+      adb("diagnostics-live", ["exec-out", "run-as", APP, "cat", "files/acceptance/physical-diagnostics.ndjson"], { stdout: c.diagnostics }),
       ...(!diagnostic ? [node("memory-live-gate", "physical_quiet_gate.mjs", gateArgs(c.memory), { stdout: c.liveGate })] : []),
     ],
     finish: { id: "finish", kind: "device-command", verb: "finish", argument: "", commandId: c.finishId, timeoutMs: LIMITS.finish },
     afterJoin: [
       adb("memory-final", ["exec-out", "run-as", APP, "cat", "files/acceptance/physical-memory.ndjson"], { stdout: c.finalMemory }),
+      adb("status-runtime-final", ["exec-out", "run-as", APP, "cat", "files/acceptance/physical-memory-status.ndjson"], { stdout: c.finalStatusRuntime }),
+      adb("diagnostics-final", ["exec-out", "run-as", APP, "cat", "files/acceptance/physical-diagnostics.ndjson"], { stdout: c.finalDiagnostics }),
+      adb("finish-status-final", ["exec-out", "run-as", APP, "cat", "files/acceptance/physical-status"], { stdout: c.finishStatus }),
+      adb("native-teardown-final", ["exec-out", "run-as", APP, "cat", "files/acceptance/physical-memory-teardown.json"], { stdout: c.teardownMemory }),
       adb("summary-final", ["exec-out", "run-as", APP, "cat", "files/acceptance/physical-summary.json"], { stdout: p("physical-summary.json") }),
     ],
-    teardown: node("memory-teardown-gate", "physical_quiet_gate.mjs", [...gateArgs(c.finalMemory), "--live-gate", c.liveGate], { stdout: c.finalGate }),
+    teardown: node("memory-teardown-gate", "physical_quiet_gate.mjs", [...gateArgs(c.finalMemory), "--live-gate", c.liveGate,
+      "--teardown", c.teardownMemory, "--finish-status", c.finishStatus, "--instrumentation-owner", c.owner,
+      "--teardown-fallback", c.teardownFallback,
+      "--producer-summary", p("physical-summary.json"),
+      "--finish-command-id", c.finishId, "--native-inputs", c.proof], { stdout: c.finalGate }),
     diagnosticMemory: { id: "diagnostic-memory", kind: "diagnostic-memory" },
     credentialFinish: node("credential-finish", "physical_credential_ownership.mjs", ["finish", "--ownership", c.credentialOwner,
       "--serial", c.serial, "--label", c.label, "--build-id", c["build-id"], "--instrumentation-owner", c.owner, "--finish-command-id", c.finishId]),
@@ -237,10 +255,14 @@ export function h1Steps(c) {
 export async function orchestrateH1(context, driver) {
   const s = h1Steps(context); const errors = []; const complete = new Set();
   const diagnostic = armMeasurementMode(context) === "diagnostic";
-  let instrumentation; let collector; let instrumentationJoined = false; let liveGate = false;
+  let instrumentation; let collector; let instrumentationJoined = false; let instrumentationClosed = false; let liveGate = false;
   let diagnosticMemory = null;
   const execute = async step => { const result = await driver.execute(step); complete.add(step.id); return result; };
-  const cleanup = async operation => { try { return await operation(); } catch (error) { errors.push(safeReason(error)); return null; } };
+  const cleanup = async operation => { try { return await operation(); } catch (error) {
+    errors.push(safeReason(error));
+    if (error instanceof ArmError && error.diagnosticMemory) return error.diagnosticMemory;
+    return null;
+  } };
   try {
     for (const step of s.setup) await execute(step);
     instrumentation = await driver.start(s.instrument);
@@ -256,23 +278,28 @@ export async function orchestrateH1(context, driver) {
   finally {
     if (complete.has("chrome-start") && !complete.has("workload")) await cleanup(() => execute(s.chromeCleanup));
     if (instrumentation) {
-      const finished = await cleanup(async () => {
-        await execute(s.finish);
+      // A pre-ready or failed session can reject finish while its finite
+      // instrumentation finally still owns teardown. Join independently.
+      await cleanup(() => execute(s.finish));
+      const joined = await cleanup(async () => {
         await driver.join(instrumentation, LIMITS.finish);
         instrumentationJoined = true;
         return true;
       });
-      if (!finished) await cleanup(() => driver.stop(instrumentation));
-      for (const step of s.afterJoin) await cleanup(() => execute(step));
+      if (!joined && instrumentation.live !== false) await cleanup(() => driver.stop(instrumentation));
+      instrumentationClosed = instrumentationJoined || instrumentation.live === false;
+      if (instrumentationClosed) {
+        for (const step of s.afterJoin) await cleanup(() => execute(step));
+      }
     } else if (complete.has("credential-stage")) await cleanup(() => execute(s.rollback));
     if (collector) {
       await cleanup(() => execute(s.stopCollector));
       const joined = await cleanup(async () => { await driver.join(collector, LIMITS.stop); return true; });
-      if (!joined) await cleanup(() => driver.stop(collector));
+      if (!joined && collector.live !== false) await cleanup(() => driver.stop(collector));
     }
-    if (liveGate && complete.has("memory-final")) await cleanup(() => execute(s.teardown));
-    if (diagnostic && complete.has("memory-final")) diagnosticMemory = await cleanup(() => execute(s.diagnosticMemory));
-    if (instrumentationJoined) {
+    if (liveGate && instrumentationClosed) await cleanup(() => execute(s.teardown));
+    if (diagnostic && instrumentationClosed) diagnosticMemory = await cleanup(() => execute(s.diagnosticMemory));
+    if (instrumentationJoined && complete.has("finish")) {
       await cleanup(() => execute(s.clientsCleanup));
       await cleanup(() => execute(s.credentialFinish));
     }
@@ -285,7 +312,7 @@ export async function orchestrateH1(context, driver) {
     measurementMode: armMeasurementMode(context), qualificationEligible: !diagnostic && errors.length === 0,
     profileRate: armProfileRate(context), diagnosticMemory,
     scope: "ios-profile-h1-wikipedia-fast-three", measurements,
-    memoryQualified: complete.has("memory-live-gate") && complete.has("memory-teardown-gate"),
+    memoryQualified: complete.has("finish") && instrumentationJoined && s.afterJoin.every(step => complete.has(step.id)) && complete.has("memory-live-gate") && complete.has("memory-teardown-gate"),
     cleanupComplete: instrumentationJoined && complete.has("credential-finish") && complete.has("clients-cleanup") &&
       (!complete.has("chrome-forward") || complete.has("chrome-forward-remove")),
     completedSteps: [...complete] };
@@ -294,25 +321,75 @@ export async function orchestrateH1(context, driver) {
 // Diagnostic evidence is deliberately not a release gate. Keep every observed
 // byte and breach, including profiling overhead; never subtract it to turn an
 // overshoot into a qualified result.
-export function evaluateDiagnosticMemory(records) {
+export function evaluateDiagnosticMemory(records, { teardown, fallback, producerSummary, finish, expectedIdentity, expectedFinishCommandId,
+  statusRuntime = [], diagnostics = [], ownerCensuses = [] } = {}) {
+  const reasons = new Set();
+  const reject = reason => reasons.add(reason);
+  const producerSummaries = [teardown?.producerSummary, ...(fallback ? [fallback.producerSummary] : []), producerSummary];
+  const selection = selectMemoryTeardownReceipt(teardown, fallback, finish, expectedIdentity, expectedFinishCommandId);
+  teardown = selection.teardown;
+  selection.reasons.forEach(reject);
   const samples = records.filter(row => row?.type === "sample");
-  if (!samples.length || samples.length !== records.length) fail("diagnostic-memory-samples-required");
+  if (!samples.length || samples.length !== records.length) reject("diagnostic-memory-samples-required");
   let previousElapsed = -1;
   for (const row of samples) {
     if (!Number.isSafeInteger(row.elapsedMs) || row.elapsedMs < 0 || row.elapsedMs <= previousElapsed ||
         !Number.isSafeInteger(row.goRuntimeBytes) || row.goRuntimeBytes <= 0 || row.samplerDropped !== 0 ||
         row.memoryProfile !== PROFILE || row.goMemoryProfileRateBytes !== 65536 ||
         row.goMemoryLimitBytes !== 32 * 1024 * 1024) {
-      fail("diagnostic-memory-evidence-invalid");
+      reject("diagnostic-memory-evidence-invalid");
     }
     previousElapsed = row.elapsedMs;
   }
-  return { type: "diagnostic-memory-observation", schemaVersion: 2, measurementMode: "diagnostic", memoryProfile: PROFILE,
+  const nativeRows = Array.isArray(teardown?.native?.samples) ? teardown.native.samples : [];
+  const processRows = nativeRows.map(row => ({ ...row, memoryProfile: teardown.memoryProfile }));
+  const diagnostic = teardown ? evaluateDiagnosticRuntimeReads(diagnostics, teardown) : { samples: [], reasons: [] };
+  if (diagnostic.reasons.length) reject("diagnostic-runtime-stream-invalid");
+  const runtime = evaluateRuntimeReads({ devicePrimitiveCount: records, teardownPrimitiveCount: processRows,
+    statusRuntimeReadCount: statusRuntime, diagnosticRuntimeReadCount: diagnostic.samples }, 65536);
+  for (const census of ownerCensuses) {
+    try { validateDiagnosticCensus(census); } catch { reject("diagnostic-owner-census-capability-required"); }
+  }
+  const auxiliary = evaluateAuxiliaryRuntimeValues(records, statusRuntime, ownerCensuses, Boolean(teardown));
+  const producer = evaluateProducerMemorySummaries(teardown ? producerSummaries : [], expectedIdentity ?? teardown,
+    expectedFinishCommandId ?? teardown?.finishCommandId, finish?.teardownObserverId ?? teardown?.observerId, runtime.counts);
+  producer.reasons.filter(reason => reason !== "producer-memory-runtime-above-32-mib").forEach(reject);
+  auxiliary.auxiliaryPeakGoRuntimeBytes = Math.max(auxiliary.auxiliaryPeakGoRuntimeBytes, producer.producerPeakGoRuntimeBytes);
+  auxiliary.auxiliaryRuntimeBreachValueCount += producer.producerRuntimeBreachRepresentationCount;
+  auxiliary.nativeConflictRepresentationCount = selection.conflictingPrimaryRows.length;
+  auxiliary.unqualifiedNativeConflictRepresentationCount = selection.unqualifiedNativeConflictRepresentationCount;
+  for (const row of selection.conflictingPrimaryRows) {
+    if (!Number.isSafeInteger(row?.goRuntimeBytes) || row.goRuntimeBytes <= 0) {
+      reject("native-conflict-runtime-value-invalid"); continue;
+    }
+    auxiliary.auxiliaryPeakGoRuntimeBytes = Math.max(auxiliary.auxiliaryPeakGoRuntimeBytes, row.goRuntimeBytes);
+    if (row.goRuntimeBytes > GO_RUNTIME_LIMIT_BYTES) auxiliary.auxiliaryRuntimeBreachValueCount++;
+  }
+  if (auxiliary.reasons.some(reason => !["retained-auxiliary-runtime-above-32-mib", "maintenance-runtime-prior-profile-unqualified"].includes(reason))) reject("diagnostic-runtime-auxiliary-invalid");
+  if (runtime.reasons.some(reason => reason !== "go-runtime-above-32-mib")) reject("diagnostic-memory-evidence-invalid");
+  if (teardown && (teardown.native?.state !== "complete" || teardown.native.observerJoined !== true || teardown.native.dropped !== 0 ||
+      teardown.native.terminalSequence !== nativeRows.length || !(teardown.native.joinSequence < teardown.native.terminalSequence) ||
+      !teardown.deviceDrainerJoined || !teardown.deviceRingDrained || !teardown.deviceJoined || !teardown.referencesReleased ||
+      teardown.failureCount !== 0 || teardown.exporterFailed !== false || teardown.devicePrimitiveCount !== samples.length ||
+      teardown.statusRuntimeReadCount !== statusRuntime.length || teardown.diagnosticBatchesProduced !== diagnostic.samples.length ||
+      teardown.diagnosticBatchesFlushed !== diagnostic.samples.length)) reject("diagnostic-memory-teardown-incomplete");
+  const result = { type: "diagnostic-memory-observation", schemaVersion: 3, measurementMode: "diagnostic", memoryProfile: PROFILE,
+    sampleScope: teardown ? "retained-runtime-events-not-all-internal-reads-or-continuous-peak" : "legacy-device-primitive-samples",
+    counts: runtime.counts, combinedRuntimeReadCount: runtime.combinedRuntimeReadCount,
+    eligible: reasons.size === 0, reasons: [...reasons], fallbackState: selection.fallbackState,
     qualificationEligible: false, profileRate: 65536, sampleCount: samples.length,
-    firstElapsedMs: samples[0].elapsedMs, lastElapsedMs: samples.at(-1).elapsedMs,
-    peakGoRuntimeBytes: Math.max(...samples.map(row => row.goRuntimeBytes)),
+    firstElapsedMs: samples[0]?.elapsedMs ?? null, lastElapsedMs: samples.at(-1)?.elapsedMs ?? null,
+    combinedRetainedRuntimeEventCount: runtime.combinedRuntimeReadCount,
+    auxiliary, producer,
+    peakGoRuntimeBytes: Math.max(runtime.peakGoRuntimeBytes, auxiliary.auxiliaryPeakGoRuntimeBytes),
     goRuntimeLimitBytes: GO_RUNTIME_LIMIT_BYTES,
-    goRuntimeBreachSampleCount: samples.filter(row => row.goRuntimeBytes > GO_RUNTIME_LIMIT_BYTES).length };
+    goRuntimeBreachSampleCount: runtime.goRuntimeBreachSampleCount };
+  if (reasons.size) {
+    const error = new ArmError([...reasons][0]);
+    error.diagnosticMemory = result;
+    throw error;
+  }
+  return result;
 }
 
 export function validateDiagnosticCensus(row, before) {
@@ -478,15 +555,51 @@ export class HostArmDriver {
       if (!handle.live) publish(join(this.c.directory, `${step.id}.outcome.json`), await handle.done);
     }
   }
-  async join(handle, timeoutMs) { return joinProcess(handle, timeoutMs); }
+  async join(handle, timeoutMs) {
+    try { return await joinProcess(handle, timeoutMs); }
+    finally {
+      if (!handle.live) publish(join(this.c.directory, `${handle.id}.outcome.json`), await handle.done);
+    }
+  }
   async stop(handle) {
     handle.interrupt();
-    await Promise.race([handle.done, delay(LIMITS.kill + 5_000).then(() => fail(`${handle.id}-unjoined`))]);
+    const result = await Promise.race([handle.done, delay(LIMITS.kill + 5_000).then(() => fail(`${handle.id}-unjoined`))]);
+    publish(join(this.c.directory, `${handle.id}.outcome.json`), result);
   }
   async execute(step) {
     this.assertInputs();
     process.stdout.write(`${JSON.stringify({ type: "scoped-h1-progress", step: step.id })}\n`);
     if (step.kind === "command") {
+      if (step.id === "native-teardown-final") {
+        let handle, failure, primary, terminal, finish, ready;
+        try { handle = await this.command(step); } catch (error) { failure = error; }
+        try { primary = privateJson(this.c.teardownMemory); } catch { /* retain original bytes */ }
+        try { terminal = privateJson(`${this.c.owner}.terminal.json`); } catch { /* not joined */ }
+        try { finish = privateJson(this.c.finishStatus); } catch { /* not bound */ }
+        try { ready = privateJson(`${this.c.owner}.ready.json`); } catch { /* not bound */ }
+        const native = primary?.native;
+        const identityBound = primary?.type === "physical-memory-teardown" && primary.schemaVersion === 1 && primary.memoryProfile === PROFILE &&
+          typeof primary.sessionId === "string" && primary.sessionId && primary.sessionId === finish?.sessionId &&
+          primary.buildId === this.c["build-id"] && primary.buildId === finish?.buildId &&
+          Number.isSafeInteger(primary.pid) && primary.pid > 0 && primary.pid === ready?.targetPid && primary.pid === finish?.pid &&
+          primary.finishCommandId === this.c.finishId && primary.finishCommandId === finish?.commandId &&
+          typeof primary.observerId === "string" && primary.observerId && primary.observerId === finish?.teardownObserverId && primary.observerId === native?.observerId;
+        if (failure || !identityBound || !Array.isArray(native?.samples) || native.samples.length < 4 || native.samples.length > 16 ||
+            native.type !== "device-memory-teardown" || native.schemaVersion !== 1 || native.deviceTargetBytes !== 33554432 ||
+            native.state !== "complete" || native.failure !== "" || native.observerJoined !== true || native.dropped !== 0 ||
+            native.capacity !== 16 || native.intervalNanos !== 15000000000 || native.produced !== native.samples.length || native.drained !== native.samples.length ||
+            ["deviceDrainerJoined", "deviceRingDrained", "deviceJoined", "referencesReleased", "filesFlushed"].some(key => primary?.[key] !== true) ||
+            primary?.failureCount !== 0 || primary?.exporterFailed !== false ||
+            terminal?.state !== "complete" || terminal.exitCode !== 0 || terminal.signal !== null || terminal.interrupted !== false) {
+          try {
+            await this.command({ ...step, id: "native-teardown-fallback", stdout: this.c.teardownFallback,
+              args: [...step.args.slice(0, -1), "files/acceptance/physical-memory-teardown-incomplete.json"] });
+          } catch (error) { failure ??= error; }
+          failure ??= new ArmError("native-teardown-primary-receipt-incomplete");
+        }
+        if (failure) throw failure;
+        return handle;
+      }
       const handle = await this.command(step);
       if (["collector-ready", "collector-before-workload"].includes(step.id)) {
         const value = readFileSync(handle.outputPath, "utf8").trim();
@@ -523,10 +636,37 @@ export class HostArmDriver {
         return result;
       }
       if (step.kind === "diagnostic-memory") {
-        const records = privateText(this.c.finalMemory).trim().split("\n").filter(Boolean).map(line => JSON.parse(line));
-        const result = evaluateDiagnosticMemory(records);
-        publish(join(this.c.directory, "diagnostic-memory.json"), result);
-        return result;
+        const read = path => {
+          let contents;
+          try { contents = privateText(path); } catch { return null; }
+          if (!contents.trim()) return null;
+          try { return JSON.parse(contents); } catch { return { type: "malformed-retained-evidence" }; }
+        };
+        const rows = path => {
+          try { return privateText(path).split("\n").filter(line => line.trim()).map(line => {
+            try { return JSON.parse(line); } catch { return null; }
+          }); } catch { return []; }
+        };
+        const records = rows(this.c.finalMemory);
+        const teardown = read(this.c.teardownMemory) ?? { native: {} };
+        const fallback = read(this.c.teardownFallback);
+        const finish = read(this.c.finishStatus);
+        const ready = read(`${this.c.owner}.ready.json`);
+        const statusRuntime = rows(this.c.finalStatusRuntime);
+        const diagnostics = rows(this.c.finalDiagnostics);
+        const producerSummary = read(join(this.c.directory, "physical-summary.json"));
+        const ownerCensuses = ["connected-idle", "post-traffic"].flatMap(boundary => ["before-gc", "after-gc"].map(part =>
+          read(join(this.c.artifacts, `${this.c.label}.diagnostic-${boundary}-${part}.json`))));
+        try {
+          const result = evaluateDiagnosticMemory(records, { teardown, fallback, producerSummary, finish, statusRuntime, diagnostics, ownerCensuses,
+            expectedIdentity: { sessionId: records.find(row => typeof row?.sessionId === "string")?.sessionId,
+              buildId: this.c["build-id"], pid: ready?.targetPid }, expectedFinishCommandId: this.c.finishId });
+          publish(join(this.c.directory, "diagnostic-memory.json"), result);
+          return result;
+        } catch (error) {
+          if (error instanceof ArmError && error.diagnosticMemory) publish(join(this.c.directory, "diagnostic-memory.json"), error.diagnosticMemory);
+          throw error;
+        }
       }
     }
     fail("unknown-arm-operation");
@@ -557,20 +697,60 @@ export class HostArmDriver {
       cleanupToBoundaryMs: cleanupCompletedHostTimeUnixMs === null ? null : startedHostTimeUnixMs - cleanupCompletedHostTimeUnixMs,
       state });
   }
-  async waitReady(step) {
-    const deadline = performance.now() + step.timeoutMs;
-    while (performance.now() < deadline) {
-      if (!this.handles.get("instrumentation")?.live) fail("instrumentation-exited-before-ready");
-      const observed = spawnSync("adb", ["-s", this.c.serial, "shell", "run-as", APP, "cat", "files/acceptance/physical-status"],
-        { encoding: "utf8", timeout: 2_000, maxBuffer: 1024 * 1024 });
-      if (observed.status === 0 && !observed.error && !observed.signal) {
-        let status; try { status = JSON.parse(observed.stdout); } catch { fail("malformed-ready-status"); }
-        if (status.state === "error") fail("instrumentation-ready-error");
-        if (status.type === "status" && status.state === "ready" && status.phase === "ready" && existsSync(this.c.owner)) return;
+  async waitReady(step, { now = () => performance.now(), sleep = delay } = {}) {
+    const deadline = now() + step.timeoutMs;
+    const path = join(this.c.directory, "startup-status-observations.jsonl");
+    requireArtifactPaths(prepareArtifactDirectory(this.c.directory), [path]);
+    const output = openSync(path, "wx", 0o600); let sequence = 0;
+    // Retain bounded identity/outcome fields, never arbitrary status extras,
+    // raw ADB diagnostics, credentials or exception text.
+    const record = (outcome, observed, status, targetPidMatches = null) => {
+      writeSync(output, JSON.stringify({ type: "startup-status-observation", schemaVersion: 1,
+        sequence: ++sequence, hostTimeUnixMs: Date.now(), outcome,
+        observedBuildId: typeof status?.buildId === "string" && LABEL.test(status.buildId) ? status.buildId : null,
+        currentBuild: status?.buildId === this.c["build-id"],
+        observedPid: Number.isSafeInteger(status?.pid) && status.pid > 0 ? status.pid : null,
+        observedState: ["ready", "running", "complete", "error"].includes(status?.state) ? status.state : null,
+        targetPidMatches, stdoutBytes: typeof observed?.stdout === "string" ? Buffer.byteLength(observed.stdout) : 0,
+        stderrBytes: typeof observed?.stderr === "string" ? Buffer.byteLength(observed.stderr) : 0,
+        exitCode: Number.isInteger(observed?.status) ? observed.status : null,
+        signalled: Boolean(observed?.signal), transportFailed: Boolean(observed?.error) }) + "\n");
+    };
+    try {
+      while (now() < deadline) {
+        if (!this.handles.get("instrumentation")?.live || existsSync(`${this.c.owner}.terminal.json`)) {
+          record("owner-exited"); fail("instrumentation-exited-before-ready");
+        }
+        if (!existsSync(this.c.owner)) { record("await-owner"); await sleep(500); continue; }
+        const observed = spawnSync("adb", ["-s", this.c.serial, "shell", "run-as", APP, "cat", "files/acceptance/physical-status"],
+          { encoding: "utf8", timeout: 2_000, maxBuffer: 1024 * 1024 });
+        let status;
+        if (observed.status === 0 && !observed.error && !observed.signal && !observed.stderr?.trim()) {
+          try { status = JSON.parse(observed.stdout); } catch { /* startup can still expose a prior or absent file */ }
+        }
+        if (status?.type !== "status" || status.buildId !== this.c["build-id"] ||
+            !Number.isSafeInteger(status.pid) || status.pid <= 0) {
+          record(status?.type === "status" && status.buildId !== this.c["build-id"] ? "different-build" : "unattributed-status", observed, status);
+          await sleep(500); continue;
+        }
+        const targetMatches = () => {
+          const target = spawnSync("adb", ["-s", this.c.serial, "shell", "pidof", APP],
+            { encoding: "utf8", timeout: 2_000, maxBuffer: 4096 });
+          return target.status === 0 && !target.error && !target.signal && !target.stderr?.trim() &&
+            /^\s*[1-9][0-9]*(?:\s+[1-9][0-9]*)*\s*$/.test(target.stdout ?? "") &&
+            target.stdout.trim().split(/\s+/).map(Number).every(Number.isSafeInteger) &&
+            target.stdout.trim().split(/\s+/).map(Number).includes(status.pid);
+        };
+        if (!targetMatches() || !targetMatches()) {
+          record("target-not-current", observed, status, false); await sleep(500); continue;
+        }
+        if (status.state === "error") { record("current-error", observed, status, true); fail("instrumentation-ready-error"); }
+        if (status.state === "ready" && status.phase === "ready") { record("current-ready", observed, status, true); return; }
+        record("current-not-ready", observed, status, true);
+        await sleep(500);
       }
-      await delay(500);
-    }
-    fail("instrumentation-ready-deadline");
+      record("deadline"); fail("instrumentation-ready-deadline");
+    } finally { closeSync(output); }
   }
   async deviceCommand(step) {
     // Never overwrite another in-progress operation, even on failed-arm cleanup.

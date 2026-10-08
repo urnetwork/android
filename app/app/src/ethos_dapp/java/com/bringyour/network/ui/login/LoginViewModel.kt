@@ -73,6 +73,7 @@ class LoginViewModel @Inject constructor(
             !isValidUserAuth || userAuthInProgress -> {}
             else -> {
                 val authApi = api ?: run {
+                    runCatching { android.util.Log.i("AuthDiscovery", "category=api_unavailable") }
                     setLoginError(ctx.getString(R.string.login_error))
                     return@login
                 }

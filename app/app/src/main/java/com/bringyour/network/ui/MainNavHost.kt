@@ -855,6 +855,17 @@ private fun MainNavHostContent(
                 ) {
 
                     NavigationSuiteScaffold(
+                        // The collected flags can lag the effect that shows intro
+                        // and then clears its prompt gate. Read that pair's current
+                        // values together on the UI thread; collectors above still
+                        // schedule recomposition. This tag never changes the UI.
+                        modifier = if (postLoginMainNavigationReady(
+                            isPro = isPro,
+                            isGuest = isGuestNetworkForIntro,
+                            guestStatusKnown = guestStatusKnownForIntro,
+                            allowPrompt = mainNavViewModel.allowDisplayIntroFunnel.value,
+                            introDisplayed = mainNavViewModel.displayIntroFunnel.value,
+                        )) Modifier.testTag(POST_LOGIN_MAIN_READY_TAG) else Modifier,
                         containerColor = Black,
                         contentColor = Black,
                         navigationSuiteColors = customColors,

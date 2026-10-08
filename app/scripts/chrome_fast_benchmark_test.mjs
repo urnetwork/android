@@ -1,9 +1,11 @@
+// Deterministic browser fixtures pin result, deadline, page-only diagnostics and privacy.
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 import { main, parseArgs, runFastBenchmark, validFastDisplay } from "./chrome_fast_benchmark.mjs";
 
+// Synthetic page/browser sessions use an explicit clock; no device or network is contacted.
 function fixture() {
   let elapsed = 0;
   const calls = [];
@@ -12,7 +14,7 @@ function fixture() {
   const f = {
     calls, output,
     samples: [{ value: "40", units: "Mbps", progress: "succeeded", loaded: "complete" }],
-    requests: 1, finished: 1, encodedBytes: 768, failed: 0,
+    requests: 1, finished: 1, encodedBytes: 768, failed: 0, failedEvents: [],
     evaluateDelay: 0,
     options: parseArgs(["--port", "9223", "--timeout-ms", "90000"]),
     deps: {
@@ -41,6 +43,7 @@ function fixture() {
         for (let i = 0; i < f.requests; i += 1) listeners.get("Network.requestWillBeSent")({});
         for (let i = 0; i < f.finished; i += 1) listeners.get("Network.loadingFinished")({ encodedDataLength: f.encodedBytes });
         for (let i = 0; i < f.failed; i += 1) listeners.get("Network.loadingFailed")({});
+        for (const event of f.failedEvents) listeners.get("Network.loadingFailed")(event);
         if (f.navigationError) return { errorText: "synthetic navigation failure" };
       }
       if (method === "Runtime.evaluate") {
@@ -164,6 +167,132 @@ test("network subresource failures remain diagnostic and do not invalidate a com
   assert.equal(result.pageFailedRequestCount, 2);
 });
 
+// The missing evidence is observable through the real deadline/result path.
+test("page failure diagnostics retain fixed categories when the display deadline fails", async () => {
+  const f = fixture();
+  f.requests = 50; f.finished = 21;
+  f.samples = [{ value: "0", units: "", progress: "", loaded: "complete" }];
+  f.failedEvents = Array.from({ length: 26 }, (_, index) => ({
+    errorText: index < 21 ? "net::ERR_NAME_NOT_RESOLVED" : "net::ERR_CONNECTION_TIMED_OUT",
+    requestId: `synthetic-request-${index}`,
+    url: "https://download.example/file?token=synthetic-private",
+  }));
+  assert.equal(await main(["--timeout-ms", "90000"], f.deps), 2);
+  const result = f.output[0];
+  assert.ok(result.pageFailureCategoryCounts, "missing bounded page failure categories");
+  assert.equal(result.pageFailureScope, "page-target-only");
+  assert.equal(result.pageFailureCategoryCounts.dns, 21);
+  assert.equal(result.pageFailureCategoryCounts.timeout, 5);
+  assert.equal(Object.values(result.pageFailureCategoryCounts).reduce((sum, count) => sum + count, 0), 26);
+  assert.equal(result.pageFailedRequestCount, 26);
+  assert.equal(result.totalElapsedMs, 90_000);
+  assert.equal(result.timeoutPhase, "display-poll");
+  assert.equal(result.completed, false);
+  assert.equal(result.valid, false);
+  assert.equal(result.failureReason, "deadline-exceeded");
+  assert.doesNotMatch(JSON.stringify(result), /synthetic|download\.example|requestId|token=/);
+  assertClosed(f);
+});
+
+// Homogeneous protocol cases share one real listener, not a parallel classifier.
+test("page failure diagnostics map exact supported codes without changing a completed result", async () => {
+  const cases = [
+    ["ERR_ABORTED", "canceled"],
+    ["ERR_NAME_NOT_RESOLVED", "dns"], ["ERR_NAME_RESOLUTION_FAILED", "dns"], ["ERR_DNS_TIMED_OUT", "dns"],
+    ["ERR_TIMED_OUT", "timeout"], ["ERR_CONNECTION_TIMED_OUT", "timeout"],
+    ["ERR_CONNECTION_CLOSED", "connection_closed"], ["ERR_CONNECTION_RESET", "connection_reset"],
+    ["ERR_CONNECTION_REFUSED", "connection_refused"], ["ERR_CONNECTION_FAILED", "connection_failed"],
+    ["ERR_CONNECTION_ABORTED", "connection_failed"], ["ERR_ADDRESS_UNREACHABLE", "unreachable"],
+    ["ERR_INTERNET_DISCONNECTED", "offline"], ["ERR_NETWORK_CHANGED", "network_changed"],
+    ["ERR_SSL_PROTOCOL_ERROR", "tls"], ["ERR_SSL_VERSION_OR_CIPHER_MISMATCH", "tls"],
+    ["ERR_CERT_COMMON_NAME_INVALID", "tls"], ["ERR_CERT_DATE_INVALID", "tls"], ["ERR_CERT_AUTHORITY_INVALID", "tls"],
+    ["ERR_BLOCKED_BY_CLIENT", "blocked"], ["ERR_BLOCKED_BY_ADMINISTRATOR", "blocked"],
+    ["ERR_BLOCKED_BY_RESPONSE", "blocked"], ["ERR_BLOCKED_BY_CSP", "blocked"],
+    ["ERR_INSUFFICIENT_RESOURCES", "resource"], ["ERR_OUT_OF_MEMORY", "resource"], ["ERR_FAILED", "other"],
+  ];
+  for (const [code, category] of cases) {
+    const f = fixture(); f.failedEvents = [{ errorText: `net::${code}` }];
+    const result = await runFastBenchmark(f.options, f.deps);
+    assert.equal(result.pageFailureCategoryCounts[category], 1, code);
+    assert.equal(Object.values(result.pageFailureCategoryCounts).reduce((sum, count) => sum + count, 0), 1, code);
+    assert.equal(result.pageFailedRequestCount, 1);
+    assert.equal(result.pageFailureScope, "page-target-only");
+    assert.equal(result.displayValue, "40");
+    assert.equal(result.completed, true);
+    assert.equal(result.valid, true, "subresource diagnostics must not become a new qualification gate");
+    assert.equal(result.elapsedMs, 1000);
+    assert.equal(result.pageEncodedBytes, 768, "page accounting remains separate from worker bulk bytes");
+    assertClosed(f);
+  }
+});
+
+// A strict protocol cancellation flag outranks an incidental transport code.
+test("page failure diagnostics distinguish cancellation from truthy lookalikes", async () => {
+  const f = fixture();
+  f.failedEvents = [
+    { canceled: true, errorText: "net::ERR_CONNECTION_RESET" },
+    { canceled: true },
+    { canceled: "true", errorText: "net::ERR_CONNECTION_REFUSED" },
+    { canceled: 1, errorText: "net::ERR_NAME_NOT_RESOLVED" },
+    { canceled: false, errorText: "net::ERR_ABORTED" },
+  ];
+  const result = await runFastBenchmark(f.options, f.deps);
+  assert.equal(result.pageFailureCategoryCounts.canceled, 3);
+  assert.equal(result.pageFailureCategoryCounts.connection_reset, 0);
+  assert.equal(result.pageFailureCategoryCounts.connection_refused, 1);
+  assert.equal(result.pageFailureCategoryCounts.dns, 1);
+  assert.equal(Object.values(result.pageFailureCategoryCounts).reduce((sum, count) => sum + count, 0), 5);
+});
+
+// Unknown/malformed data must stay one finite bucket without coercion or echo.
+test("page failure diagnostics discard private text and malformed code lookalikes", async () => {
+  const f = fixture();
+  const cannotStringify = { toString() { throw new Error("diagnostics coerced an opaque value"); } };
+  f.failedEvents = [
+    { errorText: "net::ERR_CONNECTION_RESET synthetic-private-token" },
+    { errorText: "prefix net::ERR_NAME_NOT_RESOLVED" },
+    { errorText: "net::err_connection_refused" },
+    { errorText: "net::ERR_TIMED_OUT\nsynthetic-private-token" },
+    { errorText: "net::ERR_CERT_DATE_INVALID\u0000" },
+    { errorText: "__proto__" }, { errorText: "constructor" }, { errorText: "toString" },
+    { errorText: cannotStringify }, { errorText: 42 }, { errorText: null },
+    { errorText: "synthetic-private".repeat(8192) },
+    null, undefined, {}, "net::ERR_CONNECTION_RESET",
+  ];
+  const guarded = { errorText: "net::ERR_CONNECTION_CLOSED" };
+  Object.defineProperty(guarded, "url", { get() { throw new Error("diagnostics inspected a URL"); } });
+  Object.defineProperty(guarded, "requestId", { get() { throw new Error("diagnostics inspected an identity"); } });
+  f.failedEvents.push(guarded);
+  const result = await runFastBenchmark(f.options, f.deps);
+  const counts = result.pageFailureCategoryCounts;
+  assert.deepEqual(Object.keys(counts).sort(), ["canceled", "dns", "timeout", "connection_closed", "connection_reset",
+    "connection_refused", "connection_failed", "unreachable", "offline", "network_changed", "tls", "blocked", "resource", "other"].sort());
+  assert.equal(counts.other, f.failedEvents.length - 1);
+  assert.equal(counts.connection_closed, 1);
+  assert.equal(Object.values(counts).reduce((sum, count) => sum + count, 0), f.failedEvents.length);
+  assert.equal(result.pageFailedRequestCount, f.failedEvents.length);
+  assert.equal(Object.getPrototypeOf(counts), Object.prototype);
+  assert.ok(JSON.stringify(counts).length < 512);
+  assert.doesNotMatch(JSON.stringify(result), /synthetic|token|net::|__proto__|requestId|https|ERR_/);
+  assert.equal(result.valid, true);
+});
+
+// Counter ownership is one page invocation, never the shared browser or workers.
+test("page failure diagnostics are fresh per page invocation and do not attach worker targets", async () => {
+  const first = fixture(); first.failedEvents = [{ errorText: "net::ERR_CONNECTION_RESET" }];
+  const before = await runFastBenchmark(first.options, first.deps);
+  const next = fixture();
+  const after = await runFastBenchmark(next.options, next.deps);
+  assert.notEqual(before.pageFailureCategoryCounts, after.pageFailureCategoryCounts);
+  assert.equal(before.pageFailureCategoryCounts.connection_reset, 1);
+  assert.ok(Object.values(after.pageFailureCategoryCounts).every(count => count === 0));
+  assert.equal(after.pageFailureScope, "page-target-only");
+  const allowed = new Set(["Target.createTarget", "Target.closeTarget", "Page.enable", "Network.enable", "Runtime.enable",
+    "Network.setCacheDisabled", "Network.clearBrowserCache", "Page.navigate", "Runtime.evaluate"]);
+  for (const call of [...first.calls, ...next.calls].filter(Array.isArray)) assert.ok(allowed.has(call[0]));
+  assertClosed(first); assertClosed(next);
+});
+
 test("navigation failure still closes only the owned target and propagates failure", async () => {
   const f = fixture(); f.navigationError = true;
   await assert.rejects(runFastBenchmark(f.options, f.deps), /synthetic navigation failure/);
@@ -258,6 +387,11 @@ test(`actual CLI exits with the correct aggregate despite ${mode} and a retained
           : { value: "40", units: "Mbps", progress: "succeeded", loaded: "complete" } } };
         queueMicrotask(() => {
           if (method === "Page.navigate") this.dispatchEvent(new MessageEvent("message", { data: JSON.stringify({ method: "Network.requestWillBeSent", params: {} }) }));
+          if (method === "Page.navigate") for (const errorText of ["net::ERR_CONNECTION_RESET", "net::ERR_TIMED_OUT synthetic-private-token"]) {
+            this.dispatchEvent(new MessageEvent("message", { data: JSON.stringify({ method: "Network.requestWillBeSent", params: {} }) }));
+            this.dispatchEvent(new MessageEvent("message", { data: JSON.stringify({ method: "Network.loadingFailed",
+              params: { errorText, requestId: "synthetic-private-request", url: "https://download.example/?token=synthetic-private" } }) }));
+          }
           if (method === "Page.navigate" && mode !== "incomplete") this.dispatchEvent(new MessageEvent("message", { data: JSON.stringify({ method: "Network.loadingFinished", params: { encodedDataLength: 768 } }) }));
           this.dispatchEvent(new MessageEvent("message", { data: JSON.stringify({ id, result }) }));
         });
@@ -276,7 +410,13 @@ test(`actual CLI exits with the correct aggregate despite ${mode} and a retained
   const result = JSON.parse(child.stdout);
   assert.equal(result.completed, ["cleanup-hang", "close-handshake"].includes(mode));
   assert.equal(result.valid, valid);
-  assert.equal(result.pageRequestCount, 1);
+  assert.equal(result.pageRequestCount, 3);
+  assert.equal(result.pageFailureScope, "page-target-only");
+  assert.equal(result.pageFailedRequestCount, 2);
+  assert.equal(result.pageFailureCategoryCounts.connection_reset, 1);
+  assert.equal(result.pageFailureCategoryCounts.other, 1);
+  assert.equal(Object.values(result.pageFailureCategoryCounts).reduce((sum, count) => sum + count, 0), 2);
+  assert.doesNotMatch(child.stdout, /synthetic-private|download\.example|requestId|net::/);
   assert.equal(result.pageEncodedBytes, mode === "incomplete" ? 0 : 768);
   assert.equal(result.totalElapsedMs, valid ? 1000 : 2000);
   assert.equal(result.timeoutPhase, { incomplete: "display-poll", "evaluate-hang": "display-evaluate", "cleanup-hang": "target-cleanup" }[mode] ?? null);

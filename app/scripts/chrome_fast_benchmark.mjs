@@ -2,8 +2,8 @@
 
 // Run Fast.com's real browser workload through an adb-forwarded Android Chrome
 // DevTools socket. Output intentionally contains aggregate timings and byte
-// counts only: Fast.com's ephemeral download URLs may contain signed tokens and
-// must not be copied into benchmark logs.
+// counts and fixed failure categories only: Fast.com's ephemeral download URLs
+// may contain signed tokens and must not be copied into benchmark logs.
 
 import process from "node:process";
 import { pathToFileURL } from "node:url";
@@ -143,6 +143,9 @@ export async function runFastBenchmark(options, dependencies = {}) {
   let pageRequestCount = 0;
   let pageCompletedRequestCount = 0;
   let pageFailedRequestCount = 0;
+  const pageFailureCategoryCounts = { canceled: 0, dns: 0, timeout: 0,
+    connection_closed: 0, connection_reset: 0, connection_refused: 0, connection_failed: 0,
+    unreachable: 0, offline: 0, network_changed: 0, tls: 0, blocked: 0, resource: 0, other: 0 };
   let activeRequests = 0;
   let maxParallelRequests = 0;
   try {
@@ -185,7 +188,39 @@ export async function runFastBenchmark(options, dependencies = {}) {
       pageEncodedBytes += Math.max(0, event.encodedDataLength ?? 0);
       activeRequests = Math.max(0, activeRequests - 1);
     });
-    session.on("Network.loadingFailed", () => {
+    session.on("Network.loadingFailed", (event) => {
+      // Exact protocol codes only. Unknown text, URLs and request identities
+      // never become keys or retained values; cancellation takes precedence.
+      let category = "other";
+      if (event?.canceled === true) category = "canceled";
+      else switch (event?.errorText) {
+        case "net::ERR_ABORTED": category = "canceled"; break;
+        case "net::ERR_NAME_NOT_RESOLVED":
+        case "net::ERR_NAME_RESOLUTION_FAILED":
+        case "net::ERR_DNS_TIMED_OUT": category = "dns"; break;
+        case "net::ERR_TIMED_OUT":
+        case "net::ERR_CONNECTION_TIMED_OUT": category = "timeout"; break;
+        case "net::ERR_CONNECTION_CLOSED": category = "connection_closed"; break;
+        case "net::ERR_CONNECTION_RESET": category = "connection_reset"; break;
+        case "net::ERR_CONNECTION_REFUSED": category = "connection_refused"; break;
+        case "net::ERR_CONNECTION_FAILED":
+        case "net::ERR_CONNECTION_ABORTED": category = "connection_failed"; break;
+        case "net::ERR_ADDRESS_UNREACHABLE": category = "unreachable"; break;
+        case "net::ERR_INTERNET_DISCONNECTED": category = "offline"; break;
+        case "net::ERR_NETWORK_CHANGED": category = "network_changed"; break;
+        case "net::ERR_SSL_PROTOCOL_ERROR":
+        case "net::ERR_SSL_VERSION_OR_CIPHER_MISMATCH":
+        case "net::ERR_CERT_COMMON_NAME_INVALID":
+        case "net::ERR_CERT_DATE_INVALID":
+        case "net::ERR_CERT_AUTHORITY_INVALID": category = "tls"; break;
+        case "net::ERR_BLOCKED_BY_CLIENT":
+        case "net::ERR_BLOCKED_BY_ADMINISTRATOR":
+        case "net::ERR_BLOCKED_BY_RESPONSE":
+        case "net::ERR_BLOCKED_BY_CSP": category = "blocked"; break;
+        case "net::ERR_INSUFFICIENT_RESOURCES":
+        case "net::ERR_OUT_OF_MEMORY": category = "resource"; break;
+      }
+      pageFailureCategoryCounts[category] += 1;
       pageFailedRequestCount += 1;
       activeRequests = Math.max(0, activeRequests - 1);
     });
@@ -265,6 +300,8 @@ export async function runFastBenchmark(options, dependencies = {}) {
     pageRequestCount,
     pageCompletedRequestCount,
     pageFailedRequestCount,
+    pageFailureScope: "page-target-only",
+    pageFailureCategoryCounts,
     pageMaxParallelRequests: maxParallelRequests,
     completed: completionReason !== null,
     completionReason,
