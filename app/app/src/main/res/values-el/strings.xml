@@ -657,6 +657,7 @@
     <string name="no_solana_wallet_found">Δεν βρέθηκε εφαρμογή πορτοφολιού για την πληρωμή Solana.</string>
     <string name="no_solana_wallets_found">Δεν βρέθηκαν πορτοφόλια Solana</string>
     <string name="no_wallets_found_alert_content">Δεν βρέθηκαν πορτοφόλια Solana εγκατεστημένα σε αυτήν τη συσκευή. Εγκαταστήστε ένα πορτοφόλι και δοκιμάστε ξανά.</string>
+    <string name="no_wallets_found_enter_address_manually">Δεν βρέθηκε συμβατή εφαρμογή πορτοφολιού Solana σε αυτήν τη συσκευή. Επιλέξτε «Χειροκίνητη εισαγωγή διεύθυνσης» για να επικολλήσετε αντί γι’ αυτό τη διεύθυνση του πορτοφολιού σας.</string>
     <string name="none">Κανένα</string>
     <string name="notifications_label">Ειδοποιήσεις</string>
     <string name="of_total">από %1$s</string>

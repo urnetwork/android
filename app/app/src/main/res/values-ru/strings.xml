@@ -657,6 +657,7 @@
     <string name="no_solana_wallet_found">Не найдено приложение кошелька для оплаты через Solana.</string>
     <string name="no_solana_wallets_found">Кошельки Solana не найдены</string>
     <string name="no_wallets_found_alert_content">На этом устройстве не найдено установленных кошельков Solana. Пожалуйста, установите кошелек и попробуйте снова.</string>
+    <string name="no_wallets_found_enter_address_manually">На этом устройстве не найдено совместимое приложение кошелька Solana. Выберите «Ввести адрес вручную», чтобы вместо этого вставить адрес вашего кошелька.</string>
     <string name="none">Нет</string>
     <string name="notifications_label">Уведомления</string>
     <string name="of_total">из %1$s</string>

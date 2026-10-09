@@ -657,6 +657,7 @@
     <string name="no_solana_wallet_found">ไม่พบแอปกระเป๋าเงินสำหรับการชำระเงินด้วย Solana</string>
     <string name="no_solana_wallets_found">ไม่พบกระเป๋า Solana</string>
     <string name="no_wallets_found_alert_content">ไม่พบการติดตั้งแอพกระเป๋า Solana บนเครื่องนี้ โปรดติดตั้ง</string>
+    <string name="no_wallets_found_enter_address_manually">ไม่พบแอปกระเป๋าเงิน Solana ที่รองรับบนอุปกรณ์นี้ เลือก “ป้อนที่อยู่ด้วยตนเอง” เพื่อวางที่อยู่กระเป๋าเงินของคุณแทน</string>
     <string name="none">ไม่มี</string>
     <string name="notifications_label">การแจ้งเตือน</string>
     <string name="of_total">จาก %1$s</string>

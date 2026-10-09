@@ -657,6 +657,7 @@
     <string name="no_solana_wallet_found">No se encontró ninguna app de billetera para el pago con Solana.</string>
     <string name="no_solana_wallets_found">No se encontraron billeteras de Solana</string>
     <string name="no_wallets_found_alert_content">No se encontraron billeteras de Solana instaladas en este dispositivo. Instale una billetera e intente nuevamente.</string>
+    <string name="no_wallets_found_enter_address_manually">No se encontró ninguna app de billetera de Solana compatible en este dispositivo. Elige «Introducir la dirección manualmente» para pegar la dirección de tu billetera en su lugar.</string>
     <string name="none">Ninguno</string>
     <string name="notifications_label">Notificaciones</string>
     <string name="of_total">de %1$s</string>

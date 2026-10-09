@@ -657,6 +657,7 @@
     <string name="no_solana_wallet_found">Geen wallet-app gevonden voor de Solana-betaling.</string>
     <string name="no_solana_wallets_found">Geen Solana wallets gevonden</string>
     <string name="no_wallets_found_alert_content">Er zijn geen Solana wallets geïnstalleerd op dit apparaat. Installeer een portemonnee en probeer het opnieuw.</string>
+    <string name="no_wallets_found_enter_address_manually">Er is geen compatibele Solana-wallet-app gevonden op dit apparaat. Kies ‘Adres handmatig invoeren’ om in plaats daarvan je walletadres te plakken.</string>
     <string name="none">Geen</string>
     <string name="notifications_label">Notificaties</string>
     <string name="of_total">van %1$s</string>

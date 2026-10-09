@@ -657,6 +657,7 @@
     <string name="no_solana_wallet_found">Nenhum app de carteira encontrado para o pagamento em Solana.</string>
     <string name="no_solana_wallets_found">Nenhuma carteira Solana encontrada</string>
     <string name="no_wallets_found_alert_content">Nenhuma carteira Solana foi encontrada instalada neste dispositivo. Instale uma carteira e tente novamente.</string>
+    <string name="no_wallets_found_enter_address_manually">Nenhum app de carteira Solana compatível foi encontrado neste dispositivo. Escolha \"Digitar o endereço manualmente\" para colar o endereço da sua carteira em vez disso.</string>
     <string name="none">Nenhum</string>
     <string name="notifications_label">Notificações</string>
     <string name="of_total">de %1$s</string>

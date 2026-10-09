@@ -657,6 +657,7 @@
     <string name="no_solana_wallet_found">Solana の支払いを処理できるウォレットアプリが見つかりません。</string>
     <string name="no_solana_wallets_found">Solanaウォレットが見つかりません</string>
     <string name="no_wallets_found_alert_content">このデバイスにSolanaウォレットがインストールされていません。ウォレットをインストールして、もう一度お試しください。</string>
+    <string name="no_wallets_found_enter_address_manually">このデバイスに対応する Solana ウォレットアプリが見つかりません。代わりにウォレットのアドレスを貼り付けるには、「アドレスを手動で入力」を選択してください。</string>
     <string name="none">なし</string>
     <string name="notifications_label">通知</string>
     <string name="of_total">/ %1$s</string>

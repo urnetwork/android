@@ -657,6 +657,7 @@
     <string name="no_solana_wallet_found">Keine Wallet-App gefunden, die die Solana-Zahlung verarbeiten kann.</string>
     <string name="no_solana_wallets_found">Keine Solana Wallets gefunden</string>
     <string name="no_wallets_found_alert_content">Es wurden keine Solana Wallets auf diesem Gerät gefunden. Bitte installiere eine Wallet und versuche es erneut.</string>
+    <string name="no_wallets_found_enter_address_manually">Auf diesem Gerät wurde keine kompatible Solana-Wallet-App gefunden. Wähle „Adresse manuell eingeben“, um stattdessen deine Wallet-Adresse einzufügen.</string>
     <string name="none">Keine</string>
     <string name="notifications_label">Benachrichtigungen</string>
     <string name="of_total">von %1$s</string>

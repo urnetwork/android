@@ -657,6 +657,7 @@
     <string name="no_solana_wallet_found">Nebyla nalezena žádná aplikace peněženky pro platbu Solana.</string>
     <string name="no_solana_wallets_found">Nebyly nalezeny žádné peněženky Solana</string>
     <string name="no_wallets_found_alert_content">V tomto zařízení nebyly nalezeny žádné peněženky Solana. Nainstalujte prosím peněženku a zkuste to znovu.</string>
+    <string name="no_wallets_found_enter_address_manually">Na tomto zařízení nebyla nalezena žádná kompatibilní aplikace peněženky Solana. Zvolte „Zadat adresu ručně“ a vložte místo toho adresu své peněženky.</string>
     <string name="none">Žádné</string>
     <string name="notifications_label">Oznámení</string>
     <string name="of_total">z %1$s</string>

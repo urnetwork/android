@@ -657,6 +657,7 @@
     <string name="no_solana_wallet_found">لم يتم العثور على تطبيق محفظة لمعالجة الدفع عبر Solana.</string>
     <string name="no_solana_wallets_found">لم يتم العثور على محافظ Solana</string>
     <string name="no_wallets_found_alert_content">لم يتم العثور على أي محافظ Solana مثبتة على هذا الجهاز. يرجى تثبيت محفظة والمحاولة مرة أخرى.</string>
+    <string name="no_wallets_found_enter_address_manually">لم يتم العثور على تطبيق محفظة Solana متوافق على هذا الجهاز. اختر «إدخال العنوان يدويًا» للصق عنوان محفظتك بدلاً من ذلك.</string>
     <string name="none">لا يوجد</string>
     <string name="notifications_label">الإشعارات</string>
     <string name="of_total">من %1$s</string>
