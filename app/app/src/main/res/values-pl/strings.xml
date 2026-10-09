@@ -657,6 +657,7 @@
     <string name="no_solana_wallet_found">Nie znaleziono aplikacji portfela do obsługi płatności Solana.</string>
     <string name="no_solana_wallets_found">Nie znaleziono portfeli Solana</string>
     <string name="no_wallets_found_alert_content">Nie znaleziono żadnych portfeli Solana zainstalowanych na tym urządzeniu. Zainstaluj portfel i spróbuj ponownie.</string>
+    <string name="no_wallets_found_enter_address_manually">Na tym urządzeniu nie znaleziono zgodnej aplikacji portfela Solana. Wybierz „Wpisz adres ręcznie”, aby zamiast tego wkleić adres swojego portfela.</string>
     <string name="none">Brak</string>
     <string name="notifications_label">Powiadomienia</string>
     <string name="of_total">z %1$s</string>

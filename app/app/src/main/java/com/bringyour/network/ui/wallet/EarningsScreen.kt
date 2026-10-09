@@ -281,10 +281,13 @@ fun EarningsScreen(
         )
     }
 
-    // over the sheet, which stays open so manual entry remains available
+    // over the sheet, which stays open so manual entry remains available. A wallet the
+    // adapter cannot reach (as reported with Brave Wallet) still connects by its
+    // address, so the alert points at manual entry and opens the sheet's manual step
     if (solanaState is SolanaConnectState.NoWalletApp) {
         NoSolanaWalletsAlert(
-            onDismiss = { solanaWalletViewModel.dismissConnectState() }
+            onDismiss = { solanaWalletViewModel.dismissConnectState() },
+            onEnterManually = { solanaWalletViewModel.showManualStep() },
         )
     }
 

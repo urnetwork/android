@@ -657,6 +657,7 @@
     <string name="no_solana_wallet_found">Aucune application de portefeuille trouvée pour le paiement Solana.</string>
     <string name="no_solana_wallets_found">Aucun portefeuille Solana trouvé</string>
     <string name="no_wallets_found_alert_content">Aucun portefeuille Solana n\'a été trouvé installé sur cet appareil. Veuillez installer un portefeuille et réessayer.</string>
+    <string name="no_wallets_found_enter_address_manually">Aucune application de portefeuille Solana compatible n’a été trouvée sur cet appareil. Choisissez « Saisir l’adresse manuellement » pour coller l’adresse de votre portefeuille à la place.</string>
     <string name="none">Aucun</string>
     <string name="notifications_label">Notifications</string>
     <string name="of_total">sur %1$s</string>

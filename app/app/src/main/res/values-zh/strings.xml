@@ -657,6 +657,7 @@
     <string name="no_solana_wallet_found">未找到可处理 Solana 付款的钱包应用。</string>
     <string name="no_solana_wallets_found">未找到 Solana 钱包</string>
     <string name="no_wallets_found_alert_content">在此设备上未找到已安装的 Solana 钱包。请安装一个钱包，然后重试。</string>
+    <string name="no_wallets_found_enter_address_manually">此设备上未找到兼容的 Solana 钱包应用。请选择“手动输入地址”，改为粘贴您的钱包地址。</string>
     <string name="none">无</string>
     <string name="notifications_label">通知</string>
     <string name="of_total">/ %1$s</string>

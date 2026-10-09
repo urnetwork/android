@@ -657,6 +657,7 @@
     <string name="no_solana_wallet_found">Solana भुगतान के लिए कोई वॉलेट ऐप नहीं मिला।</string>
     <string name="no_solana_wallets_found">कोई Solana वॉलेट नहीं मिला</string>
     <string name="no_wallets_found_alert_content">इस डिवाइस पर कोई Solana वॉलेट इंस्टॉल नहीं मिला. कृपया एक वॉलेट इंस्टॉल करें और फिर से प्रयास करें.</string>
+    <string name="no_wallets_found_enter_address_manually">इस डिवाइस पर कोई संगत Solana वॉलेट ऐप नहीं मिला। इसके बजाय अपने वॉलेट का पता पेस्ट करने के लिए \"पता मैन्युअल रूप से डालें\" चुनें।</string>
     <string name="none">कोई नहीं</string>
     <string name="notifications_label">सूचनाएं</string>
     <string name="of_total">%1$s में से</string>

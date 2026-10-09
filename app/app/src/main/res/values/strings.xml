@@ -664,6 +664,7 @@
     <string name="no_solana_wallet_found">No wallet app found to handle the Solana payment.</string>
     <string name="no_solana_wallets_found">No Solana Wallets Found</string>
     <string name="no_wallets_found_alert_content">No Solana wallets were found installed on this device. Please install a wallet and try again.</string>
+    <string name="no_wallets_found_enter_address_manually">No compatible Solana wallet app was found on this device. Choose “Enter address manually” to paste your wallet address instead.</string>
     <string name="none">None</string>
     <string name="notifications_label">Notifications</string>
     <string name="of_total">of %1$s</string>

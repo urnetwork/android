@@ -657,6 +657,7 @@
     <string name="no_solana_wallet_found">Solana 결제를 처리할 지갑 앱을 찾을 수 없습니다.</string>
     <string name="no_solana_wallets_found">Solana 지갑을 찾을 수 없습니다</string>
     <string name="no_wallets_found_alert_content">이 장치에 설치된 Solana 지갑이 없습니다. 지갑을 설치하고 다시 시도하십시오.</string>
+    <string name="no_wallets_found_enter_address_manually">이 기기에서 호환되는 Solana 지갑 앱을 찾을 수 없습니다. 대신 지갑 주소를 붙여 넣으려면 \'주소 직접 입력\'을 선택하세요.</string>
     <string name="none">없음</string>
     <string name="notifications_label">알림</string>
     <string name="of_total">/ %1$s</string>

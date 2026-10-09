@@ -657,6 +657,7 @@
     <string name="no_solana_wallet_found">Hakuna programu ya pochi iliyopatikana kwa malipo ya Solana.</string>
     <string name="no_solana_wallets_found">Hakuna pochi za Solana zilizopatikana</string>
     <string name="no_wallets_found_alert_content">Hakuna pochi za Solana zilizopatikana zimewekwa kwenye kifaa hiki. Tafadhali sakinisha pochi na ujaribu tena.</string>
+    <string name="no_wallets_found_enter_address_manually">Hakuna programu ya pochi ya Solana inayooana iliyopatikana kwenye kifaa hiki. Chagua \"Weka anwani mwenyewe\" ili ubandike anwani ya pochi yako badala yake.</string>
     <string name="none">Hakuna</string>
     <string name="notifications_label">Arifa</string>
     <string name="of_total">kati ya %1$s</string>
