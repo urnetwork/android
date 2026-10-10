@@ -31,15 +31,16 @@ val providerLocationRemoveControls: Set<RowRemoveControl> = setOf(
 
 /**
  * The accessibility actions of a swipe-to-reveal row. Assistive tech cannot
- * swipe, so the revealed delete is also offered as a custom action
- * (TalkBack's actions menu, Switch Access) on every such row.
+ * swipe, so the revealed action (delete, or Sessions' sign out) is also
+ * offered as a custom action (TalkBack's actions menu, Switch Access) on
+ * every such row.
  */
 fun swipeToRevealAccessibilityActions(
-    removeLabel: String,
-    onDelete: () -> Unit,
+    label: String,
+    onAction: () -> Unit,
 ): List<CustomAccessibilityAction> = listOf(
-    CustomAccessibilityAction(removeLabel) {
-        onDelete()
+    CustomAccessibilityAction(label) {
+        onAction()
         true
     },
 )

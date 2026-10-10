@@ -89,6 +89,8 @@ class MainApplication : Application() {
         const val CLIENT_EVENT_SESSION_GAP_MILLIS = 30L * 60L * 1000L
         // how long logout waits for the pending product events to send
         const val CLIENT_EVENT_LOGOUT_DRAIN_MILLIS = 1500L
+        // the device type every request of the api reports (Api.SetClientInfo)
+        const val CLIENT_INFO_DEVICE_TYPE = "android"
         // Admission scales with the effective process allowance. The debug
         // iOS surrogate mirrors the extension's 32/32-MiB target/soft limit;
         // v1 remains an explicit historical 20/32-MiB comparison profile.
@@ -1319,6 +1321,11 @@ class MainApplication : Application() {
         stop()
 
         networkSpaceManagerProvider.setNetworkSpace(networkSpace)
+
+        // the space's api is the api this app's requests go out on: before any
+        // of them, it reports the device type and this build's version, which
+        // the server keeps for each sign-in (Account -> Sessions)
+        networkSpace.api?.setClientInfo(Sdk.newClientInfo(CLIENT_INFO_DEVICE_TYPE, BuildConfig.VERSION_NAME))
 
         // the product-event queue follows the active network space: its api sends
         // and its local state dir persists the pending batch across process death

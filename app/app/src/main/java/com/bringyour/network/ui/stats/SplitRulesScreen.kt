@@ -1,8 +1,6 @@
 package com.bringyour.network.ui.stats
 
 import com.bringyour.network.ui.components.tabletReadableColumn
-import android.icu.text.RelativeDateTimeFormatter
-import android.text.format.DateUtils
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -84,6 +82,7 @@ import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.TopBarTitleTextStyle
 import com.bringyour.network.ui.theme.Yellow400
 import com.bringyour.network.utils.formatByteCountCompact
+import com.bringyour.network.utils.relativeTime
 import kotlinx.coroutines.launch
 
 internal data class RuleEditorTarget(
@@ -275,7 +274,7 @@ fun SplitRulesScreen(
                         }
                     ) { _, rule ->
                         SwipeToRevealRow(
-                            onDelete = { blockActionsViewModel.removeRule(rule.id) }
+                            onAction = { blockActionsViewModel.removeRule(rule.id) }
                         ) {
                             SplitRuleRow(
                                 rule = rule,
@@ -689,21 +688,6 @@ fun StateChip(
             )
             .padding(horizontal = 7.dp, vertical = 3.dp)
     )
-}
-
-private fun relativeTime(timeMillis: Long): String {
-    // the platform formatters localize for every locale; under 5s reads as "now"
-    val now = System.currentTimeMillis()
-    if (now - timeMillis < 5_000) {
-        return RelativeDateTimeFormatter.getInstance()
-            .format(RelativeDateTimeFormatter.Direction.PLAIN, RelativeDateTimeFormatter.AbsoluteUnit.NOW)
-    }
-    return DateUtils.getRelativeTimeSpanString(
-        timeMillis,
-        now,
-        DateUtils.SECOND_IN_MILLIS,
-        DateUtils.FORMAT_ABBREV_RELATIVE,
-    ).toString()
 }
 
 /**

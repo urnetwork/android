@@ -104,6 +104,8 @@ sealed class Route {
     @Serializable object Account : Route()
     @Serializable object Support : Route()
     @Serializable object Profile : Route()
+    // Account -> Sessions: the account's sign-ins, with sign out
+    @Serializable object Sessions : Route()
     @Serializable object Settings : Route()
     @Serializable object Earnings : Route()
     @Serializable object Referrals : Route()
