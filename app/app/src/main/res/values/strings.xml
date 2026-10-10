@@ -952,8 +952,10 @@
     <string name="sessions_legacy_note">Sign-ins from older app versions appear here once they renew. To end every sign-in, change your sign-in details.</string>
     <string name="sessions_load_failed">Couldn\'t load sessions.</string>
     <string name="sessions_refresh_failed">Couldn\'t refresh. Showing the last list.</string>
+    <string name="sessions_sign_in_required">Sign in again to manage sessions.</string>
     <string name="sessions_sign_out_accessibility">Sign out %1$s</string>
     <string name="sessions_sign_out_all_others">Sign out all other sessions</string>
+    <string name="sessions_sign_out_others_failed">Couldn\'t sign out the other sessions. Try again.</string>
     <string name="sessions_signed_in">Signed in %1$s</string>
     <string name="sessions_signed_out_remotely">This session was signed out from another device.</string>
     <string name="sessions_signing_out">Signing out…</string>

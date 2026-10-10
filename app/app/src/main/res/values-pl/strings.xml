@@ -945,8 +945,10 @@
     <string name="sessions_legacy_note">Logowania ze starszych wersji aplikacji pojawią się tutaj po ich odnowieniu. Aby zakończyć wszystkie logowania, zmień swoje dane logowania.</string>
     <string name="sessions_load_failed">Nie udało się wczytać sesji.</string>
     <string name="sessions_refresh_failed">Nie udało się odświeżyć. Wyświetlana jest ostatnia lista.</string>
+    <string name="sessions_sign_in_required">Zaloguj się ponownie, aby zarządzać sesjami.</string>
     <string name="sessions_sign_out_accessibility">Wyloguj %1$s</string>
     <string name="sessions_sign_out_all_others">Wyloguj wszystkie inne sesje</string>
+    <string name="sessions_sign_out_others_failed">Nie udało się wylogować innych sesji. Spróbuj ponownie.</string>
     <string name="sessions_signed_in">Zalogowano %1$s</string>
     <string name="sessions_signed_out_remotely">Ta sesja została wylogowana z innego urządzenia.</string>
     <string name="sessions_signing_out">Wylogowywanie…</string>

@@ -945,8 +945,10 @@
     <string name="sessions_legacy_note">Anmeldungen aus älteren App-Versionen erscheinen hier, sobald sie erneuert werden. Um alle Anmeldungen zu beenden, ändere deine Anmeldedaten.</string>
     <string name="sessions_load_failed">Sitzungen konnten nicht geladen werden.</string>
     <string name="sessions_refresh_failed">Aktualisierung fehlgeschlagen. Die letzte Liste wird angezeigt.</string>
+    <string name="sessions_sign_in_required">Melde dich erneut an, um Sitzungen zu verwalten.</string>
     <string name="sessions_sign_out_accessibility">%1$s abmelden</string>
     <string name="sessions_sign_out_all_others">Alle anderen Sitzungen abmelden</string>
+    <string name="sessions_sign_out_others_failed">Die anderen Sitzungen konnten nicht abgemeldet werden. Versuche es erneut.</string>
     <string name="sessions_signed_in">Angemeldet am %1$s</string>
     <string name="sessions_signed_out_remotely">Diese Sitzung wurde von einem anderen Gerät abgemeldet.</string>
     <string name="sessions_signing_out">Wird abgemeldet…</string>

@@ -945,8 +945,10 @@
     <string name="sessions_legacy_note">Přihlášení ze starších verzí aplikace se zde zobrazí, jakmile se obnoví. Chcete-li ukončit všechna přihlášení, změňte své přihlašovací údaje.</string>
     <string name="sessions_load_failed">Relace se nepodařilo načíst.</string>
     <string name="sessions_refresh_failed">Obnovení se nezdařilo. Zobrazuje se poslední seznam.</string>
+    <string name="sessions_sign_in_required">Pro správu relací se znovu přihlaste.</string>
     <string name="sessions_sign_out_accessibility">Odhlásit %1$s</string>
     <string name="sessions_sign_out_all_others">Odhlásit všechny ostatní relace</string>
+    <string name="sessions_sign_out_others_failed">Ostatní relace se nepodařilo odhlásit. Zkuste to znovu.</string>
     <string name="sessions_signed_in">Přihlášeno %1$s</string>
     <string name="sessions_signed_out_remotely">Tato relace byla odhlášena z jiného zařízení.</string>
     <string name="sessions_signing_out">Odhlašování…</string>

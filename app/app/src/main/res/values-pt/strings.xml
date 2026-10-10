@@ -945,8 +945,10 @@
     <string name="sessions_legacy_note">Os inícios de sessão de versões mais antigas da app aparecem aqui quando forem renovados. Para terminar todos os inícios de sessão, altere os seus dados de início de sessão.</string>
     <string name="sessions_load_failed">Não foi possível carregar as sessões.</string>
     <string name="sessions_refresh_failed">Não foi possível atualizar. A mostrar a última lista.</string>
+    <string name="sessions_sign_in_required">Volte a iniciar sessão para gerir as sessões.</string>
     <string name="sessions_sign_out_accessibility">Terminar sessão em %1$s</string>
     <string name="sessions_sign_out_all_others">Terminar todas as outras sessões</string>
+    <string name="sessions_sign_out_others_failed">Não foi possível terminar as outras sessões. Tente novamente.</string>
     <string name="sessions_signed_in">Sessão iniciada a %1$s</string>
     <string name="sessions_signed_out_remotely">Esta sessão foi terminada a partir de outro dispositivo.</string>
     <string name="sessions_signing_out">A terminar sessão…</string>

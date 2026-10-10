@@ -945,8 +945,10 @@
     <string name="sessions_legacy_note">การลงชื่อเข้าใช้จากแอปเวอร์ชันเก่าจะแสดงที่นี่เมื่อมีการต่ออายุ หากต้องการยุติการลงชื่อเข้าใช้ทั้งหมด ให้เปลี่ยนข้อมูลการลงชื่อเข้าใช้ของคุณ</string>
     <string name="sessions_load_failed">โหลดเซสชันไม่ได้</string>
     <string name="sessions_refresh_failed">รีเฟรชไม่ได้ กำลังแสดงรายการล่าสุด</string>
+    <string name="sessions_sign_in_required">ลงชื่อเข้าใช้อีกครั้งเพื่อจัดการเซสชัน</string>
     <string name="sessions_sign_out_accessibility">ออกจากระบบ %1$s</string>
     <string name="sessions_sign_out_all_others">ออกจากระบบเซสชันอื่นทั้งหมด</string>
+    <string name="sessions_sign_out_others_failed">ออกจากระบบเซสชันอื่นไม่ได้ ลองอีกครั้ง</string>
     <string name="sessions_signed_in">ลงชื่อเข้าใช้ %1$s</string>
     <string name="sessions_signed_out_remotely">เซสชันนี้ถูกออกจากระบบจากอุปกรณ์อื่น</string>
     <string name="sessions_signing_out">กำลังออกจากระบบ…</string>

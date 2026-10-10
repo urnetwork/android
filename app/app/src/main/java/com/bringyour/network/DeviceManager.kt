@@ -121,8 +121,10 @@ class DeviceManager @Inject constructor(
     // set by the application; fired when the sdk detects the stored auth is
     // no longer valid on the server (e.g. the client was removed) and has
     // cleared the local auth state. The app must log out and return to the
-    // login flow.
-    var onAuthLogout: (() -> Unit)? = null
+    // login flow. The cause is the device's (Device.getAuthLogoutCause):
+    // Sdk.AuthLogoutCauseSessionRevoked when the server confirmed another
+    // device signed this session out, else "".
+    var onAuthLogout: ((cause: String) -> Unit)? = null
 
     @Volatile var device: DeviceLocal? = null
         private set
@@ -514,7 +516,10 @@ class DeviceManager @Inject constructor(
                     }
 
                     authLogoutSub = newDevice.addAuthLogoutListener {
-                        onAuthLogout?.invoke()
+                        // read here, on the sdk's thread, before the app posts
+                        // its logout: the device sets the cause before it
+                        // notifies its listeners
+                        onAuthLogout?.invoke(newDevice.authLogoutCause.orEmpty())
                     }
                     deviceChanges.prepareUpdate(newDevice)
                 }

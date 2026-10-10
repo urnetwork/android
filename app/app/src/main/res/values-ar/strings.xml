@@ -945,8 +945,10 @@
     <string name="sessions_legacy_note">تظهر عمليات تسجيل الدخول من إصدارات التطبيق الأقدم هنا بعد تجديدها. لإنهاء كل عمليات تسجيل الدخول، غيّر بيانات تسجيل الدخول الخاصة بك.</string>
     <string name="sessions_load_failed">تعذّر تحميل الجلسات.</string>
     <string name="sessions_refresh_failed">تعذّر التحديث. يتم عرض آخر قائمة.</string>
+    <string name="sessions_sign_in_required">سجّل الدخول مجددًا لإدارة الجلسات.</string>
     <string name="sessions_sign_out_accessibility">تسجيل الخروج من %1$s</string>
     <string name="sessions_sign_out_all_others">تسجيل الخروج من كل الجلسات الأخرى</string>
+    <string name="sessions_sign_out_others_failed">تعذّر تسجيل الخروج من الجلسات الأخرى. حاول مرة أخرى.</string>
     <string name="sessions_signed_in">تسجيل الدخول: %1$s</string>
     <string name="sessions_signed_out_remotely">تم تسجيل الخروج من هذه الجلسة من جهاز آخر.</string>
     <string name="sessions_signing_out">جارٍ تسجيل الخروج…</string>

@@ -945,8 +945,10 @@
     <string name="sessions_legacy_note">Входы из старых версий приложения появятся здесь после их обновления. Чтобы завершить все входы, смените данные для входа.</string>
     <string name="sessions_load_failed">Не удалось загрузить сеансы.</string>
     <string name="sessions_refresh_failed">Не удалось обновить. Показан последний список.</string>
+    <string name="sessions_sign_in_required">Войдите снова, чтобы управлять сеансами.</string>
     <string name="sessions_sign_out_accessibility">Выйти из сеанса: %1$s</string>
     <string name="sessions_sign_out_all_others">Выйти из всех других сеансов</string>
+    <string name="sessions_sign_out_others_failed">Не удалось завершить остальные сеансы. Попробуйте ещё раз.</string>
     <string name="sessions_signed_in">Вход: %1$s</string>
     <string name="sessions_signed_out_remotely">Этот сеанс был завершён с другого устройства.</string>
     <string name="sessions_signing_out">Выход…</string>

@@ -945,8 +945,10 @@
     <string name="sessions_legacy_note">古いバージョンのアプリからのサインインは、更新されるとここに表示されます。すべてのサインインを終了するには、サインイン情報を変更してください。</string>
     <string name="sessions_load_failed">セッションを読み込めませんでした。</string>
     <string name="sessions_refresh_failed">更新できませんでした。前回の一覧を表示しています。</string>
+    <string name="sessions_sign_in_required">セッションを管理するには、もう一度サインインしてください。</string>
     <string name="sessions_sign_out_accessibility">%1$sからサインアウト</string>
     <string name="sessions_sign_out_all_others">他のすべてのセッションからサインアウト</string>
+    <string name="sessions_sign_out_others_failed">他のセッションからサインアウトできませんでした。もう一度お試しください。</string>
     <string name="sessions_signed_in">%1$sにサインイン</string>
     <string name="sessions_signed_out_remotely">このセッションは別のデバイスからサインアウトされました。</string>
     <string name="sessions_signing_out">サインアウトしています…</string>

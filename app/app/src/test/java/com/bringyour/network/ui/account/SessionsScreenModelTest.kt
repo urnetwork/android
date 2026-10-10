@@ -1,5 +1,6 @@
 package com.bringyour.network.ui.account
 
+import com.bringyour.network.R
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
@@ -399,6 +400,65 @@ class SessionsScreenModelTest {
         // running: no second confirmation
         model.requestSignOutOthers()
         assertNull(model.confirmation)
+    }
+
+    @Test
+    fun aFailedSignOutOfAllOthersSaysSoAndIsTriedAgainThroughTheController() {
+        val model = shownModel()
+        val controller = controllers.getValue("a")
+        controller.publish(threeSessions)
+        runPosted()
+        model.requestSignOutOthers()
+        model.confirm()
+
+        // the controller gave up on it
+        val error = SessionErrorFlags(retryable = false, signInRequired = false, unsupported = false)
+        controller.publish(
+            threeSessions.copy(bulkAction = SessionActionState(null, loading = false, pending = false, error = error))
+        )
+        runPosted()
+        val failed = model.ui.signOutOthers!!
+        assertEquals(SignOutOthersUi(signingOut = false, failed = true), failed)
+        assertEquals(R.string.sessions_sign_out_others_failed, failed.errorRes)
+
+        // the button asks again, and the retry is the controller's
+        events.clear()
+        model.requestSignOutOthers()
+        assertEquals(SessionsConfirmation.SignOutOthers, model.confirmation)
+        model.confirm()
+        assertEquals(listOf("a#1:revoke-others"), events)
+        assertTrue(model.ui.signOutOthers!!.signingOut)
+        assertNull(model.ui.signOutOthers!!.errorRes)
+    }
+
+    @Test
+    fun signInRequiredReplacesTheListAndSignsNothingOut() {
+        val model = shownModel()
+        val controller = controllers.getValue("a")
+        controller.publish(threeSessions)
+        runPosted()
+        events.clear()
+
+        // the account's sign-in was rejected: the sdk reports sign-in required
+        // until a new sign-in
+        val signIn = SessionErrorFlags(retryable = false, signInRequired = true, unsupported = false)
+        controller.publish(threeSessions.copy(error = signIn))
+        runPosted()
+        assertEquals(SessionsBody.SignInRequired, model.ui.body)
+        assertEquals(R.string.sessions_sign_in_required, model.ui.body.messageRes)
+        assertEquals(listOf<SessionRowUi>(), model.ui.rows)
+
+        // nothing left to sign out from here
+        model.requestSignOut(threeSessions.sessions[1].sessionId)
+        model.requestSignOutOthers()
+        assertNull(model.confirmation)
+        assertEquals(listOf<String>(), events)
+
+        // the trusted cause: another device signed this session out
+        controller.publish(SessionsSnapshot.Initial.copy(error = signIn.copy(sessionRevoked = true)))
+        runPosted()
+        assertEquals(SessionsBody.SignedOutRemotely, model.ui.body)
+        assertEquals(R.string.sessions_signed_out_remotely, model.ui.body.messageRes)
     }
 
     @Test

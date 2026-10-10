@@ -137,6 +137,8 @@ private fun sessionsSnapshotFromSdk(snapshot: ClientSessionSnapshot?): SessionsS
             SessionErrorFlags(
                 retryable = it.retryable,
                 signInRequired = it.signInRequired,
+                // the sdk sets it only for its trusted cause
+                sessionRevoked = it.sessionRevoked,
                 unsupported = it.unsupported,
             )
         }
