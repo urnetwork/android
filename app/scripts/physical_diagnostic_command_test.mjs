@@ -67,6 +67,41 @@ test("app command acknowledgment contract includes the exact nonempty argument i
   }
 });
 
+// Source wiring only: the SDK owns atomic accounting; Android may annotate the
+// one returned batch, but must not resample, rebuild, filter or relabel its data.
+function assertAtomicDiagnosticCollector(source) {
+  const sampler = source.match(/    private fun startSampler\([\s\S]*?(?=\n    private fun status\()/)?.[0];
+  assert.ok(sampler, "bounded diagnostic sampler source is required");
+  assert.equal((sampler.match(/\btransferDiagnosticSnapshotJson\(/g) ?? []).length, 1,
+    "one SDK diagnostic batch read per sampler iteration");
+  const batch = sampler.match(/val batch = device\.transferDiagnosticSnapshotJson\(\)[\s\S]*?(?=takePrimitiveSamples\(device, startUnixMs\))/)?.[0];
+  assert.ok(batch, "retain the SDK batch before draining independent primitives");
+  assert.match(batch, /val sequence = diagnosticBatchesProduced\.incrementAndGet\(\)/, "one batch sequence");
+  assert.match(batch, /val parts = batch\.lineSequence\(\)\.filter \{ it\.isNotBlank\(\) \}\.map \{ JSONObject\(it\) \}\.toList\(\)/,
+    "parse every nonempty SDK part without filtering its data");
+  assert.match(batch, /check\(parts\.count \{ it\.optString\("part"\) == "memory" \} == 1\)/,
+    "one runtime observation per diagnostic batch");
+  assert.match(batch, /for \(record in parts\) \{[\s\S]*diagnostics\.append\(record\.toString\(\)\)\.append\('\\n'\)/,
+    "append each annotated SDK record, not another snapshot or fabricated row");
+  const metadata = [
+    ["diagnosticBatchSequence", "sequence"], ["pid", "Process.myPid()"],
+    ["sessionId", "memorySessionId"], ["buildId", "BuildConfig.URNETWORK_ACCEPTANCE_BUILD_ID"],
+    ["memoryProfile", "MainApplication.MEMORY_PROFILE_NAME"], ["phase", "phase"],
+  ];
+  assert.deepEqual([...batch.matchAll(/\.put\(([^,\n]+),/g)].map(match => match[1]),
+    metadata.map(([key]) => JSON.stringify(key)), "only host identity and phase metadata may be added");
+  for (const [key, value] of metadata) {
+    assert.ok(batch.includes(".put(" + JSON.stringify(key) + ", " + value + ")"), "bind diagnostic metadata: " + key);
+  }
+  assert.doesNotMatch(batch, /\brecord\.(?:remove|accumulate|append)\(/, "SDK diagnostic data must remain unchanged");
+  assert.match(batch, /if \(record\.optString\("part"\) == "memory"\) \{\s*val bytes = physicalMemoryLong\(record\.opt\("go_total_bytes"\)\)\s*physicalMemoryLong\(record\.opt\("go_limit_bytes"\)\)\s*physicalMemoryLong\(record\.opt\("memory_profile_rate_bytes"\)\)\s*diagnosticRuntimePeak\.updateAndGet \{ current -> maxOf\(current, bytes\) \}\s*if \(bytes > GO_RUNTIME_SPIKE_BYTES\) diagnosticRuntimeBreaches\.incrementAndGet\(\)/,
+    "retain the actual diagnostic runtime peak and selected-profile breaches");
+  assert.match(batch, /diagnostics\.append\(record\.toString\(\)\)\.append\('\\n'\)\s*\}\s*diagnostics\.flush\(\)\s*diagnosticBatchesFlushed\.incrementAndGet\(\)\s*$/,
+    "count a flushed batch only after all annotated records are written and flushed");
+  assert.match(sampler, /getOrElse \{ error ->\s*exporterFailed\.set\(true\)/, "failed export must remain failed");
+  return sampler;
+}
+
 test("physical evidence is wired to explicit US, live routes, and the opt-in atomic SDK collector", () => {
   const source = readFileSync(new URL("../app/src/androidTest/java/com/bringyour/network/acceptance/PhysicalLowbarSessionTest.kt", import.meta.url), "utf8");
   assert.doesNotMatch(source, /connectBestAvailable\(/);
@@ -76,11 +111,46 @@ test("physical evidence is wired to explicit US, live routes, and the opt-in ato
   assert.match(source, /"selectedPeerId", physicalSelectedPeer\(/);
   assert.match(source, /"selectedCarrier", physicalSelectedCarriers\(carrierBaseline, carrierBytes\(device\)/);
   assert.match(source, /File\(acceptanceDir, "physical-diagnostics\.ndjson"\)/);
-  assert.match(source, /diagnostics\.append\(device\.transferDiagnosticSnapshotJson\(\)\)/);
-  assert.ok(source.indexOf("Sdk.setTransferDiagnosticSnapshotsEnabled(true)") < source.indexOf("withPhysicalCredentialCheckpoints("));
+  assertAtomicDiagnosticCollector(source);
+  const optIn = source.indexOf("val previousDiagnosticOptIn = Sdk.setTransferDiagnosticSnapshotsEnabled(true)");
+  assert.ok(optIn >= 0 && optIn < source.indexOf("withPhysicalCredentialCheckpoints("));
   assert.match(source, /finally \{[\s\S]*?Sdk\.setTransferDiagnosticSnapshotsEnabled\(previousDiagnosticOptIn\)/);
   assert.doesNotMatch(source, /put\("(?:transport_budget_|device_transport_budget_|transfer_root_)/,
     "the SDK owns the atomic budget graph; Kotlin must not fabricate another copy");
+});
+
+test("diagnostic collector root regression: identity decoration preserves the batch rejected by the old direct-append predicate", () => {
+  const source = readFileSync(new URL("../app/src/androidTest/java/com/bringyour/network/acceptance/PhysicalLowbarSessionTest.kt", import.meta.url), "utf8");
+  const sampler = assertAtomicDiagnosticCollector(source);
+  assert.doesNotMatch(sampler, /diagnostics\.append\(device\.transferDiagnosticSnapshotJson\(\)\)/,
+    "the historical predicate rejects the current identity-bound batch, despite one unchanged SDK read");
+});
+
+test("diagnostic collector custody rejects resampling, payload changes, lost identity and premature success", () => {
+  const source = readFileSync(new URL("../app/src/androidTest/java/com/bringyour/network/acceptance/PhysicalLowbarSessionTest.kt", import.meta.url), "utf8");
+  const sampler = assertAtomicDiagnosticCollector(source);
+  const mutations = [
+    ["for (record in parts) {", "for (record in parts) {\n device.transferDiagnosticSnapshotJson()", /one SDK diagnostic batch read/],
+    ["it.isNotBlank()", 'it.isNotBlank() && !it.contains("memory_device_transport")', /parse every nonempty SDK part/],
+    ['it.optString("part") == "memory" } == 1', 'it.optString("part") == "memory" } >= 1', /one runtime observation/],
+    ['record.put("diagnosticBatchSequence", sequence)', 'record.put("unix_millis", System.currentTimeMillis()).put("diagnosticBatchSequence", sequence)', /only host identity/],
+    ['record.put("diagnosticBatchSequence", sequence)', 'record.put("go_total_bytes", 0).put("diagnosticBatchSequence", sequence)', /only host identity/],
+    ['record.put("diagnosticBatchSequence", sequence)', 'record.put("transfer_root_used_bytes", 0).put("diagnosticBatchSequence", sequence)', /only host identity/],
+    ['.put("sessionId", memorySessionId)', "", /only host identity/],
+    ['.put("memoryProfile", MainApplication.MEMORY_PROFILE_NAME)', '.put("memoryProfile", "android")', /bind diagnostic metadata: memoryProfile/],
+    ["diagnostics.append(record.toString())", 'record.remove("go_limit_bytes")\n diagnostics.append(record.toString())', /SDK diagnostic data must remain unchanged/],
+    ["diagnostics.append(record.toString())", "diagnostics.append(device.transferDiagnosticSnapshotJson())", /one SDK diagnostic batch read/],
+    ["diagnostics.append(record.toString())", "diagnostics.append(JSONObject().toString())", /append each annotated SDK record/],
+    ["diagnostics.flush()", "diagnosticBatchesFlushed.incrementAndGet()\n diagnostics.flush()", /count a flushed batch only after/],
+    ["diagnosticRuntimePeak.updateAndGet { current -> maxOf(current, bytes) }", "", /retain the actual diagnostic runtime peak/],
+    ["bytes > GO_RUNTIME_SPIKE_BYTES", "bytes > Long.MAX_VALUE", /retain the actual diagnostic runtime peak/],
+    ["exporterFailed.set(true)", "exporterFailed.set(false)", /failed export must remain failed/],
+  ];
+  for (const [before, after, reason] of mutations) {
+    assert.equal(sampler.split(before).length, 2, "mutation must touch exactly one sampler site: " + before);
+    const changed = source.replace(sampler, sampler.replace(before, after));
+    assert.throws(() => assertAtomicDiagnosticCollector(changed), reason);
+  }
 });
 
 for (const [verb, label] of [
