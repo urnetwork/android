@@ -945,8 +945,10 @@
     <string name="sessions_legacy_note">Kuingia kutoka kwenye matoleo ya zamani ya programu kutaonekana hapa kukishasasishwa. Ili kukomesha kuingia kote, badilisha maelezo yako ya kuingia.</string>
     <string name="sessions_load_failed">Imeshindwa kupakia vipindi.</string>
     <string name="sessions_refresh_failed">Imeshindwa kuonyesha upya. Inaonyesha orodha ya mwisho.</string>
+    <string name="sessions_sign_in_required">Ingia tena ili kudhibiti vipindi.</string>
     <string name="sessions_sign_out_accessibility">Toka kwenye %1$s</string>
     <string name="sessions_sign_out_all_others">Toka kwenye vipindi vingine vyote</string>
+    <string name="sessions_sign_out_others_failed">Imeshindwa kutoka kwenye vipindi vingine. Jaribu tena.</string>
     <string name="sessions_signed_in">Kuingia: %1$s</string>
     <string name="sessions_signed_out_remotely">Kipindi hiki kilitolewa kutoka kwenye kifaa kingine.</string>
     <string name="sessions_signing_out">Inatoka…</string>

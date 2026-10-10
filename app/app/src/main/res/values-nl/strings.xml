@@ -945,8 +945,10 @@
     <string name="sessions_legacy_note">Inlogsessies van oudere appversies verschijnen hier zodra ze worden vernieuwd. Wijzig je inloggegevens om alle inlogsessies te beëindigen.</string>
     <string name="sessions_load_failed">Kan sessies niet laden.</string>
     <string name="sessions_refresh_failed">Kan niet vernieuwen. De laatste lijst wordt getoond.</string>
+    <string name="sessions_sign_in_required">Log opnieuw in om sessies te beheren.</string>
     <string name="sessions_sign_out_accessibility">%1$s uitloggen</string>
     <string name="sessions_sign_out_all_others">Alle andere sessies uitloggen</string>
+    <string name="sessions_sign_out_others_failed">Kan de andere sessies niet uitloggen. Probeer het opnieuw.</string>
     <string name="sessions_signed_in">Ingelogd op %1$s</string>
     <string name="sessions_signed_out_remotely">Deze sessie is uitgelogd vanaf een ander apparaat.</string>
     <string name="sessions_signing_out">Uitloggen…</string>

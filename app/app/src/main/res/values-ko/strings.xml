@@ -945,8 +945,10 @@
     <string name="sessions_legacy_note">이전 버전 앱의 로그인은 갱신되면 여기에 표시됩니다. 모든 로그인을 종료하려면 로그인 정보를 변경하세요.</string>
     <string name="sessions_load_failed">세션을 불러올 수 없습니다.</string>
     <string name="sessions_refresh_failed">새로고침할 수 없습니다. 마지막 목록을 표시합니다.</string>
+    <string name="sessions_sign_in_required">세션을 관리하려면 다시 로그인하세요.</string>
     <string name="sessions_sign_out_accessibility">%1$s에서 로그아웃</string>
     <string name="sessions_sign_out_all_others">다른 모든 세션에서 로그아웃</string>
+    <string name="sessions_sign_out_others_failed">다른 세션에서 로그아웃할 수 없습니다. 다시 시도하세요.</string>
     <string name="sessions_signed_in">%1$s 로그인</string>
     <string name="sessions_signed_out_remotely">다른 기기에서 이 세션을 로그아웃했습니다.</string>
     <string name="sessions_signing_out">로그아웃하는 중…</string>

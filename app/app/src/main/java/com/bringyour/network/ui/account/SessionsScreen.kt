@@ -228,19 +228,26 @@ private fun SessionsContent(
                     }
 
                     SessionsBody.LoadFailed -> item(key = "load-failed") {
-                        SessionsMessage(stringResource(id = R.string.sessions_load_failed)) {
+                        SessionsBodyMessage(ui.body) {
                             TextButton(onClick = onRefresh) {
                                 Text(stringResource(id = R.string.try_again))
                             }
                         }
                     }
 
+                    // no Try again: the sdk reports this until the user signs
+                    // in again, which the app's logout flow leads to
+                    SessionsBody.SignInRequired,
+                    SessionsBody.SignedOutRemotely -> item(key = "sign-in-required") {
+                        SessionsBodyMessage(ui.body)
+                    }
+
                     SessionsBody.Unsupported -> item(key = "unsupported") {
-                        SessionsMessage(stringResource(id = R.string.sessions_unsupported))
+                        SessionsBodyMessage(ui.body)
                     }
 
                     SessionsBody.Empty -> item(key = "empty") {
-                        SessionsMessage(stringResource(id = R.string.sessions_empty))
+                        SessionsBodyMessage(ui.body)
                     }
 
                     SessionsBody.Rows -> items(ui.rows, key = { it.key }) { row ->
@@ -277,9 +284,10 @@ private fun SessionsContent(
                                     style = buttonTextStyle
                                 )
                             }
-                            if (others.failed) {
+                            // the button above stays enabled for the retry
+                            others.errorRes?.let { errorRes ->
                                 Spacer(modifier = Modifier.height(8.dp))
-                                URInlineErrorText(message = stringResource(id = R.string.try_again))
+                                URInlineErrorText(message = stringResource(id = errorRes))
                             }
                         }
                     }
@@ -470,7 +478,21 @@ private fun SessionDeviceLine(device: String, current: Boolean) {
     }
 }
 
-/** A state of the list in place of the rows: empty, unsupported, or failed to load. */
+/** The body's message (SessionsBody.messageRes) in place of the rows. */
+@Composable
+private fun SessionsBodyMessage(
+    body: SessionsBody,
+    action: @Composable () -> Unit = {},
+) {
+    body.messageRes?.let { messageRes ->
+        SessionsMessage(stringResource(id = messageRes), action)
+    }
+}
+
+/**
+ * A state of the list in place of the rows: empty, unsupported, failed to
+ * load, or a sign-in required.
+ */
 @Composable
 private fun SessionsMessage(
     message: String,

@@ -48,6 +48,9 @@ data class SessionEntry(
 data class SessionErrorFlags(
     val retryable: Boolean,
     val signInRequired: Boolean,
+    // with signInRequired: the server confirmed that another device signed
+    // this session out (the sdk's trusted session-revoked cause)
+    val sessionRevoked: Boolean = false,
     val unsupported: Boolean,
 )
 
@@ -203,24 +206,40 @@ data class SessionRowUi(
     val place get() = placeParts.joinToString(", ")
 }
 
-/** What the screen shows in place of, or around, the rows (§5). */
-enum class SessionsBody {
+/**
+ * What the screen shows in place of, or around, the rows (§5), with the
+ * message it shows in their place.
+ */
+enum class SessionsBody(@get:StringRes val messageRes: Int?) {
     // never loaded
-    Progress,
+    Progress(null),
     // the first load failed: the message and Try again
-    LoadFailed,
+    LoadFailed(R.string.sessions_load_failed),
+    // the account's sign-in was rejected: nothing here works until the user
+    // signs in again, which the app's logout flow leads to. Generic wording:
+    // it names no cause
+    SignInRequired(R.string.sessions_sign_in_required),
+    // the same, when the sdk reports the trusted cause: another device signed
+    // this session out
+    SignedOutRemotely(R.string.sessions_signed_out_remotely),
     // the server has no session list yet
-    Unsupported,
+    Unsupported(R.string.sessions_unsupported),
     // loaded, and no sessions
-    Empty,
-    Rows,
+    Empty(R.string.sessions_empty),
+    Rows(null),
 }
 
 /** Sign out all other sessions, when it is offered. */
 data class SignOutOthersUi(
     val signingOut: Boolean,
+    // the last sign out of the others failed; the button stays for a retry,
+    // which goes through the controller again
     val failed: Boolean,
-)
+) {
+    // the line under the button
+    @get:StringRes
+    val errorRes: Int? get() = if (failed) R.string.sessions_sign_out_others_failed else null
+}
 
 data class SessionsUi(
     val body: SessionsBody,
@@ -281,15 +300,25 @@ fun sessionsUi(snapshot: SessionsSnapshot, nowMillis: Long): SessionsUi {
             actionFailed = !signingOut && action?.error != null,
         )
     }
+    val error = snapshot.error
     val body = when {
+        // the sdk reports this until a new sign-in, loaded or not, and through
+        // the reloads that follow: the last list can no longer be managed
+        error?.signInRequired == true -> if (error.sessionRevoked) {
+            SessionsBody.SignedOutRemotely
+        } else {
+            SessionsBody.SignInRequired
+        }
         !snapshot.supported -> SessionsBody.Unsupported
         // a retry of a failed first load shows progress again
         !snapshot.loaded && snapshot.loading -> SessionsBody.Progress
-        !snapshot.loaded && snapshot.error != null -> SessionsBody.LoadFailed
+        !snapshot.loaded && error != null -> SessionsBody.LoadFailed
         !snapshot.loaded -> SessionsBody.Progress
         rows.isEmpty() -> SessionsBody.Empty
         else -> SessionsBody.Rows
     }
+    // the loaded list, empty or not
+    val listed = body == SessionsBody.Rows || body == SessionsBody.Empty
     val bulk = snapshot.bulkAction
     val bulkRunning = bulk?.running == true
     val offersSignOutOthers = body == SessionsBody.Rows &&
@@ -299,13 +328,13 @@ fun sessionsUi(snapshot: SessionsSnapshot, nowMillis: Long): SessionsUi {
         rows = if (body == SessionsBody.Rows) rows else listOf(),
         // the progress body is the first load's own indicator
         refreshing = body != SessionsBody.Progress && (snapshot.refreshing || snapshot.loading),
-        refreshFailed = snapshot.loaded && snapshot.supported && snapshot.error != null,
+        refreshFailed = listed && error != null,
         signOutOthers = if (offersSignOutOthers) {
             SignOutOthersUi(signingOut = bulkRunning, failed = !bulkRunning && bulk?.error != null)
         } else {
             null
         },
-        legacyNote = snapshot.loaded && snapshot.supported && snapshot.legacyCoverage == "partial",
+        legacyNote = listed && snapshot.legacyCoverage == "partial",
         nowMillis = nowMillis,
     )
 }

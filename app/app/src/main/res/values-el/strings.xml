@@ -945,8 +945,10 @@
     <string name="sessions_legacy_note">Οι συνδέσεις από παλαιότερες εκδόσεις της εφαρμογής εμφανίζονται εδώ μόλις ανανεωθούν. Για να τερματίσετε κάθε σύνδεση, αλλάξτε τα στοιχεία σύνδεσής σας.</string>
     <string name="sessions_load_failed">Δεν ήταν δυνατή η φόρτωση των συνεδριών.</string>
     <string name="sessions_refresh_failed">Δεν ήταν δυνατή η ανανέωση. Εμφανίζεται η τελευταία λίστα.</string>
+    <string name="sessions_sign_in_required">Συνδεθείτε ξανά για να διαχειριστείτε τις συνεδρίες.</string>
     <string name="sessions_sign_out_accessibility">Αποσύνδεση %1$s</string>
     <string name="sessions_sign_out_all_others">Αποσύνδεση όλων των άλλων συνεδριών</string>
+    <string name="sessions_sign_out_others_failed">Δεν ήταν δυνατή η αποσύνδεση των άλλων συνεδριών. Δοκιμάστε ξανά.</string>
     <string name="sessions_signed_in">Σύνδεση: %1$s</string>
     <string name="sessions_signed_out_remotely">Αυτή η συνεδρία αποσυνδέθηκε από άλλη συσκευή.</string>
     <string name="sessions_signing_out">Αποσύνδεση…</string>

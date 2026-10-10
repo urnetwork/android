@@ -945,8 +945,10 @@
     <string name="sessions_legacy_note">Los inicios de sesión de versiones anteriores de la app aparecen aquí cuando se renuevan. Para cerrar todos los inicios de sesión, cambia tus datos de inicio de sesión.</string>
     <string name="sessions_load_failed">No se pudieron cargar las sesiones.</string>
     <string name="sessions_refresh_failed">No se pudo actualizar. Se muestra la última lista.</string>
+    <string name="sessions_sign_in_required">Vuelve a iniciar sesión para gestionar las sesiones.</string>
     <string name="sessions_sign_out_accessibility">Cerrar sesión en %1$s</string>
     <string name="sessions_sign_out_all_others">Cerrar todas las demás sesiones</string>
+    <string name="sessions_sign_out_others_failed">No se pudieron cerrar las demás sesiones. Inténtalo de nuevo.</string>
     <string name="sessions_signed_in">Sesión iniciada el %1$s</string>
     <string name="sessions_signed_out_remotely">Esta sesión se cerró desde otro dispositivo.</string>
     <string name="sessions_signing_out">Cerrando sesión…</string>

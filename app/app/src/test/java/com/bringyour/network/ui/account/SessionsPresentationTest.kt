@@ -260,9 +260,9 @@ class SessionsPresentationTest {
         assertEquals(SessionsBody.LoadFailed, sessionsUi(failed, nowMillis).body)
         assertEquals(SessionsBody.Progress, sessionsUi(failed.copy(loading = true), nowMillis).body)
 
-        // sign-in required uses the generic failure; the app's logout flow takes over
+        // sign-in required has its own state, not the load failure
         val signIn = SessionErrorFlags(retryable = false, signInRequired = true, unsupported = false)
-        assertEquals(SessionsBody.LoadFailed, sessionsUi(SessionsSnapshot.Initial.copy(error = signIn), nowMillis).body)
+        assertEquals(SessionsBody.SignInRequired, sessionsUi(SessionsSnapshot.Initial.copy(error = signIn), nowMillis).body)
 
         // the server has no list yet
         val unsupported = SessionErrorFlags(retryable = false, signInRequired = false, unsupported = true)
@@ -328,6 +328,102 @@ class SessionsPresentationTest {
             nowMillis,
         )
         assertEquals(SignOutOthersUi(signingOut = false, failed = true), failedBulk.signOutOthers)
+    }
+
+    @Test
+    fun aFailedSignOutOfAllOthersSaysSoUnderItsButton() {
+        val sessions = arrayOf(session(0, current = true), session(1), session(2))
+        // not retried by the controller: the action is neither loading nor pending
+        val error = SessionErrorFlags(retryable = false, signInRequired = false, unsupported = false)
+        val failed = sessionsUi(
+            loaded(*sessions, bulkAction = SessionActionState(null, loading = false, pending = false, error = error)),
+            nowMillis,
+        ).signOutOthers!!
+        assertEquals(R.string.sessions_sign_out_others_failed, failed.errorRes)
+        assertEquals("Couldn't sign out the other sessions. Try again.", EnglishText.string(failed.errorRes!!))
+        // the button stays for the retry
+        assertFalse(failed.signingOut)
+
+        // the retry runs: progress and no error
+        val retrying = sessionsUi(
+            loaded(*sessions, bulkAction = SessionActionState(null, loading = true, pending = false, error = error)),
+            nowMillis,
+        ).signOutOthers!!
+        assertTrue(retrying.signingOut)
+        assertNull(retrying.errorRes)
+
+        // never attempted, or done
+        assertNull(sessionsUi(loaded(*sessions), nowMillis).signOutOthers!!.errorRes)
+        assertNull(
+            sessionsUi(
+                loaded(*sessions, bulkAction = SessionActionState(null, loading = false, pending = false, error = null)),
+                nowMillis,
+            ).signOutOthers!!.errorRes
+        )
+    }
+
+    @Test
+    fun signInRequiredSaysToSignInAgain() {
+        val signIn = SessionErrorFlags(retryable = false, signInRequired = true, unsupported = false)
+
+        // before the first list
+        val first = sessionsUi(SessionsSnapshot.Initial.copy(error = signIn), nowMillis)
+        assertEquals(SessionsBody.SignInRequired, first.body)
+        assertEquals(R.string.sessions_sign_in_required, first.body.messageRes)
+        assertEquals("Sign in again to manage sessions.", EnglishText.string(first.body.messageRes!!))
+
+        // and over a list that can no longer be managed: no rows, no sign out
+        // of the others, no refresh failure and no notes
+        val sessions = arrayOf(session(0, current = true), session(1))
+        val over = sessionsUi(loaded(*sessions, legacyCoverage = "partial").copy(error = signIn), nowMillis)
+        assertEquals(SessionsBody.SignInRequired, over.body)
+        assertEquals(listOf<SessionRowUi>(), over.rows)
+        assertNull(over.signOutOthers)
+        assertFalse(over.refreshFailed)
+        assertFalse(over.legacyNote)
+
+        // the sdk reports it until a new sign-in, through the reloads too
+        assertEquals(SessionsBody.SignInRequired, sessionsUi(SessionsSnapshot.Initial.copy(loading = true, error = signIn), nowMillis).body)
+        assertEquals(SessionsBody.SignInRequired, sessionsUi(loaded(*sessions).copy(refreshing = true, error = signIn), nowMillis).body)
+    }
+
+    @Test
+    fun aSessionSignedOutFromAnotherDeviceSaysSoOnlyForTheTrustedCause() {
+        val revoked = SessionErrorFlags(retryable = false, signInRequired = true, sessionRevoked = true, unsupported = false)
+        val ui = sessionsUi(SessionsSnapshot.Initial.copy(error = revoked), nowMillis)
+        assertEquals(SessionsBody.SignedOutRemotely, ui.body)
+        assertEquals(
+            "This session was signed out from another device.",
+            EnglishText.string(ui.body.messageRes!!),
+        )
+        assertEquals(
+            SessionsBody.SignedOutRemotely,
+            sessionsUi(loaded(session(0, current = true)).copy(error = revoked), nowMillis).body,
+        )
+
+        // a generic rejection names no cause
+        val generic = revoked.copy(sessionRevoked = false)
+        assertEquals(SessionsBody.SignInRequired, sessionsUi(SessionsSnapshot.Initial.copy(error = generic), nowMillis).body)
+        // and the cause means nothing without a sign-in required
+        val notSignIn = revoked.copy(signInRequired = false, retryable = true)
+        assertEquals(SessionsBody.LoadFailed, sessionsUi(SessionsSnapshot.Initial.copy(error = notSignIn), nowMillis).body)
+    }
+
+    @Test
+    fun everyBodyShowsItsOwnMessage() {
+        val expected = mapOf(
+            SessionsBody.Progress to null,
+            SessionsBody.LoadFailed to "Couldn't load sessions.",
+            SessionsBody.SignInRequired to "Sign in again to manage sessions.",
+            SessionsBody.SignedOutRemotely to "This session was signed out from another device.",
+            SessionsBody.Unsupported to "Sessions aren't available yet.",
+            SessionsBody.Empty to "No active sessions",
+            SessionsBody.Rows to null,
+        )
+        assertEquals(SessionsBody.entries.toSet(), expected.keys)
+        for ((body, message) in expected) {
+            assertEquals("$body", message, body.messageRes?.let { EnglishText.string(it) })
+        }
     }
 
     @Test

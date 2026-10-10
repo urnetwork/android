@@ -945,8 +945,10 @@
     <string name="sessions_legacy_note">पुराने ऐप संस्करणों से किए गए साइन-इन नवीनीकृत होने पर यहाँ दिखेंगे। सभी साइन-इन समाप्त करने के लिए, अपनी साइन-इन जानकारी बदलें।</string>
     <string name="sessions_load_failed">सत्र लोड नहीं हो सके।</string>
     <string name="sessions_refresh_failed">रीफ़्रेश नहीं हो सका। पिछली सूची दिखाई जा रही है।</string>
+    <string name="sessions_sign_in_required">सत्र प्रबंधित करने के लिए फिर से साइन इन करें।</string>
     <string name="sessions_sign_out_accessibility">%1$s से साइन आउट करें</string>
     <string name="sessions_sign_out_all_others">अन्य सभी सत्रों से साइन आउट करें</string>
+    <string name="sessions_sign_out_others_failed">अन्य सत्रों से साइन आउट नहीं हो सका। पुनः प्रयास करें।</string>
     <string name="sessions_signed_in">साइन इन: %1$s</string>
     <string name="sessions_signed_out_remotely">इस सत्र को किसी दूसरे डिवाइस से साइन आउट किया गया।</string>
     <string name="sessions_signing_out">साइन आउट हो रहा है…</string>

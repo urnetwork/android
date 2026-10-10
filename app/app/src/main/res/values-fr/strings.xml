@@ -945,8 +945,10 @@
     <string name="sessions_legacy_note">Les connexions des anciennes versions de l’application apparaissent ici dès qu’elles se renouvellent. Pour mettre fin à toutes les connexions, modifiez vos identifiants.</string>
     <string name="sessions_load_failed">Impossible de charger les sessions.</string>
     <string name="sessions_refresh_failed">Actualisation impossible. Affichage de la dernière liste.</string>
+    <string name="sessions_sign_in_required">Reconnectez-vous pour gérer les sessions.</string>
     <string name="sessions_sign_out_accessibility">Déconnecter %1$s</string>
     <string name="sessions_sign_out_all_others">Déconnecter toutes les autres sessions</string>
+    <string name="sessions_sign_out_others_failed">Impossible de déconnecter les autres sessions. Réessayez.</string>
     <string name="sessions_signed_in">Connexion le %1$s</string>
     <string name="sessions_signed_out_remotely">Cette session a été déconnectée depuis un autre appareil.</string>
     <string name="sessions_signing_out">Déconnexion…</string>

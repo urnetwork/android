@@ -17,15 +17,20 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.bringyour.network.LoginClientCompletion
+import com.bringyour.network.MainApplication
 import com.bringyour.network.R
 import com.bringyour.network.ui.components.overlays.FullScreenOverlay
 import com.bringyour.network.ui.components.overlays.WelcomeAnimatedOverlayLogin
@@ -41,6 +46,8 @@ import com.bringyour.network.ui.login.LoginPasswordResetAfterSend
 import com.bringyour.network.ui.login.LoginVerify
 import com.bringyour.network.ui.login.LoginViewModel
 import com.bringyour.network.ui.login.SeedphraseDisplayScreen
+import com.bringyour.network.ui.login.SignInNotice
+import com.bringyour.network.ui.login.SignInNoticeAlert
 import com.bringyour.network.ui.login.SwitchAccountScreen
 import com.bringyour.network.ui.login.VerifySendError
 import com.bringyour.network.ui.login.toWalletCreateBundle
@@ -73,6 +80,24 @@ fun LoginNavHost(
     LaunchedEffect(promptAccountSwitch) {
         if (promptAccountSwitch) {
             switchAccount = true
+        }
+    }
+
+    // why the sdk signed the user out, when it trusts the cause (another device
+    // signed this session out): taken from the app once, by the sign-in screen
+    // the user sees (started), and kept across an activity recreate until the
+    // user closes it
+    val signInNotices = (LocalContext.current.applicationContext as? MainApplication)?.signInNotices
+    val lifecycleOwner = LocalLifecycleOwner.current
+    var signInNotice by rememberSaveable { mutableStateOf<SignInNotice?>(null) }
+    LaunchedEffect(signInNotices, lifecycleOwner) {
+        val notices = signInNotices ?: return@LaunchedEffect
+        lifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            notices.waiting.collect { waiting ->
+                if (waiting != null) {
+                    notices.take()?.let { signInNotice = it }
+                }
+            }
         }
     }
 
@@ -421,6 +446,13 @@ fun LoginNavHost(
 
         if (welcomeOverlayVisible) {
             WelcomeAnimatedOverlayLogin()
+        }
+
+        signInNotice?.let { notice ->
+            SignInNoticeAlert(
+                notice = notice,
+                onDismiss = { signInNotice = null },
+            )
         }
 
     }

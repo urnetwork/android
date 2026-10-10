@@ -945,8 +945,10 @@
     <string name="sessions_legacy_note">Logins de versões mais antigas do app aparecem aqui quando forem renovados. Para encerrar todos os logins, altere seus dados de login.</string>
     <string name="sessions_load_failed">Não foi possível carregar as sessões.</string>
     <string name="sessions_refresh_failed">Não foi possível atualizar. Mostrando a última lista.</string>
+    <string name="sessions_sign_in_required">Entre novamente para gerenciar as sessões.</string>
     <string name="sessions_sign_out_accessibility">Sair da sessão em %1$s</string>
     <string name="sessions_sign_out_all_others">Sair de todas as outras sessões</string>
+    <string name="sessions_sign_out_others_failed">Não foi possível encerrar as outras sessões. Tente novamente.</string>
     <string name="sessions_signed_in">Login em %1$s</string>
     <string name="sessions_signed_out_remotely">Esta sessão foi encerrada em outro dispositivo.</string>
     <string name="sessions_signing_out">Saindo…</string>

@@ -945,8 +945,10 @@
     <string name="sessions_legacy_note">旧版应用的登录会在续期后显示在这里。要结束所有登录，请更改您的登录信息。</string>
     <string name="sessions_load_failed">无法加载会话。</string>
     <string name="sessions_refresh_failed">无法刷新。正在显示上次的列表。</string>
+    <string name="sessions_sign_in_required">请重新登录以管理会话。</string>
     <string name="sessions_sign_out_accessibility">在 %1$s 上退出登录</string>
     <string name="sessions_sign_out_all_others">退出所有其他会话</string>
+    <string name="sessions_sign_out_others_failed">无法退出其他会话。请重试。</string>
     <string name="sessions_signed_in">登录于 %1$s</string>
     <string name="sessions_signed_out_remotely">此会话已在另一台设备上退出登录。</string>
     <string name="sessions_signing_out">正在退出登录…</string>

@@ -5,6 +5,7 @@ import com.bringyour.network.ui.Route
 import java.io.File
 import javax.xml.parsers.DocumentBuilderFactory
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -147,7 +148,8 @@ class SessionsWiringTest {
         val res = moduleFile("src/main/res/values/strings.xml").parentFile!!.parentFile!!
         val english = strings(File(res, "values"))
         val keys = english.keys.filter { it.startsWith("sessions_") }
-        assertEquals(44, keys.size)
+        // with sessions_sign_out_others_failed and sessions_sign_in_required
+        assertEquals(46, keys.size)
 
         val locales = res.listFiles { file -> file.name.startsWith("values-") }!!
             .filter { File(it, "strings.xml").exists() }
@@ -158,14 +160,48 @@ class SessionsWiringTest {
         }
         assertTrue("not translated: $missing", missing.isEmpty())
 
-        // every key is looked up, except the remote sign-out explanation: the
-        // controller reports no trustworthy session-revoked cause to show it for
+        // every key is looked up; the remote sign-out explanation also by the
+        // sign-in screen's notice
         val sources = listOf(
             "ui/account/SessionsScreen.kt",
             "ui/account/SessionsPresentation.kt",
             "ui/account/AccountScreen.kt",
         ).joinToString("\n") { source(it) }
         val unused = keys.filter { !sources.contains("R.string.$it") }
-        assertEquals(listOf("sessions_signed_out_remotely"), unused)
+        assertEquals(listOf<String>(), unused)
+        assertTrue(source("ui/login/SignInNotice.kt").contains("R.string.sessions_signed_out_remotely"))
+    }
+
+    @Test
+    fun aFailedSignOutOfAllOthersShowsItsOwnLineAndKeepsTheButton() {
+        val screen = source("ui/account/SessionsScreen.kt")
+        val others = between(screen, "item(key = \"sign-out-others\") {", "if (ui.body == SessionsBody.Rows) {")
+        // the button asks again; only a running sign out disables it
+        assertTrue(others.contains("onClick = onSignOutOthers,"))
+        assertTrue(others.contains("isProcessing = others.signingOut,"))
+        assertFalse(others.contains("enabled = "))
+        // the failure's own line (SignOutOthersUi.errorRes), not the bare Try again
+        assertTrue(others.contains("others.errorRes?.let { errorRes ->"))
+        assertTrue(others.contains("URInlineErrorText(message = stringResource(id = errorRes))"))
+        assertFalse(others.contains("R.string.try_again"))
+    }
+
+    @Test
+    fun theStatesInPlaceOfTheRowsShowThePresentationsMessage() {
+        val screen = source("ui/account/SessionsScreen.kt")
+        val signIn = between(screen, "SessionsBody.SignInRequired,", "SessionsBody.Unsupported ->")
+        assertTrue(signIn.contains("SessionsBody.SignedOutRemotely -> item(key = \"sign-in-required\") {"))
+        assertTrue(signIn.contains("SessionsBodyMessage(ui.body)"))
+        // a retry cannot help before a new sign-in
+        assertFalse(signIn.contains("onRefresh"))
+        for (body in listOf("LoadFailed", "Unsupported", "Empty")) {
+            val item = between(screen, "SessionsBody.$body -> item(", "\n\n")
+            assertTrue(body, item.contains("SessionsBodyMessage(ui.body)"))
+        }
+        assertTrue(between(screen, "SessionsBody.LoadFailed -> item(", "\n\n").contains("TextButton(onClick = onRefresh)"))
+        // the controller's flags reach the screen, the trusted cause included
+        val flags = between(source("ui/account/SessionsViewModel.kt"), "SessionErrorFlags(", ")")
+        assertTrue(flags.contains("signInRequired = it.signInRequired,"))
+        assertTrue(flags.contains("sessionRevoked = it.sessionRevoked,"))
     }
 }
