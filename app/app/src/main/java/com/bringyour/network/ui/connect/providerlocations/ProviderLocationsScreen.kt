@@ -266,7 +266,7 @@ fun ProviderLocationsScreen(
                     }
                     if (RowRemoveControl.Swipe in providerLocationRemoveControls) {
                         SwipeToRevealRow(
-                            onDelete = { viewModel.removeProvider(row.clientId) },
+                            onAction = { viewModel.removeProvider(row.clientId) },
                             content = rowContent,
                         )
                     } else {

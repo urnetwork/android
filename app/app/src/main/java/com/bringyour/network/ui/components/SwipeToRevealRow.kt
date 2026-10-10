@@ -20,6 +20,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
@@ -30,6 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
@@ -47,25 +49,34 @@ import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
 /**
- * A row that reveals a delete button when swiped left, mimicking iOS list
+ * A row that reveals an action button when swiped left, mimicking iOS list
  * behavior: the swipe only reveals the button, and the user must tap it to
- * delete. Swiping back (or the button tap) closes the row.
+ * act. Swiping back (or the button tap) closes the row. The action is Delete
+ * unless the caller names another (Account -> Sessions reveals Sign out).
  *
- * Like iOS, the delete button is a normal-sized, vertically centered capsule
- * (not the full row height) with a trash icon and a small Delete label. It
- * grows and fades in as the row slides out and shrinks/fades away as it slides
- * back — the scale and alpha track the open fraction so the resize is smooth
- * and proportional to the slide distance. The button also stays centered
- * within the revealed gap the whole way, so it reads as growing out of the
- * trailing edge.
+ * Like iOS, the button is a normal-sized, vertically centered capsule (not
+ * the full row height) with an icon and a small label. It grows and fades in
+ * as the row slides out and shrinks/fades away as it slides back — the scale
+ * and alpha track the open fraction so the resize is smooth and proportional
+ * to the slide distance. The button also stays centered within the revealed
+ * gap the whole way, so it reads as growing out of the trailing edge.
  *
- * Assistive tech cannot swipe, so the content also carries the delete as an
- * accessibility custom action.
+ * Assistive tech cannot swipe, so the content also carries the action as an
+ * accessibility custom action, labeled [accessibilityLabel]. A custom action
+ * is offered only on a node TalkBack can focus: content with no focusable
+ * node of its own sets [mergeDescendants], so the row reads as one node that
+ * carries the action. A disabled row closes and offers neither the swipe nor
+ * the action, for an action already running.
  */
 @Composable
 fun SwipeToRevealRow(
-    onDelete: () -> Unit,
+    onAction: () -> Unit,
     modifier: Modifier = Modifier,
+    actionLabel: String = stringResource(id = R.string.delete),
+    actionIcon: ImageVector = Icons.Filled.Delete,
+    accessibilityLabel: String = stringResource(id = R.string.remove),
+    enabled: Boolean = true,
+    mergeDescendants: Boolean = false,
     content: @Composable () -> Unit,
 ) {
     // the row slides far enough to fully reveal the measured button plus the
@@ -82,13 +93,18 @@ fun SwipeToRevealRow(
         scope.launch { offsetX.animateTo(0f) }
     }
 
-    val removeLabel = stringResource(id = R.string.remove)
+    // a disabled row never stays open on a button it cannot use
+    LaunchedEffect(enabled) {
+        if (!enabled) {
+            offsetX.animateTo(0f)
+        }
+    }
 
     Box(
         modifier = modifier.fillMaxWidth()
     ) {
 
-        // delete button behind the content: a normal-sized, vertically centered
+        // action button behind the content: a normal-sized, vertically centered
         // button that grows/fades proportional to the slide and stays centered
         // in the revealed gap. The graphicsLayer reads offsetX in the draw phase
         // (no recomposition), so the resize follows the drag frame-for-frame.
@@ -114,8 +130,8 @@ fun SwipeToRevealRow(
                     }
                     .clip(CircleShape)
                     .background(Red)
-                    .clickable {
-                        onDelete()
+                    .clickable(enabled = enabled) {
+                        onAction()
                         close()
                     }
                     .padding(horizontal = 14.dp),
@@ -123,13 +139,13 @@ fun SwipeToRevealRow(
             ) {
                 Icon(
                     // the label names the button; the icon is decorative
-                    Icons.Filled.Delete,
+                    actionIcon,
                     contentDescription = null,
                     tint = Color.White
                 )
                 Spacer(modifier = Modifier.width(4.dp))
                 Text(
-                    stringResource(id = R.string.delete),
+                    actionLabel,
                     style = TextStyle(fontSize = 12.sp, fontWeight = FontWeight.Medium),
                     color = Color.White,
                     maxLines = 1
@@ -143,10 +159,15 @@ fun SwipeToRevealRow(
                 .offset { IntOffset(offsetX.value.roundToInt(), 0) }
                 .fillMaxWidth()
                 .background(Black)
-                .semantics {
-                    customActions = swipeToRevealAccessibilityActions(removeLabel, onDelete)
+                .semantics(mergeDescendants = mergeDescendants) {
+                    customActions = if (enabled) {
+                        swipeToRevealAccessibilityActions(accessibilityLabel, onAction)
+                    } else {
+                        listOf()
+                    }
                 }
                 .draggable(
+                    enabled = enabled,
                     orientation = Orientation.Horizontal,
                     state = rememberDraggableState { delta ->
                         scope.launch {

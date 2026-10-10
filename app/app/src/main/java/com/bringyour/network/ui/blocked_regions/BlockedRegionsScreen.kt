@@ -289,7 +289,7 @@ fun BlockedRegionListItem(
 
     if (RowRemoveControl.Swipe in blockedLocationRemoveControls) {
         SwipeToRevealRow(
-            onDelete = { onRemove(blockedLocation.locationId) },
+            onAction = { onRemove(blockedLocation.locationId) },
             modifier = rowModifier,
             content = content,
         )

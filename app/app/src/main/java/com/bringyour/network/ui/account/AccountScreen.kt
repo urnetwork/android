@@ -436,6 +436,22 @@ fun AccountScreenContent(
             }
         )
         HorizontalDivider()
+        // the account's sign-ins, with sign out; always listed, and the
+        // screen says when the server has no session list yet. A guest
+        // network has no sign-in method to come back with, so it adds one
+        // first, like Profile
+        URNavListItem(
+            iconResourceId = R.drawable.nav_list_item_sessions,
+            text = stringResource(id = R.string.sessions_title),
+            onClick = {
+                if (loginMode == LoginMode.Authenticated) {
+                    navController.navigate(Route.Sessions)
+                } else {
+                    navController.navigate(Route.GuestConversion)
+                }
+            }
+        )
+        HorizontalDivider()
         URNavListItem(
             iconResourceId = R.drawable.nav_list_item_settings,
             text = stringResource(id = R.string.settings),

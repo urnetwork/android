@@ -99,6 +99,7 @@ import com.bringyour.network.ui.settings.LicensesScreen
 import com.bringyour.network.ui.account.ExtendersScreen
 import com.bringyour.network.ui.account.ImportExtendersScreen
 import com.bringyour.network.ui.account.ProviderIdentitiesScreen
+import com.bringyour.network.ui.account.SessionsScreen
 import com.bringyour.network.ui.account.ShareExtendersScreen
 import com.bringyour.network.ui.components.ProSunglassesFlight
 import com.bringyour.network.ui.components.proFlightPixelation
@@ -1508,6 +1509,14 @@ fun MainNavContent(
                 profileViewModel,
                 overlayViewModel
             ) }
+            composable<Route.Sessions>(
+                enterTransition = NavigationAnimations.enterTransition(),
+                exitTransition = NavigationAnimations.exitTransition(),
+                popEnterTransition = NavigationAnimations.popEnterTransition(),
+                popExitTransition = NavigationAnimations.popExitTransition()
+            ) {
+                SessionsScreen(navController = navController)
+            }
             composable<Route.Settings>(
                 enterTransition = NavigationAnimations.enterTransition(),
                 exitTransition = NavigationAnimations.exitTransition(),

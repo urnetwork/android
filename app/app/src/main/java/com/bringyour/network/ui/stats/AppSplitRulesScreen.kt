@@ -238,7 +238,7 @@ fun AppSplitRulesScreen(
                                 // mode is active, so render it muted
                                 val ruleActive = blockActionsViewModel.isRuleActive(rule.mode)
                                 SwipeToRevealRow(
-                                    onDelete = { blockActionsViewModel.removeAppRule(rule.id) }
+                                    onAction = { blockActionsViewModel.removeAppRule(rule.id) }
                                 ) {
                                     AppRow(
                                         label = app?.label ?: rule.appId,
