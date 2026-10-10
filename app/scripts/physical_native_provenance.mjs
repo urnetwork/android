@@ -25,6 +25,8 @@ const BRIDGE_FILES = ["bind/seq.go.support", "bind/java/Seq.java", "bind/java/se
 const FILE_FIELDS = ["GoFiles", "CgoFiles", "CFiles", "CXXFiles", "MFiles", "HFiles", "FFiles", "SFiles",
   "SwigFiles", "SwigCXXFiles", "SysoFiles", "EmbedFiles"];
 const TOOL_NAMES = ["go", "gomobile", "gobind", "compile", "link", "asm", "cgo"];
+// Keep writer selection inside the source-hashed provenance module.
+const WRITER_MEMORY_PROFILES = Object.freeze(["android", "ios-memory-audit-v1", "ios-memory-audit-v2"]);
 const SELF = fileURLToPath(import.meta.url);
 const validHash = (value) => typeof value === "string" && /^[a-f0-9]{64}$/.test(value);
 const validLabel = (value) => typeof value === "string" && /^[A-Za-z0-9][A-Za-z0-9._:-]{0,199}$/.test(value);
@@ -381,7 +383,7 @@ export function verifyNativeInputs(options, dependencies = {}) {
 
 export function nativeWriterArguments(buildId, profileRate, memoryProfile, maxWorkers) {
   if (typeof buildId !== "string" || !/^[A-Za-z0-9][A-Za-z0-9._-]{0,199}$/.test(buildId) || !Number.isSafeInteger(profileRate) || profileRate < 0 ||
-      !["ios-memory-audit-v1", "ios-memory-audit-v2"].includes(memoryProfile) || !Number.isInteger(maxWorkers) || maxWorkers < 1 ||
+      !WRITER_MEMORY_PROFILES.includes(memoryProfile) || !Number.isInteger(maxWorkers) || maxWorkers < 1 ||
       maxWorkers > Math.ceil(availableParallelism() * 0.7)) fail("explicit-native-writer-profile-required");
   return [":app:buildSdkAcceptance", "--max-workers", String(maxWorkers),
     `-PurnetworkAcceptanceBuildId=${buildId}`, `-PurnetworkMemoryProfile=${memoryProfile}`,
@@ -410,7 +412,7 @@ export function requireNativeWriterReceipt(options, before) {
     receipt.interrupted === false && receipt.root === before.root && receipt.buildId === before.buildId &&
     receipt.buildOwner === before.buildOwner && receipt.profileRate === before.profileRate && receipt.inputHash === before.inputHash &&
     receipt.before === realpathSync(options.before) && receipt.beforeSha256 === inputFile(options.before).sha256 &&
-    ["ios-memory-audit-v1", "ios-memory-audit-v2"].includes(receipt.memoryProfile) && Number.isFinite(receipt.startedAtUnixMs) &&
+    WRITER_MEMORY_PROFILES.includes(receipt.memoryProfile) && Number.isFinite(receipt.startedAtUnixMs) &&
     Number.isFinite(receipt.completedAtUnixMs) && receipt.startedAtUnixMs >= before.capturedAtUnixMs &&
     receipt.completedAtUnixMs >= receipt.startedAtUnixMs && receipt.workingDirectory === join(before.root, "android/app");
   if (!valid) fail("successful-native-writer-receipt-required");

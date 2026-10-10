@@ -1,5 +1,24 @@
 # Physical Android low-bar capture
 
+Full canonical PERFVAR uses the existing Go runner's fixed dual-profile axis:
+complete `ios-memory-audit-v2` 32/32/32-MiB and normal `android` 64/64/64-MiB
+target/soft/observed-runtime campaigns on both allowlisted phones. Each profile
+has its own control/candidate builds, installed APKs, sessions, quiet windows,
+all-phase and post-teardown peaks, and comparison pairs. The profile is supplied
+explicitly to `physical_memory_profile.mjs` and `physical_quiet_gate.mjs` via
+`--profile`; it is never inferred from samples. The live/offline proof binds the
+selected profile and all three limits. Missing or cross-profile evidence fails.
+The Kotlin producer's threshold counters follow the selected build profile;
+Android values between 32 and 64 MiB do not trigger iOS-threshold counters.
+Sampling cadence, native ring, four runtime scopes and quiet denominator stay
+unchanged. Existing JavaScript is platform tooling; new campaign automation
+remains in the Go runner, not a second harness.
+
+The scoped H1 commands below retain their default iOS-v2 profile and diagnostic
+purpose. They are not the full dual-profile campaign and cannot promote an old
+single-profile receipt or baseline. The signed physical-iOS footprint gate is
+not measured by either Android profile.
+
 ## Canonical scoped H1 iOS-profile arm
 
 For the scoped Wikipedia/Fast.com qualification, Terra should use

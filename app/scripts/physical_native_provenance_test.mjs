@@ -123,6 +123,38 @@ test("native CLI requires complete explicit before/after/build context; metadata
   for (const raw of ["", "{} tail", "{", "[]", "not json"]) assert.throws(() => parseJsonStream(raw));
 });
 
+test("native writer allowlists Android explicitly without permitting numeric or aliased profile overrides", () => {
+  for (const profile of ["android", "ios-memory-audit-v1", "ios-memory-audit-v2"]) {
+    assert.deepEqual(nativeWriterArguments("fixture-build", 0, profile, 1), [":app:buildSdkAcceptance", "--max-workers", "1",
+      "-PurnetworkAcceptanceBuildId=fixture-build", `-PurnetworkMemoryProfile=${profile}`, "-PurnetworkMemoryProfileRateBytes=0"]);
+  }
+  for (const profile of [undefined, null, "", "normalAndroid", "67108864", ["android"], "android -PurnetworkMemoryLimitBytes=1"]) {
+    assert.throws(() => nativeWriterArguments("fixture-build", 0, profile, 1), /explicit-native-writer-profile-required/);
+  }
+});
+
+test("Android writer receipt binds its exact argument vector, build owner and attested sources", t => {
+  const f = fixture(t);
+  f.options["profile-rate"] = "0";
+  json(f.paths.before, f.capture("before"));
+  const before = JSON.parse(readFileSync(f.paths.before));
+  const receipt = f.writerReceipt({ memoryProfile: "android",
+    arguments: nativeWriterArguments(before.buildId, before.profileRate, "android", 1) });
+  assert.equal(requireNativeWriterReceipt(f.paths, before).memoryProfile, "android");
+  for (const changes of [
+    { memoryProfile: "ios-memory-audit-v2" },
+    { arguments: nativeWriterArguments(before.buildId, before.profileRate, "ios-memory-audit-v2", 1) },
+    { arguments: [...receipt.arguments, "-PurnetworkMemoryLimitBytes=67108864"] },
+    { sourceHashes: receipt.sourceHashes.map(row => ({ ...row, sha256: "0".repeat(64) })) },
+    { buildOwner: "foreign-owner" },
+    { buildId: "foreign-build" },
+    { memoryProfile: "normalAndroid" },
+  ]) {
+    json(f.paths["writer-receipt"], { ...receipt, ...changes });
+    assert.throws(() => requireNativeWriterReceipt(f.paths, before), /native-writer-(?:receipt-context-mismatch|receipt-required)/);
+  }
+});
+
 test("native closure records all ABI Go/embed/native inputs and separate module/replacement/dirty hashes", t => {
   const f = fixture(t); const manifest = f.capture("before");
   assert.equal(validateNativeManifest(manifest), true);
@@ -365,6 +397,18 @@ test("terra_proof_arm: zsh status is read-only, but Bash-owned writer atomically
   assert.deepEqual(readFileSync(receipt.stdout.path, "utf8").trim().split("\n"), receipt.arguments);
   assert.equal(statSync(f.paths["writer-receipt"]).mode & 0o777, 0o600);
   assert.equal(readdirSync(f.privateDir).some(name => name.includes(".pending-")), false);
+});
+
+test("Bash-owned Android writer retains the selected profile through actual child arguments and receipt verification", t => {
+  const f = writerFixture(t);
+  f.args[f.args.indexOf("--memory-profile") + 1] = "android";
+  const result = f.run();
+  assert.equal(result.status, 0, result.stderr);
+  const receipt = requireNativeWriterReceipt(f.paths, JSON.parse(readFileSync(f.paths.before)));
+  assert.equal(receipt.memoryProfile, "android");
+  assert.ok(receipt.arguments.includes("-PurnetworkMemoryProfile=android"));
+  assert.deepEqual(readFileSync(receipt.stdout.path, "utf8").trim().split("\n"), receipt.arguments);
+  assert.equal(receipt.sourceHashes.some(row => row.name === "physical_native_provenance.mjs"), true);
 });
 
 test("writer nonzero and spawn failure publish failed terminal receipts that cannot authorize consumption", t => {

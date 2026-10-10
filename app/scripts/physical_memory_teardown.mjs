@@ -4,7 +4,7 @@
 import { createHash } from "node:crypto";
 import { isDeepStrictEqual } from "node:util";
 import { requireRetainedForeground } from "./physical_collector_session.mjs";
-import { GO_MEMORY_LIMIT_BYTES, GO_RUNTIME_LIMIT_BYTES, MEMORY_AUDIT_PROFILE } from "./physical_memory_profile.mjs";
+import { matchesMemoryProfileProof, memoryAuditPolicy, memoryProfileRequirements, MEMORY_AUDIT_PROFILE } from "./physical_memory_profile.mjs";
 
 const integer = value => Number.isSafeInteger(value) && value >= 0;
 const digest = value => createHash("sha256").update(value).digest("hex");
@@ -14,8 +14,10 @@ export function memoryEvidencePrefix(contents) {
 }
 
 // Does not coerce absent/null/string values into an apparent rate-zero profile.
-export function evaluateRuntimeReads(groups, requiredRate = 0) {
+export function evaluateRuntimeReads(groups, requiredRate = 0, profile = MEMORY_AUDIT_PROFILE) {
   const reasons = new Set();
+  const policy = memoryAuditPolicy(profile);
+  if (!policy) reasons.add("memory-profile-version-invalid");
   const counts = {};
   let peakGoRuntimeBytes = 0;
   let goRuntimeBreachSampleCount = 0;
@@ -25,24 +27,27 @@ export function evaluateRuntimeReads(groups, requiredRate = 0) {
       if (!integer(row?.goRuntimeBytes) || row.goRuntimeBytes <= 0) reasons.add("memory-measurement-missing");
       else {
         peakGoRuntimeBytes = Math.max(peakGoRuntimeBytes, row.goRuntimeBytes);
-        if (row.goRuntimeBytes > GO_RUNTIME_LIMIT_BYTES) goRuntimeBreachSampleCount++;
+        if (row.goRuntimeBytes > policy?.goRuntimeLimitBytes) goRuntimeBreachSampleCount++;
       }
-      if (row?.goMemoryLimitBytes !== GO_MEMORY_LIMIT_BYTES || row?.memoryProfile !== MEMORY_AUDIT_PROFILE) reasons.add("runtime-profile-mismatch");
+      if (!policy || row?.goMemoryLimitBytes !== policy.goMemoryLimitBytes || row?.memoryProfile !== profile) reasons.add("runtime-profile-mismatch");
       if (row?.goMemoryProfileRateBytes !== requiredRate) reasons.add("runtime-profile-rate-mismatch");
     }
   }
-  if (goRuntimeBreachSampleCount) reasons.add("go-runtime-above-32-mib");
+  if (goRuntimeBreachSampleCount) reasons.add(`go-runtime-above-${policy.goRuntimeLimitBytes / (1024 * 1024)}-mib`);
   return { counts, combinedRuntimeReadCount: Object.values(counts).reduce((sum, value) => sum + value, 0),
     peakGoRuntimeBytes, goRuntimeBreachSampleCount, reasons: [...reasons] };
 }
 
 // The producer already performed these reads; recording them adds no sampling.
-export function evaluateStatusRuntimeReads(rows, boundaries) {
+export function evaluateStatusRuntimeReads(rows, boundaries, profile = MEMORY_AUDIT_PROFILE) {
   const reasons = new Set();
+  const policy = memoryAuditPolicy(profile);
+  if (!policy) reasons.add("memory-profile-version-invalid");
   const identity = boundaries[0];
   let sequence = 0;
   let previousTime = 0;
   for (const row of rows) {
+    if (!policy || row?.memoryProfile !== profile || row?.goMemoryLimitBytes !== policy.goMemoryLimitBytes) reasons.add("status-runtime-profile-mismatch");
     if (row?.type !== "status-runtime" || row.sequence !== ++sequence || !integer(row.timeUnixMs) || row.timeUnixMs < previousTime ||
         row.pid !== identity?.pid || row.sessionId !== identity?.sessionId || row.buildId !== identity?.buildId) reasons.add("status-runtime-evidence-invalid");
     previousTime = row?.timeUnixMs;
@@ -61,11 +66,14 @@ export function evaluateStatusRuntimeReads(rows, boundaries) {
 
 // One runtime read per already-exported atomic diagnostic batch. Reuse the
 // existing file, never make a second copy into the status writer.
-export function evaluateDiagnosticRuntimeReads(rows, identity) {
+export function evaluateDiagnosticRuntimeReads(rows, identity, profile = MEMORY_AUDIT_PROFILE) {
   const reasons = new Set();
+  const policy = memoryAuditPolicy(profile);
+  if (!policy) reasons.add("memory-profile-version-invalid");
   const batches = new Map();
   const samples = [];
   for (const row of rows) {
+    if (!policy || row?.memoryProfile !== profile) reasons.add("diagnostic-runtime-profile-mismatch");
     if (!integer(row?.diagnosticBatchSequence) || row.diagnosticBatchSequence <= 0 || !integer(row.unix_millis) || row.unix_millis <= 0 ||
         ["pid", "sessionId", "buildId"].some(key => row?.[key] !== identity?.[key])) reasons.add("diagnostic-runtime-identity-invalid");
     const sequence = row?.diagnosticBatchSequence;
@@ -77,7 +85,7 @@ export function evaluateDiagnosticRuntimeReads(rows, identity) {
       batch.parts.add(row.part);
     }
     if (row?.part === "memory") {
-      if (row.device_memory_target_bytes !== 33554432) reasons.add("diagnostic-runtime-target-mismatch");
+      if (!policy || row.device_memory_target_bytes !== policy.deviceTargetBytes) reasons.add("diagnostic-runtime-target-mismatch");
       samples.push({ ...row, goRuntimeBytes: row.go_total_bytes, goMemoryLimitBytes: row.go_limit_bytes,
         goMemoryProfileRateBytes: row.memory_profile_rate_bytes, timeUnixMs: row.unix_millis });
     }
@@ -95,13 +103,15 @@ export function evaluateDiagnosticRuntimeReads(rows, identity) {
 // These are retained representations, not invented independent samples.
 // A status has two actual runtime snapshots. Repeated last-trim values remain
 // auxiliary; a first nonzero maintenance counter has unknown prior provenance.
-export function evaluateAuxiliaryRuntimeValues(memory, statusRuntime, ownerCensuses = [], strict = true) {
+export function evaluateAuxiliaryRuntimeValues(memory, statusRuntime, ownerCensuses = [], strict = true, profile = MEMORY_AUDIT_PROFILE) {
   const reasons = new Set();
+  const policy = memoryAuditPolicy(profile);
+  if (!policy) reasons.add("memory-profile-version-invalid");
   let peak = 0, breaches = 0, statusSnapshots = 0, maintenanceValues = 0, censusValues = 0, unqualifiedMaintenanceValues = 0;
   const value = (bytes, kind) => {
     if (!integer(bytes) || bytes <= 0) { reasons.add(`${kind}-runtime-value-invalid`); return; }
     peak = Math.max(peak, bytes);
-    if (bytes > GO_RUNTIME_LIMIT_BYTES) breaches++;
+    if (bytes > policy?.goRuntimeLimitBytes) breaches++;
   };
   for (const row of statusRuntime) {
     if (row?.goMemStatsRuntimeBytes !== undefined || strict) {
@@ -131,7 +141,7 @@ export function evaluateAuxiliaryRuntimeValues(memory, statusRuntime, ownerCensu
     censusValues += 2;
     value(census?.before?.runtime_bytes, "owner-census"); value(census?.after?.runtime_bytes, "owner-census");
   }
-  if (breaches) reasons.add("retained-auxiliary-runtime-above-32-mib");
+  if (breaches) reasons.add(`retained-auxiliary-runtime-above-${policy.goRuntimeLimitBytes / (1024 * 1024)}-mib`);
   return { auxiliaryPeakGoRuntimeBytes: peak, auxiliaryRuntimeBreachValueCount: breaches,
     statusMemStatsSnapshotCount: statusSnapshots, auxiliaryMaintenanceValueCount: maintenanceValues,
     auxiliaryCensusValueCount: censusValues, auxiliaryUnqualifiedMaintenanceValueCount: unqualifiedMaintenanceValues,
@@ -170,9 +180,10 @@ export function evaluateJoinedMemoryOwner(owner, ready, terminal, nativeProof, i
 
 // Emergency receipts never qualify. Select one identity-bound native stream;
 // conflicting readable primary rows remain auxiliary, not duplicate events.
-export function selectMemoryTeardownReceipt(primary, fallback, finish, identity, finishCommandId) {
-  const bound = receipt => receipt?.type === "physical-memory-teardown" && receipt.schemaVersion === 1 &&
-    receipt.memoryProfile === MEMORY_AUDIT_PROFILE && typeof identity?.sessionId === "string" && identity.sessionId &&
+export function selectMemoryTeardownReceipt(primary, fallback, finish, identity, finishCommandId, profile = MEMORY_AUDIT_PROFILE) {
+  const policy = memoryAuditPolicy(profile);
+  const bound = receipt => policy && receipt?.type === "physical-memory-teardown" && receipt.schemaVersion === 1 &&
+    receipt.memoryProfile === profile && typeof identity?.sessionId === "string" && identity.sessionId &&
     typeof identity?.buildId === "string" && identity.buildId && integer(identity?.pid) && identity.pid > 0 &&
     ["sessionId", "buildId", "pid"].every(key => receipt[key] === identity[key] && finish?.[key] === identity[key]) &&
     typeof finishCommandId === "string" && finishCommandId && receipt.finishCommandId === finishCommandId && finish?.commandId === finishCommandId &&
@@ -202,8 +213,10 @@ export function selectMemoryTeardownReceipt(primary, fallback, finish, identity,
 
 // Producer maxima can be the only surviving values after append/flush failure.
 // These are explicitly duplicated representations, never primary/quiet events.
-export function evaluateProducerMemorySummaries(summaries, identity, finishCommandId, observerId, counts) {
+export function evaluateProducerMemorySummaries(summaries, identity, finishCommandId, observerId, counts, profile = MEMORY_AUDIT_PROFILE) {
   const reasons = new Set();
+  const policy = memoryAuditPolicy(profile);
+  if (!policy) reasons.add("memory-profile-version-invalid");
   let peak = 0, representationCount = 0, breaches = 0, unqualified = 0;
   const reportedCounts = [];
   const countFields = ["devicePrimitiveCount", "teardownPrimitiveCount", "statusRuntimeReadCount", "diagnosticRuntimeReadCount"];
@@ -214,10 +227,10 @@ export function evaluateProducerMemorySummaries(summaries, identity, finishComma
     if (!integer(summary.peakGoRuntimeBytes) || summary.peakGoRuntimeBytes <= 0) reasons.add("producer-memory-peak-invalid");
     else {
       peak = Math.max(peak, summary.peakGoRuntimeBytes);
-      if (summary.peakGoRuntimeBytes > GO_RUNTIME_LIMIT_BYTES) breaches++;
+      if (summary.peakGoRuntimeBytes > policy?.goRuntimeLimitBytes) breaches++;
     }
     const qualified = summary.type === "physical-memory-producer-summary" && summary.schemaVersion === 1 &&
-      summary.memoryProfile === MEMORY_AUDIT_PROFILE && typeof identity?.sessionId === "string" && identity.sessionId &&
+      policy && summary.memoryProfile === profile && typeof identity?.sessionId === "string" && identity.sessionId &&
       typeof identity?.buildId === "string" && identity.buildId && integer(identity?.pid) && identity.pid > 0 &&
       ["pid", "sessionId", "buildId"].every(key => summary[key] === identity[key]) &&
       typeof finishCommandId === "string" && finishCommandId && summary.finishCommandId === finishCommandId &&
@@ -234,7 +247,7 @@ export function evaluateProducerMemorySummaries(summaries, identity, finishComma
         summary.combinedRetainedRuntimeEventCount !== Object.values(counts).reduce((sum, count) => sum + count, 0)) reasons.add("producer-memory-count-mismatch");
     if (summary.exporterFailed !== false || summary.failureCount !== 0) reasons.add("producer-memory-export-incomplete");
   }
-  if (breaches) reasons.add("producer-memory-runtime-above-32-mib");
+  if (breaches) reasons.add(`producer-memory-runtime-above-${policy.goRuntimeLimitBytes / (1024 * 1024)}-mib`);
   return { producerPeakGoRuntimeBytes: peak, producerPeakRepresentationCount: representationCount,
     producerRuntimeBreachRepresentationCount: breaches, unqualifiedProducerPeakRepresentationCount: unqualified,
     producerReportedCounts: reportedCounts, reasons: [...reasons] };
@@ -243,24 +256,26 @@ export function evaluateProducerMemorySummaries(summaries, identity, finishComma
 // A normal host AM join, copied native lifecycle channels and a fresh terminal
 // read are three distinct requirements. An old quiet file proves none of them.
 export function evaluateMemoryTeardown({ teardown, fallback, producerSummary, memory, statusRuntime, diagnostics = [], finish, owner, ready, terminal, nativeProof,
-  liveGate, memoryContents, statusContents, diagnosticContents, expectedFinishCommandId, requiredRate = 0 }) {
+  liveGate, memoryContents, statusContents, diagnosticContents, expectedFinishCommandId, requiredRate = 0, profile = MEMORY_AUDIT_PROFILE }) {
   const reasons = new Set();
   const fail = reason => reasons.add(reason);
+  const policy = memoryAuditPolicy(profile);
+  if (!policy) fail("memory-profile-version-invalid");
   const producerSummaries = [teardown?.producerSummary, ...(fallback ? [fallback.producerSummary] : []), producerSummary];
   const selection = selectMemoryTeardownReceipt(teardown, fallback, finish,
-    { sessionId: liveGate?.sessionId, buildId: nativeProof?.buildId, pid: ready?.targetPid }, expectedFinishCommandId);
+    { sessionId: liveGate?.sessionId, buildId: nativeProof?.buildId, pid: ready?.targetPid }, expectedFinishCommandId, profile);
   teardown = selection.teardown;
   selection.reasons.forEach(fail);
   const native = teardown?.native;
   const nativeSamples = Array.isArray(native?.samples) ? native.samples : [];
   const processSamples = nativeSamples.map(row => ({ ...row, memoryProfile: teardown?.memoryProfile }));
-  const diagnostic = evaluateDiagnosticRuntimeReads(diagnostics, teardown);
+  const diagnostic = evaluateDiagnosticRuntimeReads(diagnostics, teardown, profile);
   diagnostic.reasons.forEach(fail);
   const runtime = evaluateRuntimeReads({ devicePrimitiveCount: memory, teardownPrimitiveCount: processSamples,
-    statusRuntimeReadCount: statusRuntime, diagnosticRuntimeReadCount: diagnostic.samples }, requiredRate);
-  const auxiliary = evaluateAuxiliaryRuntimeValues(memory, statusRuntime);
+    statusRuntimeReadCount: statusRuntime, diagnosticRuntimeReadCount: diagnostic.samples }, requiredRate, profile);
+  const auxiliary = evaluateAuxiliaryRuntimeValues(memory, statusRuntime, [], true, profile);
   const producer = evaluateProducerMemorySummaries(producerSummaries,
-    { sessionId: liveGate?.sessionId, buildId: nativeProof?.buildId, pid: ready?.targetPid }, expectedFinishCommandId, finish?.teardownObserverId, runtime.counts);
+    { sessionId: liveGate?.sessionId, buildId: nativeProof?.buildId, pid: ready?.targetPid }, expectedFinishCommandId, finish?.teardownObserverId, runtime.counts, profile);
   producer.reasons.forEach(fail);
   auxiliary.auxiliaryPeakGoRuntimeBytes = Math.max(auxiliary.auxiliaryPeakGoRuntimeBytes, producer.producerPeakGoRuntimeBytes);
   auxiliary.auxiliaryRuntimeBreachValueCount += producer.producerRuntimeBreachRepresentationCount;
@@ -271,13 +286,13 @@ export function evaluateMemoryTeardown({ teardown, fallback, producerSummary, me
       fail("native-conflict-runtime-value-invalid"); continue;
     }
     auxiliary.auxiliaryPeakGoRuntimeBytes = Math.max(auxiliary.auxiliaryPeakGoRuntimeBytes, row.goRuntimeBytes);
-    if (row.goRuntimeBytes > GO_RUNTIME_LIMIT_BYTES) auxiliary.auxiliaryRuntimeBreachValueCount++;
+    if (row.goRuntimeBytes > policy?.goRuntimeLimitBytes) auxiliary.auxiliaryRuntimeBreachValueCount++;
   }
   auxiliary.reasons.forEach(fail);
   runtime.reasons.forEach(fail);
-  evaluateStatusRuntimeReads(statusRuntime, [finish]).forEach(fail);
+  evaluateStatusRuntimeReads(statusRuntime, [finish], profile).forEach(fail);
   const observerId = native?.observerId;
-  if (teardown?.type !== "physical-memory-teardown" || teardown.schemaVersion !== 1 || teardown.memoryProfile !== MEMORY_AUDIT_PROFILE ||
+  if (!policy || teardown?.type !== "physical-memory-teardown" || teardown.schemaVersion !== 1 || teardown.memoryProfile !== profile ||
       typeof teardown.sessionId !== "string" || !teardown.sessionId || typeof teardown.buildId !== "string" || !teardown.buildId || !integer(teardown.pid) || teardown.pid <= 0 ||
       finish?.type !== "status" || finish.state !== "complete" || finish.phase !== "finish" ||
       typeof expectedFinishCommandId !== "string" || !/^[A-Za-z0-9][A-Za-z0-9._-]{0,199}$/.test(expectedFinishCommandId) ||
@@ -293,7 +308,7 @@ export function evaluateMemoryTeardown({ teardown, fallback, producerSummary, me
   if (memory.some(row => row?.type !== "sample" || row.samplerSchema !== 13 || row.samplerDropped !== 0)) fail("device-primitive-evidence-invalid");
   if (memory.some(row => ["pid", "sessionId", "buildId"].some(key => row?.[key] !== teardown?.[key]))) fail("device-memory-identity-mismatch");
   if (native?.type !== "device-memory-teardown" || native.schemaVersion !== 1 || native.state !== "complete" || native.failure !== "" ||
-      native.deviceTargetBytes !== 33554432 || native.observerJoined !== true || native.dropped !== 0 ||
+      !policy || native.deviceTargetBytes !== policy.deviceTargetBytes || native.observerJoined !== true || native.dropped !== 0 ||
       native.produced !== nativeSamples.length || native.drained !== nativeSamples.length || nativeSamples.length < 4 ||
       native.capacity !== 16 || native.capacity < nativeSamples.length || native.intervalNanos !== 15000000000 ||
       ![native.cancelSequence, native.joinSequence, native.terminalSequence].every(integer) ||
@@ -320,6 +335,8 @@ export function evaluateMemoryTeardown({ teardown, fallback, producerSummary, me
   evaluateJoinedMemoryOwner(owner, ready, terminal, nativeProof, teardown).forEach(fail);
   const prefix = liveGate?.memoryPrefix;
   const bytes = Buffer.from(memoryContents ?? "", "utf8");
+  if (!matchesMemoryProfileProof(liveGate, profile) || liveGate?.memoryProfile !== profile ||
+      liveGate?.goRuntimeLimitBytes !== policy?.goRuntimeLimitBytes || liveGate?.requiredGoMemoryProfileRateBytes !== requiredRate) fail("live-memory-profile-mismatch");
   if (liveGate?.schemaVersion !== 4 || liveGate.eligible !== true || liveGate.evaluationMode !== "live" || liveGate.sessionId !== teardown?.sessionId ||
       liveGate.buildId !== teardown?.buildId || liveGate.pid !== teardown?.pid ||
       !integer(prefix?.bytes) || prefix.bytes <= 0 || prefix.bytes > bytes.length || digest(bytes.subarray(0, prefix.bytes)) !== prefix.sha256) fail("live-memory-prefix-mismatch");
@@ -339,7 +356,9 @@ export function evaluateMemoryTeardown({ teardown, fallback, producerSummary, me
     }
   }
   return { type: "physical-memory-teardown-gate", schemaVersion: 1, eligible: reasons.size === 0,
-    classification: reasons.has("go-runtime-above-32-mib") || auxiliary.auxiliaryRuntimeBreachValueCount || producer.producerRuntimeBreachRepresentationCount ? "FAILED_MEMORY_LIMIT" : reasons.size ? "INCOMPLETE_TEARDOWN" : "TEARDOWN_COMPLETE",
+    classification: runtime.goRuntimeBreachSampleCount || auxiliary.auxiliaryRuntimeBreachValueCount || producer.producerRuntimeBreachRepresentationCount ? "FAILED_MEMORY_LIMIT" : reasons.size ? "INCOMPLETE_TEARDOWN" : "TEARDOWN_COMPLETE",
+    ...memoryProfileRequirements(profile), memoryProfile: policy ? profile : null,
+    goRuntimeLimitBytes: policy?.goRuntimeLimitBytes ?? null, requiredGoMemoryProfileRateBytes: requiredRate,
     sampleScope: "retained-runtime-events-not-all-internal-reads-or-continuous-peak", ...runtime, ...auxiliary, ...producer,
     peakGoRuntimeBytes: Math.max(runtime.peakGoRuntimeBytes, auxiliary.auxiliaryPeakGoRuntimeBytes),
     combinedRetainedRuntimeEventCount: runtime.combinedRuntimeReadCount,

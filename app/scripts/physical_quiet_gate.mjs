@@ -8,8 +8,8 @@ import { evaluateMemoryTeardown, evaluateStatusRuntimeReads, evaluateDiagnosticR
 import { readFileSync, realpathSync, writeFileSync } from "node:fs";
 import { pathToFileURL } from "node:url";
 import { evaluateEligibility } from "./physical_lowbar_capture.mjs";
-import { evaluateMemoryProfile, GO_MEMORY_LIMIT_BYTES, GO_RUNTIME_LIMIT_BYTES, MEMORY_AUDIT_PROFILE,
-  QUALIFICATION_PROFILE_RATE_BYTES } from "./physical_memory_profile.mjs";
+import { evaluateMemoryProfile, matchesMemoryProfileProof, memoryAuditPolicy, memoryProfileRequirements,
+  MEMORY_AUDIT_PROFILE, QUALIFICATION_PROFILE_RATE_BYTES } from "./physical_memory_profile.mjs";
 import { evaluateWorkloadCoverage, requireLiveCollector } from "./physical_workload_receipt.mjs";
 
 export const REQUIRED_QUIET_MS = 300_000;
@@ -66,9 +66,16 @@ export function evaluateQuietSamples(memory, phase, startElapsedMs, endElapsedMs
 
 // Boundary envelopes come from --capture-status, not host/device clock
 // subtraction. Device elapsed time brackets memory; host time brackets dumpsys.
-export function evaluateQuietWindow({ start, end, memory, telemetry, phase, role, underlay, statusRuntime, diagnostics, strictRetainedEvidence = false }) {
+export function evaluateQuietWindow({ start, end, memory, telemetry, phase, role, underlay, statusRuntime, diagnostics,
+  strictRetainedEvidence = false, profile = MEMORY_AUDIT_PROFILE }) {
   const reasons = new Set();
   const fail = (reason) => reasons.add(reason);
+  const policy = memoryAuditPolicy(profile);
+  const profileMismatchReason = profile === "android" ? "memory-audit-profile-mismatch" : "ios-memory-audit-profile-mismatch";
+  const rateMismatchReason = profile === "android" ? "memory-profile-rate-not-zero" : "ios-memory-profile-rate-not-zero";
+  const samplerProfileReason = profile === "android" ? "sampler-memory-profile-mismatch" : "sampler-memory-profile-not-ios";
+  const samplerLimitReason = policy ? `sampler-go-memory-limit-not-${policy.goMemoryLimitBytes / (1024 * 1024)}-mib` : "sampler-go-memory-limit-profile-invalid";
+  if (!policy) fail("memory-profile-version-invalid");
   if (!/^quiet-[A-Za-z0-9._-]+$/.test(phase ?? "")) fail("explicit-quiet-phase-required");
   if (!ROLES.includes(role)) fail("explicit-role-required");
   if (!["wifi", "cellular"].includes(underlay)) fail("explicit-underlay-required");
@@ -80,17 +87,19 @@ export function evaluateQuietWindow({ start, end, memory, telemetry, phase, role
       fail("completed-quiet-boundaries-required");
     }
     if (!status || !roleMatches(status, role)) fail("quiet-role-not-preserved");
-    const profile = evaluateMemoryProfile(status);
-    if (profile.reasons.some((reason) => reason !== "go-memory-profile-rate-not-zero")) {
-      fail("ios-memory-audit-profile-mismatch");
+    const preflight = evaluateMemoryProfile(status, { profile });
+    if (preflight.reasons.some((reason) => reason !== "go-memory-profile-rate-not-zero")) {
+      fail(profileMismatchReason);
     }
     if (status?.goMemoryProfileRateBytes !== QUALIFICATION_PROFILE_RATE_BYTES) {
-      fail("ios-memory-profile-rate-not-zero");
+      fail(rateMismatchReason);
     }
   }
   const firstStatus = start?.status;
   const lastStatus = end?.status;
   if (firstStatus?.pid !== lastStatus?.pid) fail("quiet-process-changed");
+  if (["sessionId", "buildId"].some(key => typeof firstStatus?.[key] !== "string" || !firstStatus[key] ||
+      firstStatus[key] !== lastStatus?.[key])) fail("quiet-session-or-build-changed");
   if (firstStatus?.commandId === lastStatus?.commandId) fail("fresh-end-status-required");
   const boundaryDurationMs = (lastStatus?.elapsedMs ?? NaN) - (firstStatus?.elapsedMs ?? NaN);
   const hostDurationMs = (end?.hostTimeUnixMs ?? NaN) - (start?.hostTimeUnixMs ?? NaN);
@@ -102,16 +111,17 @@ export function evaluateQuietWindow({ start, end, memory, telemetry, phase, role
   if (primitiveSamples.length !== memory.length) fail("primitive-memory-row-invalid");
   if (primitiveSamples.some(record => record.samplerDropped !== 0 || strictRetainedEvidence && record.samplerSchema !== 13)) fail("primitive-memory-dropped-or-schema-invalid");
   const statusSamples = statusRuntime ?? [firstStatus, lastStatus].filter(Boolean);
-  if (statusRuntime) evaluateStatusRuntimeReads(statusRuntime, [firstStatus, lastStatus]).forEach(fail);
-  const diagnostic = diagnostics ? evaluateDiagnosticRuntimeReads(diagnostics, firstStatus) : { samples: [], reasons: [] };
+  if (statusRuntime) evaluateStatusRuntimeReads(statusRuntime, [firstStatus, lastStatus], profile).forEach(fail);
+  const diagnostic = diagnostics ? evaluateDiagnosticRuntimeReads(diagnostics, firstStatus, profile) : { samples: [], reasons: [] };
   diagnostic.reasons.forEach(fail);
-  const auxiliary = evaluateAuxiliaryRuntimeValues(memory, statusSamples, [], strictRetainedEvidence);
+  const auxiliary = evaluateAuxiliaryRuntimeValues(memory, statusSamples, [], strictRetainedEvidence, profile);
   auxiliary.reasons.forEach(fail);
   const allSamples = [...memory, ...statusSamples, ...diagnostic.samples];
   let peakGoRuntimeBytes = 0;
   for (const record of allSamples) {
-    if (record?.memoryProfile !== MEMORY_AUDIT_PROFILE) fail("sampler-memory-profile-not-ios");
-    if (record?.goMemoryLimitBytes !== GO_MEMORY_LIMIT_BYTES) fail("sampler-go-memory-limit-not-32-mib");
+    if (["pid", "sessionId", "buildId"].some(key => record?.[key] !== firstStatus?.[key])) fail("memory-runtime-identity-mismatch");
+    if (!policy || record?.memoryProfile !== profile) fail(samplerProfileReason);
+    if (!policy || record?.goMemoryLimitBytes !== policy.goMemoryLimitBytes) fail(samplerLimitReason);
     if (record?.goMemoryProfileRateBytes !== QUALIFICATION_PROFILE_RATE_BYTES) {
       fail("sampler-memory-profile-rate-not-zero");
     }
@@ -122,7 +132,8 @@ export function evaluateQuietWindow({ start, end, memory, telemetry, phase, role
     }
   }
   peakGoRuntimeBytes = Math.max(peakGoRuntimeBytes, auxiliary.auxiliaryPeakGoRuntimeBytes);
-  if (peakGoRuntimeBytes > GO_RUNTIME_LIMIT_BYTES) fail("go-runtime-above-32-mib");
+  const memoryLimitBreached = peakGoRuntimeBytes > policy?.goRuntimeLimitBytes;
+  if (memoryLimitBreached) fail(`go-runtime-above-${policy.goRuntimeLimitBytes / (1024 * 1024)}-mib`);
   const workloads = start?.workloads;
   const validTelemetry = telemetry.filter(record => record && typeof record === "object" && !Array.isArray(record));
   if (validTelemetry.length !== telemetry.length) fail("telemetry-row-invalid");
@@ -144,9 +155,9 @@ export function evaluateQuietWindow({ start, end, memory, telemetry, phase, role
   const quietPeakGoRuntimeBytes = samples.reduce((peak, record) =>
     Number.isFinite(record.goRuntimeBytes) ? Math.max(peak, record.goRuntimeBytes) : peak, 0);
   const goRuntimeBreachSampleCount = allSamples.filter((record) =>
-    Number.isSafeInteger(record?.goRuntimeBytes) && record.goRuntimeBytes > GO_RUNTIME_LIMIT_BYTES).length;
+    Number.isSafeInteger(record?.goRuntimeBytes) && record.goRuntimeBytes > policy?.goRuntimeLimitBytes).length;
   const quietGoRuntimeBreachSampleCount = samples.filter((record) =>
-    record.goRuntimeBytes > GO_RUNTIME_LIMIT_BYTES).length;
+    record.goRuntimeBytes > policy?.goRuntimeLimitBytes).length;
 
   const hostSamples = validTelemetry.filter((record) => record.type === "sample");
   // Include the samples on either side, so an absent collector tail cannot
@@ -178,11 +189,11 @@ export function evaluateQuietWindow({ start, end, memory, telemetry, phase, role
     type: "quiet-window-gate",
     schemaVersion: 4,
     eligible: reasons.size === 0,
-    classification: reasons.has("go-runtime-above-32-mib") ? "FAILED_MEMORY_LIMIT" :
-      reasons.has("ios-memory-profile-rate-not-zero") || reasons.has("sampler-memory-profile-rate-not-zero") ?
+    classification: memoryLimitBreached ? "FAILED_MEMORY_LIMIT" :
+      reasons.has(rateMismatchReason) || reasons.has("sampler-memory-profile-rate-not-zero") ?
         "INVALID_RATE_ZERO" :
-      reasons.has("ios-memory-audit-profile-mismatch") || reasons.has("sampler-memory-profile-not-ios") ||
-        reasons.has("sampler-go-memory-limit-not-32-mib") ?
+      !policy || reasons.has(profileMismatchReason) || reasons.has(samplerProfileReason) || reasons.has(samplerLimitReason) ||
+        reasons.has("diagnostic-runtime-target-mismatch") || reasons.has("diagnostic-runtime-profile-mismatch") ?
         "INVALID_MEMORY_PROFILE" :
       reasons.has("workload-collector-evidence-required") || reasons.has("workload-collector-coverage-incomplete") ?
         "INCOMPLETE_ACTIVE_COVERAGE" :
@@ -206,8 +217,9 @@ export function evaluateQuietWindow({ start, end, memory, telemetry, phase, role
     quietPeakGoRuntimeBytes,
     goRuntimeBreachSampleCount,
     quietGoRuntimeBreachSampleCount,
-    goRuntimeLimitBytes: GO_RUNTIME_LIMIT_BYTES,
-    memoryProfile: MEMORY_AUDIT_PROFILE,
+    ...memoryProfileRequirements(profile),
+    goRuntimeLimitBytes: policy?.goRuntimeLimitBytes ?? null,
+    memoryProfile: policy ? profile : null,
     requiredGoMemoryProfileRateBytes: QUALIFICATION_PROFILE_RATE_BYTES,
     reasons: [...reasons],
   };
@@ -222,7 +234,7 @@ function parseNdjson(contents, liveAppend = false) {
 
 export function parseArgs(argv) {
   const options = {};
-  const names = new Set(["capture-status", "serial", "start", "end", "memory", "telemetry", "phase", "role", "underlay", "live-gate", "status-runtime", "diagnostics", "teardown", "teardown-fallback", "producer-summary", "finish-status", "instrumentation-owner", "finish-command-id", "native-inputs"]);
+  const names = new Set(["capture-status", "serial", "start", "end", "memory", "telemetry", "phase", "role", "underlay", "profile", "live-gate", "status-runtime", "diagnostics", "teardown", "teardown-fallback", "producer-summary", "finish-status", "instrumentation-owner", "finish-command-id", "native-inputs"]);
   for (let i = 0; i < argv.length; i += 2) {
     const name = argv[i]?.replace(/^--/, "");
     if (!argv[i]?.startsWith("--") || !names.has(name) || !argv[i + 1] || argv[i + 1].startsWith("--")) {
@@ -234,15 +246,20 @@ export function parseArgs(argv) {
   const required = options["capture-status"] ? ["capture-status", "serial"] :
     ["start", "end", "memory", "status-runtime", "diagnostics", "telemetry", "phase", "role", "underlay",
       ...(options["live-gate"] ? ["teardown", "producer-summary", "finish-status", "instrumentation-owner", "finish-command-id", "native-inputs"] : [])];
-  const allowed = options["capture-status"] ? required : [...required, "live-gate", ...(options["live-gate"] ? ["teardown-fallback"] : [])];
+  const allowed = options["capture-status"] ? required : [...required, "profile", "live-gate", ...(options["live-gate"] ? ["teardown-fallback"] : [])];
   if (required.some((name) => !options[name]) || Object.keys(options).some((name) => !allowed.includes(name))) {
     throw new Error("missing or incompatible quiet-gate arguments");
+  }
+  if (!options["capture-status"]) {
+    options.profile ??= MEMORY_AUDIT_PROFILE;
+    if (!memoryAuditPolicy(options.profile)) throw new Error("invalid quiet-gate profile");
   }
   return options;
 }
 
 function main() {
   const options = parseArgs(process.argv.slice(2));
+  const policy = memoryAuditPolicy(options.profile);
   if (options["capture-status"]) {
     const result = spawnSync("adb", ["-s", options.serial, "shell", "run-as",
       "com.bringyour.network", "cat", "files/acceptance/physical-status"],
@@ -271,7 +288,7 @@ function main() {
     statusRuntime,
     diagnostics, strictRetainedEvidence: true,
     telemetry: parseNdjson(readContents(options.telemetry), true),
-    phase: options.phase, role: options.role, underlay: options.underlay,
+    phase: options.phase, role: options.role, underlay: options.underlay, profile: options.profile,
   });
   if (retainedReadFailed) {
     result.eligible = result.connectedClientEvidence = false;
@@ -296,7 +313,8 @@ function main() {
     if (options["live-gate"]) {
       const proof = JSON.parse(readFileSync(options["live-gate"], "utf8"));
       if (proof.type !== "quiet-window-gate" || proof.schemaVersion !== 4 || proof.eligible !== true || proof.evaluationMode !== "live" ||
-          proof.goRuntimeLimitBytes !== GO_RUNTIME_LIMIT_BYTES ||
+          !matchesMemoryProfileProof(proof, options.profile) || proof.memoryProfile !== options.profile ||
+          proof.goRuntimeLimitBytes !== policy.goRuntimeLimitBytes || proof.requiredGoMemoryProfileRateBytes !== QUALIFICATION_PROFILE_RATE_BYTES ||
           proof.collectorLiveAtGate !== true || proof.workloadOwnerId !== workloads.ownerId ||
           !validTime(proof.hostTimeUnixMs) || proof.hostTimeUnixMs < end.hostTimeUnixMs) throw new Error();
       result.liveGateHostTimeUnixMs = proof.hostTimeUnixMs;
@@ -326,7 +344,7 @@ function main() {
       finish: finishEnvelope?.status ?? finishEnvelope, owner: readOptional(ownerPath),
       ready: readOptional(`${ownerPath}.ready.json`), terminal: readOptional(`${ownerPath}.terminal.json`),
       nativeProof: readOptional(options["native-inputs"]), liveGate: readOptional(options["live-gate"]), memoryContents,
-      statusContents, diagnosticContents, expectedFinishCommandId: options["finish-command-id"] });
+      statusContents, diagnosticContents, expectedFinishCommandId: options["finish-command-id"], profile: options.profile });
     result.teardown = teardown;
     result.peakGoRuntimeBytes = Math.max(result.peakGoRuntimeBytes, teardown.peakGoRuntimeBytes);
     result.goRuntimeBreachSampleCount = teardown.goRuntimeBreachSampleCount;
@@ -336,7 +354,7 @@ function main() {
     if (!teardown.eligible) {
       result.eligible = result.connectedClientEvidence = false;
       result.reasons.push(...teardown.reasons);
-      result.classification = result.peakGoRuntimeBytes > GO_RUNTIME_LIMIT_BYTES ? "FAILED_MEMORY_LIMIT" : "INCOMPLETE_TEARDOWN";
+      result.classification = result.peakGoRuntimeBytes > policy.goRuntimeLimitBytes ? "FAILED_MEMORY_LIMIT" : "INCOMPLETE_TEARDOWN";
     }
   }
   process.stdout.write(`${JSON.stringify(result)}\n`);

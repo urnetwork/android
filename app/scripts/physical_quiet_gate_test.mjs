@@ -6,7 +6,9 @@ import { join } from "node:path";
 import test from "node:test";
 import { evaluateQuietWindow, GO_RUNTIME_LIMIT_BYTES, parseArgs, REQUIRED_QUIET_MS } from "./physical_quiet_gate.mjs";
 
-function evidence(role = "client", durationMs = REQUIRED_QUIET_MS) {
+function evidence(role = "client", durationMs = REQUIRED_QUIET_MS, profile = "ios-memory-audit-v2") {
+  const limitBytes = (profile === "android" ? 64 : 32) * 1024 * 1024;
+  const targetBytes = profile === "ios-memory-audit-v1" ? 20 * 1024 * 1024 : limitBytes;
   const base = 1_000_000;
   const phase = "quiet-post-traffic";
   const workloads = { ownerId: "owner-01", label: "post-traffic", startedHostTimeUnixMs: base,
@@ -19,21 +21,21 @@ function evidence(role = "client", durationMs = REQUIRED_QUIET_MS) {
       goMemStatsRuntimeBytes: 20 * 1024 * 1024, idleMemoryTrimCount: 0,
       lastIdleMemoryTrimBeforeBytes: 0, lastIdleMemoryTrimAfterBytes: 0,
       runtimeReadSequence: commandId === "quiet-start" ? 1 : 2, timeUnixMs: base + elapsedMs,
-      memoryProfile: "ios-memory-audit-v2",
+      memoryProfile: profile,
       goMemoryProfileRateBytes: 0,
-      goMemoryLimitBytes: 32 * 1024 * 1024, trackedMemory: { targetBytes: 32 * 1024 * 1024 },
+      goMemoryLimitBytes: limitBytes, trackedMemory: { targetBytes },
       elapsedMs, connected: role === "client", tunnelStarted: role !== "direct",
       provideEnabled: role === "provider" },
   });
   return {
-    role, phase, underlay: "wifi", start: status(0, "quiet-start"), end: status(durationMs, "quiet-end"),
+    profile, role, phase, underlay: "wifi", start: status(0, "quiet-start"), end: status(durationMs, "quiet-end"),
     memory: Array.from({ length: 21 }, (_, i) => ({ type: "sample", phase,
       pid: 42, sessionId: "fixture-session", buildId: "fixture-build",
       samplerSchema: 13, timeUnixMs: base + durationMs * i / 20,
       idleMemoryTrimCount: 0, lastIdleMemoryTrimBeforeBytes: 0, lastIdleMemoryTrimAfterBytes: 0,
-      memoryProfile: "ios-memory-audit-v2",
+      memoryProfile: profile,
       goMemoryProfileRateBytes: 0,
-      goMemoryLimitBytes: 32 * 1024 * 1024,
+      goMemoryLimitBytes: limitBytes,
       elapsedMs: durationMs * i / 20, samplerDropped: 0, goRuntimeBytes: 20 * 1024 * 1024 })),
     telemetry: [{ type: "environment", label: "post-traffic" }, ...Array.from({ length: Math.ceil(durationMs / 1000) + 1 }, (_, i) => ({
       type: "sample", startTimeUnixMs: base + i * 1000, endTimeUnixMs: base + i * 1000 + 100,
@@ -42,6 +44,19 @@ function evidence(role = "client", durationMs = REQUIRED_QUIET_MS) {
       eligibility: { eligible: true, reasons: [] }, telemetryErrors: [],
     }))],
   };
+}
+
+// Same retained batch contract as the CLI, without host or device activity.
+function retainedEvidence(profile) {
+  const input = evidence("client", REQUIRED_QUIET_MS, profile);
+  input.statusRuntime = [input.start.status, input.end.status].map(row => ({ ...row,
+    type: "status-runtime", sequence: row.runtimeReadSequence }));
+  input.diagnostics = ["state", "memory", "memory_device_transport", "memory_device_transfer"].map(part => ({
+    ...input.start.status, part, diagnosticBatchSequence: 1, unix_millis: input.start.status.timeUnixMs,
+    go_total_bytes: 20 * 1024 * 1024, go_limit_bytes: input.start.status.goMemoryLimitBytes,
+    memory_profile_rate_bytes: 0, device_memory_target_bytes: input.start.status.trackedMemory.targetBytes }));
+  input.strictRetainedEvidence = true;
+  return input;
 }
 
 function rejects(input, reason) {
@@ -67,6 +82,127 @@ test("32 MiB is the exact iOS absolute cap in every phase, independently of stea
     assert.equal(breached.classification, "FAILED_MEMORY_LIMIT");
     assert.equal(breached.goRuntimeBreachSampleCount, 1);
     assert.equal(breached.quietGoRuntimeBreachSampleCount, phase === "quiet" ? 1 : 0);
+  }
+});
+
+test("explicit policy applies exact 32 or 64 MiB ceilings to all live runtime scopes", () => {
+  const scopes = [
+    ["primitive", (input, bytes) => { input.memory[10].goRuntimeBytes = bytes; }, true],
+    ["status", (input, bytes) => { input.start.status.goRuntimeBytes = input.statusRuntime[0].goRuntimeBytes = bytes; }, true],
+    ["diagnostic", (input, bytes) => { input.diagnostics[1].go_total_bytes = bytes; }, true],
+    ["memstats", (input, bytes) => { input.statusRuntime[0].goMemStatsRuntimeBytes = bytes; }, false],
+    ["trim-before", (input, bytes) => { Object.assign(input.statusRuntime[1], { idleMemoryTrimCount: 1,
+      lastIdleMemoryTrimBeforeBytes: bytes, lastIdleMemoryTrimAfterBytes: 20 * 1024 * 1024 }); }, false],
+    ["trim-after", (input, bytes) => { Object.assign(input.statusRuntime[1], { idleMemoryTrimCount: 1,
+      lastIdleMemoryTrimBeforeBytes: 20 * 1024 * 1024, lastIdleMemoryTrimAfterBytes: bytes }); }, false],
+  ];
+  for (const [profile, mib] of [["ios-memory-audit-v1", 28], ["ios-memory-audit-v2", 32], ["android", 64]]) {
+    const limit = mib * 1024 * 1024;
+    for (const [scope, change, primary] of scopes) {
+      const input = retainedEvidence(profile); change(input, limit);
+      const exact = evaluateQuietWindow(input);
+      assert.equal(exact.eligible, true, `${profile}:${scope}:${JSON.stringify(exact.reasons)}`);
+      assert.equal(exact.memoryProfile, profile);
+      assert.equal(exact.requiredProfile, profile);
+      assert.equal(exact.requiredDeviceTargetBytes, input.start.status.trackedMemory.targetBytes);
+      assert.equal(exact.requiredGoMemoryLimitBytes, input.start.status.goMemoryLimitBytes);
+      assert.equal(exact.requiredGoRuntimeLimitBytes, limit);
+      assert.equal(exact.goRuntimeLimitBytes, limit);
+      assert.equal(exact.peakGoRuntimeBytes, limit);
+      assert.equal(exact.goRuntimeBreachSampleCount, 0);
+      assert.equal(exact.auxiliary.auxiliaryRuntimeBreachValueCount, 0);
+      assert.equal(exact.combinedRetainedRuntimeEventCount, 24);
+      change(input, limit + 1);
+      const breached = evaluateQuietWindow(input);
+      assert.equal(breached.classification, "FAILED_MEMORY_LIMIT", `${profile}:${scope}`);
+      assert.equal(breached.peakGoRuntimeBytes, limit + 1);
+      assert.equal(breached.goRuntimeBreachSampleCount, primary ? 1 : 0);
+      assert.equal(breached.auxiliary.auxiliaryRuntimeBreachValueCount, primary ? 0 : 1);
+      assert.equal(breached.quietGoRuntimeBreachSampleCount, scope === "primitive" ? 1 : 0);
+      assert.equal(breached.sampleCount, 21);
+      assert.equal(breached.sampleDurationMs, 300_000);
+      assert.equal(breached.combinedRetainedRuntimeEventCount, 24);
+    }
+  }
+});
+
+test("Android absolute cap covers every phase and cannot be replaced by numeric overrides", () => {
+  for (const phase of ["baseline", "active", "drain", "transition", "quiet", "finish"]) {
+    const input = evidence("client", REQUIRED_QUIET_MS, "android");
+    const row = phase === "quiet" ? input.memory[10] : { ...input.memory[0], phase,
+      elapsedMs: phase === "finish" ? REQUIRED_QUIET_MS + 1 : -1 };
+    if (phase !== "quiet") input.memory.push(row);
+    row.goRuntimeBytes = 64 * 1024 * 1024;
+    assert.equal(evaluateQuietWindow(input).eligible, true, phase);
+    row.goRuntimeBytes++;
+    input.goRuntimeLimitBytes = 128 * 1024 * 1024;
+    const failed = rejects(input, "go-runtime-above-64-mib");
+    assert.equal(failed.classification, "FAILED_MEMORY_LIMIT");
+    assert.equal(failed.goRuntimeBreachSampleCount, 1);
+    assert.equal(failed.quietGoRuntimeBreachSampleCount, phase === "quiet" ? 1 : 0);
+  }
+});
+
+test("quiet gate rejects cross-profile, target, soft-limit and identity borrowing", () => {
+  for (const profile of ["ios-memory-audit-v2", "android"]) {
+    const foreign = profile === "android" ? "ios-memory-audit-v2" : "android";
+    for (const change of [
+      input => { input.profile = foreign; },
+      input => { input.start.status.memoryProfile = foreign; },
+      input => { input.end.status.memoryProfile = foreign; },
+      input => { input.memory[10].memoryProfile = foreign; },
+      input => { input.statusRuntime[0].memoryProfile = foreign; },
+      input => { input.diagnostics[1].memoryProfile = foreign; },
+      input => { input.start.status.trackedMemory.targetBytes++; },
+      input => { input.end.status.trackedMemory.targetBytes++; },
+      input => { input.diagnostics[1].device_memory_target_bytes++; },
+      input => { input.memory[10].goMemoryLimitBytes++; },
+      input => { input.statusRuntime[0].goMemoryLimitBytes++; },
+      input => { input.diagnostics[1].go_limit_bytes++; },
+      input => { input.end.status.sessionId = "foreign-session"; },
+      input => { input.memory[10].buildId = "foreign-build"; },
+      input => { input.statusRuntime[0].pid++; },
+      input => { input.diagnostics[1].sessionId = "foreign-session"; },
+    ]) {
+      const input = retainedEvidence(profile); change(input);
+      const result = evaluateQuietWindow(input);
+      assert.equal(result.eligible, false, `${profile}:${JSON.stringify(result)}`);
+      assert.equal(result.combinedRetainedRuntimeEventCount, 24);
+    }
+  }
+  const android = evidence("client", REQUIRED_QUIET_MS, "android"); delete android.profile;
+  assert.equal(evaluateQuietWindow(android).eligible, false);
+  const defaults = evidence(); delete defaults.profile;
+  assert.equal(evaluateQuietWindow(defaults).eligible, true);
+});
+
+test("quiet CLI selects only allowlisted profiles and preserves standalone defaults", () => {
+  const args = ["--start", "start.json", "--end", "end.json", "--memory", "memory.ndjson", "--status-runtime", "status.ndjson",
+    "--diagnostics", "diagnostics.ndjson", "--telemetry", "telemetry.ndjson", "--phase", "quiet-fixture", "--role", "client", "--underlay", "wifi"];
+  assert.equal(parseArgs(args).profile, "ios-memory-audit-v2");
+  for (const profile of ["ios-memory-audit-v1", "ios-memory-audit-v2", "android"]) {
+    assert.equal(parseArgs([...args, "--profile", profile]).profile, profile);
+  }
+  for (const extra of [["--profile", "normalAndroid"], ["--profile", "__proto__"],
+    ["--profile", "android", "--profile", "ios-memory-audit-v2"], ["--go-runtime-limit-bytes", "67108864"]]) {
+    assert.throws(() => parseArgs([...args, ...extra]));
+  }
+});
+
+test("Android qualification keeps exact rate zero at both boundaries and every retained runtime scope", () => {
+  for (const rate of [undefined, null, "0", false, -1, 65536]) {
+    for (const scope of ["start", "end", "memory", "status", "diagnostic"]) {
+      const input = retainedEvidence("android");
+      if (["start", "end"].includes(scope)) input[scope].status.goMemoryProfileRateBytes = rate;
+      else if (scope === "memory") input.memory[10].goMemoryProfileRateBytes = rate;
+      else if (scope === "status") input.statusRuntime[0].goMemoryProfileRateBytes = rate;
+      else input.diagnostics[1].memory_profile_rate_bytes = rate;
+      const result = evaluateQuietWindow(input);
+      assert.equal(result.classification, "INVALID_RATE_ZERO", `${scope}:${rate}`);
+      assert.equal(result.eligible, false);
+      assert.equal(result.sampleCount, 21);
+      assert.equal(result.combinedRetainedRuntimeEventCount, 24);
+    }
   }
 });
 
@@ -362,10 +498,12 @@ test("status capture is read-only, private, fresh and never overwrites prior evi
   }
 });
 
-test("CLI requires fresh native teardown in addition to valid live quiet evidence without adb", () => {
+// Exercise the same live/offline evidence flow for both caller-selected policies.
+function exerciseQuietCli(profile) {
+  const runtimeLimitBytes = (profile === "android" ? 64 : 32) * 1024 * 1024;
   const directory = mkdtempSync(join(tmpdir(), "physical-quiet-gate-test-"));
   try {
-    const input = evidence();
+    const input = evidence("client", REQUIRED_QUIET_MS, profile);
     // A fake retained collector is this test process; no adb or live device.
     const shift = Date.now() - input.end.hostTimeUnixMs - 1000;
     for (const b of [input.start, input.end]) b.hostTimeUnixMs += shift;
@@ -375,7 +513,7 @@ test("CLI requires fresh native teardown in addition to valid live quiet evidenc
       record.startTimeUnixMs += shift; record.endTimeUnixMs += shift;
     }
     input.start.workloads.collector.path = join(directory, "telemetry.json");
-    const args = [];
+    const args = ["--profile", profile];
     for (const name of ["start", "end", "memory", "telemetry"]) {
       const file = join(directory, `${name}.json`);
       const value = input[name];
@@ -388,14 +526,18 @@ test("CLI requires fresh native teardown in addition to valid live quiet evidenc
     const diagnosticsPath = join(directory, "diagnostics.ndjson");
     writeFileSync(diagnosticsPath, ["state", "memory", "memory_device_transport", "memory_device_transfer"].map(part => JSON.stringify({
       ...input.start.status, part, diagnosticBatchSequence: 1, unix_millis: input.start.status.timeUnixMs,
-      go_total_bytes: 20 * 1024 * 1024, go_limit_bytes: 33554432, memory_profile_rate_bytes: 0,
-      device_memory_target_bytes: 33554432 })).join("\n") + "\n");
+      go_total_bytes: 20 * 1024 * 1024, go_limit_bytes: runtimeLimitBytes, memory_profile_rate_bytes: 0,
+      device_memory_target_bytes: runtimeLimitBytes })).join("\n") + "\n");
     args.push("--status-runtime", statusRuntimePath, "--diagnostics", diagnosticsPath,
       "--phase", input.phase, "--role", input.role, "--underlay", input.underlay);
     const run = () => spawnSync(process.execPath, [new URL("./physical_quiet_gate.mjs", import.meta.url).pathname, ...args], { encoding: "utf8" });
     let result = run();
     assert.equal(result.status, 0, result.stderr);
     assert.equal(JSON.parse(result.stdout).eligible, true);
+    assert.equal(JSON.parse(result.stdout).requiredProfile, profile);
+    assert.equal(JSON.parse(result.stdout).requiredDeviceTargetBytes, runtimeLimitBytes);
+    assert.equal(JSON.parse(result.stdout).requiredGoMemoryLimitBytes, runtimeLimitBytes);
+    assert.equal(JSON.parse(result.stdout).requiredGoRuntimeLimitBytes, runtimeLimitBytes);
     const liveGate = join(directory, "live-gate.json");
     writeFileSync(liveGate, result.stdout);
     // Collector has now finished. Its old proof still needs a fresh native
@@ -414,12 +556,12 @@ test("CLI requires fresh native teardown in addition to valid live quiet evidenc
     assert.match(result.stderr, /quiet-gate evidence unavailable/);
     const beginTime = input.end.status.timeUnixMs + 1;
     const identity = { pid: 42, sessionId: "fixture-session", buildId: "fixture-build" };
-    const native = { type: "device-memory-teardown", schemaVersion: 1, observerId: "fixture-observer", deviceTargetBytes: 33554432,
+    const native = { type: "device-memory-teardown", schemaVersion: 1, observerId: "fixture-observer", deviceTargetBytes: runtimeLimitBytes,
       state: "complete", failure: "", intervalNanos: 15000000000, capacity: 16, produced: 4, drained: 4, dropped: 0,
       cancelSequence: 2, joinSequence: 3, terminalSequence: 4, observerJoined: true,
       samples: ["begin", "cancelled", "joined", "terminal"].map((stage, index) => ({ sequence: index + 1, stage,
         timeUnixMs: beginTime + index, elapsedNanos: index, goRuntimeBytes: 20 * 1024 * 1024,
-        goMemoryLimitBytes: 33554432, goMemoryProfileRateBytes: 0 })) };
+        goMemoryLimitBytes: runtimeLimitBytes, goMemoryProfileRateBytes: 0 })) };
     const finish = { ...input.end.status, phase: "finish", commandId: "fixture-finish", timeUnixMs: beginTime,
       runtimeReadSequence: 3, teardownObserverId: native.observerId, teardownBeginTimeUnixMs: beginTime };
     writeFileSync(statusRuntimePath, readFileSync(statusRuntimePath, "utf8") +
@@ -438,7 +580,7 @@ test("CLI requires fresh native teardown in addition to valid live quiet evidenc
     writeFileSync(`${ownerPath}.terminal.json`, JSON.stringify({ ...owner, state: "complete", exitCode: 0,
       signal: null, interrupted: false, completedHostTimeUnixMs: Date.now() }));
     const teardownPath = join(directory, "teardown.json");
-    const producerSummary = { ...identity, type: "physical-memory-producer-summary", schemaVersion: 1, memoryProfile: "ios-memory-audit-v2",
+    const producerSummary = { ...identity, type: "physical-memory-producer-summary", schemaVersion: 1, memoryProfile: profile,
       finishCommandId: finish.commandId, observerId: native.observerId, peakGoRuntimeBytes: 20 * 1024 * 1024,
       devicePrimitiveCount: input.memory.length, teardownPrimitiveCount: 4, statusRuntimeReadCount: 3, diagnosticRuntimeReadCount: 1,
       combinedRetainedRuntimeEventCount: input.memory.length + 8, statusMemStatsSnapshotCount: 3,
@@ -446,7 +588,7 @@ test("CLI requires fresh native teardown in addition to valid live quiet evidenc
     const producerSummaryPath = join(directory, "producer-summary.json");
     writeFileSync(producerSummaryPath, JSON.stringify(producerSummary));
     writeFileSync(teardownPath, JSON.stringify({ ...identity, type: "physical-memory-teardown", schemaVersion: 1,
-      memoryProfile: "ios-memory-audit-v2", native, observerId: native.observerId, finishCommandId: finish.commandId,
+      memoryProfile: profile, native, observerId: native.observerId, finishCommandId: finish.commandId,
       deviceDrainerJoined: true, deviceRingDrained: true, deviceJoined: true, referencesReleased: true,
       referencesReleasedTimeUnixMs: beginTime + 2, filesFlushed: true, statusRuntimeReadCount: 3, failureCount: 0,
       devicePrimitiveCount: input.memory.length, diagnosticBatchesProduced: 1, diagnosticBatchesFlushed: 1,
@@ -473,24 +615,24 @@ test("CLI requires fresh native teardown in addition to valid live quiet evidenc
     const fallbackPath = join(directory, "teardown-fallback.json");
     const fallback = JSON.parse(originalTeardown);
     fallback.filesFlushed = false; fallback.failureCount = 1;
-    fallback.native.samples[1].goRuntimeBytes = GO_RUNTIME_LIMIT_BYTES + 1;
+    fallback.native.samples[1].goRuntimeBytes = runtimeLimitBytes + 1;
     writeFileSync(fallbackPath, JSON.stringify(fallback));
     writeFileSync(teardownPath, "incomplete primary write");
     teardownArgs.push("--teardown-fallback", fallbackPath);
     result = offline();
     assert.equal(result.status, 2);
-    assert.equal(JSON.parse(result.stdout).peakGoRuntimeBytes, GO_RUNTIME_LIMIT_BYTES + 1);
+    assert.equal(JSON.parse(result.stdout).peakGoRuntimeBytes, runtimeLimitBytes + 1);
     assert.equal(JSON.parse(result.stdout).teardown.counts.teardownPrimitiveCount, 4);
     assert.equal(JSON.parse(result.stdout).teardown.fallbackState, "selected-ineligible");
     teardownArgs.splice(-2);
     writeFileSync(teardownPath, originalTeardown);
-    writeFileSync(producerSummaryPath, JSON.stringify({ ...producerSummary, peakGoRuntimeBytes: GO_RUNTIME_LIMIT_BYTES + 1, exporterFailed: true }));
+    writeFileSync(producerSummaryPath, JSON.stringify({ ...producerSummary, peakGoRuntimeBytes: runtimeLimitBytes + 1, exporterFailed: true }));
     result = offline();
     assert.equal(result.status, 2);
-    assert.equal(JSON.parse(result.stdout).peakGoRuntimeBytes, GO_RUNTIME_LIMIT_BYTES + 1);
+    assert.equal(JSON.parse(result.stdout).peakGoRuntimeBytes, runtimeLimitBytes + 1);
     assert.equal(JSON.parse(result.stdout).teardown.producerRuntimeBreachRepresentationCount, 1);
     const nativeWithProducerHigh = JSON.parse(originalTeardown);
-    nativeWithProducerHigh.producerSummary.peakGoRuntimeBytes = GO_RUNTIME_LIMIT_BYTES + 3;
+    nativeWithProducerHigh.producerSummary.peakGoRuntimeBytes = runtimeLimitBytes + 3;
     writeFileSync(teardownPath, JSON.stringify(nativeWithProducerHigh));
     writeFileSync(producerSummaryPath, '{"private-malformed-summary":');
     result = offline();
@@ -499,13 +641,17 @@ test("CLI requires fresh native teardown in addition to valid live quiet evidenc
     assert.equal(malformedProducer.teardown.producerPeakRepresentationCount, 2,
       "nonempty invalid summary is retained as one invalid representation beside the native summary");
     assert.equal(malformedProducer.teardown.unqualifiedProducerPeakRepresentationCount, 1);
-    assert.equal(malformedProducer.peakGoRuntimeBytes, GO_RUNTIME_LIMIT_BYTES + 3);
+    assert.equal(malformedProducer.peakGoRuntimeBytes, runtimeLimitBytes + 3);
     assert.ok(malformedProducer.teardown.reasons.includes("producer-memory-summary-malformed"));
     assert.equal(result.stdout.includes("private-malformed-summary"), false);
     writeFileSync(teardownPath, originalTeardown);
     writeFileSync(producerSummaryPath, JSON.stringify(producerSummary));
     const currentProof = JSON.parse(readFileSync(liveGate));
-    for (const mutation of [{ schemaVersion: 2 }, { goRuntimeLimitBytes: 25_165_824 }, { eligible: false }]) {
+    for (const mutation of [{ schemaVersion: 2 }, { goRuntimeLimitBytes: 25_165_824 }, { eligible: false },
+      { memoryProfile: profile === "android" ? "ios-memory-audit-v2" : "android" },
+      { requiredProfile: profile === "android" ? "ios-memory-audit-v2" : "android" },
+      { requiredDeviceTargetBytes: runtimeLimitBytes + 1 }, { requiredGoMemoryLimitBytes: runtimeLimitBytes + 1 },
+      { requiredGoRuntimeLimitBytes: runtimeLimitBytes + 1 }, { requiredGoMemoryProfileRateBytes: 65_536 }]) {
       writeFileSync(liveGate, JSON.stringify({ ...currentProof, ...mutation }));
       assert.equal(offline().status, 2, "old or mismatched gate proof must not be requalified");
     }
@@ -513,7 +659,7 @@ test("CLI requires fresh native teardown in addition to valid live quiet evidenc
     const memoryPath = join(directory, "memory.json");
     const originalMemory = readFileSync(memoryPath, "utf8");
     writeFileSync(memoryPath, originalMemory + JSON.stringify({ type: "sample", phase: "finish", elapsedMs: 400_000,
-      goMemoryLimitBytes: 32 * 1024 * 1024, goRuntimeBytes: GO_RUNTIME_LIMIT_BYTES + 1 }) + "\n");
+      goMemoryLimitBytes: runtimeLimitBytes, goRuntimeBytes: runtimeLimitBytes + 1 }) + "\n");
     result = offline();
     assert.equal(result.status, 2);
     assert.equal(JSON.parse(result.stdout).classification, "FAILED_MEMORY_LIMIT");
@@ -523,7 +669,7 @@ test("CLI requires fresh native teardown in addition to valid live quiet evidenc
     result = offline();
     assert.equal(result.status, 2);
     const malformed = JSON.parse(result.stdout);
-    assert.equal(malformed.peakGoRuntimeBytes, GO_RUNTIME_LIMIT_BYTES + 1);
+    assert.equal(malformed.peakGoRuntimeBytes, runtimeLimitBytes + 1);
     assert.equal(malformed.combinedRetainedRuntimeEventCount, input.memory.length + 2 + 4 + 1 + 4);
     assert.equal(malformed.teardown.counts.devicePrimitiveCount, input.memory.length + 2);
     writeFileSync(statusRuntimePath, originalStatusRuntime);
@@ -532,23 +678,23 @@ test("CLI requires fresh native teardown in addition to valid live quiet evidenc
     // must not erase a readable later high or the producer's known peak.
     writeFileSync(memoryPath, originalMemory + '{"private-truncated-value":\n' +
       JSON.stringify({ ...input.memory.at(-1), phase: "finish", elapsedMs: 400_000,
-        goRuntimeBytes: GO_RUNTIME_LIMIT_BYTES + 1 }) + "\n");
+        goRuntimeBytes: runtimeLimitBytes + 1 }) + "\n");
     result = offline();
     assert.equal(result.status, 2);
     const truncatedWithHigh = JSON.parse(result.stdout);
     assert.equal(truncatedWithHigh.classification, "FAILED_MEMORY_LIMIT");
-    assert.equal(truncatedWithHigh.peakGoRuntimeBytes, GO_RUNTIME_LIMIT_BYTES + 1);
+    assert.equal(truncatedWithHigh.peakGoRuntimeBytes, runtimeLimitBytes + 1);
     assert.equal(truncatedWithHigh.teardown.counts.devicePrimitiveCount, input.memory.length + 2);
     assert.equal(truncatedWithHigh.combinedRetainedRuntimeEventCount, input.memory.length + 10);
     assert.equal(result.stdout.includes("private-truncated-value"), false);
     writeFileSync(memoryPath, originalMemory + '{"private-truncated-tail":');
     writeFileSync(producerSummaryPath, JSON.stringify({ ...producerSummary,
-      peakGoRuntimeBytes: GO_RUNTIME_LIMIT_BYTES + 2, exporterFailed: true, failureCount: 1 }));
+      peakGoRuntimeBytes: runtimeLimitBytes + 2, exporterFailed: true, failureCount: 1 }));
     result = offline();
     assert.equal(result.status, 2);
     const truncatedWithProducer = JSON.parse(result.stdout);
     assert.equal(truncatedWithProducer.classification, "FAILED_MEMORY_LIMIT");
-    assert.equal(truncatedWithProducer.peakGoRuntimeBytes, GO_RUNTIME_LIMIT_BYTES + 2);
+    assert.equal(truncatedWithProducer.peakGoRuntimeBytes, runtimeLimitBytes + 2);
     assert.equal(truncatedWithProducer.teardown.producerRuntimeBreachRepresentationCount, 1);
     assert.equal(truncatedWithProducer.teardown.counts.devicePrimitiveCount, input.memory.length + 1);
     assert.equal(truncatedWithProducer.combinedRetainedRuntimeEventCount, input.memory.length + 9);
@@ -561,7 +707,7 @@ test("CLI requires fresh native teardown in addition to valid live quiet evidenc
     assert.equal(result.status, 2);
     const missingWithProducer = JSON.parse(result.stdout);
     assert.equal(missingWithProducer.classification, "FAILED_MEMORY_LIMIT");
-    assert.equal(missingWithProducer.peakGoRuntimeBytes, GO_RUNTIME_LIMIT_BYTES + 2);
+    assert.equal(missingWithProducer.peakGoRuntimeBytes, runtimeLimitBytes + 2);
     assert.equal(missingWithProducer.teardown.counts.devicePrimitiveCount, 0);
     assert.equal(missingWithProducer.combinedRetainedRuntimeEventCount, 8);
     assert.ok(missingWithProducer.reasons.includes("retained-runtime-evidence-unavailable"));
@@ -581,4 +727,8 @@ test("CLI requires fresh native teardown in addition to valid live quiet evidenc
   } finally {
     rmSync(directory, { recursive: true, force: true });
   }
+}
+
+test("CLI requires profile-bound live evidence and fresh native teardown without adb for both policies", () => {
+  for (const profile of ["ios-memory-audit-v2", "android"]) exerciseQuietCli(profile);
 });

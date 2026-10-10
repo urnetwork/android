@@ -1499,6 +1499,6 @@ class PhysicalLowbarSessionTest {
         const val COMMAND_POLL_MILLIS = 250L
         const val SAMPLE_INTERVAL_MILLIS = 5_000L
         const val MAX_SESSION_MILLIS = 10_200_000L
-        const val GO_RUNTIME_SPIKE_BYTES = 32L * 1024 * 1024
+        val GO_RUNTIME_SPIKE_BYTES = physicalMemoryRuntimeThresholdBytes(MainApplication.MEMORY_PROFILE_NAME)
     }
 }

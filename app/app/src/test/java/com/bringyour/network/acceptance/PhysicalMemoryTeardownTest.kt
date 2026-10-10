@@ -9,6 +9,23 @@ import org.junit.Test
 
 class PhysicalMemoryTeardownTest {
     @Test
+    fun `runtime threshold follows the explicit profile without changing exact boundary semantics`() {
+        assertEquals(32L * 1024 * 1024, physicalMemoryRuntimeThresholdBytes("ios-memory-audit-v2"))
+        assertEquals(64L * 1024 * 1024, physicalMemoryRuntimeThresholdBytes("android"))
+        assertEquals(32L * 1024 * 1024, physicalMemoryRuntimeThresholdBytes("ios-memory-audit-v1"))
+        for (profile in listOf("ios-memory-audit-v2", "android")) {
+            val threshold = physicalMemoryRuntimeThresholdBytes(profile)
+            val retainedValues = listOf(threshold - 1, threshold, threshold + 1, threshold - 1)
+            assertEquals(1, retainedValues.count { it > threshold })
+        }
+        val betweenProfiles = 48L * 1024 * 1024
+        assertEquals(true, betweenProfiles > physicalMemoryRuntimeThresholdBytes("ios-memory-audit-v2"))
+        assertEquals(false, betweenProfiles > physicalMemoryRuntimeThresholdBytes("android"))
+        assertThrows(IllegalStateException::class.java) { physicalMemoryRuntimeThresholdBytes("") }
+        assertThrows(IllegalStateException::class.java) { physicalMemoryRuntimeThresholdBytes("android-override") }
+    }
+
+    @Test
     fun `every exporter boundary failure is sticky`() {
         for (stage in listOf("open", "append", "flush", "close")) {
             val failed = AtomicBoolean(false)

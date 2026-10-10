@@ -17,12 +17,13 @@ function fixture(t, base = 1_000_000) {
   let published = false;
   let reads = 0;
   let collectorLagMs = 0;
-  let current = { type: "status", state: "complete", commandId: "traffic-end", phase: "traffic",
+  const identity = { pid: 17, sessionId: "fixture-quiet-session", buildId: "fixture-quiet-build" };
+  let current = { ...identity, type: "status", state: "complete", commandId: "traffic-end", phase: "traffic",
     goRuntimeBytes: 20 * 1024 * 1024,
     memoryProfile: "ios-memory-audit-v2",
     goMemoryProfileRateBytes: 0,
     goMemoryLimitBytes: 32 * 1024 * 1024, trackedMemory: { targetBytes: 32 * 1024 * 1024 },
-    pid: 17, elapsedMs: 1000, connected: true, tunnelStarted: true, provideEnabled: false };
+    elapsedMs: 1000, connected: true, tunnelStarted: true, provideEnabled: false };
   const calls = [];
   const telemetryPath = join(directory, "telemetry.ndjson");
   const updateTelemetry = () => {
@@ -56,7 +57,7 @@ function fixture(t, base = 1_000_000) {
     poll: undefined,
     memoryDelayMs: 0,
     memory: (phase) => Array.from({ length: Math.max(0, Math.floor((time - value.memoryDelayMs) / 15_000)) }, (_, i) => ({
-      type: "sample", phase, elapsedMs: 1000 + (i + 1) * 15_000, samplerDropped: 0,
+      ...identity, type: "sample", phase, elapsedMs: 1000 + (i + 1) * 15_000, samplerDropped: 0,
       memoryProfile: "ios-memory-audit-v2",
       goMemoryProfileRateBytes: 0, goMemoryLimitBytes: 32 * 1024 * 1024, goRuntimeBytes: 20 * 1024 * 1024,
     })),
@@ -152,8 +153,11 @@ test("end inherits exact phase/process and uses a fresh command ID; gate accepts
     output: join(f.directory, "end.json") }, f.deps);
   assert.equal(end.status.phase, start.status.phase);
   assert.notEqual(end.status.commandId, start.status.commandId);
+  const identity = { pid: start.status.pid, sessionId: start.status.sessionId, buildId: start.status.buildId };
+  assert.deepEqual(identity, { pid: 17, sessionId: "fixture-quiet-session", buildId: "fixture-quiet-build" });
+  for (const [key, value] of Object.entries(identity)) assert.equal(end.status[key], value);
   const result = evaluateQuietWindow({ start, end, phase: start.status.phase, role: "client", underlay: "wifi",
-    memory: Array.from({ length: 21 }, (_, i) => ({ type: "sample", phase: start.status.phase,
+    memory: Array.from({ length: 21 }, (_, i) => ({ ...identity, type: "sample", phase: start.status.phase,
       memoryProfile: "ios-memory-audit-v2",
       goMemoryProfileRateBytes: 0,
       goMemoryLimitBytes: 32 * 1024 * 1024,
