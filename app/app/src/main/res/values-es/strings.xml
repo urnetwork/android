@@ -991,6 +991,13 @@
     <string name="site_payment_error_plan_unavailable">Este plan no está disponible en este momento. Inténtalo más tarde.</string>
     <string name="site_save_your_seedphrase">Guarda tu frase semilla</string>
     <string name="skip">Omitir</string>
+    <string name="sn_ledger_claimable">Por reclamar</string>
+    <string name="sn_ledger_earned">Ganado</string>
+    <string name="sn_ledger_paid">Pagado</string>
+    <string name="sn_ledger_pending">Pendiente: +%1$s, en espera de finalización</string>
+    <string name="sn_ledger_pool">Pool %1$d</string>
+    <string name="sn_ledger_title">Liquidación v2</string>
+    <string name="sn_ledger_unavailable">No disponible</string>
     <string name="sn_payout_schedule">Las ganancias se liquidan cada época y se pagan en SN25α a tu coldkey de Bittensor cuando las reclamas.</string>
     <string name="sn_payout_schedule_times">Esta época termina el %1$s. Reclama tu parte desde el %2$s hasta el %3$s.</string>
     <string name="solana_one_time_payment">Pagar con USDC en Solana es un pago anual único, sin prueba gratuita.</string>

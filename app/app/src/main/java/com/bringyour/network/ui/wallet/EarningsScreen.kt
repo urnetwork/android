@@ -92,7 +92,8 @@ const val EARNINGS_SET_COLDKEY_TAG = "earnings-set-coldkey"
 
 /**
  * The Earnings screen: points first, always. The UR protocol layer (wallet,
- * unclaimed SN25α, claim, Top 200) appears only once a Bittensor wallet is connected.
+ * unclaimed SN25α, settlement v2, claim, Top 200) appears only once a Bittensor
+ * wallet is connected.
  */
 @Composable
 fun EarningsScreen(
@@ -124,6 +125,9 @@ fun EarningsScreen(
     val isSeekerHolder by earningsViewModel.isSeekerHolder.collectAsState()
     val claimDialog by earningsViewModel.claimDialog.collectAsState()
     val manualValidation by earningsViewModel.manualValidation.collectAsState()
+    val ledgerLoad by earningsViewModel.ledgerFlow.load.collectAsState()
+    val ledgerClaimConfigured by earningsViewModel.ledgerFlow.claimConfigured.collectAsState()
+    val ledgerClaimDialog by earningsViewModel.ledgerFlow.dialog.collectAsState()
 
     // the legacy USDC payout wallet (Solana), connected from the wallet overflow
     val solanaWalletViewModel: SolanaWalletViewModel = hiltViewModel()
@@ -234,6 +238,8 @@ fun EarningsScreen(
         shortSs58 = earningsViewModel::shortSs58,
         payoutLine = payoutLine,
         onSetColdkey = { earningsViewModel.connectWithBridge() },
+        ledgerTile = snLedgerTile(ledgerLoad, ledgerClaimConfigured),
+        onOpenLedgerClaim = { earningsViewModel.ledgerFlow.open() },
     )
 
     ClaimDialog(
@@ -241,6 +247,16 @@ fun EarningsScreen(
         onDismiss = { earningsViewModel.closeClaimDialog() },
         onClaim = { earningsViewModel.claimAll() },
         onRetry = { earningsViewModel.retryClaimDialog() },
+        formatAlpha = earningsViewModel::formatAlpha,
+        shortSs58 = earningsViewModel::shortSs58,
+        explorerTxUrl = earningsViewModel::explorerTxUrl,
+    )
+
+    SnLedgerClaimDialog(
+        state = ledgerClaimDialog,
+        onDismiss = { earningsViewModel.ledgerFlow.close() },
+        onClaim = { earningsViewModel.ledgerFlow.claim() },
+        onRetry = { earningsViewModel.ledgerFlow.retry() },
         formatAlpha = earningsViewModel::formatAlpha,
         shortSs58 = earningsViewModel::shortSs58,
         explorerTxUrl = earningsViewModel::explorerTxUrl,
@@ -343,6 +359,8 @@ fun EarningsScreenContent(
     onRetryWallet: () -> Unit = {},
     payoutLine: SnPayoutLine? = null,
     onSetColdkey: () -> Unit = {},
+    ledgerTile: SnLedgerTile? = null,
+    onOpenLedgerClaim: () -> Unit = {},
 ) {
     val refreshState = rememberPullToRefreshState()
     val claimsByEpoch = claims.associateBy { it.epoch }
@@ -440,6 +458,10 @@ fun EarningsScreenContent(
                         onOpenClaim = onOpenClaim,
                         formatAlpha = formatAlpha
                     )
+                    ledgerTile?.let {
+                        Spacer(modifier = Modifier.height(16.dp))
+                        SnLedgerTileBlock(tile = it, onClaim = onOpenLedgerClaim, formatAlpha = formatAlpha)
+                    }
                 }
 
                 head?.let { h ->

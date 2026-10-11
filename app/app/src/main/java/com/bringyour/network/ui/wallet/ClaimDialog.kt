@@ -266,7 +266,7 @@ private fun ReadyContent(
 }
 
 @Composable
-private fun NeedsGasContent(
+internal fun NeedsGasContent(
     state: ClaimDialogState.NeedsGas,
     onDismiss: () -> Unit,
     onRetry: () -> Unit,
@@ -355,8 +355,6 @@ private fun ProgressContent(
     formatAlpha: (Long) -> String,
     explorerTxUrl: (String) -> String,
 ) {
-    val context = LocalContext.current
-
     Column(modifier = Modifier.fillMaxWidth()) {
         progress.forEach { p ->
             Row(
@@ -385,61 +383,7 @@ private fun ProgressContent(
                     }
                 }
 
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    when (p.status) {
-                        ClaimProgressStatus.PENDING -> CircularProgressIndicator(
-                            modifier = Modifier.size(16.dp),
-                            color = TextMuted,
-                            trackColor = TextFaint,
-                            strokeWidth = 2.dp
-                        )
-                        ClaimProgressStatus.SENT -> {
-                            Text(
-                                stringResource(id = R.string.claim_sent),
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = BlueMedium
-                            )
-                            Spacer(modifier = Modifier.width(6.dp))
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(14.dp),
-                                color = BlueMedium,
-                                trackColor = TextFaint,
-                                strokeWidth = 2.dp
-                            )
-                        }
-                        ClaimProgressStatus.CONFIRMED -> {
-                            Icon(Icons.Filled.Check, contentDescription = null, tint = Green, modifier = Modifier.size(16.dp))
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Text(
-                                stringResource(id = R.string.claim_confirmed),
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = Green
-                            )
-                        }
-                        ClaimProgressStatus.FAILED -> {
-                            Icon(Icons.Filled.Close, contentDescription = null, tint = Red, modifier = Modifier.size(16.dp))
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Text(
-                                stringResource(id = R.string.claim_failed),
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = Red
-                            )
-                        }
-                    }
-                    p.txHash?.let { txHash ->
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Icon(
-                            Icons.Filled.OpenInNew,
-                            contentDescription = txHash,
-                            tint = TextMuted,
-                            modifier = Modifier
-                                .size(16.dp)
-                                .clickable {
-                                    context.startActivity(Intent(Intent.ACTION_VIEW, explorerTxUrl(txHash).toUri()))
-                                }
-                        )
-                    }
-                }
+                ClaimStatusTrailing(status = p.status, txHash = p.txHash, explorerTxUrl = explorerTxUrl)
             }
         }
 
@@ -470,6 +414,72 @@ private fun ProgressContent(
             primary = stringResource(id = R.string.close),
             onPrimary = onDismiss
         )
+    }
+}
+
+/** A claim row's end: its status, and the explorer link once it has a transaction. */
+@Composable
+internal fun ClaimStatusTrailing(
+    status: ClaimProgressStatus,
+    txHash: String?,
+    explorerTxUrl: (String) -> String,
+) {
+    val context = LocalContext.current
+
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        when (status) {
+            ClaimProgressStatus.PENDING -> CircularProgressIndicator(
+                modifier = Modifier.size(16.dp),
+                color = TextMuted,
+                trackColor = TextFaint,
+                strokeWidth = 2.dp
+            )
+            ClaimProgressStatus.SENT -> {
+                Text(
+                    stringResource(id = R.string.claim_sent),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = BlueMedium
+                )
+                Spacer(modifier = Modifier.width(6.dp))
+                CircularProgressIndicator(
+                    modifier = Modifier.size(14.dp),
+                    color = BlueMedium,
+                    trackColor = TextFaint,
+                    strokeWidth = 2.dp
+                )
+            }
+            ClaimProgressStatus.CONFIRMED -> {
+                Icon(Icons.Filled.Check, contentDescription = null, tint = Green, modifier = Modifier.size(16.dp))
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(
+                    stringResource(id = R.string.claim_confirmed),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Green
+                )
+            }
+            ClaimProgressStatus.FAILED -> {
+                Icon(Icons.Filled.Close, contentDescription = null, tint = Red, modifier = Modifier.size(16.dp))
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(
+                    stringResource(id = R.string.claim_failed),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Red
+                )
+            }
+        }
+        txHash?.let { txHash ->
+            Spacer(modifier = Modifier.width(8.dp))
+            Icon(
+                Icons.Filled.OpenInNew,
+                contentDescription = txHash,
+                tint = TextMuted,
+                modifier = Modifier
+                    .size(16.dp)
+                    .clickable {
+                        context.startActivity(Intent(Intent.ACTION_VIEW, explorerTxUrl(txHash).toUri()))
+                    }
+            )
+        }
     }
 }
 
@@ -532,7 +542,7 @@ private fun CopyRow(value: String) {
 }
 
 @Composable
-private fun DialogButtons(
+internal fun DialogButtons(
     primary: String,
     onPrimary: () -> Unit,
     secondary: String? = null,

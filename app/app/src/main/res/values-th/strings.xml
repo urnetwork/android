@@ -991,6 +991,13 @@
     <string name="site_payment_error_plan_unavailable">แพ็กเกจนี้ไม่พร้อมใช้งานในขณะนี้ โปรดลองอีกครั้งภายหลัง</string>
     <string name="site_save_your_seedphrase">บันทึกซีดเฟรสของคุณ</string>
     <string name="skip">ข้าม</string>
+    <string name="sn_ledger_claimable">รับได้</string>
+    <string name="sn_ledger_earned">รายได้</string>
+    <string name="sn_ledger_paid">จ่ายแล้ว</string>
+    <string name="sn_ledger_pending">รอดำเนินการ: +%1$s รอการสรุป</string>
+    <string name="sn_ledger_pool">พูล %1$d</string>
+    <string name="sn_ledger_title">การชำระบัญชี v2</string>
+    <string name="sn_ledger_unavailable">ไม่พร้อมใช้งาน</string>
     <string name="sn_payout_schedule">รายได้จะสรุปทุกอีพอคและจ่ายเป็น SN25α ไปยัง coldkey Bittensor ของคุณเมื่อคุณกดรับ</string>
     <string name="sn_payout_schedule_times">อีพอคนี้สิ้นสุด %1$s รับส่วนแบ่งของคุณได้ตั้งแต่ %2$s ถึง %3$s</string>
     <string name="solana_one_time_payment">การชำระด้วย USDC บน Solana เป็นการชำระรายปีครั้งเดียว ไม่มีช่วงทดลองใช้ฟรี</string>

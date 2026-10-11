@@ -991,6 +991,13 @@
     <string name="site_payment_error_plan_unavailable">Dieser Tarif ist gerade nicht verfügbar. Versuche es später erneut.</string>
     <string name="site_save_your_seedphrase">Sichere deine Seedphrase</string>
     <string name="skip">Überspringen</string>
+    <string name="sn_ledger_claimable">Einlösbar</string>
+    <string name="sn_ledger_earned">Verdient</string>
+    <string name="sn_ledger_paid">Ausgezahlt</string>
+    <string name="sn_ledger_pending">Ausstehend: +%1$s, wartet auf Abschluss</string>
+    <string name="sn_ledger_pool">Pool %1$d</string>
+    <string name="sn_ledger_title">Abrechnung v2</string>
+    <string name="sn_ledger_unavailable">Nicht verfügbar</string>
     <string name="sn_payout_schedule">Einnahmen werden jede Epoche abgerechnet und in SN25α an deinen Bittensor-Coldkey ausgezahlt, sobald du sie einlöst.</string>
     <string name="sn_payout_schedule_times">Diese Epoche endet am %1$s. Löse deinen Anteil zwischen %2$s und %3$s ein.</string>
     <string name="solana_one_time_payment">Die Zahlung mit USDC auf Solana ist eine einmalige Jahreszahlung ohne kostenlose Testphase.</string>

@@ -991,6 +991,13 @@
     <string name="site_payment_error_plan_unavailable">Αυτό το πρόγραμμα δεν είναι διαθέσιμο αυτή τη στιγμή. Δοκιμάστε ξανά αργότερα.</string>
     <string name="site_save_your_seedphrase">Αποθηκεύστε τη seedphrase σας</string>
     <string name="skip">Παράλειψη</string>
+    <string name="sn_ledger_claimable">Προς διεκδίκηση</string>
+    <string name="sn_ledger_earned">Κέρδη</string>
+    <string name="sn_ledger_paid">Πληρώθηκε</string>
+    <string name="sn_ledger_pending">Σε εκκρεμότητα: +%1$s, αναμένεται οριστικοποίηση</string>
+    <string name="sn_ledger_pool">Pool %1$d</string>
+    <string name="sn_ledger_title">Διακανονισμός v2</string>
+    <string name="sn_ledger_unavailable">Μη διαθέσιμο</string>
     <string name="sn_payout_schedule">Τα κέρδη εκκαθαρίζονται σε κάθε εποχή και πληρώνονται σε SN25α στο Bittensor coldkey σας όταν τα διεκδικήσετε.</string>
     <string name="sn_payout_schedule_times">Αυτή η εποχή λήγει στις %1$s. Διεκδικήστε το μερίδιό σας από %2$s έως %3$s.</string>
     <string name="solana_one_time_payment">Η πληρωμή με USDC στο Solana είναι μια εφάπαξ ετήσια πληρωμή, χωρίς δωρεάν δοκιμή.</string>
