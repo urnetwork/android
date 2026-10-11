@@ -4,6 +4,7 @@ import com.bringyour.sdk.DeviceLocal
 import com.bringyour.sdk.Sdk
 import com.bringyour.sdk.SnClaimCallback
 import com.bringyour.sdk.SnError
+import com.bringyour.sdk.SnLedgerClaimCallback
 import com.bringyour.sdk.SnWallet
 import com.bringyour.sdk.SnWalletChangeListener
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -207,6 +208,65 @@ class SdkProtocolSource private constructor(
 
             override fun done() {
                 onEvent(ClaimEvent.Done)
+            }
+        })
+    }
+
+    override suspend fun ledgerAccounts(): Result<List<SnLedgerAccountState>> {
+        ensureChainSettings()
+        return suspendCancellableCoroutine { continuation ->
+            device.snLedgerAccounts { result, err ->
+                if (!continuation.isActive) {
+                    return@snLedgerAccounts
+                }
+                when {
+                    err != null -> continuation.resume(Result.failure(err))
+                    result == null -> continuation.resume(Result.failure(IllegalStateException("empty ledger accounts")))
+                    result.error != null -> continuation.resume(Result.failure(result.error.toException()!!))
+                    else -> {
+                        val list = result.accounts
+                        val n = list?.len() ?: 0
+                        continuation.resume(
+                            Result.success(
+                                (0 until n).map { i ->
+                                    val a = list.get(i)
+                                    SnLedgerAccountState(
+                                        noId = a.noId,
+                                        index = a.index,
+                                        finalizedRao = a.finalizedRao,
+                                        claimableRao = a.claimableRao,
+                                        paidRao = a.paidRao,
+                                        pending = a.pending,
+                                        pendingRao = a.pendingRao,
+                                    )
+                                }
+                            )
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    // "" until the release configures vault2 (before activation)
+    override fun ledgerClaimConfigured(): Boolean = !device.snChainSettings?.vault2Address.isNullOrBlank()
+
+    override fun ledgerClaim(onEvent: (SnLedgerClaimEvent) -> Unit) {
+        device.snLedgerClaim(object : SnLedgerClaimCallback {
+            override fun sent(noId: Long, index: Long, txHash: String?) {
+                onEvent(SnLedgerClaimEvent.Sent(noId, index, txHash ?: ""))
+            }
+
+            override fun confirmed(noId: Long, index: Long, txHash: String?, amountRao: Long) {
+                onEvent(SnLedgerClaimEvent.Confirmed(noId, index, txHash ?: "", amountRao))
+            }
+
+            override fun failed(noId: Long, index: Long, message: String?) {
+                onEvent(SnLedgerClaimEvent.Failed(noId, index, message ?: ""))
+            }
+
+            override fun done() {
+                onEvent(SnLedgerClaimEvent.Done)
             }
         })
     }

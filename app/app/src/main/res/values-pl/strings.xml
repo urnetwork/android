@@ -991,6 +991,13 @@
     <string name="site_payment_error_plan_unavailable">Ten plan jest teraz niedostępny. Spróbuj ponownie później.</string>
     <string name="site_save_your_seedphrase">Zapisz swoją seedphrase</string>
     <string name="skip">Pomiń</string>
+    <string name="sn_ledger_claimable">Do odebrania</string>
+    <string name="sn_ledger_earned">Zarobiono</string>
+    <string name="sn_ledger_paid">Wypłacono</string>
+    <string name="sn_ledger_pending">Oczekujące: +%1$s, czeka na finalizację</string>
+    <string name="sn_ledger_pool">Pula %1$d</string>
+    <string name="sn_ledger_title">Rozliczenie v2</string>
+    <string name="sn_ledger_unavailable">Niedostępne</string>
     <string name="sn_payout_schedule">Zarobki są rozliczane w każdej epoce i wypłacane w SN25α na Twój coldkey Bittensor, gdy je odbierzesz.</string>
     <string name="sn_payout_schedule_times">Ta epoka kończy się %1$s. Odbierz swój udział od %2$s do %3$s.</string>
     <string name="solana_one_time_payment">Płatność w USDC w sieci Solana to jednorazowa płatność roczna, bez bezpłatnego okresu próbnego.</string>

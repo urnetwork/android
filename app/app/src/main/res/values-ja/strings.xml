@@ -991,6 +991,13 @@
     <string name="site_payment_error_plan_unavailable">このプランは現在ご利用いただけません。後でもう一度お試しください。</string>
     <string name="site_save_your_seedphrase">シードフレーズを保存</string>
     <string name="skip">スキップ</string>
+    <string name="sn_ledger_claimable">受け取り可能</string>
+    <string name="sn_ledger_earned">獲得額</string>
+    <string name="sn_ledger_paid">支払い済み</string>
+    <string name="sn_ledger_pending">保留中: +%1$s（確定待ち）</string>
+    <string name="sn_ledger_pool">プール %1$d</string>
+    <string name="sn_ledger_title">精算 v2</string>
+    <string name="sn_ledger_unavailable">利用不可</string>
     <string name="sn_payout_schedule">収益はエポックごとに確定し、受け取ると SN25α で Bittensor の coldkey に支払われます。</string>
     <string name="sn_payout_schedule_times">このエポックは %1$s に終了します。あなたの取り分は %2$s から %3$s まで受け取れます。</string>
     <string name="solana_one_time_payment">Solana 上の USDC での支払いは年 1 回の一括払いで、無料トライアルはありません。</string>

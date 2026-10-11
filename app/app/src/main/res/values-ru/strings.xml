@@ -991,6 +991,13 @@
     <string name="site_payment_error_plan_unavailable">Этот тариф сейчас недоступен. Попробуйте позже.</string>
     <string name="site_save_your_seedphrase">Сохраните сид-фразу</string>
     <string name="skip">Пропустить</string>
+    <string name="sn_ledger_claimable">Можно получить</string>
+    <string name="sn_ledger_earned">Заработано</string>
+    <string name="sn_ledger_paid">Выплачено</string>
+    <string name="sn_ledger_pending">В ожидании: +%1$s, ждёт утверждения</string>
+    <string name="sn_ledger_pool">Пул %1$d</string>
+    <string name="sn_ledger_title">Расчёты v2</string>
+    <string name="sn_ledger_unavailable">Недоступно</string>
     <string name="sn_payout_schedule">Заработок рассчитывается каждую эпоху и выплачивается в SN25α на ваш coldkey Bittensor, когда вы его получаете.</string>
     <string name="sn_payout_schedule_times">Эта эпоха заканчивается %1$s. Получите свою долю с %2$s до %3$s.</string>
     <string name="solana_one_time_payment">Оплата в USDC в сети Solana — это разовый годовой платёж без бесплатного пробного периода.</string>
