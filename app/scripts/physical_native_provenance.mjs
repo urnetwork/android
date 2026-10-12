@@ -652,17 +652,21 @@ function compare(before, after) {
       before.buildOwner !== after.buildOwner || before.buildId !== after.buildId || before.inputHash !== after.inputHash) fail("native-inputs-changed-across-build");
 }
 
-function requireCurrent(after, dependencies) {
+function requireCurrentInputs(after, dependencies) {
   const current = collectNativeInputs({ root: after.root, phase: "after", "build-owner": after.buildOwner,
     "build-id": after.buildId, "profile-rate": String(after.profileRate), "strip-ndk": after.inputs.ndk.stripOverride }, dependencies);
   if (current.inputHash !== after.inputHash) fail("native-inputs-changed-after-build");
+}
+
+function requireCurrent(after, dependencies) {
+  requireCurrentInputs(after, dependencies);
   const sidecar = join(after.root, "sdk/build/android/.build-owner");
   const file = lstatSync(sidecar);
   if (!file.isFile() || file.isSymbolicLink() || file.uid !== process.getuid() || (file.mode & 0o777) !== 0o600 || file.size > 256 ||
       readFileSync(sidecar, "utf8").trim() !== after.buildOwner) fail("native-build-owner-mismatch");
 }
 
-export function requireVerifiedNativeInputs(path, buildId, dependencies = {}) {
+function verifiedNativeProof(path, buildId) {
   const proof = privateRead(path);
   if (proof.type !== "physical-native-input-verification" || proof.schemaVersion !== 1 || proof.eligible !== true ||
       proof.classification !== "NATIVE_INPUTS_VERIFIED" || proof.buildId !== buildId || !validHash(proof.inputHash) ||
@@ -670,8 +674,112 @@ export function requireVerifiedNativeInputs(path, buildId, dependencies = {}) {
   const before = privateRead(proof.before); const after = privateRead(proof.after); compare(before, after);
   if (inputFile(proof.before).sha256 !== proof.beforeSha256 || inputFile(proof.after).sha256 !== proof.afterSha256 ||
       after.buildId !== buildId || after.buildOwner !== proof.buildOwner || after.inputHash !== proof.inputHash) fail("native-input-proof-replaced");
-  requireCurrent(after, dependencies);
+  return { proof, before, after };
+}
+
+// The mutable SDK output owner is authoritative only while exporting under its
+// kernel lock. Retained APK/AAR consumers instead bind the copied artifacts and
+// original proof, while still rechecking all current native source inputs.
+function retainedArtifactInputs(sourcePath, source, before, binaryPath, writerPath) {
+  const binding = outputBinding(sourcePath);
+  const directory = binding.canonical;
+  try { requireArtifactPaths(binding, [sourcePath, source.before, source.after, binaryPath, writerPath]); }
+  catch (error) { fail(artifactDirectoryReason(error)); }
+  if (realpathSync(sourcePath) !== join(directory, "proof.json") ||
+      realpathSync(source.before) !== join(directory, "before.json") || realpathSync(source.after) !== join(directory, "after.json") ||
+      realpathSync(binaryPath) !== join(directory, "binary-provenance.json") ||
+      realpathSync(writerPath) !== join(directory, "writer.json") || Object.hasOwn(source, "retainedArtifacts")) {
+    fail("retained-native-context-mismatch");
+  }
+  const writer = requireNativeWriterReceipt({ before: source.before, "writer-receipt": writerPath }, before);
+  const binary = privateRead(binaryPath);
+  if (binary.build_id !== source.buildId || binary.profile !== writer.memoryProfile || binary.profile_rate !== writer.profileRate ||
+      !binary.files || Object.keys(binary.files).sort().join(",") !== "app.apk,sdk.aar,test.apk" ||
+      !binary.linkage || Object.keys(binary.linkage).sort().join(",") !== "arm64-v8a,armeabi-v7a,x86_64" ||
+      Object.values(binary.linkage).some(row => !validHash(row?.aar_sha256)) ||
+      !validHash(binary.linkage["arm64-v8a"].apk_sha256)) {
+    fail("retained-native-artifact-context-mismatch");
+  }
+  const files = ["app.apk", "test.apk", "sdk.aar"].map(name => {
+    const expected = binary.files[name];
+    const path = join(directory, name);
+    if (expected?.path !== path || !validHash(expected.sha256)) fail("retained-native-artifact-context-mismatch");
+    requireArtifactPaths(binding, [path]);
+    const stat = lstatSync(path);
+    if (!stat.isFile() || stat.isSymbolicLink() || stat.uid !== process.getuid() || (stat.mode & 0o7777) !== 0o600 ||
+        stat.nlink !== 1 || stat.size <= 0) fail("private-retained-native-artifact-required");
+    const file = inputFile(path);
+    if (file.sha256 !== expected.sha256) fail("retained-native-artifact-changed");
+    return { name, ...file };
+  });
+  const selectionPath = join(directory, "apk-pair.json");
+  if (binary.apk_selection?.path !== selectionPath || !validHash(binary.apk_selection.sha256) ||
+      inputFile(selectionPath).sha256 !== binary.apk_selection.sha256) fail("retained-native-apk-selection-mismatch");
+  const selection = privateRead(selectionPath);
+  if (selection.type !== "physical-apk-pair" || selection.schemaVersion !== 1 || selection.buildId !== source.buildId ||
+      selection.abi !== "arm64-v8a" || ["app", "test"].some((key, index) =>
+        selection[key]?.path !== files[index].path || selection[key]?.sha256 !== files[index].sha256 ||
+        selection[key]?.packageName !== (key === "app" ? "com.bringyour.network" : "com.bringyour.network.test"))) {
+    fail("retained-native-apk-selection-mismatch");
+  }
+  return { schemaVersion: 1, memoryProfile: writer.memoryProfile, sourceProof: inputFile(sourcePath),
+    writerReceipt: inputFile(writerPath), binaryProvenance: inputFile(binaryPath), files };
+}
+
+export function requireVerifiedNativeInputs(path, buildId, dependencies = {}) {
+  const { proof, after } = verifiedNativeProof(path, buildId);
+  if (Object.hasOwn(proof, "retainedArtifacts")) {
+    const retained = proof.retainedArtifacts;
+    if (!retained || retained.schemaVersion !== 1 || !retained.sourceProof?.path || !retained.binaryProvenance?.path ||
+        !retained.writerReceipt?.path || realpathSync(path) !== join(realpathSync(dirname(path)), "retained-proof.json")) {
+      fail("retained-native-proof-required");
+    }
+    const binding = outputBinding(path);
+    try { requireArtifactPaths(binding, [retained.sourceProof.path, retained.binaryProvenance.path, retained.writerReceipt.path]); }
+    catch (error) { fail(artifactDirectoryReason(error)); }
+    const original = verifiedNativeProof(retained.sourceProof.path, buildId);
+    if (Object.hasOwn(original.proof, "retainedArtifacts") ||
+        JSON.stringify({ ...proof, retainedArtifacts: undefined }) !== JSON.stringify(original.proof)) {
+      fail("retained-native-proof-context-mismatch");
+    }
+    const actual = retainedArtifactInputs(retained.sourceProof.path, original.proof, original.before,
+      retained.binaryProvenance.path, retained.writerReceipt.path);
+    if (JSON.stringify(actual) !== JSON.stringify(retained)) fail("retained-native-proof-replaced");
+    // A successful later writer may now own sdk/build/android. It must not
+    // invalidate the separately retained, hash-bound older artifact generation.
+    requireCurrentInputs(after, dependencies);
+  } else {
+    requireCurrent(after, dependencies);
+  }
   return { buildId, inputHash: after.inputHash, buildOwner: after.buildOwner };
+}
+
+// Only the existing held consumer may publish this after assembly and linkage
+// verification joined successfully. Nothing rewrites the mutable owner sidecar.
+export function retainNativeConsumer(options, dependencies = {}) {
+  const binding = outputBinding(options.output);
+  try { requireArtifactPaths(binding, [options.proof, options["writer-receipt"], options["binary-provenance"], options.output]); }
+  catch (error) { fail(artifactDirectoryReason(error)); }
+  if (resolve(options.output) !== join(binding.canonical, "retained-proof.json") || existsSync(options.output)) {
+    fail("fresh-retained-native-proof-required");
+  }
+  const source = privateRead(options.proof);
+  const { proof, before, after } = verifiedNativeProof(options.proof, source.buildId);
+  if (Object.hasOwn(proof, "retainedArtifacts") || after.root !== realpathSync(options.root)) fail("retained-native-context-mismatch");
+  const checkLock = () => (dependencies.consumerLock ?? requireNativeConsumerLock)(after.root);
+  checkLock();
+  requireCurrent(after, dependencies);
+  const retainedArtifacts = retainedArtifactInputs(options.proof, proof, before, options["binary-provenance"], options["writer-receipt"]);
+  if (inputFile(join(after.root, "sdk/build/android/URnetworkSdk.aar")).sha256 !== retainedArtifacts.files[2].sha256) {
+    fail("retained-native-aar-not-current-output");
+  }
+  checkLock();
+  // Recheck the live sidecar and all sources before publishing, still locked.
+  requireCurrent(after, dependencies);
+  checkLock();
+  const result = { ...proof, retainedArtifacts };
+  writePrivate(options.output, result, binding);
+  return result;
 }
 
 export function verifyNativeInputs(options, dependencies = {}) {
@@ -784,7 +892,8 @@ export function parseArgs(argv) {
   const [mode, ...args] = argv;
   const keys = mode === "capture" ? ["phase", "root", "build-owner", "build-id", "profile-rate", "output"] :
     mode === "verify" ? ["before", "after", "output"] : mode === "check" ? ["proof", "build-id"] :
-      mode === "prepare-consumer" ? ["root", "before", "after", "output", "writer-receipt"] : [];
+      mode === "prepare-consumer" ? ["root", "before", "after", "output", "writer-receipt"] :
+        mode === "retain-consumer" ? ["root", "proof", "writer-receipt", "binary-provenance", "output"] : [];
   if (!keys.length) fail("native-capture-verify-or-check-required");
   const options = { mode };
   for (let i = 0; i < args.length; i += 2) {
@@ -806,6 +915,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
       const binding = outputBinding(options.output); writePrivate(options.output, collectNativeInputs(options), binding);
     } else if (options.mode === "verify") verifyNativeInputs(options);
     else if (options.mode === "prepare-consumer") prepareNativeConsumer(options);
+    else if (options.mode === "retain-consumer") retainNativeConsumer(options);
     else requireVerifiedNativeInputs(options.proof, options["build-id"]);
     process.stdout.write(`${JSON.stringify({ eligible: true, classification: options.mode === "capture" ? "NATIVE_INPUTS_CAPTURED" : "NATIVE_INPUTS_VERIFIED" })}\n`);
   } catch (error) {

@@ -1,14 +1,18 @@
 import assert from "node:assert/strict";
 import { spawn, spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
+import { EventEmitter } from "node:events";
 import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, renameSync, rmSync, statSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import test from "node:test";
 import { setTimeout as sleep } from "node:timers/promises";
 import { collectNativeInputs, hashNativeInputFile, nativeWriterArguments, nativeWriterSourceHashes, parseArgs, parseJsonStream,
-  prepareNativeConsumer, requireNativeBeforeWriter, requireNativeConsumerLock, requireNativeWriterReceipt, requireVerifiedNativeInputs,
+  prepareNativeConsumer, retainNativeConsumer, requireNativeBeforeWriter, requireNativeConsumerLock, requireNativeWriterReceipt, requireVerifiedNativeInputs,
   validateNativeManifest, verifyNativeInputs } from "./physical_native_provenance.mjs";
+
+import { prepareCredentialOwnership } from "./physical_credential_ownership.mjs";
+import { runInstrumentationSession } from "./physical_collector_session.mjs";
 
 const SDK = "github.com/urnetwork/sdk";
 const CONNECT = "github.com/urnetwork/connect";
@@ -172,6 +176,15 @@ test("native CLI requires complete explicit before/after/build context; metadata
   for (const args of [[], ["capture"], ["capture", "--root", ""], ["check", "--proof", "proof"],
     ["verify", "--before", "b", "--after", "a", "--output", "o", "--unknown", "x"]]) assert.throws(() => parseArgs(args));
   assert.equal(parseArgs(["check", "--proof", "p", "--build-id", "fixture"]).mode, "check");
+  const retained = ["retain-consumer", "--root", "r", "--proof", "p", "--writer-receipt", "w", "--binary-provenance", "b", "--output", "o"];
+  assert.equal(parseArgs(retained).mode, "retain-consumer");
+  for (let index = 1; index < retained.length; index += 2) {
+    assert.throws(() => parseArgs(retained.filter((_, position) => position !== index && position !== index + 1)),
+      /explicit-native-manifest-arguments-required/);
+  }
+  for (const extra of [["--unknown", "x"], ["--proof", "duplicate"]]) {
+    assert.throws(() => parseArgs([...retained, ...extra]), /explicit-native-manifest-arguments-required/);
+  }
   assert.deepEqual(parseJsonStream('{"brace":"}\\\"{"}\n {"n":1}'), [{ brace: '}"{' }, { n: 1 }]);
   for (const raw of ["", "{} tail", "{", "[]", "not json"]) assert.throws(() => parseJsonStream(raw));
 });
@@ -841,4 +854,211 @@ test("summary rehash cannot hide omitted host closure, runtime, tool identity or
     const changed = structuredClone(original); mutate(changed); rehash(changed);
     assert.throws(() => validateNativeManifest(changed), undefined, String(mutate));
   }
+});
+
+
+// Synthetic binaries are sufficient here: Go's existing consumer tests own
+// ZIP/JNI linkage. These cases exercise publication and every real proof reader.
+function retainedArtifacts(f, paths, profile) {
+  const before = JSON.parse(readFileSync(paths.before));
+  const directory = dirname(paths.output);
+  const files = {};
+  for (const name of ["app.apk", "test.apk", "sdk.aar"]) {
+    const path = join(directory, name);
+    write(path, before.buildId + ":" + name);
+    files[name] = { path, sha256: hashNativeInputFile(path).sha256 };
+  }
+  write(join(f.cwd, "android/URnetworkSdk.aar"), readFileSync(files["sdk.aar"].path));
+  const pairPath = join(directory, "apk-pair.json");
+  json(pairPath, { type: "physical-apk-pair", schemaVersion: 1, buildId: before.buildId, abi: "arm64-v8a",
+    app: { ...files["app.apk"], packageName: "com.bringyour.network" },
+    test: { ...files["test.apk"], packageName: "com.bringyour.network.test" } });
+  const binaryPath = join(directory, "binary-provenance.json");
+  json(binaryPath, { build_id: before.buildId, profile, profile_rate: before.profileRate, files,
+    linkage: { "arm64-v8a": { aar_sha256: "a".repeat(64), apk_sha256: "b".repeat(64) },
+      "armeabi-v7a": { aar_sha256: "c".repeat(64) }, x86_64: { aar_sha256: "d".repeat(64) } },
+    apk_selection: { path: pairPath, sha256: hashNativeInputFile(pairPath).sha256 } });
+  return { root: f.root, proof: paths.output, "writer-receipt": paths["writer-receipt"],
+    "binary-provenance": binaryPath, output: join(directory, "retained-proof.json") };
+}
+
+function retainedGeneration(f, profile = "ios-memory-audit-v2", generation = "first", publish = true) {
+  const directory = join(f.root, generation);
+  mkdirSync(directory, { mode: 0o700 });
+  const paths = { before: join(directory, "before.json"), after: join(directory, "after.json"),
+    output: join(directory, "proof.json"), "writer-receipt": join(directory, "writer.json") };
+  const buildId = "fixture-" + generation;
+  const buildOwner = "owner-" + generation;
+  write(join(f.cwd, "android/.build-owner"), buildOwner + "\n");
+  const before = collectNativeInputs({ ...f.options, "profile-rate": "0", "build-id": buildId, "build-owner": buildOwner }, f.dependencies);
+  json(paths.before, before);
+  const stdout = join(directory, "writer.stdout"), stderr = join(directory, "writer.stderr");
+  write(stdout, "fixture writer joined\n"); write(stderr, "");
+  json(paths["writer-receipt"], { type: "physical-native-writer", schemaVersion: 1, state: "terminal", eligible: true,
+    childStarted: true, childExitCode: 0, signal: null, interrupted: false, root: f.root, buildId, buildOwner,
+    profileRate: 0, inputHash: before.inputHash, before: paths.before, beforeSha256: hashNativeInputFile(paths.before).sha256,
+    memoryProfile: profile, maxWorkers: 1, workingDirectory: join(f.root, "android/app"),
+    arguments: nativeWriterArguments(buildId, 0, profile, 1), sourceHashes: nativeWriterSourceHashes(),
+    startedAtUnixMs: before.capturedAtUnixMs + 1, completedAtUnixMs: before.capturedAtUnixMs + 2,
+    stdout: hashNativeInputFile(stdout), stderr: hashNativeInputFile(stderr) });
+  const dependencies = { ...f.dependencies, consumerLock: root => assert.equal(root, f.root) };
+  prepareNativeConsumer({ ...paths, root: f.root }, dependencies);
+  const options = retainedArtifacts(f, paths, profile);
+  if (publish) retainNativeConsumer(options, dependencies);
+  return { paths, options, dependencies, buildId, buildOwner, inputHash: before.inputHash, directory };
+}
+
+test("retained native proof survives subsequent different-profile and same-profile output owners", t => {
+  for (const nextProfile of ["android", "ios-memory-audit-v2"]) {
+    const f = fixture(t), first = retainedGeneration(f);
+    const expected = { buildId: first.buildId, inputHash: first.inputHash, buildOwner: first.buildOwner };
+    assert.deepEqual(requireVerifiedNativeInputs(first.paths.output, first.buildId, f.dependencies), expected);
+    assert.deepEqual(requireVerifiedNativeInputs(first.options.output, first.buildId, f.dependencies), expected);
+    const second = retainedGeneration(f, nextProfile, "second");
+    assert.deepEqual(requireVerifiedNativeInputs(second.options.output, second.buildId, f.dependencies),
+      { buildId: second.buildId, inputHash: second.inputHash, buildOwner: second.buildOwner });
+    assert.throws(() => requireVerifiedNativeInputs(first.paths.output, first.buildId, f.dependencies),
+      /^Error: native-build-owner-mismatch$/, "the original proof must retain its current-output owner contract");
+    t.diagnostic("validated successor " + nextProfile + "; original owner refused; retained first generation pending");
+    assert.deepEqual(requireVerifiedNativeInputs(first.options.output, first.buildId, f.dependencies), expected,
+      "the retained first artifact generation must remain usable after the second writer");
+    assert.equal(readFileSync(join(f.cwd, "android/.build-owner"), "utf8"), second.buildOwner + "\n");
+  }
+});
+
+test("retained native publication refuses lost locks owners profiles and incomplete artifacts", t => {
+  for (const kind of ["lock-first", "lock-middle", "lock-last", "owner-before", "owner-during", "source",
+    "live-aar", "writer-failed", "profile", "linkage", "existing"]) {
+    const f = fixture(t), g = retainedGeneration(f, "ios-memory-audit-v2", "first", false);
+    const mutate = (path, update) => { const value = JSON.parse(readFileSync(path)); update(value); json(path, value); };
+    if (kind === "owner-before") write(join(f.cwd, "android/.build-owner"), "another-owner\n");
+    if (kind === "source") write(join(f.root, "sdk/sdk.go"), "package changed\n");
+    if (kind === "live-aar") write(join(f.cwd, "android/URnetworkSdk.aar"), "foreign output");
+    if (kind === "writer-failed") mutate(g.paths["writer-receipt"], row => { row.childExitCode = 7; });
+    if (kind === "profile") mutate(g.options["binary-provenance"], row => { row.profile = "android"; });
+    if (kind === "linkage") mutate(g.options["binary-provenance"], row => { delete row.linkage.x86_64; });
+    if (kind === "existing") write(g.options.output, "prior evidence\n");
+    let checks = 0;
+    const dependencies = { ...f.dependencies, consumerLock: () => {
+      checks++;
+      if (checks === ({ "lock-first": 1, "lock-middle": 2, "lock-last": 3 })[kind]) throw Error("fixture-lock-lost");
+      if (kind === "owner-during" && checks === 2) write(join(f.cwd, "android/.build-owner"), "another-owner\n");
+    } };
+    const reason = kind.startsWith("lock-") ? /fixture-lock-lost/ : kind.startsWith("owner-") ? /native-build-owner-mismatch/ :
+      kind === "source" ? /native-inputs-changed-after-build/ : kind === "live-aar" ? /retained-native-aar-not-current-output/ :
+      kind === "writer-failed" ? /successful-native-writer-receipt-required/ : kind === "existing" ? /fresh-retained-native-proof-required/ :
+      /retained-native-artifact-context-mismatch/;
+    assert.throws(() => retainNativeConsumer(g.options, dependencies), reason, kind);
+    if (kind === "existing") assert.equal(readFileSync(g.options.output, "utf8"), "prior evidence\n");
+    else assert.equal(existsSync(g.options.output), false, kind);
+  }
+});
+
+test("retained native readers reject changed artifacts proof chain profile and current source", t => {
+  for (const kind of ["app.apk", "test.apk", "sdk.aar", "artifact-mode", "artifact-link", "writer", "original",
+    "before", "after", "source", "profile", "build", "retained-hash", "retained-version", "missing-seal", "foreign-directory"]) {
+    const f = fixture(t), g = retainedGeneration(f);
+    assert.equal(requireVerifiedNativeInputs(g.options.output, g.buildId, f.dependencies).buildOwner, g.buildOwner, kind);
+    const mutate = (path, update) => { const value = JSON.parse(readFileSync(path)); update(value); json(path, value); };
+    let path = g.options.output;
+    if (kind.endsWith(".apk") || kind === "sdk.aar") write(join(g.directory, kind), "changed retained artifact");
+    if (kind === "artifact-mode") chmodSync(join(g.directory, "app.apk"), 0o644);
+    if (kind === "artifact-link") { rmSync(join(g.directory, "app.apk")); symlinkSync(join(g.directory, "test.apk"), join(g.directory, "app.apk")); }
+    if (kind === "writer") mutate(g.paths["writer-receipt"], row => { row.childExitCode = 7; });
+    if (kind === "original") mutate(g.paths.output, row => { row.verifiedAtUnixMs++; });
+    if (kind === "before" || kind === "after") mutate(g.paths[kind], row => { row.capturedAtUnixMs += 1000; });
+    if (kind === "source") write(join(f.root, "connect/connect.go"), "package changed\n");
+    if (kind === "profile") mutate(g.options["binary-provenance"], row => { row.profile = "android"; });
+    if (kind === "build") mutate(g.options["binary-provenance"], row => { row.build_id = "foreign-build"; });
+    if (kind === "retained-hash") mutate(path, row => { row.retainedArtifacts.sourceProof.sha256 = "0".repeat(64); });
+    if (kind === "retained-version") mutate(path, row => { row.retainedArtifacts.schemaVersion = 2; });
+    if (kind === "missing-seal") rmSync(path);
+    if (kind === "foreign-directory") { path = join(f.privateDir, "retained-proof.json"); write(path, readFileSync(g.options.output)); }
+    const reasons = { "artifact-mode": /private-retained-native-artifact-required/, "artifact-link": /private-retained-native-artifact-required/,
+      writer: /successful-native-writer-receipt-required/, original: /retained-native-proof-context-mismatch/,
+      before: /native-inputs-changed-across-build/, after: /native-input-proof-replaced/,
+      source: /native-inputs-changed-after-build/, profile: /retained-native-artifact-context-mismatch/,
+      build: /retained-native-artifact-context-mismatch/, "retained-hash": /retained-native-proof-replaced/,
+      "retained-version": /retained-native-proof-required/, "missing-seal": /private-native-manifest-required/,
+      "foreign-directory": /artifact-path-outside-directory/ };
+    assert.throws(() => requireVerifiedNativeInputs(path, g.buildId, f.dependencies),
+      reasons[kind] ?? /retained-native-artifact-changed/, kind);
+  }
+});
+
+test("retained native shell publishes only after a successful joined consumer under the original lock", t => {
+  for (const [kind, location] of [["success", "root"], ["success", "nested"], ["success", "sdk"],
+    ["nonzero", "nested"], ["owner-changed", "nested"], ["lock-replaced", "nested"]]) {
+    const f = fixture(t); f.options["profile-rate"] = "0";
+    const env = prepareCommandFixture(f);
+    const caller = location === "root" ? f.root : location === "sdk" ? f.cwd : join(f.root, "consumer working directory");
+    mkdirSync(caller, { recursive: true, mode: 0o700 });
+    f.writerReceipt({ memoryProfile: "ios-memory-audit-v2",
+      arguments: nativeWriterArguments("fixture-build", 0, "ios-memory-audit-v2", 1) });
+    const options = retainedArtifacts(f, f.paths, "ios-memory-audit-v2");
+    const pending = options["binary-provenance"] + ".pending";
+    renameSync(options["binary-provenance"], pending);
+    const marker = join(f.privateDir, "consumer-joined");
+    const consumer = "const fs=require('node:fs');const [proof,seal,pending,binary,marker,sidecar,kind,caller]=process.argv.slice(1);" +
+      "if(!fs.existsSync(proof)||fs.existsSync(seal)||fs.existsSync(binary))process.exit(44);" +
+      "if(process.cwd()!==caller)process.exit(45);" +
+      "fs.writeFileSync(marker,JSON.stringify({state:'consumer-reached',cwd:process.cwd()}),{mode:0o600});" +
+      "if(kind==='nonzero')process.exit(7);" +
+      "if(kind==='owner-changed')fs.writeFileSync(sidecar,'another-owner\\n');" +
+      "if(kind==='lock-replaced'){const lock=process.env.URNETWORK_ANDROID_SDK_OUTPUT_LOCK_PATH;" +
+      "fs.renameSync(lock,lock+'.replaced');fs.writeFileSync(lock,'replacement',{mode:0o600,flag:'wx'});}" +
+      "fs.renameSync(pending,binary);";
+    const result = spawnSync("bash", [new URL("./physical_native_consumer.sh", import.meta.url).pathname,
+      "--root", f.root, "--before", f.paths.before, "--after", f.paths.after, "--proof", f.paths.output,
+      "--writer-receipt", f.paths["writer-receipt"], "--retained-proof", options.output, "--",
+      process.execPath, "-e", consumer, f.paths.output, options.output, pending, options["binary-provenance"], marker,
+      join(f.cwd, "android/.build-owner"), kind, caller], { cwd: caller, env, encoding: "utf8", timeout: 60000 });
+    assert.equal(existsSync(marker), true, result.stderr);
+    assert.deepEqual(JSON.parse(readFileSync(marker, "utf8")), { state: "consumer-reached", cwd: caller }, result.stderr);
+    t.diagnostic("validated consumer " + kind + " from " + location + " with unchanged cwd; post-join seal pending");
+    assert.equal(result.status, kind === "success" ? 0 : kind === "nonzero" ? 7 : 2, result.stderr);
+    assert.equal(existsSync(options.output), kind === "success", kind);
+    if (kind === "success") {
+      assert.equal(requireVerifiedNativeInputs(options.output, "fixture-build", f.dependencies).buildOwner, "fixture-owner");
+      assert.equal(result.stdout.trim().split("\n").length, 2);
+    } else if (kind === "owner-changed") assert.match(result.stderr, /native-build-owner-mismatch/);
+    else if (kind === "lock-replaced") assert.match(result.stderr, /output-lock-lost-no-retained-proof/);
+  }
+});
+
+test("retained native proof preserves actual credential and instrumentation reader context", async t => {
+  const f = fixture(t), first = retainedGeneration(f);
+  retainedGeneration(f, "android", "second");
+  const verifyNativeInputs = (path, buildId) => requireVerifiedNativeInputs(path, buildId, f.dependencies);
+  const options = { serial: "fixture-device", label: "fixture-cell", "build-id": first.buildId,
+    "native-inputs": first.options.output, "artifact-dir": first.directory,
+    ownership: join(first.directory, "credential-owner.json"), output: join(first.directory, "staging.json") };
+  const credentials = prepareCredentialOwnership(options, { verifyNativeInputs, ownershipToken: () => "a".repeat(32) });
+  assert.equal(credentials.nativeInputHash, first.inputHash);
+  assert.equal(credentials.nativeBuildOwner, first.buildOwner);
+  const am = { serial: options.serial, label: options.label, "build-id": first.buildId, "native-inputs": first.options.output,
+    owner: join(first.directory, "am-owner.json"), stdout: join(first.directory, "am.stdout"), stderr: join(first.directory, "am.stderr") };
+  const child = new EventEmitter(); child.pid = process.pid + 1; child.kill = () => assert.fail("successful fixture must join");
+  let spawnCount = 0, commandLine;
+  const dependencies = { verifyNativeInputs, signals: new EventEmitter(),
+    foreground: () => ({ inputTTY: true, outputTTY: true, processGroup: 100, foregroundGroup: 100 }),
+    hostProcess: pid => ({ status: 0, stdout: pid + " S Mon Sep 21 10:11:12 2026 " +
+      (pid === process.pid ? "/node /fixture/supervisor.mjs" : commandLine) + "\n" }),
+    spawn: (command, args) => {
+      assert.equal(command, "adb"); spawnCount++; commandLine = "/fixture/adb " + args.join(" ");
+      queueMicrotask(() => { child.emit("spawn"); queueMicrotask(() => child.emit("close", 0, null)); });
+      return child;
+    } };
+  assert.equal(await runInstrumentationSession(am, dependencies), 0);
+  const owner = JSON.parse(readFileSync(am.owner));
+  assert.equal(owner.nativeInputHash, credentials.nativeInputHash);
+  assert.equal(owner.nativeBuildOwner, credentials.nativeBuildOwner);
+  assert.equal(JSON.parse(readFileSync(am.owner + ".terminal.json")).state, "complete");
+  assert.equal(spawnCount, 1);
+  write(join(first.directory, "sdk.aar"), "changed");
+  assert.throws(() => prepareCredentialOwnership(options, { verifyNativeInputs }), /retained-native-artifact-changed/);
+  await assert.rejects(runInstrumentationSession({ ...am, owner: join(first.directory, "refused.json"),
+    stdout: join(first.directory, "refused.stdout"), stderr: join(first.directory, "refused.stderr") }, dependencies),
+    /retained-native-artifact-changed-no-spawn/);
+  assert.equal(spawnCount, 1);
 });
