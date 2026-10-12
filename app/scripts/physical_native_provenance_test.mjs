@@ -7,13 +7,14 @@ import { dirname, join } from "node:path";
 import test from "node:test";
 import { setTimeout as sleep } from "node:timers/promises";
 import { collectNativeInputs, hashNativeInputFile, nativeWriterArguments, nativeWriterSourceHashes, parseArgs, parseJsonStream,
-  prepareNativeConsumer, requireNativeConsumerLock, requireNativeWriterReceipt, requireVerifiedNativeInputs,
+  prepareNativeConsumer, requireNativeBeforeWriter, requireNativeConsumerLock, requireNativeWriterReceipt, requireVerifiedNativeInputs,
   validateNativeManifest, verifyNativeInputs } from "./physical_native_provenance.mjs";
 
 const SDK = "github.com/urnetwork/sdk";
 const CONNECT = "github.com/urnetwork/connect";
 const GLOG = "github.com/golang/glog";
 const MOBILE = "golang.org/x/mobile";
+const WARP = "github.com/urnetwork/warp";
 const sha = value => createHash("sha256").update(value).digest("hex");
 const write = (path, data) => { mkdirSync(dirname(path), { recursive: true, mode: 0o700 }); writeFileSync(path, data, { mode: 0o600 }); };
 const json = (path, value) => write(path, `${JSON.stringify(value)}\n`);
@@ -39,11 +40,11 @@ function fixture(t, prefix = "native-source-contract-") {
     write(module.GoMod, `module ${module.Path}\n`);
     if (module.Path !== GLOG) write(join(module.Dir, "go.sum"), "fixture module checksum\n");
   }
-  write(join(cwd, "Makefile"), "_build_android:\n export GOEXPERIMENT=greenteagc\n gomobile bind -target android/arm64,android/arm,android/amd64 -tags sdk_mobile_bind -androidapi 24\nbuild_ios:\n");
-  for (const path of [join(cwd, "sdk-android-output-lock.sh"), join(root, "sdk/build-android.sh"),
+  write(join(cwd, "Makefile"), "GOMOBILE_VERSION ?= v0.0.0-fixture\nCHECKSEC_VERSION ?= v3.1.0\n_build_android:\n export GOEXPERIMENT=greenteagc\n gomobile bind -target android/arm64,android/arm,android/amd64 -tags sdk_mobile_bind -androidapi 24\nbuild_ios:\n");
+  for (const path of [join(cwd, "sdk-android-output-lock.sh"), join(cwd, "gomobile-bind-retry.sh"), join(root, "sdk/build-android.sh"),
     join(root, "android/app/app/build.gradle")]) write(path, "build contract fixture\n");
   const tools = join(root, "tools");
-  for (const name of ["go", "gomobile", "gobind", "compile", "link", "asm", "cgo"]) write(join(tools, name), `tool ${name}`);
+  for (const name of ["go", "gomobile", "gobind", "checksec", "compile", "link", "asm", "cgo"]) write(join(tools, name), `tool ${name}`);
   write(join(cwd, "main.go"), "package main\n");
   write(join(cwd, "cmd/mobileexports/main.go"), "package main\n");
   for (const [directory, name] of [["sdk", "sdk.go"], ["connect", "connect.go"], ["glog", "glog.go"], ["std", "std.go"]]) {
@@ -55,12 +56,42 @@ function fixture(t, prefix = "native-source-contract-") {
     "bind/java/seq_android.h", "bind/seq/ref.go", "bind/java/java.go"]) write(join(root, "mobile", name), "fixture bridge input\n");
   for (const abi of ["arm64", "arm", "amd64"]) write(join(root, `sdk/native_${abi}.go`), "package fixture\n");
   write(join(cwd, "android/.build-owner"), "fixture-owner\n");
-  const f = { root, cwd, privateDir, paths, modules, commands: [], now: 1000, workspace: "", dirty: true,
+  const hostMain = { Path: WARP, Main: true, Dir: join(root, "warp"), GoMod: join(root, "warp/go.mod") };
+  const hostDependency = { Path: GLOG, Version: "v9.0.0", Dir: join(root, "warp-dep"), GoMod: join(root, "warp-dep/go.mod") };
+  for (const module of [hostMain, hostDependency]) write(module.GoMod, "module " + module.Path + "\n");
+  write(join(root, "warp/go.sum"), "fixture Warp checksum\n");
+  write(join(root, "warp/warpctl/main.go"), "package main\n");
+  write(join(root, "warp/warpctl/resource.txt"), "selected embedded Warp resource\n");
+  write(join(root, "warp-dep/log.go"), "package glog\n");
+  for (const hostOS of ["darwin", "linux"]) for (const hostArch of ["amd64", "arm64"]) {
+    const path = join(root, "warp/warpctl/build", hostOS, hostArch, "warpctl");
+    write(path, "fixture arm-local host executable"); chmodSync(path, 0o700);
+  }
+  const androidSdk = join(root, "android-sdk"); const ndk = join(androidSdk, "ndk/29.0.14206865");
+  write(join(root, "android/app/app/build.gradle"), "android {\n ndkVersion = '29.0.14206865'\n}\n");
+  write(join(ndk, "source.properties"), "Pkg.Revision = 29.0.14206865\n");
+  const objcopy = join(ndk, "toolchains/llvm/prebuilt/fixture/bin/llvm-objcopy");
+  write(objcopy, "fixture objcopy and strip"); chmodSync(objcopy, 0o700);
+  symlinkSync("llvm-objcopy", join(dirname(objcopy), "llvm-strip"));
+  const versionHome = join(root, "version-context");
+  json(join(versionHome, "version.json"), { stagedVersion: "fixture-version", stagedVersionCode: 12340 });
+  const f = { hostOS: "darwin", hostArch: "arm64", hostMain, hostDependency, ndk, androidSdk, versionHome,
+    root, cwd, privateDir, paths, modules, commands: [], now: 1000, workspace: "", dirty: true,
     options: { root, phase: "before", "build-owner": "fixture-owner", "build-id": "fixture-build", "profile-rate": "65536" } };
-  f.dependencies = { now: () => f.now++, env: { PATH: tools, HOME: root }, toolPath: name => join(tools, name),
+  f.dependencies = { now: () => f.now++, env: { PATH: tools, HOME: root, ANDROID_HOME: androidSdk, ANDROID_SDK_ROOT: androidSdk,
+      ANDROID_NDK_HOME: ndk, ANDROID_NDK_ROOT: ndk, WARP_VERSION_HOME: versionHome }, toolPath: name => join(tools, name),
     invoke(command, args, settings) {
       f.commands.push({ command, args, cwd: settings.cwd, env: settings.env });
       const result = value => ({ status: 0, stdout: typeof value === "string" ? value : JSON.stringify(value), stderr: "" });
+      if (command === join(root, "std/bin/go") && args[0] === "version") {
+        assert.deepEqual(args.slice(0, 3), ["version", "-m", "-json"]);
+        const name = ["gomobile", "gobind", "checksec"].find(name => args[3] === join(tools, name));
+        assert.ok(name, "metadata must describe the exact resolved executable");
+        const module = name === "checksec" ? "github.com/slimm609/checksec/v3" : MOBILE;
+        return result(f.mobileInfo?.(name) ?? { GoVersion: "go1.fixture",
+          Path: name === "checksec" ? module : module + "/cmd/" + name,
+          Main: { Path: module, Version: name === "checksec" ? "v3.1.0" : "v0.0.0-fixture", Sum: "h1:fixture" } });
+      }
       if (command === "git") {
         const repo = settings.cwd.startsWith(join(root, "sdk")) ? join(root, "sdk") : settings.cwd;
         if (args[1] === "--show-toplevel") return result(repo);
@@ -69,11 +100,33 @@ function fixture(t, prefix = "native-source-contract-") {
         if (args[0] === "diff") return result(f.dirty ? "fixture selected diff" : "");
         assert.fail("unexpected git operation");
       }
+      if (command === join(root, "std/bin/go")) {
+        assert.equal(settings.cwd, join(root, "warp/warpctl"));
+        command = "go";
+      }
       assert.equal(command, "go");
       assert.equal(settings.env.GOPROXY, "off"); assert.equal(settings.env.GOSUMDB, "off");
-      assert.equal(settings.env.GOEXPERIMENT, "greenteagc"); assert.equal(settings.cwd, cwd);
+      assert.equal(settings.env.GOEXPERIMENT, "greenteagc");
+      if (settings.cwd === join(root, "warp/warpctl")) {
+        assert.equal(settings.env.GOWORK, "off");
+        assert.equal(settings.env.GOOS, f.hostOS); assert.equal(settings.env.GOARCH, f.hostArch);
+        if (args[0] === "env") return result({ GOMOD: hostMain.GoMod, GOWORK: "off", GOFLAGS: "",
+          GOVERSION: "go1.fixture", GOROOT: join(root, "std"), GOTOOLDIR: tools, GOEXPERIMENT: "greenteagc",
+          GOOS: f.hostOS, GOARCH: f.hostArch, CGO_ENABLED: "1", CC: "clang", CXX: "clang++",
+          CGO_CFLAGS: "-O2 -g", CGO_CPPFLAGS: "", CGO_CXXFLAGS: "-O2 -g", CGO_LDFLAGS: "-O2 -g" });
+        if (args[0] === "mod") return result({ Module: { Path: WARP }, Replace: null });
+        assert.equal(args[0], "list"); assert.equal(args[1], "-mod=readonly");
+        if (args.includes("-m")) return result([hostMain, hostDependency].map(row => JSON.stringify(row)).join("\n"));
+        assert.ok(args.includes("-deps")); assert.equal(args.at(-1), ".");
+        return result([
+          { ImportPath: "runtime", Standard: true, Dir: join(root, "std"), GoFiles: ["std.go"] },
+          { ImportPath: WARP + "/warpctl", Dir: settings.cwd, Module: hostMain, GoFiles: ["main.go"], EmbedFiles: ["resource.txt"] },
+          { ImportPath: GLOG, Dir: hostDependency.Dir, Module: hostDependency, GoFiles: ["log.go"] },
+        ].map(row => JSON.stringify(row)).join("\n"));
+      }
+      assert.equal(settings.cwd, cwd);
       if (args[0] === "env") return result({ GOMOD: join(cwd, "go.mod"), GOWORK: f.workspace, GOFLAGS: "",
-        GOVERSION: "go1.fixture", GOROOT: join(root, "std"), GOTOOLDIR: tools, GOEXPERIMENT: "greenteagc" });
+        GOVERSION: "go1.fixture", GOROOT: join(root, "std"), GOTOOLDIR: tools, GOEXPERIMENT: "greenteagc", GOHOSTOS: f.hostOS, GOHOSTARCH: f.hostArch });
       if (args[0] === "work") return result({ Go: "1.fixture", Use: [{ DiskPath: "sdk/build" }], Replace: [] });
       if (args[0] === "mod") return result({ Module: { Path: `${SDK}/build` }, Replace: modules.filter(module => module.Replace).map(module =>
         ({ Old: { Path: module.Path }, New: { Path: module.Replace.Path } })) });
@@ -348,9 +401,12 @@ function prepareCommandFixture(f) {
     write(join(f.root, "tools", command), `#!/bin/sh\nexec ${JSON.stringify(process.execPath)} ${JSON.stringify(fakeCommand)} ${command} "$@"\n`);
     chmodSync(join(f.root, "tools", command), 0o700);
   }
-  for (const command of ["gomobile", "gobind"]) chmodSync(join(f.root, "tools", command), 0o700);
+  const pinnedGo = join(f.root, "std/bin/go");
+  write(pinnedGo, `#!/bin/sh\nexec ${JSON.stringify(process.execPath)} ${JSON.stringify(fakeCommand)} ${JSON.stringify(pinnedGo)} "$@"\n`);
+  chmodSync(pinnedGo, 0o700);
+  for (const command of ["gomobile", "gobind", "checksec"]) chmodSync(join(f.root, "tools", command), 0o700);
   json(f.paths.before, f.capture("before")); json(tablePath, Object.fromEntries(table));
-  const env = { ...process.env, PATH: `${join(f.root, "tools")}:${process.env.PATH}` };
+  const env = { ...process.env, ...f.dependencies.env, PATH: `${join(f.root, "tools")}:${process.env.PATH}` };
   for (const key of Object.keys(env)) if (key.startsWith("URNETWORK_ANDROID_SDK_OUTPUT_LOCK_")) delete env[key];
   return env;
 }
@@ -589,5 +645,200 @@ test("documented scalar restore rejects missing, blank, incomplete and extra-lin
     assert.equal(existsSync(f.paths["writer-receipt"]), false);
     assert.equal(existsSync(join(f.privateDir, `${f.label}.native-writer.stdout`)), false);
     assert.equal(existsSync(f.paths.after), false); assert.equal(existsSync(f.paths.output), false);
+  }
+});
+
+
+test("physical frozen arm capture refuses the missing arm-local Warp executable", t => {
+  const f = fixture(t);
+  const path = join(f.root, "warp/warpctl/build", f.hostOS, f.hostArch, "warpctl");
+  rmSync(path);
+  // A candidate/PATH tool is not an acceptable substitute for the control arm.
+  write(join(f.root, "tools/warpctl"), "unattested candidate executable");
+  assert.throws(() => f.capture("before"), /native-build-tool-unavailable/);
+});
+
+test("Warp host closure preserves each supported platform and an independent module graph", t => {
+  for (const hostOS of ["darwin", "linux"]) for (const hostArch of ["amd64", "arm64"]) {
+    const f = fixture(t); f.hostOS = hostOS; f.hostArch = hostArch;
+    const value = f.capture("before");
+    const host = value.inputs.hostTool;
+    assert.equal(host.binary.path, join(f.root, "warp/warpctl/build", hostOS, hostArch, "warpctl"));
+    assert.equal(host.goEnvironment.GOMOD, join(f.root, "warp/go.mod"));
+    assert.equal(host.goEnvironment.GOOS, hostOS); assert.equal(host.goEnvironment.GOARCH, hostArch);
+    assert.equal(host.modules.find(module => module.path === GLOG).version, "v9.0.0");
+    assert.equal(value.inputs.modules.find(module => module.path === GLOG).version, "v0.0.1");
+    assert.ok(host.codeInputs.some(file => file.kind === "embed"));
+    assert.ok(host.codeInputs.some(file => file.module === "std"));
+    assert.equal(host.repositories[0].directory, join(f.root, "warp"));
+    assert.equal(validateNativeManifest(value), true);
+  }
+  const f = fixture(t); f.hostOS = "windows";
+  assert.throws(() => f.capture("before"), /unsupported-native-host-platform/);
+});
+
+test("Warp and adjacent native inputs are rechecked before writer and consumer", t => {
+  for (const relative of ["warp/warpctl/main.go", "warp/warpctl/resource.txt", "warp/go.mod", "warp/go.sum",
+    "warp-dep/log.go", "warp-dep/go.mod", "warp/warpctl/build/darwin/arm64/warpctl",
+    "sdk/build/gomobile-bind-retry.sh", "tools/checksec",
+    "android-sdk/ndk/29.0.14206865/toolchains/llvm/prebuilt/fixture/bin/llvm-objcopy"]) {
+    const f = fixture(t); json(f.paths.before, f.capture("before")); f.writerReceipt();
+    const path = join(f.root, relative); write(path, readFileSync(path, "utf8") + "changed\n");
+    assert.throws(() => requireNativeBeforeWriter({ ...f.options, before: f.paths.before }, f.dependencies),
+      /native-inputs-changed-before-writer/, relative);
+    assert.throws(() => prepareNativeConsumer({ ...f.paths, root: f.root },
+      { ...f.dependencies, consumerLock: () => true }), /native-inputs-changed-across-build/, relative);
+    assert.equal(existsSync(f.paths.output), false, "a mutated tool/source cannot publish consumer proof");
+  }
+});
+
+test("version context binds actual optional files and refuses drift before either native pass", t => {
+  const f = fixture(t); json(f.paths.before, f.capture("before")); f.writerReceipt();
+  const original = JSON.parse(readFileSync(f.paths.before)).inputs.versionContext;
+  assert.equal(original.versionHome, f.versionHome);
+  assert.equal(original.versionMode, "version-file"); assert.equal(original.versionCodeMode, "version-file");
+  assert.equal(original.files[1].present, false);
+  assert.equal(JSON.stringify(original).includes("fixture-version"), false, "version values are not retained in evidence");
+  json(join(f.versionHome, "version.json"), { stagedVersion: "changed", stagedVersionCode: 56780 });
+  assert.throws(() => requireNativeBeforeWriter({ ...f.options, before: f.paths.before }, f.dependencies),
+    /native-inputs-changed-before-writer/);
+  assert.throws(() => prepareNativeConsumer({ ...f.paths, root: f.root }, { ...f.dependencies, consumerLock: () => true }),
+    /native-inputs-changed-across-build/);
+  assert.equal(existsSync(f.paths.output), false);
+});
+
+test("properties override and explicit clock fallback remain distinct version contexts", t => {
+  const f = fixture(t);
+  delete f.dependencies.env.WARP_VERSION_HOME;
+  const absent = f.capture("before").inputs.versionContext;
+  assert.equal(absent.versionHome, f.root); assert.equal(absent.versionMode, "clock-host-fallback");
+  assert.equal(absent.versionCodeMode, "clock-fallback"); assert.equal(absent.files[2].present, false);
+  write(join(f.root, "android/app/local.properties"),
+    "warp.version = fixture\\\n  -property\nwarp.version_code: 12340\nsdk.dir=" + f.androidSdk + "\n");
+  const override = f.capture("after").inputs.versionContext;
+  assert.equal(override.versionMode, "property"); assert.equal(override.versionCodeMode, "property");
+  assert.equal(override.usesWarp, false); assert.equal(override.files.length, 1);
+  json(join(f.root, "warp.json"), { ignored: "must not be emitted" });
+  assert.deepEqual(f.capture("after").inputs.versionContext, override);
+  rmSync(join(f.root, "android/app/local.properties"));
+  for (const [stagedVersion, expected] of [[undefined, "clock-host-fallback"], [null, "clock-host-fallback"],
+    ["local", "clock-host-fallback"], ["", "version-file"], ["fixed", "version-file"]]) {
+    json(join(f.root, "version.json"), { stagedVersion });
+    const context = f.capture("after").inputs.versionContext;
+    assert.equal(context.versionMode, expected, "match Warp nil/local/empty/nonempty semantics");
+    assert.equal(context.versionCodeMode, "clock-fallback");
+  }
+});
+
+test("NDK writer selection and consumer strip override have independent tool identities", t => {
+  const f = fixture(t);
+  write(join(f.root, "android/app/local.properties"), "sdk.dir=" + f.androidSdk + "\n");
+  f.dependencies.env.ANDROID_HOME = join(f.root, "unselected-sdk");
+  const other = join(f.root, "consumer-ndk");
+  const strip = join(other, "toolchains/llvm/prebuilt/fixture/bin/llvm-strip");
+  write(strip, "fixture separate strip"); chmodSync(strip, 0o700);
+  f.options["strip-ndk"] = other;
+  const value = f.capture("before");
+  assert.equal(value.inputs.ndk.writerNdk, f.ndk); assert.equal(value.inputs.ndk.stripNdk, other);
+  assert.equal(value.inputs.ndk.stripOverride, other);
+  assert.equal(value.inputs.ndk.tools.find(tool => tool.name === "llvm-strip").invocationPath, strip);
+  json(f.paths.before, value);
+  assert.equal(requireNativeBeforeWriter({ ...f.options, before: f.paths.before }, f.dependencies).inputHash, value.inputHash);
+  write(strip, "changed strip");
+  assert.throws(() => requireNativeBeforeWriter({ ...f.options, before: f.paths.before }, f.dependencies),
+    /native-inputs-changed-before-writer/);
+});
+
+test("NDK missing, ambiguous, or substituted postprocessing tools cannot be attested", t => {
+  for (const kind of ["missing", "ambiguous", "version", "strip-symlink"]) {
+    const f = fixture(t);
+    const path = join(f.ndk, "toolchains/llvm/prebuilt/fixture/bin/llvm-objcopy");
+    if (kind === "missing") rmSync(path);
+    if (kind === "ambiguous") write(join(f.ndk, "another/llvm-objcopy"), "ambiguous first find result");
+    if (kind === "version") write(join(f.ndk, "source.properties"), "Pkg.Revision=0.0.0\n");
+    if (kind === "strip-symlink") {
+      json(f.paths.before, f.capture("before"));
+      const strip = join(dirname(path), "llvm-strip");
+      rmSync(strip); const other = join(dirname(path), "other-tool");
+      write(other, "changed strip target"); chmodSync(other, 0o700); symlinkSync("other-tool", strip);
+      assert.throws(() => requireNativeBeforeWriter({ ...f.options, before: f.paths.before }, f.dependencies),
+        /native-inputs-changed-before-writer/);
+    } else assert.throws(() => f.capture("before"), /(?:one-selected-native-objcopy-and-strip-required|native-writer-ndk-version-mismatch)/);
+  }
+});
+
+test("selected mobile tools require actual embedded frozen compiler and exact package/module pins", t => {
+  const f = fixture(t); const original = f.capture("before");
+  assert.equal(original.inputs.mobileTools.length, 3);
+  for (const row of original.inputs.mobileTools) {
+    assert.equal(row.sha256, original.inputs.tools.find(tool => tool.name === row.name).sha256);
+    assert.equal(row.buildInfo.GoVersion, "go1.fixture");
+  }
+  for (const kind of ["stale", "missing", "package", "module", "version", "replacement"]) {
+    f.mobileInfo = name => {
+      const info = structuredClone(original.inputs.mobileTools.find(row => row.name === name).buildInfo);
+      if (kind === "stale") info.GoVersion = "go1.old";
+      if (kind === "missing") return {};
+      if (kind === "package") info.Path = "not-the-executed-package";
+      if (kind === "module") info.Main.Path = "another-module";
+      if (kind === "version") info.Main.Version = "v0.0.0-wrong";
+      if (kind === "replacement") info.Main.Replace = { Path: "/unattested/source" };
+      return info;
+    };
+    assert.throws(() => f.capture("before"), /native-mobile-tool-build-metadata-mismatch/, kind);
+  }
+  delete f.mobileInfo;
+  assert.equal(f.capture("after").inputHash, original.inputHash);
+  const queries = f.commands.filter(call => call.args[0] === "version");
+  assert.ok(queries.length > 3);
+  for (const call of queries) {
+    assert.equal(call.command, join(f.root, "std/bin/go"));
+    assert.deepEqual(call.args.slice(0, 3), ["version", "-m", "-json"]);
+    assert.ok(original.inputs.tools.some(tool => tool.path === call.args[3] &&
+      ["gomobile", "gobind", "checksec"].includes(tool.name)));
+  }
+});
+
+
+test("selected Java properties honor escaped keys, Unicode, comments, duplicates and continuations", t => {
+  const f = fixture(t);
+  const selectedSdk = join(f.root, "selected-sdk#suffix");
+  mkdirSync(selectedSdk, { mode: 0o700 });
+  const escapedSdk = join(f.root, "selected-sdk").replaceAll("/", "\\u002f");
+  write(join(f.root, "android/app/local.properties"),
+    " # a comment ending in backslash does not continue\\\r\n" +
+    "sdk.dir=" + escapedSdk + "\\\r\n#suffix\r\n" +
+    "ndk.dir : " + f.ndk + "\r\n" +
+    "warp\\.version=old\r\nwarp.version: selected\\\r\n#-property\r\n" +
+    "warp.version_code=12340\r\nignored.private=value\\u0020not-retained\r\n");
+  f.dependencies.env.ANDROID_HOME = join(f.root, "must-not-select-ambient-sdk");
+  const value = f.capture("before");
+  assert.equal(value.inputs.ndk.sdkRoot, selectedSdk, "a continued # is part of the selected SDK path");
+  assert.equal(value.inputs.ndk.writerNdk, f.ndk);
+  assert.equal(value.inputs.versionContext.versionMode, "property");
+  assert.equal(value.inputs.versionContext.versionCodeMode, "property");
+  assert.equal(JSON.stringify(value).includes("not-retained"), false);
+  write(join(f.root, "android/app/local.properties"), "sdk.dir=\\uZZZZ\n");
+  assert.throws(() => f.capture("before"), /native-properties-invalid/);
+});
+
+test("summary rehash cannot hide omitted host closure, runtime, tool identity or native helpers", t => {
+  const f = fixture(t); const original = f.capture("before");
+  for (const mutate of [
+    m => delete m.inputs.hostTool, m => delete m.inputs.hostTool.binary,
+    m => { m.inputs.hostTool.binary.path = join(f.root, "candidate/warpctl"); },
+    m => { m.inputs.hostTool.modules.pop(); }, m => { m.inputs.hostTool.moduleInputs.pop(); },
+    m => { m.inputs.hostTool.codeInputs.pop(); }, m => { m.inputs.hostTool.packageSelections.pop(); },
+    m => { m.inputs.hostTool.resolvedModuleGraph.pop(); }, m => { m.inputs.hostTool.repositories = []; },
+    m => { delete m.inputs.hostTool.goEnvironment.GOWORK; }, m => delete m.inputs.versionContext,
+    m => { m.inputs.versionContext.files.pop(); }, m => delete m.inputs.ndk,
+    m => { m.inputs.ndk.tools.pop(); }, m => delete m.inputs.mobileTools,
+    m => { m.inputs.mobileTools[0].path = join(f.root, "unexecuted-tool"); },
+    m => { m.inputs.mobileTools[0].sha256 = "0".repeat(64); },
+    m => { m.inputs.tools = m.inputs.tools.filter(tool => tool.name !== "checksec"); },
+    m => { m.inputs.buildInputs = m.inputs.buildInputs.filter(file => !file.path.endsWith("/gomobile-bind-retry.sh")); },
+  ]) {
+    const changed = structuredClone(original); mutate(changed); rehash(changed);
+    assert.throws(() => validateNativeManifest(changed), undefined, String(mutate));
   }
 });

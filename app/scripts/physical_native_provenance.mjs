@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 
-// Source linkage only: this never builds, installs, reads credentials or changes
-// module files. Binary/AAR/APK/strip/consumer-lock attestation remains separate.
+// Source linkage only: this never builds, installs, emits credential values or
+// changes module files. Binary/AAR/APK/strip/consumer-lock attestation remains separate.
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { accessSync, closeSync, constants, existsSync, fstatSync, lstatSync, openSync, readFileSync,
-  readSync, realpathSync, writeFileSync } from "node:fs";
+  readSync, readdirSync, realpathSync, writeFileSync } from "node:fs";
 import { delimiter, dirname, extname, isAbsolute, join, relative, resolve, sep } from "node:path";
 import { availableParallelism } from "node:os";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -24,7 +24,7 @@ const BRIDGE_FILES = ["bind/seq.go.support", "bind/java/Seq.java", "bind/java/se
   "bind/java/seq_android.go.support", "bind/java/seq_android.h"];
 const FILE_FIELDS = ["GoFiles", "CgoFiles", "CFiles", "CXXFiles", "MFiles", "HFiles", "FFiles", "SFiles",
   "SwigFiles", "SwigCXXFiles", "SysoFiles", "EmbedFiles"];
-const TOOL_NAMES = ["go", "gomobile", "gobind", "compile", "link", "asm", "cgo"];
+const TOOL_NAMES = ["go", "gomobile", "gobind", "checksec", "compile", "link", "asm", "cgo"];
 // Keep writer selection inside the source-hashed provenance module.
 const WRITER_MEMORY_PROFILES = Object.freeze(["android", "ios-memory-audit-v1", "ios-memory-audit-v2"]);
 const SELF = fileURLToPath(import.meta.url);
@@ -122,6 +122,302 @@ function fingerprint(manifest) {
   return sha(JSON.stringify({ root, buildOwner, buildId, profileRate, inputs }));
 }
 
+
+const WARP = "github.com/urnetwork/warp";
+
+// Java Properties.load(InputStream) uses Latin-1, escapes and continuations.
+// Keep the file hash, never emit unrelated properties or Warp credentials.
+function nativeProperties(file) {
+  if (!file.present) return {};
+  const data = readFileSync(file.path);
+  if (data.length > 1024 * 1024 || sha(data) !== file.sha256) fail("native-runtime-input-changed");
+  const unescape = value => {
+    let decoded = "";
+    for (let i = 0; i < value.length; i++) {
+      if (value[i] !== "\\") { decoded += value[i]; continue; }
+      const escaped = value[++i];
+      if (escaped === "u") {
+        const digits = value.slice(i + 1, i + 5);
+        if (!/^[0-9a-fA-F]{4}$/.test(digits)) fail("native-properties-invalid");
+        decoded += String.fromCharCode(parseInt(digits, 16)); i += 4;
+      } else {
+        if (escaped === undefined) fail("native-properties-incomplete");
+        decoded += ({ t: "\t", r: "\r", n: "\n", f: "\f" })[escaped] ?? escaped;
+      }
+    }
+    return decoded;
+  };
+  const result = {}; let continued = ""; let pending = false;
+  for (let line of data.toString("latin1").split(/\r\n|\r|\n/)) {
+    if (!pending && /^[ \t\f]*[#!]/.test(line)) continue;
+    if (pending) line = continued + line.replace(/^[ \t\f]+/, "");
+    let slash = 0; for (let i = line.length - 1; i >= 0 && line[i] === "\\"; i--) slash++;
+    if (slash % 2) { continued = line.slice(0, -1); pending = true; continue; }
+    continued = ""; pending = false; line = line.replace(/^[ \t\f]+/, "");
+    if (!line || /^[#!]/.test(line)) continue;
+    let end = 0; let escaped = false;
+    for (; end < line.length; end++) {
+      if (!escaped && /[ \t\f=:]/.test(line[end])) break;
+      if (!escaped && line[end] === "\\") escaped = true; else escaped = false;
+    }
+    const key = unescape(line.slice(0, end));
+    let rest = line.slice(end).replace(/^[ \t\f]+/, "");
+    if (/^[=:]/.test(rest)) rest = rest.slice(1);
+    const value = unescape(rest.replace(/^[ \t\f]+/, ""));
+    if (["sdk.dir", "ndk.dir", "Pkg.Revision", "warp.version", "warp.version_code"].includes(key)) result[key] = value;
+  }
+  if (pending) fail("native-properties-incomplete");
+  return result;
+}
+
+function nativeExecutable(path, name, allowLink = true) {
+  try { accessSync(path, constants.X_OK); } catch { fail("native-build-tool-unavailable"); }
+  const resolved = realpathSync(path);
+  if (!allowLink && resolved !== resolve(path)) fail("arm-local-native-tool-required");
+  return { name, invocationPath: resolve(path), ...inputFile(resolved) };
+}
+
+function nativeVersionContext(root, env, propertiesFile, properties) {
+  const versionHome = env.WARP_VERSION_HOME || root;
+  if (!isAbsolute(versionHome) || /[\r\n\0]/.test(versionHome)) fail("absolute-native-version-context-required");
+  const needsWarp = !properties["warp.version"] || !properties["warp.version_code"];
+  const files = [propertiesFile]; let settings = {};
+  if (needsWarp) {
+    const warp = inputFile(join(root, "warp.json"), true);
+    const version = inputFile(join(versionHome, "version.json"), true);
+    files.push(warp, version);
+    for (const [file, selected] of [[warp, false], [version, true]]) if (file.present) {
+      const data = readFileSync(file.path);
+      if (data.length > 1024 * 1024 || sha(data) !== file.sha256) fail("native-runtime-input-changed");
+      let value; try { value = JSON.parse(data); } catch { fail("native-version-context-invalid"); }
+      if (!value || typeof value !== "object" || Array.isArray(value)) fail("native-version-context-invalid");
+      if (selected) settings = value;
+    }
+  }
+  if (properties["warp.version_code"] && !/^-?[0-9]+$/.test(properties["warp.version_code"])) fail("native-version-context-invalid");
+  if (settings.stagedVersion != null && typeof settings.stagedVersion !== "string" ||
+      settings.stagedVersionCode != null && !Number.isSafeInteger(settings.stagedVersionCode)) fail("native-version-context-invalid");
+  return { versionHome: resolve(versionHome), warpHome: root, usesWarp: needsWarp, files,
+    versionMode: properties["warp.version"] ? "property" :
+      settings.stagedVersion != null && settings.stagedVersion !== "local" ? "version-file" : "clock-host-fallback",
+    versionCodeMode: properties["warp.version_code"] ? "property" :
+      settings.stagedVersionCode != null ? "version-file" : "clock-fallback" };
+}
+
+function nativeNdkInputs(root, env, properties, stripOverride) {
+  const gradle = readFileSync(join(root, "android/app/app/build.gradle"), "utf8");
+  const versions = [...gradle.matchAll(/^\s*ndkVersion\s*=?\s*['"]([^'"]+)['"]\s*$/gm)];
+  if (versions.length !== 1 || /^\s*ndkPath\b/m.test(gradle)) fail("explicit-native-ndk-resolution-required");
+  const sdk = properties["sdk.dir"] || env.ANDROID_HOME || env.ANDROID_SDK_ROOT;
+  if (!isAbsolute(sdk ?? "") || /[\r\n\0]/.test(sdk)) fail("absolute-native-sdk-context-required");
+  if (!properties["sdk.dir"] && env.ANDROID_HOME && env.ANDROID_SDK_ROOT &&
+      realpathSync(env.ANDROID_HOME) !== realpathSync(env.ANDROID_SDK_ROOT)) fail("ambiguous-native-sdk-context");
+  const writerSelection = properties["ndk.dir"] || join(sdk, "ndk", versions[0][1]);
+  if (!isAbsolute(writerSelection)) fail("absolute-native-writer-ndk-required");
+  const writerNdk = realpathSync(writerSelection);
+  const writerProperties = inputFile(join(writerNdk, "source.properties"));
+  if (nativeProperties(writerProperties)["Pkg.Revision"] !== versions[0][1]) fail("native-writer-ndk-version-mismatch");
+  const stripSelection = stripOverride || env.ANDROID_NDK_HOME || env.ANDROID_NDK_ROOT || writerNdk;
+  if (!isAbsolute(stripSelection)) fail("absolute-native-strip-context-required");
+  const stripNdk = realpathSync(stripSelection);
+  const objcopy = []; let entries = 0;
+  function walk(directory, depth) {
+    if (depth > 40) fail("bounded-native-ndk-inventory-required");
+    for (const entry of readdirSync(directory, { withFileTypes: true })) {
+      if (++entries > 100000) fail("bounded-native-ndk-inventory-required");
+      const path = join(directory, entry.name);
+      if (entry.isDirectory()) walk(path, depth + 1);
+      else if (entry.isFile() && entry.name.toLowerCase() === "llvm-objcopy") objcopy.push(path);
+    }
+  }
+  // Match Makefile's non-following find -type f -iname llvm-objcopy exactly.
+  // Refuse ambiguity instead of attesting a different tool from its first match.
+  walk(writerNdk, 0);
+  const prebuilt = join(stripNdk, "toolchains/llvm/prebuilt");
+  const strip = readdirSync(prebuilt).map(name => join(prebuilt, name, "bin/llvm-strip")).filter(existsSync);
+  if (objcopy.length !== 1 || strip.length !== 1) fail("one-selected-native-objcopy-and-strip-required");
+  return { sdkRoot: realpathSync(sdk), writerNdk, writerVersion: versions[0][1], writerProperties,
+    stripNdk, stripOverride: stripOverride || null,
+    tools: [nativeExecutable(objcopy[0], "llvm-objcopy"), nativeExecutable(strip[0], "llvm-strip")] };
+}
+
+function nativeWarpInputs(root, env, goEnv, dependencies) {
+  const hostOS = goEnv.GOHOSTOS; const hostArch = goEnv.GOHOSTARCH;
+  if (!["darwin", "linux"].includes(hostOS) || !["amd64", "arm64"].includes(hostArch)) fail("unsupported-native-host-platform");
+  const directory = join(root, "warp"); const cwd = join(directory, "warpctl");
+  const binary = nativeExecutable(join(cwd, "build", hostOS, hostArch, "warpctl"), "warpctl", false);
+  const hostEnv = { ...env, GOOS: hostOS, GOARCH: hostArch, GOWORK: "off" };
+  const hostInvoke = invokeFor(dependencies, cwd, hostEnv);
+  const invoke = (command, args) => hostInvoke(command === "go" ? join(goEnv.GOROOT, "bin/go") : command, args);
+  const effective = JSON.parse(invoke("go", ["env", "-json", "GOMOD", "GOWORK", "GOFLAGS", "GOVERSION",
+    "GOROOT", "GOTOOLDIR", "GOEXPERIMENT", "GOOS", "GOARCH", "CGO_ENABLED", "CC", "CXX", "CGO_CFLAGS", "CGO_CPPFLAGS", "CGO_CXXFLAGS", "CGO_LDFLAGS"]));
+  if (effective.GOMOD !== join(directory, "go.mod") || effective.GOWORK !== "off" ||
+      effective.GOOS !== hostOS || effective.GOARCH !== hostArch ||
+      !["GOVERSION", "GOROOT", "GOTOOLDIR", "GOEXPERIMENT", "GOFLAGS"].every(key => effective[key] === goEnv[key])) {
+    fail("native-warp-toolchain-context-mismatch");
+  }
+  const resolution = JSON.parse(invoke("go", ["mod", "edit", "-json"]));
+  if (resolution.Module?.Path !== WARP) fail("native-warp-module-context-mismatch");
+  const graph = parseJsonStream(invoke("go", ["list", "-mod=readonly", "-m", "-json", "all"])).map(module => {
+    if (!module.Path || module.Error) fail("native-warp-module-graph-incomplete");
+    return { path: module.Path, version: module.Version ?? null, main: module.Main === true,
+      directory: module.Dir ? realpathSync(module.Dir) : null, replacement: module.Replace ? { path: module.Replace.Path,
+        version: module.Replace.Version ?? null, directory: module.Replace.Dir ? realpathSync(module.Replace.Dir) : null } : null };
+  });
+  const rows = parseJsonStream(invoke("go", ["list", "-mod=readonly", "-deps",
+    "-json=ImportPath,Dir,Standard,Module," + FILE_FIELDS.join(",") + ",Error,Incomplete", "."]));
+  if (!rows.some(row => row.ImportPath === WARP + "/warpctl" && row.Dir === cwd)) fail("native-warp-package-selection-incomplete");
+  const modules = new Map(); const code = new Map(); const selections = [];
+  for (const row of rows) {
+    if (!row.ImportPath || !row.Dir || row.Error || row.Incomplete) fail("native-warp-package-selection-incomplete");
+    let module = "std";
+    if (!row.Standard) {
+      const record = moduleRecord(row.Module); module = record.path;
+      if (modules.has(module) && JSON.stringify(modules.get(module)) !== JSON.stringify(record)) fail("native-warp-module-resolution-conflict");
+      modules.set(module, record);
+    }
+    const files = [];
+    for (const field of FILE_FIELDS) for (const name of row[field] ?? []) {
+      if (typeof name !== "string" || isAbsolute(name) || name.split(/[\\/]/).includes("..")) fail("native-code-path-invalid");
+      const path = resolve(row.Dir, name); files.push(path);
+      code.set(module + "\0" + path, { module, kind: extname(path) === ".go" ? "go" : field === "EmbedFiles" ? "embed" : "native", ...inputFile(path) });
+    }
+    selections.push({ importPath: row.ImportPath, module, files: [...new Set(files)].sort() });
+  }
+  if (modules.get(WARP)?.directory !== directory || !modules.get(WARP)?.main) fail("arm-local-native-warp-source-required");
+  const moduleInputs = [];
+  for (const module of modules.values()) {
+    moduleInputs.push({ module: module.path, kind: "go.mod", ...inputFile(module.goMod) });
+    if (module.main || module.replacement && module.replacement.version === null) {
+      moduleInputs.push({ module: module.path, kind: "go.sum", ...inputFile(join(module.directory, "go.sum"), true) });
+    }
+  }
+  const repositories = new Map();
+  for (const module of modules.values()) if (module.main || module.replacement && module.replacement.version === null) {
+    const git = invokeFor(dependencies, module.directory, hostEnv);
+    const repo = realpathSync(git("git", ["rev-parse", "--show-toplevel"]).trim());
+    if (module.path === WARP && repo !== directory) fail("arm-local-native-warp-source-required");
+    const files = [...code.values(), ...moduleInputs].filter(file => file.path.startsWith(repo + sep));
+    const names = [...new Set(files.map(file => relative(repo, file.path)))].sort();
+    const revision = git("git", ["rev-parse", "HEAD"]).trim();
+    const status = git("git", ["status", "--porcelain=v1", "-z", "--untracked-files=all", "--", ...names]);
+    const diff = git("git", ["diff", "--binary", "HEAD", "--", ...names]);
+    repositories.set(repo, { directory: repo, revision, dirty: Boolean(status), inputCount: names.length,
+      dirtyInputHash: sha(status + "\0" + diff + "\0" + (status ? JSON.stringify(sorted(files)) : "")) });
+  }
+  return { workingDirectory: cwd, binary, goEnvironment: effective, mainResolution: resolution,
+    modules: sorted([...modules.values()]), resolvedModuleGraph: sorted(graph), moduleInputs: sorted(moduleInputs),
+    codeInputs: sorted([...code.values()]), packageSelections: sorted(selections), repositories: sorted([...repositories.values()]) };
+}
+
+function validateNativeHostInputs(root, input) {
+  const warp = input.hostTool; const version = input.versionContext; const ndk = input.ndk;
+  const hostOS = input.goEnvironment.GOHOSTOS; const hostArch = input.goEnvironment.GOHOSTARCH;
+  const regular = file => isAbsolute(file?.path ?? "") && file.present === true &&
+    validHash(file.sha256) && Number.isInteger(file.bytes) && file.bytes >= 0;
+  const optional = file => regular(file) || isAbsolute(file?.path ?? "") && file.present === false && file.sha256 === null && file.bytes === 0;
+  const executable = file => regular(file) && isAbsolute(file.invocationPath ?? "") && typeof file.name === "string";
+  if (!warp || !["darwin", "linux"].includes(hostOS) || !["amd64", "arm64"].includes(hostArch) ||
+      warp.workingDirectory !== join(root, "warp/warpctl") || !executable(warp.binary) ||
+      warp.binary.path !== join(warp.workingDirectory, "build", hostOS, hostArch, "warpctl") ||
+      warp.binary.invocationPath !== warp.binary.path || warp.binary.name !== "warpctl" ||
+      warp.goEnvironment?.GOMOD !== join(root, "warp/go.mod") || warp.goEnvironment.GOWORK !== "off" ||
+      warp.goEnvironment.GOOS !== hostOS || warp.goEnvironment.GOARCH !== hostArch ||
+      !["GOVERSION", "GOROOT", "GOTOOLDIR", "GOEXPERIMENT", "GOFLAGS"].every(key => warp.goEnvironment[key] === input.goEnvironment[key]) ||
+      warp.mainResolution?.Module?.Path !== WARP) fail("complete-native-warp-context-required");
+  for (const key of ["modules", "resolvedModuleGraph", "moduleInputs", "codeInputs", "packageSelections", "repositories"]) {
+    if (!Array.isArray(warp[key]) || !warp[key].length) fail("complete-native-warp-closure-required");
+  }
+  if (!warp.modules.some(module => module.path === WARP && module.main && module.directory === join(root, "warp")) ||
+      new Set(warp.modules.map(module => module.path)).size !== warp.modules.length ||
+      new Set(warp.resolvedModuleGraph.map(module => module.path)).size !== warp.resolvedModuleGraph.length ||
+      !warp.packageSelections.some(pkg => pkg.importPath === WARP + "/warpctl" && pkg.module === WARP)) fail("complete-native-warp-closure-required");
+  for (const module of warp.modules) {
+    if (!module.path || !isAbsolute(module.directory ?? "") || !isAbsolute(module.goMod ?? "") ||
+        !["version", "main", "sum", "goModSum", "replacement"].every(key => Object.hasOwn(module, key)) ||
+        typeof module.main !== "boolean" || module.replacement !== null &&
+          !["path", "version", "directory", "goMod", "sum", "goModSum"].every(key => Object.hasOwn(module.replacement, key)) ||
+        !warp.moduleInputs.some(file => file.module === module.path && file.kind === "go.mod" && file.path === module.goMod && regular(file)) ||
+        !warp.resolvedModuleGraph.some(row => row.path === module.path && row.version === module.version && row.main === module.main &&
+          row.directory === module.directory && (row.replacement?.path ?? null) === (module.replacement?.path ?? null) &&
+          (row.replacement?.version ?? null) === (module.replacement?.version ?? null) &&
+          (row.replacement?.directory ?? null) === (module.replacement?.directory ?? null))) fail("complete-native-warp-module-resolution-required");
+    if ((module.main || module.replacement && module.replacement.version === null) &&
+        !warp.moduleInputs.some(file => file.module === module.path && file.kind === "go.sum" &&
+          file.path === join(module.directory, "go.sum") && optional(file))) fail("native-warp-module-sum-state-missing");
+    if ((module.main || module.replacement && module.replacement.version === null) &&
+        !warp.repositories.some(repo => module.directory === repo.directory || module.directory.startsWith(repo.directory + sep))) fail("native-warp-repository-hashes-required");
+  }
+  const keys = new Set(warp.codeInputs.map(file => file.module + "\0" + file.path)); const selected = new Set();
+  for (const pkg of warp.packageSelections) {
+    if (!pkg.importPath || !pkg.module || !Array.isArray(pkg.files)) fail("native-warp-package-selection-incomplete");
+    for (const path of pkg.files) selected.add(pkg.module + "\0" + path);
+  }
+  if (keys.size !== warp.codeInputs.length || keys.size !== selected.size || [...selected].some(key => !keys.has(key)) ||
+      warp.codeInputs.some(file => !regular(file) || file.module !== "std" && !warp.modules.some(module => module.path === file.module)) ||
+      warp.moduleInputs.some(file => !regular(file) && !(file.kind === "go.sum" && optional(file)))) fail("native-warp-selected-code-hash-missing");
+  for (const repo of warp.repositories) if (!isAbsolute(repo.directory ?? "") || !/^[a-f0-9]{40,64}$/.test(repo.revision ?? "") ||
+      !validHash(repo.dirtyInputHash) || typeof repo.dirty !== "boolean" || !Number.isInteger(repo.inputCount) || repo.inputCount < 1) fail("native-warp-repository-hashes-required");
+  if (!version || !isAbsolute(version.versionHome ?? "") || version.warpHome !== root || typeof version.usesWarp !== "boolean" ||
+      !["property", "version-file", "clock-host-fallback"].includes(version.versionMode) ||
+      !["property", "version-file", "clock-fallback"].includes(version.versionCodeMode) ||
+      !Array.isArray(version.files) || version.files.some(file => !optional(file)) ||
+      version.files.length !== (version.usesWarp ? 3 : 1) ||
+      version.files[0]?.path !== join(root, "android/app/local.properties") ||
+      version.usesWarp !== (version.versionMode !== "property" || version.versionCodeMode !== "property") ||
+      version.usesWarp && (version.files[1]?.path !== join(root, "warp.json") || version.files[2]?.path !== join(version.versionHome, "version.json")) ||
+      (version.versionMode === "version-file" || version.versionCodeMode === "version-file") && !version.files[2]?.present) fail("complete-native-version-context-required");
+  if (!ndk || !isAbsolute(ndk.sdkRoot ?? "") || !isAbsolute(ndk.writerNdk ?? "") || !isAbsolute(ndk.stripNdk ?? "") ||
+      typeof ndk.writerVersion !== "string" || !regular(ndk.writerProperties) ||
+      ndk.writerProperties.path !== join(ndk.writerNdk, "source.properties") ||
+      !Object.hasOwn(ndk, "stripOverride") || ndk.stripOverride !== null && !isAbsolute(ndk.stripOverride) ||
+      !Array.isArray(ndk.tools) || ndk.tools.length !== 2 || ndk.tools.some(file => !executable(file)) ||
+      !ndk.tools.some(file => file.name === "llvm-objcopy" && file.invocationPath.startsWith(ndk.writerNdk + sep)) ||
+      !ndk.tools.some(file => file.name === "llvm-strip" && file.invocationPath.startsWith(ndk.stripNdk + "/toolchains/llvm/prebuilt/"))) fail("complete-native-ndk-context-required");
+}
+
+function nativeMobileTools(cwd, env, goEnv, tools, makefile, dependencies) {
+  const pin = name => {
+    const values = [...makefile.matchAll(new RegExp("^" + name + "\\s*\\?=\\s*(v[^\\s]+)\\s*$", "gm"))];
+    if (values.length !== 1) fail("exact-native-mobile-tool-pins-required");
+    return values[0][1];
+  };
+  const versions = { gomobile: pin("GOMOBILE_VERSION"), gobind: pin("GOMOBILE_VERSION"), checksec: pin("CHECKSEC_VERSION") };
+  const result = [];
+  for (const name of ["gomobile", "gobind", "checksec"]) {
+    const tool = tools.find(tool => tool.name === name);
+    const module = name === "checksec" ? "github.com/slimm609/checksec/v3" : MOBILE;
+    const packagePath = name === "checksec" ? module : module + "/cmd/" + name;
+    // The frozen Go driver reads the exact executable, not its self-report.
+    const raw = invokeFor(dependencies, cwd, env)(join(goEnv.GOROOT, "bin/go"), ["version", "-m", "-json", tool.path]);
+    const info = JSON.parse(raw);
+    if (info.GoVersion !== goEnv.GOVERSION || info.Path !== packagePath ||
+        info.Main?.Path !== module || info.Main.Version !== versions[name] || info.Main.Replace) {
+      fail("native-mobile-tool-build-metadata-mismatch");
+    }
+    const current = inputFile(tool.path);
+    if (current.sha256 !== tool.sha256 || current.bytes !== tool.bytes) fail("native-mobile-tool-changed-during-metadata");
+    result.push({ name, path: tool.path, sha256: tool.sha256, requiredModule: module,
+      requiredPackage: packagePath, requiredVersion: versions[name], buildInfo: info });
+  }
+  return result;
+}
+
+function validateNativeMobileTools(input) {
+  if (!Array.isArray(input.mobileTools) || input.mobileTools.length !== 3) fail("complete-native-mobile-tool-metadata-required");
+  for (const name of ["gomobile", "gobind", "checksec"]) {
+    const tool = input.tools.find(tool => tool.name === name);
+    const row = input.mobileTools.find(row => row.name === name);
+    const module = name === "checksec" ? "github.com/slimm609/checksec/v3" : MOBILE;
+    const packagePath = name === "checksec" ? module : module + "/cmd/" + name;
+    if (!row || row.path !== tool.path || row.sha256 !== tool.sha256 ||
+        row.requiredModule !== module || row.requiredPackage !== packagePath || !/^v[^\s]+$/.test(row.requiredVersion ?? "") ||
+        row.buildInfo?.GoVersion !== input.goEnvironment.GOVERSION || row.buildInfo.Path !== packagePath ||
+        row.buildInfo.Main?.Path !== module || row.buildInfo.Main.Version !== row.requiredVersion ||
+        row.buildInfo.Main.Replace) fail("native-mobile-tool-build-metadata-mismatch");
+  }
+}
+
 export function collectNativeInputs(options, dependencies = {}) {
   if (!validLabel(options["build-owner"]) || !validLabel(options["build-id"]) ||
       !/^(?:0|[1-9][0-9]{0,8})$/.test(String(options["profile-rate"]))) fail("explicit-native-build-context-required");
@@ -135,7 +431,7 @@ export function collectNativeInputs(options, dependencies = {}) {
     fail("unsupported-native-goflags");
   }
   const invoke = invokeFor(dependencies, cwd, env);
-  const goEnv = JSON.parse(invoke("go", ["env", "-json", "GOMOD", "GOWORK", "GOFLAGS", "GOVERSION", "GOROOT", "GOTOOLDIR", "GOEXPERIMENT"]));
+  const goEnv = JSON.parse(invoke("go", ["env", "-json", "GOMOD", "GOWORK", "GOFLAGS", "GOVERSION", "GOROOT", "GOTOOLDIR", "GOEXPERIMENT", "GOHOSTOS", "GOHOSTARCH"]));
   if (goEnv.GOMOD !== join(cwd, "go.mod") || !goEnv.GOVERSION || !goEnv.GOROOT || !goEnv.GOTOOLDIR) fail("native-build-module-context-mismatch");
   if (goEnv.GOFLAGS && !goEnv.GOFLAGS.split(/\s+/).every(flag => ["-mod=readonly", "-trimpath", "-buildvcs=false"].includes(flag))) {
     fail("unsupported-native-goflags");
@@ -145,10 +441,16 @@ export function collectNativeInputs(options, dependencies = {}) {
   if (!androidRule || !androidRule.includes("-target android/arm64,android/arm,android/amd64") ||
       !androidRule.includes("-tags sdk_mobile_bind") || !androidRule.includes("-androidapi 24") ||
       !androidRule.includes("export GOEXPERIMENT=greenteagc")) fail("unsupported-native-build-policy");
-  const tools = ["go", "gomobile", "gobind"].map(name => ({ name, ...inputFile((dependencies.toolPath ?? toolPath)(name, env)) }));
+  const tools = ["go", "gomobile", "gobind", "checksec"].map(name => ({ name, ...inputFile((dependencies.toolPath ?? toolPath)(name, env)) }));
   for (const name of ["compile", "link", "asm", "cgo"]) tools.push({ name, ...inputFile(join(goEnv.GOTOOLDIR, name)) });
-  const buildInputs = [join(cwd, "Makefile"), join(cwd, "sdk-android-output-lock.sh"), join(root, "sdk/build-android.sh"),
+  const mobileTools = nativeMobileTools(cwd, env, goEnv, tools, makefile, dependencies);
+  const buildInputs = [join(cwd, "Makefile"), join(cwd, "sdk-android-output-lock.sh"), join(cwd, "gomobile-bind-retry.sh"), join(root, "sdk/build-android.sh"),
     join(root, "android/app/app/build.gradle"), SELF, join(dirname(SELF), "physical_artifact_directory.mjs")].map(path => inputFile(path));
+  const propertiesFile = inputFile(join(root, "android/app/local.properties"), true);
+  const properties = nativeProperties(propertiesFile);
+  const versionContext = nativeVersionContext(root, env, propertiesFile, properties);
+  const ndk = nativeNdkInputs(root, env, properties, options["strip-ndk"]);
+  const hostTool = nativeWarpInputs(root, env, goEnv, dependencies);
   const workspace = { mode: goEnv.GOWORK === "off" ? "off" : goEnv.GOWORK ? "active" : "none", file: null, sum: null, resolution: null };
   if (workspace.mode === "active") {
     workspace.file = inputFile(goEnv.GOWORK); workspace.sum = inputFile(`${goEnv.GOWORK}.sum`, true);
@@ -244,7 +546,7 @@ export function collectNativeInputs(options, dependencies = {}) {
     repositories.push({ directory: repository, revision, dirty: Boolean(status), inputCount: names.length,
       dirtyInputHash: sha(status + "\0" + diff + "\0" + (status ? JSON.stringify(sorted(files)) : "")) });
   }
-  const inputs = { workingDirectory: cwd, targets: ABIS, tags: [TAG], goEnvironment: goEnv, tools: sorted(tools),
+  const inputs = { hostTool, versionContext, ndk, mobileTools, workingDirectory: cwd, targets: ABIS, tags: [TAG], goEnvironment: goEnv, tools: sorted(tools),
     buildInputs: sorted(buildInputs), bridgeInputs: sorted(bridgeInputs), workspace, mainResolution, modules: sorted([...modules.values()]),
     moduleInputs: sorted(moduleInputs), codeInputs: sorted([...code.values()]), packageSelections: packages, resolvedModuleGraph,
     buildPackages: sorted(buildPackages), repositories: sorted(repositories) };
@@ -271,7 +573,7 @@ export function validateNativeManifest(manifest) {
       !["none", "off", "active"].includes(input.workspace?.mode) ||
       ![SDK, CONNECT, `${SDK}/build`, MOBILE].every(id => input.modules.some(module => module.path === id))) fail("complete-native-module-resolution-required");
   if (input.tools.length !== TOOL_NAMES.length || !TOOL_NAMES.every(name => input.tools.some(tool => tool.name === name)) ||
-      ![join(input.workingDirectory, "Makefile"), join(input.workingDirectory, "sdk-android-output-lock.sh"),
+      ![join(input.workingDirectory, "Makefile"), join(input.workingDirectory, "sdk-android-output-lock.sh"), join(input.workingDirectory, "gomobile-bind-retry.sh"),
         join(manifest.root, "sdk/build-android.sh"), join(manifest.root, "android/app/app/build.gradle"), SELF,
         join(dirname(SELF), "physical_artifact_directory.mjs")]
         .every(path => input.buildInputs.some(file => file.path === path))) fail("native-build-input-hashes-missing");
@@ -338,6 +640,8 @@ export function validateNativeManifest(manifest) {
       fail("native-repository-hashes-required");
     }
   }
+  validateNativeHostInputs(manifest.root, input);
+  validateNativeMobileTools(input);
   if (fingerprint(manifest) !== manifest.inputHash) fail("native-input-fingerprint-mismatch");
   return true;
 }
@@ -350,7 +654,7 @@ function compare(before, after) {
 
 function requireCurrent(after, dependencies) {
   const current = collectNativeInputs({ root: after.root, phase: "after", "build-owner": after.buildOwner,
-    "build-id": after.buildId, "profile-rate": String(after.profileRate) }, dependencies);
+    "build-id": after.buildId, "profile-rate": String(after.profileRate), "strip-ndk": after.inputs.ndk.stripOverride }, dependencies);
   if (current.inputHash !== after.inputHash) fail("native-inputs-changed-after-build");
   const sidecar = join(after.root, "sdk/build/android/.build-owner");
   const file = lstatSync(sidecar);
@@ -400,7 +704,7 @@ export function requireNativeBeforeWriter(options, dependencies = {}) {
   if (before.phase !== "before" || before.root !== realpathSync(options.root) || before.buildId !== options["build-id"] ||
       before.profileRate !== Number(options["profile-rate"])) fail("native-writer-before-context-mismatch");
   const current = collectNativeInputs({ root: before.root, phase: "before", "build-owner": before.buildOwner,
-    "build-id": before.buildId, "profile-rate": String(before.profileRate) }, dependencies);
+    "build-id": before.buildId, "profile-rate": String(before.profileRate), "strip-ndk": before.inputs.ndk.stripOverride }, dependencies);
   if (current.inputHash !== before.inputHash) fail("native-inputs-changed-before-writer");
   return before;
 }
@@ -471,7 +775,7 @@ export function prepareNativeConsumer(options, dependencies = {}) {
   const checkLock = () => (dependencies.consumerLock ?? requireNativeConsumerLock)(before.root);
   checkLock();
   const after = collectNativeInputs({ root: before.root, phase: "after", "build-owner": before.buildOwner,
-    "build-id": before.buildId, "profile-rate": String(before.profileRate) }, dependencies);
+    "build-id": before.buildId, "profile-rate": String(before.profileRate), "strip-ndk": before.inputs.ndk.stripOverride }, dependencies);
   checkLock(); writePrivate(options.after, after, binding);
   return verifyNativeInputs(options, { ...dependencies, beforePublish: checkLock });
 }
@@ -485,7 +789,8 @@ export function parseArgs(argv) {
   const options = { mode };
   for (let i = 0; i < args.length; i += 2) {
     const key = args[i]?.slice(2);
-    if (!args[i]?.startsWith("--") || !keys.includes(key) || options[key] !== undefined || !args[i + 1] || args[i + 1].startsWith("--")) {
+    if (!args[i]?.startsWith("--") || !(keys.includes(key) || mode === "capture" && key === "strip-ndk") ||
+        options[key] !== undefined || !args[i + 1] || args[i + 1].startsWith("--")) {
       fail("explicit-native-manifest-arguments-required");
     }
     options[key] = args[i + 1];
