@@ -253,10 +253,12 @@ wallet is the one it pays.
   `setNetworkConsentChallenge`, so the wallet signs only the server's message,
   pasted on the manual sheet (Talisman, TAO.com) or on the WalletConnect
   bridge page, whose return each flavor's LoginActivity hands to the screen
-  (`SnConsentReturns`). Any app can fire that return, so a consent session
-  ends only on its proof or its own expiry: a forged or mismatched return
-  leaves it waiting, and no text from a return is ever shown. A challenge
-  that arrives after its attempt was left is dropped. A proof goes to
+  (`SnConsentReturns`). Any app can fire that return, so the wait follows
+  what the SDK session did: a return it refused while it still waits (forged
+  or mismatched) leaves it waiting; its page's failure for this attempt ends
+  it with the existing wallet error line for the page's code; no text from a
+  return is ever shown. A challenge that arrives after its attempt was left
+  is dropped. A proof goes to
   `snNetworkConsentSubmit` only when its coldkey and message are the
   challenge's; then the status is read again.
 - **Refusals.** `challenge_expired` (the session's or the server's): "The
