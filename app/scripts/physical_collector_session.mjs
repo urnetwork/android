@@ -195,14 +195,37 @@ function requireLiveInstrumentation(owner, serial, dependencies) {
 // target-app PID once, before connect, without rewriting its running receipt.
 export function bindInstrumentationReady(options, dependencies = {}) {
   if (!options.owner || !options.serial) fail("instrumentation-owner-and-serial-required");
+  if (sessionLaunch(options, true, "instrumentation") !== undefined) {
+    return bindLaunchedInstrumentationReady(options, dependencies);
+  }
+  return bindPublishedInstrumentationReady(options, dependencies);
+}
+
+async function bindLaunchedInstrumentationReady(options, dependencies) {
+  if (!Number.isFinite(options.timeoutMs) || options.timeoutMs <= 0 || options.timeoutMs > 180_000) {
+    fail("invalid-session-deadline");
+  }
+  const now = dependencies.now ?? performance.now.bind(performance);
+  const deadline = now() + options.timeoutMs;
+  const binding = await awaitOwnerPublication(options, dependencies, "instrumentation", "run-instrumentation", now, deadline);
+  return bindPublishedInstrumentationReady(options, dependencies, binding);
+}
+
+function bindPublishedInstrumentationReady(options, dependencies, binding) {
+  if (!options.owner || !options.serial) fail("instrumentation-owner-and-serial-required");
   if (existsSync(`${options.owner}.ready.json`)) fail("instrumentation-ready-already-bound");
   const owner = readInstrumentationOwner(options.owner, options.serial, false);
+  if (binding && (owner.supervisorPid !== options.launcherPid || owner.launchId !== binding.launchId ||
+      owner.supervisorIdentity !== binding.launcherIdentity)) fail("instrumentation-session-launch-binding-mismatch");
+  binding?.sameLauncher();
   requireLiveInstrumentation(owner, options.serial, dependencies);
   const status = readTargetStatus(deviceInvoker(options.serial, dependencies), owner.targetPid);
   if (status.state !== "ready" || status.phase !== "ready") fail("ready-session-before-owner-binding-required");
   requireLiveInstrumentation(owner, options.serial, dependencies);
   const current = readInstrumentationOwner(options.owner, options.serial, false);
   if (JSON.stringify(current) !== JSON.stringify(owner)) fail("instrumentation-owner-receipt-replaced");
+  binding?.sameLauncher();
+  if (binding && binding.now() >= binding.deadline) fail("instrumentation-session-ready-deadline");
   publish(`${options.owner}.ready.json`, { schema: 1, type: "instrumentation-session-ready", ownerId: owner.ownerId,
     serialHash: owner.serialHash, targetPid: status.pid, elapsedMs: status.elapsedMs, hostTimeUnixMs: Date.now() });
   return { retainedOwnerLive: true, adbChildLive: true, targetProcessMatchesStatus: true, readyStatusReadable: true };
@@ -326,6 +349,59 @@ function readOwner(path, isLive) {
   return owner;
 }
 
+// Only an explicitly launched owner may wait for its not-yet-published receipt.
+// Legacy checks still require an already-published owner.
+function sessionLaunch(options, checking, family = "collector") {
+  const launchId = options["launch-id"];
+  if (launchId === undefined && options.launcherPid === undefined) return undefined;
+  if (typeof launchId !== "string" || !/^[a-f0-9]{32}$/.test(launchId) ||
+      (checking ? !Number.isSafeInteger(options.launcherPid) || options.launcherPid <= 0 : options.launcherPid !== undefined)) {
+    fail(`explicit-${family}-launch-binding-required`);
+  }
+  return launchId;
+}
+
+// Pin the real Node run entry, start identity and nonce, not a reusable PID.
+// Raw process arguments stay in memory and never enter receipts or errors.
+function launcherIdentity(pid, launchId, mode, family, dependencies) {
+  const result = (dependencies.hostProcess ?? ((value) => spawnSync("ps",
+    ["-ww", "-p", String(value), "-o", "pid=,stat=,lstart=,args="],
+    { encoding: "utf8", timeout: 2000, maxBuffer: 64 * 1024 })))(pid);
+  let details;
+  try { details = hostProcessDetails(result, pid); } catch { fail(`${family}-session-launcher-not-live`); }
+  const executableEnd = details.command.indexOf(" ");
+  const executable = details.command.slice(0, executableEnd);
+  const args = details.command.slice(executableEnd + 1);
+  if (executable.split("/").at(-1) !== "node" ||
+      !args.startsWith(`${fileURLToPath(import.meta.url)} ${mode} `) ||
+      (` ${args} `).split(` --launch-id ${launchId} `).length !== 2) {
+    fail(`${family}-session-launcher-command-mismatch`);
+  }
+  return details.identity;
+}
+
+// Missing publication is pending only for this exact retained launch. Once
+// published, the readers below reject disappearance or replacement outright.
+async function awaitOwnerPublication(options, dependencies, family, mode, now, deadline) {
+  const launchId = sessionLaunch(options, true, family);
+  const initialIdentity = launcherIdentity(options.launcherPid, launchId, mode, family, dependencies);
+  const isLive = dependencies.isLive ?? processIsLive;
+  const sameLauncher = () => {
+    if (existsSync(`${options.owner}.terminal.json`)) fail(`${family}-session-already-finished`);
+    if (!isLive(options.launcherPid)) fail(`${family}-session-launcher-not-live`);
+    if (launcherIdentity(options.launcherPid, launchId, mode, family, dependencies) !== initialIdentity) {
+      fail(`${family}-session-launcher-replaced`);
+    }
+  };
+  for (;;) {
+    sameLauncher();
+    if (now() >= deadline) fail(`${family}-session-ready-deadline`);
+    if (existsSync(options.owner)) break;
+    await (dependencies.sleep ?? sleep)(Math.min(100, Math.max(0, deadline - now())));
+  }
+  return { launchId, launcherIdentity: initialIdentity, sameLauncher, now, deadline };
+}
+
 // Dedicated retained AM supervisor. Only this mode launches instrumentation;
 // bind/check-role are read-only. Normal exit/handled signals join the child;
 // liveness checks reject an abruptly lost supervisor even before terminal JSON.
@@ -370,7 +446,9 @@ async function runInstrumentationSessionOwned(options, dependencies = {}) {
   if (new Set(paths).size !== paths.length || paths.some(existsSync)) fail("fresh-instrumentation-artifacts-required");
   const foreground = (dependencies.foreground ?? foregroundState)();
   requireRetainedForeground(foreground);
-  const supervisorIdentity = liveHostOwner(process.pid, options.serial, dependencies, true);
+  const launchId = sessionLaunch(options, false, "instrumentation");
+  const supervisorIdentity = launchId === undefined ? liveHostOwner(process.pid, options.serial, dependencies, true) :
+    launcherIdentity(process.pid, launchId, "run-instrumentation", "instrumentation", dependencies);
   let nativeInputs;
   try { nativeInputs = (dependencies.verifyNativeInputs ?? requireVerifiedNativeInputs)(options["native-inputs"], options["build-id"]); }
   catch (error) { fail(`${nativeProvenanceReason(error)}-no-spawn`); }
@@ -419,7 +497,8 @@ async function runInstrumentationSessionOwned(options, dependencies = {}) {
       label: options.label, serialHash: digest(options.serial), component, className: physicalClass, targetPackage: packageName,
       nativeInputHash: nativeInputs.inputHash, nativeBuildOwner: nativeInputs.buildOwner,
       supervisorPid: process.pid, supervisorIdentity, adbPid: child.pid,
-      adbIdentity: liveHostOwner(child.pid, options.serial, dependencies), foreground, startedHostTimeUnixMs: Date.now() };
+      adbIdentity: liveHostOwner(child.pid, options.serial, dependencies), foreground, startedHostTimeUnixMs: Date.now(),
+      ...(launchId === undefined ? {} : { launchId }) };
     requireLiveInstrumentation(owner, options.serial, dependencies);
     publish(options.owner, owner);
     const result = await closed;
@@ -447,6 +526,8 @@ async function runInstrumentationSessionOwned(options, dependencies = {}) {
 export async function runCollectorSession(options, dependencies = {}) {
   const foreground = (dependencies.foreground ?? foregroundState)();
   requireRetainedForeground(foreground);
+  const launchId = sessionLaunch(options, false);
+  const initialIdentity = launchId === undefined ? undefined : launcherIdentity(process.pid, launchId, "run", "collector", dependencies);
   const capture = parseCaptureArgs(options.captureArgs);
   if (!capture.serial || !capture.label || !capture.output || !capture.stopFile || !capture.durationSeconds || capture.help) {
     fail("explicit-bounded-collector-required");
@@ -479,7 +560,8 @@ export async function runCollectorSession(options, dependencies = {}) {
     if (!pidValid(child.pid)) fail("collector-process-not-started");
     const owner = { schema: 1, type: "collector-session", state: "running", ownerId: randomUUID(), ownerPid: process.pid,
       collectorPid: child.pid, processGroup: foreground.processGroup, startedHostTimeUnixMs: Date.now(),
-      label: capture.label, telemetry: resolve(capture.output), ...(sessionRole ? { sessionRole } : {}) };
+      label: capture.label, telemetry: resolve(capture.output), ...(sessionRole ? { sessionRole } : {}),
+      ...(launchId === undefined ? {} : { launchId, launcherIdentity: initialIdentity }) };
     publish(options.owner, owner);
     const result = await closed;
     const complete = result.exitCode === 0 && result.signal === null && !interrupted;
@@ -499,33 +581,49 @@ export async function runCollectorSession(options, dependencies = {}) {
 
 // A fresh eligible prefix is not proof that its launcher survived. Require
 // both recorded processes live before and after the existing collector check.
-// Poll only startup telemetry; a dead/finished owner is never retried/replaced.
+// A bound launch may await publication, then telemetry, within one deadline.
+// An absent legacy owner or a dead/finished/replaced launch is never retried.
 export async function checkCollectorSession(options, dependencies = {}) {
+  if (!Number.isFinite(options.timeoutMs) || options.timeoutMs <= 0 || options.timeoutMs > 30_000) {
+    fail("invalid-session-deadline");
+  }
   const isLive = dependencies.isLive ?? processIsLive;
   const now = dependencies.now ?? performance.now.bind(performance);
   const deadline = now() + options.timeoutMs;
+  const launchId = sessionLaunch(options, true);
+  const binding = launchId === undefined ? undefined :
+    await awaitOwnerPublication(options, dependencies, "collector", "run", now, deadline);
   const initial = readOwner(options.owner, isLive);
+  if (launchId !== undefined && (initial.ownerPid !== options.launcherPid || initial.launchId !== launchId ||
+      initial.launcherIdentity !== binding.launcherIdentity)) fail("collector-session-launch-binding-mismatch");
   const sameOwner = () => {
+    binding?.sameLauncher();
     const current = readOwner(options.owner, isLive);
-    for (const key of ["ownerId", "ownerPid", "collectorPid", "telemetry", "label"]) {
+    for (const key of ["ownerId", "ownerPid", "collectorPid", "telemetry", "label", "launchId", "launcherIdentity"]) {
       if (current[key] !== initial[key]) fail("collector-session-owner-replaced");
     }
     return current;
   };
   for (;;) {
+    if (now() >= deadline) fail("collector-session-ready-deadline");
     const owner = sameOwner();
+    let telemetryReady = false;
     try {
       requireLiveCollector({ pid: owner.collectorPid, path: owner.telemetry }, owner.label, undefined,
         { isLive, wallNow: dependencies.wallNow });
-      sameOwner();
-      return owner.collectorPid;
+      telemetryReady = true;
     } catch (error) {
-      // Recheck ownership even when a partial/missing first sample caused the
-      // telemetry check to fail. Never wait out a terminated launcher.
-      sameOwner();
-      if (now() >= deadline) fail("collector-session-ready-deadline");
-      await (dependencies.sleep ?? sleep)(100);
+      // Only an absent file or a not-yet-fresh sample is pending startup.
+      // Observed owner/terminal/identity, malformed data and coverage failures
+      // cannot be erased by a later prefix, even if the next owner check passes.
+      if (error?.code !== "ENOENT" && error?.message !== "collector-fresh-sample-required") throw error;
     }
+    // An observed ownership mismatch is terminal even if a later read would
+    // restore the original bytes or process identity. Never catch it as data.
+    sameOwner();
+    if (now() >= deadline) fail("collector-session-ready-deadline");
+    if (telemetryReady) return owner.collectorPid;
+    await (dependencies.sleep ?? sleep)(Math.min(100, Math.max(0, deadline - now())));
   }
 }
 
@@ -534,10 +632,10 @@ export function parseArgs(argv) {
   const separator = rest.indexOf("--");
   const pairs = separator < 0 ? rest : rest.slice(0, separator);
   const roleArguments = ["session-mode", "connect-command-id", "instrumentation-owner"];
-  const allowed = mode === "run" ? ["owner", "stdout", "stderr", ...roleArguments] :
-    mode === "check" ? ["owner", "timeout-ms"] : mode === "check-role" ? ["serial", ...roleArguments] :
-      mode === "run-instrumentation" ? ["owner", "stdout", "stderr", "serial", "label", "build-id", "component", "artifact-dir", "native-inputs", "credential-ownership"] :
-        mode === "bind-instrumentation-ready" ? ["owner", "serial"] : [];
+  const allowed = mode === "run" ? ["owner", "stdout", "stderr", "launch-id", ...roleArguments] :
+    mode === "check" ? ["owner", "timeout-ms", "launch-id", "launcher-pid"] : mode === "check-role" ? ["serial", ...roleArguments] :
+      mode === "run-instrumentation" ? ["owner", "stdout", "stderr", "serial", "label", "build-id", "component", "artifact-dir", "native-inputs", "credential-ownership", "launch-id"] :
+        mode === "bind-instrumentation-ready" ? ["owner", "serial", "launch-id", "launcher-pid", "timeout-ms"] : [];
   if (!allowed.length) fail("run-check-or-check-role-required");
   const options = { mode, captureArgs: separator < 0 ? [] : rest.slice(separator + 1) };
   for (let i = 0; i < pairs.length; i += 2) {
@@ -552,6 +650,18 @@ export function parseArgs(argv) {
           !commandIdValid(options["build-id"]) || !runnerComponents.includes(options.component ?? runnerComponents[0])))) {
       fail("explicit-instrumentation-session-required");
     }
+    if (options["launcher-pid"] !== undefined) {
+      if (!/^[1-9][0-9]*$/.test(options["launcher-pid"])) fail("explicit-instrumentation-launch-binding-required");
+      options.launcherPid = Number(options["launcher-pid"]);
+    }
+    const launchId = sessionLaunch(options, mode === "bind-instrumentation-ready", "instrumentation");
+    if (mode === "bind-instrumentation-ready") {
+      if (launchId === undefined && options["timeout-ms"] !== undefined) fail("explicit-instrumentation-launch-binding-required");
+      if (launchId !== undefined) {
+        options.timeoutMs = Number(options["timeout-ms"]);
+        if (!Number.isFinite(options.timeoutMs) || options.timeoutMs <= 0 || options.timeoutMs > 180_000) fail("invalid-session-deadline");
+      }
+    }
     return options;
   }
   if (mode === "check-role") {
@@ -563,6 +673,11 @@ export function parseArgs(argv) {
     fail("explicit-session-artifacts-required");
   }
   if (mode === "run") validateRoleOptions(options);
+  if (options["launcher-pid"] !== undefined) {
+    if (!/^[1-9][0-9]*$/.test(options["launcher-pid"])) fail("explicit-collector-launch-binding-required");
+    options.launcherPid = Number(options["launcher-pid"]);
+  }
+  sessionLaunch(options, mode === "check");
   options.timeoutMs = Number(options["timeout-ms"] ?? 15_000);
   if (!Number.isFinite(options.timeoutMs) || options.timeoutMs <= 0 || options.timeoutMs > 30_000) fail("invalid-session-deadline");
   return options;
@@ -573,7 +688,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     const options = parseArgs(process.argv.slice(2));
     if (options.mode === "run") process.exitCode = await runCollectorSession(options);
     else if (options.mode === "run-instrumentation") process.exitCode = await runInstrumentationSession(options);
-    else if (options.mode === "bind-instrumentation-ready") process.stdout.write(`${JSON.stringify(bindInstrumentationReady(options))}\n`);
+    else if (options.mode === "bind-instrumentation-ready") process.stdout.write(`${JSON.stringify(await bindInstrumentationReady(options))}\n`);
     else if (options.mode === "check-role") process.stdout.write(`${JSON.stringify(await checkSessionRole(options))}\n`);
     else process.stdout.write(`${await checkCollectorSession(options)}\n`);
   } catch (error) {

@@ -86,8 +86,8 @@ function instrumentationFixture(t) {
       assert.equal(pid, f.child.pid);
       return psRow(pid, adbCommand);
     },
-    async start() {
-      f.result = runInstrumentationSession(options, { foreground: () => foreground, signals, hostProcess: f.hostProcess,
+    async start(dependencies = {}) {
+      f.result = runInstrumentationSession(options, { foreground: () => foreground, signals, hostProcess: f.hostProcess, ...dependencies,
         spawn: (command, args, settings) => {
           assert.equal(command, "adb");
           assert.deepEqual(args, ["-s", "fake-device", "shell", "am", "instrument", "-w", "-r", "-e", "class",
@@ -95,6 +95,7 @@ function instrumentationFixture(t) {
             "com.bringyour.network.test/androidx.test.runner.AndroidJUnitRunner"]);
           f.child = spawn(process.execPath, ["-e", fakeInstrumentation, join(directory, "stop")], settings);
           assert.equal(existsSync(options.owner), false, "no running receipt before live child verification");
+          dependencies.afterSpawn?.(f.child);
           return f.child;
         },
       });
@@ -883,3 +884,491 @@ test("existing artifacts are rejected without overwrite or a collector launch", 
   await assert.rejects(runCollectorSession(f.options,{foreground:()=>foreground,spawn:()=>assert.fail("must not start")}), /fresh-collector-artifacts-required/);
   assert.equal(readFileSync(f.options.stdout,"utf8"),"prior evidence");
 });
+
+// These fixtures use the real collector publisher and its real child. Only the
+// host command view is supplied, because the test itself calls the run API.
+function boundCollectorFixture(t) {
+  const f = fixture(t);
+  f.options["launch-id"] = "0123456789abcdef0123456789abcdef";
+  f.hostProcess = (pid) => {
+    assert.equal(pid, process.pid);
+    return psRow(pid, `${process.execPath} ${script} run --owner ${f.options.owner} --launch-id ${f.options["launch-id"]}`);
+  };
+  f.boundCheck = (dependencies = {}) => checkCollectorSession({ owner: f.options.owner, timeoutMs: 15_000,
+    "launch-id": f.options["launch-id"], launcherPid: process.pid }, { hostProcess: f.hostProcess, ...dependencies });
+  f.publish = () => f.start({ hostProcess: f.hostProcess });
+  return f;
+}
+
+test("bound collector readiness starts before publication and accepts only its launched owner", async (t) => {
+  const f = boundCollectorFixture(t);
+  let releasePublication; let reachedPublicationBarrier;
+  const publication = new Promise(resolve => { releasePublication = resolve; });
+  const held = new Promise(resolve => { reachedPublicationBarrier = resolve; });
+  let waits = 0;
+  const checking = f.boundCheck({ sleep: async () => {
+    assert.equal(++waits, 1, "first check must be waiting for owner publication, not telemetry");
+    assert.equal(existsSync(f.options.owner), false);
+    reachedPublicationBarrier();
+    await publication;
+    await f.publish();
+  } });
+  try {
+    await Promise.race([held, checking.then(() => assert.fail("readiness accepted before publication"))]);
+    assert.equal(existsSync(f.options.owner), false, "publication remains behind the explicit barrier");
+    releasePublication();
+    assert.equal(await checking, f.child.pid);
+    const owner = JSON.parse(readFileSync(f.options.owner, "utf8"));
+    assert.equal(owner.ownerPid, process.pid);
+    assert.equal(owner.launchId, f.options["launch-id"]);
+    assert.match(owner.launcherIdentity, /^[a-f0-9]{64}$/);
+    assert.equal(waits, 1);
+    f.stop(); assert.equal(await f.result, 0);
+  } finally { releasePublication(); }
+});
+
+test("collector startup binding is explicit and legacy missing owners never poll", async (t) => {
+  const f = boundCollectorFixture(t);
+  const options = parseArgs(["check", "--owner", f.options.owner, "--launch-id", f.options["launch-id"],
+    "--launcher-pid", String(process.pid)]);
+  assert.equal(options.launcherPid, process.pid); assert.equal(options.timeoutMs, 15_000);
+  for (const extra of [["--launch-id", f.options["launch-id"]], ["--launcher-pid", String(process.pid)],
+    ["--launch-id", "bad", "--launcher-pid", String(process.pid)],
+    ["--launch-id", f.options["launch-id"], "--launcher-pid", "0"],
+    ["--launch-id", f.options["launch-id"], "--launcher-pid", "9007199254740992"]]) {
+    assert.throws(() => parseArgs(["check", "--owner", f.options.owner, ...extra]), /explicit-collector-launch-binding-required/);
+  }
+  await assert.rejects(checkCollectorSession({ owner: f.options.owner, timeoutMs: 15_000 }, {
+    sleep: () => assert.fail("an unbound future receipt is not startup authority"),
+  }), /collector-session-owner-required/);
+});
+
+test("bound collector publication refuses dead terminal replaced or wrong-command launchers", async (t) => {
+  for (const kind of ["dead", "terminal", "replaced", "wrong-script", "wrong-mode", "wrong-launch"]) {
+    const f = boundCollectorFixture(t);
+    let waiting = false; let waits = 0;
+    const hostProcess = pid => {
+      const row = f.hostProcess(pid);
+      if (!waiting) return row;
+      if (kind === "replaced") row.stdout = row.stdout.replace("10:11:12", "10:11:13");
+      if (kind === "wrong-script") row.stdout = row.stdout.replace(script, "/fixture/other.mjs");
+      if (kind === "wrong-mode") row.stdout = row.stdout.replace(" run ", " check ");
+      if (kind === "wrong-launch") row.stdout = row.stdout.replace(f.options["launch-id"], "f".repeat(32));
+      return row;
+    };
+    const reason = kind === "dead" ? "launcher-not-live" : kind === "terminal" ? "already-finished" :
+      kind === "replaced" ? "launcher-replaced" : "launcher-command-mismatch";
+    await assert.rejects(f.boundCheck({ hostProcess, isLive: () => !(waiting && kind === "dead"), sleep: async () => {
+      assert.equal(++waits, 1, `${kind}: an invalid launcher must not be retried`);
+      waiting = true;
+      if (kind === "terminal") writeFileSync(`${f.options.owner}.terminal.json`, "{}", { mode: 0o600 });
+    } }), new RegExp(reason), kind);
+    assert.equal(waits, 1); assert.equal(existsSync(f.options.owner), false);
+  }
+});
+
+test("bound collector receipt cannot substitute another launch or child owner", async (t) => {
+  for (const kind of ["pid", "launch", "identity", "missing-binding", "dead-child", "malformed"]) {
+    const f = boundCollectorFixture(t);
+    let published = false;
+    await assert.rejects(f.boundCheck({ isLive: pid => !(published && kind === "dead-child" && pid === f.child.pid),
+      sleep: async () => {
+        assert.equal(published, false, `${kind}: substituted owner must not be retried`);
+        await f.publish(); published = true;
+        const owner = JSON.parse(readFileSync(f.options.owner, "utf8"));
+        if (kind === "pid") owner.ownerPid += 1;
+        if (kind === "launch") owner.launchId = "f".repeat(32);
+        if (kind === "identity") owner.launcherIdentity = "f".repeat(64);
+        if (kind === "missing-binding") { delete owner.launchId; delete owner.launcherIdentity; }
+        if (kind === "malformed") owner.state = "complete";
+        writeFileSync(f.options.owner, JSON.stringify(owner));
+      },
+    }), new RegExp(kind === "dead-child" ? "owner-not-live" : kind === "malformed" ? "invalid-collector-session-owner" :
+      "launch-binding-mismatch"), kind);
+    assert.equal(published, true);
+    f.stop(); assert.equal(await f.result, 0);
+  }
+});
+
+test("bound collector rechecks launch and receipt identity after eligible telemetry", async (t) => {
+  for (const kind of ["dead", "replaced", "terminal", "owner-id", "launch-id", "identity"]) {
+    const f = boundCollectorFixture(t); await f.publish();
+    let readTelemetry = false;
+    await assert.rejects(f.boundCheck({
+      isLive: pid => !(readTelemetry && kind === "dead" && pid === process.pid),
+      hostProcess: pid => {
+        const row = f.hostProcess(pid);
+        if (readTelemetry && kind === "replaced") row.stdout = row.stdout.replace("10:11:12", "10:11:13");
+        return row;
+      },
+      wallNow: () => {
+        assert.equal(readTelemetry, false); readTelemetry = true;
+        const owner = JSON.parse(readFileSync(f.options.owner, "utf8"));
+        if (kind === "terminal") writeFileSync(`${f.options.owner}.terminal.json`, "{}", { mode: 0o600 });
+        if (kind === "owner-id") owner.ownerId = "00000000-0000-0000-0000-000000000000";
+        if (kind === "launch-id") owner.launchId = "f".repeat(32);
+        if (kind === "identity") owner.launcherIdentity = "f".repeat(64);
+        writeFileSync(f.options.owner, JSON.stringify(owner));
+        return Date.now();
+      },
+      sleep: () => assert.fail(`${kind}: valid telemetry must not hide changed ownership`),
+    }), new RegExp(kind === "dead" ? "launcher-not-live" : kind === "replaced" ? "launcher-replaced" :
+      kind === "terminal" ? "already-finished" : "owner-replaced"), kind);
+    assert.equal(readTelemetry, true);
+    if (kind === "terminal") rmSync(`${f.options.owner}.terminal.json`);
+    f.stop(); assert.equal(await f.result, 0);
+  }
+});
+
+test("bound collector publication and telemetry share the original total deadline", async (t) => {
+  for (const kind of ["never-published", "late-publication", "stale-prefix"]) {
+    const f = boundCollectorFixture(t); let now = 0; const waits = [];
+    await assert.rejects(f.boundCheck({ now: () => now, wallNow: () => Date.now() + 10_000,
+      sleep: async delayMs => {
+        waits.push(delayMs);
+        if (waits.length === 1) {
+          now = kind === "stale-prefix" ? 14_999 : 15_000;
+          if (kind !== "never-published") await f.publish();
+        } else { assert.equal(kind, "stale-prefix"); assert.equal(waits.length, 2); now += delayMs; }
+      },
+    }), /collector-session-ready-deadline/, kind);
+    assert.equal(now, 15_000);
+    assert.deepEqual(waits, kind === "stale-prefix" ? [100, 1] : [100]);
+    if (f.result) { f.stop(); assert.equal(await f.result, 0); }
+  }
+});
+
+
+// The actual child has spawned before its spawn acknowledgment is delivered
+// to the supervisor. Target readiness therefore cannot imply host publication.
+function boundInstrumentationFixture(t) {
+  const f = instrumentationFixture(t);
+  f.options["launch-id"] = "abcdef0123456789abcdef0123456789";
+  const originalHostProcess = f.hostProcess;
+  f.hostProcess = pid => pid === process.pid
+    ? psRow(pid, `${process.execPath} ${script} run-instrumentation --owner ${f.options.owner} --launch-id ${f.options["launch-id"]}`)
+    : originalHostProcess(pid);
+  f.boundOptions = { owner: f.options.owner, serial: "fake-device", "launch-id": f.options["launch-id"],
+    launcherPid: process.pid, timeoutMs: 170_000 };
+  f.boundBind = (dependencies = {}, changes = {}) => bindInstrumentationReady({ ...f.boundOptions, ...changes },
+    { hostProcess: f.hostProcess, adb: roleAdb([disconnectedStatus]), ...dependencies });
+  return f;
+}
+
+test("bound instrumentation ready waits for its owner after the actual child has spawned", async (t) => {
+  const f = boundInstrumentationFixture(t);
+  let acknowledgeSpawn; let childSpawned; let checkerWaiting; let continueChecking;
+  const spawned = new Promise(resolve => { childSpawned = resolve; });
+  const held = new Promise(resolve => { checkerWaiting = resolve; });
+  const released = new Promise(resolve => { continueChecking = resolve; });
+  const starting = f.start({ afterSpawn: child => {
+    const once = child.once.bind(child);
+    once("spawn", childSpawned);
+    child.once = (event, listener) => {
+      if (event === "spawn") { acknowledgeSpawn = () => listener(); return child; }
+      return once(event, listener);
+    };
+  } });
+  try {
+    await Promise.race([spawned, starting.then(() => assert.fail("owner cannot publish through the held spawn acknowledgment"))]);
+    assert.equal(existsSync(f.options.owner), false);
+    const target = roleAdb([disconnectedStatus])(["-s", "fake-device", "shell", "run-as",
+      "com.bringyour.network", "cat", "files/acceptance/physical-status"]);
+    assert.equal(JSON.parse(target.stdout).state, "ready", "target readiness is independent of host publication");
+    let waits = 0;
+    const binding = f.boundBind({ sleep: async () => {
+      assert.equal(++waits, 1); assert.equal(existsSync(f.options.owner), false);
+      checkerWaiting(); await released;
+    } });
+    await Promise.race([held, Promise.resolve(binding).then(() => assert.fail("bound readiness accepted an absent owner"))]);
+    acknowledgeSpawn();
+    await starting;
+    continueChecking();
+    assert.equal(Object.values(await binding).every(value => value === true), true);
+    const owner = JSON.parse(readFileSync(f.options.owner, "utf8"));
+    const ready = JSON.parse(readFileSync(`${f.options.owner}.ready.json`, "utf8"));
+    assert.equal(owner.launchId, f.options["launch-id"]); assert.equal(owner.adbPid, f.child.pid);
+    assert.equal(ready.ownerId, owner.ownerId); assert.equal(ready.targetPid, disconnectedStatus.pid);
+    f.stop(); assert.equal(await f.result, 0);
+  } finally {
+    acknowledgeSpawn?.(); continueChecking();
+    await starting.catch(() => {});
+  }
+});
+
+test("instrumentation binding keeps legacy synchronous refusal and requires an explicit remaining deadline", async (t) => {
+  const f = boundInstrumentationFixture(t);
+  assert.throws(() => f.bind(), /^Error: retained-instrumentation-owner-receipt-required$/);
+  const args = ["bind-instrumentation-ready", "--owner", f.options.owner, "--serial", "fake-device"];
+  const bound = ["--launch-id", f.options["launch-id"], "--launcher-pid", String(process.pid)];
+  assert.equal(parseArgs([...args, ...bound, "--timeout-ms", "170000"]).timeoutMs, 170_000);
+  for (const extra of [["--timeout-ms", "1"], bound, [...bound, "--timeout-ms", "0"],
+    [...bound, "--timeout-ms", "180001"], ["--launch-id", f.options["launch-id"]],
+    ["--launcher-pid", String(process.pid)]]) assert.throws(() => parseArgs([...args, ...extra]));
+  await f.start();
+  const proof = f.bind();
+  assert.equal(typeof proof?.then, "undefined", "legacy callers retain their strict synchronous API");
+  assert.equal(Object.values(proof).every(value => value === true), true);
+  f.stop(); assert.equal(await f.result, 0);
+});
+
+test("bound instrumentation publication refuses lost terminal replaced and wrong-entry launchers", async (t) => {
+  for (const kind of ["dead", "terminal", "replaced", "wrong-mode", "wrong-launch"]) {
+    const f = boundInstrumentationFixture(t);
+    let waiting = false; let waits = 0;
+    await assert.rejects(f.boundBind({
+      isLive: () => !(waiting && kind === "dead"),
+      hostProcess: pid => {
+        const row = f.hostProcess(pid);
+        if (!waiting) return row;
+        if (kind === "replaced") row.stdout = row.stdout.replace("10:11:12", "10:11:13");
+        if (kind === "wrong-mode") row.stdout = row.stdout.replace(" run-instrumentation ", " run ");
+        if (kind === "wrong-launch") row.stdout = row.stdout.replace(f.options["launch-id"], "f".repeat(32));
+        return row;
+      },
+      adb: () => assert.fail("unpublished owner cannot authorize target inspection"),
+      sleep: async () => {
+        assert.equal(++waits, 1); waiting = true;
+        if (kind === "terminal") writeFileSync(`${f.options.owner}.terminal.json`, "{}", { mode: 0o600 });
+      },
+    }), new RegExp(kind === "dead" ? "launcher-not-live" : kind === "terminal" ? "already-finished" :
+      kind === "replaced" ? "launcher-replaced" : "launcher-command-mismatch"), kind);
+    assert.equal(waits, 1); assert.equal(existsSync(`${f.options.owner}.ready.json`), false);
+  }
+});
+
+test("bound instrumentation rejects substituted publication and changed ownership during target reads", async (t) => {
+  for (const kind of ["pid", "launch", "identity", "dead-child", "read-replaced", "read-terminal", "read-launcher"]) {
+    const f = boundInstrumentationFixture(t); await f.start();
+    const owner = JSON.parse(readFileSync(f.options.owner, "utf8"));
+    if (kind === "pid") owner.supervisorPid += 1;
+    if (kind === "launch") owner.launchId = "f".repeat(32);
+    if (kind === "identity") owner.supervisorIdentity = "f".repeat(64);
+    writeFileSync(f.options.owner, JSON.stringify(owner));
+    let read = false;
+    const adb = roleAdb([disconnectedStatus]);
+    await assert.rejects(f.boundBind({
+      hostProcess: pid => {
+        if (kind === "dead-child" && pid === f.child.pid) return { status: 1, stdout: "" };
+        const row = f.hostProcess(pid);
+        if (read && kind === "read-launcher" && pid === process.pid) row.stdout = row.stdout.replace("10:11:12", "10:11:13");
+        return row;
+      },
+      adb: args => {
+        assert.ok(kind.startsWith("read-"), `${kind}: bad owner must reject before target reads`);
+        const result = adb(args);
+        if (args.at(-1) === "files/acceptance/physical-status") {
+          read = true;
+          if (kind === "read-replaced") writeFileSync(f.options.owner, JSON.stringify({ ...owner, launchId: "f".repeat(32) }));
+          if (kind === "read-terminal") writeFileSync(`${f.options.owner}.terminal.json`, "{}", { mode: 0o600 });
+        }
+        return result;
+      },
+      sleep: () => assert.fail("invalid publication or target ownership must not be retried"),
+    }), new RegExp(kind === "dead-child" ? "adb-not-live" : kind === "read-replaced" ? "receipt-replaced" :
+      kind === "read-terminal" ? "already-finished" : kind === "read-launcher" ? "supervisor-changed" :
+        "launch-binding-mismatch"), kind);
+    assert.equal(read, kind.startsWith("read-"));
+    assert.equal(existsSync(`${f.options.owner}.ready.json`), false);
+    if (kind === "read-terminal") rmSync(`${f.options.owner}.terminal.json`);
+    f.stop(); assert.equal(await f.result, 0);
+  }
+});
+
+test("bound instrumentation publication and target checks consume only the supplied remaining budget", async (t) => {
+  for (const kind of ["never-published", "late-publication", "late-target-read", "within-budget"]) {
+    const f = boundInstrumentationFixture(t); let now = 0; const waits = [];
+    const adb = roleAdb([disconnectedStatus]);
+    const checking = f.boundBind({ now: () => now, sleep: async delayMs => {
+      waits.push(delayMs); assert.equal(waits.length, 1);
+      now = kind === "never-published" || kind === "late-publication" ? 7 : 6;
+      if (kind !== "never-published") await f.start();
+    }, adb: args => {
+      assert.ok(kind === "late-target-read" || kind === "within-budget");
+      const result = adb(args);
+      if (kind === "late-target-read" && args.at(-1) === "files/acceptance/physical-status") now = 7;
+      return result;
+    } }, { timeoutMs: 7 });
+    if (kind === "within-budget") assert.equal(Object.values(await checking).every(value => value === true), true);
+    else await assert.rejects(checking, /^Error: instrumentation-session-ready-deadline$/, kind);
+    assert.deepEqual(waits, [7], "no reset to the default 180-second budget");
+    assert.equal(existsSync(`${f.options.owner}.ready.json`), kind === "within-budget");
+    if (f.result) { f.stop(); assert.equal(await f.result, 0); }
+  }
+});
+
+// Restore the original identity on the very next read. An observed mismatch
+// must remain terminal, not become a telemetry retry that later accepts it.
+async function oneShotCollectorOwnershipMismatch(t, kind) {
+  const f = boundCollectorFixture(t); await f.publish();
+  const owner = JSON.parse(readFileSync(f.options.owner, "utf8"));
+  let prefixRead = false; let postPrefixReads = 0; let retries = 0;
+  let failure; let result;
+  try {
+    try {
+      result = await f.boundCheck({
+        hostProcess: pid => {
+          const row = f.hostProcess(pid);
+          if (prefixRead) {
+            postPrefixReads++;
+            if (kind === "launcher" && postPrefixReads === 1) {
+              row.stdout = row.stdout.replace("10:11:12", "10:11:13");
+            }
+            if (kind === "receipt") {
+              writeFileSync(f.options.owner, JSON.stringify(postPrefixReads === 1
+                ? { ...owner, ownerId: "00000000-0000-0000-0000-000000000000" } : owner));
+            }
+          }
+          return row;
+        },
+        wallNow: () => { prefixRead = true; return Date.now(); },
+        sleep: async () => { retries++; },
+      });
+    } catch (error) { failure = error; }
+  } finally {
+    writeFileSync(f.options.owner, JSON.stringify(owner));
+    f.stop(); assert.equal(await f.result, 0);
+  }
+  assert.equal(prefixRead, true, "the mutation follows an actual eligible prefix read");
+  assert.ok(postPrefixReads >= 1, "the changed identity was actually returned to the owner check");
+  if (!failure) {
+    assert.equal(result, f.child.pid, "the old retry restored eligible collector evidence");
+    assert.fail(`${kind}: observed one-shot ownership mismatch was retried into eligible acceptance`);
+  }
+  assert.match(failure.message, new RegExp(`^collector-session-${kind === "launcher" ? "launcher" : "owner"}-replaced$`));
+  assert.equal(postPrefixReads, 1, "a later restored identity cannot erase the first observed mismatch");
+  assert.equal(retries, 0, "ownership failure is outside the telemetry retry catch");
+}
+
+test("bound collector rejects one-shot launcher start drift after an eligible prefix", async (t) => {
+  await oneShotCollectorOwnershipMismatch(t, "launcher");
+});
+
+test("bound collector rejects one-shot receipt drift after an eligible prefix", async (t) => {
+  await oneShotCollectorOwnershipMismatch(t, "receipt");
+});
+
+test("collector exported readiness rejects invalid deadlines before any owner inspection or wait", async (t) => {
+  const f = boundCollectorFixture(t);
+  for (const timeoutMs of [undefined, NaN, Infinity, -Infinity, 0, -1, 30_001, "15000", null]) {
+    await assert.rejects(checkCollectorSession({ owner: f.options.owner, "launch-id": f.options["launch-id"],
+      launcherPid: process.pid, timeoutMs }, {
+      now: () => assert.fail("invalid deadline cannot start an observation window"),
+      hostProcess: () => assert.fail("invalid deadline cannot inspect a process"),
+      isLive: () => assert.fail("invalid deadline cannot inspect liveness"),
+      sleep: () => assert.fail("invalid deadline cannot wait for future publication"),
+    }), /^Error: invalid-session-deadline$/);
+  }
+});
+
+
+// A single failed probe inside requireLiveCollector must not be hidden by its
+// caller's subsequent successful owner check. The child itself stays alive.
+async function oneShotCollectorHelperLiveness(t, point) {
+  const f = boundCollectorFixture(t); await f.publish();
+  let prefixRead = false; let prefixProbes = 0; let injected = false; let retries = 0;
+  let failure; let result;
+  try {
+    try {
+      result = await f.boundCheck({
+        wallNow: () => { prefixRead = true; prefixProbes = 0; return Date.now(); },
+        isLive: pid => {
+          if (prefixRead && pid === f.child.pid) {
+            prefixProbes++;
+            if (!injected && prefixProbes === (point === "before" ? 1 : 2)) {
+              injected = true; return false;
+            }
+          }
+          return true;
+        },
+        sleep: async () => { retries++; },
+      });
+    } catch (error) { failure = error; }
+  } finally { f.stop(); assert.equal(await f.result, 0); }
+  assert.equal(injected, true, "the actual helper must observe the one-shot child-liveness failure");
+  if (!failure) {
+    assert.equal(result, f.child.pid);
+    assert.fail(`${point}: observed helper liveness failure was retried into eligible acceptance`);
+  }
+  assert.equal(failure.message, "collector-owner-not-live");
+  assert.equal(retries, 0, "an observed dead child is not pending telemetry");
+}
+
+test("bound collector refuses one-shot helper liveness loss before the prefix read", async (t) => {
+  await oneShotCollectorHelperLiveness(t, "before");
+});
+
+test("bound collector refuses one-shot helper liveness loss after the prefix read", async (t) => {
+  await oneShotCollectorHelperLiveness(t, "after");
+});
+
+test("bound collector cannot retry observed terminal malformed or ineligible prefix evidence", async (t) => {
+  for (const kind of ["summary", "malformed", "coverage"]) {
+    const f = boundCollectorFixture(t); await f.publish();
+    const telemetry = join(f.directory, "telemetry");
+    const saved = readFileSync(telemetry, "utf8");
+    let injected = false; let retries = 0; let failure; let result;
+    try {
+      try {
+        result = await f.boundCheck({
+          wallNow: () => {
+            if (!injected) {
+              injected = true;
+              writeFileSync(telemetry, kind === "summary" ? saved + '{"type":"summary"}\n' :
+                kind === "malformed" ? saved + 'not-json\n' :
+                  saved.replace('"label":"test-cell"', '"label":"other-cell"'));
+            }
+            return Date.now();
+          },
+          hostProcess: pid => {
+            // This is the next outer ownership check, AFTER the helper read.
+            if (injected) writeFileSync(telemetry, saved);
+            return f.hostProcess(pid);
+          },
+          sleep: async () => { retries++; },
+        });
+      } catch (error) { failure = error; }
+    } finally {
+      writeFileSync(telemetry, saved);
+      f.stop(); assert.equal(await f.result, 0);
+    }
+    assert.equal(injected, true);
+    if (!failure) {
+      assert.equal(result, f.child.pid);
+      assert.fail(`${kind}: observed invalid prefix was retried into eligible acceptance`);
+    }
+    if (kind === "malformed") assert.ok(failure instanceof SyntaxError);
+    else assert.equal(failure.message, kind === "summary" ? "collector-already-finished" : "collector-workload-coverage-incomplete");
+    assert.equal(retries, 0, `${kind}: a restored prefix cannot erase invalid evidence`);
+  }
+});
+
+// Keep the real publisher and a real stop/join-owned child, but let the fixture
+// publish prefix bytes at explicit barriers instead of a periodic sampler.
+test("bound collector retries only missing or partial startup prefixes within the same deadline", async (t) => {
+  for (const kind of ["missing", "partial"]) {
+    const f = boundCollectorFixture(t);
+    f.result = runCollectorSession(f.options, { foreground: () => foreground, signals: f.signals, hostProcess: f.hostProcess,
+      spawn: (_exe, _args, settings) => {
+        f.child = spawn(process.execPath, ["-e", fakeInstrumentation, join(f.directory, "stop")], settings);
+        return f.child;
+      },
+    });
+    assert.equal(existsSync(f.options.owner), true, "the launched owner is already published");
+    const telemetry = join(f.directory, "telemetry");
+    if (kind === "partial") writeFileSync(telemetry, '{"type":"environment"', { mode: 0o600 });
+    else assert.equal(existsSync(telemetry), false);
+    const stamp = Date.now(); let now = 0; let waits = 0;
+    const prefix = [{ type: "environment", label: "test-cell" },
+      { type: "sample", startTimeUnixMs: stamp - 2, endTimeUnixMs: stamp,
+        eligibility: { eligible: true }, telemetryErrors: [] }].map(row => JSON.stringify(row) + "\n").join("");
+    const result = await f.boundCheck({ now: () => now, wallNow: () => stamp, sleep: async delayMs => {
+      assert.equal(++waits, 1); assert.equal(delayMs, 100);
+      now += delayMs;
+      writeFileSync(telemetry, prefix, { mode: 0o600 });
+    } });
+    assert.equal(result, f.child.pid); assert.equal(waits, 1); assert.equal(now, 100);
+    f.stop(); assert.equal(await f.result, 0);
+  }
+});
+
