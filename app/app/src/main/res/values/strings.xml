@@ -999,6 +999,17 @@
     <string name="site_save_your_seedphrase">Save Your Seedphrase</string>
     <string name="skip">Skip</string>
     <string name="sn_alpha_symbol" translatable="false">SN25α</string>
+    <string name="sn_consent_active">Earnings are paid to %1$s</string>
+    <string name="sn_consent_body">Sign once with your Bittensor wallet so this network\'s earnings are paid to it.</string>
+    <string name="sn_consent_change">Change wallet</string>
+    <string name="sn_consent_change_note">A new wallet takes effect from the next epoch.</string>
+    <string name="sn_consent_expired">The request expired. Try again.</string>
+    <string name="sn_consent_failed">The signature didn\'t match this wallet. Try again.</string>
+    <string name="sn_consent_none">No payout wallet yet. Earnings aren\'t paid until you sign.</string>
+    <string name="sn_consent_owner_only">Only the network owner can choose the payout wallet.</string>
+    <string name="sn_consent_sign">Sign with wallet</string>
+    <string name="sn_consent_signing">Waiting for your wallet\'s signature…</string>
+    <string name="sn_consent_title">Payout consent</string>
     <string name="sn_ledger_claimable">Claimable</string>
     <string name="sn_ledger_earned">Earned</string>
     <string name="sn_ledger_paid">Paid</string>

@@ -991,6 +991,17 @@
     <string name="site_payment_error_plan_unavailable">هذه الخطة غير متاحة حاليًا. حاول مرة أخرى لاحقًا.</string>
     <string name="site_save_your_seedphrase">احفظ عبارة الاسترداد</string>
     <string name="skip">تخطي</string>
+    <string name="sn_consent_active">تُدفع الأرباح إلى %1$s</string>
+    <string name="sn_consent_body">وقّع مرة واحدة باستخدام محفظة Bittensor الخاصة بك كي تُدفع أرباح هذه الشبكة إليها.</string>
+    <string name="sn_consent_change">تغيير المحفظة</string>
+    <string name="sn_consent_change_note">تسري المحفظة الجديدة بدءًا من الفترة التالية.</string>
+    <string name="sn_consent_expired">انتهت صلاحية الطلب. حاول مرة أخرى.</string>
+    <string name="sn_consent_failed">لم يتطابق التوقيع مع هذه المحفظة. حاول مرة أخرى.</string>
+    <string name="sn_consent_none">لا توجد محفظة دفع بعد. لا تُدفع الأرباح إلا بعد أن توقّع.</string>
+    <string name="sn_consent_owner_only">يمكن لمالك الشبكة فقط اختيار محفظة الدفع.</string>
+    <string name="sn_consent_sign">التوقيع بالمحفظة</string>
+    <string name="sn_consent_signing">في انتظار توقيع محفظتك…</string>
+    <string name="sn_consent_title">موافقة الدفع</string>
     <string name="sn_ledger_claimable">قابل للمطالبة</string>
     <string name="sn_ledger_earned">المكتسب</string>
     <string name="sn_ledger_paid">مدفوع</string>

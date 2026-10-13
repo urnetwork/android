@@ -93,7 +93,7 @@ const val EARNINGS_SET_COLDKEY_TAG = "earnings-set-coldkey"
 /**
  * The Earnings screen: points first, always. The UR protocol layer (wallet,
  * unclaimed SN25α, settlement v2, claim, Top 200) appears only once a Bittensor
- * wallet is connected.
+ * wallet is connected; the payout consent with or without one.
  */
 @Composable
 fun EarningsScreen(
@@ -128,6 +128,8 @@ fun EarningsScreen(
     val ledgerLoad by earningsViewModel.ledgerFlow.load.collectAsState()
     val ledgerClaimConfigured by earningsViewModel.ledgerFlow.claimConfigured.collectAsState()
     val ledgerClaimDialog by earningsViewModel.ledgerFlow.dialog.collectAsState()
+    val consentState by earningsViewModel.consentFlow.state.collectAsState()
+    val consentStage by earningsViewModel.consentFlow.proofFlow.stage.collectAsState()
 
     // the legacy USDC payout wallet (Solana), connected from the wallet overflow
     val solanaWalletViewModel: SolanaWalletViewModel = hiltViewModel()
@@ -240,6 +242,9 @@ fun EarningsScreen(
         onSetColdkey = { earningsViewModel.connectWithBridge() },
         ledgerTile = snLedgerTile(ledgerLoad, ledgerClaimConfigured),
         onOpenLedgerClaim = { earningsViewModel.ledgerFlow.open() },
+        consentTile = if (earningsViewModel.protocolAvailable) snConsentTile(consentState, consentStage) else null,
+        onSignConsent = { earningsViewModel.consentFlow.start() },
+        onRetryConsent = { earningsViewModel.consentFlow.retry() },
     )
 
     ClaimDialog(
@@ -270,6 +275,30 @@ fun EarningsScreen(
         },
         onSubmit = earningsViewModel::submitProof,
     )
+
+    // the payout consent's steps: the wallet chooser, the coldkey the consent will name, then
+    // the manual sheet or the bridge page of a session of the consent purpose
+    BittensorProofSheets(
+        flow = earningsViewModel.consentFlow.proofFlow,
+        onChoose = { walletId -> earningsViewModel.consentFlow.chooseWallet(walletId) },
+        onSubmit = earningsViewModel.consentFlow::submit,
+    )
+    consentState.coldkeyEntry?.let { entry ->
+        SnConsentColdkeySheet(
+            entry = entry,
+            onAddressChange = { earningsViewModel.consentFlow.updateColdkey(it) },
+            onContinue = {
+                earningsViewModel.consentFlow.continueWithColdkey { url -> launchBittensorBridge(bridgeContext, url) }
+            },
+            onDismiss = { earningsViewModel.consentFlow.dismissColdkey() },
+        )
+    }
+
+    // a WalletConnect bridge return for the consent, handed over by the LoginActivity
+    val consentReturn by SnConsentReturns.pending.collectAsState()
+    LaunchedEffect(consentReturn) {
+        SnConsentReturns.take()?.let { earningsViewModel.consentFlow.handleReturn(it) }
+    }
 
     if (earningsViewModel.isPresentedManualSheet) {
         ConnectWalletSheet(
@@ -361,6 +390,9 @@ fun EarningsScreenContent(
     onSetColdkey: () -> Unit = {},
     ledgerTile: SnLedgerTile? = null,
     onOpenLedgerClaim: () -> Unit = {},
+    consentTile: SnConsentTile? = null,
+    onSignConsent: () -> Unit = {},
+    onRetryConsent: () -> Unit = {},
 ) {
     val refreshState = rememberPullToRefreshState()
     val claimsByEpoch = claims.associateBy { it.epoch }
@@ -462,6 +494,18 @@ fun EarningsScreenContent(
                         Spacer(modifier = Modifier.height(16.dp))
                         SnLedgerTileBlock(tile = it, onClaim = onOpenLedgerClaim, formatAlpha = formatAlpha)
                     }
+                }
+
+                // with or without a wallet entry: a network that never connected one is
+                // the one the consent pays
+                consentTile?.let {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    SnConsentBlock(
+                        tile = it,
+                        onSign = onSignConsent,
+                        onRetry = onRetryConsent,
+                        shortSs58 = shortSs58
+                    )
                 }
 
                 head?.let { h ->

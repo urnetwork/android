@@ -159,6 +159,28 @@ interface EarningsProtocolSource {
     /** claims every v2 account with something to claim; events arrive on an arbitrary thread */
     fun ledgerClaim(onEvent: (SnLedgerClaimEvent) -> Unit)
 
+    /** the network's newest payout consent (SnNetworkConsentStatus); a failure is unavailable */
+    suspend fun consentStatus(): Result<SnConsentStatusState>
+
+    /**
+     * the api holds the network credential (Api.hasNetworkCredential): only then
+     * can it ask for and submit a consent; without it the SDK refuses with
+     * network_owner_only
+     */
+    fun hasNetworkCredential(): Boolean
+
+    /**
+     * a consent session for the wallet over a fresh challenge for the coldkey
+     * (SnNetworkConsentChallenge); refusals in the SDK's "code: message" form
+     */
+    suspend fun consentSession(walletId: String, coldkeySs58: String): Result<BittensorProofSession>
+
+    /**
+     * submits the signed consent (SnNetworkConsentSubmit); a refused signature
+     * fails with the server's code (signature_mismatch)
+     */
+    suspend fun consentSubmit(coldkeySs58: String, message: String, signature: String): Result<Unit>
+
     suspend fun accountEpochs(): Result<List<AccountEpoch>>
 
     suspend fun head(): Result<SnHeadState?>
@@ -219,6 +241,12 @@ object NoProtocolSource : EarningsProtocolSource {
         onEvent(SnLedgerClaimEvent.Failed(0, 0, EarningsUnavailableException().message ?: ""))
         onEvent(SnLedgerClaimEvent.Done)
     }
+    override suspend fun consentStatus(): Result<SnConsentStatusState> = Result.failure(EarningsUnavailableException())
+    override fun hasNetworkCredential(): Boolean = false
+    override suspend fun consentSession(walletId: String, coldkeySs58: String): Result<BittensorProofSession> =
+        Result.failure(EarningsUnavailableException())
+    override suspend fun consentSubmit(coldkeySs58: String, message: String, signature: String): Result<Unit> =
+        Result.failure(EarningsUnavailableException())
     override suspend fun accountEpochs(): Result<List<AccountEpoch>> = Result.success(emptyList())
     override suspend fun head(): Result<SnHeadState?> = Result.success(null)
     override fun formatAlpha(rao: Long): String = EarningsFormat.alpha(rao)
@@ -394,6 +422,50 @@ class SampleProtocolSource(
             ledgerAccount.value = account.copy(claimableRao = 0, paidRao = account.finalizedRao)
             onEvent(SnLedgerClaimEvent.Confirmed(account.noId, account.index, txHash, account.claimableRao))
             onEvent(SnLedgerClaimEvent.Done)
+        }
+    }
+
+    // the payout consent: none until the manual sheet's answer is submitted, then
+    // that coldkey, starting next epoch
+    private val consentColdkey = MutableStateFlow<String?>(null)
+
+    override suspend fun consentStatus(): Result<SnConsentStatusState> {
+        delay(300)
+        val coldkey = consentColdkey.value
+        return Result.success(SnConsentStatusState(active = coldkey != null, coldkeySs58 = coldkey ?: ""))
+    }
+
+    override fun hasNetworkCredential(): Boolean = true
+
+    override suspend fun consentSession(walletId: String, coldkeySs58: String): Result<BittensorProofSession> {
+        delay(400)
+        return Result.success(SampleConsentSession(walletId, coldkeySs58))
+    }
+
+    override suspend fun consentSubmit(coldkeySs58: String, message: String, signature: String): Result<Unit> {
+        delay(600)
+        consentColdkey.value = coldkeySs58
+        return Result.success(Unit)
+    }
+
+    /** A manual consent session over a sample message, accepting any well-formed signature by the coldkey. */
+    private class SampleConsentSession(
+        override val walletId: String,
+        private val coldkeySs58: String,
+    ) : BittensorProofSession {
+        override val purpose: String = BittensorWallets.PURPOSE_CONSENT
+        override val message: String = "Approve URnetwork network wallet mapping\n" +
+            "{\"schema\":\"urnetwork-network-wallet-mapping-consent-v1\",\"scope\":\"network\"," +
+            "\"coldkey\":\"$coldkeySs58\",\"from_epoch\":1220,\"through_epoch\":66755}"
+
+        override fun handleSignature(address: String, signature: String, nowMillis: Long): BittensorProofOutcome {
+            if (address.trim() != coldkeySs58) {
+                return BittensorProofOutcome.Refused(BittensorWallets.ERROR_ADDRESS_MISMATCH)
+            }
+            if (!Regex("^0x[0-9a-fA-F]{128}$").matches(signature.trim())) {
+                return BittensorProofOutcome.Refused(BittensorWallets.ERROR_INVALID_SIGNATURE)
+            }
+            return BittensorProofOutcome.Proven(BittensorProof(walletId, purpose, coldkeySs58, message, signature.trim()))
         }
     }
 

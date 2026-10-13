@@ -991,6 +991,17 @@
     <string name="site_payment_error_plan_unavailable">Dieser Tarif ist gerade nicht verfügbar. Versuche es später erneut.</string>
     <string name="site_save_your_seedphrase">Sichere deine Seedphrase</string>
     <string name="skip">Überspringen</string>
+    <string name="sn_consent_active">Einnahmen werden an %1$s ausgezahlt</string>
+    <string name="sn_consent_body">Signiere einmal mit deiner Bittensor-Wallet, damit die Einnahmen dieses Netzwerks an sie ausgezahlt werden.</string>
+    <string name="sn_consent_change">Wallet wechseln</string>
+    <string name="sn_consent_change_note">Eine neue Wallet gilt ab der nächsten Epoche.</string>
+    <string name="sn_consent_expired">Die Anfrage ist abgelaufen. Versuche es erneut.</string>
+    <string name="sn_consent_failed">Die Signatur passt nicht zu dieser Wallet. Versuche es erneut.</string>
+    <string name="sn_consent_none">Noch keine Auszahlungs-Wallet. Einnahmen werden erst ausgezahlt, wenn du signierst.</string>
+    <string name="sn_consent_owner_only">Nur der Inhaber des Netzwerks kann die Auszahlungs-Wallet wählen.</string>
+    <string name="sn_consent_sign">Mit Wallet signieren</string>
+    <string name="sn_consent_signing">Warten auf die Signatur deiner Wallet…</string>
+    <string name="sn_consent_title">Zustimmung zur Auszahlung</string>
     <string name="sn_ledger_claimable">Einlösbar</string>
     <string name="sn_ledger_earned">Verdient</string>
     <string name="sn_ledger_paid">Ausgezahlt</string>

@@ -991,6 +991,17 @@
     <string name="site_payment_error_plan_unavailable">यह प्लान अभी उपलब्ध नहीं है। बाद में फिर से कोशिश करें।</string>
     <string name="site_save_your_seedphrase">अपना सीडफ़्रेज़ सहेजें</string>
     <string name="skip">छोड़ें</string>
+    <string name="sn_consent_active">कमाई का भुगतान %1$s पर होता है</string>
+    <string name="sn_consent_body">अपने Bittensor वॉलेट से एक बार साइन करें, ताकि इस नेटवर्क की कमाई का भुगतान उसी वॉलेट में हो।</string>
+    <string name="sn_consent_change">वॉलेट बदलें</string>
+    <string name="sn_consent_change_note">नया वॉलेट अगले एपोक से लागू होता है।</string>
+    <string name="sn_consent_expired">अनुरोध की समय-सीमा समाप्त हो गई है। पुनः प्रयास करें।</string>
+    <string name="sn_consent_failed">हस्ताक्षर इस वॉलेट से मेल नहीं खाया। पुनः प्रयास करें।</string>
+    <string name="sn_consent_none">अभी कोई पेआउट वॉलेट नहीं है। जब तक आप साइन नहीं करते, कमाई का भुगतान नहीं होता।</string>
+    <string name="sn_consent_owner_only">केवल नेटवर्क का मालिक ही पेआउट वॉलेट चुन सकता है।</string>
+    <string name="sn_consent_sign">वॉलेट से साइन करें</string>
+    <string name="sn_consent_signing">आपके वॉलेट के हस्ताक्षर की प्रतीक्षा है…</string>
+    <string name="sn_consent_title">पेआउट सहमति</string>
     <string name="sn_ledger_claimable">दावा योग्य</string>
     <string name="sn_ledger_earned">अर्जित</string>
     <string name="sn_ledger_paid">भुगतान हो चुका</string>

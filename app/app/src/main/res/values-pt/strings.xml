@@ -991,6 +991,17 @@
     <string name="site_payment_error_plan_unavailable">Este plano não está disponível de momento. Tente novamente mais tarde.</string>
     <string name="site_save_your_seedphrase">Guarde a sua frase-semente</string>
     <string name="skip">Ignorar</string>
+    <string name="sn_consent_active">Os ganhos são pagos a %1$s</string>
+    <string name="sn_consent_body">Assine uma vez com a sua carteira Bittensor para que os ganhos desta rede sejam pagos nela.</string>
+    <string name="sn_consent_change">Mudar de carteira</string>
+    <string name="sn_consent_change_note">Uma nova carteira entra em vigor a partir da próxima época.</string>
+    <string name="sn_consent_expired">O pedido expirou. Tente novamente.</string>
+    <string name="sn_consent_failed">A assinatura não corresponde a esta carteira. Tente novamente.</string>
+    <string name="sn_consent_none">Ainda não há carteira de pagamento. Os ganhos só são pagos depois de assinar.</string>
+    <string name="sn_consent_owner_only">Só o proprietário da rede pode escolher a carteira de pagamento.</string>
+    <string name="sn_consent_sign">Assinar com a carteira</string>
+    <string name="sn_consent_signing">A aguardar a assinatura da sua carteira…</string>
+    <string name="sn_consent_title">Consentimento de pagamento</string>
     <string name="sn_ledger_claimable">Disponível para reivindicar</string>
     <string name="sn_ledger_earned">Ganho</string>
     <string name="sn_ledger_paid">Pago</string>

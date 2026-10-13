@@ -30,6 +30,8 @@ class BittensorWalletConnectBridgeTest {
         override val transport: String = BittensorWallets.TRANSPORT_BROWSER_BRIDGE
         val outcomes = ArrayDeque<BittensorProofOutcome>()
         val returns = mutableListOf<Pair<String, Long>>()
+        var stillWaiting = false
+        override val waitingForReturn: Boolean get() = stillWaiting
 
         override fun handleSignature(address: String, signature: String, nowMillis: Long): BittensorProofOutcome =
             BittensorProofOutcome.Refused("wrong_transport")
@@ -127,6 +129,29 @@ class BittensorWalletConnectBridgeTest {
             bittensorReturnAction("ur://bittensor-sign-message?errorCode=address_not_in_wallet", 3L, returns),
         )
         assertFalse(returns.waiting)
+    }
+
+    // CONSENT.md 10: any app can fire a return, so the wait follows what the
+    // session did, not the refusal's code
+    @Test
+    fun `a return the session refused while it still waits leaves the wait, and one that ended it ends the wait`() {
+        val returns = BittensorBridgeReturns()
+        val session = BridgeSession("walletconnect", "consent", message, bridgeUrl)
+        returns.begin(session)
+        assertEquals("consent", returns.waitingPurpose)
+        session.stillWaiting = true
+        session.outcomes.add(BittensorProofOutcome.Refused("message_mismatch"))
+        assertEquals(BittensorReturnAction.Legacy, bittensorReturnAction("ur://bittensor-sign-message?forged", 1L, returns))
+        assertTrue(returns.waiting)
+        // the session's own page failed the attempt: the session is over
+        session.stillWaiting = false
+        session.outcomes.add(BittensorProofOutcome.Refused("wallet_error", null, "user_rejected"))
+        assertEquals(
+            BittensorReturnAction.Failed("consent", "wallet_error", null, "user_rejected", "walletconnect"),
+            bittensorReturnAction("ur://bittensor-sign-message?errorCode=user_rejected", 2L, returns),
+        )
+        assertFalse(returns.waiting)
+        assertNull(returns.waitingPurpose)
     }
 
     // the bridge page hands a failure back with its code (sdk

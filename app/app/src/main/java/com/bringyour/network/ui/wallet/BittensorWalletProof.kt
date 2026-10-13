@@ -10,8 +10,8 @@ import kotlinx.coroutines.flow.asStateFlow
  * The app side of a Bittensor coldkey proof: pick a wallet, show the
  * server-issued challenge, take the pasted address and signature, and hand a
  * proof to the flow that asked (sign-in, the create-network second
- * signature, the Earnings coldkey connect, or adding the wallet as a sign-in
- * method).
+ * signature, the Earnings coldkey connect, adding the wallet as a sign-in
+ * method, or the network's payout consent).
  *
  * The protocol lives in the SDK (`sdk/bittensor_wallet.go`,
  * `BittensorWalletSession`): what is signed, and whether an answer is
@@ -47,6 +47,9 @@ object BittensorWallets {
     const val PURPOSE_CONNECT = "connect"
     // add the wallet as a sign-in method to the signed-in network (/auth/add-auth)
     const val PURPOSE_ADD = "add"
+    // mirror sdk BittensorWalletPurposeConsent: sign the network's payout
+    // consent (SetNetworkConsentChallenge), never a sign-in challenge
+    const val PURPOSE_CONSENT = "consent"
 
     // the app's registered return link: the bridge page returns here
     const val REDIRECT_LINK = "ur://bittensor-sign-message"
@@ -191,6 +194,11 @@ interface BittensorProofSession {
     fun bridgeUrl(): String? = null
     fun handleBridgeReturn(uri: String, nowMillis: Long): BittensorProofOutcome =
         BittensorProofOutcome.Refused(BittensorWallets.ERROR_NOT_RETURN)
+    /**
+     * The session still waits for its bridge return (sdk state
+     * awaiting_wallet): it refused the last one without ending.
+     */
+    val waitingForReturn: Boolean get() = false
 }
 
 /** A bridge return handed to the waiting session. */
@@ -219,6 +227,9 @@ class BittensorBridgeReturns {
 
     val waiting: Boolean get() = pending != null
 
+    /** The purpose of the waiting session, or null. */
+    val waitingPurpose: String? get() = pending?.purpose
+
     fun begin(session: BittensorProofSession) {
         pending = session
     }
@@ -235,7 +246,10 @@ class BittensorBridgeReturns {
                 BittensorBridgeReturn.Proven(outcome.proof)
             }
             is BittensorProofOutcome.Refused -> {
-                if (outcome.code in BittensorWallets.foreignReturnCodes) {
+                // by what the session did: a return it refused while it still waits (any app
+                // can fire one, forged or mismatched) leaves the wait; a refusal that ended
+                // it (its page's failure for this attempt, its expiry) ends the wait
+                if (outcome.code in BittensorWallets.foreignReturnCodes || session.waitingForReturn) {
                     BittensorBridgeReturn.Ignored
                 } else {
                     pending = null
@@ -268,6 +282,8 @@ sealed class BittensorProofStage {
         val address: String,
         val signature: String,
         @StringRes val errorRes: Int? = null,
+        // the session's code for the refusal errorRes shows (sdk BittensorWalletError*)
+        val errorCode: String? = null,
     ) : BittensorProofStage()
 }
 
@@ -363,12 +379,12 @@ class BittensorProofFlow(
 
     fun updateAddress(address: String) {
         val s = _stage.value as? BittensorProofStage.Signing ?: return
-        _stage.value = s.copy(address = address, errorRes = null)
+        _stage.value = s.copy(address = address, errorRes = null, errorCode = null)
     }
 
     fun updateSignature(signature: String) {
         val s = _stage.value as? BittensorProofStage.Signing ?: return
-        _stage.value = s.copy(signature = signature, errorRes = null)
+        _stage.value = s.copy(signature = signature, errorRes = null, errorCode = null)
     }
 
     /** The proof when the session accepts the answer (the sheets close); else null with the reason shown. */
@@ -380,7 +396,7 @@ class BittensorProofFlow(
                 outcome.proof
             }
             is BittensorProofOutcome.Refused -> {
-                _stage.value = s.copy(errorRes = BittensorWallets.errorRes(outcome.code))
+                _stage.value = s.copy(errorRes = BittensorWallets.errorRes(outcome.code), errorCode = outcome.code)
                 null
             }
         }
@@ -395,13 +411,14 @@ class BittensorProofFlow(
 }
 
 /** Where a proof goes next. */
-enum class BittensorProofRoute { LOGIN, CREATE_NETWORK, CONNECT_WALLET, ADD_SIGN_IN }
+enum class BittensorProofRoute { LOGIN, CREATE_NETWORK, CONNECT_WALLET, ADD_SIGN_IN, CONSENT }
 
 fun bittensorProofRoute(proof: BittensorProof): BittensorProofRoute? = when (proof.purpose) {
     BittensorWallets.PURPOSE_LOGIN -> BittensorProofRoute.LOGIN
     BittensorWallets.PURPOSE_CREATE -> BittensorProofRoute.CREATE_NETWORK
     BittensorWallets.PURPOSE_CONNECT -> BittensorProofRoute.CONNECT_WALLET
     BittensorWallets.PURPOSE_ADD -> BittensorProofRoute.ADD_SIGN_IN
+    BittensorWallets.PURPOSE_CONSENT -> BittensorProofRoute.CONSENT
     else -> null
 }
 

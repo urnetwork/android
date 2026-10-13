@@ -195,6 +195,9 @@ class EarningsViewModel @Inject constructor(
     // settlement v2: its tile beside the v1 claims, and its claim dialog
     val ledgerFlow = SnLedgerFlow(viewModelScope) { _wallet.value != null }
 
+    // the network's payout consent beside the v2 tile, signed through its own wallet sheets
+    val consentFlow = SnConsentFlow(viewModelScope)
+
     var isRefreshing by mutableStateOf(false)
         private set
 
@@ -249,6 +252,8 @@ class EarningsViewModel @Inject constructor(
                 launch { refreshWallet() }
                 launch { refreshEpochs() }
                 launch { refreshHead() }
+                // the network's consent, read with or without a wallet entry
+                launch { consentFlow.refresh() }
             }
             if (_wallet.value != null) {
                 refreshSettlements()
@@ -405,6 +410,7 @@ class EarningsViewModel @Inject constructor(
      */
     fun onScreenResumed() {
         proofFlow.onResumed()
+        consentFlow.onResumed()
         val s = _connectState.value
         if (s is WalletConnectState.AwaitingSignature || s is WalletConnectState.RequestingChallenge) {
             _connectState.value = WalletConnectState.Idle
@@ -727,6 +733,7 @@ class EarningsViewModel @Inject constructor(
         byDevice = device
         source = if (device == null) NoProtocolSource else createProtocolSource(device)
         ledgerFlow.reset(source)
+        consentFlow.reset(source)
 
         _wallet.value = null
         _walletLoaded.value = false
@@ -793,6 +800,10 @@ class EarningsViewModel @Inject constructor(
         const val SN_CODE_CHAIN_NOT_CONFIGURED = "chain_not_configured"
         // POST /sn/wallet: the signature is not from the entered address (bittensor_error_signature_mismatch)
         const val SN_CODE_SIGNATURE_MISMATCH = "signature_mismatch"
+        // the payout consent's refusals in the SDK's "code: message" form (sn_consent_owner_only,
+        // sn_consent_expired); challenge_expired is also the wallet session's own expiry code
+        const val SN_CODE_NETWORK_OWNER_ONLY = "network_owner_only"
+        const val SN_CODE_CHALLENGE_EXPIRED = "challenge_expired"
 
         /** SDK claim failures arrive as "<code>: <reason>"; the sample source sends bare codes. */
         fun claimFailureCode(message: String?): String? =

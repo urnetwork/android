@@ -991,6 +991,17 @@
     <string name="site_payment_error_plan_unavailable">แพ็กเกจนี้ไม่พร้อมใช้งานในขณะนี้ โปรดลองอีกครั้งภายหลัง</string>
     <string name="site_save_your_seedphrase">บันทึกซีดเฟรสของคุณ</string>
     <string name="skip">ข้าม</string>
+    <string name="sn_consent_active">รายได้จะจ่ายไปที่ %1$s</string>
+    <string name="sn_consent_body">ลงนามครั้งเดียวด้วยกระเป๋าเงิน Bittensor ของคุณ เพื่อให้รายได้ของเครือข่ายนี้จ่ายเข้ากระเป๋าเงินนั้น</string>
+    <string name="sn_consent_change">เปลี่ยนกระเป๋าเงิน</string>
+    <string name="sn_consent_change_note">กระเป๋าเงินใหม่จะมีผลตั้งแต่อีพอคถัดไป</string>
+    <string name="sn_consent_expired">คำขอหมดอายุแล้ว ลองอีกครั้ง</string>
+    <string name="sn_consent_failed">ลายเซ็นไม่ตรงกับกระเป๋าเงินนี้ ลองอีกครั้ง</string>
+    <string name="sn_consent_none">ยังไม่มีกระเป๋ารับยอดจ่าย รายได้จะไม่ถูกจ่ายจนกว่าคุณจะลงนาม</string>
+    <string name="sn_consent_owner_only">เฉพาะเจ้าของเครือข่ายเท่านั้นที่เลือกกระเป๋ารับยอดจ่ายได้</string>
+    <string name="sn_consent_sign">ลงนามด้วยกระเป๋าเงิน</string>
+    <string name="sn_consent_signing">กำลังรอลายเซ็นจากกระเป๋าเงินของคุณ…</string>
+    <string name="sn_consent_title">ความยินยอมรับยอดจ่าย</string>
     <string name="sn_ledger_claimable">รับได้</string>
     <string name="sn_ledger_earned">รายได้</string>
     <string name="sn_ledger_paid">จ่ายแล้ว</string>

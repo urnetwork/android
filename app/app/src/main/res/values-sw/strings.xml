@@ -991,6 +991,17 @@
     <string name="site_payment_error_plan_unavailable">Mpango huu haupatikani kwa sasa. Jaribu tena baadaye.</string>
     <string name="site_save_your_seedphrase">Hifadhi seedphrase yako</string>
     <string name="skip">Ruka</string>
+    <string name="sn_consent_active">Mapato yanalipwa kwa %1$s</string>
+    <string name="sn_consent_body">Tia sahihi mara moja kwa pochi yako ya Bittensor ili mapato ya mtandao huu yalipwe kwenye pochi hiyo.</string>
+    <string name="sn_consent_change">Badilisha pochi</string>
+    <string name="sn_consent_change_note">Pochi mpya inaanza kutumika kuanzia kipindi kijacho.</string>
+    <string name="sn_consent_expired">Ombi limeisha muda. Jaribu tena.</string>
+    <string name="sn_consent_failed">Sahihi hailingani na pochi hii. Jaribu tena.</string>
+    <string name="sn_consent_none">Bado hakuna pochi ya malipo. Mapato hayalipwi hadi utie sahihi.</string>
+    <string name="sn_consent_owner_only">Mmiliki wa mtandao pekee ndiye anayeweza kuchagua pochi ya malipo.</string>
+    <string name="sn_consent_sign">Tia sahihi kwa pochi</string>
+    <string name="sn_consent_signing">Inasubiri sahihi ya pochi yako…</string>
+    <string name="sn_consent_title">Idhini ya malipo</string>
     <string name="sn_ledger_claimable">Inayoweza kudaiwa</string>
     <string name="sn_ledger_earned">Mapato</string>
     <string name="sn_ledger_paid">Imelipwa</string>

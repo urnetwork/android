@@ -5,6 +5,7 @@ import com.bringyour.network.ui.settings.BittensorAddSignInReturns
 import com.bringyour.network.ui.settings.SsoAddSignInReturns
 import com.bringyour.network.ui.shared.viewmodels.PendingSolanaPaymentStore
 import com.bringyour.network.ui.wallet.BittensorBridgeReturns
+import com.bringyour.network.ui.wallet.SnConsentReturns
 
 /**
  * Clears what the network signing out left outside the sdk's local state
@@ -18,6 +19,8 @@ import com.bringyour.network.ui.wallet.BittensorBridgeReturns
  *   to the next network signed in.
  * - The add sheet's returns waiting to be taken (sso and Bittensor), for the
  *   same reason.
+ * - The payout consent's Bittensor return waiting for the Earnings screen: a
+ *   consent the network that left signed.
  * - The Bittensor wallet session waiting for its bridge return: an add, or a
  *   payout wallet connect, for the network that left.
  * - The Solana payment waiting for its check: a payment of the network that
@@ -31,6 +34,7 @@ internal fun clearSignedOutNetworkState(
     ssoAttempts.forEach { it.clear() }
     SsoAddSignInReturns.take()
     BittensorAddSignInReturns.take()
+    SnConsentReturns.take()
     bittensorBridgeReturns.cancel()
     pendingSolanaPayment.clear()
 }
