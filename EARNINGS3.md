@@ -229,6 +229,42 @@ line are unchanged.
   locale; the localizations store needs them as keys before the next
   regeneration.
 
+## Payout consent (Android, 2026-10-13)
+
+An app-only provider is paid only under a network consent: the network owner
+signs once with a coldkey, and it covers every provider client of the network
+(v2 `CONSENT.md`). A "Payout consent" block sits under the Settlement v2 tile.
+
+- **Status.** `Api.snNetworkConsentStatus`, read with the settlements. Not
+  active: "No payout wallet yet…", why to sign, and Sign with wallet. Active
+  (in force, or starting next epoch, as every new consent does): "Earnings are
+  paid to 5Grw…utQY", Change wallet, and "A new wallet takes effect from the
+  next epoch." An unreadable status shows the section's Try again.
+- **Signing.** Sign and Change run the same steps as on every app: the
+  sign-in wallet chooser; the coldkey the consent will name, entered (never
+  prefilled: it may differ from the sign-in wallet) and checked with
+  `validateSs58` before any request; `snNetworkConsentChallenge` for it in an
+  SDK session of the `consent` purpose, which takes the result through
+  `setNetworkConsentChallenge`, so the wallet signs only the server's message,
+  pasted on the manual sheet (Talisman, TAO.com) or on the WalletConnect
+  bridge page, whose return each flavor's LoginActivity hands to the screen
+  (`SnConsentReturns`). A challenge that arrives after its attempt was left is
+  dropped. A proof goes to `snNetworkConsentSubmit` only when its coldkey and
+  message are the challenge's; then the status is read again.
+- **Refusals.** `challenge_expired` (the session's or the server's): "The
+  request expired. Try again."; `signature_mismatch`, or a proof of another
+  message or coldkey: "The signature didn't match this wallet. Try again.";
+  `network_owner_only`: "Only the network owner can choose the payout
+  wallet.", with Sign disabled. Others show as a failed connect does; a failed
+  challenge returns to the chooser's error.
+- **Code.** `ui/wallet/SnConsent.kt` (state, presentation, `SnConsentFlow`
+  owned by `EarningsViewModel`, the bridge hand-off), `SnConsentTile.kt`, and
+  `EarningsProtocolSource.consentStatus/consentSession/consentSubmit`. Strings
+  `sn_consent_*` come from the store in every locale. The unit tests run
+  against fakes; compiling against the SDK's own AAR needs CI.
+- **Before release.** The WalletConnect path needs the ur.io bridge page that
+  signs a consent (`purpose=consent`, mmm `v2/consent-signing`) deployed.
+
 ## Top 200
 
 Head-miner UIDs: the top ~200 fleets by split-adjusted routable egress-IP score
