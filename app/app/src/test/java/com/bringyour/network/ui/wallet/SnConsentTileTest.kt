@@ -91,7 +91,12 @@ class SnConsentTileTest {
     fun `only the owner-only refusal holds Sign`() {
         // C4, C7: no other attempt of a session that is not the owner's can sign
         assertFalse(snConsentTile(loaded(false).copy(outcome = SnConsentOutcome.OwnerOnly), BittensorProofStage.Hidden).actionEnabled)
-        for (outcome in listOf(SnConsentOutcome.Expired, SnConsentOutcome.SignatureMismatch, SnConsentOutcome.Failed("busy"))) {
+        for (outcome in listOf(
+            SnConsentOutcome.Expired,
+            SnConsentOutcome.SignatureMismatch,
+            SnConsentOutcome.WalletError("user_rejected", BittensorWallets.WALLET_CONNECT),
+            SnConsentOutcome.Failed("busy"),
+        )) {
             assertTrue(outcome.toString(), snConsentTile(loaded(true).copy(outcome = outcome), BittensorProofStage.Hidden).actionEnabled)
         }
     }
@@ -116,5 +121,12 @@ class SnConsentTileTest {
         assertEquals(R.string.sn_consent_failed, snConsentOutcomeRes(SnConsentOutcome.SignatureMismatch))
         assertEquals(R.string.sn_consent_owner_only, snConsentOutcomeRes(SnConsentOutcome.OwnerOnly))
         assertNull(snConsentOutcomeRes(SnConsentOutcome.Failed("the server is busy")))
+        // C10: a wallet page's failure reads the existing wallet error line for its code
+        val declined = SnConsentOutcome.WalletError(BittensorWallets.BRIDGE_ERROR_USER_REJECTED, BittensorWallets.WALLET_CONNECT)
+        assertNull(snConsentOutcomeRes(declined))
+        assertEquals(
+            "${R.string.bittensor_error_user_rejected}:null",
+            snConsentWalletErrorText(declined, "WalletConnect") { res, walletName -> "$res:$walletName" },
+        )
     }
 }

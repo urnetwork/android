@@ -20,6 +20,7 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
@@ -121,11 +122,17 @@ fun SnConsentBlock(
         }
 
         tile.outcome?.let { outcome ->
+            val context = LocalContext.current
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                snConsentOutcomeRes(outcome)?.let { stringResource(id = it) }
-                    ?: (outcome as? SnConsentOutcome.Failed)?.detail
-                    ?: stringResource(id = R.string.login_error),
+                when (outcome) {
+                    is SnConsentOutcome.WalletError ->
+                        snConsentWalletErrorText(outcome, bittensorWalletDisplayName(outcome.walletId)) { res, walletName ->
+                            if (walletName == null) context.getString(res) else context.getString(res, walletName)
+                        }
+                    is SnConsentOutcome.Failed -> outcome.detail ?: stringResource(id = R.string.login_error)
+                    else -> stringResource(id = snConsentOutcomeRes(outcome) ?: R.string.login_error)
+                },
                 style = MaterialTheme.typography.bodyMedium,
                 color = Red
             )

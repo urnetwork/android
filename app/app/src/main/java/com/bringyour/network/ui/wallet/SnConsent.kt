@@ -56,6 +56,12 @@ sealed class SnConsentOutcome {
     /** the session is not the network owner's (sn_consent_owner_only) */
     object OwnerOnly : SnConsentOutcome()
 
+    /**
+     * the wallet's page failed this attempt (declined, the coldkey is not in
+     * the wallet, ...): the app's line for the page's code, as sign-in shows it
+     */
+    data class WalletError(val bridgeCode: String?, val walletId: String) : SnConsentOutcome()
+
     /** anything else, shown as a failed wallet connect is: the detail */
     data class Failed(val detail: String?) : SnConsentOutcome()
 }
@@ -120,14 +126,28 @@ fun snConsentTile(state: SnConsentState, stage: BittensorProofStage): SnConsentT
     )
 }
 
-/** The pinned line for a refusal; null for [SnConsentOutcome.Failed], which shows its detail. */
+/**
+ * The pinned line for a refusal; null for [SnConsentOutcome.Failed], which
+ * shows its detail, and [SnConsentOutcome.WalletError]
+ * ([snConsentWalletErrorText]).
+ */
 @StringRes
 fun snConsentOutcomeRes(outcome: SnConsentOutcome): Int? = when (outcome) {
     SnConsentOutcome.Expired -> R.string.sn_consent_expired
     SnConsentOutcome.SignatureMismatch -> R.string.sn_consent_failed
     SnConsentOutcome.OwnerOnly -> R.string.sn_consent_owner_only
-    is SnConsentOutcome.Failed -> null
+    is SnConsentOutcome.WalletError, is SnConsentOutcome.Failed -> null
 }
+
+/**
+ * The existing wallet error line for the page's code (the wallet named where
+ * the line names it), else the general one. Never text from the return.
+ */
+fun snConsentWalletErrorText(
+    outcome: SnConsentOutcome.WalletError,
+    walletName: String,
+    getString: (res: Int, walletName: String?) -> String,
+): String = BittensorWallets.refusalText(BittensorWallets.ERROR_WALLET, null, outcome.bridgeCode, walletName, getString)
 
 /**
  * An SDK refusal by its code: SnSetWalletResult.Error.Code
@@ -153,15 +173,19 @@ sealed class SnConsentReturn {
     /** the waiting session's challenge expired, by the session's own clock */
     object Expired : SnConsentReturn()
 
-    /** a return the waiting consent session refused, forged or mismatched: it keeps waiting */
+    /** the wallet's page failed this attempt and the session ended: the page's code, when the app knows it */
+    data class WalletError(val bridgeCode: String?, val walletId: String) : SnConsentReturn()
+
+    /** a return the consent session refused while it still waits, forged or mismatched */
     object Ignored : SnConsentReturn()
 }
 
 /**
- * The consent's share of a `ur://bittensor-sign-message` return: the proof
- * or the expiry of a consent session, or a return it refused while it waits
- * ([BittensorBridgeReturns] keeps a consent session waiting on those); else
- * null (another flow's, or a pre-helper return, handled as before).
+ * The consent's share of a `ur://bittensor-sign-message` return, by what its
+ * session did: its proof; the refusal that ended it (its expiry, or its
+ * page's failure for this attempt); or a return it refused while it still
+ * waits, which [BittensorBridgeReturns] leaves waiting. Else null (another
+ * flow's, or a pre-helper return, handled as before).
  */
 fun snConsentReturn(
     action: BittensorReturnAction,
@@ -172,7 +196,8 @@ fun snConsentReturn(
     is BittensorReturnAction.Failed -> when {
         action.purpose != BittensorWallets.PURPOSE_CONSENT -> null
         action.code == BittensorWallets.ERROR_EXPIRED -> SnConsentReturn.Expired
-        else -> SnConsentReturn.Ignored
+        // BittensorWallets.ERROR_WALLET, with the page's code
+        else -> SnConsentReturn.WalletError(action.bridgeCode, action.walletId)
     }
     BittensorReturnAction.Legacy ->
         if (bridgeReturns.waitingPurpose == BittensorWallets.PURPOSE_CONSENT) SnConsentReturn.Ignored else null
@@ -361,8 +386,9 @@ class SnConsentFlow(
 
     /**
      * A WalletConnect bridge return, checked by the waiting session in the
-     * LoginActivity. A refused one changes nothing: the session and its sheet
-     * keep waiting for the wallet's own return, or the user's Cancel.
+     * LoginActivity. One the session refused while it still waits changes
+     * nothing: the session and its sheet keep waiting for the wallet's own
+     * return, or the user's Cancel.
      */
     fun handleReturn(consentReturn: SnConsentReturn) {
         when (consentReturn) {
@@ -373,6 +399,10 @@ class SnConsentFlow(
             SnConsentReturn.Expired -> {
                 proofFlow.dismiss()
                 fail(SnConsentOutcome.Expired)
+            }
+            is SnConsentReturn.WalletError -> {
+                proofFlow.dismiss()
+                fail(SnConsentOutcome.WalletError(consentReturn.bridgeCode, consentReturn.walletId))
             }
             SnConsentReturn.Ignored -> {}
         }

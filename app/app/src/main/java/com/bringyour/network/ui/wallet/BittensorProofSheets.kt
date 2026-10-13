@@ -65,6 +65,8 @@ class SdkBittensorProofSession(
     override fun handleBridgeReturn(uri: String, nowMillis: Long): BittensorProofOutcome =
         outcome(session.handleBridgeReturn(uri, nowMillis))
 
+    override val waitingForReturn: Boolean get() = session.state() == Sdk.BittensorWalletStateAwaitingWallet
+
     private fun outcome(result: com.bringyour.sdk.BittensorWalletResult): BittensorProofOutcome {
         val proof = result.proof
         if (result.errorCode.isNullOrEmpty() && proof != null) {

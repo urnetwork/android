@@ -55,6 +55,8 @@ class SnConsentWiringTest {
         assertTrue(start.contains("err != null"))
         assertTrue(start.contains("session.setNetworkConsentChallenge(result, nowMillis())"))
         assertTrue(start.contains("continuation.resume(Result.success(SdkBittensorProofSession(session)))"))
+        // C10, probe N1: the wait follows the SDK session's own state
+        assertTrue(sheets.contains("override val waitingForReturn: Boolean get() = session.state() == Sdk.BittensorWalletStateAwaitingWallet"))
         // no other message reaches the session: no login challenge, no message of the app's
         assertFalse(start.contains("setChallenge("))
         assertFalse(start.contains("authWalletChallenge"))

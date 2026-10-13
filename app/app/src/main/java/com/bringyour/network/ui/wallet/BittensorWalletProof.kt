@@ -194,6 +194,11 @@ interface BittensorProofSession {
     fun bridgeUrl(): String? = null
     fun handleBridgeReturn(uri: String, nowMillis: Long): BittensorProofOutcome =
         BittensorProofOutcome.Refused(BittensorWallets.ERROR_NOT_RETURN)
+    /**
+     * The session still waits for its bridge return (sdk state
+     * awaiting_wallet): it refused the last one without ending.
+     */
+    val waitingForReturn: Boolean get() = false
 }
 
 /** A bridge return handed to the waiting session. */
@@ -241,11 +246,10 @@ class BittensorBridgeReturns {
                 BittensorBridgeReturn.Proven(outcome.proof)
             }
             is BittensorProofOutcome.Refused -> {
-                // a consent session ends only on its proof or its own expiry: any app can
-                // fire a return, so a forged or mismatched one leaves it waiting
-                if (outcome.code in BittensorWallets.foreignReturnCodes ||
-                    (session.purpose == BittensorWallets.PURPOSE_CONSENT && outcome.code != BittensorWallets.ERROR_EXPIRED)
-                ) {
+                // by what the session did: a return it refused while it still waits (any app
+                // can fire one, forged or mismatched) leaves the wait; a refusal that ended
+                // it (its page's failure for this attempt, its expiry) ends the wait
+                if (outcome.code in BittensorWallets.foreignReturnCodes || session.waitingForReturn) {
                     BittensorBridgeReturn.Ignored
                 } else {
                     pending = null
