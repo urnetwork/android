@@ -160,6 +160,32 @@ class BittensorWalletProofTest {
     }
 
     @Test
+    fun `a refusal keeps the session's code beside its message, and editing clears both`() {
+        // CONSENT.md 7: the consent flow closes the sheet on the session's challenge_expired
+        val flow = BittensorProofFlow { 1L }
+        flow.open(BittensorWallets.PURPOSE_CONSENT, alice)
+        val request = flow.choose(BittensorWallets.TALISMAN)!!
+        flow.sessionReady(request, fakeFor(request, refuseWith = BittensorWallets.ERROR_EXPIRED))
+        flow.updateSignature(signature)
+        assertNull(flow.submit())
+        val refused = flow.stage.value as BittensorProofStage.Signing
+        assertEquals(BittensorWallets.ERROR_EXPIRED, refused.errorCode)
+        assertEquals(R.string.bittensor_error_challenge_expired, refused.errorRes)
+        flow.updateSignature(signature + " ")
+        assertNull((flow.stage.value as BittensorProofStage.Signing).errorCode)
+        assertNull((flow.stage.value as BittensorProofStage.Signing).errorRes)
+    }
+
+    @Test
+    fun `a consent proof routes to the consent`() {
+        // CONSENT.md 7: the consent purpose (sdk BittensorWalletPurposeConsent)
+        assertEquals(
+            BittensorProofRoute.CONSENT,
+            bittensorProofRoute(BittensorProof("talisman", BittensorWallets.PURPOSE_CONSENT, alice, message, signature)),
+        )
+    }
+
+    @Test
     fun `the create network hop skips the chooser and binds the address`() {
         val flow = BittensorProofFlow { 1L }
         val request = flow.openForWallet(BittensorWallets.TAO_COM, BittensorWallets.PURPOSE_CREATE, alice)

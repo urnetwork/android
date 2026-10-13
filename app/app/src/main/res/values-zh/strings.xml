@@ -991,6 +991,17 @@
     <string name="site_payment_error_plan_unavailable">此方案暂不可用。请稍后重试。</string>
     <string name="site_save_your_seedphrase">保存你的助记词</string>
     <string name="skip">跳过</string>
+    <string name="sn_consent_active">收益将支付到 %1$s</string>
+    <string name="sn_consent_body">使用您的 Bittensor 钱包签名一次，此网络的收益就会支付到该钱包。</string>
+    <string name="sn_consent_change">更换钱包</string>
+    <string name="sn_consent_change_note">新钱包从下一个周期开始生效。</string>
+    <string name="sn_consent_expired">请求已过期。请重试。</string>
+    <string name="sn_consent_failed">签名与此钱包不匹配。请重试。</string>
+    <string name="sn_consent_none">暂无支付钱包。您签名后才会支付收益。</string>
+    <string name="sn_consent_owner_only">只有网络所有者才能选择支付钱包。</string>
+    <string name="sn_consent_sign">使用钱包签名</string>
+    <string name="sn_consent_signing">正在等待您的钱包签名…</string>
+    <string name="sn_consent_title">收益支付授权</string>
     <string name="sn_ledger_claimable">可领取</string>
     <string name="sn_ledger_earned">已赚取</string>
     <string name="sn_ledger_paid">已支付</string>

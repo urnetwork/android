@@ -991,6 +991,17 @@
     <string name="site_payment_error_plan_unavailable">このプランは現在ご利用いただけません。後でもう一度お試しください。</string>
     <string name="site_save_your_seedphrase">シードフレーズを保存</string>
     <string name="skip">スキップ</string>
+    <string name="sn_consent_active">収益は %1$s に支払われます</string>
+    <string name="sn_consent_body">Bittensor ウォレットで一度署名すると、このネットワークの収益がそのウォレットに支払われます。</string>
+    <string name="sn_consent_change">ウォレットを変更</string>
+    <string name="sn_consent_change_note">新しいウォレットは次のエポックから有効になります。</string>
+    <string name="sn_consent_expired">リクエストの有効期限が切れました。もう一度お試しください。</string>
+    <string name="sn_consent_failed">署名がこのウォレットと一致しませんでした。もう一度お試しください。</string>
+    <string name="sn_consent_none">支払いウォレットがまだありません。署名するまで収益は支払われません。</string>
+    <string name="sn_consent_owner_only">支払いウォレットを選べるのはネットワークの所有者だけです。</string>
+    <string name="sn_consent_sign">ウォレットで署名</string>
+    <string name="sn_consent_signing">ウォレットの署名を待っています…</string>
+    <string name="sn_consent_title">支払いの同意</string>
     <string name="sn_ledger_claimable">受け取り可能</string>
     <string name="sn_ledger_earned">獲得額</string>
     <string name="sn_ledger_paid">支払い済み</string>

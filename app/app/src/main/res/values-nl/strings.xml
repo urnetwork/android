@@ -991,6 +991,17 @@
     <string name="site_payment_error_plan_unavailable">Dit abonnement is nu niet beschikbaar. Probeer het later opnieuw.</string>
     <string name="site_save_your_seedphrase">Bewaar je seedphrase</string>
     <string name="skip">Overslaan</string>
+    <string name="sn_consent_active">Verdiensten worden uitbetaald aan %1$s</string>
+    <string name="sn_consent_body">Onderteken één keer met je Bittensor-wallet, zodat de verdiensten van dit netwerk naar die wallet worden uitbetaald.</string>
+    <string name="sn_consent_change">Wallet wijzigen</string>
+    <string name="sn_consent_change_note">Een nieuwe wallet gaat in vanaf de volgende epoch.</string>
+    <string name="sn_consent_expired">Het verzoek is verlopen. Probeer het opnieuw.</string>
+    <string name="sn_consent_failed">De handtekening komt niet overeen met deze wallet. Probeer het opnieuw.</string>
+    <string name="sn_consent_none">Nog geen uitbetalingswallet. Verdiensten worden pas uitbetaald als je ondertekent.</string>
+    <string name="sn_consent_owner_only">Alleen de eigenaar van het netwerk kan de uitbetalingswallet kiezen.</string>
+    <string name="sn_consent_sign">Ondertekenen met wallet</string>
+    <string name="sn_consent_signing">Wachten op de handtekening van je wallet…</string>
+    <string name="sn_consent_title">Toestemming voor uitbetaling</string>
     <string name="sn_ledger_claimable">Op te eisen</string>
     <string name="sn_ledger_earned">Verdiend</string>
     <string name="sn_ledger_paid">Uitbetaald</string>

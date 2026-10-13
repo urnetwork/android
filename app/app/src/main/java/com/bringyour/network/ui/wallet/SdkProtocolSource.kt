@@ -271,6 +271,53 @@ class SdkProtocolSource private constructor(
         })
     }
 
+    override suspend fun consentStatus(): Result<SnConsentStatusState> =
+        suspendCancellableCoroutine { continuation ->
+            val api = device.api
+            if (api == null) {
+                continuation.resume(Result.failure(IllegalStateException("no api")))
+                return@suspendCancellableCoroutine
+            }
+            api.snNetworkConsentStatus { result, err ->
+                if (!continuation.isActive) {
+                    return@snNetworkConsentStatus
+                }
+                when {
+                    err != null -> continuation.resume(Result.failure(err))
+                    result == null -> continuation.resume(Result.failure(IllegalStateException("empty consent status")))
+                    else -> continuation.resume(Result.success(SnConsentStatusState(result.active, result.coldkeySs58)))
+                }
+            }
+        }
+
+    override suspend fun consentSession(walletId: String, coldkeySs58: String): Result<BittensorProofSession> {
+        val api = device.api ?: return Result.failure(IllegalStateException("no api"))
+        return startBittensorConsentSession(api, walletId, coldkeySs58)
+    }
+
+    override suspend fun consentSubmit(coldkeySs58: String, message: String, signature: String): Result<Unit> =
+        suspendCancellableCoroutine { continuation ->
+            val api = device.api
+            if (api == null) {
+                continuation.resume(Result.failure(IllegalStateException("no api")))
+                return@suspendCancellableCoroutine
+            }
+            api.snNetworkConsentSubmit(coldkeySs58, message, signature) { result, err ->
+                if (!continuation.isActive) {
+                    return@snNetworkConsentSubmit
+                }
+                when {
+                    err != null -> continuation.resume(Result.failure(err))
+                    result == null -> continuation.resume(Result.failure(IllegalStateException("empty consent submit")))
+                    // signature_mismatch: a well-formed signature that is not the coldkey's
+                    result.error != null -> continuation.resume(
+                        Result.failure(SnProtocolException(result.error.code.ifBlank { null }, result.error.message))
+                    )
+                    else -> continuation.resume(Result.success(Unit))
+                }
+            }
+        }
+
     override suspend fun accountEpochs(): Result<List<AccountEpoch>> =
         suspendCancellableCoroutine { continuation ->
             val api = device.api

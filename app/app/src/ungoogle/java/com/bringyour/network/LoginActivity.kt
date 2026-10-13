@@ -27,6 +27,8 @@ import com.bringyour.network.ui.wallet.BittensorReturnAction
 import com.bringyour.network.ui.wallet.BittensorWallets
 import com.bringyour.network.ui.wallet.bittensorReturnAction
 import com.bringyour.network.ui.wallet.startBittensorBridgeProof
+import com.bringyour.network.ui.wallet.forwardSnConsentReturn
+import com.bringyour.network.ui.wallet.snConsentReturn
 import com.bringyour.network.ui.login.BITTENSOR_SIGN_PURPOSE_LOGIN
 import com.bringyour.network.ui.login.LoginCreateNetworkParams
 import com.bringyour.network.ui.login.LoginViewModel
@@ -147,6 +149,14 @@ class LoginActivity : AppCompatActivity() {
                         // sheet adds the wallet to the signed-in network; never a login
                         Log.i(TAG, "forwardBittensorAddSignInReturn")
                         forwardBittensorAddSignInReturn(this, addReturn, MainActivity::class.java)
+                        return
+                    }
+                    val consentReturn = snConsentReturn(action) { bittensorRefusalMessage(it) }
+                    if (consentReturn != null && app.device != null) {
+                        // the Earnings screen's payout consent started this session: the
+                        // screen submits the signed consent; never a login
+                        Log.i(TAG, "forwardSnConsentReturn")
+                        forwardSnConsentReturn(this, consentReturn, MainActivity::class.java)
                         return
                     }
                     val bridgeUri = when (action) {

@@ -130,6 +130,54 @@ suspend fun startBittensorProofSession(
 }
 
 /**
+ * Starts the SDK session for the network's payout consent: a session of the
+ * consent purpose, then a fresh challenge for the coldkey
+ * (Api.snNetworkConsentChallenge, its range chosen by the SDK). The session
+ * keeps the server's message verbatim and binds the signing account to the
+ * coldkey; the wallet signs only that message, on the manual sheet or the
+ * bridge page. Refusals keep the SDK's "code: message" form
+ * (network_owner_only, challenge_expired).
+ */
+suspend fun startBittensorConsentSession(
+    api: Api,
+    walletId: String,
+    coldkeySs58: String,
+    nowMillis: () -> Long = System::currentTimeMillis,
+    // the WalletConnect Cloud project id (local.properties) the bridge page pairs with
+    walletConnectProjectId: String = BuildConfig.WALLETCONNECT_PROJECT_ID,
+): Result<BittensorProofSession> {
+    val session = try {
+        Sdk.newBittensorWalletSession(
+            walletId,
+            BittensorWallets.PLATFORM,
+            Sdk.BittensorWalletPurposeConsent,
+            BittensorWallets.REDIRECT_LINK,
+        )
+    } catch (e: Exception) {
+        return Result.failure(e)
+    }
+    session.setWalletConnectProjectId(walletConnectProjectId)
+    return suspendCancellableCoroutine { continuation ->
+        api.snNetworkConsentChallenge(coldkeySs58) { result, err ->
+            if (!continuation.isActive) {
+                return@snNetworkConsentChallenge
+            }
+            if (err != null) {
+                continuation.resume(Result.failure(err))
+                return@snNetworkConsentChallenge
+            }
+            try {
+                session.setNetworkConsentChallenge(result, nowMillis())
+                continuation.resume(Result.success(SdkBittensorProofSession(session)))
+            } catch (e: Exception) {
+                Log.i(TAG, "consent challenge: ${e.message}")
+                continuation.resume(Result.failure(e))
+            }
+        }
+    }
+}
+
+/**
  * Starts a browser-bridge proof outside the chooser (the create-network second
  * signature after a WalletConnect sign-in): the session waits in
  * [BittensorBridgeReturns] and the page opens in a Custom Tab.

@@ -991,6 +991,17 @@
     <string name="site_payment_error_plan_unavailable">Este plan no está disponible en este momento. Inténtalo más tarde.</string>
     <string name="site_save_your_seedphrase">Guarda tu frase semilla</string>
     <string name="skip">Omitir</string>
+    <string name="sn_consent_active">Las ganancias se pagan a %1$s</string>
+    <string name="sn_consent_body">Firma una vez con tu billetera de Bittensor para que las ganancias de esta red se paguen en ella.</string>
+    <string name="sn_consent_change">Cambiar billetera</string>
+    <string name="sn_consent_change_note">Una billetera nueva se aplica a partir de la próxima época.</string>
+    <string name="sn_consent_expired">La solicitud caducó. Inténtalo de nuevo.</string>
+    <string name="sn_consent_failed">La firma no coincide con esta billetera. Inténtalo de nuevo.</string>
+    <string name="sn_consent_none">Aún no hay billetera de pago. Las ganancias no se pagan hasta que firmes.</string>
+    <string name="sn_consent_owner_only">Solo el propietario de la red puede elegir la billetera de pago.</string>
+    <string name="sn_consent_sign">Firmar con la billetera</string>
+    <string name="sn_consent_signing">Esperando la firma de tu billetera…</string>
+    <string name="sn_consent_title">Consentimiento de pago</string>
     <string name="sn_ledger_claimable">Por reclamar</string>
     <string name="sn_ledger_earned">Ganado</string>
     <string name="sn_ledger_paid">Pagado</string>

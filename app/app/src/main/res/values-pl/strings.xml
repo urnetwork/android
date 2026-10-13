@@ -991,6 +991,17 @@
     <string name="site_payment_error_plan_unavailable">Ten plan jest teraz niedostępny. Spróbuj ponownie później.</string>
     <string name="site_save_your_seedphrase">Zapisz swoją seedphrase</string>
     <string name="skip">Pomiń</string>
+    <string name="sn_consent_active">Zarobki są wypłacane na %1$s</string>
+    <string name="sn_consent_body">Podpisz raz swoim portfelem Bittensor, aby zarobki tej sieci były na niego wypłacane.</string>
+    <string name="sn_consent_change">Zmień portfel</string>
+    <string name="sn_consent_change_note">Nowy portfel obowiązuje od następnej epoki.</string>
+    <string name="sn_consent_expired">Żądanie wygasło. Spróbuj ponownie.</string>
+    <string name="sn_consent_failed">Podpis nie pasuje do tego portfela. Spróbuj ponownie.</string>
+    <string name="sn_consent_none">Nie masz jeszcze portfela wypłat. Zarobki nie są wypłacane, dopóki nie podpiszesz.</string>
+    <string name="sn_consent_owner_only">Tylko właściciel sieci może wybrać portfel wypłat.</string>
+    <string name="sn_consent_sign">Podpisz portfelem</string>
+    <string name="sn_consent_signing">Oczekiwanie na podpis z Twojego portfela…</string>
+    <string name="sn_consent_title">Zgoda na wypłaty</string>
     <string name="sn_ledger_claimable">Do odebrania</string>
     <string name="sn_ledger_earned">Zarobiono</string>
     <string name="sn_ledger_paid">Wypłacono</string>
