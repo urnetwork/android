@@ -219,7 +219,7 @@ private fun SnConsentNonePreview() {
     URNetworkTheme {
         SnConsentBlock(
             tile = snConsentTile(
-                SnConsentState(SnConsentLoad.Loaded(SnConsentStatusState(active = false, coldkeySs58 = ""))),
+                SnConsentState(SnConsentLoad.Loaded(SnConsentStatusState(active = false, coldkeySs58 = "")), networkCredential = true),
                 BittensorProofStage.Hidden
             ),
             onSign = {},
@@ -237,6 +237,7 @@ private fun SnConsentActivePreview() {
             tile = snConsentTile(
                 SnConsentState(
                     SnConsentLoad.Loaded(SnConsentStatusState(active = true, coldkeySs58 = SampleProtocolSource.SAMPLE_COLDKEY)),
+                    networkCredential = true,
                     outcome = SnConsentOutcome.Expired
                 ),
                 BittensorProofStage.Hidden

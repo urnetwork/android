@@ -133,7 +133,7 @@ class SignedOutNetworkStateTest {
     // Earnings screen, never reaches network B's screen (CONSENT.md 4)
     @Test
     fun aSignOutDropsTheConsentReturnWaitingForTheEarningsScreen() {
-        SnConsentReturns.deliver(SnConsentReturn.Failed(code = "synthetic", message = "synthetic"))
+        SnConsentReturns.deliver(SnConsentReturn.Expired)
 
         clear(listOf(), PendingSolanaPaymentStore(MemoryPrefs()), BittensorBridgeReturns())
 

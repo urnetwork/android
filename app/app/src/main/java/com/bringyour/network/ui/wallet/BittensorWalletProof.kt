@@ -222,6 +222,9 @@ class BittensorBridgeReturns {
 
     val waiting: Boolean get() = pending != null
 
+    /** The purpose of the waiting session, or null. */
+    val waitingPurpose: String? get() = pending?.purpose
+
     fun begin(session: BittensorProofSession) {
         pending = session
     }
@@ -238,7 +241,11 @@ class BittensorBridgeReturns {
                 BittensorBridgeReturn.Proven(outcome.proof)
             }
             is BittensorProofOutcome.Refused -> {
-                if (outcome.code in BittensorWallets.foreignReturnCodes) {
+                // a consent session ends only on its proof or its own expiry: any app can
+                // fire a return, so a forged or mismatched one leaves it waiting
+                if (outcome.code in BittensorWallets.foreignReturnCodes ||
+                    (session.purpose == BittensorWallets.PURPOSE_CONSENT && outcome.code != BittensorWallets.ERROR_EXPIRED)
+                ) {
                     BittensorBridgeReturn.Ignored
                 } else {
                     pending = null

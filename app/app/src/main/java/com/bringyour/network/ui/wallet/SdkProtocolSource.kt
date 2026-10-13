@@ -290,6 +290,9 @@ class SdkProtocolSource private constructor(
             }
         }
 
+    // false on a device provisioned with only a client token, and once the server rejected the network's
+    override fun hasNetworkCredential(): Boolean = device.api?.hasNetworkCredential() == true
+
     override suspend fun consentSession(walletId: String, coldkeySs58: String): Result<BittensorProofSession> {
         val api = device.api ?: return Result.failure(IllegalStateException("no api"))
         return startBittensorConsentSession(api, walletId, coldkeySs58)

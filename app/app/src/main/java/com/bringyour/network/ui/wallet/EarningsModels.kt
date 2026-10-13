@@ -163,6 +163,13 @@ interface EarningsProtocolSource {
     suspend fun consentStatus(): Result<SnConsentStatusState>
 
     /**
+     * the api holds the network credential (Api.hasNetworkCredential): only then
+     * can it ask for and submit a consent; without it the SDK refuses with
+     * network_owner_only
+     */
+    fun hasNetworkCredential(): Boolean
+
+    /**
      * a consent session for the wallet over a fresh challenge for the coldkey
      * (SnNetworkConsentChallenge); refusals in the SDK's "code: message" form
      */
@@ -235,6 +242,7 @@ object NoProtocolSource : EarningsProtocolSource {
         onEvent(SnLedgerClaimEvent.Done)
     }
     override suspend fun consentStatus(): Result<SnConsentStatusState> = Result.failure(EarningsUnavailableException())
+    override fun hasNetworkCredential(): Boolean = false
     override suspend fun consentSession(walletId: String, coldkeySs58: String): Result<BittensorProofSession> =
         Result.failure(EarningsUnavailableException())
     override suspend fun consentSubmit(coldkeySs58: String, message: String, signature: String): Result<Unit> =
@@ -426,6 +434,8 @@ class SampleProtocolSource(
         val coldkey = consentColdkey.value
         return Result.success(SnConsentStatusState(active = coldkey != null, coldkeySs58 = coldkey ?: ""))
     }
+
+    override fun hasNetworkCredential(): Boolean = true
 
     override suspend fun consentSession(walletId: String, coldkeySs58: String): Result<BittensorProofSession> {
         delay(400)

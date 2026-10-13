@@ -252,6 +252,8 @@ class EarningsViewModel @Inject constructor(
                 launch { refreshWallet() }
                 launch { refreshEpochs() }
                 launch { refreshHead() }
+                // the network's consent, read with or without a wallet entry
+                launch { consentFlow.refresh() }
             }
             if (_wallet.value != null) {
                 refreshSettlements()
@@ -320,10 +322,9 @@ class EarningsViewModel @Inject constructor(
             }
     }
 
-    // the v1 claims, the v2 accounts and the payout consent, read side by side
+    // the v1 claims and the v2 accounts, read side by side
     private suspend fun refreshSettlements() = coroutineScope {
         launch { ledgerFlow.refresh() }
-        launch { consentFlow.refresh() }
         refreshClaims()
     }
 

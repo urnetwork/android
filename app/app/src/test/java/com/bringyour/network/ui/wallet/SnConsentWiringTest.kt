@@ -11,13 +11,29 @@ import org.junit.Test
  * classes need the native library, which these JVM tests do not have, and
  * the screen and the activities need a device. The behavior is
  * SnConsentFlowTest's and SnConsentTileTest's. C4 is CONSENT.md §4, C7 its
- * amendment A1, C9 its final generated names.
+ * amendment A1, C9 its final generated names, C10 amendment A3 (the review).
  */
 class SnConsentWiringTest {
 
     private fun source(path: String): String = File("src/$path").readText()
 
     private fun wallet(name: String): String = source("main/java/com/bringyour/network/ui/wallet/$name")
+
+    // the brace-matched body of the block `start` opens (it ends in '{')
+    private fun blockAfter(source: String, start: String): String {
+        val from = source.indexOf(start)
+        assertTrue("missing: $start", 0 <= from)
+        var i = from + start.length
+        var depth = 1
+        while (0 < depth) {
+            when (source[i]) {
+                '{' -> depth++
+                '}' -> depth--
+            }
+            i++
+        }
+        return source.substring(from + start.length, i - 1)
+    }
 
     // the text between two markers, failing when either is missing
     private fun between(source: String, start: String, end: String): String {
@@ -56,6 +72,8 @@ class SnConsentWiringTest {
         assertTrue(status.contains("SnConsentStatusState(result.active, result.coldkeySs58)"))
         val session = between(sdk, "override suspend fun consentSession(", "override suspend fun consentSubmit(")
         assertTrue(session.contains("return startBittensorConsentSession(api, walletId, coldkeySs58)"))
+        // C10, probe F2: Sign is offered only with the network credential
+        assertTrue(sdk.contains("override fun hasNetworkCredential(): Boolean = device.api?.hasNetworkCredential() == true"))
         val submit = between(sdk, "override suspend fun consentSubmit(", "override suspend fun accountEpochs()")
         assertTrue(submit.contains("api.snNetworkConsentSubmit(coldkeySs58, message, signature) { result, err ->"))
         assertTrue(submit.contains("err != null -> continuation.resume(Result.failure(err))"))
@@ -64,15 +82,22 @@ class SnConsentWiringTest {
     }
 
     @Test
-    fun `the consent block sits under the v2 tile, with its own steps`() {
-        // C4: in the settlement v2 earnings area, beside the v2 tile and claim; Sign and Change
-        // start the same steps: the chooser, the coldkey, the session's sheet or bridge page
+    fun `the consent block sits after the v2 tile, with or without a wallet entry, with its own steps`() {
+        // C4: after the v2 tile and claim; C10, probe F1: not behind the legacy wallet, since a
+        // network without a GET /sn/wallet entry is the one the consent pays
         val screen = wallet("EarningsScreen.kt")
-        val walletBlock = between(screen, "if (wallet != null) {\n                    Spacer", "head?.let")
-        val ledger = walletBlock.indexOf("SnLedgerTileBlock(tile = it, onClaim = onOpenLedgerClaim, formatAlpha = formatAlpha)")
-        val consent = walletBlock.indexOf("SnConsentBlock(")
-        assertTrue(0 <= ledger && ledger < consent)
-        assertTrue(screen.contains("consentTile = snConsentTile(consentState, consentStage),"))
+        val content = screen.substring(screen.indexOf("fun EarningsScreenContent("))
+        // the protocol layer's block, the one holding UnclaimedTile
+        val gateAt = content.indexOf("if (wallet != null) {\n                    Spacer(modifier = Modifier.height(16.dp))\n                    UnclaimedTile(")
+        assertTrue(0 <= gateAt)
+        val gated = blockAfter(content.substring(gateAt), "if (wallet != null) {")
+        assertTrue(gated.contains("SnLedgerTileBlock("))
+        assertFalse(gated.contains("SnConsentBlock("))
+        val ledger = content.indexOf("SnLedgerTileBlock(tile = it, onClaim = onOpenLedgerClaim, formatAlpha = formatAlpha)")
+        val consent = content.indexOf("SnConsentBlock(")
+        assertTrue(0 <= ledger && ledger < consent && consent < content.indexOf("head?.let"))
+        // hidden only without the protocol (signed out)
+        assertTrue(screen.contains("consentTile = if (earningsViewModel.protocolAvailable) snConsentTile(consentState, consentStage) else null,"))
         assertTrue(screen.contains("onSignConsent = { earningsViewModel.consentFlow.start() },"))
         assertTrue(screen.contains("onRetryConsent = { earningsViewModel.consentFlow.retry() },"))
         val steps = between(screen, "flow = earningsViewModel.consentFlow.proofFlow,", "if (earningsViewModel.isPresentedManualSheet) {")
@@ -94,10 +119,13 @@ class SnConsentWiringTest {
     }
 
     @Test
-    fun `the consent is read with the settlements and dropped with the device`() {
-        // C4: the status beside the v2 accounts and the v1 claims; a new device starts fresh
+    fun `the consent is read on every refresh, with or without a wallet entry, and dropped with the device`() {
+        // C10, probe F1: refreshAll reads it beside the wallet, not behind it as the settlements are
         val model = wallet("EarningsViewModel.kt")
-        assertTrue(between(model, "private suspend fun refreshSettlements()", "// ---- wallet connect").contains("launch { consentFlow.refresh() }"))
+        val refreshAll = blockAfter(model, "private suspend fun refreshAll(userInitiated: Boolean) {")
+        val parallel = blockAfter(refreshAll, "coroutineScope {")
+        assertTrue(parallel.contains("launch { consentFlow.refresh() }"))
+        assertFalse(blockAfter(model, "private suspend fun refreshSettlements() = coroutineScope {").contains("consentFlow"))
         assertTrue(model.contains("consentFlow.reset(source)"))
         assertTrue(between(model, "fun onScreenResumed() {", "fun continueAfterLooksNew()").contains("consentFlow.onResumed()"))
     }
@@ -109,7 +137,8 @@ class SnConsentWiringTest {
             val login = source("$flavor/java/com/bringyour/network/LoginActivity.kt")
             val returns = between(login, "val action = bittensorReturnAction(u.toString(), System.currentTimeMillis())", "bittensorSignMessageLogin(bridgeUri)")
             val add = returns.indexOf("forwardBittensorAddSignInReturn(this, addReturn, MainActivity::class.java)")
-            val consent = returns.indexOf("val consentReturn = snConsentReturn(action) { bittensorRefusalMessage(it) }")
+            // C10, probe F3: no text of the return reaches the consent
+            val consent = returns.indexOf("val consentReturn = snConsentReturn(action)\n")
             val forward = returns.indexOf("if (consentReturn != null && app.device != null) {")
             val forwarded = returns.indexOf("forwardSnConsentReturn(this, consentReturn, MainActivity::class.java)\n                        return")
             val legacy = returns.indexOf("val bridgeUri = when (action) {")

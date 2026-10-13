@@ -10,14 +10,14 @@ import org.junit.Test
 /**
  * What the payout consent block shows for each state of the read, the
  * wallet sheets and the last attempt. C4 is CONSENT.md §4's states, C8
- * amendment A2's meaning of active.
+ * amendment A2's meaning of active, C10 amendment A3's network credential.
  */
 class SnConsentTileTest {
 
     private val alice = "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY"
 
     private fun loaded(active: Boolean, coldkeySs58: String = alice) =
-        SnConsentState(SnConsentLoad.Loaded(SnConsentStatusState(active, coldkeySs58)))
+        SnConsentState(SnConsentLoad.Loaded(SnConsentStatusState(active, coldkeySs58)), networkCredential = true)
 
     private class Session : BittensorProofSession {
         override val walletId: String = BittensorWallets.TALISMAN
@@ -94,6 +94,19 @@ class SnConsentTileTest {
         for (outcome in listOf(SnConsentOutcome.Expired, SnConsentOutcome.SignatureMismatch, SnConsentOutcome.Failed("busy"))) {
             assertTrue(outcome.toString(), snConsentTile(loaded(true).copy(outcome = outcome), BittensorProofStage.Hidden).actionEnabled)
         }
+    }
+
+    @Test
+    fun `without the network credential the block says only the owner can choose, without Sign`() {
+        // C10, probe F2: whatever the status, and while no attempt is signing
+        for (state in listOf(loaded(active = false), loaded(active = true))) {
+            val tile = snConsentTile(state.copy(networkCredential = false), BittensorProofStage.Hidden)
+            assertEquals(SnConsentOutcome.OwnerOnly, tile.outcome)
+            assertFalse(tile.actionEnabled)
+        }
+        assertEquals(alice, snConsentTile(loaded(active = true).copy(networkCredential = false), BittensorProofStage.Hidden).activeColdkeySs58)
+        // nothing read yet, nothing said
+        assertNull(snConsentTile(SnConsentState(), BittensorProofStage.Hidden).outcome)
     }
 
     @Test

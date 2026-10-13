@@ -92,8 +92,8 @@ const val EARNINGS_SET_COLDKEY_TAG = "earnings-set-coldkey"
 
 /**
  * The Earnings screen: points first, always. The UR protocol layer (wallet,
- * unclaimed SN25α, settlement v2, the payout consent, claim, Top 200) appears
- * only once a Bittensor wallet is connected.
+ * unclaimed SN25α, settlement v2, claim, Top 200) appears only once a Bittensor
+ * wallet is connected; the payout consent with or without one.
  */
 @Composable
 fun EarningsScreen(
@@ -242,7 +242,7 @@ fun EarningsScreen(
         onSetColdkey = { earningsViewModel.connectWithBridge() },
         ledgerTile = snLedgerTile(ledgerLoad, ledgerClaimConfigured),
         onOpenLedgerClaim = { earningsViewModel.ledgerFlow.open() },
-        consentTile = snConsentTile(consentState, consentStage),
+        consentTile = if (earningsViewModel.protocolAvailable) snConsentTile(consentState, consentStage) else null,
         onSignConsent = { earningsViewModel.consentFlow.start() },
         onRetryConsent = { earningsViewModel.consentFlow.retry() },
     )
@@ -494,15 +494,18 @@ fun EarningsScreenContent(
                         Spacer(modifier = Modifier.height(16.dp))
                         SnLedgerTileBlock(tile = it, onClaim = onOpenLedgerClaim, formatAlpha = formatAlpha)
                     }
-                    consentTile?.let {
-                        Spacer(modifier = Modifier.height(16.dp))
-                        SnConsentBlock(
-                            tile = it,
-                            onSign = onSignConsent,
-                            onRetry = onRetryConsent,
-                            shortSs58 = shortSs58
-                        )
-                    }
+                }
+
+                // with or without a wallet entry: a network that never connected one is
+                // the one the consent pays
+                consentTile?.let {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    SnConsentBlock(
+                        tile = it,
+                        onSign = onSignConsent,
+                        onRetry = onRetryConsent,
+                        shortSs58 = shortSs58
+                    )
                 }
 
                 head?.let { h ->

@@ -71,6 +71,8 @@ data class SnConsentColdkeyEntry(
 /** The flow's state beside its wallet sheets. */
 data class SnConsentState(
     val load: SnConsentLoad = SnConsentLoad.Loading,
+    // the api holds the network credential, read with the status: only then is Sign offered
+    val networkCredential: Boolean = false,
     // the coldkey entry, between the wallet chooser and the challenge
     val coldkeyEntry: SnConsentColdkeyEntry? = null,
     // the signed consent is being submitted and its status read again
@@ -97,8 +99,9 @@ data class SnConsentTile(
  * The block for the flow's state and its wallet sheets' stage. An active
  * consent may start only next epoch (a new one always does); either way it
  * shows its coldkey with Change and the note that a change takes effect from
- * the next epoch. The owner-only refusal holds until the next session: no
- * other session of this one can sign.
+ * the next epoch. Sign is offered only with the network credential; without
+ * it, or after the owner-only refusal, only the owner's sign-in can sign, and
+ * the block says so.
  */
 fun snConsentTile(state: SnConsentState, stage: BittensorProofStage): SnConsentTile {
     val signing = state.submitting ||
@@ -106,13 +109,14 @@ fun snConsentTile(state: SnConsentState, stage: BittensorProofStage): SnConsentT
         stage is BittensorProofStage.Signing ||
         stage is BittensorProofStage.AwaitingBrowser
     val status = (state.load as? SnConsentLoad.Loaded)?.status
+    val noCredential = status != null && !state.networkCredential
     return SnConsentTile(
         loading = state.load is SnConsentLoad.Loading,
         unavailable = state.load is SnConsentLoad.Unavailable,
         activeColdkeySs58 = status?.takeIf { it.active }?.coldkeySs58,
         signing = signing,
-        outcome = state.outcome.takeIf { !signing },
-        actionEnabled = status != null && !signing && state.outcome != SnConsentOutcome.OwnerOnly,
+        outcome = (if (noCredential) SnConsentOutcome.OwnerOnly else state.outcome).takeIf { !signing },
+        actionEnabled = status != null && state.networkCredential && !signing && state.outcome != SnConsentOutcome.OwnerOnly,
     )
 }
 
@@ -139,32 +143,39 @@ fun snConsentOutcome(error: Throwable): SnConsentOutcome =
 
 // ---- the WalletConnect bridge return
 
-/** A WalletConnect bridge return for the payout consent. */
+/**
+ * A WalletConnect bridge return for the payout consent. It carries no text:
+ * any installed app can fire a return, so the block shows only its own words.
+ */
 sealed class SnConsentReturn {
     data class Proven(val proof: BittensorProof) : SnConsentReturn()
 
-    // message: the refusal in this app's words (bittensorRefusalMessage)
-    data class Failed(val code: String, val message: String) : SnConsentReturn()
+    /** the waiting session's challenge expired, by the session's own clock */
+    object Expired : SnConsentReturn()
+
+    /** a return the waiting consent session refused, forged or mismatched: it keeps waiting */
+    object Ignored : SnConsentReturn()
 }
 
 /**
  * The consent's share of a `ur://bittensor-sign-message` return: the proof
- * or refusal of a consent session, else null (another flow's, or a
- * pre-helper return, handled as before).
+ * or the expiry of a consent session, or a return it refused while it waits
+ * ([BittensorBridgeReturns] keeps a consent session waiting on those); else
+ * null (another flow's, or a pre-helper return, handled as before).
  */
 fun snConsentReturn(
     action: BittensorReturnAction,
-    refusalMessage: (BittensorReturnAction.Failed) -> String,
+    bridgeReturns: BittensorBridgeReturns = BittensorBridgeReturns.shared,
 ): SnConsentReturn? = when (action) {
     is BittensorReturnAction.Proven ->
         if (action.route == BittensorProofRoute.CONSENT) SnConsentReturn.Proven(action.proof) else null
-    is BittensorReturnAction.Failed ->
-        if (action.purpose == BittensorWallets.PURPOSE_CONSENT) {
-            SnConsentReturn.Failed(action.code, refusalMessage(action))
-        } else {
-            null
-        }
-    BittensorReturnAction.Legacy -> null
+    is BittensorReturnAction.Failed -> when {
+        action.purpose != BittensorWallets.PURPOSE_CONSENT -> null
+        action.code == BittensorWallets.ERROR_EXPIRED -> SnConsentReturn.Expired
+        else -> SnConsentReturn.Ignored
+    }
+    BittensorReturnAction.Legacy ->
+        if (bridgeReturns.waitingPurpose == BittensorWallets.PURPOSE_CONSENT) SnConsentReturn.Ignored else null
 }
 
 /**
@@ -249,7 +260,7 @@ class SnConsentFlow(
             onFailure = { SnConsentLoad.Unavailable },
         )
         if (s === source) {
-            _state.update { it.copy(load = load) }
+            _state.update { it.copy(load = load, networkCredential = s.hasNetworkCredential()) }
         }
     }
 
@@ -259,9 +270,9 @@ class SnConsentFlow(
         scope.launch { refresh() }
     }
 
-    /** Sign with wallet, or Change wallet: the wallet chooser. */
+    /** Sign with wallet, or Change wallet: the wallet chooser, offered only with the network credential. */
     fun start() {
-        if (_state.value.submitting) {
+        if (_state.value.submitting || !_state.value.networkCredential) {
             return
         }
         awaiting = null
@@ -348,18 +359,22 @@ class SnConsentFlow(
         }
     }
 
-    /** A WalletConnect bridge return, checked by the waiting session in the LoginActivity. */
+    /**
+     * A WalletConnect bridge return, checked by the waiting session in the
+     * LoginActivity. A refused one changes nothing: the session and its sheet
+     * keep waiting for the wallet's own return, or the user's Cancel.
+     */
     fun handleReturn(consentReturn: SnConsentReturn) {
-        proofFlow.dismiss()
         when (consentReturn) {
-            is SnConsentReturn.Proven -> submitProof(consentReturn.proof)
-            is SnConsentReturn.Failed -> fail(
-                if (consentReturn.code == BittensorWallets.ERROR_EXPIRED) {
-                    SnConsentOutcome.Expired
-                } else {
-                    SnConsentOutcome.Failed(consentReturn.message)
-                }
-            )
+            is SnConsentReturn.Proven -> {
+                proofFlow.dismiss()
+                submitProof(consentReturn.proof)
+            }
+            SnConsentReturn.Expired -> {
+                proofFlow.dismiss()
+                fail(SnConsentOutcome.Expired)
+            }
+            SnConsentReturn.Ignored -> {}
         }
     }
 

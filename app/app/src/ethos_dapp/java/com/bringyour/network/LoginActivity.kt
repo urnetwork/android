@@ -130,10 +130,11 @@ class LoginActivity : AppCompatActivity() {
                         forwardBittensorAddSignInReturn(this, addReturn, MainActivity::class.java)
                         return
                     }
-                    val consentReturn = snConsentReturn(action) { bittensorRefusalMessage(it) }
+                    val consentReturn = snConsentReturn(action)
                     if (consentReturn != null && app.device != null) {
-                        // the Earnings screen's payout consent started this session: the
-                        // screen submits the signed consent; never a login
+                        // the Earnings screen's payout consent waits for this session: the
+                        // screen submits a signed consent, and a refused return (forged or
+                        // mismatched) only brings it back to the wait; never a login
                         Log.i(TAG, "forwardSnConsentReturn")
                         forwardSnConsentReturn(this, consentReturn, MainActivity::class.java)
                         return

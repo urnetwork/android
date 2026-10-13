@@ -18,7 +18,8 @@ import org.junit.Test
  * challenge for it; the wallet answers on the manual sheet or the
  * WalletConnect bridge; the consent is submitted and its status read again.
  * C4 is CONSENT.md §4's flow, C7 amendment A1 (the session and the error
- * codes), C8 amendment A2 (a consent starts next epoch).
+ * codes), C8 amendment A2 (a consent starts next epoch), C10 amendment A3
+ * (the review's fixes: the network credential, forged returns).
  *
  * Plain JVM: a fake protocol source in place of the SDK, and a fake wallet
  * session that signs (or refuses) as the SDK's consent session does.
@@ -69,7 +70,11 @@ class SnConsentFlowTest {
 
         override fun bridgeUrl(): String = "https://ur.io/wallet-connect?provider=bittensor&wallet=$walletId&message=$message"
 
+        // the session's verdicts on the next returns; then the wallet's own return
+        val bridgeOutcomes = ArrayDeque<BittensorProofOutcome>()
+
         override fun handleBridgeReturn(uri: String, nowMillis: Long): BittensorProofOutcome {
+            bridgeOutcomes.removeFirstOrNull()?.let { return it }
             signed.add(signedMessage)
             return BittensorProofOutcome.Proven(BittensorProof(walletId, purpose, signedBy, signedMessage, bridgeSignature))
         }
@@ -80,6 +85,7 @@ class SnConsentFlowTest {
         override val available: Boolean = true
         var status: Result<SnConsentStatusState> = Result.success(none)
         var statusReads = 0
+        var networkCredential = true
         var transport = BittensorWallets.TRANSPORT_MANUAL
         // the challenge's refusal, when set
         var challengeError: Throwable? = null
@@ -96,6 +102,8 @@ class SnConsentFlowTest {
             statusReads += 1
             return status
         }
+
+        override fun hasNetworkCredential(): Boolean = networkCredential
 
         override suspend fun consentSession(walletId: String, coldkeySs58: String): Result<BittensorProofSession> {
             challenges.add(walletId to coldkeySs58)
@@ -200,7 +208,7 @@ class SnConsentFlowTest {
 
         // the LoginActivity hands the waiting session's verdict over
         val action = bittensorReturnAction("ur://bittensor-sign-message?purpose=consent", 2_000L, bridgeReturns)
-        flow.handleReturn(snConsentReturn(action) { "" }!!)
+        flow.handleReturn(snConsentReturn(action, bridgeReturns)!!)
         assertEquals(listOf(Triple(alice, serverMessage(alice), bridgeSignature)), source.submits)
         assertEquals(BittensorProofStage.Hidden, flow.proofFlow.stage.value)
         assertEquals(alice, tile(flow).activeColdkeySs58)
@@ -273,9 +281,22 @@ class SnConsentFlowTest {
         assertEquals(1, source.statusReads)
         assertEquals(SnConsentOutcome.Expired, tile(flow).outcome)
 
-        // C7: a bridge return the waiting session refused as past its expiry
-        flow.handleReturn(SnConsentReturn.Failed(BittensorWallets.ERROR_EXPIRED, "This request expired."))
-        assertEquals(SnConsentOutcome.Expired, tile(flow).outcome)
+        // C7, C10: on the bridge page, only the session's own expiry ends the wait
+        val bridgeReturns = BittensorBridgeReturns()
+        val bridge = FakeSource().apply { transport = BittensorWallets.TRANSPORT_BROWSER_BRIDGE }
+        val bridged = flowFor(bridge, bridgeReturns)
+        requestChallenge(bridged, alice, BittensorWallets.WALLET_CONNECT) { true }
+        bridge.signers.single().bridgeOutcomes.add(BittensorProofOutcome.Refused(BittensorWallets.ERROR_EXPIRED))
+        val action = bittensorReturnAction("ur://bittensor-sign-message?purpose=consent", 400_000L, bridgeReturns)
+        assertEquals(
+            BittensorReturnAction.Failed(BittensorWallets.PURPOSE_CONSENT, BittensorWallets.ERROR_EXPIRED, null, null, BittensorWallets.WALLET_CONNECT),
+            action,
+        )
+        assertFalse(bridgeReturns.waiting)
+        bridged.handleReturn(snConsentReturn(action, bridgeReturns)!!)
+        assertEquals(BittensorProofStage.Hidden, bridged.proofFlow.stage.value)
+        assertEquals(SnConsentOutcome.Expired, tile(bridged).outcome)
+        assertTrue(bridge.submits.isEmpty())
 
         // Sign again starts over and clears the line
         flow.start()
@@ -335,10 +356,6 @@ class SnConsentFlowTest {
         assertEquals(SnConsentOutcome.Failed("the server is busy"), tile(flow).outcome)
         assertNull(snConsentOutcomeRes(SnConsentOutcome.Failed("the server is busy")))
         assertTrue(tile(flow).actionEnabled)
-
-        // C4: a bridge refusal in the app's words, as the LoginActivity reads it
-        flow.handleReturn(SnConsentReturn.Failed(BittensorWallets.ERROR_WALLET, "You declined the request in your wallet."))
-        assertEquals(SnConsentOutcome.Failed("You declined the request in your wallet."), tile(flow).outcome)
 
         // C4: a malformed pasted signature is the sheet's own error, corrected in place
         source.submitError = null
@@ -498,6 +515,64 @@ class SnConsentFlowTest {
         assertTrue(next.submits.isEmpty())
     }
 
+    // ---- 10. the review's fixes (C10)
+
+    @Test
+    fun `without the network credential Sign is not offered, and the block says only the owner can choose`() {
+        // C10, probe F2: Api.hasNetworkCredential is false on a client token only, or once the
+        // server rejected the network's; the challenge could only fail with network_owner_only
+        val source = FakeSource().apply { networkCredential = false }
+        val flow = flowFor(source)
+        assertEquals(SnConsentTile(false, false, null, false, SnConsentOutcome.OwnerOnly, false), tile(flow))
+        flow.start()
+        assertEquals(BittensorProofStage.Hidden, flow.proofFlow.stage.value)
+        assertTrue(source.challenges.isEmpty())
+        // the consent paid now still shows, without Change
+        source.status = Result.success(active(alice))
+        flow.retry()
+        assertEquals(SnConsentTile(false, false, alice, false, SnConsentOutcome.OwnerOnly, false), tile(flow))
+        // signed in again with the network credential, Sign is offered
+        source.networkCredential = true
+        flow.retry()
+        assertEquals(SnConsentTile(false, false, alice, false, null, true), tile(flow))
+    }
+
+    @Test
+    fun `a forged or mismatched return leaves the consent waiting and shows none of its text`() {
+        // C10, probe F3: any app can fire ur://bittensor-sign-message at the exported LoginActivity;
+        // only the session's proof or its own expiry ends a waiting consent
+        val bridgeReturns = BittensorBridgeReturns()
+        val source = FakeSource().apply { transport = BittensorWallets.TRANSPORT_BROWSER_BRIDGE }
+        val flow = flowFor(source, bridgeReturns)
+        requestChallenge(flow, alice, BittensorWallets.WALLET_CONNECT) { true }
+        val waiting = flow.proofFlow.stage.value
+        assertEquals(BittensorProofStage.AwaitingBrowser(BittensorWallets.WALLET_CONNECT), waiting)
+        val signer = source.signers.single()
+        for (code in listOf(
+            BittensorWallets.ERROR_WALLET,
+            BittensorWallets.ERROR_MESSAGE_MISMATCH,
+            BittensorWallets.ERROR_ADDRESS_MISMATCH,
+            BittensorWallets.ERROR_INVALID_SIGNATURE,
+            BittensorWallets.ERROR_NOT_RETURN,
+        )) {
+            signer.bridgeOutcomes.add(BittensorProofOutcome.Refused(code, "Payouts moved: Change wallet to 5Attacker", "x"))
+            val action = bittensorReturnAction("ur://bittensor-sign-message?errorCode=x&errorMessage=Payouts+moved", 2_000L, bridgeReturns)
+            assertEquals(code, BittensorReturnAction.Legacy, action)
+            assertTrue(code, bridgeReturns.waiting)
+            val consentReturn = snConsentReturn(action, bridgeReturns)
+            assertEquals(code, SnConsentReturn.Ignored, consentReturn)
+            flow.handleReturn(consentReturn!!)
+            assertEquals(code, waiting, flow.proofFlow.stage.value)
+            assertNull(code, tile(flow).outcome)
+            assertTrue(code, tile(flow).signing)
+        }
+        // the wallet's own return still completes the consent
+        val action = bittensorReturnAction("ur://bittensor-sign-message?purpose=consent", 3_000L, bridgeReturns)
+        flow.handleReturn(snConsentReturn(action, bridgeReturns)!!)
+        assertEquals(listOf(Triple(alice, serverMessage(alice), bridgeSignature)), source.submits)
+        assertEquals(alice, tile(flow).activeColdkeySs58)
+    }
+
     // ---- the bridge return
 
     @Test
@@ -507,15 +582,22 @@ class SnConsentFlowTest {
         assertEquals(BittensorProofRoute.CONSENT, bittensorProofRoute(proof))
         assertEquals(
             SnConsentReturn.Proven(proof),
-            snConsentReturn(BittensorReturnAction.Proven(BittensorProofRoute.CONSENT, proof)) { "" },
+            snConsentReturn(BittensorReturnAction.Proven(BittensorProofRoute.CONSENT, proof), BittensorBridgeReturns()),
         )
-        assertNull(snConsentReturn(BittensorReturnAction.Proven(BittensorProofRoute.CONNECT_WALLET, proof.copy(purpose = "connect"))) { "" })
+        val idle = BittensorBridgeReturns()
+        assertNull(snConsentReturn(BittensorReturnAction.Proven(BittensorProofRoute.CONNECT_WALLET, proof.copy(purpose = "connect")), idle))
         assertEquals(
-            SnConsentReturn.Failed("wallet_error", "in the app's words"),
-            snConsentReturn(BittensorReturnAction.Failed("consent", "wallet_error", "User rejected.")) { "in the app's words" },
+            SnConsentReturn.Expired,
+            snConsentReturn(BittensorReturnAction.Failed("consent", BittensorWallets.ERROR_EXPIRED, null), idle),
         )
-        assertNull(snConsentReturn(BittensorReturnAction.Failed("add", "wallet_error", "User rejected.")) { "" })
-        assertNull(snConsentReturn(BittensorReturnAction.Legacy) { "" })
+        // C10: no refusal carries its text to the block
+        assertEquals(SnConsentReturn.Ignored, snConsentReturn(BittensorReturnAction.Failed("consent", "wallet_error", "User rejected."), idle))
+        assertNull(snConsentReturn(BittensorReturnAction.Failed("add", "wallet_error", "User rejected."), idle))
+        // a return nothing waits for is the login's, unless a consent session waits
+        assertNull(snConsentReturn(BittensorReturnAction.Legacy, idle))
+        val waiting = BittensorBridgeReturns().apply { begin(FakeSigner("walletconnect", "m", alice, BittensorWallets.TRANSPORT_BROWSER_BRIDGE, signature)) }
+        assertEquals(BittensorWallets.PURPOSE_CONSENT, waiting.waitingPurpose)
+        assertEquals(SnConsentReturn.Ignored, snConsentReturn(BittensorReturnAction.Legacy, waiting))
 
         // held for the screen, taken once
         SnConsentReturns.deliver(SnConsentReturn.Proven(proof))
