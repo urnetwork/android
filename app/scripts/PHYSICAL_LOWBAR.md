@@ -1049,6 +1049,20 @@ receipt and `failedChildCount`; they are not performance/correctness successes.
 They permit diagnostic quiet collection only after all work is joined. Keep
 every original result; no retry or baseline promotion hides those failures.
 
+Canonical PERF physical coverage version 3 freezes the user-authorized
+`public-observed-nonprogress-diagnostic-v1` policy: only completed owned public
+CNN/Bloomberg exit-2 nonprogress, with no signal/interruption, committed
+navigation, observed nonempty samples and `playbackProgressed=false`, is
+non-gating diagnostic evidence. Both probes still run; the backend retains raw
+child/results, the unchanged failed-child count and a separate diagnostic
+count. This is not a launch, deadline, identity, malformed-result or cleanup
+exception. P2P video playback remains required. Page/throughput, all 32/64-MiB
+memory phases, quiet, teardown and the complete two-profile matrix are
+unchanged. Old strict-video receipts/failures stay immutable; no flag or receipt
+rewrite upgrades them. Failed public brackets retain their raw memory and
+invalid rows for final teardown replay; failed P2P roles retain available raw
+receipts without claiming quiet samples that were never collected.
+
 The invalid `8vdtZ8` arm actually had four nested child completion receipts,
 all exit 0 and uninterrupted. Its body then invoked
 `cleanup -- adb -s "$SERIAL" shell am force-stop com.android.chrome`; the
