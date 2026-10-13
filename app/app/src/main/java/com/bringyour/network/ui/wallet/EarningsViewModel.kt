@@ -192,6 +192,9 @@ class EarningsViewModel @Inject constructor(
     private val _claimDialog = MutableStateFlow<ClaimDialogState?>(null)
     val claimDialog: StateFlow<ClaimDialogState?> = _claimDialog.asStateFlow()
 
+    // settlement v2: its tile beside the v1 claims, and its claim dialog
+    val ledgerFlow = SnLedgerFlow(viewModelScope) { _wallet.value != null }
+
     var isRefreshing by mutableStateOf(false)
         private set
 
@@ -248,7 +251,7 @@ class EarningsViewModel @Inject constructor(
                 launch { refreshHead() }
             }
             if (_wallet.value != null) {
-                refreshClaims()
+                refreshSettlements()
             }
         } finally {
             if (userInitiated) {
@@ -263,7 +266,7 @@ class EarningsViewModel @Inject constructor(
         viewModelScope.launch {
             refreshWallet()
             if (_wallet.value != null) {
-                refreshClaims()
+                refreshSettlements()
             }
         }
     }
@@ -312,6 +315,12 @@ class EarningsViewModel @Inject constructor(
                 Log.i(TAG, "claims: ${it.message}")
                 _claimsError.value = it.message
             }
+    }
+
+    // the v1 claims and the v2 accounts, read side by side
+    private suspend fun refreshSettlements() = coroutineScope {
+        launch { ledgerFlow.refresh() }
+        refreshClaims()
     }
 
     // ---- wallet connect: the coldkey proves itself by signing a challenge
@@ -456,7 +465,7 @@ class EarningsViewModel @Inject constructor(
                 _wallet.value = w
                 _walletLoaded.value = true
                 _connectState.value = WalletConnectState.Connected(w)
-                refreshClaims()
+                refreshSettlements()
             }
             .onFailure {
                 Log.i(TAG, "connect wallet: ${it.message}")
@@ -717,6 +726,7 @@ class EarningsViewModel @Inject constructor(
         removeWalletListener = null
         byDevice = device
         source = if (device == null) NoProtocolSource else createProtocolSource(device)
+        ledgerFlow.reset(source)
 
         _wallet.value = null
         _walletLoaded.value = false
@@ -744,7 +754,7 @@ class EarningsViewModel @Inject constructor(
                 _wallet.value = w
                 _walletLoaded.value = true
                 _walletFailed.value = false
-                refreshClaims()
+                refreshSettlements()
             }
         }
         restoreSeekerHolder(device)

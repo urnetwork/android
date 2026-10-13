@@ -194,6 +194,41 @@ Hosts that sign with an external wallet (the web claim route with an injected
 EVM wallet) use `SnClaimTransactions` / wasm `URnetworkSnClaimTransactionsFor`
 to get the unsigned transactions and send them themselves.
 
+## Settlement v2 (Android, 2026-10-11)
+
+From its switch epoch an operator pool settles in vault2: the coldkey has one
+account per pool, a cumulative balance that never expires (sn
+`VERSION2-FINAL.md`, `v2/APPS-SPEC.md`). The Earnings screen shows it in a
+"Settlement v2" tile under the Unclaimed tile; the v1 tile, dialog and payout
+line are unchanged.
+
+- **Tile.** Per account (normally one pool; "Pool N" when there are more):
+  Claimable (the large figure), Paid, Earned, and "Pending: +X, awaiting
+  finalization" while a pending root raises the cumulative (X = PendingRao −
+  FinalizedRao). From `Device.SnLedgerAccounts`; a failed or refused read
+  (`ledger_unavailable`) shows "Unavailable", never zero, with Claim disabled.
+- **Before activation** `SnChainSettings.Vault2Address` is empty: no Claim,
+  and the tile shows only accounts the ledger returned (hidden when it returned
+  none or failed, as a server without the endpoint answers 404). The release
+  pins Vault2Address (compiled in, or the network space's `sn_chain`);
+  `/sn/epoch` never sets it.
+- **Claim** (Vault2Address set, an account with ClaimableRao > 0) opens a
+  dialog built like v1's: the accounts and the gas key, or the needs-gas
+  top-up below `MIN_GAS_TAO`; its button calls `Device.SnLedgerClaim`, one
+  transaction per account from the gas key. Rows: Sent (explorer link),
+  Claimed (the vault's Claimed amount), Failed (`needs_gas` on every account →
+  the top-up; `already_claimed` → shown as claimed; others → the SDK's detail; a
+  failure with pool 0 is about no one account and fails every row not sent).
+  After Done the accounts are read again, also when the dialog was closed; a
+  claim in flight reopens rather than starting another.
+- **Code.** `ui/wallet/SnLedger.kt` (state, presentation, `SnLedgerFlow` owned
+  by `EarningsViewModel`), `SnLedgerTile.kt` (tile and dialog), and
+  `EarningsProtocolSource.ledgerAccounts/ledgerClaimConfigured/ledgerClaim`
+  (SDK, debug sample with one pending account, none). Strings
+  `sn_ledger_{claimable,earned,paid,pending,pool,title,unavailable}` in every
+  locale; the localizations store needs them as keys before the next
+  regeneration.
+
 ## Top 200
 
 Head-miner UIDs: the top ~200 fleets by split-adjusted routable egress-IP score

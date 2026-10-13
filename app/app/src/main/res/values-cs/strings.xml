@@ -991,6 +991,13 @@
     <string name="site_payment_error_plan_unavailable">Tento tarif teď není k dispozici. Zkuste to později.</string>
     <string name="site_save_your_seedphrase">Uložte si seedphrase</string>
     <string name="skip">Přeskočit</string>
+    <string name="sn_ledger_claimable">K vyzvednutí</string>
+    <string name="sn_ledger_earned">Získáno</string>
+    <string name="sn_ledger_paid">Vyplaceno</string>
+    <string name="sn_ledger_pending">Čekající: +%1$s, čeká na finalizaci</string>
+    <string name="sn_ledger_pool">Pool %1$d</string>
+    <string name="sn_ledger_title">Vypořádání v2</string>
+    <string name="sn_ledger_unavailable">Nedostupné</string>
     <string name="sn_payout_schedule">Výdělky se vypořádávají každou epochu a vyplácejí se v SN25α na váš Bittensor coldkey, když si je vyzvednete.</string>
     <string name="sn_payout_schedule_times">Tato epocha končí %1$s. Svůj podíl si vyzvedněte od %2$s do %3$s.</string>
     <string name="solana_one_time_payment">Platba v USDC na síti Solana je jednorázová roční platba bez zkušebního období zdarma.</string>

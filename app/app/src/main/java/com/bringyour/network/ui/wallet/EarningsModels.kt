@@ -150,6 +150,15 @@ interface EarningsProtocolSource {
     /** events arrive on an arbitrary thread */
     fun claim(epochs: List<Long>, onEvent: (ClaimEvent) -> Unit)
 
+    /** settlement v2: the coldkey's accounts, one per pool; a failure is unavailable, never zero */
+    suspend fun ledgerAccounts(): Result<List<SnLedgerAccountState>>
+
+    /** vault2's address is configured, so v2 accounts can be claimed */
+    fun ledgerClaimConfigured(): Boolean
+
+    /** claims every v2 account with something to claim; events arrive on an arbitrary thread */
+    fun ledgerClaim(onEvent: (SnLedgerClaimEvent) -> Unit)
+
     suspend fun accountEpochs(): Result<List<AccountEpoch>>
 
     suspend fun head(): Result<SnHeadState?>
@@ -201,6 +210,14 @@ object NoProtocolSource : EarningsProtocolSource {
     override fun claim(epochs: List<Long>, onEvent: (ClaimEvent) -> Unit) {
         epochs.forEach { onEvent(ClaimEvent.Failed(it, EarningsUnavailableException().message ?: "")) }
         onEvent(ClaimEvent.Done)
+    }
+    override suspend fun ledgerAccounts(): Result<List<SnLedgerAccountState>> =
+        Result.failure(EarningsUnavailableException())
+    override fun ledgerClaimConfigured(): Boolean = false
+    override fun ledgerClaim(onEvent: (SnLedgerClaimEvent) -> Unit) {
+        // about no one account: pool 0
+        onEvent(SnLedgerClaimEvent.Failed(0, 0, EarningsUnavailableException().message ?: ""))
+        onEvent(SnLedgerClaimEvent.Done)
     }
     override suspend fun accountEpochs(): Result<List<AccountEpoch>> = Result.success(emptyList())
     override suspend fun head(): Result<SnHeadState?> = Result.success(null)
@@ -335,6 +352,48 @@ class SampleProtocolSource(
                 onEvent(ClaimEvent.Confirmed(epoch, txHash, claim.amountRao))
             }
             onEvent(ClaimEvent.Done)
+        }
+    }
+
+    // settlement v2: one account in the pool, with a pending root above the finalized one
+    private val ledgerAccount = MutableStateFlow(
+        SnLedgerAccountState(
+            noId = 1,
+            index = 42,
+            finalizedRao = 5_120_000_000,
+            claimableRao = 4_120_000_000,
+            paidRao = 1_000_000_000,
+            pending = true,
+            pendingRao = 5_870_000_000,
+        )
+    )
+
+    override suspend fun ledgerAccounts(): Result<List<SnLedgerAccountState>> {
+        delay(400)
+        return Result.success(if (wallet.value == null) emptyList() else listOf(ledgerAccount.value))
+    }
+
+    override fun ledgerClaimConfigured(): Boolean = true
+
+    override fun ledgerClaim(onEvent: (SnLedgerClaimEvent) -> Unit) {
+        scope.launch {
+            val account = ledgerAccount.value
+            if (account.claimableRao <= 0) {
+                onEvent(SnLedgerClaimEvent.Done)
+                return@launch
+            }
+            delay(700)
+            if (gasUnfunded) {
+                onEvent(SnLedgerClaimEvent.Failed(account.noId, account.index, "needs_gas: insufficient funds"))
+                onEvent(SnLedgerClaimEvent.Done)
+                return@launch
+            }
+            val txHash = "0x" + String.format(Locale.US, "%064x", account.index * 7_919L + 0x5a5a5bL)
+            onEvent(SnLedgerClaimEvent.Sent(account.noId, account.index, txHash))
+            delay(1_600)
+            ledgerAccount.value = account.copy(claimableRao = 0, paidRao = account.finalizedRao)
+            onEvent(SnLedgerClaimEvent.Confirmed(account.noId, account.index, txHash, account.claimableRao))
+            onEvent(SnLedgerClaimEvent.Done)
         }
     }
 
