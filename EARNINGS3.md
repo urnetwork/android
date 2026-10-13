@@ -233,13 +233,18 @@ line are unchanged.
 
 An app-only provider is paid only under a network consent: the network owner
 signs once with a coldkey, and it covers every provider client of the network
-(v2 `CONSENT.md`). A "Payout consent" block sits under the Settlement v2 tile.
+(v2 `CONSENT.md`). A "Payout consent" block sits after the Settlement v2 tile,
+with or without a GET /sn/wallet entry: a network that never connected a
+wallet is the one it pays.
 
-- **Status.** `Api.snNetworkConsentStatus`, read with the settlements. Not
+- **Status.** `Api.snNetworkConsentStatus`, read on every refresh. Not
   active: "No payout wallet yet…", why to sign, and Sign with wallet. Active
   (in force, or starting next epoch, as every new consent does): "Earnings are
   paid to 5Grw…utQY", Change wallet, and "A new wallet takes effect from the
-  next epoch." An unreadable status shows the section's Try again.
+  next epoch." An unreadable status shows the section's Try again. Sign is
+  offered only with the network credential (`Api.hasNetworkCredential`);
+  without it the block says "Only the network owner can choose the payout
+  wallet."
 - **Signing.** Sign and Change run the same steps as on every app: the
   sign-in wallet chooser; the coldkey the consent will name, entered (never
   prefilled: it may differ from the sign-in wallet) and checked with
@@ -248,9 +253,12 @@ signs once with a coldkey, and it covers every provider client of the network
   `setNetworkConsentChallenge`, so the wallet signs only the server's message,
   pasted on the manual sheet (Talisman, TAO.com) or on the WalletConnect
   bridge page, whose return each flavor's LoginActivity hands to the screen
-  (`SnConsentReturns`). A challenge that arrives after its attempt was left is
-  dropped. A proof goes to `snNetworkConsentSubmit` only when its coldkey and
-  message are the challenge's; then the status is read again.
+  (`SnConsentReturns`). Any app can fire that return, so a consent session
+  ends only on its proof or its own expiry: a forged or mismatched return
+  leaves it waiting, and no text from a return is ever shown. A challenge
+  that arrives after its attempt was left is dropped. A proof goes to
+  `snNetworkConsentSubmit` only when its coldkey and message are the
+  challenge's; then the status is read again.
 - **Refusals.** `challenge_expired` (the session's or the server's): "The
   request expired. Try again."; `signature_mismatch`, or a proof of another
   message or coldkey: "The signature didn't match this wallet. Try again.";
@@ -259,7 +267,7 @@ signs once with a coldkey, and it covers every provider client of the network
   challenge returns to the chooser's error.
 - **Code.** `ui/wallet/SnConsent.kt` (state, presentation, `SnConsentFlow`
   owned by `EarningsViewModel`, the bridge hand-off), `SnConsentTile.kt`, and
-  `EarningsProtocolSource.consentStatus/consentSession/consentSubmit`. Strings
+  `EarningsProtocolSource.consentStatus/hasNetworkCredential/consentSession/consentSubmit`. Strings
   `sn_consent_*` come from the store in every locale. The unit tests run
   against fakes; compiling against the SDK's own AAR needs CI.
 - **Before release.** The WalletConnect path needs the ur.io bridge page that
