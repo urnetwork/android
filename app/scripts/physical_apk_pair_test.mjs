@@ -203,3 +203,63 @@ test("observation reads exactly the phones tests.yml lists", t => {
   assert.deepEqual(observeDevices(f.dependencies).devices.map(device => device.serial), ["RESERVEDPHONEB"]);
   assert.deepEqual(new Set(f.commands.map(command => command.args[1])), new Set(["RESERVEDPHONEB"]));
 });
+
+// This same existing API call fails on the old implementation at the genuine
+// high installed floor; no synthetic absent observation or version override.
+test("root cause: retain-build attests older artifacts but never approves pre-reset installation", t => {
+  const f = fixture(t);
+  const devices = observed(BASE + 103, 7);
+  writeJson(f.options.observed, devices);
+  const original = readFileSync(f.options.observed);
+  const pair = selectAndRetainPair({ ...f.options, mode: "retain-build" }, f.dependencies);
+  assert.equal(pair.selectionPolicy, "build-only");
+  assert.equal(pair.installQualified, false);
+  assert.deepEqual(pair.observed, devices);
+  assert.deepEqual(readFileSync(f.options.observed), original);
+  assert.ok(f.commands.every(command => command.command === f.options.aapt));
+  f.appVersion = BASE + 103; f.testVersion = 7;
+  assert.throws(() => checkPair(f.options.output, f.dependencies), /app-apk-would-downgrade/);
+  f.appVersion = BASE + 3;
+  assert.throws(() => checkPair(f.options.output, f.dependencies), /test-apk-would-downgrade/);
+  f.testVersion = 0;
+  const checked = checkPair(f.options.output, f.dependencies);
+  assert.equal(checked.type, "physical-apk-install-preflight");
+  assert.equal(checked.eligible, true);
+  assert.equal(checked.buildId, pair.buildId);
+});
+
+test("retention still refuses malformed metadata, wrong ABI, changed binaries and qualification claims", t => {
+  for (const change of ["metadata", "abi", "binary", "qualification", "missing-qualification"]) {
+    const f = fixture(t);
+    const options = { ...f.options, mode: "retain-build" };
+    writeJson(options.observed, observed(BASE + 103, 7));
+    if (change === "metadata") {
+      const app = appMetadata(); app.applicationId = "fixture.example.wrong"; writeJson(options["app-metadata"], app);
+    }
+    if (change === "abi") {
+      const app = appMetadata(); app.elements = [app.elements[2]]; writeJson(options["app-metadata"], app);
+    }
+    if (change === "binary") writeJson(join(f.generated, "arm64-v8a.apk"), { name: APP, versionCode: BASE, abi: "arm64-v8a" });
+    if (!change.includes("qualification")) {
+      assert.throws(() => selectAndRetainPair(options, f.dependencies));
+      assert.equal(existsSync(options.output), false);
+      continue;
+    }
+    const pair = selectAndRetainPair(options, f.dependencies);
+    if (change === "qualification") pair.installQualified = true;
+    else delete pair.installQualified;
+    writeJson(options.output, pair);
+    f.commands = [];
+    assert.throws(() => checkPair(options.output, f.dependencies), /retained-apk-pair-required/);
+    assert.equal(f.commands.length, 0);
+  }
+});
+
+test("retain-build is an explicit CLI policy with no downgrade or install options", t => {
+  const f = fixture(t);
+  const args = ["retain-build", ...Object.entries(f.options).flatMap(([key, value]) => ["--"+key, value])];
+  assert.equal(parseArgs(args).mode, "retain-build");
+  assert.throws(() => parseArgs([...args, "--install"]));
+  assert.throws(() => parseArgs([...args, "-d"]));
+  assert.throws(() => selectAndRetainPair({ ...f.options, mode: "install" }, f.dependencies));
+});

@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
-// Select and retain a compatible APK pair without downgrading either package.
+// Select compatible APKs, or explicitly retain build-only artifacts before an
+// approved reset. Only a fresh install preflight can qualify either for install.
 // Device operations are read-only and restricted to the performance pair.
 // Native source/ABI linkage and the runtime acceptance build ID remain separate
 // mandatory gates; Android versionCode is an installation floor, not identity.
@@ -99,6 +100,14 @@ function validateDevices(observed, serials) {
 
 export function selectCandidates(appMetadata, testMetadata, observed, dependencies = {}) {
   validateDevices(observed, performanceSerials(dependencies));
+  const floors = Object.fromEntries(["app", "test"].map(key =>
+    [key, Math.max(0, ...observed.devices.map(device => device.versions[key] ?? 0))]));
+  return selectMetadata(appMetadata, testMetadata, floors);
+}
+
+// A null floor means build attestation only, never an absent-device claim.
+// The ordinary selector always supplies the real observed package floors.
+function selectMetadata(appMetadata, testMetadata, floors) {
   if (appMetadata?.applicationId !== APP || testMetadata?.applicationId !== TEST ||
       typeof appMetadata.variantName !== "string" || !/^[A-Za-z][A-Za-z0-9_]*Debug$/.test(appMetadata.variantName) ||
       testMetadata.variantName !== `${appMetadata.variantName}AndroidTest`) fail("matching-debug-apk-pair-required");
@@ -109,21 +118,20 @@ export function selectCandidates(appMetadata, testMetadata, observed, dependenci
           !element.outputFile.endsWith(".apk") || basename(element.outputFile) !== element.outputFile ||
           /[\\\0\r\n]/.test(element.outputFile))) fail("complete-apk-metadata-required");
   }
-  const floor = key => Math.max(0, ...observed.devices.map(device => device.versions[key] ?? 0));
   // Prefer the 64-bit split for the pinned phones. The universal APK is lower
   // by the ABI suffix (currently +3), so first-by-name/universal-first is unsafe.
   const appCandidates = appMetadata.elements.map(element => ({ element,
     rank: element.type === "ONE_OF_MANY" && element.filters.length === 1 &&
       element.filters[0].filterType === "ABI" && element.filters[0].value === ABI ? 0 :
       ["UNIVERSAL", "SINGLE"].includes(element.type) && element.filters.length === 0 ? 1 : 2 }))
-    .filter(candidate => candidate.rank < 2 && candidate.element.versionCode >= floor("app"))
+    .filter(candidate => candidate.rank < 2 && (floors === null || candidate.element.versionCode >= floors.app))
     .sort((a, b) => a.rank - b.rank);
   if (!appCandidates.length) fail("app-apk-would-downgrade-or-abi-mismatch");
   if (appCandidates.length > 1 && appCandidates[0].rank === appCandidates[1].rank) fail("app-apk-selection-ambiguous");
   const tests = testMetadata.elements.filter(element => ["SINGLE", "UNIVERSAL"].includes(element.type) && element.filters.length === 0);
   if (tests.length !== 1) fail("test-apk-selection-ambiguous");
-  if (tests[0].versionCode < floor("test")) fail("test-apk-would-downgrade");
-  return { app: appCandidates[0].element, test: tests[0], floors: { app: floor("app"), test: floor("test") } };
+  if (floors !== null && tests[0].versionCode < floors.test) fail("test-apk-would-downgrade");
+  return { app: appCandidates[0].element, test: tests[0], floors };
 }
 
 function readJson(path, privateFile = false) {
@@ -178,6 +186,8 @@ function retainApk(source, destination) {
 }
 
 export function selectAndRetainPair(options, dependencies = {}) {
+  const mode = options.mode ?? "select";
+  if (!["select", "retain-build"].includes(mode)) fail("explicit-apk-pair-arguments-required");
   const binding = freshOutput(options.output);
   const destinations = [options["app-output"], options["test-output"], options.output];
   requireArtifactPaths(binding, destinations);
@@ -185,7 +195,8 @@ export function selectAndRetainPair(options, dependencies = {}) {
   if (!/^[A-Za-z0-9][A-Za-z0-9._-]{0,199}$/.test(options["build-id"])) fail("explicit-acceptance-build-id-required");
   const observed = validateDevices(readJson(options.observed, true), performanceSerials(dependencies));
   const appMetadata = readJson(options["app-metadata"]); const testMetadata = readJson(options["test-metadata"]);
-  const selected = selectCandidates(appMetadata, testMetadata, observed, dependencies);
+  const selected = mode === "retain-build" ? selectMetadata(appMetadata, testMetadata, null) :
+    selectCandidates(appMetadata, testMetadata, observed, dependencies);
   const artifacts = {};
   for (const key of ["app", "test"]) {
     const source = join(dirname(options[`${key}-metadata`]), selected[key].outputFile);
@@ -198,6 +209,7 @@ export function selectAndRetainPair(options, dependencies = {}) {
   }
   const report = { type: "physical-apk-pair", schemaVersion: 1, buildId: options["build-id"], abi: ABI,
     variantName: appMetadata.variantName, observed, ...artifacts };
+  if (mode === "retain-build") Object.assign(report, { selectionPolicy: "build-only", installQualified: false });
   publish(options.output, report, binding);
   return report;
 }
@@ -206,6 +218,8 @@ export function checkPair(selectionPath, dependencies = {}) {
   const pair = readJson(selectionPath, true);
   const binding = prepareArtifactDirectory(dirname(selectionPath));
   if (pair?.type !== "physical-apk-pair" || pair.schemaVersion !== 1 || pair.abi !== ABI) fail("retained-apk-pair-required");
+  if (Object.hasOwn(pair, "selectionPolicy") &&
+      (pair.selectionPolicy !== "build-only" || pair.installQualified !== false)) fail("retained-apk-pair-required");
   for (const key of ["app", "test"]) {
     const artifact = pair[key];
     if (!artifact || artifact.packageName !== (key === "app" ? APP : TEST) || !code(artifact.versionCode) ||
@@ -224,7 +238,7 @@ export function checkPair(selectionPath, dependencies = {}) {
 
 export function parseArgs(argv) {
   const mode = argv[0];
-  const keys = mode === "observe" ? ["output"] : mode === "select" ? ["observed", "app-metadata", "test-metadata", "build-id",
+  const keys = mode === "observe" ? ["output"] : ["select", "retain-build"].includes(mode) ? ["observed", "app-metadata", "test-metadata", "build-id",
     "aapt", "app-output", "test-output", "output"] : mode === "check" ? ["selection", "output"] : [];
   if (!keys.length || argv.length !== keys.length * 2 + 1) fail("explicit-apk-pair-arguments-required");
   const options = { mode };
@@ -241,9 +255,11 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
   try {
     const options = parseArgs(process.argv.slice(2)); const binding = freshOutput(options.output);
     if (options.mode === "observe") publish(options.output, observeDevices(), binding);
-    else if (options.mode === "select") selectAndRetainPair(options);
+    else if (["select", "retain-build"].includes(options.mode)) selectAndRetainPair(options);
     else publish(options.output, checkPair(options.selection), binding);
-    process.stdout.write(`${JSON.stringify({ eligible: true, classification: "APK_PAIR_VERSION_CHECKED" })}\n`);
+    process.stdout.write(`${JSON.stringify(options.mode === "retain-build" ?
+      { eligible: false, buildAttested: true, installQualified: false, classification: "APK_PAIR_BUILD_ONLY" } :
+      { eligible: true, classification: "APK_PAIR_VERSION_CHECKED" })}\n`);
   } catch (error) { process.stderr.write(`APK pair failed: ${reason(error)}\n`); process.exitCode = 2; }
 }
 

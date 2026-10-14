@@ -463,6 +463,37 @@ test("failed-session process dump accepts bounded optional child CPU time but no
   }
 });
 
+test("failed-session process dump accepts Android formatted child CPU durations", () => {
+  // Synthetic dump: unrelated child CPU accounting is not active instrumentation.
+  for (const duration of ["+10ms", "+999ms", "+1s0ms", "+1m0s0ms", "+1h0m0s0ms",
+    "+1d0h0m0s0ms", "+13d23h59m59s999ms", "-12ms", "0", "17"]) {
+    const dump = stoppedProcessDump.replace("lastCpuTime=0  oom", `lastCpuTime=1  timeUsed=${duration} oom`);
+    for (const stdout of [dump, dump.replaceAll("\n", "\r\n")]) {
+      assert.doesNotThrow(() => requireCredentialInstrumentationStopped("fake-device", args => {
+        assert.deepEqual(args, ["-s", "fake-device", "shell", "dumpsys", "activity", "processes", "com.bringyour.network"]);
+        return { status: 0, signal: null, stdout, stderr: "" };
+      }), duration);
+    }
+  }
+});
+
+test("failed-session process dump rejects malformed Android child CPU durations", () => {
+  const check = stdout => requireCredentialInstrumentationStopped("fake-device",
+    () => ({ status: 0, signal: null, stdout, stderr: "" }));
+  for (const duration of ["+", "-", "+ms", "+1", "+1s", "10ms", "+1msx", "+1ms0s",
+    "+1s2s3ms", "+1m2h3ms", "+1d2d3ms", "+100h0ms", "+100m0ms", "+100s0ms", "+1000ms",
+    "++1ms", "+1.5ms", "+1 ms", "+1ms timeUsed=+2ms", "+1ms unknownField=1"]) {
+    const dump = stoppedProcessDump.replace("lastCpuTime=0  oom", `lastCpuTime=1  timeUsed=${duration} oom`);
+    assert.throws(() => check(dump), /credential-instrumentation-not-proven-stopped/, duration);
+  }
+  const valid = stoppedProcessDump.replace("lastCpuTime=0  oom", "lastCpuTime=1  timeUsed=+7ms oom");
+  for (const invalid of [
+    valid.replace("  OOM levels:", "  Active instrumentation:\n    Instrumentation #0: synthetic\n  OOM levels:"),
+    valid.replace("  OOM levels:", "  unknown-body"),
+    valid.split("\n").slice(0, -2).join("\n"),
+  ]) assert.throws(() => check(invalid), /credential-instrumentation-not-proven-stopped/);
+});
+
 test("failed-session cleanup preserves changed credential identity permissions and markers", t => {
   for (const kind of ["changed-bytes", "same-content-replaced", "credential-mode", "marker-mode", "missing-marker", "changed-marker", "credential-symlink", "marker-symlink"]) {
     const f = failedOwnershipFixture(t);

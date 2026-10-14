@@ -43,7 +43,7 @@ test("destination preflight accepts one read-only probe with no watch deadline o
   }
 });
 
-function shellFixture(t) {
+function shellFixture(t, execute = spawnSync) {
   const directory = mkdtempSync(join(tmpdir(), "credential-namespace-test-"));
   t.after(() => rmSync(directory, { recursive: true, force: true }));
   const app = join(directory, "app"); const shell = join(directory, "shell"); const bin = join(directory, "bin");
@@ -56,8 +56,26 @@ const fs = require('node:fs');
 const stat = fs.lstatSync(process.argv.at(-1));
 process.stdout.write(stat.uid + ' ' + (stat.mode & 511).toString(8) + ' ' + stat.size + '\\n');
 `, { mode: 0o700 });
-  const invoke = command => spawnSync("/bin/sh", ["-c", command], { cwd: shell, encoding: "utf8", timeout: 3000,
-    env: { ...process.env, PATH: `${bin}:${process.env.PATH}`, FIXTURE_APP: app } });
+  const invoke = command => {
+    let result;
+    try {
+      // The local model gets the real metadata probe's existing five-second
+      // deadline, not a shorter watchdog that can fail before that boundary.
+      result = execute("/bin/sh", ["-c", command], { cwd: shell, encoding: "utf8", timeout: 5000,
+        env: { ...process.env, PATH: `${bin}:${process.env.PATH}`, FIXTURE_APP: app } });
+    } catch {
+      t.diagnostic("credential-fixture-shell-spawn-error");
+      assert.fail("credential-fixture-shell-spawn-error");
+    }
+    if (result?.error || result?.signal || !Number.isInteger(result?.status) || result.status < 0 || result.status > 255) {
+      const reason = result?.error?.code === "ETIMEDOUT" ? "timeout" : result?.error ? "spawn-error"
+        : result?.signal ? "terminated" : "missing-exit";
+      // Never copy command text, raw output, error messages or signal names.
+      t.diagnostic(`credential-fixture-shell-${reason}`);
+      assert.fail(`credential-fixture-shell-${reason}`);
+    }
+    return result;
+  };
   const adb = args => {
     assert.deepEqual(args.slice(0, 4), ["-s", "fixture", "shell", "-T"]);
     // Model ADB's device-shell join, not exec of the host's original argv.
@@ -66,6 +84,77 @@ process.stdout.write(stat.uid + ' ' + (stat.mode & 511).toString(8) + ' ' + stat
   const options = { serial: "fixture", preflight: true, output: join(directory, "preflight.json") };
   return { directory, app, options, adb, invoke, destination: join(app, "files/acceptance/credentials") };
 }
+
+// The executor seam is on the actual fixture invocation, before any command
+// launches. This tests deadline selection without a wall-time race or sleep.
+test("credential metadata shell fixture preserves the production probe budget and one executor invocation", t => {
+  let calls = 0; let observed;
+  const terminal = { status: 0, signal: null, stdout: "", stderr: "" };
+  const f = shellFixture(t, (command, args, options) => {
+    calls++; observed = { command, args, options };
+    return terminal;
+  });
+  assert.equal(f.invoke("exit 0"), terminal);
+  assert.equal(calls, 1, "fixture must not retry");
+  assert.equal(observed.command, "/bin/sh");
+  assert.deepEqual(observed.args, ["-c", "exit 0"]);
+  assert.equal(observed.options.timeout, 5000, "fixture must retain the unchanged production metadata probe budget");
+  assert.equal(observed.options.encoding, "utf8");
+  assert.equal(observed.options.cwd, join(f.directory, "shell"));
+  assert.equal(observed.options.env.FIXTURE_APP, f.app);
+  assert.equal(observed.options.env.PATH.startsWith(join(f.directory, "bin") + ":"), true);
+});
+
+// A captured success-looking marker cannot replace natural process completion.
+// Fixed categories retain the cause without copying any untrusted child data.
+test("credential metadata shell fixture rejects incomplete outcomes with sanitized diagnostics and no retries", t => {
+  const marker = "fixture-private-output-error-path";
+  const apparentSuccess = { status: 0, stdout: "0 missing - - -\n", stderr: marker };
+  for (const [result, reason] of [
+    [{ ...apparentSuccess, status: null, error: { code: "ETIMEDOUT", message: marker } }, "timeout"],
+    [{ ...apparentSuccess, error: { code: "ETIMEDOUT", message: marker } }, "timeout"],
+    [{ ...apparentSuccess, status: null, signal: marker }, "terminated"],
+    [{ ...apparentSuccess, signal: marker }, "terminated"],
+    [{ ...apparentSuccess, status: null, error: { code: marker, message: marker } }, "spawn-error"],
+    [{ ...apparentSuccess, error: { code: marker, message: marker } }, "spawn-error"],
+    [{ ...apparentSuccess, status: null }, "missing-exit"],
+    [{ ...apparentSuccess, status: marker }, "missing-exit"],
+    [{ ...apparentSuccess, status: 1.5 }, "missing-exit"],
+    [{ ...apparentSuccess, status: -1 }, "missing-exit"],
+    [{ ...apparentSuccess, status: 256 }, "missing-exit"],
+    [undefined, "missing-exit"],
+  ]) {
+    let calls = 0;
+    const f = shellFixture(t, () => { calls++; return result; });
+    assert.throws(() => f.invoke("exit 0"), error => {
+      assert.equal(error.code, "ERR_ASSERTION");
+      assert.equal(error.message, `credential-fixture-shell-${reason}`);
+      assert.equal(error.message.includes(marker), false);
+      return true;
+    });
+    assert.equal(calls, 1, "incomplete process result must not be retried");
+  }
+  let calls = 0;
+  const f = shellFixture(t, () => { calls++; throw new Error(marker); });
+  assert.throws(() => f.invoke("exit 0"), { message: "credential-fixture-shell-spawn-error" });
+  assert.equal(calls, 1, "executor exception must not be retried");
+});
+
+// Preserve all natural exit codes for the original semantic assertions and
+// production parser. A nonzero natural exit still cannot prove file absence.
+test("credential metadata shell fixture preserves natural exits and metadata refusal", t => {
+  for (const status of [0, 1, 23, 255]) {
+    let calls = 0;
+    const terminal = { status, signal: null, stdout: "0 missing - - -\n", stderr: "" };
+    const f = shellFixture(t, () => { calls++; return terminal; });
+    assert.equal(f.invoke("exit 0"), terminal);
+    assert.equal(calls, 1);
+    const report = preflightCredentialDestination(f.options, { adb: f.adb });
+    assert.equal(calls, 2, "preflight owns exactly one separate probe");
+    assert.equal(report.eligible, status === 0);
+    assert.equal(report.reason, status === 0 ? "credential-destination-absent" : "credential-destination-unavailable");
+  }
+});
 
 test("ADB argument joining falsely reports an existing credential absent unless the remote script is quoted", t => {
   const f = shellFixture(t);
