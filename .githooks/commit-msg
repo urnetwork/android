@@ -1,0 +1,169 @@
+#!/bin/sh
+#
+# commit-msg: reject AI attribution in commit messages.
+#
+# Owner rule (2026-10-14): no AI attribution in commits. History stays as it
+# is; nothing is rewritten. This hook blocks a new commit whose message has a
+# Co-authored-by trailer, a "Generated with <AI tool>" footer, an AI tool's
+# noreply address, a trailer crediting an AI tool, or an AI session or task
+# link. Matching ignores case.
+#
+# git runs commit-msg for git commit (editor, -m, -F, -c/-C, --amend) and for
+# the merge commit git merge or git pull makes, so each of those is checked.
+# The diff git commit -v adds below git's scissors line is not part of the
+# message and is skipped. Comment lines are checked, because git commit -m and
+# -F keep them.
+#
+# git commit --no-verify skips commit-msg hooks, and git cherry-pick and git
+# rebase reuse a message without running them. To list commits that reached a
+# branch anyway, run this file with --scan and git log arguments, e.g.
+#   .githooks/commit-msg --scan origin/main@{1}..origin/main
+#   .githooks/commit-msg --scan --since=2026-10-14 --all
+#
+# Install once per clone; the clone's worktrees share it. Either
+#   git config core.hooksPath .githooks
+# or, when the clone keeps other hooks in .git/hooks (git-lfs, gofmt), which
+# core.hooksPath would turn off,
+#   cp .githooks/commit-msg "$(git rev-parse --git-common-dir)/hooks/"
+
+check='
+BEGIN {
+    n = 0
+    pat[++n] = "co-?authored[-_ ]?by[ \t]*:"
+    why[n] = "Co-authored-by trailer"
+    pat[++n] = "noreply@anthropic\\.com|noreply@openai\\.com|copilot@users\\.noreply\\.github\\.com"
+    why[n] = "AI tool e-mail address"
+    pat[++n] = "(generated|written|created|authored)[- ](with|by|using|via)[ \t:]*\\[?(claude|anthropic|chatgpt|openai|codex|copilot|gemini)"
+    why[n] = "\"Generated with\" AI footer"
+    pat[++n] = "^[ \t]*[a-z0-9][a-z0-9-]*-(by|with)[ \t]*:.*(claude|anthropic|chatgpt|openai|codex|copilot|gemini)"
+    why[n] = "trailer crediting an AI tool"
+    pat[++n] = "^[ \t]*assisted-by[ \t]*:"
+    why[n] = "Assisted-by trailer"
+    pat[++n] = "claude-session[ \t]*:|claude\\.ai/code/session|claude\\.com/claude-code"
+    why[n] = "Claude Code session or link"
+    pat[++n] = "codex-thread|chatgpt\\.com/codex"
+    why[n] = "Codex task link"
+    scissors = "^[^ \t]+ ------------------------ >8 ------------------------[ \t]*$"
+    state = 0
+    held = 0
+    hits = 0
+    commits = 0
+}
+
+function check(line, num,    l, i) {
+    l = tolower(line)
+    for (i = 1; i <= n; i++) {
+        if (l ~ pat[i]) {
+            found[++hits] = sprintf("  line %d: %s\n          (%s)", num, line, why[i])
+            return
+        }
+    }
+}
+
+function release(    i) {
+    for (i = 1; i <= held; i++)
+        check(heldline[i], heldnum[i])
+    held = 0
+}
+
+function report_commit() {
+    if (hits > 0) {
+        commits++
+        print header
+        for (i = 1; i <= hits; i++)
+            print found[i]
+    }
+    hits = 0
+}
+
+# --scan: git log writes one header line per commit, starting with \036.
+mode == "scan" && $0 == "\036!" {
+    failed = 1
+    next
+}
+
+mode == "scan" && substr($0, 1, 1) == "\036" {
+    report_commit()
+    split(substr($0, 2), h, "\037")
+    header = substr(h[1], 1, 12) " " h[2] " " h[3] ": " h[4]
+    num = 0
+    next
+}
+
+mode == "scan" {
+    num++
+    sub(/\r$/, "")
+    check($0, num)
+    next
+}
+
+# A message file. Below the scissors line git commit -v adds comment lines
+# and then the diff; none of it is kept. A scissors line not followed by a
+# diff is ordinary text and is checked.
+{
+    sub(/\r$/, "")
+    if (state == 2)
+        next
+    if (state == 1) {
+        if ($0 ~ /^diff --git /) {
+            held = 0
+            state = 2
+            next
+        }
+        if (index($0, prefix) == 1 || $0 ~ /^[ \t]*$/) {
+            heldline[++held] = $0
+            heldnum[held] = NR
+            next
+        }
+        release()
+        state = 0
+    }
+    if ($0 ~ scissors) {
+        split($0, f, " ")
+        prefix = f[1]
+        state = 1
+        next
+    }
+    check($0, NR)
+}
+
+END {
+    if (mode == "scan") {
+        report_commit()
+        if (failed) {
+            print "commit-msg --scan: git log failed; nothing was checked."
+            exit 2
+        }
+        if (commits > 0) {
+            printf "%d commit(s) carry AI attribution (owner rule: no AI attribution in commits).\n", commits
+            exit 1
+        }
+        exit 0
+    }
+    release()
+    if (hits > 0) {
+        print "commit-msg: commit rejected (owner rule: no AI attribution in commits)."
+        for (i = 1; i <= hits; i++)
+            print found[i]
+        print "Remove the attribution and commit again (see Commits in connect/CODESTYLE.md)."
+        print "The message is saved in " file "."
+        exit 1
+    }
+}
+'
+
+if [ "${1-}" = "--scan" ]; then
+    shift
+    {
+        git log --no-color --format='%x1e%H%x1f%cs%x1f%an%x1f%s%n%B' "$@" ||
+            printf '\036!\n'
+    } | LC_ALL=C awk -v mode=scan "$check"
+    exit $?
+fi
+
+if [ $# -lt 1 ] || [ ! -r "$1" ]; then
+    echo "commit-msg: cannot read the commit message file '${1-}'." >&2
+    exit 1
+fi
+
+LC_ALL=C awk -v mode=file -v file="$1" "$check" < "$1" >&2
