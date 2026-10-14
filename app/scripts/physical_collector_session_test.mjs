@@ -92,6 +92,7 @@ function instrumentationFixture(t) {
           assert.equal(command, "adb");
           assert.deepEqual(args, ["-s", "fake-device", "shell", "am", "instrument", "-w", "-r", "-e", "class",
             "com.bringyour.network.acceptance.PhysicalLowbarSessionTest", "-e", "acceptanceBuildId", "fixture",
+            ...(options["launch-id"] === undefined ? [] : ["-e", "acceptanceLaunchId", options["launch-id"]]),
             "com.bringyour.network.test/androidx.test.runner.AndroidJUnitRunner"]);
           f.child = spawn(process.execPath, ["-e", fakeInstrumentation, join(directory, "stop")], settings);
           assert.equal(existsSync(options.owner), false, "no running receipt before live child verification");
@@ -118,6 +119,7 @@ function instrumentationFixture(t) {
 }
 
 const disconnectedStatus = { type: "status", pid: 1234, commandId: "0", state: "ready", phase: "ready",
+  buildId: "fixture", sessionId: "11111111-1111-4111-8111-111111111111", launchId: "abcdef0123456789abcdef0123456789",
   elapsedMs: 100, transportMode: "auto", connected: false, tunnelStarted: false, provideEnabled: false };
 const connectedStatus = { ...disconnectedStatus, commandId: "h1-fresh", state: "complete", phase: "connect-h1",
   elapsedMs: 200, transportMode: "h1", connected: true, tunnelStarted: true };
@@ -1372,3 +1374,169 @@ test("bound collector retries only missing or partial startup prefixes within th
   }
 });
 
+
+// Source wiring complements the actual AM argv assertion in instrumentationFixture:
+// the producer must stamp the launch outside snapshot/fallback and before writing.
+test("instrumentation launch reaches AM and every app status path", async (t) => {
+  const f = boundInstrumentationFixture(t);
+  await f.start();
+  const owner = JSON.parse(readFileSync(f.options.owner, "utf8"));
+  assert.equal(owner.launchId, f.options["launch-id"]);
+  assert.equal(owner.buildId, f.options["build-id"]);
+  const source = readFileSync(new URL("../app/src/androidTest/java/com/bringyour/network/acceptance/PhysicalLowbarSessionTest.kt", import.meta.url), "utf8");
+  assert.match(source, /private val acceptanceLaunchId = InstrumentationRegistry\.getArguments\(\)\.getString\("acceptanceLaunchId"\)/);
+  assert.ok(source.includes('require(Regex("^[a-f0-9]{32}$").matches(it))'));
+  const status = source.slice(source.indexOf("    private fun status("), source.indexOf("    private fun failureStatus("));
+  const fallback = status.indexOf('.put("snapshotErrorType",');
+  const kind = status.indexOf('.put("type", "status")');
+  assert.ok(fallback > 0 && kind > fallback, "status identity must be outside both snapshot paths");
+  for (const field of ['.put("launchId", acceptanceLaunchId)', '.put("sessionId", memorySessionId)',
+    '.put("buildId", BuildConfig.URNETWORK_ACCEPTANCE_BUILD_ID)']) {
+    assert.ok(status.indexOf(field) > kind && status.indexOf(field) < status.indexOf("writePrivate(statusFile,"));
+    assert.equal(status.split(field).length, 2);
+  }
+  assert.match(source, /status\(id, "error", application, startElapsedMs, extra, failure\.phase\)/);
+  f.stop(); assert.equal(await f.result, 0);
+});
+
+test("physical failure attribution is captured before owned teardown and published without rereading login state", () => {
+  const source = readFileSync(new URL("../app/src/androidTest/java/com/bringyour/network/acceptance/PhysicalLowbarSessionTest.kt", import.meta.url), "utf8");
+  const owned = source.slice(source.indexOf("    private fun runOwnedDeviceSession("),
+    source.indexOf("    private class MemoryTeardownState"));
+  const caught = owned.indexOf("} catch (error: Throwable) {");
+  const captured = owned.indexOf("captureFailure(error)", caught);
+  const rethrown = owned.indexOf("throw error", caught);
+  const final = owned.indexOf("} finally {", caught);
+  const close = owned.indexOf("closeOwnedDeviceScope(", final);
+  assert.ok(caught > 0 && captured > caught && rethrown > captured && final > rethrown && close > final,
+    "actual owned session must capture its failure before finally logs out the app");
+  const publish = source.slice(source.indexOf("    private fun failureStatus("),
+    source.indexOf("    private fun stopClient("));
+  assert.match(publish, /failure: PhysicalFailureSnapshot/);
+  assert.match(publish, /JSONObject\(failure\.statusFields\(\)\)/);
+  assert.match(publish, /status\(id, "error", application, startElapsedMs, extra, failure\.phase\)/);
+  assert.doesNotMatch(publish, /loginStartupState|error\.message|error\.cause/);
+  const outer = source.slice(source.indexOf("    fun physicalLowbarSession()"),
+    source.indexOf("    private fun runOwnedDeviceSession("));
+  assert.match(outer, /failureStatus\(activeCommandId, application, startElapsedMs, captureFailure\(error\)\)/);
+  assert.match(outer, /\.onFailure\(error::addSuppressed\)\s+throw error/);
+  assert.match(outer, /sessionFailure\.addSuppressed\(finalError\)/);
+  const status = source.slice(source.indexOf("    private fun status("),
+    source.indexOf("    private fun captureFailure("));
+  assert.match(status, /statusPhase: String = phase/);
+  assert.ok(status.indexOf('.put("phase", statusPhase)') > status.indexOf('.put("snapshotErrorType",'),
+    "the failure phase must survive both snapshot and fallback paths");
+});
+
+test("physical egress and startup errors are attributed only at their actual throw boundaries", () => {
+  const source = readFileSync(new URL("../app/src/androidTest/java/com/bringyour/network/acceptance/PhysicalLowbarSessionTest.kt", import.meta.url), "utf8");
+  const probe = source.slice(source.indexOf("    private fun peerEgressProbe(): String"),
+    source.indexOf("    private fun peerEgressProbeWithTrafficProof("));
+  assert.match(probe, /EgressProbeRequest\.queryPublicIp/);
+  assert.match(probe, /captureFailure\(error, PhysicalFailureOperation\.EGRESS_PROBE\)/);
+  assert.match(probe, /\.onFailure\(error::addSuppressed\)\s+throw error/);
+  assert.equal(source.split("EgressProbeRequest.queryPublicIp").length, 2,
+    "public, peer, and explicit probe callers must share the same failure boundary");
+  assert.equal(source.split("peerEgressProbeWithTrafficProof(device)").length, 4);
+  assert.match(source, /is LoginStartupState\.Failed -> throw LoginStartupFailureException\(state\)/);
+  assert.match(source, /is LoginStartupState\.LoggedOut -> throw PhysicalLoginLoggedOutException\(\)/);
+  assert.match(source, /throwLoginStartupTimeout\(\s+state,\s+PhysicalLoginStartupTimeout\(state, AUTH_TIMEOUT_MILLIS\)/);
+});
+
+test("public startup rejects intent-only readiness before egress", () => {
+  const source = readFileSync(new URL("../app/src/androidTest/java/com/bringyour/network/acceptance/PhysicalLowbarSessionTest.kt", import.meta.url), "utf8");
+  const body = source.slice(source.indexOf("    private fun connectPublic("),
+    source.indexOf("    private fun startProvider("));
+  assert.doesNotMatch(body, /waitFor\(PhysicalWaitStage\.PUBLIC_VPN_CONNECTION, CONNECT_TIMEOUT_MILLIS\)\s*\{\s*connectVc\.connected && device\.connectEnabled && device\.tunnelStarted\s*\}/,
+    "selected intent and an established tunnel are not provider-window admission");
+  assert.match(body, /runPhysicalPublicEgress\(/);
+  assert.match(body, /timeoutMillis = CONNECT_TIMEOUT_MILLIS/);
+  assert.match(body, /nowMillis = SystemClock::elapsedRealtime/);
+  assert.match(body, /sleepMillis = SystemClock::sleep/);
+  assert.match(body, /egressProof = \{ peerEgressProbeWithTrafficProof\(device\) \}/);
+  const route = body.slice(body.indexOf("routeState = {"), body.indexOf("egressProof = {"));
+  assert.doesNotMatch(route, /carrierBytes|physicalSelectedCarriers|peerEgressProbe/);
+  assert.ok(body.indexOf("PhysicalWaitStage.US_PROVIDER_CARRIER_EVIDENCE") > body.indexOf("egressProof = {"),
+    "application-byte proof must remain after the one-shot probe");
+});
+
+test("public startup brackets provider evidence with the current connection generation", () => {
+  const source = readFileSync(new URL("../app/src/androidTest/java/com/bringyour/network/acceptance/PhysicalLowbarSessionTest.kt", import.meta.url), "utf8");
+  const body = source.slice(source.indexOf("    private fun connectPublic("),
+    source.indexOf("    private fun startProvider("));
+  assert.match(body, /connectVc\.connect\(checkNotNull\(selected\)\)\s+expectedConnectionGeneration = checkNotNull\(device\.windowStatus\)\.connectionGeneration/);
+  assert.ok(body.indexOf("uiDevice.clickVerifiedVpnConsentIfPresent()") < body.indexOf("runPhysicalPublicEgress("),
+    "the existing startup budget begins after connect/consent");
+  assert.match(body, /val before = device\.windowStatus\s+val providers = liveProviders\(device\)\s+val after = device\.windowStatus/);
+  assert.match(body, /generationBefore = before\?\.connectionGeneration \?: 0L/);
+  assert.match(body, /generationAfter = after\?\.connectionGeneration \?: 0L/);
+  assert.match(body, /minSatisfied = before\?\.minSatisfied == true && after\?\.minSatisfied == true/);
+  assert.match(body, /failed = before\?\.failed != false \|\| after\?\.failed != false/);
+  const peer = source.slice(source.indexOf("    private fun connectPeer("),
+    source.indexOf("    private fun commandResult("));
+  assert.match(peer, /runPhysicalPeerEgress\(/);
+  assert.match(peer, /requestedPeerId = device\.connectLocation\?\.connectLocationId\?\.clientId\?\.idStr/);
+  assert.match(peer, /providers = liveProviders\(device\)/);
+});
+
+test("bound ready refuses prior or malformed app generations before publishing identity", async (t) => {
+  for (const change of [{ launchId: undefined }, { launchId: "f".repeat(32) }, { launchId: null },
+    { launchId: 123 }, { launchId: [disconnectedStatus.launchId] }, { buildId: "other-fixture" },
+    { buildId: null }, { buildId: 123 }, { buildId: ["fixture"] }, { sessionId: undefined },
+    { sessionId: null }, { sessionId: 123 }, { sessionId: "not-a-session" }, { sessionId: [disconnectedStatus.sessionId] }]) {
+    const f = boundInstrumentationFixture(t); await f.start();
+    await assert.rejects(f.boundBind({ adb: roleAdb([{ ...disconnectedStatus, ...change }]),
+      sleep: () => assert.fail("wrong target generation must not be retried") }),
+    /^Error: instrumentation-target-generation-mismatch$/);
+    assert.equal(existsSync(`${f.options.owner}.ready.json`), false);
+    f.stop(); assert.equal(await f.result, 0);
+  }
+});
+
+test("ready-bound command and role readers reject generation drift with the same live PID", async (t) => {
+  const f = boundInstrumentationFixture(t); await f.start(); await f.boundBind();
+  const ready = JSON.parse(readFileSync(`${f.options.owner}.ready.json`, "utf8"));
+  assert.equal(ready.launchId, f.options["launch-id"]); assert.equal(ready.buildId, "fixture");
+  assert.equal(ready.targetSessionId, disconnectedStatus.sessionId);
+  for (const change of [{ launchId: undefined }, { launchId: "f".repeat(32) }, { launchId: null },
+    { launchId: 123 }, { launchId: [disconnectedStatus.launchId] }, { buildId: "other-fixture" },
+    { sessionId: "22222222-2222-4222-8222-222222222222" }, { sessionId: null },
+    { sessionId: 123 }, { sessionId: [disconnectedStatus.sessionId] }]) {
+    const row = { ...disconnectedStatus, ...change };
+    assert.throws(() => checkInstrumentationCommandSession({ owner: f.options.owner, serial: "fake-device" },
+      { hostProcess: f.hostProcess, adb: roleAdb([row]) }), /^Error: instrumentation-target-generation-mismatch$/);
+    await assert.rejects(actualCheckSessionRole({ ...directRole, "instrumentation-owner": f.options.owner },
+      { hostProcess: f.hostProcess, adb: roleAdb([row]),
+        sleep: () => assert.fail("generation mismatch cannot become a role wait") }, false),
+    /^Error: instrumentation-target-generation-mismatch$/);
+  }
+  const original = readFileSync(`${f.options.owner}.ready.json`, "utf8");
+  for (const change of [{ launchId: "f".repeat(32) }, { buildId: "other-fixture" },
+    { targetSessionId: "" }, { targetSessionId: null }, { targetSessionId: 123 },
+    { targetSessionId: [disconnectedStatus.sessionId] }]) {
+    writeFileSync(`${f.options.owner}.ready.json`, JSON.stringify({ ...ready, ...change }), { mode: 0o600 });
+    assert.throws(() => checkInstrumentationCommandSession({ owner: f.options.owner, serial: "fake-device" },
+      { hostProcess: f.hostProcess, adb: () => assert.fail("invalid ready identity must fail before device reads") }),
+    /^Error: bound-ready-instrumentation-generation-required$/);
+  }
+  writeFileSync(`${f.options.owner}.ready.json`, original);
+  f.stop(); assert.equal(await f.result, 0);
+});
+
+test("bound owners require typed launch and build identity even for legacy binder calls", async (t) => {
+  const f = boundInstrumentationFixture(t); await f.start();
+  const original = readFileSync(f.options.owner, "utf8");
+  const owner = JSON.parse(original);
+  for (const change of [{ buildId: undefined }, { buildId: null }, { buildId: 123 }, { buildId: ["fixture"] },
+    { launchId: [f.options["launch-id"]] }, { launchId: "" }, { launchId: null }, { launchId: 123 }]) {
+    writeFileSync(f.options.owner, JSON.stringify({ ...owner, ...change }), { mode: 0o600 });
+    assert.throws(() => f.bind(() => assert.fail("invalid bound owner must not query the device")),
+      /^Error: invalid-instrumentation-owner-receipt$/);
+    await assert.rejects(f.boundBind({ adb: () => assert.fail("invalid bound owner must not query the device") }),
+      /^Error: invalid-instrumentation-owner-receipt$/);
+    assert.equal(existsSync(`${f.options.owner}.ready.json`), false);
+  }
+  writeFileSync(f.options.owner, original);
+  await f.boundBind();
+  f.stop(); assert.equal(await f.result, 0);
+});

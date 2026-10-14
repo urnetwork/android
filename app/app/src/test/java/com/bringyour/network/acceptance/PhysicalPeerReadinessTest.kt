@@ -168,6 +168,29 @@ class PhysicalPeerReadinessTest {
         assertEquals(250L, timing.evidence(clock.now)["connectionElapsedMs"])
     }
 
+    @Test fun `fatal peer route errors preserve identity without retry or probe`() {
+        val failures = listOf(
+            OutOfMemoryError("synthetic fatal allocation"),
+            LinkageError("synthetic fatal linkage"),
+            AssertionError("synthetic fatal assertion"),
+        )
+        for (failure in failures) {
+            val clock = Clock()
+            val timing = PhysicalPeerConnectTiming(0, 120_000)
+            var reads = 0
+            var probes = 0
+            val error = assertThrows(Error::class.java) {
+                runPhysicalPeerEgress(peer.clientId, timing, { clock.now }, clock::sleep,
+                    {}, { reads++; throw failure }, { probes++ })
+            }
+            assertSame(failure, error)
+            assertEquals(1, reads)
+            assertEquals(0, probes)
+            assertTrue(clock.sleeps.isEmpty())
+            assertEquals(0L, clock.now)
+        }
+    }
+
     @Test fun `full command elapsed includes discovery and later carrier proof without stale probe timing`() {
         val clock = Clock().apply { now = 5_000 }
         val timing = PhysicalPeerConnectTiming(5_000, 120_000, commandStartedAtMillis = 0)

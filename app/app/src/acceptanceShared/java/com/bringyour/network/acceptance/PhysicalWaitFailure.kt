@@ -18,8 +18,9 @@ internal enum class PhysicalWaitStage(val wireValue: String, val description: St
 
 internal class PhysicalWaitTimeout(
     val stage: PhysicalWaitStage,
-    timeoutMillis: Long,
+    val timeoutMillis: Long,
     cause: Throwable?,
+    val publicReadiness: PhysicalPublicReadinessSnapshot? = null,
 ) : AssertionError("Timed out waiting for ${stage.description} after ${timeoutMillis / 1_000}s", cause)
 
 /** Same polling/deadline behavior as the physical session, with a typed timeout. */
@@ -35,7 +36,9 @@ internal fun waitForPhysicalCondition(
     while (nowMillis() < deadline) {
         try {
             if (condition()) return
-        } catch (error: Throwable) {
+        } catch (error: InterruptedException) {
+            throw error
+        } catch (error: Exception) {
             lastError = error
         }
         sleepMillis(100)

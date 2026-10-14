@@ -145,6 +145,18 @@ function readTargetStatus(adb, expectedPid, minimumElapsedMs = 0) {
   return status;
 }
 
+// A launch nonce distinguishes a fresh app session from same-build files left
+// by an earlier run. Legacy owners without the optional binding stay unchanged.
+function requireTargetGeneration(status, owner) {
+  if (owner.launchId === undefined) return;
+  if (status.launchId !== owner.launchId || status.buildId !== owner.buildId ||
+      typeof status.sessionId !== "string" ||
+      !/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/.test(status.sessionId) ||
+      (owner.targetSessionId !== undefined && status.sessionId !== owner.targetSessionId)) {
+    fail("instrumentation-target-generation-mismatch");
+  }
+}
+
 function readInstrumentationOwner(path, serial, requireReady = true) {
   if (!path || !existsSync(path)) fail("retained-instrumentation-owner-receipt-required");
   const file = lstatSync(path);
@@ -157,7 +169,9 @@ function readInstrumentationOwner(path, serial, requireReady = true) {
       owner.supervisorPid === owner.adbPid || !hexDigest(owner.supervisorIdentity) || !hexDigest(owner.adbIdentity) ||
       owner.serialHash !== digest(serial) || !commandIdValid(owner.label) || owner.className !== physicalClass ||
       owner.targetPackage !== packageName || !runnerComponents.includes(owner.component) ||
-      !Number.isFinite(owner.startedHostTimeUnixMs) || owner.startedHostTimeUnixMs < 0) {
+      !Number.isFinite(owner.startedHostTimeUnixMs) || owner.startedHostTimeUnixMs < 0 ||
+      (owner.launchId !== undefined && (typeof owner.launchId !== "string" ||
+        !/^[a-f0-9]{32}$/.test(owner.launchId) || !commandIdValid(owner.buildId)))) {
     fail("invalid-instrumentation-owner-receipt");
   }
   requireRetainedForeground(owner.foreground ?? {});
@@ -173,7 +187,13 @@ function readInstrumentationOwner(path, serial, requireReady = true) {
     if (ready.schema !== 1 || ready.type !== "instrumentation-session-ready" || ready.ownerId !== owner.ownerId ||
         ready.serialHash !== owner.serialHash || !pidValid(ready.targetPid) ||
         !Number.isFinite(ready.elapsedMs) || ready.elapsedMs < 0) fail("bound-ready-instrumentation-required");
-    return { ...owner, targetPid: ready.targetPid, readyElapsedMs: ready.elapsedMs };
+    if (owner.launchId !== undefined && (ready.launchId !== owner.launchId || ready.buildId !== owner.buildId ||
+        typeof ready.targetSessionId !== "string" ||
+        !/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/.test(ready.targetSessionId))) {
+      fail("bound-ready-instrumentation-generation-required");
+    }
+    return { ...owner, targetPid: ready.targetPid, readyElapsedMs: ready.elapsedMs,
+      ...(owner.launchId === undefined ? {} : { targetSessionId: ready.targetSessionId }) };
   }
   return owner;
 }
@@ -220,6 +240,7 @@ function bindPublishedInstrumentationReady(options, dependencies, binding) {
   binding?.sameLauncher();
   requireLiveInstrumentation(owner, options.serial, dependencies);
   const status = readTargetStatus(deviceInvoker(options.serial, dependencies), owner.targetPid);
+  requireTargetGeneration(status, owner);
   if (status.state !== "ready" || status.phase !== "ready") fail("ready-session-before-owner-binding-required");
   requireLiveInstrumentation(owner, options.serial, dependencies);
   const current = readInstrumentationOwner(options.owner, options.serial, false);
@@ -227,7 +248,8 @@ function bindPublishedInstrumentationReady(options, dependencies, binding) {
   binding?.sameLauncher();
   if (binding && binding.now() >= binding.deadline) fail("instrumentation-session-ready-deadline");
   publish(`${options.owner}.ready.json`, { schema: 1, type: "instrumentation-session-ready", ownerId: owner.ownerId,
-    serialHash: owner.serialHash, targetPid: status.pid, elapsedMs: status.elapsedMs, hostTimeUnixMs: Date.now() });
+    serialHash: owner.serialHash, targetPid: status.pid, elapsedMs: status.elapsedMs, hostTimeUnixMs: Date.now(),
+    ...(owner.launchId === undefined ? {} : { launchId: owner.launchId, buildId: owner.buildId, targetSessionId: status.sessionId }) });
   return { retainedOwnerLive: true, adbChildLive: true, targetProcessMatchesStatus: true, readyStatusReadable: true };
 }
 
@@ -239,6 +261,7 @@ export function checkInstrumentationCommandSession(options, dependencies = {}) {
   const owner = readInstrumentationOwner(options.owner, options.serial);
   requireLiveInstrumentation(owner, options.serial, dependencies);
   const status = readTargetStatus(deviceInvoker(options.serial, dependencies), owner.targetPid);
+  requireTargetGeneration(status, owner);
   if (status.pid !== owner.targetPid || status.elapsedMs < owner.readyElapsedMs) fail("instrumentation-target-process-changed");
   if (["connected", "tunnelStarted", "provideEnabled"].some(key => typeof status[key] !== "boolean") ||
       typeof status.transportMode !== "string" || !status.transportMode) fail("live-instrumentation-status-required");
@@ -284,6 +307,7 @@ export async function checkSessionRole(options, dependencies = {}, wait = true) 
   for (;;) {
     checkOwner();
     const status = readTargetStatus(adb, retained.targetPid, Math.max(previousElapsedMs, retained.readyElapsedMs));
+    requireTargetGeneration(status, retained);
     if (status.pid !== retained.targetPid) fail("instrumentation-target-process-changed");
     checkOwner();
     initial ??= status;
@@ -481,7 +505,8 @@ async function runInstrumentationSessionOwned(options, dependencies = {}) {
     }
     spawnAttempted = true;
     child = (dependencies.spawn ?? spawn)("adb", ["-s", options.serial, "shell", "am", "instrument", "-w", "-r",
-      "-e", "class", physicalClass, "-e", "acceptanceBuildId", options["build-id"], component],
+      "-e", "class", physicalClass, "-e", "acceptanceBuildId", options["build-id"],
+      ...(launchId === undefined ? [] : ["-e", "acceptanceLaunchId", launchId]), component],
     { stdio: ["ignore", output, errors] });
     for (const [signal, handler] of handlers) signals.on(signal, handler);
     closed = new Promise((finish) => {
@@ -498,7 +523,7 @@ async function runInstrumentationSessionOwned(options, dependencies = {}) {
       nativeInputHash: nativeInputs.inputHash, nativeBuildOwner: nativeInputs.buildOwner,
       supervisorPid: process.pid, supervisorIdentity, adbPid: child.pid,
       adbIdentity: liveHostOwner(child.pid, options.serial, dependencies), foreground, startedHostTimeUnixMs: Date.now(),
-      ...(launchId === undefined ? {} : { launchId }) };
+      ...(launchId === undefined ? {} : { launchId, buildId: options["build-id"] }) };
     requireLiveInstrumentation(owner, options.serial, dependencies);
     publish(options.owner, owner);
     const result = await closed;

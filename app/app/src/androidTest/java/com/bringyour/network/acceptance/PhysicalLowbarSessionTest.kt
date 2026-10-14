@@ -72,6 +72,9 @@ class PhysicalLowbarSessionTest {
     private val teardownMemoryFile = File(acceptanceDir, "physical-memory-teardown.json")
     private val teardownFallbackFile = File(acceptanceDir, "physical-memory-teardown-incomplete.json")
     private val memorySessionId = UUID.randomUUID().toString()
+    private val acceptanceLaunchId = InstrumentationRegistry.getArguments().getString("acceptanceLaunchId")?.also {
+        require(Regex("^[a-f0-9]{32}$").matches(it)) { "invalid acceptanceLaunchId" }
+    }
     private val statusRuntimeReadCount = AtomicLong()
     private val statusRuntimePeak = AtomicLong()
     private val statusRuntimeBreaches = AtomicLong()
@@ -90,6 +93,7 @@ class PhysicalLowbarSessionTest {
     private var carrierBaseline = emptyMap<String, PhysicalCarrierBytes>()
     private val peerTimingEvidence = PhysicalPeerTimingEvidence()
     private var commandStartedAtMillis = 0L
+    private val failureEvidence = PhysicalFailureEvidence()
 
     @Volatile
     private var phase = "startup"
@@ -138,7 +142,7 @@ class PhysicalLowbarSessionTest {
             ledgerFailure.get()?.let { throw it }
             when (val state = application.loginStartupState.value) {
                 is LoginStartupState.Failed -> throw LoginStartupFailureException(state)
-                is LoginStartupState.LoggedOut -> error("login terminated during logout")
+                is LoginStartupState.LoggedOut -> throw PhysicalLoginLoggedOutException()
                 is LoginStartupState.Ready -> {
                     check(application.device != null) { "ready login has no DeviceLocal" }
                     retainActiveClient(state.clientId)
@@ -158,9 +162,7 @@ class PhysicalLowbarSessionTest {
         val state = application.loginStartupState.value
         throwLoginStartupTimeout(
             state,
-            AssertionError(
-                "Timed out waiting for authenticated DeviceLocal; login state=${state.javaClass.simpleName}",
-            ),
+            PhysicalLoginStartupTimeout(state, AUTH_TIMEOUT_MILLIS),
         ) {
             Sdk.writeGoroutineStacks(startupGoroutinesFile.absolutePath)
         }
@@ -171,15 +173,15 @@ class PhysicalLowbarSessionTest {
         writePrivate(activeClientFile, "$clientId\n")
     }
 
-    private class LoginStartupFailureException(val state: LoginStartupState.Failed) :
-        IllegalStateException("login startup failed at ${state.stage.wireValue}: ${state.failure.wireValue}")
-
-    private class CleanupLedgerFailureException(cause: Throwable) :
-        IllegalStateException("client cleanup ownership could not be persisted", cause)
-
     private fun peerEgressProbe(): String {
-        return EgressProbeRequest.queryPublicIp(instrumentation, EGRESS_TIMEOUT_MILLIS).also {
-            check(it.matches(Regex("[0-9a-fA-F:.]+"))) { "invalid peer egress address" }
+        try {
+            return EgressProbeRequest.queryPublicIp(instrumentation, EGRESS_TIMEOUT_MILLIS).also {
+                check(it.matches(Regex("[0-9a-fA-F:.]+"))) { "invalid peer egress address" }
+            }
+        } catch (error: Throwable) {
+            runCatching { captureFailure(error, PhysicalFailureOperation.EGRESS_PROBE) }
+                .onFailure(error::addSuppressed)
+            throw error
         }
     }
 
@@ -770,6 +772,7 @@ class PhysicalLowbarSessionTest {
         application: MainApplication,
         startElapsedMs: Long,
         extra: JSONObject = JSONObject(),
+        statusPhase: String = phase,
     ) {
         val value = runCatching { snapshot(application, startElapsedMs) }.getOrElse { error ->
             JSONObject()
@@ -780,6 +783,10 @@ class PhysicalLowbarSessionTest {
                 .put("snapshotErrorType", error.javaClass.simpleName)
         }
             .put("type", "status")
+            .put("phase", statusPhase)
+            .put("launchId", acceptanceLaunchId)
+            .put("sessionId", memorySessionId)
+            .put("buildId", BuildConfig.URNETWORK_ACCEPTANCE_BUILD_ID)
             .put("commandId", id)
             .put("commandSequence", peerTimingEvidence.commandSequence)
             .put("state", state)
@@ -798,56 +805,30 @@ class PhysicalLowbarSessionTest {
         writePrivate(statusFile, "${value}\n")
     }
 
+    /** Preserve the first observation of this exact failure before owned cleanup. */
+    private fun captureFailure(
+        error: Throwable,
+        operation: PhysicalFailureOperation? = null,
+    ): PhysicalFailureSnapshot {
+        val elapsedRealtimeMs = SystemClock.elapsedRealtime()
+        return failureEvidence.capture(
+            error = error,
+            phase = phase,
+            timeUnixMs = System.currentTimeMillis(),
+            elapsedRealtimeMs = elapsedRealtimeMs,
+            commandElapsedMs = commandStartedAtMillis.takeIf { it > 0 }?.let { elapsedRealtimeMs - it },
+            operation = operation,
+        )
+    }
+
     private fun failureStatus(
         id: String,
         application: MainApplication,
         startElapsedMs: Long,
-        error: Throwable,
+        failure: PhysicalFailureSnapshot,
     ) {
-        val extra = JSONObject().put("errorType", error.javaClass.simpleName)
-        val waitFailure = physicalWaitFailureEvidence(error)
-        val startupState = application.loginStartupState.value
-        val startupFailure = when (error) {
-            is LoginStartupFailureException -> error.state
-            else -> startupState as? LoginStartupState.Failed
-        }
-        when {
-            waitFailure != null -> {
-                waitFailure.forEach { (key, value) -> extra.put(key, value) }
-            }
-            error is CleanupLedgerFailureException -> {
-                extra.put("stage", "client-allocation")
-                extra.put("failure", "cleanup-ledger-persistence-failed")
-            }
-            startupFailure != null -> {
-                extra.put("stage", startupFailure.stage.wireValue)
-                extra.put("failure", startupFailure.failure.wireValue)
-            }
-            error is PasswordLoginFailureException -> {
-                // LoggedOut is expected until password authentication starts;
-                // it is not evidence that logout caused a discovery/UI error.
-                extra.put("stage", error.stage.wireValue)
-                extra.put("failure", error.failure.wireValue)
-                error.evidence?.let { evidence ->
-                    extra.put(
-                        "loginUiBeforeTeardown",
-                        JSONObject()
-                            .put("userFormVisible", evidence.userFormVisible)
-                            .put("passwordFormVisible", evidence.passwordFormVisible)
-                            .put("discoveryErrorVisible", evidence.errorVisible),
-                    )
-                }
-            }
-            startupState is LoginStartupState.Pending -> {
-                extra.put("stage", startupState.stage.wireValue)
-                extra.put("failure", "startup-timeout")
-            }
-            startupState is LoginStartupState.LoggedOut -> {
-                extra.put("stage", "logout")
-                extra.put("failure", "auth-logout")
-            }
-        }
-        status(id, "error", application, startElapsedMs, extra)
+        val extra = JSONObject(failure.statusFields())
+        status(id, "error", application, startElapsedMs, extra, failure.phase)
     }
 
     private fun stopClient(connectVc: ConnectViewController, device: DeviceLocal) {
@@ -891,6 +872,7 @@ class PhysicalLowbarSessionTest {
         configureClientMode(device, mode)
         carrierBaseline = carrierBytes(device)
         val locationsVc = device.openLocationsViewController()
+        var expectedConnectionGeneration = 0L
         try {
             locationsVc.start()
             var selected: ConnectLocation? = null
@@ -905,17 +887,36 @@ class PhysicalLowbarSessionTest {
                 true
             }
             connectVc.connect(checkNotNull(selected))
+            expectedConnectionGeneration = checkNotNull(device.windowStatus).connectionGeneration
         } finally {
             locationsVc.stop()
             device.closeLocationsViewController(locationsVc)
         }
         uiDevice.clickVerifiedVpnConsentIfPresent()
-        waitFor(PhysicalWaitStage.PUBLIC_VPN_CONNECTION, CONNECT_TIMEOUT_MILLIS) {
-            connectVc.connected && device.connectEnabled && device.tunnelStarted
-        }
-        // A small separate-UID warmup proves actual carrier bytes. Auto policy
-        // and a requested US location are not evidence of the live route.
-        peerEgressProbeWithTrafficProof(device)
+        runPhysicalPublicEgress(
+            expectedConnectionGeneration = expectedConnectionGeneration,
+            timeoutMillis = CONNECT_TIMEOUT_MILLIS,
+            nowMillis = SystemClock::elapsedRealtime,
+            sleepMillis = SystemClock::sleep,
+            routeState = {
+                // Provider events must belong to the current destination owner.
+                val before = device.windowStatus
+                val providers = liveProviders(device)
+                val after = device.windowStatus
+                PhysicalPublicRouteState(
+                    controllerConnected = connectVc.connected,
+                    connectEnabled = device.connectEnabled,
+                    tunnelStarted = device.tunnelStarted,
+                    generationBefore = before?.connectionGeneration ?: 0L,
+                    generationAfter = after?.connectionGeneration ?: 0L,
+                    minSatisfied = before?.minSatisfied == true && after?.minSatisfied == true,
+                    failed = before?.failed != false || after?.failed != false,
+                    providers = providers,
+                )
+            },
+            // Byte progress is proved only after independent window admission.
+            egressProof = { peerEgressProbeWithTrafficProof(device) },
+        )
         waitFor(PhysicalWaitStage.US_PROVIDER_CARRIER_EVIDENCE, CONNECT_TIMEOUT_MILLIS) {
             physicalLiveCountry(liveProviders(device)) == "US" &&
                 physicalSelectedCarriers(carrierBaseline, carrierBytes(device), device.connectEnabled).isNotEmpty()
@@ -1225,7 +1226,7 @@ class PhysicalLowbarSessionTest {
             runOwnedDeviceSession(application, startElapsedMs, startUnixMs, stopped, summary, ledgerFailure)
         } catch (error: Throwable) {
             sessionFailure = error
-            runCatching { failureStatus(activeCommandId, application, startElapsedMs, error) }
+            runCatching { failureStatus(activeCommandId, application, startElapsedMs, captureFailure(error)) }
                 .onFailure(error::addSuppressed)
             throw error
         } finally {
@@ -1291,6 +1292,9 @@ class PhysicalLowbarSessionTest {
                 SystemClock.sleep(COMMAND_POLL_MILLIS)
             }
             assertTrue("physical session reached its safety timeout", finished)
+        } catch (error: Throwable) {
+            runCatching { captureFailure(error) }.onFailure(error::addSuppressed)
+            throw error
         } finally {
             closeOwnedDeviceScope(application, device, connectVc, peerVc, sampler, stopped, startUnixMs, summary)
             device = null

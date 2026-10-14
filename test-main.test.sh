@@ -111,13 +111,68 @@ done
 physical_failure_source="$(sed -n \
   '/private fun failureStatus(/,/private fun stopClient/p' \
   "$here/app/app/src/androidTest/java/com/bringyour/network/acceptance/PhysicalLowbarSessionTest.kt")"
-discovery_failure_line="$(grep -n 'error is PasswordLoginFailureException' <<<"$physical_failure_source" | cut -d: -f1)"
-logged_out_failure_line="$(grep -n 'startupState is LoginStartupState.LoggedOut' <<<"$physical_failure_source" | cut -d: -f1)"
-[ -n "$discovery_failure_line" ] && [ -n "$logged_out_failure_line" ] && \
-  [ "$discovery_failure_line" -lt "$logged_out_failure_line" ] || \
-  fail "expected pre-password LoggedOut masks a finite discovery failure"
-grep -Fq '"loginUiBeforeTeardown"' <<<"$physical_failure_source" || \
-  fail "physical login lost bounded UI evidence from before instrumentation teardown"
+# Failure publication consumes the first immutable snapshot, not post-cleanup login state.
+for expected in 'failure: PhysicalFailureSnapshot' 'JSONObject(failure.statusFields())' \
+  'status(id, "error", application, startElapsedMs, extra, failure.phase)'; do
+  grep -Fq "$expected" <<<"$physical_failure_source" || \
+    fail "physical failure publication lost its retained snapshot"
+done
+physical_failure_evidence="$(<"$here/app/app/src/acceptanceShared/java/com/bringyour/network/acceptance/PhysicalFailureEvidence.kt")"
+if grep -Eq 'loginStartupState|startupState|error\.(message|cause|toString)' \
+  <<<"$physical_failure_source
+$physical_failure_evidence"; then
+  fail "physical failure evidence rereads ambient state or exposes free-form error data"
+fi
+for expected in \
+  'if (retainedError === error) return checkNotNull(retainedSnapshot)' \
+  'when (error)' \
+  'is PhysicalWaitTimeout ->' 'is CleanupLedgerFailureException ->' \
+  'is PasswordLoginFailureException ->' 'is LoginStartupFailureException ->' \
+  'is PhysicalLoginStartupTimeout ->' 'is PhysicalLoginLoggedOutException ->' \
+  'else -> if (operation == PhysicalFailureOperation.EGRESS_PROBE)' \
+  'val phase: String' 'val loginUiBeforeTeardown: PasswordLoginDiscoveryEvidence?'; do
+  grep -Fq "$expected" <<<"$physical_failure_evidence" || \
+    fail "physical failure evidence lost typed first-error ownership"
+done
+physical_discovery_failure="$(sed -n \
+  '/is PasswordLoginFailureException -> {/,/^[[:space:]]*}/p' <<<"$physical_failure_evidence")"
+for expected in 'stage = error.stage.wireValue' 'failure = error.failure.wireValue' \
+  'loginUi = error.evidence?.copy()'; do
+  grep -Fq "$expected" <<<"$physical_discovery_failure" || \
+    fail "physical password failure lost finite pre-cleanup evidence"
+done
+for expected in 'put("failurePhase", phase)' 'put("failureTimeUnixMs", timeUnixMs)' \
+  'put("failureElapsedRealtimeMs", elapsedRealtimeMs)' \
+  'put("loginUiBeforeTeardown", mapOf(' \
+  '"userFormVisible" to it.userFormVisible' \
+  '"passwordFormVisible" to it.passwordFormVisible' \
+  '"discoveryErrorVisible" to it.errorVisible'; do
+  grep -Fq "$expected" <<<"$physical_failure_evidence" || \
+    fail "physical failure snapshot lost finite publication fields"
+done
+physical_owned_failure="$(sed -n \
+  '/private fun runOwnedDeviceSession(/,/private class MemoryTeardownState/p' \
+  "$here/app/app/src/androidTest/java/com/bringyour/network/acceptance/PhysicalLowbarSessionTest.kt")"
+awk '
+  !caught && /\} catch \(error: Throwable\) \{/ { caught = NR }
+  caught && !captured && /captureFailure\(error\)/ { captured = NR }
+  caught && !rethrown && /throw error/ { rethrown = NR }
+  caught && !final && /\} finally \{/ { final = NR }
+  final && !closed && /closeOwnedDeviceScope\(/ { closed = NR }
+  END { exit !(caught && captured > caught && rethrown > captured &&
+    final > rethrown && closed > final) }
+' <<<"$physical_owned_failure" || \
+  fail "physical owned failure is not captured and rethrown before cleanup"
+physical_outer_failure="$(sed -n \
+  '/fun physicalLowbarSession()/,/private fun runOwnedDeviceSession(/p' \
+  "$here/app/app/src/androidTest/java/com/bringyour/network/acceptance/PhysicalLowbarSessionTest.kt")"
+for expected in \
+  'failureStatus(activeCommandId, application, startElapsedMs, captureFailure(error))' \
+  '.onFailure(error::addSuppressed)' 'throw error' \
+  'sessionFailure.addSuppressed(finalError)'; do
+  grep -Fq "$expected" <<<"$physical_outer_failure" || \
+    fail "physical outer owner lost original failure or separate cleanup errors"
+done
 grep -Fq 'main-startup-goroutines.txt' "$here/test-main.sh" || \
   fail "main acceptance collection does not retain optional Pending startup evidence"
 main_timeout_source="$(sed -n \
@@ -128,6 +183,8 @@ grep -Fq 'throwLoginStartupTimeout(' <<<"$main_timeout_source" || \
 grep -Fq 'Sdk.writeGoroutineStacks(startupGoroutinesFile.absolutePath)' \
   <<<"$main_timeout_source" || \
   fail "main login timeout does not synchronously request Go stacks"
+
+go -C "$here" test test-main-failure-evidence_test.go -count=1
 
 startup_evidence_dir="$(mktemp -d "${TMPDIR:-/tmp}/urnetwork-android-startup-evidence.test.XXXXXX")"
 startup_status="$startup_evidence_dir/status.json"

@@ -56,6 +56,42 @@ class PhysicalWaitFailureTest {
     }
 
     @Test
+    fun `fatal condition errors preserve identity without retry`() {
+        val failures = listOf(
+            OutOfMemoryError("synthetic fatal allocation"),
+            LinkageError("synthetic fatal linkage"),
+            AssertionError("synthetic fatal assertion"),
+        )
+        for (failure in failures) {
+            val clock = Clock()
+            var reads = 0
+            val error = assertThrows(Error::class.java) {
+                waitForPhysicalCondition(PhysicalWaitStage.PUBLIC_VPN_CONNECTION, 1_000,
+                    { clock.now }, clock::sleep) { reads++; throw failure }
+            }
+            assertSame(failure, error)
+            assertEquals(1, reads)
+            assertEquals(emptyList<Long>(), clock.sleeps)
+            assertEquals(0L, clock.now)
+        }
+    }
+
+    @Test
+    fun `condition interruption preserves identity without retry`() {
+        val clock = Clock()
+        val interruption = InterruptedException("synthetic cancellation")
+        var reads = 0
+        val error = assertThrows(InterruptedException::class.java) {
+            waitForPhysicalCondition(PhysicalWaitStage.CLIENT_DISCONNECT, 1_000,
+                { clock.now }, clock::sleep) { reads++; throw interruption }
+        }
+        assertSame(interruption, error)
+        assertEquals(1, reads)
+        assertEquals(emptyList<Long>(), clock.sleeps)
+        assertEquals(0L, clock.now)
+    }
+
+    @Test
     fun `successful retry and immediate success retain no failure state`() {
         val clock = Clock()
         var attempts = 0

@@ -133,7 +133,7 @@ internal fun <T> runPhysicalPeerEgress(
             physicalPeerReadyForEgress(expectedPeerId, routeState())
         } catch (error: InterruptedException) {
             throw error
-        } catch (error: Throwable) {
+        } catch (error: Exception) {
             lastError = error
             false
         }
