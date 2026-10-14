@@ -65,6 +65,7 @@
     <string name="balance_code_where_to_buy">कोड नहीं है? डेटा कोड ur.io पर खरीदे जा सकते हैं और आपको ईमेल कर दिए जाते हैं।</string>
     <string name="balance_codes_link">बैलेंस कोड्स</string>
     <string name="balance_codes_title">बैलेंस कोड्स</string>
+    <string name="battery_optimization_settings_hint">Android की बैटरी ऑप्टिमाइज़ेशन सूची खोलने के लिए टैप करें। अगर URnetwork सूची में नहीं है, तो फ़िल्टर को \"सभी ऐप्लिकेशन\" पर बदलें, फिर URnetwork और \"ऑप्टिमाइज़ न करें\" चुनें।</string>
     <string name="become_supporter">UR Pro प्राप्त करें</string>
     <string name="best_available_provider">सर्वश्रेष्ठ उपलब्ध प्रदाता</string>
     <string name="best_value">सबसे किफ़ायती</string>
@@ -389,7 +390,7 @@
     <string name="device_not_discoverable">इस डिवाइस को खोजने योग्य बनाने के लिए प्रदान मोड चालू करें</string>
     <string name="device_spec_label">स्पेक</string>
     <string name="devices">डिवाइस</string>
-    <string name="disable_ignore_battery_hint">अक्षम करने के लिए, कृपया सिस्टम सेटिंग्स में ऐप बैटरी उपयोग पर जाएँ</string>
+    <string name="disable_ignore_battery_settings_hint">इसे बंद करने के लिए, Android की बैटरी ऑप्टिमाइज़ेशन सूची खोलने के लिए स्विच पर टैप करें, फ़िल्टर को \"सभी ऐप्लिकेशन\" पर बदलें, फिर URnetwork और \"ऑप्टिमाइज़ करें\" चुनें।</string>
     <string name="disconnect">डिस्कनेक्ट क</string>
     <string name="disconnected">डिस्कनेक्टेड</string>
     <string name="dismiss">खारिज करें</string>

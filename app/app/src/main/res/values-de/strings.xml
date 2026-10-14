@@ -65,6 +65,7 @@
     <string name="balance_code_where_to_buy">Noch keinen Code? Datencodes kannst du auf ur.io kaufen und dir per E-Mail schicken lassen.</string>
     <string name="balance_codes_link">Guthabencodes</string>
     <string name="balance_codes_title">Guthabencodes</string>
+    <string name="battery_optimization_settings_hint">Tippe, um die Akku-Optimierungsliste von Android zu öffnen. Wenn URnetwork nicht aufgeführt ist, stelle den Filter auf „Alle Apps“ und wähle dann URnetwork und „Nicht optimieren“.</string>
     <string name="become_supporter">UR Pro holen</string>
     <string name="best_available_provider">Bester verfügbarer Anbieter</string>
     <string name="best_value">Bestes Angebot</string>
@@ -389,7 +390,7 @@
     <string name="device_not_discoverable">Aktiviere den Bereitstellungsmodus, um dieses Gerät auffindbar zu machen</string>
     <string name="device_spec_label">Spezifikation</string>
     <string name="devices">Geräte</string>
-    <string name="disable_ignore_battery_hint">Zum Deaktivieren gehe bitte zu App-Akkuverbrauch in den Systemeinstellungen</string>
+    <string name="disable_ignore_battery_settings_hint">Zum Ausschalten tippe auf den Schalter, um die Akku-Optimierungsliste von Android zu öffnen, stelle den Filter auf „Alle Apps“ und wähle dann URnetwork und „Optimieren“.</string>
     <string name="disconnect">Trennen</string>
     <string name="disconnected">Getrennt</string>
     <string name="dismiss">Schließen</string>

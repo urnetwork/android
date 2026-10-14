@@ -65,6 +65,7 @@
     <string name="balance_code_where_to_buy">Нет кода? Коды данных можно купить на ur.io — их пришлют вам на почту.</string>
     <string name="balance_codes_link">Коды баланса</string>
     <string name="balance_codes_title">Коды баланса</string>
+    <string name="battery_optimization_settings_hint">Нажмите, чтобы открыть список оптимизации батареи Android. Если URnetwork нет в списке, переключите фильтр на «Все приложения», затем выберите URnetwork и «Не экономить».</string>
     <string name="become_supporter">Получить UR Pro</string>
     <string name="best_available_provider">Лучший доступный провайдер</string>
     <string name="best_value">Выгоднее всего</string>
@@ -389,7 +390,7 @@
     <string name="device_not_discoverable">Включите режим предоставления, чтобы это устройство было доступно для обнаружения</string>
     <string name="device_spec_label">Модель</string>
     <string name="devices">Устройства</string>
-    <string name="disable_ignore_battery_hint">Чтобы отключить, перейдите в Использование батареи приложением в системных настройках</string>
+    <string name="disable_ignore_battery_settings_hint">Чтобы отключить, нажмите на переключатель, чтобы открыть список оптимизации батареи Android, переключите фильтр на «Все приложения», затем выберите URnetwork и «Экономить».</string>
     <string name="disconnect">Отключить</string>
     <string name="disconnected">Отключено</string>
     <string name="dismiss">Закрыть</string>

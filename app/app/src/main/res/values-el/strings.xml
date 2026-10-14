@@ -65,6 +65,7 @@
     <string name="balance_code_where_to_buy">Δεν έχετε κωδικό; Οι κωδικοί δεδομένων αγοράζονται στο ur.io και αποστέλλονται με email.</string>
     <string name="balance_codes_link">Κωδικοί υπολοίπου</string>
     <string name="balance_codes_title">Κωδικοί υπολοίπου</string>
+    <string name="battery_optimization_settings_hint">Πατήστε για να ανοίξει η λίστα βελτιστοποίησης μπαταρίας του Android. Αν το URnetwork δεν εμφανίζεται, αλλάξτε το φίλτρο σε «Όλες οι εφαρμογές» και, στη συνέχεια, επιλέξτε το URnetwork και «Χωρίς βελτιστοποίηση».</string>
     <string name="become_supporter">Αποκτήστε το UR Pro</string>
     <string name="best_available_provider">Καλύτερος διαθέσιμος πάροχος</string>
     <string name="best_value">Καλύτερη τιμή</string>
@@ -389,7 +390,7 @@
     <string name="device_not_discoverable">Ενεργοποιήστε τη λειτουργία παροχής για να γίνει αυτή η συσκευή ανιχνεύσιμη</string>
     <string name="device_spec_label">Προδιαγραφές</string>
     <string name="devices">Συσκευές</string>
-    <string name="disable_ignore_battery_hint">Για να το απενεργοποιήσετε, μεταβείτε στη Χρήση μπαταρίας εφαρμογής στις Ρυθμίσεις συστήματος</string>
+    <string name="disable_ignore_battery_settings_hint">Για να το απενεργοποιήσετε, πατήστε τον διακόπτη για να ανοίξει η λίστα βελτιστοποίησης μπαταρίας του Android, αλλάξτε το φίλτρο σε «Όλες οι εφαρμογές» και, στη συνέχεια, επιλέξτε το URnetwork και «Βελτιστοποίηση».</string>
     <string name="disconnect">Αποσύνδεση</string>
     <string name="disconnected">Αποσυνδεδεμένο</string>
     <string name="dismiss">Ακύρωση</string>

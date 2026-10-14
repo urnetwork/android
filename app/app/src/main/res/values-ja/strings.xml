@@ -65,6 +65,7 @@
     <string name="balance_code_where_to_buy">コードをお持ちでない方は、ur.ioでデータコードを購入すると、メールで届きます。</string>
     <string name="balance_codes_link">残高コード</string>
     <string name="balance_codes_title">残高コード</string>
+    <string name="battery_optimization_settings_hint">タップすると Android の電池の最適化リストが開きます。URnetwork が表示されない場合は、フィルタを「すべてのアプリ」に切り替えてから、URnetwork を選んで「最適化しない」を選択してください。</string>
     <string name="become_supporter">UR Proを取得</string>
     <string name="best_available_provider">最適な利用可能プロバイダー</string>
     <string name="best_value">いちばんお得</string>
@@ -389,7 +390,7 @@
     <string name="device_not_discoverable">提供モードを有効にすると、このデバイスが検出可能になります</string>
     <string name="device_spec_label">スペック</string>
     <string name="devices">デバイス</string>
-    <string name="disable_ignore_battery_hint">無効にするには、システム設定のアプリのバッテリー使用状況に移動してください</string>
+    <string name="disable_ignore_battery_settings_hint">オフにするには、スイッチをタップして Android の電池の最適化リストを開き、フィルタを「すべてのアプリ」に切り替えてから、URnetwork を選んで「最適化」を選択してください。</string>
     <string name="disconnect">切断する</string>
     <string name="disconnected">未接続</string>
     <string name="dismiss">閉じる</string>

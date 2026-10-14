@@ -65,6 +65,7 @@
     <string name="balance_code_where_to_buy">没有余额码？可在 ur.io 购买，购买后会通过电子邮件发送给你。</string>
     <string name="balance_codes_link">余额码</string>
     <string name="balance_codes_title">余额码</string>
+    <string name="battery_optimization_settings_hint">点按即可打开 Android 的电池优化列表。如果列表中没有 URnetwork，请将筛选条件切换为“所有应用”，然后选择 URnetwork 并选择“不优化”。</string>
     <string name="become_supporter">升级为 UR Pro</string>
     <string name="best_available_provider">最佳可用提供商</string>
     <string name="best_value">最超值</string>
@@ -389,7 +390,7 @@
     <string name="device_not_discoverable">启用提供模式以使此设备可被发现</string>
     <string name="device_spec_label">规格</string>
     <string name="devices">设备</string>
-    <string name="disable_ignore_battery_hint">若要禁用，请前往系统设置中的应用电池使用情况</string>
+    <string name="disable_ignore_battery_settings_hint">如需关闭，请点按开关打开 Android 的电池优化列表，将筛选条件切换为“所有应用”，然后选择 URnetwork 并选择“优化”。</string>
     <string name="disconnect">断开连接</string>
     <string name="disconnected">已断开连接</string>
     <string name="dismiss">关闭</string>

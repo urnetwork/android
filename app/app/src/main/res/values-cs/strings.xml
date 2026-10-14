@@ -65,6 +65,7 @@
     <string name="balance_code_where_to_buy">Nemáte kód? Datové kódy si můžete koupit na ur.io a přijdou vám e-mailem.</string>
     <string name="balance_codes_link">Kódy zůstatku</string>
     <string name="balance_codes_title">Kódy zůstatku</string>
+    <string name="battery_optimization_settings_hint">Klepnutím otevřete seznam optimalizace baterie v Androidu. Pokud URnetwork v seznamu není, přepněte filtr na „Všechny aplikace“ a pak vyberte URnetwork a „Neoptimalizovat“.</string>
     <string name="become_supporter">Získat UR Pro</string>
     <string name="best_available_provider">Nejlepší dostupný poskytovatel</string>
     <string name="best_value">Nejvýhodnější</string>
@@ -389,7 +390,7 @@
     <string name="device_not_discoverable">Zapněte režim poskytování, aby bylo toto zařízení viditelné</string>
     <string name="device_spec_label">Specifikace</string>
     <string name="devices">Zařízení</string>
-    <string name="disable_ignore_battery_hint">Chcete-li to zakázat, přejděte do Nastavení systému na Využití baterie aplikace</string>
+    <string name="disable_ignore_battery_settings_hint">Chcete-li to vypnout, klepnutím na přepínač otevřete seznam optimalizace baterie v Androidu, přepněte filtr na „Všechny aplikace“ a pak vyberte URnetwork a „Optimalizovat“.</string>
     <string name="disconnect">Odpojení</string>
     <string name="disconnected">Odpojeno</string>
     <string name="dismiss">Odmítnout</string>
