@@ -809,11 +809,14 @@ class EarningsViewModel @Inject constructor(
         fun claimFailureCode(message: String?): String? =
             message?.substringBefore(':')?.trim()?.lowercase()?.takeIf { it.isNotEmpty() }
 
-        // below this the vault call cannot pay for itself; the SDK reports "needs gas" too
-        const val MIN_GAS_TAO = 0.002
+        // Below this the claim dialogs, v1 and v2, open on the gas top-up. The SDK signs a claim
+        // with its estimate plus a quarter and at least 2,700,000 gas for v1 (below that the v1
+        // vault defers the payment) or 2,600,000 for v2, and sends it only when the gas key holds
+        // that limit at 1.1 × the gas price, else needs_gas: about 0.0149 TAO at 5 gwei for v1.
+        const val MIN_GAS_TAO = 0.015
 
-        // what the funding hint suggests sending to the mirror address
-        const val SUGGESTED_GAS_TAO = 0.01
+        // what the funding hint suggests sending to the mirror address: a claim's gas up to about 6.7 gwei
+        const val SUGGESTED_GAS_TAO = 0.02
     }
 }
 

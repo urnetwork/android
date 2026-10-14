@@ -169,11 +169,12 @@ one tap calls `Device.SnClaim(epochs, callback)`.
 
 States: claimable · needs gas (mirror address, suggested top-up, Copy) ·
 sending · sent (tx hash + explorer link) · claimed (confirmed) · expired ·
-failed. Error copy: "Connect a Bittensor wallet first", "Send about 0.005 TAO
+failed. Error copy: "Connect a Bittensor wallet first", "Send about 0.02 TAO
 to 5Gh…2q for gas", "Claims for epoch 41 have expired", "The chain RPC is
-unreachable, try again". The needs-gas threshold and the suggested top-up are
-UI heuristics (the SDK reports `needs_gas` without an estimate); the SDK's
-failure code stays authoritative.
+unreachable, try again". The SDK signs a v1 claim with at least 2,700,000 gas
+and sends it only when the gas key holds that limit at 1.1 × the gas price,
+about 0.0149 TAO at 5 gwei, so the needs-gas threshold is 0.015 TAO and the
+suggested top-up 0.02 TAO; the SDK's failure code stays authoritative.
 
 What the SDK does behind `SnClaims` / `SnClaim` (`sdk/sn_claims.go`):
 
@@ -480,8 +481,9 @@ wallet retrieval left the `MainActivity`s. The Solana dApp flavor keeps the
 "Verify Seeker" action (points-only) and the three alt subscription screens
 show "Paid in USDC on Solana". Manual entry still signs through the bridge
 (the server rejects unsigned sets); a looks-new address asks for confirmation
-before `ConnectSnWallet`. Gas threshold constants (`MIN_GAS_TAO` 0.002,
-suggested 0.01 TAO) are guesses pending real numbers.
+before `ConnectSnWallet`. Gas threshold constants: `MIN_GAS_TAO` 0.015, what
+the SDK's 2,700,000 gas floor for a v1 claim costs at 5 gwei, and
+`SUGGESTED_GAS_TAO` 0.02, for v1 and v2 claims alike.
 
 **Apple (iOS, macOS).** `app/network/Main/Account/Earnings/` (11 files):
 `EarningsView` + `EarningsTiles`, `ConnectBittensorWalletFlow` + sheet,
