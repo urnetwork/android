@@ -21,12 +21,10 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.ServiceCompat
 import com.bringyour.network.utils.sdkStringListToList
 import com.bringyour.sdk.DeviceLocal
-import com.bringyour.sdk.IoLoop
 import com.bringyour.sdk.Sdk
 import com.bringyour.sdk.Sub
 import com.bringyour.sdk.WindowStatus
 import java.net.InetAddress
-import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.thread
 
     // see https://developer.android.com/develop/connectivity/vpn
@@ -115,6 +113,17 @@ import kotlin.concurrent.thread
 
     //    private var pfd: ParcelFileDescriptor? = null
     private var packetFlow: PacketFlow? = null
+
+    // Called on the main thread at explicit diagnostic begin/end only.
+    internal fun hasPacketFlowForDiagnostic(): Boolean = packetFlow != null
+
+    // Cold main-thread fence after logout. Retained done-posts see packetFlow
+    // null; canceled configuration retries and detached device cannot rebuild.
+    internal fun requireNoIoLoopForDiagnostic() {
+        check(Looper.myLooper() == mainLooper) { "native-loop fence off main thread" }
+        check(packetFlow == null && boundDevice == null) { "native-loop construction still owned" }
+        check(tunnelRetryKind != TunnelRetryKind.CONFIGURATION) { "native-loop retry still owned" }
+    }
     private var alwaysOnGuardPfd: ParcelFileDescriptor? = null
     private var boundDevice: DeviceLocal? = null
     private var foregroundStarted: Boolean = false
@@ -776,7 +785,7 @@ import kotlin.concurrent.thread
                 // cancel the previous packet flow after the new fd is in place, to avoid leaking packets
                 val replacedPacketFlow = packetFlow
                 val replacementPacketFlow = try {
-                    PacketFlow(device, descriptor) { endedPacketFlow ->
+                    createPacketFlow(device, descriptor, app.ioLoopDiagnostics) { endedPacketFlow ->
                         mainHandler.post {
                             if (packetFlow === endedPacketFlow) {
                                 packetFlow = null
@@ -1371,33 +1380,22 @@ import kotlin.concurrent.thread
 }
 
 
-private class PacketFlow(deviceLocal: DeviceLocal, pfd: ParcelFileDescriptor, endCallback: (packetFlow: PacketFlow)->Unit) {
-
-    val stateLock = ReentrantLock()
-//    val closed: Condition = stateLock.newCondition()
-    var active: Boolean = true
-
-    val ioLoop: IoLoop = Sdk.newIoLoop(deviceLocal, pfd.detachFd()) {
-        close()
-        endCallback(this@PacketFlow)
-    }
-
-    fun close() {
-        stateLock.lock()
-        try {
-            active = false
-        } finally {
-            stateLock.unlock()
+// The native worker may complete before its constructor returns. PacketFlow
+// owns only the eventual close action; native done never reads that initializer.
+private fun createPacketFlow(
+    deviceLocal: DeviceLocal,
+    pfd: ParcelFileDescriptor,
+    diagnostic: com.bringyour.sdk.IoLoopDiagnosticSession?,
+    endCallback: (PacketFlow) -> Unit,
+): PacketFlow = PacketFlow(
+    createIoLoop = { done ->
+        val doneCallback = com.bringyour.sdk.IoLoopDoneCallback { done() }
+        val ioLoop = if (diagnostic == null) {
+            Sdk.newIoLoop(deviceLocal, pfd.detachFd(), doneCallback)
+        } else {
+            diagnostic.newIoLoop(deviceLocal, pfd.detachFd(), doneCallback)
         }
-        ioLoop.close()
-    }
-
-    fun isActive(): Boolean {
-        stateLock.lock()
-        try {
-            return active
-        } finally {
-            stateLock.unlock()
-        }
-    }
-}
+        ioLoop::close
+    },
+    endCallback = endCallback,
+)

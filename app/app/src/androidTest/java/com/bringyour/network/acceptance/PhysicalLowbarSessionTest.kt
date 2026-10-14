@@ -90,6 +90,8 @@ class PhysicalLowbarSessionTest {
     private val memoryTeardown = MemoryTeardownState()
     private var activeCommandId = "0"
     private var credentialDiagnostics = false
+    private var ioLoopDiagnostics: com.bringyour.sdk.IoLoopDiagnosticSession? = null
+    private var ioLoopDiagnosticReceiptName: String? = null
     private var carrierBaseline = emptyMap<String, PhysicalCarrierBytes>()
     private val peerTimingEvidence = PhysicalPeerTimingEvidence()
     private var commandStartedAtMillis = 0L
@@ -789,6 +791,7 @@ class PhysicalLowbarSessionTest {
             .put("buildId", BuildConfig.URNETWORK_ACCEPTANCE_BUILD_ID)
             .put("commandId", id)
             .put("commandSequence", peerTimingEvidence.commandSequence)
+            .apply { if (ioLoopDiagnostics != null) put("ioLoopDiagnosticEnabled", true) }
             .put("state", state)
             .put("extra", extra)
         val timingStatus = peerTimingEvidence.snapshot(
@@ -1114,6 +1117,22 @@ class PhysicalLowbarSessionTest {
                 )
                 return false
             }
+            "ioloop-clock" -> {
+                val diagnostic = checkNotNull(ioLoopDiagnostics) { "native-loop diagnostic not enabled" }
+                require(argument.matches(Regex("[A-Za-z0-9][A-Za-z0-9._-]{0,63}")))
+                val output = File(acceptanceDir, "physical-ioloop-clock-$argument.json")
+                check(!output.exists()) { "native-loop clock evidence already exists" }
+                val anchor = JSONObject(diagnostic.clockAnchorJson())
+                    .put("sessionId", memorySessionId)
+                    .put("buildId", BuildConfig.URNETWORK_ACCEPTANCE_BUILD_ID)
+                    .put("pid", Process.myPid())
+                    .put("qualificationEligible", false)
+                writePrivate(output, anchor.toString() + "\n")
+                diagnosticCommandCount.incrementAndGet()
+                status(id, "complete", application, startElapsedMs,
+                    JSONObject().put("clockName", output.name).put("clockBytes", output.length()))
+                return false
+            }
             "owner-census" -> {
                 diagnosticCommandCount.incrementAndGet()
                 val owners = writeMemoryOwnerDiagnostic(device, acceptanceDir, argument)
@@ -1181,6 +1200,8 @@ class PhysicalLowbarSessionTest {
     fun physicalLowbarSession() {
         val arguments = InstrumentationRegistry.getArguments()
         credentialDiagnostics = physicalCredentialDiagnosticsEnabled(arguments.getString(PHYSICAL_CREDENTIAL_DIAGNOSTICS_ARGUMENT))
+        val ioLoopDiagnosticOption = arguments.getString("ioLoopDiagnostic")
+        val ioLoopDiagnosticRequested = physicalIoLoopDiagnosticRequested(ioLoopDiagnosticOption, BuildConfig.DEBUG)
         credentialCheckpoint(PhysicalCredentialStage.TEST_METHOD_ENTRY)
         val expectedBuildId = arguments.getString("acceptanceBuildId").orEmpty()
         assertTrue("acceptanceBuildId argument is required", expectedBuildId.isNotBlank())
@@ -1218,6 +1239,15 @@ class PhysicalLowbarSessionTest {
         var sessionFailure: Throwable? = null
         val previousDiagnosticOptIn = Sdk.setTransferDiagnosticSnapshotsEnabled(true)
         try {
+            if (ioLoopDiagnosticRequested) {
+                instrumentation.runOnMainSync {
+                    check(application.ioLoopDiagnostics == null) { "native-loop diagnostic already owned" }
+                    check(application.service?.get()?.hasPacketFlowForDiagnostic() != true) { "native loop predates diagnostic" }
+                    val diagnostic = Sdk.newIoLoopDiagnosticSession()
+                    ioLoopDiagnostics = diagnostic
+                    application.ioLoopDiagnostics = diagnostic
+                }
+            }
             withPhysicalCredentialCheckpoints(
                 checkpoint = ::credentialCheckpoint,
                 launchLoggedOut = { launchLoggedOutApp(application) },
@@ -1346,6 +1376,7 @@ class PhysicalLowbarSessionTest {
             attempt("close-peer-controller") { peerVc?.stop(); peerVc?.let(device::closePeerViewController) }
             attempt("close-connect-controller") { connectVc?.stop(); connectVc?.let(device::closeConnectViewController) }
         }
+        var nativeLoopJoinDeadlineElapsedMs: Long? = null
         closePhysicalMemoryOwner(
             stop = { stopped.set(true) },
             joinDrainer = {
@@ -1355,6 +1386,7 @@ class PhysicalLowbarSessionTest {
             // Only this request runs on the UI thread. Both waits stay here.
             logout = { instrumentation.runOnMainSync { application.logout() } },
             joinDevice = {
+                if (ioLoopDiagnostics != null) nativeLoopJoinDeadlineElapsedMs = SystemClock.elapsedRealtime() + 120_000L
                 check(memoryTeardown.observer?.waitForDeviceClose(120_000) == true) { "physical-device-unjoined" }
                 memoryTeardown.deviceJoined = true
             },
@@ -1371,6 +1403,44 @@ class PhysicalLowbarSessionTest {
             },
             failed = { stage -> memoryTeardown.failures.add(stage) },
         )
+        ioLoopDiagnostics?.let { diagnostic ->
+            finishPhysicalIoLoopDiagnostic(
+                mainFence = {
+                    instrumentation.runOnMainSync {
+                        check(application.ioLoopDiagnostics === diagnostic)
+                        check(application.device == null)
+                        application.service?.get()?.requireNoIoLoopForDiagnostic()
+                    }
+                },
+                snapshot = {
+                    val remainingJoinMillis = (nativeLoopJoinDeadlineElapsedMs?.minus(SystemClock.elapsedRealtime()) ?: 0L)
+                        .coerceIn(0L, 120_000L)
+                    diagnostic.sealAndSnapshotJson(remainingJoinMillis)
+                },
+                write = { raw, constructionStopped ->
+                    val record = JSONObject(raw)
+                        .put("sessionId", memorySessionId)
+                        .put("buildId", BuildConfig.URNETWORK_ACCEPTANCE_BUILD_ID)
+                        .put("pid", Process.myPid())
+                        .put("deviceJoined", memoryTeardown.deviceJoined)
+                        .put("constructionStopped", constructionStopped)
+                    record.put("complete", record.getBoolean("complete") &&
+                        memoryTeardown.deviceJoined && constructionStopped)
+                    val output = File(acceptanceDir, "physical-ioloop-$memorySessionId.json")
+                    check(!output.exists()) { "native-loop receipt already exists" }
+                    writePrivate(output, record.toString() + "\n")
+                    ioLoopDiagnosticReceiptName = output.name
+                    check(record.getBoolean("complete")) { "native-loop diagnostic incomplete" }
+                },
+                release = {
+                    instrumentation.runOnMainSync {
+                        if (application.ioLoopDiagnostics === diagnostic) application.ioLoopDiagnostics = null
+                    }
+                },
+                failed = { stage -> memoryTeardown.failures.add(stage) },
+            )
+            ioLoopDiagnostics = null
+        }
     }
 
     private fun takePrimitiveSamples(device: DeviceLocal, startUnixMs: Long): List<JSONObject> {
@@ -1460,6 +1530,7 @@ class PhysicalLowbarSessionTest {
             .put("devicePrimitiveCount", summary.count.get())
             .put("statusRuntimeReadCount", statusRuntimeReadCount.get())
             .put("teardownPrimitiveCount", count)
+            .put("ioLoopDiagnosticReceiptName", ioLoopDiagnosticReceiptName)
             .put("diagnosticRuntimeReadCount", diagnosticBatchesFlushed.get())
             .put("combinedRetainedRuntimeEventCount", summary.count.get() + statusRuntimeReadCount.get() + count + diagnosticBatchesFlushed.get())
             .put("peakGoRuntimeBytes", maxOf(summary.peakGoRuntimeBytes.get(), statusRuntimePeak.get(), teardownPeak,
@@ -1482,6 +1553,7 @@ class PhysicalLowbarSessionTest {
             .put("diagnosticBatchesFlushed", diagnosticBatchesFlushed.get()).put("diagnosticCommandCount", diagnosticCommandCount.get())
             .put("exporterFailed", exporterFailed.get()).put("filesFlushed", summaryFlushed && !exporterFailed.get())
             .put("producerSummary", summaryJson).put("native", native)
+            .apply { ioLoopDiagnosticReceiptName?.let { put("ioLoopDiagnosticReceiptName", it) } }
         writePhysicalMemoryEvidence(
             summary = { writePrivate(summaryFile, summaryJson.toString() + "\n") },
             native = { summaryFlushed -> writePrivate(teardownMemoryFile, receipt(summaryFlushed).toString() + "\n") },

@@ -446,6 +446,10 @@ export async function recordChild(options, dependencies = {}) {
     const wallNow = dependencies.wallNow ?? Date.now;
     const isLive = dependencies.isLive ?? processIsLive;
     const prior = childrenFromDisk(owner, ownerPath, owner.children.slice(0, index), isLive);
+    // Private diagnostic integer-text host boundaries. Cross-process epochs
+    // and device/browser clock conversion need independent custody evidence.
+    const monotonicNanos = dependencies.monotonicNanos ?? (() => process.hrtime.bigint());
+    const startedHostMonotonicNs = monotonicNanos().toString();
     const started = wallNow();
     if (started < (prior.at(-1)?.completedHostTimeUnixMs ?? owner.startedHostTimeUnixMs)) fail("host-clock-regressed");
     // Exclusive claim stays as failure/running evidence. A second invocation can
@@ -476,13 +480,15 @@ export async function recordChild(options, dependencies = {}) {
       result = { exitCode: closed.exitCode, processGroup: closed.pid };
     }
     const completed = wallNow();
+    const completedHostMonotonicNs = monotonicNanos().toString();
     stage = "child-postconditions";
     if (completed < started) fail("host-clock-regressed");
     requireLiveWorkloadOwner(owner, dependencies);
     requireLiveCollector(owner.collector, owner.label, owner.startedHostTimeUnixMs, dependencies);
     const receipt = { schema: SCHEMA, type: "workload-child", ownerId: owner.ownerId, name,
       wrapperPid: process.pid, state: "complete", exitCode: 0, signal: null, interrupted: false,
-      startedHostTimeUnixMs: started, completedHostTimeUnixMs: completed, ...result };
+      startedHostTimeUnixMs: started, completedHostTimeUnixMs: completed,
+      startedHostMonotonicNs, completedHostMonotonicNs, ...result };
     publish(join(dirname(ownerPath), `${name}.complete.json`), receipt);
     return receipt;
   } catch (error) {

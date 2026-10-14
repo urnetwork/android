@@ -148,6 +148,9 @@ function readTargetStatus(adb, expectedPid, minimumElapsedMs = 0) {
 // A launch nonce distinguishes a fresh app session from same-build files left
 // by an earlier run. Legacy owners without the optional binding stay unchanged.
 function requireTargetGeneration(status, owner) {
+  if (owner.ioLoopDiagnostic === true && status.ioLoopDiagnosticEnabled !== true) {
+    fail("native-loop-diagnostic-opt-in-not-observed");
+  }
   if (owner.launchId === undefined) return;
   if (status.launchId !== owner.launchId || status.buildId !== owner.buildId ||
       typeof status.sessionId !== "string" ||
@@ -170,6 +173,7 @@ function readInstrumentationOwner(path, serial, requireReady = true) {
       owner.serialHash !== digest(serial) || !commandIdValid(owner.label) || owner.className !== physicalClass ||
       owner.targetPackage !== packageName || !runnerComponents.includes(owner.component) ||
       !Number.isFinite(owner.startedHostTimeUnixMs) || owner.startedHostTimeUnixMs < 0 ||
+      (owner.ioLoopDiagnostic !== undefined && (owner.ioLoopDiagnostic !== true || owner.qualificationEligible !== false || owner.launchId === undefined)) ||
       (owner.launchId !== undefined && (typeof owner.launchId !== "string" ||
         !/^[a-f0-9]{32}$/.test(owner.launchId) || !commandIdValid(owner.buildId)))) {
     fail("invalid-instrumentation-owner-receipt");
@@ -186,6 +190,7 @@ function readInstrumentationOwner(path, serial, requireReady = true) {
     const ready = JSON.parse(readFileSync(readyPath, "utf8"));
     if (ready.schema !== 1 || ready.type !== "instrumentation-session-ready" || ready.ownerId !== owner.ownerId ||
         ready.serialHash !== owner.serialHash || !pidValid(ready.targetPid) ||
+        ready.ioLoopDiagnostic !== owner.ioLoopDiagnostic ||
         !Number.isFinite(ready.elapsedMs) || ready.elapsedMs < 0) fail("bound-ready-instrumentation-required");
     if (owner.launchId !== undefined && (ready.launchId !== owner.launchId || ready.buildId !== owner.buildId ||
         typeof ready.targetSessionId !== "string" ||
@@ -249,6 +254,7 @@ function bindPublishedInstrumentationReady(options, dependencies, binding) {
   if (binding && binding.now() >= binding.deadline) fail("instrumentation-session-ready-deadline");
   publish(`${options.owner}.ready.json`, { schema: 1, type: "instrumentation-session-ready", ownerId: owner.ownerId,
     serialHash: owner.serialHash, targetPid: status.pid, elapsedMs: status.elapsedMs, hostTimeUnixMs: Date.now(),
+    ...(owner.ioLoopDiagnostic === true ? { ioLoopDiagnostic: true, qualificationEligible: false } : {}),
     ...(owner.launchId === undefined ? {} : { launchId: owner.launchId, buildId: owner.buildId, targetSessionId: status.sessionId }) });
   return { retainedOwnerLive: true, adbChildLive: true, targetProcessMatchesStatus: true, readyStatusReadable: true };
 }
@@ -444,6 +450,9 @@ export async function runInstrumentationSession(options, dependencies = {}) {
 
 async function runInstrumentationSessionOwned(options, dependencies = {}) {
   const component = options.component ?? runnerComponents[0];
+  if (options["io-loop-diagnostic"] !== undefined && options["io-loop-diagnostic"] !== "1") {
+    fail("invalid-native-loop-diagnostic-option-no-spawn");
+  }
   if (!options.serial || !commandIdValid(options.label) || !commandIdValid(options["build-id"]) ||
       !runnerComponents.includes(component) || !options.owner || !options.stdout || !options.stderr) {
     fail("explicit-instrumentation-session-required");
@@ -471,6 +480,9 @@ async function runInstrumentationSessionOwned(options, dependencies = {}) {
   const foreground = (dependencies.foreground ?? foregroundState)();
   requireRetainedForeground(foreground);
   const launchId = sessionLaunch(options, false, "instrumentation");
+  if (options["io-loop-diagnostic"] === "1" && launchId === undefined) {
+    fail("native-loop-diagnostic-launch-binding-required-no-spawn");
+  }
   const supervisorIdentity = launchId === undefined ? liveHostOwner(process.pid, options.serial, dependencies, true) :
     launcherIdentity(process.pid, launchId, "run-instrumentation", "instrumentation", dependencies);
   let nativeInputs;
@@ -506,7 +518,8 @@ async function runInstrumentationSessionOwned(options, dependencies = {}) {
     spawnAttempted = true;
     child = (dependencies.spawn ?? spawn)("adb", ["-s", options.serial, "shell", "am", "instrument", "-w", "-r",
       "-e", "class", physicalClass, "-e", "acceptanceBuildId", options["build-id"],
-      ...(launchId === undefined ? [] : ["-e", "acceptanceLaunchId", launchId]), component],
+      ...(launchId === undefined ? [] : ["-e", "acceptanceLaunchId", launchId]),
+      ...(options["io-loop-diagnostic"] === "1" ? ["-e", "ioLoopDiagnostic", "1"] : []), component],
     { stdio: ["ignore", output, errors] });
     for (const [signal, handler] of handlers) signals.on(signal, handler);
     closed = new Promise((finish) => {
@@ -523,6 +536,7 @@ async function runInstrumentationSessionOwned(options, dependencies = {}) {
       nativeInputHash: nativeInputs.inputHash, nativeBuildOwner: nativeInputs.buildOwner,
       supervisorPid: process.pid, supervisorIdentity, adbPid: child.pid,
       adbIdentity: liveHostOwner(child.pid, options.serial, dependencies), foreground, startedHostTimeUnixMs: Date.now(),
+      ...(options["io-loop-diagnostic"] === "1" ? { ioLoopDiagnostic: true, qualificationEligible: false } : {}),
       ...(launchId === undefined ? {} : { launchId, buildId: options["build-id"] }) };
     requireLiveInstrumentation(owner, options.serial, dependencies);
     publish(options.owner, owner);
@@ -659,7 +673,7 @@ export function parseArgs(argv) {
   const roleArguments = ["session-mode", "connect-command-id", "instrumentation-owner"];
   const allowed = mode === "run" ? ["owner", "stdout", "stderr", "launch-id", ...roleArguments] :
     mode === "check" ? ["owner", "timeout-ms", "launch-id", "launcher-pid"] : mode === "check-role" ? ["serial", ...roleArguments] :
-      mode === "run-instrumentation" ? ["owner", "stdout", "stderr", "serial", "label", "build-id", "component", "artifact-dir", "native-inputs", "credential-ownership", "launch-id"] :
+      mode === "run-instrumentation" ? ["owner", "stdout", "stderr", "serial", "label", "build-id", "component", "artifact-dir", "native-inputs", "credential-ownership", "launch-id", "io-loop-diagnostic"] :
         mode === "bind-instrumentation-ready" ? ["owner", "serial", "launch-id", "launcher-pid", "timeout-ms"] : [];
   if (!allowed.length) fail("run-check-or-check-role-required");
   const options = { mode, captureArgs: separator < 0 ? [] : rest.slice(separator + 1) };
@@ -670,6 +684,9 @@ export function parseArgs(argv) {
     options[key] = pairs[i + 1];
   }
   if (["run-instrumentation", "bind-instrumentation-ready"].includes(mode)) {
+    if (options["io-loop-diagnostic"] !== undefined && options["io-loop-diagnostic"] !== "1") {
+      fail("invalid-native-loop-diagnostic-option-no-spawn");
+    }
     if (!options.serial || !options.owner || options.captureArgs.length ||
         (mode === "run-instrumentation" && (!options.stdout || !options.stderr || !options["native-inputs"] || !commandIdValid(options.label) ||
           !commandIdValid(options["build-id"]) || !runnerComponents.includes(options.component ?? runnerComponents[0])))) {

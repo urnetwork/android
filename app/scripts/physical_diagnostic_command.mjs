@@ -102,6 +102,8 @@ export async function runDiagnosticCommand(options, dependencies = {}) {
     requireArtifactPaths(binding, [options.owner, options.output, pending]);
     const args = ["-s", options.serial, "shell", "-T", "run-as", PACKAGE, "sh", "-c",
       quote(diagnosticPublicationScript({ ...options, label: wire.label, "command-id": wire.commandId }))];
+    const monotonicNanos = dependencies.monotonicNanos ?? (() => process.hrtime.bigint());
+    const clockBefore = options.verb === "ioloop-clock" ? monotonicNanos().toString() : null;
     const result = (dependencies.adb ?? ((argv, input) => spawnSync("adb", argv, {
       input, encoding: "utf8", timeout: 5000, maxBuffer: 4096,
     })))(args, `${wire.commandId}|${options.verb}|${wire.label}\n`);
@@ -127,6 +129,11 @@ export async function runDiagnosticCommand(options, dependencies = {}) {
             serialHash: createHash("sha256").update(options.serial).digest("hex"),
             verb: options.verb, label: options.label, commandId: options["command-id"], wire,
             hostTimeUnixMs: wallNow(), initial, status };
+          if (clockBefore !== null) {
+            report.qualificationEligible = false;
+            report.clockBracket = { source: "host-hrtime-v1", beforeNs: clockBefore,
+              afterNs: monotonicNanos().toString() };
+          }
           requireArtifactPaths(binding, [options.output, pending]);
           writeFileSync(descriptor, `${JSON.stringify(report)}\n`);
           linkSync(pending, options.output);

@@ -442,3 +442,43 @@ test("explicit bounded arguments and fresh private host output are required befo
   await assert.rejects(f.run(), /artifact-directory-mode-not-0700/);
   assert.equal(f.calls.length, 0);
 });
+
+test("ioloop-clock retains exact same-process nanoseconds and actual labeled acknowledgment", async (t) => {
+  const f = fixture(t);
+  Object.assign(f.options, { verb: "ioloop-clock", label: "fast-1-before" });
+  const times = [9007199254740993n, 9007199254741009n];
+  const report = await f.run({ monotonicNanos: () => times.shift(), adb: () => ({ status: 0 }) });
+  assert.deepEqual(report.clockBracket, { source: "host-hrtime-v1", beforeNs: "9007199254740993", afterNs: "9007199254741009" });
+  assert.equal(report.qualificationEligible, false);
+  assert.equal(report.status.phase, "ioloop-clock-" + f.wire.label);
+  assert.equal(f.wire.artifactName, "physical-ioloop-clock-" + f.wire.label + ".json");
+  assert.equal(times.length, 0);
+});
+
+test("native-loop diagnostic is opt-in at the actual JNI call and fenced after retained done posts", () => {
+  const service = readFileSync(new URL("../app/src/main/java/com/bringyour/network/MainService.kt", import.meta.url), "utf8");
+  const app = readFileSync(new URL("../app/src/main/java/com/bringyour/network/MainApplication.kt", import.meta.url), "utf8");
+  const source = readFileSync(new URL("../app/src/androidTest/java/com/bringyour/network/acceptance/PhysicalLowbarSessionTest.kt", import.meta.url), "utf8");
+  const cold = readFileSync(new URL("../app/src/acceptanceShared/java/com/bringyour/network/acceptance/PhysicalIoLoopDiagnostic.kt", import.meta.url), "utf8");
+  assert.match(app, /var ioLoopDiagnostics: com\.bringyour\.sdk\.IoLoopDiagnosticSession\? = null/);
+  assert.match(service, /diagnostic\.newIoLoop\(deviceLocal, pfd\.detachFd\(\), doneCallback\)/);
+  assert.match(service, /Sdk\.newIoLoop\(deviceLocal, pfd\.detachFd\(\), doneCallback\)/, "public default branch remains real");
+  assert.match(service, /if \(packetFlow === endedPacketFlow\)/, "an old callback may not retire a replacement");
+  assert.match(service, /if \(app\.service\?\.get\(\) == this@MainService\)/, "a detached service cannot schedule a replacement");
+  assert.match(service, /app\.device\?\.let \{ device ->/, "actual construction rechecks the current device");
+  assert.match(app, /vpnServiceUpdateGeneration \+= 1/, "logout invalidates retained service updates");
+  assert.match(service, /mainHandler\.post/);
+  assert.match(service, /check\(Looper\.myLooper\(\) == mainLooper\)/);
+  assert.match(service, /check\(packetFlow == null && boundDevice == null\)/);
+  assert.match(service, /check\(tunnelRetryKind != TunnelRetryKind\.CONFIGURATION\)/);
+  assert.match(source, /physicalIoLoopDiagnosticRequested\(ioLoopDiagnosticOption, BuildConfig\.DEBUG\)/);
+  assert.match(source, /mainFence = \{\s*instrumentation\.runOnMainSync \{\s*check\(application\.ioLoopDiagnostics === diagnostic\)\s*check\(application\.device == null\)/);
+  assert.match(source, /diagnostic\.sealAndSnapshotJson\(remainingJoinMillis\)/);
+  assert.match(source, /if \(application\.ioLoopDiagnostics === diagnostic\) application\.ioLoopDiagnostics = null/);
+  const order = ['attempt("ioloop-fence-before",', 'attempt("ioloop-native-join")',
+    'attempt("ioloop-fence-after",', 'attempt("ioloop-receipt")', 'attempt("ioloop-diagnostic-release",'].map(value => cold.indexOf(value));
+  assert.ok(order.every((value, index) => value >= 0 && (index === 0 || order[index - 1] < value)));
+  assert.match(source, /writePrivate\(output, record\.toString\(\) \+ "\\n"\)\s*ioLoopDiagnosticReceiptName = output\.name\s*check\(record\.getBoolean\("complete"\)\)/,
+    "incomplete joined evidence is written before its assertion");
+});
+

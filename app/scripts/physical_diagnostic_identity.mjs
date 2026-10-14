@@ -6,6 +6,7 @@ export const DIAGNOSTIC_VERBS = Object.freeze({
   "owner-census": ["owners", "json"],
   "heap-profile": ["heap", "pprof"],
   "goroutine-stacks": ["stacks", "txt"],
+  "ioloop-clock": ["ioloop-clock", "json"],
 });
 export const diagnosticLabelValid = value => typeof value === "string" && /^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$/.test(value);
 export const diagnosticSessionValid = value => typeof value === "string" &&

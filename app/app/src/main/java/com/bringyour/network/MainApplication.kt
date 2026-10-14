@@ -414,6 +414,11 @@ class MainApplication : Application() {
 
     val device get() = deviceManager.device
 
+    // Private diagnostic build: only the acceptance owner installs this on the
+    // main thread before any native loop; normal app construction stays off.
+    @Volatile
+    internal var ioLoopDiagnostics: com.bringyour.sdk.IoLoopDiagnosticSession? = null
+
     /**
      * Publishes the Home Screen widgets' snapshot (location, providers,
      * throughput, contracts, balance) and re-renders them; created with the

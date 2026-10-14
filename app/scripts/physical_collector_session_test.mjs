@@ -93,6 +93,7 @@ function instrumentationFixture(t) {
           assert.deepEqual(args, ["-s", "fake-device", "shell", "am", "instrument", "-w", "-r", "-e", "class",
             "com.bringyour.network.acceptance.PhysicalLowbarSessionTest", "-e", "acceptanceBuildId", "fixture",
             ...(options["launch-id"] === undefined ? [] : ["-e", "acceptanceLaunchId", options["launch-id"]]),
+            ...(options["io-loop-diagnostic"] === "1" ? ["-e", "ioLoopDiagnostic", "1"] : []),
             "com.bringyour.network.test/androidx.test.runner.AndroidJUnitRunner"]);
           f.child = spawn(process.execPath, ["-e", fakeInstrumentation, join(directory, "stop")], settings);
           assert.equal(existsSync(options.owner), false, "no running receipt before live child verification");
@@ -1540,3 +1541,43 @@ test("bound owners require typed launch and build identity even for legacy binde
   await f.boundBind();
   f.stop(); assert.equal(await f.result, 0);
 });
+
+test("native-loop opt-in reaches actual AM argv, ready binding and unchanged terminal ownership", async (t) => {
+  const f = boundInstrumentationFixture(t);
+  f.options["io-loop-diagnostic"] = "1";
+  await f.start();
+  const owner = JSON.parse(readFileSync(f.options.owner, "utf8"));
+  assert.equal(owner.ioLoopDiagnostic, true);
+  assert.equal(owner.qualificationEligible, false);
+  await assert.rejects(f.boundBind({ adb: roleAdb([disconnectedStatus]) }), /native-loop-diagnostic-opt-in-not-observed/);
+  await f.boundBind({ adb: roleAdb([{ ...disconnectedStatus, ioLoopDiagnosticEnabled: true }]) });
+  const ready = JSON.parse(readFileSync(f.options.owner + ".ready.json", "utf8"));
+  assert.equal(ready.ioLoopDiagnostic, true);
+  assert.equal(ready.qualificationEligible, false);
+  assert.equal(ready.targetSessionId, disconnectedStatus.sessionId);
+  f.stop();
+  assert.equal(await f.result, 0);
+  const terminal = JSON.parse(readFileSync(f.options.owner + ".terminal.json", "utf8"));
+  assert.equal(terminal.ioLoopDiagnostic, true);
+  assert.equal(terminal.qualificationEligible, false);
+  assert.equal(terminal.ownerId, owner.ownerId);
+});
+
+test("native-loop absent option stays absent and invalid opt-ins cannot spawn", async (t) => {
+  const f = boundInstrumentationFixture(t);
+  await f.start();
+  assert.equal(Object.hasOwn(JSON.parse(readFileSync(f.options.owner, "utf8")), "ioLoopDiagnostic"), false);
+  f.stop(); assert.equal(await f.result, 0);
+  for (const invalid of ["", "0", "true", "2"]) {
+    const g = boundInstrumentationFixture(t);
+    g.options["io-loop-diagnostic"] = invalid;
+    await assert.rejects(runInstrumentationSession(g.options, { spawn: () => assert.fail("invalid opt-in must not spawn") }),
+      /invalid-native-loop-diagnostic-option-no-spawn/);
+    assert.equal(existsSync(g.options.owner), false);
+  }
+  const h = instrumentationFixture(t);
+  h.options["io-loop-diagnostic"] = "1";
+  await assert.rejects(runInstrumentationSession(h.options, { foreground: () => foreground,
+    spawn: () => assert.fail("unbound launch must not spawn") }), /native-loop-diagnostic-launch-binding-required-no-spawn/);
+});
+

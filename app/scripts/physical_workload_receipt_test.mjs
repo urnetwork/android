@@ -1,9 +1,12 @@
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
+import { diagnosticIdentity } from "./physical_diagnostic_identity.mjs";
+import { runIoLoopFastBoundary } from "./physical_ioloop_boundary.mjs";
 import { spawn, spawnSync } from "node:child_process";
 import { EventEmitter } from "node:events";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 import test from "node:test";
 import { evaluateWorkloadCoverage, ownWorkloads, parseArgs, recordChild, requireCompletedWorkloads, requireLiveCollector,
   inspectWorkloadAttempt, retainRejectedWorkloadInvocation, requireRetainedWorkloadForeground, runCommand, workloadOwnerProcess } from "./physical_workload_receipt.mjs";
@@ -662,3 +665,101 @@ test("real retained owner interruption never publishes a terminal success receip
   assert.equal(failed.result.signal, "SIGTERM");
   assert.equal(failed.result.interrupted, true);
 });
+
+// This composes the actual workload ownership/child executor with synthetic
+// cold command/copy boundaries. The command transaction has its own fixture;
+// no Android/JNI behavior is inferred from this host-only composition.
+function ioLoopBoundaryFixture(t, f) {
+  const directory = join(f.directory, "instrumentation");
+  mkdirSync(directory, { mode: 0o700 });
+  const ownerPath = join(directory, "owner.json");
+  const owner = { ownerId: "22222222-2222-4222-8222-222222222222", launchId: "a".repeat(32),
+    buildId: "fixture", serialHash: createHash("sha256").update(f.options.serial).digest("hex"),
+    ioLoopDiagnostic: true, qualificationEligible: false };
+  const ready = { ownerId: owner.ownerId, launchId: owner.launchId, buildId: owner.buildId, serialHash: owner.serialHash,
+    ioLoopDiagnostic: true, qualificationEligible: false, targetSessionId: "11111111-1111-4111-8111-111111111111", targetPid: 1234 };
+  writeFileSync(ownerPath, JSON.stringify(owner), { mode: 0o600 });
+  writeFileSync(ownerPath + ".ready.json", JSON.stringify(ready), { mode: 0o600 });
+  let host = 9007199254740993n, elapsed = 0n;
+  const h = { calls: [], failEdge: null, mutate: null,
+    dependencies: { childDependencies: { ...f.deps, run: (...args) => f.childRun(...args) },
+      monotonicNanos: () => host++,
+      command: async (options, dependencies) => {
+        const edge = options.label.endsWith("-before") ? "before" : "after";
+        h.calls.push(edge);
+        if (h.failEdge === edge) throw Error("synthetic command unavailable");
+        const wire = diagnosticIdentity(owner.ownerId, options.verb, options.label, options["command-id"]);
+        const initial = { sessionId: owner.ownerId, pid: ready.targetPid, state: "ready", commandId: "0",
+          elapsedMs: 1, connected: true, tunnelStarted: true, provideEnabled: false, transportMode: "h1" };
+        const receipt = { schema: 2, type: "physical-diagnostic-command", eligible: true, qualificationEligible: false,
+          verb: options.verb, label: options.label, commandId: options["command-id"], wire,
+          initial, status: { ...initial, state: "complete", commandId: wire.commandId, phase: options.verb + "-" + wire.label, elapsedMs: 2 },
+          clockBracket: { source: "host-hrtime-v1", beforeNs: dependencies.monotonicNanos().toString(), afterNs: dependencies.monotonicNanos().toString() } };
+        writeFileSync(options.output, JSON.stringify(receipt), { mode: 0o600, flag: "wx" });
+        return receipt;
+      },
+      copy: options => {
+        const clock = { schema: 1, qualificationEligible: false, sessionId: ready.targetSessionId,
+          buildId: owner.buildId, pid: ready.targetPid, origin_unix_ns: "1792000000000000000",
+          wall_unix_ns: "1792000000000000001", elapsed_ns: (++elapsed).toString() };
+        h.mutate?.(clock);
+        writeFileSync(options.output, JSON.stringify(clock), { mode: 0o600, flag: "wx" });
+      },
+    },
+    run: name => runIoLoopFastBoundary({ serial: f.options.serial, instrumentationOwner: ownerPath,
+      ownerPath: f.ownerPath, name, timeoutMs: 95000, command: ["fake-fast", "--unchanged-arg"] }, h.dependencies),
+  };
+  return h;
+}
+
+test("native-loop Fast1 through Fast3 wrap actual ordered children with exactly six cold anchors", async (t) => {
+  const f = fixture(t);
+  f.options.children = ["fast-1", "fast-2", "fast-3"];
+  const h = ioLoopBoundaryFixture(t, f), reports = [];
+  f.childRun = async (command, _env, limits) => {
+    assert.deepEqual(command, ["fake-fast", "--unchanged-arg"]);
+    assert.equal(limits.timeoutMs, 95000);
+    return closed();
+  };
+  await f.run(async () => {
+    for (const name of f.options.children) reports.push(await h.run(name));
+    await f.cleanup();
+  });
+  assert.deepEqual(h.calls, ["before", "after", "before", "after", "before", "after"]);
+  for (const report of reports) {
+    assert.equal(report.complete, true);
+    assert.equal(report.qualificationEligible, false);
+    assert.equal(report.exitCode, 0);
+    assert.equal(report.clockSource, "same-process-host-hrtime-v1");
+    assert.notEqual(report.before.device.sessionId, report.instrumentationOwnerId, "device receipt and host command namespaces are distinct");
+    assert.ok(BigInt(report.before.host.afterNs) <= BigInt(report.child.startedHostMonotonicNs));
+    assert.ok(BigInt(report.child.completedHostMonotonicNs) <= BigInt(report.after.host.beforeNs));
+    assert.match(report.childSha256, /^[a-f0-9]{64}$/);
+  }
+  assert.equal(f.check().childReceipts.length, 4, "ordinary cleanup remains a separate owned child");
+});
+
+test("native-loop boundary failure or joined failed traffic remains failed without retry or overlapping post-anchor", async (t) => {
+  for (const kind of ["before", "after", "unjoined-child", "nonzero-child", "wrong-device-clock"]) {
+    const f = fixture(t); f.options.children = ["fast-1"];
+    const h = ioLoopBoundaryFixture(t, f);
+    if (kind === "before" || kind === "after") h.failEdge = kind;
+    if (kind === "unjoined-child") f.childRun = async () => ({ ...closed(), closed: false });
+    if (kind === "nonzero-child") f.childRun = async () => closed(500, 7);
+    if (kind === "wrong-device-clock") h.mutate = clock => { clock.sessionId = "33333333-3333-4333-8333-333333333333"; };
+    let report;
+    await assert.rejects(f.run(async () => {
+      report = await h.run("fast-1");
+      assert.notEqual(report.exitCode, 0);
+      throw Error("diagnostic-boundary-failed");
+    }), /diagnostic-boundary-failed/);
+    assert.equal(report.complete, kind === "nonzero-child", "completed nonzero traffic is not relabeled successful");
+    assert.equal(report.exitCode, kind === "nonzero-child" ? 7 : 2);
+    assert.equal(report.qualificationEligible, false);
+    if (kind === "before" || kind === "unjoined-child" || kind === "wrong-device-clock") assert.deepEqual(h.calls, ["before"]);
+    else assert.deepEqual(h.calls, ["before", "after"]);
+    assert.equal(existsSync(join(dirname(f.ownerPath), "fast-1.ioloop.json")), true);
+    await assert.rejects(h.run("fast-1"), /EEXIST/, "a failed attempt is never replayed into success");
+  }
+});
+
