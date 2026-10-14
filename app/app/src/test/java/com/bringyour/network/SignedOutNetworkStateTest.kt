@@ -22,6 +22,8 @@ import com.bringyour.network.ui.wallet.BittensorBridgeReturns
 import com.bringyour.network.ui.wallet.BittensorProofOutcome
 import com.bringyour.network.ui.wallet.BittensorProofSession
 import com.bringyour.network.ui.wallet.BittensorWallets
+import com.bringyour.network.ui.wallet.SnConsentReturn
+import com.bringyour.network.ui.wallet.SnConsentReturns
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
@@ -125,6 +127,17 @@ class SignedOutNetworkStateTest {
             BittensorBridgeReturn.Ignored,
             bridgeReturns.take("ur://bittensor-sign-message?state=late", 6_000L),
         )
+    }
+
+    // a payout consent network A signed, its bridge return waiting for the
+    // Earnings screen, never reaches network B's screen (CONSENT.md 4)
+    @Test
+    fun aSignOutDropsTheConsentReturnWaitingForTheEarningsScreen() {
+        SnConsentReturns.deliver(SnConsentReturn.Expired)
+
+        clear(listOf(), PendingSolanaPaymentStore(MemoryPrefs()), BittensorBridgeReturns())
+
+        assertNull(SnConsentReturns.take())
     }
 
     // a Solana payment network A left waiting for its check is not checked, or

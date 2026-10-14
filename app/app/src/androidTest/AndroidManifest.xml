@@ -3,10 +3,18 @@
     <uses-permission android:name="android.permission.INTERNET" />
 
     <!-- AGP injects runner settings into the first instrumentation element.
-         Keep that slot on the default runner; the opt-in component is second. -->
+         Keep that slot on the default runner (testInstrumentationRunner), which
+         starts the app with the SDK's extender network client off. The stock
+         runner stays declared second: the acceptance harness launches it by
+         name and keeps the live startup. The opt-in component is third. -->
+    <instrumentation
+        android:name="com.bringyour.network.ExtenderNetworkClientOffRunner"
+        android:targetPackage="com.bringyour.network" />
     <instrumentation
         android:name="androidx.test.runner.AndroidJUnitRunner"
-        android:targetPackage="com.bringyour.network" />
+        android:targetPackage="com.bringyour.network"
+        android:functionalTest="false"
+        android:handleProfiling="false" />
     <instrumentation
         android:name="com.bringyour.network.acceptance.PhysicalCredentialDiagnosticRunner"
         android:targetPackage="com.bringyour.network"

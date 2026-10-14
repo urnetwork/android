@@ -169,11 +169,12 @@ one tap calls `Device.SnClaim(epochs, callback)`.
 
 States: claimable · needs gas (mirror address, suggested top-up, Copy) ·
 sending · sent (tx hash + explorer link) · claimed (confirmed) · expired ·
-failed. Error copy: "Connect a Bittensor wallet first", "Send about 0.005 TAO
+failed. Error copy: "Connect a Bittensor wallet first", "Send about 0.02 TAO
 to 5Gh…2q for gas", "Claims for epoch 41 have expired", "The chain RPC is
-unreachable, try again". The needs-gas threshold and the suggested top-up are
-UI heuristics (the SDK reports `needs_gas` without an estimate); the SDK's
-failure code stays authoritative.
+unreachable, try again". The SDK signs a v1 claim with at least 2,700,000 gas
+and sends it only when the gas key holds that limit at 1.1 × the gas price,
+about 0.0149 TAO at 5 gwei, so the needs-gas threshold is 0.015 TAO and the
+suggested top-up 0.02 TAO; the SDK's failure code stays authoritative.
 
 What the SDK does behind `SnClaims` / `SnClaim` (`sdk/sn_claims.go`):
 
@@ -193,6 +194,87 @@ What the SDK does behind `SnClaims` / `SnClaim` (`sdk/sn_claims.go`):
 Hosts that sign with an external wallet (the web claim route with an injected
 EVM wallet) use `SnClaimTransactions` / wasm `URnetworkSnClaimTransactionsFor`
 to get the unsigned transactions and send them themselves.
+
+## Settlement v2 (Android, 2026-10-11)
+
+From its switch epoch an operator pool settles in vault2: the coldkey has one
+account per pool, a cumulative balance that never expires (sn
+`VERSION2-FINAL.md`, `v2/APPS-SPEC.md`). The Earnings screen shows it in a
+"Settlement v2" tile under the Unclaimed tile; the v1 tile, dialog and payout
+line are unchanged.
+
+- **Tile.** Per account (normally one pool; "Pool N" when there are more):
+  Claimable (the large figure), Paid, Earned, and "Pending: +X, awaiting
+  finalization" while a pending root raises the cumulative (X = PendingRao −
+  FinalizedRao). From `Device.SnLedgerAccounts`; a failed or refused read
+  (`ledger_unavailable`) shows "Unavailable", never zero, with Claim disabled.
+- **Before activation** `SnChainSettings.Vault2Address` is empty: no Claim,
+  and the tile shows only accounts the ledger returned (hidden when it returned
+  none or failed, as a server without the endpoint answers 404). The release
+  pins Vault2Address (compiled in, or the network space's `sn_chain`);
+  `/sn/epoch` never sets it.
+- **Claim** (Vault2Address set, an account with ClaimableRao > 0) opens a
+  dialog built like v1's: the accounts and the gas key, or the needs-gas
+  top-up below `MIN_GAS_TAO`; its button calls `Device.SnLedgerClaim`, one
+  transaction per account from the gas key. Rows: Sent (explorer link),
+  Claimed (the vault's Claimed amount), Failed (`needs_gas` on every account →
+  the top-up; `already_claimed` → shown as claimed; others → the SDK's detail; a
+  failure with pool 0 is about no one account and fails every row not sent).
+  After Done the accounts are read again, also when the dialog was closed; a
+  claim in flight reopens rather than starting another.
+- **Code.** `ui/wallet/SnLedger.kt` (state, presentation, `SnLedgerFlow` owned
+  by `EarningsViewModel`), `SnLedgerTile.kt` (tile and dialog), and
+  `EarningsProtocolSource.ledgerAccounts/ledgerClaimConfigured/ledgerClaim`
+  (SDK, debug sample with one pending account, none). Strings
+  `sn_ledger_{claimable,earned,paid,pending,pool,title,unavailable}` in every
+  locale; the localizations store needs them as keys before the next
+  regeneration.
+
+## Payout consent (Android, 2026-10-13)
+
+An app-only provider is paid only under a network consent: the network owner
+signs once with a coldkey, and it covers every provider client of the network
+(v2 `CONSENT.md`). A "Payout consent" block sits after the Settlement v2 tile,
+with or without a GET /sn/wallet entry: a network that never connected a
+wallet is the one it pays.
+
+- **Status.** `Api.snNetworkConsentStatus`, read on every refresh. Not
+  active: "No payout wallet yet…", why to sign, and Sign with wallet. Active
+  (in force, or starting next epoch, as every new consent does): "Earnings are
+  paid to 5Grw…utQY", Change wallet, and "A new wallet takes effect from the
+  next epoch." An unreadable status shows the section's Try again. Sign is
+  offered only with the network credential (`Api.hasNetworkCredential`);
+  without it the block says "Only the network owner can choose the payout
+  wallet."
+- **Signing.** Sign and Change run the same steps as on every app: the
+  sign-in wallet chooser; the coldkey the consent will name, entered (never
+  prefilled: it may differ from the sign-in wallet) and checked with
+  `validateSs58` before any request; `snNetworkConsentChallenge` for it in an
+  SDK session of the `consent` purpose, which takes the result through
+  `setNetworkConsentChallenge`, so the wallet signs only the server's message,
+  pasted on the manual sheet (Talisman, TAO.com) or on the WalletConnect
+  bridge page, whose return each flavor's LoginActivity hands to the screen
+  (`SnConsentReturns`). Any app can fire that return, so the wait follows
+  what the SDK session did: a return it refused while it still waits (forged
+  or mismatched) leaves it waiting; its page's failure for this attempt ends
+  it with the existing wallet error line for the page's code; no text from a
+  return is ever shown. A challenge that arrives after its attempt was left
+  is dropped. A proof goes to
+  `snNetworkConsentSubmit` only when its coldkey and message are the
+  challenge's; then the status is read again.
+- **Refusals.** `challenge_expired` (the session's or the server's): "The
+  request expired. Try again."; `signature_mismatch`, or a proof of another
+  message or coldkey: "The signature didn't match this wallet. Try again.";
+  `network_owner_only`: "Only the network owner can choose the payout
+  wallet.", with Sign disabled. Others show as a failed connect does; a failed
+  challenge returns to the chooser's error.
+- **Code.** `ui/wallet/SnConsent.kt` (state, presentation, `SnConsentFlow`
+  owned by `EarningsViewModel`, the bridge hand-off), `SnConsentTile.kt`, and
+  `EarningsProtocolSource.consentStatus/hasNetworkCredential/consentSession/consentSubmit`. Strings
+  `sn_consent_*` come from the store in every locale. The unit tests run
+  against fakes; compiling against the SDK's own AAR needs CI.
+- **Before release.** The WalletConnect path needs the ur.io bridge page that
+  signs a consent (`purpose=consent`, mmm `v2/consent-signing`) deployed.
 
 ## Top 200
 
@@ -399,8 +481,9 @@ wallet retrieval left the `MainActivity`s. The Solana dApp flavor keeps the
 "Verify Seeker" action (points-only) and the three alt subscription screens
 show "Paid in USDC on Solana". Manual entry still signs through the bridge
 (the server rejects unsigned sets); a looks-new address asks for confirmation
-before `ConnectSnWallet`. Gas threshold constants (`MIN_GAS_TAO` 0.002,
-suggested 0.01 TAO) are guesses pending real numbers.
+before `ConnectSnWallet`. Gas threshold constants: `MIN_GAS_TAO` 0.015, what
+the SDK's 2,700,000 gas floor for a v1 claim costs at 5 gwei, and
+`SUGGESTED_GAS_TAO` 0.02, for v1 and v2 claims alike.
 
 **Apple (iOS, macOS).** `app/network/Main/Account/Earnings/` (11 files):
 `EarningsView` + `EarningsTiles`, `ConnectBittensorWalletFlow` + sheet,

@@ -4,6 +4,7 @@ import test from "node:test";
 
 const source = (path) => readFileSync(new URL(`../app/${path}`, import.meta.url), "utf8");
 const runner = "com.bringyour.network.acceptance.PhysicalCredentialDiagnosticRunner";
+const defaultRunner = "com.bringyour.network.ExtenderNetworkClientOffRunner";
 
 test("the diagnostic component is registered separately without replacing the default runner", () => {
   const manifest = source("src/androidTest/AndroidManifest.xml").replace(/<!--[\s\S]*?-->/g, "");
@@ -13,11 +14,19 @@ test("the diagnostic component is registered separately without replacing the de
   }));
   // AGP's Instrumentation system-property override targets the first element.
   // A lone diagnostic declaration is silently renamed to the default runner.
+  // The stock runner stays declared: the acceptance harness launches it by name.
   assert.deepEqual(components, [
+    { name: defaultRunner, target: "com.bringyour.network" },
     { name: "androidx.test.runner.AndroidJUnitRunner", target: "com.bringyour.network" },
     { name: runner, target: "com.bringyour.network" },
   ]);
-  assert.match(source("build.gradle"), /testInstrumentationRunner\s+'androidx\.test\.runner\.AndroidJUnitRunner'/);
+  assert.match(source("build.gradle"), /testInstrumentationRunner\s+'com\.bringyour\.network\.ExtenderNetworkClientOffRunner'/);
+});
+
+test("the default runner turns the extender network client off before the app starts, except for live runs", () => {
+  const hook = source("src/androidTest/java/com/bringyour/network/ExtenderNetworkClientOffRunner.kt");
+  assert.match(hook, /class ExtenderNetworkClientOffRunner : AndroidJUnitRunner\(\)/);
+  assert.match(hook, /override fun onCreate\(arguments: Bundle\?\) \{\n\s+if \(!keepsLiveStartup \{ arguments\?\.getString\(it\) \}\) \{\n\s+Sdk\.setExtenderNetworkClientEnabled\(false\)\n\s+\}\n\s+super\.onCreate\(arguments\)\n/);
 });
 
 test("the earliest hook uses incoming arguments and delegates unchanged arguments to AndroidJUnitRunner", () => {

@@ -192,6 +192,12 @@ class EarningsViewModel @Inject constructor(
     private val _claimDialog = MutableStateFlow<ClaimDialogState?>(null)
     val claimDialog: StateFlow<ClaimDialogState?> = _claimDialog.asStateFlow()
 
+    // settlement v2: its tile beside the v1 claims, and its claim dialog
+    val ledgerFlow = SnLedgerFlow(viewModelScope) { _wallet.value != null }
+
+    // the network's payout consent beside the v2 tile, signed through its own wallet sheets
+    val consentFlow = SnConsentFlow(viewModelScope)
+
     var isRefreshing by mutableStateOf(false)
         private set
 
@@ -246,9 +252,11 @@ class EarningsViewModel @Inject constructor(
                 launch { refreshWallet() }
                 launch { refreshEpochs() }
                 launch { refreshHead() }
+                // the network's consent, read with or without a wallet entry
+                launch { consentFlow.refresh() }
             }
             if (_wallet.value != null) {
-                refreshClaims()
+                refreshSettlements()
             }
         } finally {
             if (userInitiated) {
@@ -263,7 +271,7 @@ class EarningsViewModel @Inject constructor(
         viewModelScope.launch {
             refreshWallet()
             if (_wallet.value != null) {
-                refreshClaims()
+                refreshSettlements()
             }
         }
     }
@@ -312,6 +320,12 @@ class EarningsViewModel @Inject constructor(
                 Log.i(TAG, "claims: ${it.message}")
                 _claimsError.value = it.message
             }
+    }
+
+    // the v1 claims and the v2 accounts, read side by side
+    private suspend fun refreshSettlements() = coroutineScope {
+        launch { ledgerFlow.refresh() }
+        refreshClaims()
     }
 
     // ---- wallet connect: the coldkey proves itself by signing a challenge
@@ -396,6 +410,7 @@ class EarningsViewModel @Inject constructor(
      */
     fun onScreenResumed() {
         proofFlow.onResumed()
+        consentFlow.onResumed()
         val s = _connectState.value
         if (s is WalletConnectState.AwaitingSignature || s is WalletConnectState.RequestingChallenge) {
             _connectState.value = WalletConnectState.Idle
@@ -456,7 +471,7 @@ class EarningsViewModel @Inject constructor(
                 _wallet.value = w
                 _walletLoaded.value = true
                 _connectState.value = WalletConnectState.Connected(w)
-                refreshClaims()
+                refreshSettlements()
             }
             .onFailure {
                 Log.i(TAG, "connect wallet: ${it.message}")
@@ -717,6 +732,8 @@ class EarningsViewModel @Inject constructor(
         removeWalletListener = null
         byDevice = device
         source = if (device == null) NoProtocolSource else createProtocolSource(device)
+        ledgerFlow.reset(source)
+        consentFlow.reset(source)
 
         _wallet.value = null
         _walletLoaded.value = false
@@ -744,7 +761,7 @@ class EarningsViewModel @Inject constructor(
                 _wallet.value = w
                 _walletLoaded.value = true
                 _walletFailed.value = false
-                refreshClaims()
+                refreshSettlements()
             }
         }
         restoreSeekerHolder(device)
@@ -783,16 +800,23 @@ class EarningsViewModel @Inject constructor(
         const val SN_CODE_CHAIN_NOT_CONFIGURED = "chain_not_configured"
         // POST /sn/wallet: the signature is not from the entered address (bittensor_error_signature_mismatch)
         const val SN_CODE_SIGNATURE_MISMATCH = "signature_mismatch"
+        // the payout consent's refusals in the SDK's "code: message" form (sn_consent_owner_only,
+        // sn_consent_expired); challenge_expired is also the wallet session's own expiry code
+        const val SN_CODE_NETWORK_OWNER_ONLY = "network_owner_only"
+        const val SN_CODE_CHALLENGE_EXPIRED = "challenge_expired"
 
         /** SDK claim failures arrive as "<code>: <reason>"; the sample source sends bare codes. */
         fun claimFailureCode(message: String?): String? =
             message?.substringBefore(':')?.trim()?.lowercase()?.takeIf { it.isNotEmpty() }
 
-        // below this the vault call cannot pay for itself; the SDK reports "needs gas" too
-        const val MIN_GAS_TAO = 0.002
+        // Below this the claim dialogs, v1 and v2, open on the gas top-up. The SDK signs a claim
+        // with its estimate plus a quarter and at least 2,700,000 gas for v1 (below that the v1
+        // vault defers the payment) or 2,600,000 for v2, and sends it only when the gas key holds
+        // that limit at 1.1 × the gas price, else needs_gas: about 0.0149 TAO at 5 gwei for v1.
+        const val MIN_GAS_TAO = 0.015
 
-        // what the funding hint suggests sending to the mirror address
-        const val SUGGESTED_GAS_TAO = 0.01
+        // what the funding hint suggests sending to the mirror address: a claim's gas up to about 6.7 gwei
+        const val SUGGESTED_GAS_TAO = 0.02
     }
 }
 

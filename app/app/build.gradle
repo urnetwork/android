@@ -176,7 +176,9 @@ android {
             archivesName = "${applicationId}-${versionName}-${versionCode}"
         }
 
-        testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
+        // starts the app with the SDK's extender network client off, except for
+        // acceptance and the startup-memory diagnostic (androidTest manifest)
+        testInstrumentationRunner 'com.bringyour.network.ExtenderNetworkClientOffRunner'
 
         // A per-run marker lets the acceptance test prove that the APK it is
         // driving came from this invocation, rather than a stale install.
