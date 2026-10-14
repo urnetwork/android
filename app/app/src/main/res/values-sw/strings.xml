@@ -65,6 +65,7 @@
     <string name="balance_code_where_to_buy">Huna msimbo? Misimbo ya data inaweza kununuliwa kwenye ur.io na kutumwa kwako kwa barua pepe.</string>
     <string name="balance_codes_link">Misimbo ya salio</string>
     <string name="balance_codes_title">Misimbo ya salio</string>
+    <string name="battery_optimization_settings_hint">Gusa ili kufungua orodha ya uboreshaji wa betri ya Android. Ikiwa URnetwork haipo kwenye orodha, badilisha kichujio kiwe \"Programu zote\", kisha uchague URnetwork na \"Usiboreshe\".</string>
     <string name="become_supporter">Pata UR Pro</string>
     <string name="best_available_provider">Mtoa huduma bora zaidi anayepatikana</string>
     <string name="best_value">Thamani bora</string>
@@ -389,7 +390,7 @@
     <string name="device_not_discoverable">Washa hali ya utoaji ili kifaa hiki kiweze kupatikana</string>
     <string name="device_spec_label">Muundo</string>
     <string name="devices">Vifaa</string>
-    <string name="disable_ignore_battery_hint">Ili kuzima, tafadhali nenda kwenye Matumizi ya Betri ya Programu katika Mipangilio ya Mfumo</string>
+    <string name="disable_ignore_battery_settings_hint">Ili kuzima hili, gusa swichi ili kufungua orodha ya uboreshaji wa betri ya Android, badilisha kichujio kiwe \"Programu zote\", kisha uchague URnetwork na \"Boresha\".</string>
     <string name="disconnect">Tenganisha</string>
     <string name="disconnected">Haijaunganishwa</string>
     <string name="dismiss">Futa</string>

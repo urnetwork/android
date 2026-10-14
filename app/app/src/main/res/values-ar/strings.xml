@@ -65,6 +65,7 @@
     <string name="balance_code_where_to_buy">ليس لديك رمز؟ يمكن شراء رموز البيانات من ur.io وإرسالها إلى بريدك الإلكتروني.</string>
     <string name="balance_codes_link">رموز الرصيد</string>
     <string name="balance_codes_title">رموز الرصيد</string>
+    <string name="battery_optimization_settings_hint">اضغط لفتح قائمة تحسين البطارية في Android. إذا لم يظهر URnetwork، فغيّر عامل التصفية إلى «كل التطبيقات»، ثم اختر URnetwork و«عدم التحسين».</string>
     <string name="become_supporter">احصل على UR Pro</string>
     <string name="best_available_provider">أفضل مزود متاح</string>
     <string name="best_value">أفضل قيمة</string>
@@ -389,7 +390,7 @@
     <string name="device_not_discoverable">فعّل وضع التوفير لجعل هذا الجهاز قابلاً للاكتشاف</string>
     <string name="device_spec_label">المواصفات</string>
     <string name="devices">الأجهزة</string>
-    <string name="disable_ignore_battery_hint">لتعطيل ذلك، يرجى الانتقال إلى استخدام بطارية التطبيق في إعدادات النظام</string>
+    <string name="disable_ignore_battery_settings_hint">لإيقاف ذلك، اضغط على المفتاح لفتح قائمة تحسين البطارية في Android، وغيّر عامل التصفية إلى «كل التطبيقات»، ثم اختر URnetwork و«تحسين».</string>
     <string name="disconnect">قطع الاتصال</string>
     <string name="disconnected">غير متصل</string>
     <string name="dismiss">تجاهل</string>

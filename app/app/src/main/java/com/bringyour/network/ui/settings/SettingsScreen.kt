@@ -863,36 +863,40 @@ private fun SettingsScreen(
              */
             URTextInputLabel(stringResource(id = R.string.general))
 
-            if (supportsBatteryOptimizationExemption()) {
-                /**
-                 * Battery optimization
-                 */
+            /**
+             * Battery optimization
+             */
 
-                Spacer(modifier = Modifier.height(18.dp))
+            Spacer(modifier = Modifier.height(18.dp))
 
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        stringResource(id = R.string.ignore_battery_optimizations),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = Color.White
-                    )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    stringResource(id = R.string.ignore_battery_optimizations),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.White
+                )
 
-                    BatteryOptimizationToggle()
+                BatteryOptimizationToggle()
 
-                }
+            }
 
-                Row {
-                    Text(
-                        stringResource(id = R.string.disable_ignore_battery_hint),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = TextMuted
-                    )
-                }
+            Row {
+                Text(
+                    stringResource(
+                        id = if (supportsBatteryOptimizationExemption()) {
+                            R.string.disable_ignore_battery_settings_hint
+                        } else {
+                            R.string.battery_optimization_settings_hint
+                        }
+                    ),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = TextMuted
+                )
             }
 
             Spacer(modifier = Modifier.height(32.dp))
@@ -1871,14 +1875,14 @@ fun BatteryOptimizationToggle() {
         }
     }
 
+    // the switch reflects the system state; the app cannot change it itself,
+    // so a tap asks for the exemption or opens the system setting
+    // (batteryOptimizationAction), and the state is re-read on resume
     URSwitch(
         checked = isIgnored,
         toggle = {
-            if (!isIgnored) {
-                requestBatteryOptimizationExemption(context)
-            }
-        },
-        enabled = !isIgnored
+            performBatteryOptimizationAction(context, isIgnored)
+        }
     )
 }
 

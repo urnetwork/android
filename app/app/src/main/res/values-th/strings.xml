@@ -65,6 +65,7 @@
     <string name="balance_code_where_to_buy">ยังไม่มีโค้ด? ซื้อรหัสข้อมูลได้ที่ ur.io แล้วระบบจะส่งให้ทางอีเมล</string>
     <string name="balance_codes_link">รหัสยอดเงิน</string>
     <string name="balance_codes_title">รหัสยอดเงิน</string>
+    <string name="battery_optimization_settings_hint">แตะเพื่อเปิดรายการการเพิ่มประสิทธิภาพแบตเตอรี่ของ Android หากไม่พบ URnetwork ในรายการ ให้เปลี่ยนตัวกรองเป็น \"แอปทั้งหมด\" แล้วเลือก URnetwork และ \"ไม่ต้องเพิ่มประสิทธิภาพ\"</string>
     <string name="become_supporter">รับ UR Pro</string>
     <string name="best_available_provider">ผู้ให้บริการที่ดีที่สุดที่พร้อมเชื่อมต่อ</string>
     <string name="best_value">คุ้มค่าที่สุด</string>
@@ -389,7 +390,7 @@
     <string name="device_not_discoverable">เปิดโหมดการให้บริการเพื่อให้อุปกรณ์นี้ถูกค้นพบได้</string>
     <string name="device_spec_label">สเปก</string>
     <string name="devices">อุปกรณ์</string>
-    <string name="disable_ignore_battery_hint">หากต้องการปิดใช้งาน กรุณาไปที่การใช้แบตเตอรี่ของแอปในการตั้งค่าระบบ</string>
+    <string name="disable_ignore_battery_settings_hint">หากต้องการปิด ให้แตะสวิตช์เพื่อเปิดรายการการเพิ่มประสิทธิภาพแบตเตอรี่ของ Android เปลี่ยนตัวกรองเป็น \"แอปทั้งหมด\" แล้วเลือก URnetwork และ \"เพิ่มประสิทธิภาพ\"</string>
     <string name="disconnect">ตัดการเชื่อมต่อ</string>
     <string name="disconnected">ตัดการเชื่อมต่อแล้ว</string>
     <string name="dismiss">ปิด</string>

@@ -65,6 +65,7 @@
     <string name="balance_code_where_to_buy">Nie masz kodu? Kody danych można kupić na ur.io i otrzymać e-mailem.</string>
     <string name="balance_codes_link">Kody salda</string>
     <string name="balance_codes_title">Kody salda</string>
+    <string name="battery_optimization_settings_hint">Dotknij, aby otworzyć listę optymalizacji baterii w Androidzie. Jeśli URnetwork nie ma na liście, zmień filtr na „Wszystkie aplikacje”, a następnie wybierz URnetwork i „Nie optymalizuj”.</string>
     <string name="become_supporter">Zdobądź UR Pro</string>
     <string name="best_available_provider">Najlepszy dostępny dostawca</string>
     <string name="best_value">Najlepsza oferta</string>
@@ -389,7 +390,7 @@
     <string name="device_not_discoverable">Włącz tryb udostępniania, aby to urządzenie było wykrywalne</string>
     <string name="device_spec_label">Specyfikacja</string>
     <string name="devices">Urządzenia</string>
-    <string name="disable_ignore_battery_hint">Aby wyłączyć, przejdź do Użycia baterii aplikacji w ustawieniach systemu</string>
+    <string name="disable_ignore_battery_settings_hint">Aby to wyłączyć, dotknij przełącznika, aby otworzyć listę optymalizacji baterii w Androidzie, zmień filtr na „Wszystkie aplikacje”, a następnie wybierz URnetwork i „Optymalizuj”.</string>
     <string name="disconnect">Rozłącz</string>
     <string name="disconnected">Rozłączono</string>
     <string name="dismiss">Zamknij</string>
