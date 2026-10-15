@@ -813,6 +813,57 @@ test("selected mobile tools require actual embedded frozen compiler and exact pa
 });
 
 
+test("native capture CLI binds mobile compiler metadata to PATH order for every selected tool", t => {
+  for (const name of ["gomobile", "gobind", "checksec"]) {
+    const f = fixture(t); const env = prepareCommandFixture(f);
+    const selected = JSON.parse(readFileSync(f.paths.before, "utf8"));
+    const selectedTools = join(f.root, "tools"); const ambientTools = join(f.root, "ambient-tools");
+    const staleTool = join(ambientTools, name);
+    write(staleTool, `stale fixture tool ${name}\n`); chmodSync(staleTool, 0o700);
+    const staleInfo = structuredClone(selected.inputs.mobileTools.find(row => row.name === name).buildInfo);
+    staleInfo.GoVersion = "go1.old";
+    const tablePath = join(f.root, "metadata.json");
+    const table = JSON.parse(readFileSync(tablePath, "utf8"));
+    table[JSON.stringify([join(f.root, "std/bin/go"), ["version", "-m", "-json", staleTool], f.cwd, null])] =
+      JSON.stringify(staleInfo);
+    json(tablePath, table);
+
+    const capture = (path, output) => spawnSync(process.execPath, [
+      new URL("./physical_native_provenance.mjs", import.meta.url).pathname, "capture",
+      "--phase", "before", "--root", f.root, "--build-owner", "fixture-owner",
+      "--build-id", "fixture-build", "--profile-rate", "65536", "--output", output,
+    ], { cwd: f.root, env: { ...env, PATH: path }, encoding: "utf8", timeout: 20000 });
+
+    // Only the compiler metadata differs; the exact package and module pins still match.
+    const rejectedPath = join(f.privateDir, "stale-first.json");
+    const rejected = capture(`${ambientTools}:${selectedTools}:${process.env.PATH}`, rejectedPath);
+    assert.equal(rejected.error, undefined, name);
+    assert.equal(rejected.signal, null, name);
+    assert.equal(rejected.status, 2, `${name}: ${rejected.stderr}`);
+    assert.equal(rejected.stdout, "", name);
+    assert.equal(rejected.stderr, "native input provenance failed: native-mobile-tool-build-metadata-mismatch\n", name);
+    assert.equal(existsSync(rejectedPath), false, `${name}: refused inputs must not publish a manifest`);
+
+    // Reorder the same paths without rebuilding, rewriting, or relaxing either tool's metadata.
+    const acceptedPath = join(f.privateDir, "selected-first.json");
+    const accepted = capture(`${selectedTools}:${ambientTools}:${process.env.PATH}`, acceptedPath);
+    assert.equal(accepted.error, undefined, name);
+    assert.equal(accepted.signal, null, name);
+    assert.equal(accepted.status, 0, `${name}: ${accepted.stderr}`);
+    assert.equal(accepted.stderr, "", name);
+    const manifest = JSON.parse(readFileSync(acceptedPath, "utf8"));
+    assert.equal(manifest.inputHash, selected.inputHash, name);
+    assert.equal(manifest.inputs.mobileTools.length, 3, name);
+    for (const row of manifest.inputs.mobileTools) {
+      const expected = selected.inputs.mobileTools.find(tool => tool.name === row.name);
+      assert.equal(row.path, join(selectedTools, row.name), `${name}: ${row.name}`);
+      assert.deepEqual(row, expected, `${name}: ${row.name}`);
+    }
+    assert.equal(hashNativeInputFile(staleTool).sha256, sha(`stale fixture tool ${name}\n`), name);
+  }
+});
+
+
 test("selected Java properties honor escaped keys, Unicode, comments, duplicates and continuations", t => {
   const f = fixture(t);
   const selectedSdk = join(f.root, "selected-sdk#suffix");
