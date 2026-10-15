@@ -67,6 +67,55 @@ function assertClosed(f) {
   assert.ok(f.calls.includes("page-close"));
 }
 
+test("last-state observation is opt-in and leaves the canonical result and deadline unchanged", async () => {
+  const plain = fixture(), observed = fixture();
+  let plainClockReads = 0, observedClockReads = 0;
+  const plainNow = plain.deps.now, observedNow = observed.deps.now;
+  plain.deps.now = () => { plainClockReads++; return plainNow(); };
+  observed.deps.now = () => { observedClockReads++; return observedNow(); };
+  observed.options.diagnosticLastState = true;
+  const expected = await runFastBenchmark(plain.options, plain.deps);
+  const actual = await runFastBenchmark(observed.options, observed.deps);
+  assert.equal(Object.hasOwn(expected, "diagnosticLastState"), false);
+  assert.equal(observedClockReads, plainClockReads + 1, "only the opt-in one-sample run reads the added clock");
+  assert.deepEqual(actual.diagnosticLastState, { qualificationEligible: false, observed: true,
+    elapsedMs: 1000, indicator: "succeeded", documentReadyState: "complete" });
+  delete actual.diagnosticLastState;
+  assert.deepEqual(actual, expected);
+  assert.equal(parseArgs(["--diagnostic-last-state"]).timeoutMs, 90000);
+  assertClosed(plain); assertClosed(observed);
+});
+
+test("invalid Fast retains only bounded last indicator and document state through the actual deadline", async () => {
+  for (const [progress, loaded, indicator, ready] of [
+    ["running synthetic-private", "loading", "nonterminal", "loading"],
+    ["", "interactive", "missing", "interactive"],
+    ["succeeded-looking", "synthetic-secret", "nonterminal", "unknown"],
+  ]) {
+    const f = fixture(); f.samples = [{ value: "0.5", units: "Mbps", progress, loaded }];
+    assert.equal(await main(["--timeout-ms", "90000", "--diagnostic-last-state"], f.deps), 2);
+    const result = f.output[0];
+    assert.equal(result.valid, false); assert.equal(result.completed, false);
+    assert.equal(result.failureReason, "deadline-exceeded"); assert.equal(result.totalElapsedMs, 90000);
+    assert.equal(result.diagnosticLastState.indicator, indicator);
+    assert.equal(result.diagnosticLastState.documentReadyState, ready);
+    assert.equal(result.diagnosticLastState.observed, true);
+    assert.equal(result.diagnosticLastState.qualificationEligible, false);
+    assert.ok(result.diagnosticLastState.elapsedMs < 90000);
+    assert.doesNotMatch(JSON.stringify(result.diagnosticLastState), /synthetic|private|secret/);
+    assertClosed(f);
+  }
+});
+
+test("last-state diagnostic does not invent a page sample after setup failure", async () => {
+  const f = fixture(); f.options.diagnosticLastState = true;
+  f.deps.fetchJson = async () => { f.advance(90000); return {}; };
+  const result = await runFastBenchmark(f.options, f.deps);
+  assert.equal(result.valid, false);
+  assert.deepEqual(result.diagnosticLastState, { qualificationEligible: false, observed: false,
+    elapsedMs: null, indicator: "unobserved", documentReadyState: "unknown" });
+});
+
 test("lBOYKS root: one pending navigation and no display retains diagnostics but exits nonzero", async () => {
   const f = fixture(); f.samples = [{ value: "", units: "", progress: "", loaded: "loading" }];
   f.finished = 0;

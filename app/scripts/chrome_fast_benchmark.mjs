@@ -15,11 +15,12 @@ export function parseArgs(argv) {
     const arg = argv[i];
     if (arg === "--port") options.port = Number(argv[++i]);
     else if (arg === "--timeout-ms") options.timeoutMs = Number(argv[++i]);
+    else if (arg === "--diagnostic-last-state") options.diagnosticLastState = true;
     else if (arg === "--help" || arg === "-h") options.help = true;
     else throw new Error(`unknown option: ${arg}`);
   }
   for (const [name, value] of Object.entries(options)) {
-    if (name !== "help" && (!Number.isSafeInteger(value) || value <= 0 || value > 2_147_483_647)) {
+    if (!["help", "diagnosticLastState"].includes(name) && (!Number.isSafeInteger(value) || value <= 0 || value > 2_147_483_647)) {
       throw new Error(`${name} must be a positive number`);
     }
   }
@@ -33,6 +34,7 @@ function usage() {
     "options:",
     "  --port PORT          adb-forwarded DevTools port (default 9222)",
     "  --timeout-ms MS      whole-run deadline, including setup/cleanup (default 90000)",
+    "  --diagnostic-last-state  retain bounded last DOM state (unqualified, default off)",
   ].join("\n");
 }
 
@@ -133,6 +135,7 @@ export async function runFastBenchmark(options, dependencies = {}) {
   let session;
   let startedAt;
   let measuredAt;
+  let lastStateAt;
   let result;
   let completionReason = null;
   let failure;
@@ -241,6 +244,7 @@ export async function runFastBenchmark(options, dependencies = {}) {
           return { value, units, progress, loaded };
         })()`,
       ));
+      if (options.diagnosticLastState === true) lastStateAt = now();
       const spinnerStopped = /(?:^|\s)(?:succeeded|stopped|hidden)(?:\s|$)/i.test(result?.progress ?? "");
       // A running or missing indicator can hold one number while traffic stalls.
       // Only the observed terminal indicator completes the aggregate measurement.
@@ -304,6 +308,16 @@ export async function runFastBenchmark(options, dependencies = {}) {
   };
   measurement.failureReason = validateFastMeasurement(measurement);
   measurement.valid = measurement.failureReason === null;
+  if (options.diagnosticLastState === true) {
+    // One finite state, never arbitrary page text, classes, URLs or history.
+    const classes = typeof result?.progress === "string" ? result.progress.split(/\s+/).map(value => value.toLowerCase()) : [];
+    const terminal = ["succeeded", "stopped", "hidden"].find(value => classes.includes(value));
+    measurement.diagnosticLastState = { qualificationEligible: false,
+      observed: lastStateAt !== undefined,
+      elapsedMs: lastStateAt === undefined || startedAt === undefined ? null : Math.round(lastStateAt - startedAt),
+      indicator: lastStateAt === undefined ? "unobserved" : terminal ?? (classes.some(Boolean) ? "nonterminal" : "missing"),
+      documentReadyState: ["loading", "interactive", "complete"].includes(result?.loaded) ? result.loaded : "unknown" };
+  }
   return measurement;
 }
 

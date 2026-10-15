@@ -3,14 +3,15 @@
 // Private diagnostic composition only. Existing owners still own traffic,
 // collectors, deadlines and joins. These six cold commands never qualify PERF.
 import { createHash } from "node:crypto";
-import { lstatSync, readFileSync, writeFileSync } from "node:fs";
-import { dirname, isAbsolute, join } from "node:path";
+import { spawnSync } from "node:child_process";
+import { existsSync, lstatSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
+import { basename, dirname, isAbsolute, join } from "node:path";
 import { pathToFileURL } from "node:url";
 import { prepareArtifactDirectory, requireArtifactPaths } from "./physical_artifact_directory.mjs";
 import { runDiagnosticCommand } from "./physical_diagnostic_command.mjs";
 import { copyDiagnosticArtifact } from "./physical_diagnostic_copy.mjs";
 import { diagnosticIdentity, diagnosticSessionValid } from "./physical_diagnostic_identity.mjs";
-import { recordChild } from "./physical_workload_receipt.mjs";
+import { recordChild, processIsLive, requireRetainedWorkloadForeground } from "./physical_workload_receipt.mjs";
 
 const digest = bytes => createHash("sha256").update(bytes).digest("hex");
 const fail = reason => { throw new Error(reason); };
@@ -160,6 +161,145 @@ export function validateIoLoopTerminalCopy(bytes, step) {
     deviceJoined: value.deviceJoined === true, constructionStopped: value.constructionStopped === true };
 }
 
+// Called only after the Go session owner has joined the actual instrumentation
+// group. This validates the retained terminal identity, not process absence.
+export function copyIoLoopTerminal(options, dependencies = {}) {
+  if (!options.serial || !isAbsolute(options.owner ?? "") || !isAbsolute(options.teardown ?? "") ||
+      !isAbsolute(options.output ?? "")) fail("ioloop-terminal-arguments-required");
+  const ownerBinding = prepareArtifactDirectory(dirname(options.owner));
+  requireArtifactPaths(ownerBinding, [options.owner, options.owner + ".ready.json", options.owner + ".terminal.json"]);
+  const owner = retained(options.owner).value;
+  const ready = retained(options.owner + ".ready.json").value;
+  const terminal = retained(options.owner + ".terminal.json").value;
+  identity(owner, ready, options.serial);
+  if (terminal.type !== "instrumentation-session" || !["complete", "failed"].includes(terminal.state) ||
+      Object.entries(owner).some(([key, value]) => key !== "state" && JSON.stringify(terminal[key]) !== JSON.stringify(value)) ||
+      !Number.isSafeInteger(owner.startedHostTimeUnixMs) || !Number.isSafeInteger(ready.hostTimeUnixMs) ||
+      ready.hostTimeUnixMs < owner.startedHostTimeUnixMs ||
+      !Number.isSafeInteger(terminal.completedHostTimeUnixMs) || terminal.completedHostTimeUnixMs < ready.hostTimeUnixMs ||
+      !Number.isSafeInteger(terminal.exitCode) || terminal.exitCode < 0 || terminal.exitCode > 255 ||
+      typeof terminal.interrupted !== "boolean" || !(terminal.signal === null || typeof terminal.signal === "string")) {
+    fail("ioloop-terminal-owner-mismatch");
+  }
+  const outputBinding = prepareArtifactDirectory(dirname(options.output));
+  requireArtifactPaths(outputBinding, [options.output]);
+  const step = ioLoopTerminalCopyStep({ ...options, owner, ready, teardown: retained(options.teardown).value });
+  const result = (dependencies.adb ?? ((args, limits) => spawnSync("adb", args, limits)))(
+    step.args, { timeout: step.timeoutMs, maxBuffer: 65536 });
+  if (result?.status !== 0 || result.signal || result.error || !Buffer.isBuffer(result.stdout)) {
+    fail("ioloop-terminal-copy-failed");
+  }
+  const report = validateIoLoopTerminalCopy(result.stdout, step);
+  requireArtifactPaths(outputBinding, [options.output]);
+  writeFileSync(options.output, result.stdout, { flag: "wx", mode: 0o600 });
+  return { ...report, instrumentationComplete: terminal.state === "complete" && terminal.exitCode === 0 &&
+    terminal.signal === null && terminal.interrupted === false };
+}
+
+// The terminal operation has fixed paths and no arbitrary command argument.
+export function parseTerminalArgs(argv) {
+  const options = {};
+  const keys = { "--serial": "serial", "--instrumentation-owner": "owner", "--teardown": "teardown", "--output": "output" };
+  for (let index = 0; index < argv.length; index += 2) {
+    const key = keys[argv[index]];
+    if (!key || options[key] !== undefined || !argv[index + 1] || argv[index + 1].startsWith("--")) fail("ioloop-terminal-arguments-required");
+    options[key] = argv[index + 1];
+  }
+  if (Object.keys(options).length !== 4) fail("ioloop-terminal-arguments-required");
+  return options;
+}
+
+// Joining the outer pty is insufficient: the existing workload owner and Fast
+// wrapper each create a separate child group. Consume their actual immutable
+// join evidence even for a failed diagnostic, never manufacture a completion.
+export function requireIoLoopWorkloadJoined(options, dependencies = {}) {
+  if (!options.serial || !isAbsolute(options.output ?? "") || !Number.isSafeInteger(options.ownerPid) ||
+      options.ownerPid <= 0 || !/^h1-ioloop-[a-f0-9]{32}$/.test(options.label ?? "")) fail("ioloop-workload-arguments-required");
+  const binding = prepareArtifactDirectory(dirname(options.output));
+  requireArtifactPaths(binding, [options.output, options.output + ".failed.json"]);
+  const names = readdirSync(binding.directory).filter(name => name.startsWith(basename(options.output) + ".owner-"));
+  if (names.length !== 1) fail("ioloop-one-workload-owner-required");
+  const ownerBinding = prepareArtifactDirectory(join(binding.directory, names[0]));
+  const ownerPath = join(ownerBinding.directory, "owner.json");
+  requireArtifactPaths(ownerBinding, [ownerPath]);
+  const owner = retained(ownerPath).value;
+  const isLive = dependencies.isLive ?? processIsLive;
+  if (owner.schema !== 1 || owner.type !== "workload-owner" || !diagnosticSessionValid(owner.ownerId) ||
+      owner.ownerPid !== options.ownerPid || owner.label !== options.label || owner.serialHash !== digest(options.serial) ||
+      names[0] !== basename(options.output) + ".owner-" + owner.ownerId ||
+      JSON.stringify(owner.children) !== '["fast-1"]' || !Number.isSafeInteger(owner.startedHostTimeUnixMs) ||
+      owner.retainedOwner?.schema !== 1 || !/^[a-f0-9]{64}$/.test(owner.retainedOwner.identity ?? "")) {
+    fail("ioloop-workload-owner-mismatch");
+  }
+  requireRetainedWorkloadForeground(owner.retainedOwner.foreground);
+  if (owner.retainedOwner.foreground.processGroup !== owner.ownerPid || isLive(owner.ownerPid) || isLive(-owner.ownerPid)) {
+    fail("ioloop-workload-owner-not-joined");
+  }
+  const failedJoin = (value, name) => {
+    if (value.schema !== 1 || value.type !== (name ? "workload-child-failure" : "workload-owner-failure") ||
+        value.ownerId !== owner.ownerId || value.state !== "failed" || (name && value.name !== name) ||
+        !Number.isSafeInteger(value.observedHostTimeUnixMs) || value.observedHostTimeUnixMs < owner.startedHostTimeUnixMs ||
+        value.result?.observed !== true || value.result.closed !== true || value.result.joined !== true ||
+        value.result.joinTimedOut !== false) fail("ioloop-failed-workload-join-unproved");
+  };
+  const complete = existsSync(options.output), failed = existsSync(options.output + ".failed.json");
+  if (complete === failed) fail("ioloop-one-workload-terminal-required");
+  if (failed) failedJoin(retained(options.output + ".failed.json").value);
+  else {
+    const terminal = retained(options.output).value;
+    if (Object.entries(owner).some(([key, value]) => JSON.stringify(terminal[key]) !== JSON.stringify(value)) ||
+        terminal.state !== "complete" || terminal.exitCode !== 0 || terminal.signal !== null || terminal.interrupted !== false ||
+        !Number.isSafeInteger(terminal.completedHostTimeUnixMs) || terminal.completedHostTimeUnixMs < owner.startedHostTimeUnixMs ||
+        !Number.isSafeInteger(terminal.processGroup) || terminal.processGroup <= 0 || isLive(-terminal.processGroup)) {
+      fail("ioloop-workload-body-not-joined");
+    }
+  }
+  const prefix = join(ownerBinding.directory, "fast-1");
+  requireArtifactPaths(ownerBinding, [prefix + ".started.json", prefix + ".complete.json", prefix + ".failed.json", prefix + ".ioloop.json"]);
+  const childComplete = existsSync(prefix + ".complete.json"), childFailed = existsSync(prefix + ".failed.json");
+  const childStarted = existsSync(prefix + ".started.json");
+  if (!childStarted && !childComplete && !childFailed) {
+    // Before-anchor refusal runs no child. Only the bound wrapper's terminal
+    // report plus the independently joined body can establish that boundary.
+    const boundary = retained(prefix + ".ioloop.json").value;
+    if (!failed || boundary.type !== "ioloop-fast-boundaries" || boundary.schema !== 1 || boundary.qualificationEligible !== false ||
+        boundary.workloadOwnerId !== owner.ownerId || boundary.name !== "fast-1" || boundary.complete !== false ||
+        boundary.exitCode !== 2 || boundary.failureStage !== "before-anchor") fail("ioloop-unstarted-fast-unproved");
+  } else {
+    if (!childStarted || childComplete === childFailed) fail("ioloop-one-fast-terminal-required");
+    const started = retained(prefix + ".started.json").value;
+    if (!Number.isSafeInteger(started.wrapperPid) || started.wrapperPid <= 0 || isLive(started.wrapperPid) ||
+        !Number.isSafeInteger(started.startedHostTimeUnixMs) || started.startedHostTimeUnixMs < owner.startedHostTimeUnixMs) {
+      fail("ioloop-fast-wrapper-not-joined");
+    }
+    if (childFailed) failedJoin(retained(prefix + ".failed.json").value, "fast-1");
+    else {
+      const child = retained(prefix + ".complete.json").value;
+      if (child.schema !== 1 || child.type !== "workload-child" || child.ownerId !== owner.ownerId || child.name !== "fast-1" ||
+          child.state !== "complete" || !Number.isSafeInteger(child.exitCode) || child.exitCode < 0 || child.exitCode >= 128 ||
+          child.signal !== null || child.interrupted !== false || child.wrapperPid !== started.wrapperPid ||
+          child.startedHostTimeUnixMs !== started.startedHostTimeUnixMs || !Number.isSafeInteger(child.completedHostTimeUnixMs) ||
+          child.completedHostTimeUnixMs < child.startedHostTimeUnixMs || !Number.isSafeInteger(child.processGroup) ||
+          child.processGroup <= 0 || isLive(-child.processGroup)) fail("ioloop-fast-process-group-not-joined");
+    }
+  }
+  return { type: "ioloop-workload-join", schema: 1, qualificationEligible: false,
+    ownerId: owner.ownerId, ownerPid: owner.ownerPid, joined: true, failed, childStarted };
+}
+
+// Only the Go owner's one fixed diagnostic workload is selectable here.
+export function parseWorkloadJoinArgs(argv) {
+  const options = {};
+  const keys = { "--serial": "serial", "--output": "output", "--owner-pid": "ownerPid", "--label": "label" };
+  for (let index = 0; index < argv.length; index += 2) {
+    const key = keys[argv[index]];
+    if (!key || options[key] !== undefined || !argv[index + 1] || argv[index + 1].startsWith("--")) fail("ioloop-workload-arguments-required");
+    options[key] = key === "ownerPid" ? Number(argv[index + 1]) : argv[index + 1];
+  }
+  if (Object.keys(options).length !== 4) fail("ioloop-workload-arguments-required");
+  return options;
+}
+
 export function parseArgs(argv) {
   const split = argv.indexOf("--"), prefix = split < 0 ? argv : argv.slice(0, split);
   const value = { command: split < 0 ? [] : argv.slice(split + 1), ownerPath: process.env.URNETWORK_PERF_WORKLOAD_OWNER };
@@ -172,7 +312,13 @@ export function parseArgs(argv) {
   return value;
 }
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  try { process.exitCode = (await runIoLoopFastBoundary(parseArgs(process.argv.slice(2)))).exitCode; }
+  try {
+    if (process.argv[2] === "terminal-copy") {
+      process.stdout.write(JSON.stringify(copyIoLoopTerminal(parseTerminalArgs(process.argv.slice(3)))) + "\n");
+    } else if (process.argv[2] === "workload-join") {
+      process.stdout.write(JSON.stringify(requireIoLoopWorkloadJoined(parseWorkloadJoinArgs(process.argv.slice(3)))) + "\n");
+    } else process.exitCode = (await runIoLoopFastBoundary(parseArgs(process.argv.slice(2)))).exitCode;
+  }
   catch { process.stderr.write("native-loop diagnostic boundary unavailable\n"); process.exitCode = 2; }
 }
 
