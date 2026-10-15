@@ -54,6 +54,7 @@ const val TOP200_URL = "https://ur.io/app/account/top200"
 fun Top200Tile(
     head: SnHeadState,
     modifier: Modifier = Modifier,
+    onSignFleetBinding: () -> Unit = {},
 ) {
     val context = LocalContext.current
     val shape = RoundedCornerShape(16.dp)
@@ -126,15 +127,23 @@ fun Top200Tile(
                     context.startActivity(Intent(Intent.ACTION_VIEW, TOP200_URL.toUri()))
                 }
             )
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            SignFleetBindingButton(onClick = onSignFleetBinding)
         }
     }
 }
 
-/** The bound state: the network holds a head spot. */
+/**
+ * The bound state: the network holds a head spot. Sign fleet binding stays
+ * here too: bindings renew per epoch window and new devices join the fleet.
+ */
 @Composable
 fun Top200BoundRow(
     head: SnHeadState,
     modifier: Modifier = Modifier,
+    onSignFleetBinding: () -> Unit = {},
 ) {
     val context = LocalContext.current
 
@@ -177,6 +186,28 @@ fun Top200BoundRow(
                 color = Amber
             )
         }
+        Spacer(modifier = Modifier.height(8.dp))
+        SignFleetBindingButton(onClick = onSignFleetBinding)
+    }
+}
+
+/** Earnings › Top 200 › Sign fleet binding: the secondary action in both Top 200 states. */
+@Composable
+private fun SignFleetBindingButton(
+    onClick: () -> Unit,
+) {
+    Box(
+        modifier = Modifier
+            .clip(RoundedCornerShape(100))
+            .border(1.dp, ReferralGold.copy(alpha = 0.6f), RoundedCornerShape(100))
+            .clickable(onClick = onClick)
+            .padding(horizontal = 18.dp, vertical = 10.dp)
+    ) {
+        Text(
+            stringResource(id = R.string.top200_sign_binding),
+            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+            color = ReferralGoldLight
+        )
     }
 }
 

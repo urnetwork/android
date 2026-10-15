@@ -108,6 +108,8 @@ sealed class Route {
     @Serializable object Sessions : Route()
     @Serializable object Settings : Route()
     @Serializable object Earnings : Route()
+    // Earnings › Top 200 › Sign fleet binding (also opened by ur://top200/sign)
+    @Serializable object Top200Sign : Route()
     @Serializable object Referrals : Route()
     @Serializable object Widgets : Route()
     @Serializable object BlockedRegions: Route()
