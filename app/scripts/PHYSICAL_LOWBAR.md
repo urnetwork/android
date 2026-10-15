@@ -235,10 +235,13 @@ URLs, response headers, or Fast.com's ephemeral signed download tokens.
 Only exit 0 with `valid=true` and `completed=true` is a speed measurement.
 Exit 2 preserves the same aggregate JSON with `failureReason` when the display
 is empty/nonpositive or its units are invalid, the deadline passes before a
-stop/stable result, or no nonempty page response completed. A transient number
-followed by an empty display cannot pass. The existing stable-display fallback
-is recorded separately from a stopped indicator in `completionReason`; this is
-not an added minimum speed or worker-byte threshold. Retain unsuccessful runs
+terminal result, or no nonempty page response completed. A transient number
+followed by an empty display cannot pass. A number that remains unchanged while
+the indicator is running or missing is not completion: keep polling within the
+same 90-second budget. Qualification requires `completionReason=spinner-stopped`;
+legacy `stable-display` records remain retained evidence, not qualifying results.
+The obsolete `--stable-ms` option is rejected. This adds no minimum speed or
+worker-byte threshold and does not relax the 40-Mbit/s H1 gate. Retain unsuccessful runs
 in the failure denominator instead of turning them into zero Mbps, dropping
 them, or substituting a retry.
 

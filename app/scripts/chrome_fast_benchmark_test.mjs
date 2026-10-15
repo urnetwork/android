@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
-import { main, parseArgs, runFastBenchmark, validFastDisplay } from "./chrome_fast_benchmark.mjs";
+import { main, parseArgs, runFastBenchmark, validFastDisplay, validateFastMeasurement } from "./chrome_fast_benchmark.mjs";
 
 // Synthetic page/browser sessions use an explicit clock; no device or network is contacted.
 function fixture() {
@@ -95,7 +95,7 @@ test("a transient number cannot make a later empty display complete", async () =
   assertClosed(f);
 });
 
-test("a number observed before timeout is not a completed measurement without stop or stability", async () => {
+test("a number observed before timeout is not a completed measurement without a terminal indicator", async () => {
   const f = fixture(); f.options.timeoutMs = 2000;
   f.samples = [{ value: "40", units: "Mbps", progress: "running" }, { value: "41", units: "Mbps", progress: "running" }];
   const result = await runFastBenchmark(f.options, f.deps);
@@ -134,12 +134,46 @@ test("canonical worker-owned result needs no invented page-byte or minimum-speed
   }
 });
 
-test("existing stable-display fallback requires a currently valid display for the full interval", async () => {
-  const f = fixture(); f.samples[0].progress = "running";
+test("a running plateau must not close the target before its later terminal result", async () => {
+  const f = fixture();
+  f.samples = [
+    ...Array.from({ length: 6 }, () => ({ value: "0.5", units: "Mbps", progress: "running" })),
+    { value: "80", units: "Mbps", progress: "succeeded" },
+  ];
   const result = await runFastBenchmark(f.options, f.deps);
-  assert.equal(result.elapsedMs, 6000);
-  assert.equal(result.completionReason, "stable-display");
+  assert.equal(result.elapsedMs, 7000);
+  assert.equal(result.displayValue, "80");
+  assert.equal(result.completionReason, "spinner-stopped");
   assert.equal(result.valid, true);
+  assertClosed(f);
+});
+
+test("a permanent nonterminal plateau retains its value and fails at the unchanged deadline", async () => {
+  for (const progress of ["running", "", "not-hidden", "unstopped", "succeeded-looking"]) {
+    const f = fixture();
+    f.samples = [{ value: "0.5", units: "Mbps", progress }];
+    assert.equal(await main(["--timeout-ms", "90000"], f.deps), 2, progress);
+    const result = f.output[0];
+    assert.equal(result.totalElapsedMs, 90_000);
+    assert.equal(result.displayValue, "0.5");
+    assert.equal(result.displayUnits, "Mbps");
+    assert.equal(result.completed, false);
+    assert.equal(result.completionReason, null);
+    assert.equal(result.valid, false);
+    assert.equal(result.failureReason, "deadline-exceeded");
+    assertClosed(f);
+  }
+});
+
+test("legacy stable-display evidence cannot qualify through the result validator", () => {
+  const result = {
+    displayValue: "80", displayUnits: "Mbps", completed: true,
+    completionReason: "stable-display", timedOut: false, cleanupComplete: true,
+    pageCompletedRequestCount: 1, pageEncodedBytes: 768,
+  };
+  assert.equal(validateFastMeasurement(result), "incomplete-result");
+  assert.equal(validateFastMeasurement({ ...result, completionReason: "spinner-stopped" }), null);
+  assert.throws(() => parseArgs(["--stable-ms", "1"]), /unknown option/);
 });
 
 test("malformed values, zero, nonfinite values and missing or unknown units are not measurements", () => {

@@ -10,12 +10,11 @@ import { pathToFileURL } from "node:url";
 import { CdpSession, cdpFailureDetails } from "./chrome_cdp.mjs";
 
 export function parseArgs(argv) {
-  const options = { port: 9222, timeoutMs: 90_000, stableMs: 5_000 };
+  const options = { port: 9222, timeoutMs: 90_000 };
   for (let i = 0; i < argv.length; i += 1) {
     const arg = argv[i];
     if (arg === "--port") options.port = Number(argv[++i]);
     else if (arg === "--timeout-ms") options.timeoutMs = Number(argv[++i]);
-    else if (arg === "--stable-ms") options.stableMs = Number(argv[++i]);
     else if (arg === "--help" || arg === "-h") options.help = true;
     else throw new Error(`unknown option: ${arg}`);
   }
@@ -34,7 +33,6 @@ function usage() {
     "options:",
     "  --port PORT          adb-forwarded DevTools port (default 9222)",
     "  --timeout-ms MS      whole-run deadline, including setup/cleanup (default 90000)",
-    "  --stable-ms MS       unchanged result interval (default 5000)",
   ].join("\n");
 }
 
@@ -115,7 +113,7 @@ export function validateFastMeasurement(result) {
   if (result.timedOut === true) return "deadline-exceeded";
   if (result.cleanupComplete === false) return "cleanup-failed";
   if (!validFastDisplay(result.displayValue, result.displayUnits)) return "invalid-display";
-  if (result.completed !== true) return "incomplete-result";
+  if (result.completed !== true || result.completionReason !== "spinner-stopped") return "incomplete-result";
   if (!(Number.isSafeInteger(result.pageCompletedRequestCount) && result.pageCompletedRequestCount > 0 &&
     Number.isSafeInteger(result.pageEncodedBytes) && result.pageEncodedBytes > 0)) return "insufficient-workload";
   return null;
@@ -231,8 +229,6 @@ export async function runFastBenchmark(options, dependencies = {}) {
     }));
     if (navigation.errorText) throw new Error(navigation.errorText);
 
-    let lastDisplay = "";
-    let displayChangedAt = now();
     while (deadline.remaining() > 0) {
       await deadline.wait("display-poll", () => sleep(Math.min(1_000, deadline.remaining())));
       result = await deadline.wait("display-evaluate", () => evaluate(
@@ -245,18 +241,15 @@ export async function runFastBenchmark(options, dependencies = {}) {
           return { value, units, progress, loaded };
         })()`,
       ));
-      const display = `${result?.value ?? ""}|${result?.units ?? ""}`;
-      if (display !== lastDisplay) {
-        lastDisplay = display;
-        displayChangedAt = now();
-      }
       const spinnerStopped = /(?:^|\s)(?:succeeded|stopped|hidden)(?:\s|$)/i.test(result?.progress ?? "");
+      // A running or missing indicator can hold one number while traffic stalls.
+      // Only the observed terminal indicator completes the aggregate measurement.
       if (
         deadline.remaining() > 0 &&
         validFastDisplay(result?.value, result?.units) &&
-        (spinnerStopped || now() - displayChangedAt >= options.stableMs)
+        spinnerStopped
       ) {
-        completionReason = spinnerStopped ? "spinner-stopped" : "stable-display";
+        completionReason = "spinner-stopped";
         break;
       }
     }
