@@ -92,7 +92,7 @@ class Top200BindingTest {
     }
 
     @Test
-    fun `another device's client key is refused, which the sdk does not check`() {
+    fun `another device's client key is refused before the sdk is asked`() {
         assertEquals(Top200BindingCheck.OtherDevice, check(BINDING, clientKey = OTHER_CLIENT_KEY))
         assertEquals(Top200BindingCheck.OtherDevice, check(withField("client_key", "\"$OTHER_CLIENT_KEY\"")))
     }
@@ -118,6 +118,21 @@ class Top200BindingTest {
         for (c in cases) {
             assertEquals(c, Top200BindingCheck.Invalid, check(c))
         }
+    }
+
+    @Test
+    fun `text longer than the cap is invalid, even a binding padded with whitespace`() {
+        // whitespace inside the object is valid json, so only the cap refuses these
+        fun padded(length: Int): String =
+            "{" + " ".repeat(length - BINDING.length) + BINDING.substring(1)
+        assertEquals(4096, Top200Bindings.TEXT_MAX_CHARS)
+        val atCap = padded(Top200Bindings.TEXT_MAX_CHARS)
+        assertEquals(Top200Bindings.TEXT_MAX_CHARS, atCap.length)
+        assertTrue(check(atCap) is Top200BindingCheck.Valid)
+        assertEquals(Top200BindingCheck.Invalid, check(padded(Top200Bindings.TEXT_MAX_CHARS + 1)))
+        assertEquals(Top200BindingCheck.Invalid, check("x".repeat(1_000_000)))
+        // surrounding whitespace is trimmed before the cap applies
+        assertTrue(check(" ".repeat(10_000) + BINDING + "\n".repeat(10_000)) is Top200BindingCheck.Valid)
     }
 
     @Test

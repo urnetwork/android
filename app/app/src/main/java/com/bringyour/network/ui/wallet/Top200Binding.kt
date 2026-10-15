@@ -15,9 +15,11 @@ import kotlinx.serialization.json.JsonPrimitive
  * client key (Sign fleet binding, Earnings › Top 200).
  *
  * Everything here is pure, so the checks run (and are tested) before any sdk
- * call: the sdk checks the binding's client_id but not its client_key, so the
- * key check is the app's. Nothing here logs the binding or the payload, and
- * nothing is sent anywhere.
+ * call. They are the first line: the sdk, in the process that holds the key,
+ * refuses a binding with another device's client_id or client_key and
+ * ambiguous JSON again before it signs. The app checks first so the screen can
+ * say what is wrong before signing is offered. Nothing here logs the binding
+ * or the payload, and nothing is sent anywhere.
  */
 data class Top200Binding(
     val chainId: Long,
@@ -54,6 +56,9 @@ sealed class Top200BindingCheck {
 object Top200Bindings {
     /** the longest `binding` parameter an app link may carry */
     const val LINK_MAX_CHARS = 4096
+
+    /** the longest binding the field accepts, after trimming; a binding is about 500 */
+    const val TEXT_MAX_CHARS = 4096
 
     const val LINK_SCHEME = "ur"
     const val LINK_HOST = "top200"
@@ -194,7 +199,8 @@ object Top200Bindings {
     }
 
     /**
-     * Judges the field text for this device: a binding at all, then the
+     * Judges the field text for this device: a binding at all (at most
+     * [TEXT_MAX_CHARS] once trimmed), then the
      * device's client key available, then the binding's client_id and
      * client_key this device's (the 16 id bytes and the key compared as
      * lowercase hex). Only [Top200BindingCheck.Valid] may be signed.
@@ -203,6 +209,9 @@ object Top200Bindings {
         val trimmed = text.trim()
         if (trimmed.isEmpty()) {
             return Top200BindingCheck.Empty
+        }
+        if (TEXT_MAX_CHARS < trimmed.length) {
+            return Top200BindingCheck.Invalid
         }
         val binding = parse(trimmed) ?: return Top200BindingCheck.Invalid
         if (deviceClientKey.isEmpty()) {
