@@ -141,6 +141,8 @@ import com.bringyour.network.ui.settings.VlessSettingsScreen
 import com.bringyour.network.ui.shared.viewmodels.SubscriptionBalanceViewModel
 import com.bringyour.network.ui.wallet.EarningsViewModel
 import com.bringyour.network.ui.wallet.EarningsScreen
+import com.bringyour.network.ui.wallet.Top200SignLinks
+import com.bringyour.network.ui.wallet.Top200SignScreen
 import com.solana.mobilewalletadapter.clientlib.ActivityResultSender
 import com.bringyour.network.R
 import com.bringyour.network.TAG
@@ -447,6 +449,21 @@ private fun MainNavHostContent(
         earningsViewModel.consumeEarningsNavigation()
         selectTopLevelRoute(TopLevelScaffoldRoutes.ACCOUNT_CONTAINER)
         navController.navigate(Route.Earnings)
+    }
+
+    // a ur://top200/sign app link: open the sign screen whatever the Top 200 state;
+    // the screen takes the link, which only fills its field
+    val pendingTop200SignNavigation by Top200SignLinks.navigation.collectAsState()
+    LaunchedEffect(pendingTop200SignNavigation) {
+        if (!pendingTop200SignNavigation) {
+            return@LaunchedEffect
+        }
+        Top200SignLinks.consumeNavigation()
+        if (navController.currentDestination?.hasRoute<Route.Top200Sign>() == true) {
+            return@LaunchedEffect
+        }
+        selectTopLevelRoute(TopLevelScaffoldRoutes.ACCOUNT_CONTAINER)
+        navController.navigate(Route.Top200Sign)
     }
 
     InsufficientBalanceNoticeEffect(
@@ -1657,6 +1674,17 @@ fun MainNavContent(
                     reliabilityWindow = reliabilityWindow,
                     activityResultSender = activityResultSender,
                     accountPointsFailed = accountPointsViewModel.pointsLoad.collectAsState().value == SectionLoad.Failed,
+                )
+            }
+
+            composable<Route.Top200Sign>(
+                enterTransition = NavigationAnimations.enterTransition(),
+                exitTransition = NavigationAnimations.exitTransition(),
+                popEnterTransition = NavigationAnimations.popEnterTransition(),
+                popExitTransition = NavigationAnimations.popExitTransition()
+            ) {
+                Top200SignScreen(
+                    navController = navController,
                 )
             }
 

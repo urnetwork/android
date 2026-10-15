@@ -45,6 +45,8 @@ import com.bringyour.network.ui.login.isAppleOAuthReturn
 import com.bringyour.network.ui.login.ssoJwtPayload
 import com.bringyour.network.ui.login.requestBittensorChallenge
 import com.bringyour.network.ui.wallet.SnWalletConnectExtras
+import com.bringyour.network.ui.wallet.Top200Bindings
+import com.bringyour.network.ui.wallet.forwardTop200SignLink
 import com.bringyour.network.ui.theme.URNetworkTheme
 import com.bringyour.sdk.AuthCodeLoginArgs
 import com.bringyour.sdk.AuthLoginArgs
@@ -152,6 +154,15 @@ class LoginActivity : AppCompatActivity() {
                     }
                     Log.i(TAG, "bittensorSignMessageLogin $bridgeUri")
                     bittensorSignMessageLogin(bridgeUri)
+                } else if (Top200Bindings.isSignLink(u.scheme, u.host, u.path)) {
+                    // Earnings › Top 200 › Sign fleet binding: the link only fills the screen's
+                    // field and never signs; one that arrives while signed out is dropped
+                    if (app.device != null) {
+                        Log.i(TAG, "forwardTop200SignLink")
+                        forwardTop200SignLink(this, Top200Bindings.linkBindingParameter(u.encodedQuery), MainActivity::class.java)
+                        return
+                    }
+                    Log.i(TAG, "top200 sign link while signed out: dropped")
                 } else if ((u.scheme == "https" && u.host == "ur.io" && u.path == "/c") || u.scheme == "ur") {
                     Log.i(TAG, "createWithUri $u")
                     createWithUri(u)

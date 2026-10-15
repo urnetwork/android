@@ -55,6 +55,7 @@ import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.bringyour.network.R
+import com.bringyour.network.ui.Route
 import com.bringyour.network.ui.components.SectionLoadError
 import com.bringyour.network.ui.components.ButtonStyle
 import com.bringyour.network.ui.components.URButton
@@ -509,12 +510,13 @@ fun EarningsScreenContent(
                 }
 
                 head?.let { h ->
+                    val onSignFleetBinding = { navController.navigate(Route.Top200Sign) }
                     if (h.bound) {
                         Spacer(modifier = Modifier.height(16.dp))
-                        Top200BoundRow(head = h)
+                        Top200BoundRow(head = h, onSignFleetBinding = onSignFleetBinding)
                     } else if (h.eligible) {
                         Spacer(modifier = Modifier.height(16.dp))
-                        Top200Tile(head = h)
+                        Top200Tile(head = h, onSignFleetBinding = onSignFleetBinding)
                     }
                 }
 
