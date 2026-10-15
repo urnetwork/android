@@ -6,8 +6,11 @@
 // may contain signed tokens and must not be copied into benchmark logs.
 
 import process from "node:process";
+import { existsSync, lstatSync, readFileSync, renameSync, writeFileSync } from "node:fs";
+import { dirname, isAbsolute, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import { CdpSession, cdpFailureDetails } from "./chrome_cdp.mjs";
+import { prepareArtifactDirectory, requireArtifactPaths } from "./physical_artifact_directory.mjs";
 
 export function parseArgs(argv) {
   const options = { port: 9222, timeoutMs: 90_000 };
@@ -16,13 +19,19 @@ export function parseArgs(argv) {
     if (arg === "--port") options.port = Number(argv[++i]);
     else if (arg === "--timeout-ms") options.timeoutMs = Number(argv[++i]);
     else if (arg === "--diagnostic-last-state") options.diagnosticLastState = true;
+    else if (arg === "--diagnostic-activity") options.diagnosticActivity = argv[++i];
     else if (arg === "--help" || arg === "-h") options.help = true;
     else throw new Error(`unknown option: ${arg}`);
   }
   for (const [name, value] of Object.entries(options)) {
-    if (!["help", "diagnosticLastState"].includes(name) && (!Number.isSafeInteger(value) || value <= 0 || value > 2_147_483_647)) {
+    if (!["help", "diagnosticLastState", "diagnosticActivity"].includes(name) && (!Number.isSafeInteger(value) || value <= 0 || value > 2_147_483_647)) {
       throw new Error(`${name} must be a positive number`);
     }
+  }
+  if (Object.hasOwn(options, "diagnosticActivity") &&
+      (typeof options.diagnosticActivity !== "string" || !isAbsolute(options.diagnosticActivity) ||
+       resolve(options.diagnosticActivity) !== options.diagnosticActivity || /[\0\r\n]/.test(options.diagnosticActivity))) {
+    throw new Error("absolute diagnostic activity path required");
   }
   return options;
 }
@@ -35,11 +44,62 @@ function usage() {
     "  --port PORT          adb-forwarded DevTools port (default 9222)",
     "  --timeout-ms MS      whole-run deadline, including setup/cleanup (default 90000)",
     "  --diagnostic-last-state  retain bounded last DOM state (unqualified, default off)",
+    "  --diagnostic-activity FILE  private latest CDP state for the Go owner (unqualified, default off)",
   ].join("\n");
 }
 
 class DeadlineError extends Error {
   constructor(phase) { super("Fast.com lifecycle deadline exceeded"); this.phase = phase; }
+}
+
+// Platform-binding exception only: export the existing owned CDP poll, not a
+// second browser/controller or app-command publisher. Go owns every decision.
+// One atomic latest record (at most4096 bytes), at most96 updates, no history,
+// URLs, request ids, arbitrary DOM text or changes to the benchmark deadline.
+export function createFastDiagnosticActivity(path) {
+  if (path === undefined) return undefined;
+  const ownerPath = process.env.URNETWORK_PERF_WORKLOAD_OWNER;
+  if (!isAbsolute(path) || resolve(path) !== path || typeof ownerPath !== "string" ||
+      !isAbsolute(ownerPath) || resolve(ownerPath) !== ownerPath) throw new Error("diagnostic activity bindings required");
+  const binding = prepareArtifactDirectory(dirname(path));
+  const temporary = path + ".next", claim = path + ".claim";
+  requireArtifactPaths(binding, [path, temporary, claim]);
+  const ownerFile = lstatSync(ownerPath);
+  if (!ownerFile.isFile() || ownerFile.uid !== process.getuid() || (ownerFile.mode & 0o7777) !== 0o600 ||
+      ownerFile.size > 16384) throw new Error("private bounded workload owner required");
+  const owner = JSON.parse(readFileSync(ownerPath, "utf8"));
+  if (owner.type !== "workload-owner" || owner.schema !== 1 ||
+      !/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/.test(owner.ownerId) ||
+      !Number.isSafeInteger(owner.ownerPid) || owner.ownerPid <= 0 || JSON.stringify(owner.children) !== '["fast-1"]') {
+    throw new Error("one owned Fast child required");
+  }
+  if (existsSync(path) || existsSync(temporary)) throw new Error("fresh diagnostic activity required");
+  writeFileSync(claim, JSON.stringify({ type: "fast-activity-claim", pid: process.pid }) + "\n", { flag: "wx", mode: 0o600 });
+  let sequence = 0, previous;
+  return (phase, value) => {
+    if (!["active", "ended"].includes(phase) || ++sequence > 96) throw new Error("bounded diagnostic activity required");
+    requireArtifactPaths(binding, [path, temporary, claim]);
+    if (previous) {
+      const current = lstatSync(path);
+      if (!current.isFile() || current.dev !== previous.dev || current.ino !== previous.ino ||
+          current.uid !== process.getuid() || (current.mode & 0o7777) !== 0o600) throw new Error("diagnostic activity replaced");
+    }
+    const bounded = (text, pattern, maximum) => typeof text === "string" && text.length <= maximum && pattern.test(text) ? text : "";
+    const record = { type: "fast-active-state", schema: 1, qualificationEligible: false,
+      sequence, phase, pid: process.pid, wrapperPid: process.ppid, workloadOwnerPath: ownerPath,
+      workloadOwnerId: owner.ownerId, workloadOwnerPid: owner.ownerPid, observedUnixMs: Date.now(),
+      elapsedMs: Math.max(0, Math.round(value.elapsedMs)), remainingMs: Math.max(0, Math.floor(value.remainingMs)),
+      pageRequestCount: value.pageRequestCount,
+      dom: { progressClass: bounded(value.result?.progress, /^[A-Za-z0-9_ -]*$/, 256),
+        value: bounded(value.result?.value, /^[0-9., ]*$/, 64),
+        units: bounded(value.result?.units, /^[KkMmGg]bps$/, 4),
+        ready: ["loading", "interactive", "complete"].includes(value.result?.loaded) ? value.result.loaded : "unknown" } };
+    const bytes = JSON.stringify(record) + "\n";
+    if (Buffer.byteLength(bytes) > 4096) throw new Error("diagnostic activity too large");
+    writeFileSync(temporary, bytes, { flag: "wx", mode: 0o600 });
+    renameSync(temporary, path);
+    previous = lstatSync(path);
+  };
 }
 
 // Every external await spends the same budget. Checking only the display loop
@@ -128,6 +188,7 @@ export async function runFastBenchmark(options, dependencies = {}) {
   const sleep = dependencies.sleep ?? ((ms) => new Promise((resolve) => setTimeout(resolve, ms)));
   const lifecycleStartedAt = now();
   const deadline = new Deadline(options.timeoutMs, now, dependencies);
+  const activity = createFastDiagnosticActivity(options.diagnosticActivity);
   const baseUrl = `http://127.0.0.1:${options.port}`;
   let browser;
   let targetId;
@@ -256,6 +317,7 @@ export async function runFastBenchmark(options, dependencies = {}) {
         completionReason = "spinner-stopped";
         break;
       }
+      activity?.("active", { elapsedMs: now() - startedAt, remainingMs: deadline.remaining(), pageRequestCount, result });
     }
 
     if (completionReason === null) throw new DeadlineError("display-poll");
@@ -264,6 +326,13 @@ export async function runFastBenchmark(options, dependencies = {}) {
     if (failure instanceof Error && failure.phase === undefined) failure.phase = deadline.phase;
   } finally {
     measuredAt = now();
+    try {
+      activity?.("ended", { elapsedMs: startedAt === undefined ? 0 : measuredAt - startedAt,
+        remainingMs: deadline.remaining(), pageRequestCount, result });
+    } catch (error) {
+      cleanupComplete = false;
+      if (!failure) failure = error;
+    }
     try { session?.close(); } catch { cleanupComplete = false; }
     if (targetId) {
       try {
