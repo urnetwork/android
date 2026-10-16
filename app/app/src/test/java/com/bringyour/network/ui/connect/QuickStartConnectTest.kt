@@ -65,6 +65,7 @@ class QuickStartConnectTest {
                     }
                 },
                 waiting = { "waiting" },
+                ended = { "ended" },
                 onResult = { results.add(it) },
             )
         }
@@ -131,10 +132,68 @@ class QuickStartConnectTest {
         surfaces.toggle()
         assertEquals(QuickConnectShown.OFF, surfaces.shown())
         assertEquals(QuickConnectShown.OFF, surfaces.rendered.last())
+        // the ended start is answered first, then the disconnect
+        assertEquals(listOf("ended", "applied"), surfaces.results)
 
         gate.decide(blocked = false)
         assertEquals(listOf(Pair(false, false)), surfaces.applied)
-        assertEquals(listOf("applied"), surfaces.results)
+        assertEquals(listOf("ended", "applied"), surfaces.results)
+        assertFalse(surfaces.connectEnabled)
+    }
+
+    @Test
+    fun endedStartAnswersTheSurfaceThatWaits() {
+        // the widget button's trampoline waits on its start; a tap on the
+        // connecting tile ends it. The trampoline is answered at once, so it
+        // finishes instead of staying on screen over the launcher
+        val gate = HeldGate()
+        val trampolineResults = mutableListOf<String>()
+        val tileResults = mutableListOf<String>()
+        val quick = QuickStartConnect(gate::check) {}
+        quick.request(
+            connectEnabled = false,
+            connect = true,
+            apply = { "applied" },
+            waiting = { "waiting" },
+            ended = { "ended" },
+            onResult = { trampolineResults.add(it) },
+        )
+        assertEquals(emptyList<String>(), trampolineResults)
+
+        quick.request(
+            connectEnabled = false,
+            connect = false,
+            apply = { "applied" },
+            waiting = { "waiting" },
+            ended = { "ended" },
+            onResult = { tileResults.add(it) },
+        )
+        assertEquals(listOf("ended"), trampolineResults)
+        assertEquals(listOf("applied"), tileResults)
+
+        // the gate's later decision answers no one again
+        gate.decide(blocked = false)
+        assertEquals(listOf("ended"), trampolineResults)
+        assertEquals(listOf("applied"), tileResults)
+    }
+
+    @Test
+    fun cancelEndsTheWaitAndAnswersIt() {
+        // a sign out while a start waits: it never connects, the surfaces show
+        // off, and its surface is answered
+        val gate = HeldGate()
+        val surfaces = Surfaces(gate)
+        surfaces.quick.cancel()
+        assertEquals(emptyList<String>(), surfaces.results)
+
+        surfaces.toggle()
+        surfaces.quick.cancel()
+        assertEquals(QuickConnectShown.OFF, surfaces.rendered.last())
+        assertEquals(listOf("ended"), surfaces.results)
+
+        gate.decide(blocked = false)
+        assertEquals(emptyList<Pair<Boolean, Boolean>>(), surfaces.applied)
+        assertEquals(listOf("ended"), surfaces.results)
         assertFalse(surfaces.connectEnabled)
     }
 
@@ -186,6 +245,7 @@ class QuickStartConnectTest {
                 "applied"
             },
             waiting = { "waiting" },
+            ended = { "ended" },
             onResult = { results.add(it) },
         )
         assertEquals(listOf("applied"), results)

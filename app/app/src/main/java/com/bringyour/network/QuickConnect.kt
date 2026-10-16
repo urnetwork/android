@@ -75,6 +75,8 @@ object QuickConnect {
             apply = { blocked -> apply(app, connect, blocked, source) },
             // the start already waiting answers for this tap
             waiting = { Result.APPLIED },
+            // a disconnect or sign out ended this start: nothing to open
+            ended = { Result.APPLIED },
             onResult = onResult,
         )
     }
