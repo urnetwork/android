@@ -79,8 +79,9 @@ class DashboardWidget : GlanceAppWidget() {
     override val sizeMode: SizeMode = SizeMode.Exact
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
-        val entry = WidgetEntry.load(context)
-        provideContent { DashboardContent(entry) }
+        // the entry is read in the composition, again on each reload: an
+        // update while this session runs recomposes it without running this
+        provideContent { DashboardContent(rememberWidgetEntry(context, WidgetKinds.DASHBOARD)) }
     }
 }
 
@@ -203,9 +204,10 @@ private fun DashboardHeader(entry: WidgetEntry, compact: Boolean) {
  * off and the accent pink when on, also while a start waits on its balance
  * (connecting). A tap runs the same trampoline as the launcher shortcuts
  * (QuickConnectActivity, no UI), which toggles and opens the app only when
- * it is needed; a tap while connecting ends the wait. The widget re-renders
- * from the device's new state within the same second, and from the wait's
- * start and end (QuickStartConnect).
+ * it is needed; a tap while connecting ends the wait. The writer asks for
+ * a re-render on each connect and disconnect, and the quick connect start
+ * on each start and end of a wait (QuickStartConnect); each reads the entry
+ * again (rememberWidgetEntry), so no separate optimistic state is kept.
  */
 @Composable
 private fun QuickConnectButton(entry: WidgetEntry) {

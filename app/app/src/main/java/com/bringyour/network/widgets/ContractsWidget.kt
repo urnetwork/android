@@ -61,8 +61,8 @@ class ContractsWidget : GlanceAppWidget() {
     override val sizeMode: SizeMode = SizeMode.Exact
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
-        val entry = WidgetEntry.load(context)
-        provideContent { ContractsContent(entry) }
+        // the entry is read in the composition, again on each reload (see DashboardWidget)
+        provideContent { ContractsContent(rememberWidgetEntry(context, WidgetKinds.CONTRACTS)) }
     }
 }
 

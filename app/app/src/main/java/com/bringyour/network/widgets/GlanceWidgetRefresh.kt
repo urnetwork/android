@@ -31,11 +31,17 @@ class GlanceWidgetRefresh(private val context: Context) : WidgetRefresh {
         }.getOrDefault(false)
     }
 
-    override fun reloadDashboard() = reload(DashboardWidget())
-    override fun reloadProviderGlobe() = reload(ProviderGlobeWidget())
-    override fun reloadContracts() = reload(ContractsWidget())
+    override fun reloadDashboard() = reload(WidgetKinds.DASHBOARD, DashboardWidget())
+    override fun reloadProviderGlobe() = reload(WidgetKinds.PROVIDER_GLOBE, ProviderGlobeWidget())
+    override fun reloadContracts() = reload(WidgetKinds.CONTRACTS, ContractsWidget())
 
-    private fun reload(widget: GlanceAppWidget) {
+    /**
+     * A running composition reads its entry again on the kind's tick
+     * (WidgetReloads); updateAll starts one for a widget that has none,
+     * which reads the entry as it starts.
+     */
+    private fun reload(kind: String, widget: GlanceAppWidget) {
+        WidgetReloads.bump(kind)
         scope.launch {
             runCatching { widget.updateAll(context) }
         }
