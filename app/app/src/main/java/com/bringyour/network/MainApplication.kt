@@ -55,6 +55,8 @@ import java.io.File
 import java.lang.ref.WeakReference
 import javax.inject.Inject
 import kotlin.math.min
+import com.bringyour.network.ui.connect.connectRequested
+import com.bringyour.network.ui.connect.runOnDevice
 
 @RequiresApi(Build.VERSION_CODES.S)
 private class DefaultNetworkTelephonyCallback(
@@ -467,6 +469,15 @@ class MainApplication : Application() {
     }
 
     /**
+     * The serial queue every connect and disconnect runs on, off the main
+     * thread, in the order they were made (ConnectCommands). Alive for the
+     * life of the process.
+     */
+    internal val connectCommands = com.bringyour.network.ui.connect.ConnectCommands.create(
+        onFailure = { Log.e(TAG, "[connect]command failed: ${it.message}", it) },
+    )
+
+    /**
      * The quick connect surfaces' start connect (QuickConnect), through the
      * same gate: they show connecting from the tap while it fetches the
      * balance, and re-render on each change. Main thread.
@@ -475,6 +486,11 @@ class MainApplication : Application() {
         check = { onResult -> checkStartConnect(onResult) },
         render = { renderQuickConnect() },
     )
+
+    init {
+        // a command made or run shows on the quick connect surfaces at once
+        connectCommands.addListener { renderQuickConnect() }
+    }
 
     /** Re-renders the quick connect surfaces: the Quick Settings tile and the dashboard widget. */
     private fun renderQuickConnect() {
@@ -578,27 +594,26 @@ class MainApplication : Application() {
             nowMillis = System.currentTimeMillis(),
         )
         balanceRecoveryState.value = balanceRecovery.state
-        val target = when (step) {
-            com.bringyour.network.ui.connect.BalanceRecoveryStep.None -> return false
-            is com.bringyour.network.ui.connect.BalanceRecoveryStep.Start -> step.target
-            com.bringyour.network.ui.connect.BalanceRecoveryStep.Rebuild -> device?.connectLocation
+        if (step == com.bringyour.network.ui.connect.BalanceRecoveryStep.None) {
+            return false
         }
         val current = device ?: return false
         // the gate is not asked again: the recovery decided on a fresh balance,
         // and a held connection still reports insufficient balance until the
-        // rebuild replaces it
-        val vc = current.openConnectViewController() ?: return false
-        try {
-            Log.i(TAG, "[connect]balance is back: retrying the blocked connect")
-            if (target != null) {
-                vc.connect(target)
-            } else {
-                vc.connectBestAvailable()
-            }
-        } finally {
-            current.closeViewController(vc)
-        }
-        return true
+        // rebuild replaces it. On the connect command queue, after the
+        // commands made before it; the rebuild reads the device's location
+        // there, with its command
+        Log.i(TAG, "[connect]balance is back: retrying the blocked connect")
+        return connectCommands.runOnDevice(
+            com.bringyour.network.ui.connect.SdkConnectDevice(current),
+            connect = true,
+            location = { connectDevice ->
+                when (step) {
+                    is com.bringyour.network.ui.connect.BalanceRecoveryStep.Start -> step.target
+                    else -> connectDevice.connectLocation
+                }
+            },
+        )
     }
 
     /**
@@ -2240,6 +2255,21 @@ class MainApplication : Application() {
         }
     }
 
+    /**
+     * The sign out of `signedOutDevice`'s account, the one signed in when the
+     * user asked for it, only while it is still the signed-in device
+     * ([signOutApplies]): the account deletion signs out once the server
+     * answers, when the server may already have signed that account out and
+     * the next account signed in. True when it signed out.
+     */
+    fun logout(signedOutDevice: com.bringyour.sdk.DeviceLocal): Boolean {
+        if (!signOutApplies(signedOutDevice, device)) {
+            return false
+        }
+        logout()
+        return true
+    }
+
     fun logout() {
         // the user signed out: the sign-in screen has nothing to explain
         signInNotices.clear()
@@ -2248,6 +2278,9 @@ class MainApplication : Application() {
     }
 
     private fun logoutInternal() {
+        // from here no connect is admitted on the signed-out device, and its
+        // connects still queued never run; its disconnects still do
+        device?.let { connectCommands.signOutStarted(it) }
         stop()
         widgetSnapshotWriter?.clear()
         // a connect the signed-out account asked for must not start later
@@ -2335,6 +2368,11 @@ class MainApplication : Application() {
         // to the login flow. The device's cause, read in its listener, says
         // whether the sign-in screen tells the user that another device
         // signed this session out; any other cause says nothing new
+        // the sdk's logout begins: no connect of the signed-out device is
+        // admitted from here, before the logout below is posted
+        deviceManager.onLogoutStarted = { signedOutDevice ->
+            connectCommands.signOutStarted(signedOutDevice)
+        }
         deviceManager.onAuthLogout = { cause ->
             Handler(mainLooper).post {
                 loginStartupTracker.authLoggedOut()
@@ -2771,23 +2809,15 @@ class MainApplication : Application() {
             return
         }
         val current = device ?: return
-        if (!current.connectEnabled) return
+        val connectDevice = com.bringyour.network.ui.connect.SdkConnectDevice(current)
+        if (!connectCommands.connectRequested(connectDevice)) return
         // the user's disconnect: a held connection is not reconnected
         clearBalanceRecovery()
 
-        val vc = current.openConnectViewController() ?: run {
-            Log.i(TAG, "Unable to open connect controller for VPN disconnect from $source")
-            return
-        }
-        try {
-            Log.i(TAG, "Disconnecting VPN connection from $source")
-            vc.disconnect()
-        } catch (e: Exception) {
-            Log.e(TAG, "VPN disconnect from $source failed: ${e.message}", e)
-        } finally {
-            runCatching { current.closeViewController(vc) }
-                .onFailure { Log.i(TAG, "Connect controller close failed: ${it.message}") }
-        }
+        // on the connect command queue, after the commands made before it;
+        // a failure is logged there (connectCommands)
+        Log.i(TAG, "Disconnecting VPN connection from $source")
+        connectCommands.runOnDevice(connectDevice, connect = false)
         updateVpnService()
     }
 
@@ -2893,19 +2923,10 @@ class MainApplication : Application() {
         }
         if (alwaysOnConnectRequestedDevice === current) return
         alwaysOnConnectRequestedDevice = current
-        val vc = current.openConnectViewController() ?: run {
-            alwaysOnConnectRequestedDevice = null
-            return
-        }
-        try {
-            current.connectLocation?.let(vc::connect) ?: vc.connectBestAvailable()
-        } catch (e: Exception) {
-            Log.i(TAG, "Always-on reconnect request failed: ${e.message}")
-            alwaysOnConnectRequestedDevice = null
-        } finally {
-            runCatching { current.closeViewController(vc) }
-                .onFailure { Log.i(TAG, "Always-on controller close failed: ${it.message}") }
-        }
+        // on the connect command queue, to the saved location (read there),
+        // else the best available provider; a failure is logged there, and
+        // the retry below asks again while the device is not connected
+        connectCommands.runOnDevice(com.bringyour.network.ui.connect.SdkConnectDevice(current), connect = true)
         Handler(mainLooper).postDelayed({
             if (systemAlwaysOnVpn && device === current && !current.connectEnabled) {
                 alwaysOnConnectRequestedDevice = null

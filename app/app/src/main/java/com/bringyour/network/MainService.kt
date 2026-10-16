@@ -143,6 +143,11 @@ import kotlin.concurrent.thread
     private var dnsResolverSettingsSub: Sub? = null
     private var connected: Boolean = false
     private var providerCount: Long = 0
+    // the window status the notification says, with providerCount
+    private var windowMinSatisfied: Boolean = false
+    private var windowFailed: Boolean = false
+    /** Refreshes the notification when the tunnel starts or stops. */
+    private var tunnelChangeSub: Sub? = null
 
     // Committed only after Builder.establish() succeeds. A failed seamless
     // handover must remain visibly unapplied so the next listener/recovery
@@ -369,6 +374,8 @@ import kotlin.concurrent.thread
 
         fun updateWindowStatus(windowStatus: WindowStatus) {
             providerCount = windowStatus.providerStateAdded
+            windowMinSatisfied = windowStatus.minSatisfied
+            windowFailed = windowStatus.failed
             connected = 0 < providerCount
             updateForegroundNotification()
             reconcilePfd()
@@ -411,6 +418,12 @@ import kotlin.concurrent.thread
             }
         }
         connectLocationSub = currentDevice.addConnectLocationChangeListener {
+            Handler(mainLooper).post {
+                if (boundDevice === currentDevice) updateForegroundNotification()
+            }
+        }
+        // connected only with the tunnel up: say when it starts or stops
+        tunnelChangeSub = currentDevice.addTunnelChangeListener {
             Handler(mainLooper).post {
                 if (boundDevice === currentDevice) updateForegroundNotification()
             }
@@ -938,8 +951,12 @@ import kotlin.concurrent.thread
         connectChangeSub = null
         connectLocationSub?.close()
         connectLocationSub = null
+        tunnelChangeSub?.close()
+        tunnelChangeSub = null
         boundDevice = null
         providerCount = 0
+        windowMinSatisfied = false
+        windowFailed = false
         connected = false
         updateForegroundNotification()
         if (tunnelRetryKind == TunnelRetryKind.CONFIGURATION) {
@@ -1261,6 +1278,10 @@ import kotlin.concurrent.thread
                 connectRequested = currentDevice?.connectEnabled == true,
                 systemAlwaysOn = (application as MainApplication).isSystemAlwaysOnVpnActive(),
                 providerCount = providerCount,
+                minSatisfied = windowMinSatisfied,
+                failed = windowFailed,
+                locationProviderCount = location?.providerCount ?: 0,
+                tunnelStarted = currentDevice?.tunnelStarted == true,
                 locationName = location?.name,
                 city = location?.city,
                 region = location?.region,
@@ -1294,6 +1315,15 @@ import kotlin.concurrent.thread
                         presentation.providerCount,
                     )
                     contentText = "${getString(R.string.connecting_status_indicator)} • $providers"
+                }
+                VpnNotificationStatus.CONNECT_FAILED -> {
+                    contentTitle = presentation.locationLabel ?: getString(R.string.app_name)
+                    // the connect screen's words; the connection keeps trying
+                    contentText = getString(R.string.conn_failed)
+                }
+                VpnNotificationStatus.TUNNEL_DISCONNECTED -> {
+                    contentTitle = presentation.locationLabel ?: getString(R.string.app_name)
+                    contentText = getString(R.string.reconnect_tunnel_status_indicator)
                 }
                 VpnNotificationStatus.ACTIVE -> {
                     contentTitle = getString(R.string.app_name)

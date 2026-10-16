@@ -27,6 +27,11 @@ import kotlinx.coroutines.flow.StateFlow
  * while a start waits does not stack, and [cancel] (the user's disconnect, a
  * device change) ends it without connecting. Main thread only; [waiting]
  * may be read from any thread.
+ *
+ * Once admitted, the connect waits on the connect command queue
+ * ([ConnectCommands]) with the commands made before it, and the status of the
+ * newest command not yet run ([commandPending]) stands in for the reported
+ * one, so a report from before the tap cannot flip the view back.
  */
 internal class StartConnectAdmission(
     /** The gate: calls back once, at once or after a fetch, with whether the start is refused. */
@@ -40,6 +45,8 @@ internal class StartConnectAdmission(
     val displayStatus: StateFlow<ConnectStatus> = status
 
     private var reportedStatus = ConnectStatus.DISCONNECTED
+    // the newest queued command's own first status, until the queue has run it
+    private var pendingStatus: ConnectStatus? = null
     // bumped by each start and cancel, so a superseded decision is dropped
     private var generation = 0L
 
@@ -51,6 +58,16 @@ internal class StartConnectAdmission(
     /** The sdk's status. */
     fun reported(status: ConnectStatus) {
         reportedStatus = status
+        publish()
+    }
+
+    /**
+     * The status of the newest connect command still queued: the sdk
+     * controller's own first status for it (DESTINATION_SET for a connect,
+     * DISCONNECTED for a disconnect), or null once the queue has run them all.
+     */
+    fun commandPending(status: ConnectStatus?) {
+        pendingStatus = status
         publish()
     }
 
@@ -92,7 +109,7 @@ internal class StartConnectAdmission(
     }
 
     private fun publish() {
-        val next = if (waiting) ConnectStatus.DESTINATION_SET else reportedStatus
+        val next = if (waiting) ConnectStatus.DESTINATION_SET else pendingStatus ?: reportedStatus
         if (status.value != next) {
             status.value = next
             displayChanged()

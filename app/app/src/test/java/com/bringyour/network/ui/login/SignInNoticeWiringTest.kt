@@ -80,12 +80,20 @@ class SignInNoticeWiringTest {
         val clear = initDevice.indexOf("signInNotices.clear()")
         assertTrue(initDevice, 0 <= ready && ready < clear)
 
-        // the app's own sign-outs go through logout() and leave no notice
-        for (path in listOf("ui/components/AccountSwitcher.kt", "ui/settings/SettingsScreen.kt", "ui/login/SwitchAccountScreen.kt")) {
+        // the app's own sign-outs go through logout() and leave no notice; the
+        // account deletion's through logout(signedOutDevice), which signs out
+        // only the deleted account's device, through logout()
+        for ((path, call) in listOf(
+            "ui/components/AccountSwitcher.kt" to ".logout()",
+            "ui/settings/SettingsScreen.kt" to ".logout(signedOutDevice)",
+            "ui/login/SwitchAccountScreen.kt" to ".logout()",
+        )) {
             val text = source(path)
-            assertTrue(path, text.contains(".logout()"))
+            assertTrue(path, text.contains(call))
             assertFalse(path, text.contains("signInNotices"))
         }
+        val deviceLogout = between(application, "    fun logout(signedOutDevice: com.bringyour.sdk.DeviceLocal): Boolean {", "\n    }\n")
+        assertTrue(deviceLogout, deviceLogout.contains("        logout()\n"))
     }
 
     @Test

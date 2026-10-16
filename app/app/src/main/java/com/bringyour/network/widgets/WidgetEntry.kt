@@ -22,6 +22,17 @@ class WidgetEntry(
     val isConfigured: Boolean,
     /** A quick connect start waits on its balance: the dashboard shows connecting. */
     val isConnecting: Boolean = false,
+    /**
+     * What the dashboard's title says about the connection
+     * (QuickConnect.status): connected only once the window holds its
+     * providers and the tunnel is up. The sample is connected.
+     */
+    val status: com.bringyour.network.ui.connect.QuickConnectStatus = when {
+        !isConfigured -> com.bringyour.network.ui.connect.QuickConnectStatus.NOT_SIGNED_IN
+        isConnecting -> com.bringyour.network.ui.connect.QuickConnectStatus.CONNECTING
+        isOn -> com.bringyour.network.ui.connect.QuickConnectStatus.CONNECTED
+        else -> com.bringyour.network.ui.connect.QuickConnectStatus.DISCONNECTED
+    },
 ) {
     /** The tunnel snapshot is meaningful only while the tunnel that wrote it is up. */
     val showsTunnelData: Boolean get() = isOn && tunnel.tunnelActive
@@ -53,6 +64,8 @@ class WidgetEntry(
                 isConnecting = app?.let {
                     QuickConnect.shown(it) == com.bringyour.network.ui.connect.QuickConnectShown.CONNECTING
                 } ?: false,
+                status = app?.let { QuickConnect.status(it) }
+                    ?: com.bringyour.network.ui.connect.QuickConnectStatus.NOT_SIGNED_IN,
             )
         }
 

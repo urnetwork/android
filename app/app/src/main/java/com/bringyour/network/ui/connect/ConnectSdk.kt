@@ -16,9 +16,17 @@ import com.bringyour.sdk.Sub
  * on the sdk's threads, as the sdk's do.
  */
 internal interface ConnectDevice {
+    /**
+     * The sdk device this is, the same object for every wrapper of it: what
+     * the connect command queue keys a device's commands on (ConnectCommands).
+     */
+    val identity: Any
+
     val connectEnabled: Boolean
     val tunnelStarted: Boolean
     val contractStatus: ContractStatus?
+    /** The saved connection's location, null for none. */
+    val connectLocation: ConnectLocation?
 
     fun addTunnelChangeListener(listener: (tunnelStarted: Boolean) -> Unit): Sub
     fun addContractStatusChangeListener(listener: () -> Unit): Sub
@@ -49,9 +57,11 @@ internal interface ConnectController {
 
 /** The sdk device the device manager publishes. */
 internal class SdkConnectDevice(val device: DeviceLocal) : ConnectDevice {
+    override val identity: Any get() = device
     override val connectEnabled: Boolean get() = device.connectEnabled
     override val tunnelStarted: Boolean get() = device.tunnelStarted
     override val contractStatus: ContractStatus? get() = device.contractStatus
+    override val connectLocation: ConnectLocation? get() = device.connectLocation
 
     override fun addTunnelChangeListener(listener: (tunnelStarted: Boolean) -> Unit): Sub =
         device.addTunnelChangeListener { listener(it) }

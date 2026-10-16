@@ -10,6 +10,11 @@ class VpnNotificationPolicyTest {
         connectRequested: Boolean = true,
         systemAlwaysOn: Boolean = false,
         providerCount: Long = 0,
+        // a window with providers is satisfied unless a test says otherwise
+        minSatisfied: Boolean = 0 < providerCount,
+        failed: Boolean = false,
+        locationProviderCount: Int = 0,
+        tunnelStarted: Boolean = true,
         name: String? = "Chicago",
         city: String? = null,
         region: String? = null,
@@ -18,6 +23,10 @@ class VpnNotificationPolicyTest {
         connectRequested = connectRequested,
         systemAlwaysOn = systemAlwaysOn,
         providerCount = providerCount,
+        minSatisfied = minSatisfied,
+        failed = failed,
+        locationProviderCount = locationProviderCount,
+        tunnelStarted = tunnelStarted,
         locationName = name,
         city = city,
         region = region,
@@ -72,6 +81,38 @@ class VpnNotificationPolicyTest {
             "Best available provider",
             presentation(name = null, city = "", region = " ", country = null).locationLabel,
         )
+    }
+
+    @Test
+    fun aFormingWindowIsConnectingThoughItHasProviders() {
+        // the connect screen says connecting until the window is satisfied
+        val result = presentation(providerCount = 2, minSatisfied = false)
+
+        assertEquals(VpnNotificationStatus.CONNECTING, result.status)
+        assertEquals(2, result.providerCount)
+    }
+
+    @Test
+    fun aFailedConnectSaysSoAndKeepsDisconnect() {
+        val result = presentation(providerCount = 0, failed = true)
+
+        assertEquals(VpnNotificationStatus.CONNECT_FAILED, result.status)
+        assertTrue(result.showDisconnect)
+    }
+
+    @Test
+    fun aConnectionWithTheTunnelDownSaysSo() {
+        val result = presentation(providerCount = 3, tunnelStarted = false)
+
+        assertEquals(VpnNotificationStatus.TUNNEL_DISCONNECTED, result.status)
+        assertTrue(result.showDisconnect)
+    }
+
+    @Test
+    fun aLocationWithFewerProvidersIsConnectedOnceAllAreAdded() {
+        val result = presentation(providerCount = 1, minSatisfied = false, locationProviderCount = 1)
+
+        assertEquals(VpnNotificationStatus.CONNECTED, result.status)
     }
 
     @Test

@@ -293,14 +293,21 @@ class SettingsViewModel @Inject constructor(
      * (an error in the result) or a transport error runs onFailure with the
      * failed outcome, and the user stays signed in and may retry.
      */
+    /**
+     * Deletes the account. `onSuccess` gets the device signed in when the
+     * user asked, the one to sign out: the server answers later, possibly
+     * after it signed that account out and the next account signed in
+     * (MainApplication.logout(signedOutDevice)).
+     */
     val deleteAccount: (
-            onSuccess: () -> Unit,
+            onSuccess: (signedOutDevice: DeviceLocal) -> Unit,
             onFailure: (DeleteAccountOutcome.Failed) -> Unit
             ) -> Unit = { onSuccess, onFailure ->
 
                 _isDeletingAccount.value = true
 
-        deviceManager.device?.api?.networkDelete { result, exception ->
+        val signedOutDevice = deviceManager.device
+        signedOutDevice?.api?.networkDelete { result, exception ->
 
             val outcome = DeleteAccountOutcome.of(
                 exception = exception,
@@ -312,7 +319,7 @@ class SettingsViewModel @Inject constructor(
             viewModelScope.launch {
 
                 when (outcome) {
-                    is DeleteAccountOutcome.Deleted -> onSuccess()
+                    is DeleteAccountOutcome.Deleted -> onSuccess(signedOutDevice)
                     is DeleteAccountOutcome.Failed -> {
                         Log.i(TAG, "Error deleting account: ${exception?.message ?: outcome.serverMessage}")
                         onFailure(outcome)

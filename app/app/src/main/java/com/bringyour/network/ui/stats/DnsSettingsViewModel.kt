@@ -181,7 +181,19 @@ class DnsSettingsViewModel @Inject constructor(
         }
     }
 
-    fun apply(newSettings: DnsSettingsUi) {
+    /**
+     * Applies `newSettings`, edited from `original`, only while `original` is
+     * still the settings in force ([settingsEditApplies]); otherwise publishes
+     * the settings in force, for the editor to re-seed from, and applies
+     * nothing. True when it applied.
+     */
+    fun apply(newSettings: DnsSettingsUi, original: DnsSettingsUi): Boolean {
+        val current = (deviceManager.device?.dnsResolverSettings
+            ?: deviceManager.asyncLocalState?.localState?.dnsResolverSettings)?.let { toUi(it) }
+        if (!settingsEditApplies(original, current)) {
+            settings = current
+            return false
+        }
         val sdkSettings = DnsResolverSettings()
         sdkSettings.enableRemoteDoh = newSettings.enableRemoteDoh
         sdkSettings.enableLocalDoh = newSettings.enableLocalDoh
@@ -203,6 +215,7 @@ class DnsSettingsViewModel @Inject constructor(
         if (deviceManager.applyDnsResolverSettings(sdkSettings)) {
             settings = toUi(deviceManager.dnsResolverSettings ?: sdkSettings)
         }
+        return true
     }
 
     override fun onCleared() {
