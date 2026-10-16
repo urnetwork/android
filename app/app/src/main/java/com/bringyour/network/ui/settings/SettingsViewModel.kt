@@ -289,15 +289,12 @@ class SettingsViewModel @Inject constructor(
     }
 
     /**
-     * onSuccess runs only when the account was deleted. A server refusal
-     * (an error in the result) or a transport error runs onFailure with the
-     * failed outcome, and the user stays signed in and may retry.
-     */
-    /**
-     * Deletes the account. `onSuccess` gets the device signed in when the
-     * user asked, the one to sign out: the server answers later, possibly
-     * after it signed that account out and the next account signed in
-     * (MainApplication.logout(signedOutDevice)).
+     * Deletes the account. `onSuccess` runs only once it is deleted, with the
+     * device signed in when the user asked, the one to sign out: the server
+     * answers later, possibly after it signed that account out and the next
+     * account signed in (MainApplication.logout(signedOutDevice)). A server
+     * refusal (an error in the result) or a transport error runs `onFailure`
+     * with the failed outcome, and the user stays signed in and may retry.
      */
     val deleteAccount: (
             onSuccess: (signedOutDevice: DeviceLocal) -> Unit,
