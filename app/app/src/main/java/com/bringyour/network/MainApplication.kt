@@ -475,6 +475,9 @@ class MainApplication : Application() {
      */
     internal val connectCommands = com.bringyour.network.ui.connect.ConnectCommands.create(
         onFailure = { Log.e(TAG, "[connect]command failed: ${it.message}", it) },
+        onStalled = { connect, millis ->
+            Log.w(TAG, "[connect]${if (connect) "connect" else "disconnect"} command still running after $millis ms")
+        },
     )
 
     /**

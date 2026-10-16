@@ -400,6 +400,7 @@
     <string name="dns_pill_recommended">Pro %1$s existují nepoužitá doporučená nastavení</string>
     <string name="dns_recommendation_message">Nejpřísnější bezpečnostní pravidla v %1$s nefungují. Existuje méně bezpečné doporučené nastavení DNS, které funguje lépe.</string>
     <string name="dns_restore_secure_message">Obnovte nejbezpečnější nastavení: šifrovaný DNS přes HTTPS v tunelu.</string>
+    <string name="dns_settings_save_failed">Nastavení DNS se nepodařilo uložit. Zkuste to znovu.</string>
     <string name="dns_settings_unavailable">Nastavení DNS není k dispozici</string>
     <string name="dns_using_recommended">Používáte doporučené regionální nastavení</string>
     <string name="dns_using_secure">Používáte nejbezpečnější výchozí nastavení</string>
@@ -963,6 +964,7 @@
     <string name="settings_add_quick_tile_description">Připojujte se a odpojujte z panelu Rychlého nastavení a ze zamykací obrazovky.</string>
     <string name="settings_add_widgets">Přidat widgety na domovskou obrazovku</string>
     <string name="settings_add_widgets_description">Rychlé připojení, zůstatek dat, poskytovatelé na glóbu a vaše hlavní kontrakty.</string>
+    <string name="settings_editor_changed">Nastavení se během úprav změnilo. Zkontrolujte je a aktualizujte znovu.</string>
     <string name="share">Sdílet</string>
     <string name="share_extenders">Sdílet extendery</string>
     <string name="share_extenders_hint">Naskenujte tento kód jinou aplikací URnetwork a sdílejte tyto extendery.</string>
@@ -984,6 +986,7 @@
     <string name="sign_in_with_seedphrase">Přihlásit se pomocí seed fráze</string>
     <string name="sign_in_with_your_apple_id_to">Přihlaste se pomocí svého Apple ID a přidejte jej jako způsob přihlášení.</string>
     <string name="sign_out">Odhlásit se</string>
+    <string name="signing_out">Odhlašování…</string>
     <string name="site_app_contracts">Kontrakty</string>
     <string name="site_app_email">E-mail</string>
     <string name="site_app_phone">Telefon</string>

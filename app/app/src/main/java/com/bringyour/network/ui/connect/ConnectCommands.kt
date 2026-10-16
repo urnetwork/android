@@ -30,6 +30,12 @@ package com.bringyour.network.ui.connect
  * listeners hear each change on the main thread, and a surface reads the
  * sdk's status again once nothing is pending.
  *
+ * A command still running past [stallMillis] is logged ([onStalled]), and
+ * until it returns no command shows as pending, so the surfaces go back to
+ * the status the sdk reports instead of holding the tap's state for as long
+ * as the sdk does. The command is never dropped or reordered: it keeps
+ * running, and the commands after it run after it.
+ *
  * [run] and [afterCommands] are called on the main thread; [pending] may be
  * read and [signOutStarted] called from any thread (the widgets render off
  * the main thread, the server's sign out reports on the sdk's). Commands run
@@ -42,6 +48,11 @@ internal class ConnectCommands(
     private val postMain: (Runnable) -> Unit,
     /** A command threw: logged by the app. */
     private val onFailure: (Throwable) -> Unit = {},
+    /** Runs work on the main thread after a delay (milliseconds): the stall watchdog. */
+    private val postMainDelayed: (Runnable, Long) -> Unit = { _, _ -> },
+    /** A command has run for [stallMillis] and still runs: logged by the app. */
+    private val onStalled: (connect: Boolean, millis: Long) -> Unit = { _, _ -> },
+    private val stallMillis: Long = CONNECT_COMMAND_STALL_MILLIS,
 ) {
     private class Pending(val device: Any, val connect: Boolean)
 
@@ -52,8 +63,13 @@ internal class ConnectCommands(
     // (a gomobile proxy's equals is not identity), weak so they go with
     // their devices
     private val signedOutDevices = mutableListOf<java.lang.ref.WeakReference<Any>>()
+    // guarded by stateLock: the running command is past its bound, so none
+    // shows as pending
+    private var stalled = false
     // main thread
     private val listeners = mutableListOf<() -> Unit>()
+    // main thread: the command the queue runs now, as its start reached main
+    private var running: Pending? = null
 
     /**
      * What the newest command not yet finished on `device` asks for: true for
@@ -62,7 +78,7 @@ internal class ConnectCommands(
     fun pending(device: Any?): Boolean? {
         device ?: return null
         return synchronized(stateLock) {
-            pendings.lastOrNull { it.device === device }?.connect
+            if (stalled) null else pendings.lastOrNull { it.device === device }?.connect
         }
     }
 
@@ -107,6 +123,7 @@ internal class ConnectCommands(
         }
         changed()
         execute(Runnable {
+            postMain(Runnable { started(pending) })
             try {
                 // a disconnect always runs
                 if (!connect || !signedOut(device)) {
@@ -115,15 +132,38 @@ internal class ConnectCommands(
             } catch (e: Exception) {
                 onFailure(e)
             } finally {
-                postMain(Runnable {
-                    synchronized(stateLock) {
-                        pendings.remove(pending)
-                    }
-                    changed()
-                })
+                postMain(Runnable { finished(pending) })
             }
         })
         return true
+    }
+
+    // main thread: `pending` started to run; it is watched until it returns
+    private fun started(pending: Pending) {
+        running = pending
+        postMainDelayed(Runnable {
+            if (running === pending) {
+                synchronized(stateLock) {
+                    stalled = true
+                }
+                onStalled(pending.connect, stallMillis)
+                changed()
+            }
+        }, stallMillis)
+    }
+
+    // main thread: `pending` returned
+    private fun finished(pending: Pending) {
+        if (running === pending) {
+            running = null
+        }
+        synchronized(stateLock) {
+            pendings.remove(pending)
+            if (running == null) {
+                stalled = false
+            }
+        }
+        changed()
     }
 
     /**
@@ -147,7 +187,10 @@ internal class ConnectCommands(
 
     companion object {
         /** The app's queue: one thread, named for the logs; finishes post to the main looper. */
-        fun create(onFailure: (Throwable) -> Unit): ConnectCommands {
+        fun create(
+            onFailure: (Throwable) -> Unit,
+            onStalled: (connect: Boolean, millis: Long) -> Unit,
+        ): ConnectCommands {
             val executor = java.util.concurrent.Executors.newSingleThreadExecutor { runnable ->
                 Thread(runnable, "connect-commands")
             }
@@ -156,10 +199,19 @@ internal class ConnectCommands(
                 execute = { executor.execute(it) },
                 postMain = { mainHandler.post(it) },
                 onFailure = onFailure,
+                postMainDelayed = { runnable, millis -> mainHandler.postDelayed(runnable, millis) },
+                onStalled = onStalled,
             )
         }
     }
 }
+
+/**
+ * How long a connect command may run before it is logged and the surfaces
+ * stop showing it as pending: well past a local state commit and a multi
+ * client rebuild, which take milliseconds to a second under storage pressure.
+ */
+internal const val CONNECT_COMMAND_STALL_MILLIS = 10_000L
 
 /**
  * Queues a connect (`connect`) or a disconnect of a surface without a
