@@ -90,11 +90,13 @@ fun TransportSettingsScreen(
 
     val currentSettings = transportSettingsViewModel.settings(kind)
     val runtimeStatus = transportSettingsViewModel.status(kind)
+    // the editor opens only on the policy in force, never on the default
+    // while it is unknown: an Update from that form would replace the real
+    // policy. It follows the policy until the user edits
     LaunchedEffect(currentSettings) {
-        if (!edited) {
-            val start = currentSettings ?: defaultSettings
-            original = start
-            draft = TransportSettingsUi(start.sdk.clone() ?: start.sdk)
+        if (!edited && currentSettings != null) {
+            original = currentSettings
+            draft = TransportSettingsUi(currentSettings.sdk.clone() ?: currentSettings.sdk)
         }
     }
 
@@ -311,9 +313,19 @@ fun TransportSettingsScreen(
             ) {
                 URButton(
                     onClick = {
+                        val editedFrom = original
                         draft?.let {
-                            transportSettingsViewModel.apply(it.sdk, kind)
-                            navController.popBackStack()
+                            if (editedFrom != null && transportSettingsViewModel.apply(it.sdk, kind, editedFrom)) {
+                                navController.popBackStack()
+                            } else {
+                                // the policy changed under the editor: start
+                                // again from the one in force
+                                edited = false
+                                transportSettingsViewModel.settings(kind)?.let { current ->
+                                    original = current
+                                    draft = TransportSettingsUi(current.sdk.clone() ?: current.sdk)
+                                }
+                            }
                         }
                     },
                     enabled = isDirty

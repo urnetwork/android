@@ -76,10 +76,13 @@ fun DnsSettingsScreen(
     var draft by remember { mutableStateOf<DnsSettingsUi?>(null) }
     var original by remember { mutableStateOf<DnsSettingsUi?>(null) }
 
+    // the editor opens only on the settings in force, never on a blank form
+    // while they are unknown, and follows them until the user edits
     LaunchedEffect(dnsSettingsViewModel.settings) {
-        if (draft == null) {
-            draft = dnsSettingsViewModel.settings ?: DnsSettingsUi()
-            original = dnsSettingsViewModel.settings ?: DnsSettingsUi()
+        val current = dnsSettingsViewModel.settings
+        if (current != null && (draft == null || draft == original)) {
+            draft = current
+            original = current
         }
     }
 
@@ -394,9 +397,17 @@ fun DnsSettingsScreen(
             ) {
                 URButton(
                     onClick = {
-                        draft?.let {
-                            dnsSettingsViewModel.apply(it)
-                            original = it
+                        val edited = draft
+                        val editedFrom = original
+                        if (edited != null && editedFrom != null) {
+                            if (dnsSettingsViewModel.apply(edited, editedFrom)) {
+                                original = edited
+                            } else {
+                                // the settings changed under the editor: start
+                                // again from the ones in force
+                                draft = dnsSettingsViewModel.settings
+                                original = dnsSettingsViewModel.settings
+                            }
                         }
                     },
                     enabled = isDirty
