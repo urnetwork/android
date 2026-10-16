@@ -4,6 +4,9 @@ import android.content.ContextWrapper
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelStore
 import com.bringyour.network.DeviceManager
 import com.bringyour.network.JwtManager
 import com.bringyour.network.NetworkSpaceManagerProvider
@@ -175,6 +178,17 @@ class ConnectViewModelTest {
         fun background() {
             registry.currentState = Lifecycle.State.CREATED
         }
+
+        /** The view model's owner goes away (its activity finished): the store clears it. */
+        fun clear() {
+            val store = ViewModelStore()
+            val factory = object : ViewModelProvider.Factory {
+                @Suppress("UNCHECKED_CAST")
+                override fun <T : ViewModel> create(modelClass: Class<T>): T = viewModel as T
+            }
+            ViewModelProvider(store, factory)[ConnectViewModel::class.java]
+            store.clear()
+        }
     }
 
     /** A view model presenting a controller of a published device, in the foreground. */
@@ -288,6 +302,21 @@ class ConnectViewModelTest {
         assertEquals(listOf("connectBestAvailable"), temporary.commands)
         assertTrue(temporary.closed)
         assertFalse(temporary.started)
+        assertEquals(emptyList<String>(), presented.commands)
+    }
+
+    @Test
+    fun clearedViewModelNeverConnectsAWaitingStart() {
+        // the screen's view model is cleared while a start waits: it no longer
+        // follows the device changes, so the start ends with it instead of
+        // connecting whichever device is current when the gate decides
+        val (harness, device, presented) = presenting()
+        harness.viewModel.connect(null)
+        harness.clear()
+        assertTrue(presented.closed)
+
+        harness.gate.decide(blocked = false)
+        assertEquals(1, device.controllers.size)
         assertEquals(emptyList<String>(), presented.commands)
     }
 

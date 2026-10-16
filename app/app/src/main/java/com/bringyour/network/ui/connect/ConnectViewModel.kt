@@ -707,6 +707,10 @@ internal constructor(
         removeDeviceChangeListener?.invoke()
         removeDeviceChangeListener = null
         processLifecycle.removeObserver(this)
+        // a start still waiting on its balance never connects once the
+        // screen is gone, as the Apple app's is dropped with its view model
+        startConnectAdmission.cancel()
+        currentDevice = null
         controllerOwner.close()
         super.onCleared()
     }
