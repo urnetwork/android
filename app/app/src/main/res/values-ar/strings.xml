@@ -400,6 +400,7 @@
     <string name="dns_pill_recommended">توجد إعدادات موصى بها غير مطبقة لـ %1$s</string>
     <string name="dns_recommendation_message">من المعروف أن أقوى قواعد الأمان لا تعمل في %1$s. هناك إعدادات DNS موصى بها أقل أمانًا تعمل بشكل أفضل.</string>
     <string name="dns_restore_secure_message">استعادة أكثر الإعدادات أمانًا: DNS مشفر عبر HTTPS من خلال النفق.</string>
+    <string name="dns_settings_save_failed">تعذّر حفظ إعدادات DNS. حاول مرة أخرى.</string>
     <string name="dns_settings_unavailable">إعدادات DNS غير متاحة</string>
     <string name="dns_using_recommended">استخدام الإعدادات الإقليمية الموصى بها</string>
     <string name="dns_using_secure">استخدام الإعدادات الافتراضية الأكثر أمانًا</string>
@@ -963,6 +964,7 @@
     <string name="settings_add_quick_tile_description">اتصل واقطع الاتصال من لوحة الإعدادات السريعة وشاشة القفل.</string>
     <string name="settings_add_widgets">إضافة أدوات إلى الشاشة الرئيسية</string>
     <string name="settings_add_widgets_description">الاتصال السريع، ورصيد البيانات، والمزودون على الكرة الأرضية، وأهم عقودك.</string>
+    <string name="settings_editor_changed">تغيّرت الإعدادات أثناء التعديل. راجعها ثم حدّثها مرة أخرى.</string>
     <string name="share">شارك</string>
     <string name="share_extenders">مشاركة الموسّعات</string>
     <string name="share_extenders_hint">امسح هذا الرمز باستخدام تطبيق URnetwork آخر لمشاركة هذه الموسّعات.</string>
@@ -984,6 +986,7 @@
     <string name="sign_in_with_seedphrase">تسجيل الدخول بعبارة الاسترداد</string>
     <string name="sign_in_with_your_apple_id_to">سجّل الدخول باستخدام Apple ID الخاص بك لإضافته كطريقة لتسجيل الدخول.</string>
     <string name="sign_out">تسجيل الخروج</string>
+    <string name="signing_out">جارٍ تسجيل الخروج…</string>
     <string name="site_app_contracts">العقود</string>
     <string name="site_app_email">البريد الإلكتروني</string>
     <string name="site_app_phone">الهاتف</string>
