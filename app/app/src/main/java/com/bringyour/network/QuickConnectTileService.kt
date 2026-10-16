@@ -55,6 +55,14 @@ class QuickConnectTileService : TileService() {
     // the window and the tunnel, which decide whether the subtitle says connected
     private var statusSubs: List<Sub> = listOf()
     private var renderedStatus: com.bringyour.network.ui.connect.QuickConnectStatus? = null
+    // re-rendered only when what the subtitle says changes, with one check
+    // pending at a time: the window reports each provider's evaluation, a
+    // burst of reports while the shade is open
+    private val statusCheck = CoalescedPost(post = { mainHandler.post(it) }) {
+        if (QuickConnect.status(app) != renderedStatus) {
+            render()
+        }
+    }
 
     private val app: MainApplication
         get() = applicationContext as MainApplication
@@ -80,18 +88,9 @@ class QuickConnectTileService : TileService() {
             mainHandler.post { render() }
         }
         statusSubs.forEach { it.close() }
-        // re-rendered only when what the subtitle says changes: the window
-        // reports each provider's evaluation
-        val renderIfStatusChanged = {
-            mainHandler.post {
-                if (QuickConnect.status(app) != renderedStatus) {
-                    render()
-                }
-            }
-        }
         statusSubs = listOfNotNull(
-            app.device?.addWindowStatusChangeListener { renderIfStatusChanged() },
-            app.device?.addTunnelChangeListener { renderIfStatusChanged() },
+            app.device?.addWindowStatusChangeListener { statusCheck.request() },
+            app.device?.addTunnelChangeListener { statusCheck.request() },
         )
         render()
         // a tap decides on a fresh balance: fetch it while the shade is open
