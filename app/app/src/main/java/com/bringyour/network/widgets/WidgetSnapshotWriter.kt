@@ -92,6 +92,8 @@ class WidgetSnapshotWriter(
     private var providing = false
     private var provideMode = ""
     private var connectEnabled = false
+    // what the dashboard's title last said (QuickConnect.status)
+    private var dashboardStatus: com.bringyour.network.ui.connect.QuickConnectStatus? = null
     private var lastWritten: WidgetTunnelSnapshot? = null
     private var contractRefreshPending = false
     private var lastContractRefreshAt = 0L
@@ -214,6 +216,19 @@ class WidgetSnapshotWriter(
                 routineReload.request(urgent = true)
             }
         }
+        // the dashboard says connected only once the window holds its
+        // providers and the tunnel is up: follow both, re-rendering it when
+        // what it says changes
+        subs += device.addWindowStatusChangeListener {
+            handler.post {
+                if (this.device === device) dashboardStatusChanged()
+            }
+        }
+        subs += device.addTunnelChangeListener {
+            handler.post {
+                if (this.device === device) dashboardStatusChanged()
+            }
+        }
         subs += device.addConnectedProviderLocationChangeListener {
             handler.post {
                 if (this.device !== device) return@post
@@ -249,6 +264,15 @@ class WidgetSnapshotWriter(
         refresh.reloadAll()
         handler.postDelayed(writeTick, WRITE_INTERVAL_MILLIS)
         handler.postDelayed(balanceTick, BALANCE_INITIAL_DELAY_MILLIS)
+    }
+
+    /** The window or the tunnel changed: re-render the dashboard when its title's status changes. */
+    private fun dashboardStatusChanged() {
+        val app = context.applicationContext as? com.bringyour.network.MainApplication ?: return
+        val status = com.bringyour.network.QuickConnect.status(app)
+        if (status == dashboardStatus) return
+        dashboardStatus = status
+        refresh.reloadDashboard()
     }
 
     private fun detach() {

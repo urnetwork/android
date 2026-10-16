@@ -52,6 +52,9 @@ class QuickConnectTileService : TileService() {
 
     private val mainHandler = Handler(Looper.getMainLooper())
     private var connectSub: Sub? = null
+    // the window and the tunnel, which decide whether the subtitle says connected
+    private var statusSubs: List<Sub> = listOf()
+    private var renderedStatus: com.bringyour.network.ui.connect.QuickConnectStatus? = null
 
     private val app: MainApplication
         get() = applicationContext as MainApplication
@@ -76,6 +79,20 @@ class QuickConnectTileService : TileService() {
         connectSub = app.device?.addConnectChangeListener {
             mainHandler.post { render() }
         }
+        statusSubs.forEach { it.close() }
+        // re-rendered only when what the subtitle says changes: the window
+        // reports each provider's evaluation
+        val renderIfStatusChanged = {
+            mainHandler.post {
+                if (QuickConnect.status(app) != renderedStatus) {
+                    render()
+                }
+            }
+        }
+        statusSubs = listOfNotNull(
+            app.device?.addWindowStatusChangeListener { renderIfStatusChanged() },
+            app.device?.addTunnelChangeListener { renderIfStatusChanged() },
+        )
         render()
         // a tap decides on a fresh balance: fetch it while the shade is open
         // so the tap rarely has to wait for it
@@ -87,6 +104,8 @@ class QuickConnectTileService : TileService() {
     override fun onStopListening() {
         connectSub?.close()
         connectSub = null
+        statusSubs.forEach { it.close() }
+        statusSubs = listOf()
         super.onStopListening()
     }
 
@@ -113,15 +132,11 @@ class QuickConnectTileService : TileService() {
         tile.state = if (shown == com.bringyour.network.ui.connect.QuickConnectShown.OFF) Tile.STATE_INACTIVE else Tile.STATE_ACTIVE
         tile.icon = Icon.createWithResource(this, R.drawable.ic_tile_quick_on)
         tile.label = getString(R.string.app_name)
-        val subtitle = getString(
-            when {
-                !configured -> R.string.widget_not_signed_in
-                // the connect screen's and the notification's connecting line
-                shown == com.bringyour.network.ui.connect.QuickConnectShown.CONNECTING -> R.string.connecting_status_indicator
-                shown == com.bringyour.network.ui.connect.QuickConnectShown.ON -> R.string.tile_status_connected
-                else -> R.string.tile_status_disconnected
-            },
-        )
+        // connected only once it is, with the tunnel up; else the connect
+        // screen's connecting, couldn't connect or tunnel down line
+        val status = QuickConnect.status(app)
+        renderedStatus = status
+        val subtitle = getString(com.bringyour.network.ui.connect.quickConnectStatusText(status))
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             tile.subtitle = subtitle
         }
