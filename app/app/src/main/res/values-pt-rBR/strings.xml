@@ -400,6 +400,7 @@
     <string name="dns_pill_recommended">Há configurações recomendadas não aplicadas para %1$s</string>
     <string name="dns_recommendation_message">Sabe-se que as regras de segurança mais fortes não funcionam em %1$s. Existem configurações de DNS recomendadas, menos seguras, que funcionam melhor.</string>
     <string name="dns_restore_secure_message">Restaurar as configurações mais seguras: DNS sobre HTTPS criptografado através do túnel.</string>
+    <string name="dns_settings_save_failed">Não foi possível salvar as configurações de DNS. Tente novamente.</string>
     <string name="dns_settings_unavailable">Configurações de DNS indisponíveis</string>
     <string name="dns_using_recommended">Usando as configurações regionais recomendadas</string>
     <string name="dns_using_secure">Usando as configurações padrão mais seguras</string>
@@ -963,6 +964,7 @@
     <string name="settings_add_quick_tile_description">Conecte e desconecte pelo painel de Configurações rápidas e pela tela de bloqueio.</string>
     <string name="settings_add_widgets">Adicionar widgets à tela inicial</string>
     <string name="settings_add_widgets_description">Conexão rápida, saldo de dados, provedores no globo e seus principais contratos.</string>
+    <string name="settings_editor_changed">As configurações mudaram enquanto você editava. Revise-as e atualize novamente.</string>
     <string name="share">Compartilhar</string>
     <string name="share_extenders">Compartilhar extensores</string>
     <string name="share_extenders_hint">Escaneie este código com outro app da URnetwork para compartilhar estes extensores.</string>
@@ -984,6 +986,7 @@
     <string name="sign_in_with_seedphrase">Entrar com a frase-semente</string>
     <string name="sign_in_with_your_apple_id_to">Entre com seu Apple ID para adicioná-lo como método de login.</string>
     <string name="sign_out">Sair</string>
+    <string name="signing_out">Saindo…</string>
     <string name="site_app_contracts">Contratos</string>
     <string name="site_app_email">E-mail</string>
     <string name="site_app_phone">Telefone</string>

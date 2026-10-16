@@ -400,6 +400,7 @@
     <string name="dns_pill_recommended">%1$s के लिए अनुशंसित सेटिंग्स लागू नहीं हैं</string>
     <string name="dns_recommendation_message">%1$s में सबसे मज़बूत सुरक्षा नियम काम नहीं करते। कुछ कम सुरक्षित अनुशंसित DNS सेटिंग्स हैं जो बेहतर काम करती हैं।</string>
     <string name="dns_restore_secure_message">सबसे सुरक्षित सेटिंग्स बहाल करें: टनल के ज़रिए HTTPS पर एन्क्रिप्टेड DNS।</string>
+    <string name="dns_settings_save_failed">DNS सेटिंग्स सहेजी नहीं जा सकीं। दोबारा कोशिश करें।</string>
     <string name="dns_settings_unavailable">DNS सेटिंग्स उपलब्ध नहीं</string>
     <string name="dns_using_recommended">अनुशंसित क्षेत्रीय सेटिंग्स का उपयोग हो रहा है</string>
     <string name="dns_using_secure">सबसे सुरक्षित डिफ़ॉल्ट सेटिंग्स का उपयोग हो रहा है</string>
@@ -963,6 +964,7 @@
     <string name="settings_add_quick_tile_description">क्विक सेटिंग पैनल और लॉक स्क्रीन से कनेक्ट और डिस्कनेक्ट करें।</string>
     <string name="settings_add_widgets">होम स्क्रीन पर विजेट जोड़ें</string>
     <string name="settings_add_widgets_description">क्विक कनेक्ट, डेटा बैलेंस, ग्लोब पर प्रदाता और आपके शीर्ष कॉन्ट्रैक्ट।</string>
+    <string name="settings_editor_changed">संपादन के दौरान सेटिंग्स बदल गईं। उनकी समीक्षा करें और फिर से अपडेट करें।</string>
     <string name="share">शेयर करें</string>
     <string name="share_extenders">एक्सटेंडर शेयर करें</string>
     <string name="share_extenders_hint">ये एक्सटेंडर शेयर करने के लिए इस कोड को किसी दूसरे URnetwork ऐप से स्कैन करें।</string>
@@ -984,6 +986,7 @@
     <string name="sign_in_with_seedphrase">सीड फ़्रेज़ से साइन इन करें</string>
     <string name="sign_in_with_your_apple_id_to">अपने Apple ID से साइन इन करें और उसे साइन-इन विधि के रूप में जोड़ें।</string>
     <string name="sign_out">साइन आउट</string>
+    <string name="signing_out">साइन आउट हो रहा है…</string>
     <string name="site_app_contracts">कॉन्ट्रैक्ट</string>
     <string name="site_app_email">ईमेल</string>
     <string name="site_app_phone">फ़ोन</string>

@@ -106,10 +106,17 @@ class ConnectViewModelTest {
         var closed = false
         private var statusListener: (() -> Unit)? = null
 
+        // runs inside the next command, while the sdk holds it
+        var whileHeld: (() -> Unit)? = null
+
         private fun command(name: String, status: String) {
             if (closed) {
                 commands.add("refused $name")
                 return
+            }
+            whileHeld?.let {
+                whileHeld = null
+                it()
             }
             commands.add(name)
             connectionStatus = status
@@ -174,7 +181,13 @@ class ConnectViewModelTest {
     private class Harness {
         val gate = HeldGate()
         val queue = HeldQueue()
-        val commands = ConnectCommands(execute = queue::execute, postMain = { it.run() })
+        // the stall watchdog's posts, fired by the test
+        val delayed = mutableListOf<Runnable>()
+        val commands = ConnectCommands(
+            execute = queue::execute,
+            postMain = { it.run() },
+            postMainDelayed = { runnable, _ -> delayed.add(runnable) },
+        )
         private val lifecycleOwner: LifecycleOwner = object : LifecycleOwner {
             override val lifecycle: Lifecycle get() = registry
         }
@@ -498,6 +511,26 @@ class ConnectViewModelTest {
         harness.viewModel.disconnect()
 
         harness.queue.runAll()
+        assertEquals(listOf("disconnect"), controller.commands)
+        assertEquals(ConnectStatus.DISCONNECTED, harness.displayed)
+    }
+
+    @Test
+    fun aDisconnectHeldPastItsBoundShowsTheReportedStatusUntilItReturns() {
+        // the sdk holds the disconnect: past the bound the screen shows what
+        // the controller reports instead of the tap's state for as long as
+        // the sdk holds it, and the disconnect still reaches the sdk
+        val (harness, _, controller) = presentingWith("CONNECTED")
+        harness.viewModel.disconnect()
+        assertEquals(ConnectStatus.DISCONNECTED, harness.displayed)
+
+        var displayedWhileHeld: ConnectStatus? = null
+        controller.whileHeld = {
+            harness.delayed.toList().forEach { it.run() }
+            displayedWhileHeld = harness.displayed
+        }
+        harness.queue.runAll()
+        assertEquals(ConnectStatus.CONNECTED, displayedWhileHeld)
         assertEquals(listOf("disconnect"), controller.commands)
         assertEquals(ConnectStatus.DISCONNECTED, harness.displayed)
     }
