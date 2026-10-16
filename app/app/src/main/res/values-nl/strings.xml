@@ -400,7 +400,6 @@
     <string name="dns_pill_recommended">Er zijn niet-toegepaste aanbevolen instellingen voor %1$s</string>
     <string name="dns_recommendation_message">Het is bekend dat de strengste beveiligingsregels niet werken in %1$s. Er zijn minder veilige aanbevolen DNS-instellingen die beter werken.</string>
     <string name="dns_restore_secure_message">Herstel de veiligste instellingen: versleutelde DNS over HTTPS via de tunnel.</string>
-    <string name="dns_settings_save_failed">Kan de DNS-instellingen niet opslaan. Probeer het opnieuw.</string>
     <string name="dns_settings_unavailable">DNS-instellingen niet beschikbaar</string>
     <string name="dns_using_recommended">Aanbevolen regionale instellingen actief</string>
     <string name="dns_using_secure">Veiligste standaardinstellingen actief</string>
@@ -964,7 +963,6 @@
     <string name="settings_add_quick_tile_description">Verbind en verbreek de verbinding vanuit het paneel Snelle instellingen en het vergrendelscherm.</string>
     <string name="settings_add_widgets">Widgets aan startscherm toevoegen</string>
     <string name="settings_add_widgets_description">Snelverbinding, datategoed, providers op de wereldbol en je belangrijkste contracten.</string>
-    <string name="settings_editor_changed">De instellingen zijn gewijzigd terwijl je ze bewerkte. Controleer ze en werk ze opnieuw bij.</string>
     <string name="share">Delen</string>
     <string name="share_extenders">Extenders delen</string>
     <string name="share_extenders_hint">Scan deze code met een andere URnetwork-app om deze extenders te delen.</string>
@@ -986,7 +984,6 @@
     <string name="sign_in_with_seedphrase">Inloggen met seedphrase</string>
     <string name="sign_in_with_your_apple_id_to">Log in met je Apple ID om dit als inlogmethode toe te voegen.</string>
     <string name="sign_out">Log uit</string>
-    <string name="signing_out">Uitloggen…</string>
     <string name="site_app_contracts">Contracten</string>
     <string name="site_app_email">E-mail</string>
     <string name="site_app_phone">Telefoon</string>

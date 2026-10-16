@@ -400,7 +400,6 @@
     <string name="dns_pill_recommended">Kuna mipangilio inayopendekezwa ambayo haijatumika kwa %1$s</string>
     <string name="dns_recommendation_message">Inajulikana kuwa sheria kali zaidi za usalama hazifanyi kazi katika %1$s. Kuna mipangilio ya DNS inayopendekezwa, yenye usalama kidogo, inayofanya kazi vizuri zaidi.</string>
     <string name="dns_restore_secure_message">Rejesha mipangilio salama zaidi: DNS iliyosimbwa kupitia HTTPS ndani ya tuneli.</string>
-    <string name="dns_settings_save_failed">Imeshindwa kuhifadhi mipangilio ya DNS. Jaribu tena.</string>
     <string name="dns_settings_unavailable">Mipangilio ya DNS haipatikani</string>
     <string name="dns_using_recommended">Inatumia mipangilio ya eneo inayopendekezwa</string>
     <string name="dns_using_secure">Inatumia mipangilio chaguo-msingi salama zaidi</string>
@@ -964,7 +963,6 @@
     <string name="settings_add_quick_tile_description">Unganisha na utenganishe kutoka kwenye paneli ya Mipangilio ya Haraka na skrini iliyofungwa.</string>
     <string name="settings_add_widgets">Ongeza wijeti kwenye Skrini ya Kwanza</string>
     <string name="settings_add_widgets_description">Kuunganisha haraka, salio la data, watoa huduma kwenye tufe na mikataba yako mikuu.</string>
-    <string name="settings_editor_changed">Mipangilio ilibadilika ulipokuwa ukihariri. Ikague kisha usasishe tena.</string>
     <string name="share">Shiriki</string>
     <string name="share_extenders">Shiriki vipanuzi</string>
     <string name="share_extenders_hint">Changanua msimbo huu kwa programu nyingine ya URnetwork ili kushiriki vipanuzi hivi.</string>
@@ -986,7 +984,6 @@
     <string name="sign_in_with_seedphrase">Ingia kwa kifungu cha seed</string>
     <string name="sign_in_with_your_apple_id_to">Ingia kwa kutumia Apple ID yako ili kuiongeza kama njia ya kuingia.</string>
     <string name="sign_out">Toka</string>
-    <string name="signing_out">Inatoka…</string>
     <string name="site_app_contracts">Mikataba</string>
     <string name="site_app_email">Barua pepe</string>
     <string name="site_app_phone">Simu</string>

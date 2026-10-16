@@ -400,7 +400,6 @@
     <string name="dns_pill_recommended">%1$s에 대한 권장 설정이 적용되지 않았습니다</string>
     <string name="dns_recommendation_message">가장 강력한 보안 규칙은 %1$s에서 작동하지 않는 것으로 알려져 있습니다. 보안 수준은 낮지만 더 잘 작동하는 권장 DNS 설정이 있습니다.</string>
     <string name="dns_restore_secure_message">가장 안전한 설정으로 복원합니다: 터널을 통한 암호화된 DNS over HTTPS.</string>
-    <string name="dns_settings_save_failed">DNS 설정을 저장할 수 없습니다. 다시 시도하세요.</string>
     <string name="dns_settings_unavailable">DNS 설정을 사용할 수 없습니다</string>
     <string name="dns_using_recommended">지역 권장 설정 사용 중</string>
     <string name="dns_using_secure">가장 안전한 기본 설정 사용 중</string>
@@ -964,7 +963,6 @@
     <string name="settings_add_quick_tile_description">빠른 설정 패널과 잠금 화면에서 연결하고 연결을 끊습니다.</string>
     <string name="settings_add_widgets">홈 화면에 위젯 추가</string>
     <string name="settings_add_widgets_description">빠른 연결, 데이터 잔액, 지구본 위의 제공자, 주요 계약.</string>
-    <string name="settings_editor_changed">편집하는 동안 설정이 변경되었습니다. 확인한 후 다시 업데이트하세요.</string>
     <string name="share">공유</string>
     <string name="share_extenders">익스텐더 공유</string>
     <string name="share_extenders_hint">다른 URnetwork 앱으로 이 코드를 스캔하면 이 익스텐더들을 공유할 수 있습니다.</string>
@@ -986,7 +984,6 @@
     <string name="sign_in_with_seedphrase">시드 문구로 로그인</string>
     <string name="sign_in_with_your_apple_id_to">Apple ID로 로그인하여 로그인 방법으로 추가하세요.</string>
     <string name="sign_out">로그아웃</string>
-    <string name="signing_out">로그아웃하는 중…</string>
     <string name="site_app_contracts">계약</string>
     <string name="site_app_email">이메일</string>
     <string name="site_app_phone">전화번호</string>

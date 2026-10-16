@@ -400,7 +400,6 @@
     <string name="dns_pill_recommended">มีการตั้งค่าที่แนะนำสำหรับ %1$s ที่ยังไม่ถูกนำมาใช้</string>
     <string name="dns_recommendation_message">เป็นที่ทราบกันว่ากฎความปลอดภัยที่เข้มงวดที่สุดใช้งานไม่ได้ใน %1$s มีการตั้งค่า DNS ที่แนะนำซึ่งปลอดภัยน้อยกว่าแต่ใช้งานได้ดีกว่า</string>
     <string name="dns_restore_secure_message">คืนค่าการตั้งค่าที่ปลอดภัยที่สุด: DNS ที่เข้ารหัสผ่าน HTTPS ผ่านอุโมงค์</string>
-    <string name="dns_settings_save_failed">บันทึกการตั้งค่า DNS ไม่ได้ ลองอีกครั้ง</string>
     <string name="dns_settings_unavailable">ไม่สามารถตั้งค่า DNS ได้</string>
     <string name="dns_using_recommended">กำลังใช้การตั้งค่าที่แนะนำสำหรับภูมิภาค</string>
     <string name="dns_using_secure">กำลังใช้การตั้งค่าเริ่มต้นที่ปลอดภัยที่สุด</string>
@@ -964,7 +963,6 @@
     <string name="settings_add_quick_tile_description">เชื่อมต่อและตัดการเชื่อมต่อจากแผงการตั้งค่าด่วนและหน้าจอล็อก</string>
     <string name="settings_add_widgets">เพิ่มวิดเจ็ตบนหน้าจอโฮม</string>
     <string name="settings_add_widgets_description">เชื่อมต่อด่วน ยอดข้อมูลคงเหลือ ผู้ให้บริการบนลูกโลก และสัญญาหลักของคุณ</string>
-    <string name="settings_editor_changed">การตั้งค่าเปลี่ยนไประหว่างที่คุณแก้ไข ตรวจสอบแล้วอัพเดตอีกครั้ง</string>
     <string name="share">แชร์</string>
     <string name="share_extenders">แชร์ตัวขยาย</string>
     <string name="share_extenders_hint">สแกนรหัสนี้ด้วยแอป URnetwork อื่นเพื่อแชร์ตัวขยายเหล่านี้</string>
@@ -986,7 +984,6 @@
     <string name="sign_in_with_seedphrase">ลงชื่อเข้าใช้ด้วยวลีกู้คืน</string>
     <string name="sign_in_with_your_apple_id_to">ลงชื่อเข้าใช้ด้วย Apple ID ของคุณเพื่อเพิ่มเป็นวิธีลงชื่อเข้าใช้</string>
     <string name="sign_out">ออกจากระบบ</string>
-    <string name="signing_out">กำลังออกจากระบบ…</string>
     <string name="site_app_contracts">สัญญา</string>
     <string name="site_app_email">อีเมล</string>
     <string name="site_app_phone">โทรศัพท์</string>

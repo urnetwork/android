@@ -400,7 +400,6 @@
     <string name="dns_pill_recommended">有针对 %1$s 的未应用推荐设置</string>
     <string name="dns_recommendation_message">已知最严格的安全规则在%1$s无法正常工作。可改用推荐的 DNS 设置，安全性稍低但更好用。</string>
     <string name="dns_restore_secure_message">恢复最安全的设置：通过隧道使用加密的 DNS over HTTPS。</string>
-    <string name="dns_settings_save_failed">无法保存 DNS 设置。请重试。</string>
     <string name="dns_settings_unavailable">DNS 设置不可用</string>
     <string name="dns_using_recommended">正在使用推荐的地区设置</string>
     <string name="dns_using_secure">正在使用最安全的默认设置</string>
@@ -964,7 +963,6 @@
     <string name="settings_add_quick_tile_description">从快捷设置面板和锁定屏幕连接或断开连接。</string>
     <string name="settings_add_widgets">添加主屏幕小组件</string>
     <string name="settings_add_widgets_description">快速连接、流量余额、地球上的提供商以及您的主要合约。</string>
-    <string name="settings_editor_changed">编辑期间设置已更改。请检查后再次更新。</string>
     <string name="share">分享</string>
     <string name="share_extenders">分享扩展器</string>
     <string name="share_extenders_hint">使用另一个 URnetwork 应用扫描此代码，即可分享这些扩展器。</string>
@@ -986,7 +984,6 @@
     <string name="sign_in_with_seedphrase">使用助记词登录</string>
     <string name="sign_in_with_your_apple_id_to">使用你的 Apple ID 登录，将其添加为登录方式。</string>
     <string name="sign_out">退出登录</string>
-    <string name="signing_out">正在退出登录…</string>
     <string name="site_app_contracts">合约</string>
     <string name="site_app_email">电子邮箱</string>
     <string name="site_app_phone">电话</string>

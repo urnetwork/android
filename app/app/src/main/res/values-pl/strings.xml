@@ -400,7 +400,6 @@
     <string name="dns_pill_recommended">Istnieją niezastosowane zalecane ustawienia dla %1$s</string>
     <string name="dns_recommendation_message">Najsilniejsze reguły bezpieczeństwa nie działają w %1$s. Istnieją mniej bezpieczne, zalecane ustawienia DNS, które sprawdzają się lepiej.</string>
     <string name="dns_restore_secure_message">Przywróć najbezpieczniejsze ustawienia: szyfrowany DNS przez HTTPS w tunelu.</string>
-    <string name="dns_settings_save_failed">Nie udało się zapisać ustawień DNS. Spróbuj ponownie.</string>
     <string name="dns_settings_unavailable">Ustawienia DNS niedostępne</string>
     <string name="dns_using_recommended">Używasz zalecanych ustawień regionalnych</string>
     <string name="dns_using_secure">Używasz najbezpieczniejszych ustawień domyślnych</string>
@@ -964,7 +963,6 @@
     <string name="settings_add_quick_tile_description">Łącz się i rozłączaj z panelu Szybkich ustawień i ekranu blokady.</string>
     <string name="settings_add_widgets">Dodaj widżety do ekranu głównego</string>
     <string name="settings_add_widgets_description">Szybkie połączenie, saldo danych, dostawcy na globusie i twoje główne kontrakty.</string>
-    <string name="settings_editor_changed">Ustawienia zmieniły się podczas edycji. Sprawdź je i zaktualizuj ponownie.</string>
     <string name="share">Udostępnij</string>
     <string name="share_extenders">Udostępnij extendery</string>
     <string name="share_extenders_hint">Zeskanuj ten kod inną aplikacją URnetwork, aby udostępnić te extendery.</string>
@@ -986,7 +984,6 @@
     <string name="sign_in_with_seedphrase">Zaloguj się frazą seed</string>
     <string name="sign_in_with_your_apple_id_to">Zaloguj się za pomocą Apple ID, aby dodać tę metodę logowania.</string>
     <string name="sign_out">Wyloguj</string>
-    <string name="signing_out">Wylogowywanie…</string>
     <string name="site_app_contracts">Kontrakty</string>
     <string name="site_app_email">E-mail</string>
     <string name="site_app_phone">Telefon</string>

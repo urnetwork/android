@@ -400,7 +400,6 @@
     <string name="dns_pill_recommended">%1$s: есть неприменённые рекомендуемые настройки</string>
     <string name="dns_recommendation_message">%1$s: известно, что здесь самые строгие правила безопасности не работают. Есть менее безопасные рекомендуемые настройки DNS, которые работают лучше.</string>
     <string name="dns_restore_secure_message">Восстановите самые безопасные настройки: шифрованный DNS через HTTPS в туннеле.</string>
-    <string name="dns_settings_save_failed">Не удалось сохранить настройки DNS. Повторите попытку.</string>
     <string name="dns_settings_unavailable">Настройки DNS недоступны</string>
     <string name="dns_using_recommended">Используются рекомендованные региональные настройки</string>
     <string name="dns_using_secure">Используются самые безопасные настройки по умолчанию</string>
@@ -964,7 +963,6 @@
     <string name="settings_add_quick_tile_description">Подключайтесь и отключайтесь с панели быстрых настроек и экрана блокировки.</string>
     <string name="settings_add_widgets">Добавить виджеты на главный экран</string>
     <string name="settings_add_widgets_description">Быстрое подключение, баланс трафика, провайдеры на глобусе и ваши главные контракты.</string>
-    <string name="settings_editor_changed">Настройки изменились, пока вы их редактировали. Проверьте их и обновите ещё раз.</string>
     <string name="share">Поделиться</string>
     <string name="share_extenders">Поделиться экстендерами</string>
     <string name="share_extenders_hint">Отсканируйте этот код в другом приложении URnetwork, чтобы передать эти экстендеры.</string>
@@ -986,7 +984,6 @@
     <string name="sign_in_with_seedphrase">Войти по сид-фразе</string>
     <string name="sign_in_with_your_apple_id_to">Войдите с помощью Apple ID, чтобы добавить этот способ входа.</string>
     <string name="sign_out">Выйти</string>
-    <string name="signing_out">Выход…</string>
     <string name="site_app_contracts">Контракты</string>
     <string name="site_app_email">Email</string>
     <string name="site_app_phone">Телефон</string>
