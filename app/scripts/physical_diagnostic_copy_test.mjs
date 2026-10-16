@@ -20,7 +20,10 @@ function fixture(t, verb = "owner-census") {
     serialHash: createHash("sha256").update(options.serial).digest("hex"), initial,
     status: { ...initial, commandId: wire.commandId, state: "complete", phase: `${verb}-${wire.label}`, elapsedMs: 200 } };
   writeFileSync(options.receipt, JSON.stringify(receipt), { mode: 0o600 });
-  const f = { directory, options, receipt, calls: 0, payload: Buffer.from([0, 1, 255, 97, 10]),
+  const f = { directory, options, receipt, calls: 0, payload: Buffer.concat([
+    Buffer.from([0, 1, 255, 97, 13, 10]),
+    Buffer.from("0+1 records in\r\n0+1 records out\r\n6 bytes transferred in 0.001 secs (6000 bytes/sec)\r\n"),
+  ]),
     run(adb = (_args, fd) => { writeFileSync(fd, f.payload); return { status: 0 }; }) {
       return copyDiagnosticArtifact(options, { adb: (args, fd) => { f.calls++; return adb(args, fd); } });
     },
@@ -38,17 +41,37 @@ for (const verb of ["owner-census", "heap-profile", "goroutine-stacks"]) {
     const previous = process.umask(0);
     try {
       const report = f.run((args, fd) => {
-        assert.deepEqual(args, ["-s", "fake-device", "exec-out", "run-as", "com.bringyour.network", "cat", `files/acceptance/${f.receipt.wire.artifactName}`]);
+        assert.deepEqual(args, ["-s", "fake-device", "shell", "-T", "run-as", "com.bringyour.network", "cat", `files/acceptance/${f.receipt.wire.artifactName}`]);
         assert.equal(fstatSync(fd).mode & 0o7777, 0o600, "private before receiving the first raw byte");
         // Real child stdout streams to the fd, not a host JS string or tool log.
-        return spawnSync(process.execPath, ["-e", "process.stdout.write(Buffer.from([0,1,255,97,10]))"],
+        return spawnSync(process.execPath, ["-e", "process.stdout.write(Buffer.from(process.argv[1], 'base64'))", f.payload.toString("base64")],
           { stdio: ["ignore", fd, "pipe"], timeout: 5000 });
       });
       assert.deepEqual(readFileSync(f.options.output), f.payload);
       assert.equal(statSync(f.options.output).mode & 0o7777, 0o600);
-      assert.deepEqual(report, { type: "physical-diagnostic-copy", schema: 1, copied: true, verb, bytes: 5, mode: "600" });
+      assert.deepEqual(report, { type: "physical-diagnostic-copy", schema: 1, copied: true, verb, bytes: f.payload.length, mode: "600" });
       assert.equal(readdirSync(f.directory).some(name => name.includes(".pending-")), false);
     } finally { process.umask(previous); }
+  });
+}
+
+for (const verb of ["owner-census", "heap-profile", "goroutine-stacks", "ioloop-clock"]) {
+  test(`${verb} remote cat failure cannot publish error text as an artifact`, (t) => {
+    const f = fixture(t, verb);
+    const remoteError = Buffer.from(`cat: files/acceptance/${f.receipt.wire.artifactName}: No such file or directory\n`);
+    assert.throws(() => f.run((args, fd) => {
+      const command = ["run-as", "com.bringyour.network", "cat", `files/acceptance/${f.receipt.wire.artifactName}`];
+      if (args[2] === "exec-out") {
+        assert.deepEqual(args, ["-s", f.options.serial, "exec-out", ...command]);
+        // Legacy transport merges remote stderr into stdout and masks failure.
+        writeFileSync(fd, remoteError);
+        return { status: 0, stderr: Buffer.alloc(0) };
+      }
+      assert.deepEqual(args, ["-s", f.options.serial, "shell", "-T", ...command]);
+      return { status: 1, stderr: remoteError };
+    }), /^Error: diagnostic-copy-failed$/);
+    assert.equal(f.calls, 1);
+    f.noOutput();
   });
 }
 

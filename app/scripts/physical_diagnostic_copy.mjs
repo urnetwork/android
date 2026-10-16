@@ -65,9 +65,11 @@ export function copyDiagnosticArtifact(options, dependencies = {}) {
   const original = fstatSync(descriptor);
   try {
     requireArtifactPaths(binding, [options.receipt, options.output, temporary]);
+    // Non-pty shell preserves raw stdout, remote exit status and separate stderr;
+    // exec-out can report a failed remote cat as successful artifact bytes.
     const result = (dependencies.adb ?? ((args, fd) => spawnSync("adb", args,
       { stdio: ["ignore", fd, "pipe"], timeout: 10_000, maxBuffer: 4096 })))([
-      "-s", options.serial, "exec-out", "run-as", "com.bringyour.network", "cat",
+      "-s", options.serial, "shell", "-T", "run-as", "com.bringyour.network", "cat",
       `files/acceptance/${wire.artifactName}`,
     ], descriptor);
     if (result?.status !== 0 || result.error || result.signal) fail("diagnostic-copy-failed");
