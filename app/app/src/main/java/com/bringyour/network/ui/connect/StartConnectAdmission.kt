@@ -1,80 +1,49 @@
 package com.bringyour.network.ui.connect
 
-import com.bringyour.network.ui.shared.models.ConnectStatus
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-
 /**
- * A start connect, from the tap to the sdk's connect, and the status shown
- * meanwhile: the connect screen's, and the quick connect surfaces'
- * ([QuickStartConnect]).
+ * A start connect waiting on the start connect gate ([check]), from the tap
+ * to the sdk's connect: the app's one wait, shared by every surface
+ * (StartConnect).
  *
- * The start connect gate ([checkStartConnect]) may first fetch a fresh
- * account balance, for up to [START_CONNECT_BALANCE_FETCH_TIMEOUT_MILLIS],
- * and the screen showed nothing until it answered (owner report 2026-10-16:
- * the view should change to the connecting state as soon as connect is
- * tapped). While the gate decides, [displayStatus] is
- * [ConnectStatus.DESTINATION_SET], the sdk's own first status for a connect,
- * and the sdk's reports are kept but not shown. A refused start goes back to
- * the reported status before the upgrade screen opens. An admitted one
- * starts the connect, and the sdk's statuses for it follow, so the screen
- * never steps back to disconnected in between. A decision made at once shows
- * no pending state.
+ * The gate may first fetch a fresh account balance, for up to
+ * [START_CONNECT_BALANCE_FETCH_TIMEOUT_MILLIS], and the surfaces showed
+ * nothing until it answered (owner report 2026-10-16: the view should change
+ * to the connecting state as soon as connect is tapped). While the gate
+ * decides, [waiting] is true and the surfaces show connecting (the connect
+ * screen's ConnectStatusDisplay, the quick connect surfaces'
+ * quickConnectShown). A refused start ends the wait before `refused` runs, so
+ * the surfaces show what they did before the upgrade screen opens. An
+ * admitted one runs `start` (its connect command, which the surfaces show as
+ * pending) before the wait ends, so they never step back to disconnected in
+ * between. A decision made at once never shows as waiting.
  *
  * Only the display changes: the gate decides as before, and the readers of
  * the reported status (the out-of-balance notice, the balance recovery) do
  * not see a start waiting on its balance as a requested connection. A tap
- * while a start waits does not stack, and [cancel] (the user's disconnect, a
- * device change) ends it without connecting. Main thread only; [waiting]
- * may be read from any thread.
- *
- * Once admitted, the connect waits on the connect command queue
- * ([ConnectCommands]) with the commands made before it, and the status of the
- * newest command not yet run ([commandPending]) stands in for the reported
- * one, so a report from before the tap cannot flip the view back.
+ * while a start waits does not stack, and [cancel] (a disconnect anywhere, a
+ * device change, a sign out) ends it without connecting. Main thread only;
+ * [waiting] may be read from any thread.
  */
 internal class StartConnectAdmission(
     /** The gate: calls back once, at once or after a fetch, with whether the start is refused. */
     private val check: (onResult: (blocked: Boolean) -> Unit) -> Unit,
-    /** Runs on each change of [displayStatus], a refused start's before `refused`. */
-    private val displayChanged: () -> Unit = {},
+    /** Runs on each change of [waiting] the surfaces were told of, a refused start's before `refused`. */
+    private val changed: () -> Unit = {},
 ) {
-    private val status = MutableStateFlow(ConnectStatus.DISCONNECTED)
-
-    /** What the connect screen shows. */
-    val displayStatus: StateFlow<ConnectStatus> = status
-
-    private var reportedStatus = ConnectStatus.DISCONNECTED
-    // the newest queued command's own first status, until the queue has run it
-    private var pendingStatus: ConnectStatus? = null
     // bumped by each start and cancel, so a superseded decision is dropped
     private var generation = 0L
+    // the surfaces were told the start waits: a decision at once never is
+    private var shown = false
 
     /** A start waits on the gate. */
     @Volatile
     var waiting = false
         private set
 
-    /** The sdk's status. */
-    fun reported(status: ConnectStatus) {
-        reportedStatus = status
-        publish()
-    }
-
-    /**
-     * The status of the newest connect command still queued: the sdk
-     * controller's own first status for it (DESTINATION_SET for a connect,
-     * DISCONNECTED for a disconnect), or null once the queue has run them all.
-     */
-    fun commandPending(status: ConnectStatus?) {
-        pendingStatus = status
-        publish()
-    }
-
     /**
      * Starts a connect through the gate: `start` runs once it is admitted
-     * (the sdk's connect, which reports its own status), `refused` once it
-     * is refused, after the display went back to the reported status.
+     * (the sdk's connect), `refused` once it is refused, after the wait
+     * ended. Nothing while a start waits.
      */
     fun connect(start: () -> Unit, refused: () -> Unit) {
         if (waiting) {
@@ -87,16 +56,19 @@ internal class StartConnectAdmission(
             if (startGeneration == generation && waiting) {
                 waiting = false
                 if (blocked) {
-                    publish()
+                    ended()
                     refused()
                 } else {
                     start()
-                    publish()
+                    ended()
                 }
             }
         }
         // still waiting: the gate is fetching the balance
-        publish()
+        if (waiting && startGeneration == generation) {
+            shown = true
+            changed()
+        }
     }
 
     /** Ends a start waiting on its balance: it never connects. */
@@ -104,15 +76,15 @@ internal class StartConnectAdmission(
         if (waiting) {
             generation += 1
             waiting = false
-            publish()
+            ended()
         }
     }
 
-    private fun publish() {
-        val next = if (waiting) ConnectStatus.DESTINATION_SET else pendingStatus ?: reportedStatus
-        if (status.value != next) {
-            status.value = next
-            displayChanged()
+    // the wait ended: tell the surfaces, if they were told it began
+    private fun ended() {
+        if (shown) {
+            shown = false
+            changed()
         }
     }
 }
