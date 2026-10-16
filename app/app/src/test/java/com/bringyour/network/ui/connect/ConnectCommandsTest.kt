@@ -106,6 +106,53 @@ class ConnectCommandsTest {
     }
 
     @Test
+    fun aSignOutRefusesItsDevicesConnects() {
+        val queue = HeldQueue()
+        val commands = ConnectCommands(execute = queue::execute, postMain = { it.run() })
+        val device = Any()
+        commands.signOutStarted(device)
+
+        var ran = false
+        assertEquals(false, commands.run(device, connect = true) { ran = true })
+        assertNull(commands.pending(device))
+        queue.runAll()
+        assertEquals(false, ran)
+    }
+
+    @Test
+    fun aSignOutSkipsItsQueuedConnectsAndRunsItsDisconnects() {
+        // a connect tapped while the queue was busy, then the sign out: the
+        // connect never reaches the sdk, a disconnect after it still does
+        val queue = HeldQueue()
+        val commands = ConnectCommands(execute = queue::execute, postMain = { it.run() })
+        val device = Any()
+        val ran = mutableListOf<String>()
+        commands.run(device, connect = true) { ran.add("connect") }
+        commands.run(device, connect = false) { ran.add("disconnect") }
+        commands.signOutStarted(device)
+        assertEquals(true, commands.run(device, connect = false) { ran.add("sign out's disconnect") })
+
+        queue.runAll()
+        assertEquals(listOf("disconnect", "sign out's disconnect"), ran)
+        assertNull(commands.pending(device))
+    }
+
+    @Test
+    fun theFenceEndsWithItsDevice() {
+        // the next sign-in's device connects at once
+        val queue = HeldQueue()
+        val commands = ConnectCommands(execute = queue::execute, postMain = { it.run() })
+        val signedOut = Any()
+        val next = Any()
+        commands.signOutStarted(signedOut)
+
+        val ran = mutableListOf<String>()
+        assertEquals(true, commands.run(next, connect = true) { ran.add("next connect") })
+        queue.runAll()
+        assertEquals(listOf("next connect"), ran)
+    }
+
+    @Test
     fun aFailingCommandStillFinishes() {
         val queue = HeldQueue()
         val failures = mutableListOf<Throwable>()

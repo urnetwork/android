@@ -126,6 +126,11 @@ class DeviceManager @Inject constructor(
     // device signed this session out, else "".
     var onAuthLogout: ((cause: String) -> Unit)? = null
 
+    // set by the application; fired on the sdk's thread as the sdk's logout
+    // begins, before onAuthLogout, with the device it signs out: from here no
+    // connect is admitted on it (ConnectCommands.signOutStarted)
+    var onLogoutStarted: ((device: DeviceLocal) -> Unit)? = null
+
     @Volatile var device: DeviceLocal? = null
         private set
 
@@ -516,6 +521,8 @@ class DeviceManager @Inject constructor(
                     }
 
                     authLogoutSub = newDevice.addAuthLogoutListener {
+                        // no connect is admitted on the device from here
+                        onLogoutStarted?.invoke(newDevice)
                         // read here, on the sdk's thread, before the app posts
                         // its logout: the device sets the cause before it
                         // notifies its listeners

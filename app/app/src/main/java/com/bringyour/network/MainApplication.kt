@@ -2263,6 +2263,9 @@ class MainApplication : Application() {
     }
 
     private fun logoutInternal() {
+        // from here no connect is admitted on the signed-out device, and its
+        // connects still queued never run; its disconnects still do
+        device?.let { connectCommands.signOutStarted(it) }
         stop()
         widgetSnapshotWriter?.clear()
         // a connect the signed-out account asked for must not start later
@@ -2350,6 +2353,11 @@ class MainApplication : Application() {
         // to the login flow. The device's cause, read in its listener, says
         // whether the sign-in screen tells the user that another device
         // signed this session out; any other cause says nothing new
+        // the sdk's logout begins: no connect of the signed-out device is
+        // admitted from here, before the logout below is posted
+        deviceManager.onLogoutStarted = { signedOutDevice ->
+            connectCommands.signOutStarted(signedOutDevice)
+        }
         deviceManager.onAuthLogout = { cause ->
             Handler(mainLooper).post {
                 loginStartupTracker.authLoggedOut()

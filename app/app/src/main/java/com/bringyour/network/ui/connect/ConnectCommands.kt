@@ -17,15 +17,23 @@ package com.bringyour.network.ui.connect
  * for the same reason (ConnectViewModel.runConnectCommand).
  *
  * A command runs against the device it was made on, never the device current
- * when it runs. Until the last command made on a device has run, [pending]
+ * when it runs. From the moment a sign out starts for a device
+ * ([signOutStarted]: the app's own, the server's or the account deletion's),
+ * no connect is admitted on it, from a tap, a waiting start, the balance
+ * recovery or Always-on, and its connects still queued never run, while its
+ * disconnects still do: the network space's local state outlives the sign
+ * out, and a late connect's writes would reconnect the next sign-in. The
+ * fence ends with that device, so the next sign-in's device admits its
+ * connects at once. Until the last command made on a device has run, [pending]
  * says what the newest of them asks for, so a surface shows the tap's state
  * from the tap and a report from before it cannot flip the view back; the
  * listeners hear each change on the main thread, and a surface reads the
  * sdk's status again once nothing is pending.
  *
  * [run] and [afterCommands] are called on the main thread; [pending] may be
- * read from any thread (the widgets render off the main thread). Commands
- * run on the queue's thread, one at a time.
+ * read and [signOutStarted] called from any thread (the widgets render off
+ * the main thread, the server's sign out reports on the sdk's). Commands run
+ * on the queue's thread, one at a time.
  */
 internal class ConnectCommands(
     /** Runs work off the main thread, one at a time, in order: a single thread executor in the app. */
@@ -40,6 +48,10 @@ internal class ConnectCommands(
     private val stateLock = Any()
     // guarded by stateLock: the commands made and not yet finished, oldest first
     private val pendings = mutableListOf<Pending>()
+    // guarded by stateLock: the devices a sign out started for, by identity
+    // (a gomobile proxy's equals is not identity), weak so they go with
+    // their devices
+    private val signedOutDevices = mutableListOf<java.lang.ref.WeakReference<Any>>()
     // main thread
     private val listeners = mutableListOf<() -> Unit>()
 
@@ -61,12 +73,34 @@ internal class ConnectCommands(
     }
 
     /**
+     * A sign out started for `device` (its identity): no connect is admitted
+     * on it from here, and its connects already queued are skipped.
+     */
+    fun signOutStarted(device: Any) {
+        synchronized(stateLock) {
+            signedOutDevices.removeAll { it.get() == null }
+            if (signedOutDevices.none { it.get() === device }) {
+                signedOutDevices.add(java.lang.ref.WeakReference(device))
+            }
+        }
+    }
+
+    private fun signedOut(device: Any): Boolean = synchronized(stateLock) {
+        signedOutDevices.any { it.get() === device }
+    }
+
+    /**
      * Queues `command`, a connect (`connect`) or a disconnect on `device` (the
      * sdk device's identity, see ConnectDevice.identity), and shows it as
      * pending until it has run. The command runs on the queue's thread, after
-     * the commands made before it. True when it is queued.
+     * the commands made before it, unless it is a connect of a device a sign
+     * out started for by then. True when it is queued; a connect of a device
+     * signed out is refused.
      */
     fun run(device: Any, connect: Boolean, command: () -> Unit): Boolean {
+        if (connect && signedOut(device)) {
+            return false
+        }
         val pending = Pending(device, connect)
         synchronized(stateLock) {
             pendings.add(pending)
@@ -74,7 +108,10 @@ internal class ConnectCommands(
         changed()
         execute(Runnable {
             try {
-                command()
+                // a disconnect always runs
+                if (!connect || !signedOut(device)) {
+                    command()
+                }
             } catch (e: Exception) {
                 onFailure(e)
             } finally {

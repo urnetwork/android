@@ -474,6 +474,35 @@ class ConnectViewModelTest {
     }
 
     @Test
+    fun aStartAdmittedAfterASignOutStartedNeverConnects() {
+        // the server signs the device out while its start waits on the
+        // balance: the gate's later admit is refused, and the screen goes
+        // back to what the sdk reports
+        val (harness, device, controller) = presenting()
+        harness.viewModel.connect(null)
+        harness.commands.signOutStarted(device.identity)
+
+        harness.gate.decide(blocked = false)
+        assertEquals(0, harness.queue.size)
+        assertEquals(ConnectStatus.DISCONNECTED, harness.displayed)
+        harness.queue.runAll()
+        assertEquals(emptyList<String>(), controller.commands)
+    }
+
+    @Test
+    fun aConnectQueuedBeforeASignOutNeverRunsButADisconnectDoes() {
+        val (harness, device, controller) = presenting()
+        harness.viewModel.connect(null)
+        harness.gate.decide(blocked = false)
+        harness.commands.signOutStarted(device.identity)
+        harness.viewModel.disconnect()
+
+        harness.queue.runAll()
+        assertEquals(listOf("disconnect"), controller.commands)
+        assertEquals(ConnectStatus.DISCONNECTED, harness.displayed)
+    }
+
+    @Test
     fun deviceChangeDropsThePreviousDevicesCommandsFromTheStatus() {
         // a sign out with the previous account's connect still queued: the
         // next account's screen does not show it, while it still runs
