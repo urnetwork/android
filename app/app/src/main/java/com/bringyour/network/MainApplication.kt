@@ -451,7 +451,8 @@ class MainApplication : Application() {
      * fresh account balance, not Supporter, no balance poll. A cached balance
      * older than START_CONNECT_BALANCE_MAX_AGE_MILLIS is fetched again first
      * (bounded by START_CONNECT_BALANCE_FETCH_TIMEOUT_MILLIS; a failed fetch
-     * does not block). onResult runs on the main thread, once.
+     * does not block), unless the plan or a poll already decides it.
+     * onResult runs on the main thread, once.
      */
     fun checkStartConnect(onResult: (blocked: Boolean) -> Unit) {
         com.bringyour.network.ui.connect.checkStartConnect(

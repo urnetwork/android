@@ -122,7 +122,8 @@ fun ConnectScreen(
 ) {
 
     val connectStatus by connectViewModel.connectStatus.collectAsState()
-    // what the connect controls show (StartConnectAdmission)
+    // what the connect controls show: connecting from the tap, also while a
+    // start waits on its balance (StartConnectAdmission)
     val displayConnectStatus by connectViewModel.displayConnectStatus.collectAsState()
     val contractStatus by connectViewModel.contractStatus.collectAsState()
 
@@ -152,6 +153,8 @@ fun ConnectScreen(
             (screenContext.applicationContext as? MainApplication)?.refreshStartConnectBalanceIfStale()
         }
     }
+    // a start waiting on its balance shows connecting, not the account
+    // balance's upgrade; the gate refuses it if the fetched balance is out
     val displayInsufficientBalance = com.bringyour.network.ui.connect.displayInsufficientBalance(
         contractInsufficientBalance = contractStatus?.insufficientBalance == true,
         accountBalanceExhausted = balanceExhausted,

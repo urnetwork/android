@@ -239,8 +239,8 @@ constructor(
         shuffledSuccessPoints.addAll(successPoints.shuffled())
     }
 
-    // the start connect gate for the connect screen, and the status the
-    // screen shows
+    // the start connect gate for the connect screen, and the connecting
+    // state it shows while the gate fetches the balance
     private val startConnectAdmission = StartConnectAdmission { onResult ->
         val app = appContext as? com.bringyour.network.MainApplication
         if (app == null) {
@@ -250,7 +250,10 @@ constructor(
         }
     }
 
-    /** What the connect screen shows (StartConnectAdmission). */
+    /**
+     * What the connect screen shows: the connecting state while a start waits
+     * on its balance, else [connectStatus] (StartConnectAdmission).
+     */
     val displayConnectStatus: StateFlow<ConnectStatus> = startConnectAdmission.displayStatus
 
     /**
@@ -259,7 +262,7 @@ constructor(
      * upgrade screen instead of starting the tunnel, and the connect waits on
      * the balance to be retried by itself (MainApplication.startConnectBlocked).
      * The gate may first fetch a fresh account balance, so the connect starts
-     * from its callback.
+     * from its callback, and the screen shows the connecting state meanwhile.
      */
     val connect: (ConnectLocation?) -> Unit = { location ->
         val app = appContext as? com.bringyour.network.MainApplication
@@ -272,6 +275,9 @@ constructor(
                 } else {
                     connectVc?.connectBestAvailable()
                 }
+                // the controller has the connect's status now, whichever
+                // thread its listener reports on
+                updateConnectionStatus()
             },
             refused = {
                 Log.i(TAG, "[connect]blocked: insufficient balance")
@@ -503,8 +509,10 @@ constructor(
     }
 
     val disconnect: () -> Unit = {
-        // the user's disconnect: nothing is reconnected by itself after it
+        // the user's disconnect: nothing is reconnected by itself after it,
+        // and a start still waiting on its balance does not connect
         (appContext as? com.bringyour.network.MainApplication)?.clearBalanceRecovery()
+        startConnectAdmission.cancel()
         connectVc?.disconnect()
     }
 
@@ -590,6 +598,8 @@ constructor(
         displayReconnectTunnel = false
         _contractStatus.value = null
         resetConnectFailureMonitor()
+        // a start waiting on its balance belonged to the previous device
+        startConnectAdmission.cancel()
         if (device == null) {
             _connectStatus.value = ConnectStatus.DISCONNECTED
             startConnectAdmission.reported(ConnectStatus.DISCONNECTED)

@@ -122,8 +122,13 @@ internal fun startConnectBalance(
  * The start connect gate over its inputs: `onResult` gets once whether the
  * start is refused. Whether the plan is known to be Supporter (the ui's or
  * the jwt's), whether a balance poll runs, and the contract status are read
- * when it decides, on the account balance ([startConnectBalance]); a fetched
- * balance can show Pro.
+ * when it decides.
+ *
+ * A known Supporter plan and a running poll are never refused, so they
+ * decide at once, without fetching the balance: the fetch kept a connect tap
+ * waiting for up to [START_CONNECT_BALANCE_FETCH_TIMEOUT_MILLIS] (owner
+ * report 2026-10-16). Otherwise the account balance decides
+ * ([startConnectBalance]), and a fetched balance can still show Pro.
  */
 internal fun checkStartConnect(
     isProKnown: () -> Boolean,
@@ -134,6 +139,10 @@ internal fun checkStartConnect(
     fetch: (onBalance: (WidgetBalanceSnapshot?) -> Unit) -> Unit,
     onResult: (blocked: Boolean) -> Unit,
 ) {
+    if (isProKnown() || isPollingSubscriptionBalance()) {
+        onResult(false)
+        return
+    }
     startConnectBalance(cached, nowMillis, fetch) { balance ->
         onResult(
             startConnectBlocked(
