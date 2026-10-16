@@ -93,6 +93,8 @@ internal constructor(
 
     private var connectVc: ConnectController? = null
     private var viewControllerDevice: ConnectDevice? = null
+    // the device last published, also while no controller is presented
+    private var currentDevice: ConnectDevice? = null
 
     private val subs = mutableListOf<Sub>()
     private var removeDeviceChangeListener: (() -> Unit)? = null
@@ -297,10 +299,14 @@ internal constructor(
             start = {
                 // this connect replaces one still waiting on the balance
                 app?.clearBalanceRecovery()
-                if (location != null) {
-                    connectVc?.connect(location)
-                } else {
-                    connectVc?.connectBestAvailable()
+                // the app may have gone to the background while the gate
+                // fetched the balance: the connect still reaches the sdk
+                onConnectController { vc ->
+                    if (location != null) {
+                        vc.connect(location)
+                    } else {
+                        vc.connectBestAvailable()
+                    }
                 }
                 // the controller has the connect's status now, whichever
                 // thread its listener reports on
@@ -540,7 +546,31 @@ internal constructor(
         // and a start still waiting on its balance does not connect
         (appContext as? com.bringyour.network.MainApplication)?.clearBalanceRecovery()
         startConnectAdmission.cancel()
-        connectVc?.disconnect()
+        onConnectController { it.disconnect() }
+    }
+
+    /**
+     * Runs `command` on the presented controller or, without one, on a
+     * controller opened for it on the current device and closed after, so a
+     * connect or disconnect always reaches the sdk. The presented controller
+     * is closed in the background, and a start the gate admits after the app
+     * left the foreground found none and was lost. The quick connect surfaces
+     * and the balance recovery connect the same way, as the Apple app does
+     * without a presented controller (ConnectViewModel.performOnSdk). Main
+     * thread.
+     */
+    private fun onConnectController(command: (ConnectController) -> Unit) {
+        connectVc?.let {
+            command(it)
+            return
+        }
+        val device = currentDevice ?: return
+        val vc = device.openConnectViewController()
+        try {
+            command(vc)
+        } finally {
+            device.closeViewController(vc)
+        }
     }
 
     val addTunnelListener: () -> Unit = {
@@ -627,6 +657,7 @@ internal constructor(
         resetConnectFailureMonitor()
         // a start waiting on its balance belonged to the previous device
         startConnectAdmission.cancel()
+        currentDevice = device
         if (device == null) {
             _connectStatus.value = ConnectStatus.DISCONNECTED
             startConnectAdmission.reported(ConnectStatus.DISCONNECTED)

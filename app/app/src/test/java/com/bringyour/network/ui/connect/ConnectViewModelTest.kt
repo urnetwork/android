@@ -19,6 +19,7 @@ import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -269,5 +270,38 @@ class ConnectViewModelTest {
         // the sdk's statuses follow from here
         controller.report("CONNECTING")
         assertEquals(ConnectStatus.CONNECTING, harness.displayed)
+    }
+
+    @Test
+    fun startAdmittedInTheBackgroundStillConnects() {
+        // the app went to the background while the gate fetched the balance,
+        // which closes the presented controller: the admitted connect runs on
+        // a controller opened for it, so the user's connect is not lost
+        val (harness, device, presented) = presenting()
+        harness.viewModel.connect(null)
+        harness.background()
+        assertTrue(presented.closed)
+
+        harness.gate.decide(blocked = false)
+        assertEquals(2, device.controllers.size)
+        val temporary = device.controllers[1]
+        assertEquals(listOf("connectBestAvailable"), temporary.commands)
+        assertTrue(temporary.closed)
+        assertFalse(temporary.started)
+        assertEquals(emptyList<String>(), presented.commands)
+    }
+
+    @Test
+    fun disconnectWithoutAPresentedControllerStillReachesTheSdk() {
+        val harness = Harness()
+        val device = FakeDevice()
+        // in the background no controller is presented
+        harness.publish(device)
+        assertEquals(0, device.controllers.size)
+
+        harness.viewModel.disconnect()
+        val temporary = device.controllers.single()
+        assertEquals(listOf("disconnect"), temporary.commands)
+        assertTrue(temporary.closed)
     }
 }
