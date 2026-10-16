@@ -1,10 +1,11 @@
 import assert from "node:assert/strict";
 import { spawn, spawnSync } from "node:child_process";
-import { createHash } from "node:crypto";
-import { EventEmitter } from "node:events";
+import { createHash, randomUUID } from "node:crypto";
+import { EventEmitter, once } from "node:events";
 import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, renameSync, rmSync, statSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
+import { createServer } from "node:net";
 import test from "node:test";
 import { setTimeout as sleep } from "node:timers/promises";
 import { collectNativeInputs, hashNativeInputFile, nativeWriterArguments, nativeWriterSourceHashes, parseArgs, parseJsonStream,
@@ -13,6 +14,7 @@ import { collectNativeInputs, hashNativeInputFile, nativeWriterArguments, native
 
 import { prepareCredentialOwnership } from "./physical_credential_ownership.mjs";
 import { runInstrumentationSession } from "./physical_collector_session.mjs";
+import { parseArgs as writerArgs, runNativeWriter } from "./physical_native_writer.mjs";
 
 const SDK = "github.com/urnetwork/sdk";
 const CONNECT = "github.com/urnetwork/connect";
@@ -27,6 +29,13 @@ const rehash = manifest => {
   manifest.inputHash = sha(JSON.stringify({ root, buildOwner, buildId, profileRate, inputs }));
   return manifest;
 };
+
+function writerOwnership(before) {
+  return { schemaVersion: 1, scope: "launched-process-group", nonce: "00000000-0000-4000-8000-000000000001", ownerPid: 42,
+    buildId: before.buildId, buildOwner: before.buildOwner, inputHash: before.inputHash, ready: true,
+    ownerClosed: true, ownerExitCode: 0, ownerSignal: null, groupJoined: true, complete: true,
+    orphaned: false, escalated: false, failure: null };
+}
 
 function fixture(t, prefix = "native-source-contract-") {
   const root = realpathSync(mkdtempSync(join(tmpdir(), prefix)));
@@ -161,6 +170,7 @@ function fixture(t, prefix = "native-source-contract-") {
     write(stdout, "fixture writer output\n"); write(stderr, "");
     const receipt = { type: "physical-native-writer", schemaVersion: 1, state: "terminal", eligible: true,
       childStarted: true, childExitCode: 0, signal: null, interrupted: false,
+      ownership: writerOwnership(before),
       root, buildId: before.buildId, buildOwner: before.buildOwner, profileRate: before.profileRate, inputHash: before.inputHash,
       before: paths.before, beforeSha256: hashNativeInputFile(paths.before).sha256,
       memoryProfile: "ios-memory-audit-v1", maxWorkers: 1, workingDirectory: join(root, "android/app"),
@@ -191,7 +201,8 @@ test("native CLI requires complete explicit before/after/build context; metadata
 
 test("native writer allowlists Android explicitly without permitting numeric or aliased profile overrides", () => {
   for (const profile of ["android", "ios-memory-audit-v1", "ios-memory-audit-v2"]) {
-    assert.deepEqual(nativeWriterArguments("fixture-build", 0, profile, 1), [":app:buildSdkAcceptance", "--max-workers", "1",
+    assert.deepEqual(nativeWriterArguments("fixture-build", 0, profile, 1), [":app:buildSdkAcceptance",
+      "--no-daemon", "-Pkotlin.compiler.execution.strategy=in-process", "--max-workers", "1",
       "-PurnetworkAcceptanceBuildId=fixture-build", `-PurnetworkMemoryProfile=${profile}`, "-PurnetworkMemoryProfileRateBytes=0"]);
   }
   for (const profile of [undefined, null, "", "normalAndroid", "67108864", ["android"], "android -PurnetworkMemoryLimitBytes=1"]) {
@@ -509,13 +520,142 @@ test("writer interruption cannot publish success or expose a terminal receipt be
   assert.equal(readdirSync(f.privateDir).some(name => name.includes(".pending-")), false);
 });
 
+// The real fake Gradle forks an independently held same-group child, then
+// exits. A connected socket is the release/TERM/exit barrier, not a sleep or a
+// negative liveness poll. Cleanup also joins the historical broken writer.
+async function writerDescendantAttempt(t, interrupt) {
+  const f = writerFixture(t, "native-writer-group-");
+  const server = createServer();
+  const probe = randomUUID();
+  let peer; let peerClosed = false; let termObserved = false; let writer; let writerClosed = false; let writerDone;
+  let resolveReady; let resolvePeerClosed; let resolveObserved;
+  const ready = new Promise(resolve => { resolveReady = resolve; });
+  const peerDone = new Promise(resolve => { resolvePeerClosed = resolve; });
+  const observed = new Promise(resolve => { resolveObserved = resolve; });
+  server.on("connection", socket => {
+    assert.equal(peer, undefined, "one exact held descendant"); peer = socket;
+    let pending = "";
+    socket.on("data", data => {
+      pending += data;
+      while (pending.includes("\n")) {
+        const end = pending.indexOf("\n"); const value = pending.slice(0, end); pending = pending.slice(end + 1);
+        if (value === "ready") resolveReady();
+        else if (value === "term") termObserved = true;
+        else if (value === `alive:${probe}`) resolveObserved(true);
+        else assert.fail("unexpected descendant barrier");
+      }
+    });
+    socket.on("error", () => {});
+    socket.once("close", () => { peerClosed = true; resolveObserved(false); resolvePeerClosed(); });
+  });
+  server.listen(0, "127.0.0.1"); await once(server, "listening");
+  const helper = join(f.root, "held-descendant.mjs");
+  write(helper, `import {connect} from 'node:net';\n` +
+    `const socket=connect(${server.address().port},'127.0.0.1');\n` +
+    `process.on('SIGTERM',()=>socket.write('term\\n'));process.on('disconnect',()=>{});\n` +
+    `socket.once('connect',()=>{socket.write('ready\\n');process.send('ready');});\n` +
+    `let pending='';socket.on('data',data=>{pending+=data;while(pending.includes('\\n')){\n` +
+    `const end=pending.indexOf('\\n');const value=pending.slice(0,end);pending=pending.slice(end+1);\n` +
+    `if(value==='release')process.exit(0);else if(value===${JSON.stringify(`probe:${probe}`)})socket.write(${JSON.stringify(`alive:${probe}\n`)});else process.exit(4);}});\n` +
+    `socket.on('error',()=>process.exit(3));socket.on('close',()=>process.exit(0));\n`);
+  write(join(f.root, "fake-gradle.mjs"), `import {spawn} from 'node:child_process';\n` +
+    `if(process.argv[2]!==':app:buildSdkAcceptance')process.exit(44);\n` +
+    `process.on('SIGTERM',()=>process.exit(0));\n` +
+    `const child=spawn(process.execPath,[${JSON.stringify(helper)}],{stdio:['ignore',1,2,'ipc']});\n` +
+    `child.once('message',()=>{${interrupt ? "" : "process.exit(0);"}});\n`);
+  let code; let descendantAliveAfterWriter; let receipt;
+  try {
+    // An explicit immutable one-file control imports the same current
+    // provenance helper; its only omitted change is writer ownership.
+    const entry = process.env.URNETWORK_NATIVE_WRITER_CONTROL ?? new URL("./physical_native_writer.mjs", import.meta.url).pathname;
+    writer = spawn(process.execPath, [entry, ...f.args.slice(1)], { cwd: f.root, env: f.env, stdio: ["ignore", "pipe", "pipe"] });
+    writer.stdout.resume(); writer.stderr.resume();
+    writerDone = new Promise(resolve => writer.once("close", value => { writerClosed = true; resolve(value); }));
+    const initialized = await Promise.race([ready.then(() => true), writerDone.then(() => false)]);
+    assert.equal(initialized, true, "WRITER_EXITED_BEFORE_DESCENDANT_READY");
+    if (interrupt) writer.kill("SIGTERM");
+    code = await writerDone;
+    if (!peerClosed) peer.write(`probe:${probe}\n`);
+    descendantAliveAfterWriter = await observed;
+    receipt = JSON.parse(readFileSync(f.paths["writer-receipt"]));
+  } finally {
+    if (writer && !writerClosed) writer.kill("SIGTERM");
+    if (peer && !peerClosed) peer.end("release\n");
+    if (writerDone) await writerDone;
+    if (peer) await peerDone;
+    await new Promise(resolve => server.close(resolve));
+  }
+  t.diagnostic(`writer exit=${code} eligible=${receipt.eligible} canceled=${interrupt} descendantAlive=${descendantAliveAfterWriter}`);
+  assert.equal(descendantAliveAfterWriter, false, "NATIVE_WRITER_DESCENDANT_NOT_JOINED");
+  assert.equal(code, 2, "a canceled or orphaned build cannot qualify");
+  assert.equal(receipt.eligible, false);
+  assert.equal(receipt.ownership.groupJoined, true);
+  assert.equal(receipt.ownership.ownerClosed, true);
+  assert.equal(termObserved, true);
+  assert.equal(receipt.ownership.escalated, true, "the held descendant deliberately ignores TERM");
+  if (interrupt) assert.equal(receipt.interrupted, true);
+  else assert.equal(receipt.ownership.orphaned, true);
+}
+
+test("native writer joins a held descendant after successful Gradle leader exit", { timeout: 20000 }, async t => {
+  await writerDescendantAttempt(t, false);
+});
+
+test("native writer cancellation escalates and joins a TERM-ignoring descendant", { timeout: 20000 }, async t => {
+  await writerDescendantAttempt(t, true);
+});
+
+test("native writer cancellation before owner readiness cannot start Gradle", { timeout: 15000 }, async t => {
+  const f = writerFixture(t); const signals = new EventEmitter();
+  const receipt = await runNativeWriter(writerArgs(f.args.slice(1)), { ...f.dependencies, env: f.env, signals,
+    spawn(command, args, options) {
+      const child = spawn(command, args, options);
+      signals.emit("SIGTERM"); // Before the owner can publish ready/start.
+      return child;
+    } });
+  assert.equal(receipt.childStarted, false); assert.equal(receipt.interrupted, true); assert.equal(receipt.eligible, false);
+  assert.equal(receipt.ownership.groupJoined, true); assert.equal(receipt.stdout.bytes, 0);
+});
+
+test("native writer IPC loss before start joins its anchor without Gradle", { timeout: 15000 }, async t => {
+  const f = writerFixture(t);
+  const receipt = await runNativeWriter(writerArgs(f.args.slice(1)), { ...f.dependencies, env: f.env,
+    spawn(command, args, options) {
+      const child = spawn(command, args, options);
+      child.once("message", () => child.disconnect());
+      return child;
+    } });
+  assert.equal(receipt.childStarted, false); assert.equal(receipt.eligible, false);
+  assert.equal(receipt.ownership.groupJoined, true); assert.equal(receipt.stdout.bytes, 0);
+  assert.notEqual(receipt.ownership.failure, null);
+});
+
+test("native writer complete IPC cannot qualify a subsequently killed anchor", { timeout: 15000 }, async t => {
+  const f = writerFixture(t); let completed = false;
+  const receipt = await runNativeWriter(writerArgs(f.args.slice(1)), { ...f.dependencies, env: f.env,
+    spawn(command, args, options) {
+      const child = spawn(command, args, options); const send = child.send.bind(child);
+      child.send = (message, callback) => {
+        if (message.action === "release") {
+          completed = true; child.kill("SIGKILL"); callback?.(null); return true;
+        }
+        return send(message, callback);
+      };
+      return child;
+    } });
+  assert.equal(completed, true); assert.equal(receipt.childExitCode, 0);
+  assert.equal(receipt.ownership.complete, true); assert.equal(receipt.ownership.groupJoined, true);
+  assert.equal(receipt.ownership.ownerSignal, "SIGKILL"); assert.equal(receipt.eligible, false);
+});
+
 test("actual consumer entry point refuses missing, nonzero and forged receipts before any assembly marker", t => {
   const f = writerFixture(t); const result = f.run(); assert.equal(result.status, 0, result.stderr);
   const receipt = JSON.parse(readFileSync(f.paths["writer-receipt"])); const marker = join(f.privateDir, "assembly-marker");
   const args = [new URL("./physical_native_consumer.sh", import.meta.url).pathname, "--root", f.root,
     "--before", f.paths.before, "--after", f.paths.after, "--proof", f.paths.output, "--writer-receipt", f.paths["writer-receipt"],
     "--", process.execPath, "-e", "require('node:fs').writeFileSync(process.argv[1],'consumer')", marker];
-  for (const kind of ["missing", "nonzero", "forged", "arguments", "source", "artifact-helper", "before"]) {
+  for (const kind of ["missing", "nonzero", "forged", "arguments", "source", "artifact-helper", "before",
+    "missing-join", "false-join", "unbound-join", "forced-anchor", "orphaned"]) {
     json(f.paths["writer-receipt"], receipt);
     if (kind === "missing") rmSync(f.paths["writer-receipt"]);
     else if (kind === "nonzero") json(f.paths["writer-receipt"], { ...receipt, childExitCode: 7 });
@@ -524,6 +664,11 @@ test("actual consumer entry point refuses missing, nonzero and forged receipts b
     else if (kind === "source") json(f.paths["writer-receipt"], { ...receipt, sourceHashes: [] });
     else if (kind === "artifact-helper") json(f.paths["writer-receipt"], { ...receipt,
       sourceHashes: receipt.sourceHashes.filter(source => source.name !== "physical_artifact_directory.mjs") });
+    else if (kind === "missing-join") json(f.paths["writer-receipt"], { ...receipt, ownership: undefined });
+    else if (kind === "false-join") json(f.paths["writer-receipt"], { ...receipt, ownership: { ...receipt.ownership, groupJoined: false } });
+    else if (kind === "unbound-join") json(f.paths["writer-receipt"], { ...receipt, ownership: { ...receipt.ownership, buildId: "other-build" } });
+    else if (kind === "forced-anchor") json(f.paths["writer-receipt"], { ...receipt, ownership: { ...receipt.ownership, ownerSignal: "SIGKILL" } });
+    else if (kind === "orphaned") json(f.paths["writer-receipt"], { ...receipt, ownership: { ...receipt.ownership, orphaned: true } });
     else json(f.paths["writer-receipt"], { ...receipt, beforeSha256: "0".repeat(64) });
     const rejected = spawnSync("bash", args, { cwd: f.root, env: f.env, encoding: "utf8", timeout: 10000 });
     assert.equal(rejected.status, 2, kind); assert.equal(existsSync(marker), false, kind);
@@ -947,6 +1092,7 @@ function retainedGeneration(f, profile = "ios-memory-audit-v2", generation = "fi
   write(stdout, "fixture writer joined\n"); write(stderr, "");
   json(paths["writer-receipt"], { type: "physical-native-writer", schemaVersion: 1, state: "terminal", eligible: true,
     childStarted: true, childExitCode: 0, signal: null, interrupted: false, root: f.root, buildId, buildOwner,
+    ownership: writerOwnership(before),
     profileRate: 0, inputHash: before.inputHash, before: paths.before, beforeSha256: hashNativeInputFile(paths.before).sha256,
     memoryProfile: profile, maxWorkers: 1, workingDirectory: join(f.root, "android/app"),
     arguments: nativeWriterArguments(buildId, 0, profile, 1), sourceHashes: nativeWriterSourceHashes(),

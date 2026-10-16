@@ -258,6 +258,9 @@ test("pre-ready SIGHUP instrumentation PTY is joined without credential adoption
 
 test("the real schedule binds one root, identifiers and rate zero through Bash writer/consumer", () => {
   const c = context(); const plan = h1Steps(c);
+  for (const argument of ["--no-daemon", "-Pkotlin.compiler.execution.strategy=in-process"]) {
+    assert.ok(h1AssemblyStep(c).args.includes(argument));
+  }
   const writer = plan.setup.find(step => step.id === "native-writer");
   const consumer = plan.setup.find(step => step.id === "native-consumer");
   assert.equal(writer.command, "bash"); assert.equal(consumer.command, "bash");

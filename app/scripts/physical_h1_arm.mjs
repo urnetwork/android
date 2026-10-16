@@ -100,7 +100,8 @@ function armProfileRate(c) { return armMeasurementMode(c) === "diagnostic" ? 655
 
 export function h1AssemblyStep(c) {
   return { id: "app-assembly", command: join(c.root, "android/app/gradlew"),
-    args: [":app:assembleGithubDebug", ":app:assembleGithubDebugAndroidTest", "--max-workers", String(c["max-workers"]),
+    args: [":app:assembleGithubDebug", ":app:assembleGithubDebugAndroidTest", "--no-daemon",
+      "-Pkotlin.compiler.execution.strategy=in-process", "--max-workers", String(c["max-workers"]),
       `-PurnetworkAcceptanceBuildId=${c["build-id"]}`, `-PurnetworkMemoryProfile=${PROFILE}`,
       `-PurnetworkMemoryProfileRateBytes=${armProfileRate(c)}`],
     cwd: join(c.root, "android/app"), timeoutMs: LIMITS.native };

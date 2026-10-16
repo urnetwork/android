@@ -797,7 +797,7 @@ export function nativeWriterArguments(buildId, profileRate, memoryProfile, maxWo
   if (typeof buildId !== "string" || !/^[A-Za-z0-9][A-Za-z0-9._-]{0,199}$/.test(buildId) || !Number.isSafeInteger(profileRate) || profileRate < 0 ||
       !WRITER_MEMORY_PROFILES.includes(memoryProfile) || !Number.isInteger(maxWorkers) || maxWorkers < 1 ||
       maxWorkers > Math.ceil(availableParallelism() * 0.7)) fail("explicit-native-writer-profile-required");
-  return [":app:buildSdkAcceptance", "--max-workers", String(maxWorkers),
+  return [":app:buildSdkAcceptance", "--no-daemon", "-Pkotlin.compiler.execution.strategy=in-process", "--max-workers", String(maxWorkers),
     `-PurnetworkAcceptanceBuildId=${buildId}`, `-PurnetworkMemoryProfile=${memoryProfile}`,
     `-PurnetworkMemoryProfileRateBytes=${profileRate}`];
 }
@@ -819,6 +819,7 @@ export function requireNativeBeforeWriter(options, dependencies = {}) {
 
 export function requireNativeWriterReceipt(options, before) {
   const receipt = privateRead(options["writer-receipt"]);
+  const owner = receipt.ownership;
   const valid = receipt.type === "physical-native-writer" && receipt.schemaVersion === 1 && receipt.state === "terminal" &&
     receipt.eligible === true && receipt.childStarted === true && receipt.childExitCode === 0 && receipt.signal === null &&
     receipt.interrupted === false && receipt.root === before.root && receipt.buildId === before.buildId &&
@@ -826,7 +827,14 @@ export function requireNativeWriterReceipt(options, before) {
     receipt.before === realpathSync(options.before) && receipt.beforeSha256 === inputFile(options.before).sha256 &&
     WRITER_MEMORY_PROFILES.includes(receipt.memoryProfile) && Number.isFinite(receipt.startedAtUnixMs) &&
     Number.isFinite(receipt.completedAtUnixMs) && receipt.startedAtUnixMs >= before.capturedAtUnixMs &&
-    receipt.completedAtUnixMs >= receipt.startedAtUnixMs && receipt.workingDirectory === join(before.root, "android/app");
+    receipt.completedAtUnixMs >= receipt.startedAtUnixMs && receipt.workingDirectory === join(before.root, "android/app") &&
+    owner?.schemaVersion === 1 && owner.scope === "launched-process-group" &&
+    /^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/.test(owner.nonce ?? "") &&
+    Number.isSafeInteger(owner.ownerPid) && owner.ownerPid > 0 && owner.buildId === before.buildId &&
+    owner.buildOwner === before.buildOwner && owner.inputHash === before.inputHash &&
+    owner.ready === true && owner.ownerClosed === true && owner.ownerExitCode === 0 && owner.ownerSignal === null &&
+    owner.groupJoined === true && owner.complete === true &&
+    owner.orphaned === false && owner.escalated === false && owner.failure === null;
   if (!valid) fail("successful-native-writer-receipt-required");
   if (JSON.stringify(receipt.arguments) !== JSON.stringify(nativeWriterArguments(before.buildId, before.profileRate,
       receipt.memoryProfile, receipt.maxWorkers)) || JSON.stringify(receipt.sourceHashes) !== JSON.stringify(nativeWriterSourceHashes())) {
