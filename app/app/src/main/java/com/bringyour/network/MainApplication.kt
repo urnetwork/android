@@ -451,16 +451,19 @@ class MainApplication : Application() {
      * fresh account balance, not Supporter, no balance poll. A cached balance
      * older than START_CONNECT_BALANCE_MAX_AGE_MILLIS is fetched again first
      * (bounded by START_CONNECT_BALANCE_FETCH_TIMEOUT_MILLIS; a failed fetch
-     * does not block). onResult runs on the main thread, once.
+     * does not block), unless the plan or a poll already decides it.
+     * onResult runs on the main thread, once.
      */
     fun checkStartConnect(onResult: (blocked: Boolean) -> Unit) {
-        com.bringyour.network.ui.connect.startConnectBalance(
+        com.bringyour.network.ui.connect.checkStartConnect(
+            isProKnown = { uiIsPro || deviceManager.jwtFlow.value?.pro == true },
+            isPollingSubscriptionBalance = { uiPollingSubscriptionBalance },
+            contractInsufficientBalance = { device?.contractStatus?.insufficientBalance == true },
             cached = com.bringyour.network.widgets.WidgetSnapshotStore.loadBalance(this),
             nowMillis = System.currentTimeMillis(),
             fetch = ::fetchStartConnectBalance,
-        ) { balance ->
-            onResult(startConnectBlocked(balance))
-        }
+            onResult = onResult,
+        )
     }
 
     /** Fetches the account balance again when the cached one is too old to gate on. */
@@ -469,19 +472,6 @@ class MainApplication : Application() {
         if (!com.bringyour.network.ui.connect.startConnectBalanceFresh(cached, System.currentTimeMillis())) {
             fetchStartConnectBalance {}
         }
-    }
-
-    private fun startConnectBlocked(balance: com.bringyour.network.widgets.WidgetBalanceSnapshot?): Boolean {
-        val isPro = uiIsPro ||
-            balance?.isPro == true ||
-            deviceManager.jwtFlow.value?.pro == true
-        return com.bringyour.network.ui.connect.startConnectBlocked(
-            contractInsufficientBalance = device?.contractStatus?.insufficientBalance == true,
-            accountBalanceExhausted = com.bringyour.network.ui.connect.accountBalanceExhausted(balance),
-            currentPlan = if (isPro) com.bringyour.network.ui.shared.viewmodels.Plan.Supporter
-                else com.bringyour.network.ui.shared.viewmodels.Plan.Basic,
-            isPollingSubscriptionBalance = uiPollingSubscriptionBalance,
-        )
     }
 
     /**
