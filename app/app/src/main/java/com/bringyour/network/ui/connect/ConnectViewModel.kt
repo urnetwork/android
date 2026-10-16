@@ -30,7 +30,6 @@ import com.bringyour.network.ui.theme.Red
 import com.bringyour.network.ui.theme.Yellow
 import com.bringyour.sdk.ConnectGrid
 import com.bringyour.sdk.ConnectLocation
-import com.bringyour.sdk.ConnectViewController
 import com.bringyour.sdk.ContractStatus
 import com.bringyour.sdk.DeviceLocal
 import com.bringyour.sdk.Id
@@ -48,22 +47,59 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
+/**
+ * The connect screen: the presented connect view controller of the current
+ * device while the app is in the foreground, its grid, location and status,
+ * and the connect and disconnect the screen makes.
+ *
+ * It reaches the sdk through [ConnectDevice] and [ConnectController], the
+ * device changes through `deviceChanges`, the process lifecycle and the start
+ * connect gate through constructor arguments, so tests run it on a fake sdk
+ * with a held gate (ConnectViewModelTest). The app's are the device manager's
+ * device, ProcessLifecycleOwner and MainApplication.checkStartConnect.
+ */
 @HiltViewModel
 class ConnectViewModel
-@Inject
-constructor(
+internal constructor(
         private val deviceManager: DeviceManager,
-        @dagger.hilt.android.qualifiers.ApplicationContext private val appContext: android.content.Context,
+        private val appContext: android.content.Context,
+        private val processLifecycle: Lifecycle,
+        deviceChanges: (listener: (ConnectDevice?) -> Unit) -> (() -> Unit),
+        checkStartConnect: (onResult: (blocked: Boolean) -> Unit) -> Unit,
 ) : ViewModel(), DefaultLifecycleObserver {
 
-    private var connectVc: ConnectViewController? = null
-    private var viewControllerDevice: DeviceLocal? = null
+    @Inject
+    constructor(
+        deviceManager: DeviceManager,
+        @dagger.hilt.android.qualifiers.ApplicationContext appContext: android.content.Context,
+    ) : this(
+        deviceManager = deviceManager,
+        appContext = appContext,
+        processLifecycle = ProcessLifecycleOwner.get().lifecycle,
+        deviceChanges = { listener ->
+            deviceManager.addDeviceChangeListener { device ->
+                listener(device?.let { SdkConnectDevice(it) })
+            }
+        },
+        checkStartConnect = { onResult ->
+            val app = appContext as? com.bringyour.network.MainApplication
+            if (app == null) {
+                onResult(false)
+            } else {
+                app.checkStartConnect(onResult)
+            }
+        },
+    )
+
+    private var connectVc: ConnectController? = null
+    private var viewControllerDevice: ConnectDevice? = null
+    // the device last published, also while no controller is presented
+    private var currentDevice: ConnectDevice? = null
 
     private val subs = mutableListOf<Sub>()
-    private val processLifecycle = ProcessLifecycleOwner.get().lifecycle
     private var removeDeviceChangeListener: (() -> Unit)? = null
     private val controllerOwner =
-        ForegroundDeviceControllerOwner<DeviceLocal, ConnectViewController>(
+        ForegroundDeviceControllerOwner<ConnectDevice, ConnectController>(
             open = { openConnectViewController(it) },
             close = { device, vc -> closeConnectViewController(device, vc) },
         )
@@ -180,7 +216,7 @@ constructor(
     val shuffledSuccessPoints = mutableStateListOf<AnimatedSuccessPoint>()
 
     val device: DeviceLocal?
-        get() = viewControllerDevice ?: deviceManager.device
+        get() = (viewControllerDevice as? SdkConnectDevice)?.device ?: deviceManager.device
 
     val initSuccessPoints: (Float) -> Unit = { canvasSizePx ->
 
@@ -241,14 +277,7 @@ constructor(
 
     // the start connect gate for the connect screen, and the connecting
     // state it shows while the gate fetches the balance
-    private val startConnectAdmission = StartConnectAdmission { onResult ->
-        val app = appContext as? com.bringyour.network.MainApplication
-        if (app == null) {
-            onResult(false)
-        } else {
-            app.checkStartConnect(onResult)
-        }
-    }
+    private val startConnectAdmission = StartConnectAdmission(checkStartConnect)
 
     /**
      * What the connect screen shows: the connecting state while a start waits
@@ -270,10 +299,14 @@ constructor(
             start = {
                 // this connect replaces one still waiting on the balance
                 app?.clearBalanceRecovery()
-                if (location != null) {
-                    connectVc?.connect(location)
-                } else {
-                    connectVc?.connectBestAvailable()
+                // the app may have gone to the background while the gate
+                // fetched the balance: the connect still reaches the sdk
+                onConnectController { vc ->
+                    if (location != null) {
+                        vc.connect(location)
+                    } else {
+                        vc.connectBestAvailable()
+                    }
                 }
                 // the controller has the connect's status now, whichever
                 // thread its listener reports on
@@ -318,7 +351,7 @@ constructor(
 
     }
 
-    private fun addListener(listener: (ConnectViewController) -> Sub) {
+    private fun addListener(listener: (ConnectController) -> Sub) {
         connectVc?.let { subs.add(listener(it)) }
     }
 
@@ -513,7 +546,31 @@ constructor(
         // and a start still waiting on its balance does not connect
         (appContext as? com.bringyour.network.MainApplication)?.clearBalanceRecovery()
         startConnectAdmission.cancel()
-        connectVc?.disconnect()
+        onConnectController { it.disconnect() }
+    }
+
+    /**
+     * Runs `command` on the presented controller or, without one, on a
+     * controller opened for it on the current device and closed after, so a
+     * connect or disconnect always reaches the sdk. The presented controller
+     * is closed in the background, and a start the gate admits after the app
+     * left the foreground found none and was lost. The quick connect surfaces
+     * and the balance recovery connect the same way, as the Apple app does
+     * without a presented controller (ConnectViewModel.performOnSdk). Main
+     * thread.
+     */
+    private fun onConnectController(command: (ConnectController) -> Unit) {
+        connectVc?.let {
+            command(it)
+            return
+        }
+        val device = currentDevice ?: return
+        val vc = device.openConnectViewController()
+        try {
+            command(vc)
+        } finally {
+            device.closeViewController(vc)
+        }
     }
 
     val addTunnelListener: () -> Unit = {
@@ -559,7 +616,7 @@ constructor(
         controllerOwner.setForeground(
             processLifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)
         )
-        removeDeviceChangeListener = deviceManager.addDeviceChangeListener { device ->
+        removeDeviceChangeListener = deviceChanges { device ->
             viewModelScope.launch {
                 setupDevice(device)
             }
@@ -588,7 +645,7 @@ constructor(
             windowSize.windowSizeMax.toInt() == 1
     }
 
-    private fun setupDevice(device: DeviceLocal?) {
+    private fun setupDevice(device: ConnectDevice?) {
         selectedLocation = null
         grid = null
         providerGridPoints = mapOf()
@@ -600,6 +657,7 @@ constructor(
         resetConnectFailureMonitor()
         // a start waiting on its balance belonged to the previous device
         startConnectAdmission.cancel()
+        currentDevice = device
         if (device == null) {
             _connectStatus.value = ConnectStatus.DISCONNECTED
             startConnectAdmission.reported(ConnectStatus.DISCONNECTED)
@@ -609,7 +667,7 @@ constructor(
         controllerOwner.setDevice(device)
     }
 
-    private fun openConnectViewController(device: DeviceLocal): ConnectViewController {
+    private fun openConnectViewController(device: ConnectDevice): ConnectController {
         val vc = device.openConnectViewController()
         viewControllerDevice = device
         connectVc = vc
@@ -623,7 +681,7 @@ constructor(
         return vc
     }
 
-    private fun closeConnectViewController(device: DeviceLocal, vc: ConnectViewController) {
+    private fun closeConnectViewController(device: ConnectDevice, vc: ConnectController) {
         subs.forEach { sub -> sub.close() }
         subs.clear()
         vc.stop()
@@ -649,6 +707,10 @@ constructor(
         removeDeviceChangeListener?.invoke()
         removeDeviceChangeListener = null
         processLifecycle.removeObserver(this)
+        // a start still waiting on its balance never connects once the
+        // screen is gone, as the Apple app's is dropped with its view model
+        startConnectAdmission.cancel()
+        currentDevice = null
         controllerOwner.close()
         super.onCleared()
     }

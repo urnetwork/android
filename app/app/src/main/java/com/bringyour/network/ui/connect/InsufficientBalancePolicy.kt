@@ -195,6 +195,16 @@ internal fun quickConnectStep(
     else -> QuickConnectStep.CONNECT
 }
 
+/**
+ * Whether a quick connect request ends a connect waiting on the balance
+ * (BalanceRecovery): the user's own connect, and every disconnect they ask
+ * for. That includes one with nothing connected (the step does nothing),
+ * such as a tap on the connecting tile that ends a start still waiting on
+ * the gate: a refused start's recovery must not reconnect after it.
+ */
+internal fun quickConnectClearsBalanceRecovery(connect: Boolean, step: QuickConnectStep): Boolean =
+    !connect || step == QuickConnectStep.CONNECT
+
 internal data class ConnectActionButtons(
     val upgrade: Boolean,
     val connect: Boolean,

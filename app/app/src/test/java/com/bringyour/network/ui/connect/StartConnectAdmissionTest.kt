@@ -159,7 +159,7 @@ class StartConnectAdmissionTest {
         // statuses are all the screen shows
         val shownAtStart = mutableListOf<ConnectStatus>()
         lateinit var admission: StartConnectAdmission
-        admission = StartConnectAdmission { onResult -> onResult(false) }
+        admission = StartConnectAdmission({ onResult -> onResult(false) })
         admission.connect(
             start = {
                 shownAtStart.add(admission.displayStatus.value)
@@ -171,7 +171,7 @@ class StartConnectAdmissionTest {
         assertEquals(ConnectStatus.DESTINATION_SET, admission.displayStatus.value)
 
         var refused = false
-        val blocked = StartConnectAdmission { onResult -> onResult(true) }
+        val blocked = StartConnectAdmission({ onResult -> onResult(true) })
         blocked.connect(start = {}, refused = { refused = true })
         assertTrue(refused)
         assertEquals(ConnectStatus.DISCONNECTED, blocked.displayStatus.value)

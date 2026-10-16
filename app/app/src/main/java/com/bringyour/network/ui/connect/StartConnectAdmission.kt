@@ -5,8 +5,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
 /**
- * The connect screen's start connect, from the tap to the sdk's connect, and
- * the status the screen shows meanwhile.
+ * A start connect, from the tap to the sdk's connect, and the status shown
+ * meanwhile: the connect screen's, and the quick connect surfaces'
+ * ([QuickStartConnect]).
  *
  * The start connect gate ([checkStartConnect]) may first fetch a fresh
  * account balance, for up to [START_CONNECT_BALANCE_FETCH_TIMEOUT_MILLIS],
@@ -24,11 +25,14 @@ import kotlinx.coroutines.flow.StateFlow
  * the reported status (the out-of-balance notice, the balance recovery) do
  * not see a start waiting on its balance as a requested connection. A tap
  * while a start waits does not stack, and [cancel] (the user's disconnect, a
- * device change) ends it without connecting. Main thread only.
+ * device change) ends it without connecting. Main thread only; [waiting]
+ * may be read from any thread.
  */
 internal class StartConnectAdmission(
     /** The gate: calls back once, at once or after a fetch, with whether the start is refused. */
     private val check: (onResult: (blocked: Boolean) -> Unit) -> Unit,
+    /** Runs on each change of [displayStatus], a refused start's before `refused`. */
+    private val displayChanged: () -> Unit = {},
 ) {
     private val status = MutableStateFlow(ConnectStatus.DISCONNECTED)
 
@@ -38,7 +42,11 @@ internal class StartConnectAdmission(
     private var reportedStatus = ConnectStatus.DISCONNECTED
     // bumped by each start and cancel, so a superseded decision is dropped
     private var generation = 0L
-    private var waiting = false
+
+    /** A start waits on the gate. */
+    @Volatile
+    var waiting = false
+        private set
 
     /** The sdk's status. */
     fun reported(status: ConnectStatus) {
@@ -84,6 +92,10 @@ internal class StartConnectAdmission(
     }
 
     private fun publish() {
-        status.value = if (waiting) ConnectStatus.DESTINATION_SET else reportedStatus
+        val next = if (waiting) ConnectStatus.DESTINATION_SET else reportedStatus
+        if (status.value != next) {
+            status.value = next
+            displayChanged()
+        }
     }
 }

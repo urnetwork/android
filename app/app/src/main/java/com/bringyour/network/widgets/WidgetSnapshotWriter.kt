@@ -132,6 +132,11 @@ class WidgetSnapshotWriter(
         }
     }
 
+    /** A quick connect start began or ended waiting on its balance: the dashboard's button shows it. */
+    fun quickConnectChanged() {
+        handler.post { refresh.reloadDashboard() }
+    }
+
     /** The app fetched the balance: publish it for the dashboard. */
     fun publishBalance(snapshot: WidgetBalanceSnapshot) {
         handler.post {

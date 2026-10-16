@@ -93,29 +93,32 @@ class QuickConnectTileService : TileService() {
     override fun onClick() {
         super.onClick()
         QuickConnect.toggle(app, source = "tile") { result ->
+            // the decided state: also a refused start's off, before the upgrade screen
+            render()
             when (result) {
-                QuickConnect.Result.APPLIED -> render()
-                QuickConnect.Result.NEEDS_CONSENT -> {
-                    render()
-                    openApp()
-                }
+                QuickConnect.Result.APPLIED -> {}
+                QuickConnect.Result.NEEDS_CONSENT,
                 QuickConnect.Result.NEEDS_APP,
                 QuickConnect.Result.NEEDS_UPGRADE -> openApp()
             }
         }
+        // a start waiting on its balance shows connecting from the tap
+        render()
     }
 
     private fun render() {
         val tile = qsTile ?: return
         val configured = QuickConnect.isConfigured(app)
-        val connected = configured && QuickConnect.isConnected(app)
-        tile.state = if (connected) Tile.STATE_ACTIVE else Tile.STATE_INACTIVE
+        val shown = if (configured) QuickConnect.shown(app) else com.bringyour.network.ui.connect.QuickConnectShown.OFF
+        tile.state = if (shown == com.bringyour.network.ui.connect.QuickConnectShown.OFF) Tile.STATE_INACTIVE else Tile.STATE_ACTIVE
         tile.icon = Icon.createWithResource(this, R.drawable.ic_tile_quick_on)
         tile.label = getString(R.string.app_name)
         val subtitle = getString(
             when {
                 !configured -> R.string.widget_not_signed_in
-                connected -> R.string.tile_status_connected
+                // the connect screen's and the notification's connecting line
+                shown == com.bringyour.network.ui.connect.QuickConnectShown.CONNECTING -> R.string.connecting_status_indicator
+                shown == com.bringyour.network.ui.connect.QuickConnectShown.ON -> R.string.tile_status_connected
                 else -> R.string.tile_status_disconnected
             },
         )

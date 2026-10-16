@@ -548,6 +548,9 @@ dependencies {
 dependencies {
     implementation 'androidx.appcompat:appcompat:1.7.1'
     testImplementation 'junit:junit:4.13.2'
+    // a test main dispatcher, so a view model's viewModelScope work runs in a
+    // JVM test (ConnectViewModelTest); the coroutines version the app resolves
+    testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0'
 
     // custom tabs, used for the wallet-connect sign message flow
     implementation 'androidx.browser:browser:1.8.0'
