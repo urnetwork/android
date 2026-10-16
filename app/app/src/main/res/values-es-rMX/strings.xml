@@ -400,6 +400,7 @@
     <string name="dns_pill_recommended">Hay configuraciones recomendadas sin aplicar para %1$s</string>
     <string name="dns_recommendation_message">Se sabe que las reglas de seguridad más estrictas no funcionan en %1$s. Hay una configuración de DNS recomendada, menos segura, que funciona mejor.</string>
     <string name="dns_restore_secure_message">Restaura la configuración más segura: DNS sobre HTTPS cifrado a través del túnel.</string>
+    <string name="dns_settings_save_failed">No se pudo guardar la configuración de DNS. Vuelve a intentarlo.</string>
     <string name="dns_settings_unavailable">Configuración de DNS no disponible</string>
     <string name="dns_using_recommended">Usando la configuración regional recomendada</string>
     <string name="dns_using_secure">Usando la configuración predeterminada más segura</string>
@@ -963,6 +964,7 @@
     <string name="settings_add_quick_tile_description">Conéctate y desconéctate desde el panel de Configuración rápida y la pantalla de bloqueo.</string>
     <string name="settings_add_widgets">Agregar widgets a la pantalla de inicio</string>
     <string name="settings_add_widgets_description">Conexión rápida, saldo de datos, proveedores en el globo y tus contratos principales.</string>
+    <string name="settings_editor_changed">La configuración cambió mientras la editabas. Revísala y vuelve a actualizar.</string>
     <string name="share">Comparte</string>
     <string name="share_extenders">Compartir extensores</string>
     <string name="share_extenders_hint">Escanea este código con otra app de URnetwork para compartir estos extensores.</string>
@@ -984,6 +986,7 @@
     <string name="sign_in_with_seedphrase">Iniciar sesión con la frase semilla</string>
     <string name="sign_in_with_your_apple_id_to">Inicia sesión con tu Apple ID para agregarlo como método de inicio de sesión.</string>
     <string name="sign_out">Cerrar sesión</string>
+    <string name="signing_out">Cerrando sesión…</string>
     <string name="site_app_contracts">Contratos</string>
     <string name="site_app_email">Correo electrónico</string>
     <string name="site_app_phone">Teléfono</string>

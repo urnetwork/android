@@ -400,6 +400,7 @@
     <string name="dns_pill_recommended">%1$s 向けの推奨設定が適用されていません</string>
     <string name="dns_recommendation_message">最も強力なセキュリティルールは%1$sでは機能しないことが知られています。安全性は下がりますが、より確実に動作する推奨DNS設定があります。</string>
     <string name="dns_restore_secure_message">最も安全な設定に戻します：トンネル経由の暗号化されたDNS over HTTPS。</string>
+    <string name="dns_settings_save_failed">DNS設定を保存できませんでした。もう一度お試しください。</string>
     <string name="dns_settings_unavailable">DNS設定は利用できません</string>
     <string name="dns_using_recommended">地域の推奨設定を使用中</string>
     <string name="dns_using_secure">最も安全なデフォルト設定を使用中</string>
@@ -963,6 +964,7 @@
     <string name="settings_add_quick_tile_description">クイック設定パネルとロック画面から接続・切断できます。</string>
     <string name="settings_add_widgets">ホーム画面にウィジェットを追加</string>
     <string name="settings_add_widgets_description">クイック接続、データ残高、地球儀上のプロバイダー、主要な契約。</string>
+    <string name="settings_editor_changed">編集中に設定が変更されました。内容を確認して、もう一度更新してください。</string>
     <string name="share">共有</string>
     <string name="share_extenders">エクステンダーを共有</string>
     <string name="share_extenders_hint">このコードを別の URnetwork アプリでスキャンすると、これらのエクステンダーを共有できます。</string>
@@ -984,6 +986,7 @@
     <string name="sign_in_with_seedphrase">シードフレーズでサインイン</string>
     <string name="sign_in_with_your_apple_id_to">Apple IDでサインインして、サインイン方法として追加します。</string>
     <string name="sign_out">サインアウト</string>
+    <string name="signing_out">サインアウトしています…</string>
     <string name="site_app_contracts">契約</string>
     <string name="site_app_email">メール</string>
     <string name="site_app_phone">電話番号</string>
