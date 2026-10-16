@@ -466,6 +466,22 @@ class MainApplication : Application() {
         )
     }
 
+    /**
+     * The quick connect surfaces' start connect (QuickConnect), through the
+     * same gate: they show connecting from the tap while it fetches the
+     * balance, and re-render on each change. Main thread.
+     */
+    internal val quickStartConnect = com.bringyour.network.ui.connect.QuickStartConnect(
+        check = { onResult -> checkStartConnect(onResult) },
+        render = { renderQuickConnect() },
+    )
+
+    /** Re-renders the quick connect surfaces: the Quick Settings tile and the dashboard widget. */
+    private fun renderQuickConnect() {
+        QuickConnectTileService.requestUpdate(this)
+        widgetSnapshotWriter?.quickConnectChanged()
+    }
+
     /** Fetches the account balance again when the cached one is too old to gate on. */
     fun refreshStartConnectBalanceIfStale() {
         val cached = com.bringyour.network.widgets.WidgetSnapshotStore.loadBalance(this)

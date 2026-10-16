@@ -20,6 +20,8 @@ class WidgetEntry(
     val isOn: Boolean,
     /** A signed-in device exists to drive. */
     val isConfigured: Boolean,
+    /** A quick connect start waits on its balance: the dashboard shows connecting. */
+    val isConnecting: Boolean = false,
 ) {
     /** The tunnel snapshot is meaningful only while the tunnel that wrote it is up. */
     val showsTunnelData: Boolean get() = isOn && tunnel.tunnelActive
@@ -40,6 +42,9 @@ class WidgetEntry(
                 balance = WidgetSnapshotStore.loadBalance(context),
                 isOn = app?.let { QuickConnect.isConnected(it) } ?: false,
                 isConfigured = app?.let { QuickConnect.isConfigured(it) } ?: false,
+                isConnecting = app?.let {
+                    QuickConnect.shown(it) == com.bringyour.network.ui.connect.QuickConnectShown.CONNECTING
+                } ?: false,
             )
         }
 

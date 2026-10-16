@@ -200,10 +200,12 @@ private fun DashboardHeader(entry: WidgetEntry, compact: Boolean) {
 
 /**
  * The in-widget quick connect: the connector mark in a capsule, gray when
- * off and the accent pink when on. A tap runs the same trampoline as the
- * launcher shortcuts (QuickConnectActivity, no UI), which toggles and opens
- * the app only when it is needed. The widget re-renders from the device's
- * new state within the same second, so no separate optimistic state is kept.
+ * off and the accent pink when on, also while a start waits on its balance
+ * (connecting). A tap runs the same trampoline as the launcher shortcuts
+ * (QuickConnectActivity, no UI), which toggles and opens the app only when
+ * it is needed; a tap while connecting ends the wait. The widget re-renders
+ * from the device's new state within the same second, and from the wait's
+ * start and end (QuickStartConnect).
  */
 @Composable
 private fun QuickConnectButton(entry: WidgetEntry) {
@@ -220,13 +222,13 @@ private fun QuickConnectButton(entry: WidgetEntry) {
         modifier = GlanceModifier
             .size(48.dp, 36.dp)
             .cornerRadius(18.dp)
-            .background(if (entry.isOn) WidgetTheme.tint else WidgetTheme.card)
+            .background(if (entry.isOn || entry.isConnecting) WidgetTheme.tint else WidgetTheme.card)
             .clickable(action),
         contentAlignment = Alignment.Center,
     ) {
         Image(
             provider = ImageProvider(R.drawable.ic_tile_quick_on),
-            contentDescription = context.getString(if (entry.isOn) R.string.disconnect else R.string.connect),
+            contentDescription = context.getString(if (entry.isOn || entry.isConnecting) R.string.disconnect else R.string.connect),
             modifier = GlanceModifier.size(18.dp),
             colorFilter = ColorFilter.tint(WidgetTheme.text),
         )
@@ -387,6 +389,7 @@ internal fun locationMarkBitmap(sizePx: Int, color: Int): Bitmap {
 
 internal fun locationTitle(context: Context, entry: WidgetEntry): String {
     if (!entry.isConfigured) return context.getString(R.string.widget_not_signed_in)
+    if (entry.isConnecting) return context.getString(R.string.connecting_status_indicator)
     if (!entry.isOn) return context.getString(R.string.tile_status_disconnected)
     val location = entry.tunnel.location
     if (!entry.showsTunnelData || location == null) return context.getString(R.string.tile_status_connected)
