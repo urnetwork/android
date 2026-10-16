@@ -88,6 +88,11 @@ object QuickConnect {
             connect = connect,
             startConnectBlocked = startConnectBlocked,
         )
+        if (com.bringyour.network.ui.connect.quickConnectClearsBalanceRecovery(connect, step)) {
+            // the user's own connect or disconnect replaces any wait, also a
+            // disconnect with nothing connected (a tap on the connecting tile)
+            app.clearBalanceRecovery()
+        }
         when (step) {
             com.bringyour.network.ui.connect.QuickConnectStep.NONE ->
                 return if (connect && VpnService.prepare(app) != null) Result.NEEDS_CONSENT else Result.APPLIED
@@ -98,10 +103,7 @@ object QuickConnect {
                 return Result.NEEDS_UPGRADE
             }
             com.bringyour.network.ui.connect.QuickConnectStep.CONNECT,
-            com.bringyour.network.ui.connect.QuickConnectStep.DISCONNECT -> {
-                // the user's own connect or disconnect replaces any wait
-                app.clearBalanceRecovery()
-            }
+            com.bringyour.network.ui.connect.QuickConnectStep.DISCONNECT -> {}
         }
         val vc = device.openConnectViewController() ?: return Result.NEEDS_APP
         try {
