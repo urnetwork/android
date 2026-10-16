@@ -30,10 +30,13 @@ import org.junit.Test
 /**
  * The connect screen's view model on a fake sdk, with the start connect gate
  * held until the test decides, as a balance fetch is held until the server
- * answers (owner report 2026-10-16). It pins how the view model wires its
- * start connect: the user's disconnect and a device change end a start
- * waiting on its balance, and an admitted start shows the controller's own
- * status at once.
+ * answers, and the connect command queue held until the test runs it, as the
+ * sdk holds a connect while it commits the local state (owner report
+ * 2026-10-16). It pins how the view model wires its start connect and its
+ * commands: the user's disconnect and a device change end a start waiting on
+ * its balance, a tap shows its state at once and holds it until the queue has
+ * run it, and the presented controller closes only after the commands queued
+ * against it.
  *
  * The fake controller reports a status change only when the test fires its
  * listener, as the sdk's listener reports on the sdk's own thread, later.
@@ -74,12 +77,43 @@ class ConnectViewModelTest {
         override fun close() = onClose()
     }
 
-    /** The sdk's connect view controller: what it was asked, and its status. */
+    /** The connect command queue's thread, held: nothing runs until [runAll]. */
+    private class HeldQueue {
+        private val queued = ArrayDeque<Runnable>()
+
+        val size: Int get() = queued.size
+
+        fun execute(runnable: Runnable) {
+            queued.addLast(runnable)
+        }
+
+        /** Runs what is queued, in order, also what the work queues meanwhile. */
+        fun runAll() {
+            while (queued.isNotEmpty()) {
+                queued.removeFirst().run()
+            }
+        }
+    }
+
+    /**
+     * The sdk's connect view controller: what it was asked, and its status.
+     * Closed, it refuses a connect or disconnect, as the sdk's does
+     * (ConnectViewController.beginLocalPreferenceGesture).
+     */
     private class FakeController : ConnectController {
         val commands = mutableListOf<String>()
         var started = false
         var closed = false
         private var statusListener: (() -> Unit)? = null
+
+        private fun command(name: String, status: String) {
+            if (closed) {
+                commands.add("refused $name")
+                return
+            }
+            commands.add(name)
+            connectionStatus = status
+        }
 
         override var connectionStatus: String? = "DISCONNECTED"
         override val grid: ConnectGrid? = null
@@ -100,21 +134,12 @@ class ConnectViewModelTest {
             started = false
         }
 
-        override fun connect(location: ConnectLocation) {
-            commands.add("connect")
-            connectionStatus = "DESTINATION_SET"
-        }
+        override fun connect(location: ConnectLocation) = command("connect", "DESTINATION_SET")
 
-        override fun connectBestAvailable() {
-            commands.add("connectBestAvailable")
-            // the sdk's own first status for a connect; its listener fires later
-            connectionStatus = "DESTINATION_SET"
-        }
+        // the sdk's own first status for a connect; its listener fires later
+        override fun connectBestAvailable() = command("connectBestAvailable", "DESTINATION_SET")
 
-        override fun disconnect() {
-            commands.add("disconnect")
-            connectionStatus = "DISCONNECTED"
-        }
+        override fun disconnect() = command("disconnect", "DISCONNECTED")
 
         /** The sdk's listener reports `status`, on its own thread in the app. */
         fun report(status: String) {
@@ -126,6 +151,8 @@ class ConnectViewModelTest {
     /** The sdk's device: every controller it opened, in order. */
     private class FakeDevice : ConnectDevice {
         val controllers = mutableListOf<FakeController>()
+
+        override val identity: Any get() = this
 
         override val connectEnabled = false
         override val tunnelStarted = false
@@ -145,6 +172,8 @@ class ConnectViewModelTest {
     /** The view model with the app around it replaced: the gate, the devices, the process lifecycle. */
     private class Harness {
         val gate = HeldGate()
+        val queue = HeldQueue()
+        val commands = ConnectCommands(execute = queue::execute, postMain = { it.run() })
         private val lifecycleOwner: LifecycleOwner = object : LifecycleOwner {
             override val lifecycle: Lifecycle get() = registry
         }
@@ -162,6 +191,7 @@ class ConnectViewModelTest {
                 ({ deviceListener = null })
             },
             checkStartConnect = gate::check,
+            connectCommands = commands,
         )
 
         val displayed: ConnectStatus get() = viewModel.displayConnectStatus.value
@@ -227,6 +257,7 @@ class ConnectViewModelTest {
         assertEquals(ConnectStatus.DISCONNECTED, harness.displayed)
 
         harness.gate.decide(blocked = false)
+        harness.queue.runAll()
         assertEquals(listOf("disconnect"), controller.commands)
         assertEquals(ConnectStatus.DISCONNECTED, harness.displayed)
     }
@@ -241,11 +272,13 @@ class ConnectViewModelTest {
 
         val next = FakeDevice()
         harness.publish(next)
+        harness.queue.runAll()
         assertTrue(previousController.closed)
         val nextController = next.controllers.single()
         assertEquals(ConnectStatus.DISCONNECTED, harness.displayed)
 
         harness.gate.decide(blocked = false)
+        harness.queue.runAll()
         assertEquals(emptyList<String>(), previousController.commands)
         assertEquals(emptyList<String>(), nextController.commands)
         assertEquals(1, previous.controllers.size)
@@ -258,10 +291,12 @@ class ConnectViewModelTest {
         harness.viewModel.connect(null)
 
         harness.publish(null)
+        harness.queue.runAll()
         assertTrue(controller.closed)
         assertEquals(ConnectStatus.DISCONNECTED, harness.displayed)
 
         harness.gate.decide(blocked = false)
+        harness.queue.runAll()
         assertEquals(emptyList<String>(), controller.commands)
         assertEquals(1, device.controllers.size)
         assertEquals(ConnectStatus.DISCONNECTED, harness.displayed)
@@ -271,12 +306,13 @@ class ConnectViewModelTest {
     fun admittedStartShowsTheControllersStatusAtOnce() {
         // the controller has the connect's status right after the connect,
         // but its listener reports it later, on the sdk's thread: the screen
-        // reads it at once instead of stepping back to the status from before
-        // the tap
+        // reads it once the queue has run the connect instead of stepping back
+        // to the status from before the tap
         val (harness, _, controller) = presenting()
         harness.viewModel.connect(null)
 
         harness.gate.decide(blocked = false)
+        harness.queue.runAll()
         assertEquals(listOf("connectBestAvailable"), controller.commands)
         assertEquals(ConnectStatus.DESTINATION_SET, harness.displayed)
         assertEquals(ConnectStatus.DESTINATION_SET, harness.viewModel.connectStatus.value)
@@ -294,9 +330,11 @@ class ConnectViewModelTest {
         val (harness, device, presented) = presenting()
         harness.viewModel.connect(null)
         harness.background()
+        harness.queue.runAll()
         assertTrue(presented.closed)
 
         harness.gate.decide(blocked = false)
+        harness.queue.runAll()
         assertEquals(2, device.controllers.size)
         val temporary = device.controllers[1]
         assertEquals(listOf("connectBestAvailable"), temporary.commands)
@@ -313,9 +351,11 @@ class ConnectViewModelTest {
         val (harness, device, presented) = presenting()
         harness.viewModel.connect(null)
         harness.clear()
+        harness.queue.runAll()
         assertTrue(presented.closed)
 
         harness.gate.decide(blocked = false)
+        harness.queue.runAll()
         assertEquals(1, device.controllers.size)
         assertEquals(emptyList<String>(), presented.commands)
     }
@@ -329,8 +369,125 @@ class ConnectViewModelTest {
         assertEquals(0, device.controllers.size)
 
         harness.viewModel.disconnect()
+        harness.queue.runAll()
         val temporary = device.controllers.single()
         assertEquals(listOf("disconnect"), temporary.commands)
         assertTrue(temporary.closed)
+    }
+
+    /** A view model presenting a controller that reports `status`, the queue empty. */
+    private fun presentingWith(status: String): Triple<Harness, FakeDevice, FakeController> {
+        val presenting = presenting()
+        presenting.third.report(status)
+        assertEquals(ConnectStatus.fromString(status), presenting.first.displayed)
+        return presenting
+    }
+
+    @Test
+    fun admittedConnectWaitsOnTheQueueAndShowsAtOnce() {
+        // the connect runs on the queue, not where it was tapped, and the
+        // screen shows it from the tap
+        val (harness, _, controller) = presenting()
+        harness.viewModel.connect(null)
+        harness.gate.decide(blocked = false)
+
+        assertEquals(emptyList<String>(), controller.commands)
+        assertEquals(1, harness.queue.size)
+        assertEquals(ConnectStatus.DESTINATION_SET, harness.displayed)
+
+        harness.queue.runAll()
+        assertEquals(listOf("connectBestAvailable"), controller.commands)
+        assertEquals(ConnectStatus.DESTINATION_SET, harness.displayed)
+    }
+
+    @Test
+    fun disconnectShowsAtOnceAndWaitsOnTheQueue() {
+        val (harness, _, controller) = presentingWith("CONNECTED")
+
+        harness.viewModel.disconnect()
+        assertEquals(emptyList<String>(), controller.commands)
+        assertEquals(ConnectStatus.DISCONNECTED, harness.displayed)
+
+        harness.queue.runAll()
+        assertEquals(listOf("disconnect"), controller.commands)
+        assertEquals(ConnectStatus.DISCONNECTED, harness.displayed)
+    }
+
+    @Test
+    fun aReportFromBeforeTheDisconnectCannotFlipItBack() {
+        // the outgoing session's report lands after the tap but before the
+        // queue ran the disconnect: the tap's state stands
+        val (harness, _, controller) = presentingWith("CONNECTED")
+        harness.viewModel.disconnect()
+
+        controller.report("CONNECTED")
+        assertEquals(ConnectStatus.DISCONNECTED, harness.displayed)
+
+        // once the queue has run it, the controller is read again
+        harness.queue.runAll()
+        assertEquals(ConnectStatus.DISCONNECTED, harness.displayed)
+        assertEquals(ConnectStatus.DISCONNECTED, harness.viewModel.connectStatus.value)
+    }
+
+    @Test
+    fun aReportFromBeforeTheConnectCannotFlipItBack() {
+        val (harness, _, controller) = presenting()
+        harness.viewModel.connect(null)
+        harness.gate.decide(blocked = false)
+
+        controller.report("DISCONNECTED")
+        assertEquals(ConnectStatus.DESTINATION_SET, harness.displayed)
+
+        harness.queue.runAll()
+        assertEquals(ConnectStatus.DESTINATION_SET, harness.displayed)
+        controller.report("CONNECTED")
+        assertEquals(ConnectStatus.CONNECTED, harness.displayed)
+    }
+
+    @Test
+    fun connectThenDisconnectShowsTheNewestAndRunsInOrder() {
+        val (harness, _, controller) = presenting()
+        harness.viewModel.connect(null)
+        harness.gate.decide(blocked = false)
+        harness.viewModel.disconnect()
+        assertEquals(ConnectStatus.DISCONNECTED, harness.displayed)
+
+        harness.queue.runAll()
+        assertEquals(listOf("connectBestAvailable", "disconnect"), controller.commands)
+        assertEquals(ConnectStatus.DISCONNECTED, harness.displayed)
+    }
+
+    @Test
+    fun disconnectTappedBeforeTheBackgroundStillReachesTheSdk() {
+        // the app goes to the background while the disconnect is still
+        // queued: the presented controller closes only after it, since a
+        // closed controller refuses it and the next launch would reconnect
+        val (harness, _, controller) = presentingWith("CONNECTED")
+        harness.viewModel.disconnect()
+        harness.background()
+        assertFalse(controller.closed)
+
+        harness.queue.runAll()
+        assertEquals(listOf("disconnect"), controller.commands)
+        assertTrue(controller.closed)
+    }
+
+    @Test
+    fun deviceChangeDropsThePreviousDevicesCommandsFromTheStatus() {
+        // a sign out with the previous account's connect still queued: the
+        // next account's screen does not show it, while it still runs
+        val (harness, _, previousController) = presenting()
+        harness.viewModel.connect(null)
+        harness.gate.decide(blocked = false)
+        assertEquals(ConnectStatus.DESTINATION_SET, harness.displayed)
+
+        val next = FakeDevice()
+        harness.publish(next)
+        assertEquals(ConnectStatus.DISCONNECTED, harness.displayed)
+
+        harness.queue.runAll()
+        assertEquals(listOf("connectBestAvailable"), previousController.commands)
+        assertEquals(emptyList<String>(), next.controllers.single().commands)
+        assertEquals(ConnectStatus.DISCONNECTED, harness.displayed)
     }
 }

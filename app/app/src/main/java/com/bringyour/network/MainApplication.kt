@@ -467,6 +467,15 @@ class MainApplication : Application() {
     }
 
     /**
+     * The serial queue every connect and disconnect runs on, off the main
+     * thread, in the order they were made (ConnectCommands). Alive for the
+     * life of the process.
+     */
+    internal val connectCommands = com.bringyour.network.ui.connect.ConnectCommands.create(
+        onFailure = { Log.e(TAG, "[connect]command failed: ${it.message}", it) },
+    )
+
+    /**
      * The quick connect surfaces' start connect (QuickConnect), through the
      * same gate: they show connecting from the tap while it fetches the
      * balance, and re-render on each change. Main thread.

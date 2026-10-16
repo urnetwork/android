@@ -53,10 +53,19 @@ import kotlinx.coroutines.launch
  * and the connect and disconnect the screen makes.
  *
  * It reaches the sdk through [ConnectDevice] and [ConnectController], the
- * device changes through `deviceChanges`, the process lifecycle and the start
- * connect gate through constructor arguments, so tests run it on a fake sdk
- * with a held gate (ConnectViewModelTest). The app's are the device manager's
- * device, ProcessLifecycleOwner and MainApplication.checkStartConnect.
+ * device changes through `deviceChanges`, the process lifecycle, the start
+ * connect gate and the connect command queue through constructor arguments,
+ * so tests run it on a fake sdk with a held gate and a held queue
+ * (ConnectViewModelTest). The app's are the device manager's device,
+ * ProcessLifecycleOwner, MainApplication.checkStartConnect and
+ * MainApplication.connectCommands.
+ *
+ * Its connects and disconnects run on the connect command queue, off the main
+ * thread ([ConnectCommands]), and the screen shows each tap's state from the
+ * tap until the queue has run it; then it reads the controller's status again.
+ * The presented controller and its listeners close on the queue too, after
+ * the commands made so far, so a disconnect tapped just before the app goes
+ * to the background still reaches the sdk.
  */
 @HiltViewModel
 class ConnectViewModel
@@ -66,6 +75,7 @@ internal constructor(
         private val processLifecycle: Lifecycle,
         deviceChanges: (listener: (ConnectDevice?) -> Unit) -> (() -> Unit),
         checkStartConnect: (onResult: (blocked: Boolean) -> Unit) -> Unit,
+        private val connectCommands: ConnectCommands,
 ) : ViewModel(), DefaultLifecycleObserver {
 
     @Inject
@@ -89,6 +99,9 @@ internal constructor(
                 app.checkStartConnect(onResult)
             }
         },
+        connectCommands = (appContext as? com.bringyour.network.MainApplication)?.connectCommands
+            // only a test context has no app: commands run where they are made
+            ?: ConnectCommands(execute = { it.run() }, postMain = { it.run() }),
     )
 
     private var connectVc: ConnectController? = null
@@ -98,6 +111,7 @@ internal constructor(
 
     private val subs = mutableListOf<Sub>()
     private var removeDeviceChangeListener: (() -> Unit)? = null
+    private var removeCommandsListener: (() -> Unit)? = null
     private val controllerOwner =
         ForegroundDeviceControllerOwner<ConnectDevice, ConnectController>(
             open = { openConnectViewController(it) },
@@ -301,16 +315,13 @@ internal constructor(
                 app?.clearBalanceRecovery()
                 // the app may have gone to the background while the gate
                 // fetched the balance: the connect still reaches the sdk
-                onConnectController { vc ->
+                runCommand(connect = true) { vc ->
                     if (location != null) {
                         vc.connect(location)
                     } else {
                         vc.connectBestAvailable()
                     }
                 }
-                // the controller has the connect's status now, whichever
-                // thread its listener reports on
-                updateConnectionStatus()
             },
             refused = {
                 Log.i(TAG, "[connect]blocked: insufficient balance")
@@ -527,7 +538,9 @@ internal constructor(
     }
 
     val addConnectionStatusListener = {
-        addListener { vc -> vc.addConnectionStatusListener { updateConnectionStatus() } }
+        // the sdk reports on its own thread, the queue's for a command's own
+        // status: read on the main thread, with the rest of the view model
+        addListener { vc -> vc.addConnectionStatusListener { viewModelScope.launch { updateConnectionStatus() } } }
     }
 
     private fun updateSelectedLocation() {
@@ -546,30 +559,52 @@ internal constructor(
         // and a start still waiting on its balance does not connect
         (appContext as? com.bringyour.network.MainApplication)?.clearBalanceRecovery()
         startConnectAdmission.cancel()
-        onConnectController { it.disconnect() }
+        runCommand(connect = false) { it.disconnect() }
     }
 
     /**
-     * Runs `command` on the presented controller or, without one, on a
-     * controller opened for it on the current device and closed after, so a
-     * connect or disconnect always reaches the sdk. The presented controller
-     * is closed in the background, and a start the gate admits after the app
-     * left the foreground found none and was lost. The quick connect surfaces
-     * and the balance recovery connect the same way, as the Apple app does
-     * without a presented controller (ConnectViewModel.performOnSdk). Main
-     * thread.
+     * Queues `command`, a connect (`connect`) or a disconnect, on the connect
+     * command queue, off the main thread ([ConnectCommands]). It runs on the
+     * presented controller or, without one, on a controller opened for it on
+     * the current device and closed after, so a connect or disconnect always
+     * reaches the sdk. The presented controller is closed in the background,
+     * and a start the gate admits after the app left the foreground found none
+     * and was lost. The quick connect surfaces and the balance recovery connect
+     * the same way, as the Apple app does without a presented controller
+     * (ConnectViewModel.performOnSdk). The presented controller closes on the
+     * queue after this command (closeConnectViewController). Main thread.
      */
-    private fun onConnectController(command: (ConnectController) -> Unit) {
-        connectVc?.let {
-            command(it)
-            return
+    private fun runCommand(connect: Boolean, command: (ConnectController) -> Unit) {
+        val presented = connectVc
+        val device = (if (presented != null) viewControllerDevice else null) ?: currentDevice ?: return
+        connectCommands.run(device = device.identity, connect = connect) {
+            if (presented != null) {
+                command(presented)
+            } else {
+                val vc = device.openConnectViewController()
+                try {
+                    command(vc)
+                } finally {
+                    device.closeViewController(vc)
+                }
+            }
         }
-        val device = currentDevice ?: return
-        val vc = device.openConnectViewController()
-        try {
-            command(vc)
-        } finally {
-            device.closeViewController(vc)
+    }
+
+    /**
+     * The queue made or finished a command: until the last one made on this
+     * device has run, the newest one's own first status stands in for the
+     * sdk's, and then the controller's status is read again. A device change
+     * drops the previous device's commands from the status.
+     */
+    private fun commandsChanged() {
+        val pending = connectCommands.pending(currentDevice?.identity)
+        startConnectAdmission.commandPending(
+            pending?.let { connect -> if (connect) ConnectStatus.DESTINATION_SET else ConnectStatus.DISCONNECTED }
+        )
+        if (pending == null) {
+            // the sdk has every command now
+            updateConnectionStatus()
         }
     }
 
@@ -616,6 +651,7 @@ internal constructor(
         controllerOwner.setForeground(
             processLifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)
         )
+        removeCommandsListener = connectCommands.addListener { commandsChanged() }
         removeDeviceChangeListener = deviceChanges { device ->
             viewModelScope.launch {
                 setupDevice(device)
@@ -665,6 +701,8 @@ internal constructor(
             loadPerformanceProfile()
         }
         controllerOwner.setDevice(device)
+        // the previous device's commands no longer show
+        commandsChanged()
     }
 
     private fun openConnectViewController(device: ConnectDevice): ConnectController {
@@ -682,10 +720,19 @@ internal constructor(
     }
 
     private fun closeConnectViewController(device: ConnectDevice, vc: ConnectController) {
-        subs.forEach { sub -> sub.close() }
+        // on the queue, after the commands made so far, which may still run on
+        // this controller: a closed controller refuses a disconnect, so one
+        // tapped just before the app left the foreground was lost. The closes
+        // also take the device's locks, which a command holds while it runs.
+        // A listener reporting until then reads the current controller, or
+        // checks its device
+        val closingSubs = subs.toList()
         subs.clear()
-        vc.stop()
-        device.closeViewController(vc)
+        connectCommands.afterCommands {
+            closingSubs.forEach { sub -> sub.close() }
+            vc.stop()
+            device.closeViewController(vc)
+        }
         if (connectVc === vc) {
             connectVc = null
             viewControllerDevice = null
@@ -706,6 +753,8 @@ internal constructor(
     override fun onCleared() {
         removeDeviceChangeListener?.invoke()
         removeDeviceChangeListener = null
+        removeCommandsListener?.invoke()
+        removeCommandsListener = null
         processLifecycle.removeObserver(this)
         // a start still waiting on its balance never connects once the
         // screen is gone, as the Apple app's is dropped with its view model
