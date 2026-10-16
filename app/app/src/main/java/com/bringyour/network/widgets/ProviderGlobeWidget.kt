@@ -54,8 +54,8 @@ class ProviderGlobeWidget : GlanceAppWidget() {
     override val sizeMode: SizeMode = SizeMode.Exact
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
-        val entry = WidgetEntry.load(context)
-        provideContent { ProviderGlobeContent(entry) }
+        // the entry is read in the composition, again on each reload (see DashboardWidget)
+        provideContent { ProviderGlobeContent(rememberWidgetEntry(context, WidgetKinds.PROVIDER_GLOBE)) }
     }
 }
 

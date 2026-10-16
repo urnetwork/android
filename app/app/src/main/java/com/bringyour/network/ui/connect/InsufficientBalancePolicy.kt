@@ -119,6 +119,43 @@ internal fun startConnectBalance(
 }
 
 /**
+ * The start connect gate over its inputs: `onResult` gets once whether the
+ * start is refused. Whether the plan is known to be Supporter (the ui's or
+ * the jwt's), whether a balance poll runs, and the contract status are read
+ * when it decides.
+ *
+ * A known Supporter plan and a running poll are never refused, so they
+ * decide at once, without fetching the balance: the fetch kept a connect tap
+ * waiting for up to [START_CONNECT_BALANCE_FETCH_TIMEOUT_MILLIS] (owner
+ * report 2026-10-16). Otherwise the account balance decides
+ * ([startConnectBalance]), and a fetched balance can still show Pro.
+ */
+internal fun checkStartConnect(
+    isProKnown: () -> Boolean,
+    isPollingSubscriptionBalance: () -> Boolean,
+    contractInsufficientBalance: () -> Boolean,
+    cached: WidgetBalanceSnapshot?,
+    nowMillis: Long,
+    fetch: (onBalance: (WidgetBalanceSnapshot?) -> Unit) -> Unit,
+    onResult: (blocked: Boolean) -> Unit,
+) {
+    if (isProKnown() || isPollingSubscriptionBalance()) {
+        onResult(false)
+        return
+    }
+    startConnectBalance(cached, nowMillis, fetch) { balance ->
+        onResult(
+            startConnectBlocked(
+                contractInsufficientBalance = contractInsufficientBalance(),
+                accountBalanceExhausted = accountBalanceExhausted(balance),
+                currentPlan = if (isProKnown() || balance?.isPro == true) Plan.Supporter else Plan.Basic,
+                isPollingSubscriptionBalance = isPollingSubscriptionBalance(),
+            )
+        )
+    }
+}
+
+/**
  * Passes on only the first of a balance fetch's result and its timeout, so a
  * start connect decides exactly once. Main thread only.
  */
@@ -157,6 +194,16 @@ internal fun quickConnectStep(
     startConnectBlocked -> QuickConnectStep.UPGRADE
     else -> QuickConnectStep.CONNECT
 }
+
+/**
+ * Whether a quick connect request ends a connect waiting on the balance
+ * (BalanceRecovery): the user's own connect, and every disconnect they ask
+ * for. That includes one with nothing connected (the step does nothing),
+ * such as a tap on the connecting tile that ends a start still waiting on
+ * the gate: a refused start's recovery must not reconnect after it.
+ */
+internal fun quickConnectClearsBalanceRecovery(connect: Boolean, step: QuickConnectStep): Boolean =
+    !connect || step == QuickConnectStep.CONNECT
 
 internal data class ConnectActionButtons(
     val upgrade: Boolean,
