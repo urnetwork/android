@@ -224,13 +224,13 @@ private fun QuickConnectButton(entry: WidgetEntry) {
         modifier = GlanceModifier
             .size(48.dp, 36.dp)
             .cornerRadius(18.dp)
-            .background(if (entry.isOn || entry.isConnecting) WidgetTheme.tint else WidgetTheme.card)
+            .background(if (entry.quickConnectOn) WidgetTheme.tint else WidgetTheme.card)
             .clickable(action),
         contentAlignment = Alignment.Center,
     ) {
         Image(
             provider = ImageProvider(R.drawable.ic_tile_quick_on),
-            contentDescription = context.getString(if (entry.isOn || entry.isConnecting) R.string.disconnect else R.string.connect),
+            contentDescription = context.getString(if (entry.quickConnectOn) R.string.disconnect else R.string.connect),
             modifier = GlanceModifier.size(18.dp),
             colorFilter = ColorFilter.tint(WidgetTheme.text),
         )

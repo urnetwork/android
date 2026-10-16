@@ -26,6 +26,14 @@ class WidgetEntry(
     /** The tunnel snapshot is meaningful only while the tunnel that wrote it is up. */
     val showsTunnelData: Boolean get() = isOn && tunnel.tunnelActive
 
+    /**
+     * The dashboard's quick connect button shows on (tinted, "Disconnect"):
+     * a connection requested or a start waiting on its balance, for a
+     * signed-in device only. Signed out, the button opens sign-in and shows
+     * off, whatever the quick connect start reports.
+     */
+    val quickConnectOn: Boolean get() = isConfigured && (isOn || isConnecting)
+
     companion object {
         /** Debug builds only: a flag file that switches the widgets to the sample entry. */
         const val SAMPLE_FLAG = "widgets/sample"
