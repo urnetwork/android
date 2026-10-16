@@ -152,6 +152,76 @@ class ConnectCommandsTest {
         assertEquals(listOf("next connect"), ran)
     }
 
+    /** The watchdog's delayed posts, held until the test fires them. */
+    private class HeldDelays {
+        val posted = mutableListOf<Pair<Runnable, Long>>()
+
+        fun post(runnable: Runnable, millis: Long) {
+            posted.add(runnable to millis)
+        }
+
+        fun fireAll() {
+            val fired = posted.toList()
+            posted.clear()
+            fired.forEach { it.first.run() }
+        }
+    }
+
+    @Test
+    fun aCommandPastItsBoundIsLoggedAndNoLongerShowsAsPending() {
+        // the sdk holds a disconnect: from the bound on the surfaces show
+        // what the sdk reports, and the command still runs, in order
+        val queue = HeldQueue()
+        val delays = HeldDelays()
+        val stalls = mutableListOf<Pair<Boolean, Long>>()
+        val commands = ConnectCommands(
+            execute = queue::execute,
+            postMain = { it.run() },
+            postMainDelayed = delays::post,
+            onStalled = { connect, millis -> stalls.add(connect to millis) },
+        )
+        val device = Any()
+        val ran = mutableListOf<String>()
+        var pendingWhileHeld: Boolean? = true
+        commands.run(device, connect = false) {
+            // the bound passes while the sdk still holds the disconnect
+            delays.fireAll()
+            pendingWhileHeld = commands.pending(device)
+            ran.add("disconnect")
+        }
+        commands.run(device, connect = true) { ran.add("connect") }
+        assertEquals(true, commands.pending(device))
+
+        queue.runNext()
+        assertEquals(listOf(false to CONNECT_COMMAND_STALL_MILLIS), stalls)
+        assertNull(pendingWhileHeld)
+        // it returned: the connect after it is pending again, then runs
+        assertEquals(true, commands.pending(device))
+        queue.runNext()
+        assertEquals(listOf("disconnect", "connect"), ran)
+        assertNull(commands.pending(device))
+    }
+
+    @Test
+    fun aCommandWithinItsBoundIsNotLogged() {
+        val queue = HeldQueue()
+        val delays = HeldDelays()
+        val stalls = mutableListOf<Pair<Boolean, Long>>()
+        val commands = ConnectCommands(
+            execute = queue::execute,
+            postMain = { it.run() },
+            postMainDelayed = delays::post,
+            onStalled = { connect, millis -> stalls.add(connect to millis) },
+        )
+        val device = Any()
+        commands.run(device, connect = true) {}
+        queue.runAll()
+        // the bound passes after it returned
+        delays.fireAll()
+        assertEquals(emptyList<Pair<Boolean, Long>>(), stalls)
+        assertNull(commands.pending(device))
+    }
+
     @Test
     fun aFailingCommandStillFinishes() {
         val queue = HeldQueue()
