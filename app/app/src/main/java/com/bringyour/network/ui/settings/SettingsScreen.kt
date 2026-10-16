@@ -587,7 +587,7 @@ private fun SettingsScreen(
     networkName: String? = null,
     setShowDeleteAccountDialog: (Boolean) -> Unit = {},
     showDeleteAccountDialog: Boolean,
-    deleteAccount: (onSuccess: () -> Unit, onFailure: (DeleteAccountOutcome.Failed) -> Unit) -> Unit,
+    deleteAccount: (onSuccess: (signedOutDevice: com.bringyour.sdk.DeviceLocal) -> Unit, onFailure: (DeleteAccountOutcome.Failed) -> Unit) -> Unit,
     isDeletingAccount: Boolean,
     routeLocal: Boolean,
     toggleRouteLocal: () -> Unit,
@@ -1762,15 +1762,18 @@ private fun SettingsScreen(
                                 onClick = {
 
                                     deleteAccount(
-                                        {
+                                        { signedOutDevice ->
                                             setShowDeleteAccountDialog(false)
 
-                                            application?.logout()
+                                            // only the deleted account signs out: by the
+                                            // server's answer it may be signed out already,
+                                            // and the next account signed in
+                                            if (application?.logout(signedOutDevice) == true) {
+                                                val intent = Intent(context, LoginActivity::class.java)
+                                                context.startActivity(intent)
 
-                                            val intent = Intent(context, LoginActivity::class.java)
-                                            context.startActivity(intent)
-
-                                            (context as? Activity)?.finish()
+                                                (context as? Activity)?.finish()
+                                            }
 
                                         },
                                         { failed ->

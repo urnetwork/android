@@ -2255,6 +2255,21 @@ class MainApplication : Application() {
         }
     }
 
+    /**
+     * The sign out of `signedOutDevice`'s account, the one signed in when the
+     * user asked for it, only while it is still the signed-in device
+     * ([signOutApplies]): the account deletion signs out once the server
+     * answers, when the server may already have signed that account out and
+     * the next account signed in. True when it signed out.
+     */
+    fun logout(signedOutDevice: com.bringyour.sdk.DeviceLocal): Boolean {
+        if (!signOutApplies(signedOutDevice, device)) {
+            return false
+        }
+        logout()
+        return true
+    }
+
     fun logout() {
         // the user signed out: the sign-in screen has nothing to explain
         signInNotices.clear()
