@@ -25,6 +25,8 @@ internal interface ConnectDevice {
     val connectEnabled: Boolean
     val tunnelStarted: Boolean
     val contractStatus: ContractStatus?
+    /** The saved connection's location, null for none. */
+    val connectLocation: ConnectLocation?
 
     fun addTunnelChangeListener(listener: (tunnelStarted: Boolean) -> Unit): Sub
     fun addContractStatusChangeListener(listener: () -> Unit): Sub
@@ -59,6 +61,7 @@ internal class SdkConnectDevice(val device: DeviceLocal) : ConnectDevice {
     override val connectEnabled: Boolean get() = device.connectEnabled
     override val tunnelStarted: Boolean get() = device.tunnelStarted
     override val contractStatus: ContractStatus? get() = device.contractStatus
+    override val connectLocation: ConnectLocation? get() = device.connectLocation
 
     override fun addTunnelChangeListener(listener: (tunnelStarted: Boolean) -> Unit): Sub =
         device.addTunnelChangeListener { listener(it) }

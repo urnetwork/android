@@ -123,3 +123,38 @@ internal class ConnectCommands(
         }
     }
 }
+
+/**
+ * Queues a connect (`connect`) or a disconnect of a surface without a
+ * presented controller (the quick connect surfaces, the notification, the
+ * balance recovery, Always-on) on `device`, through a controller opened for
+ * it on the queue and closed after. A connect goes to what `location` gives,
+ * read with the command on the queue, so it sees what the commands before it
+ * left (the saved connection's location by default); null is the best
+ * available provider. True when it is queued.
+ */
+internal fun ConnectCommands.runOnDevice(
+    device: ConnectDevice,
+    connect: Boolean,
+    location: (ConnectDevice) -> com.bringyour.sdk.ConnectLocation? = { it.connectLocation },
+): Boolean = run(device.identity, connect) {
+    val vc = device.openConnectViewController()
+    try {
+        if (connect) {
+            location(device)?.let(vc::connect) ?: vc.connectBestAvailable()
+        } else {
+            vc.disconnect()
+        }
+    } finally {
+        device.closeViewController(vc)
+    }
+}
+
+/**
+ * Whether the user asked for a connection on `device`: the newest command
+ * not yet run, else the device's `connectEnabled`. A surface decides on it,
+ * so a connect tapped after a queued disconnect is not taken for one already
+ * made.
+ */
+internal fun ConnectCommands.connectRequested(device: ConnectDevice): Boolean =
+    pending(device.identity) ?: device.connectEnabled

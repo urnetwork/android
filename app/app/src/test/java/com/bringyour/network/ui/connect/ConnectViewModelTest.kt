@@ -157,6 +157,7 @@ class ConnectViewModelTest {
         override val connectEnabled = false
         override val tunnelStarted = false
         override val contractStatus: ContractStatus? = null
+        override val connectLocation: ConnectLocation? = null
 
         override fun addTunnelChangeListener(listener: (tunnelStarted: Boolean) -> Unit): Sub = FakeSub()
         override fun addContractStatusChangeListener(listener: () -> Unit): Sub = FakeSub()
