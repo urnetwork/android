@@ -2252,6 +2252,10 @@ class MainApplication : Application() {
         widgetSnapshotWriter?.clear()
         // a connect the signed-out account asked for must not start later
         clearBalanceRecovery()
+        // nor a quick connect start still waiting on its balance: the gate
+        // could decide it once the next account's device is up. Its surface
+        // is answered, so a shortcut's trampoline finishes
+        quickStartConnect.cancel()
         // nor may its plan decide the next account's start connect gate, which
         // reads this until the next connect screen sets its own
         uiIsPro = false
