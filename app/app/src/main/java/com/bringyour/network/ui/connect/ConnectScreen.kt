@@ -122,6 +122,8 @@ fun ConnectScreen(
 ) {
 
     val connectStatus by connectViewModel.connectStatus.collectAsState()
+    // what the connect controls show (StartConnectAdmission)
+    val displayConnectStatus by connectViewModel.displayConnectStatus.collectAsState()
     val contractStatus by connectViewModel.contractStatus.collectAsState()
 
     val networkUser by accountViewModel.networkUser.collectAsState()
@@ -144,7 +146,7 @@ fun ConnectScreen(
         ).collectAsState()
     // upgrade shown in place of connect on the account balance alone: make
     // sure that balance is current, so a stale zero does not hide connect
-    val balanceGatesConnect = balanceExhausted && connectStatus == ConnectStatus.DISCONNECTED
+    val balanceGatesConnect = balanceExhausted && displayConnectStatus == ConnectStatus.DISCONNECTED
     LaunchedEffect(balanceGatesConnect, balanceChanges) {
         if (balanceGatesConnect) {
             (screenContext.applicationContext as? MainApplication)?.refreshStartConnectBalanceIfStale()
@@ -153,7 +155,7 @@ fun ConnectScreen(
     val displayInsufficientBalance = com.bringyour.network.ui.connect.displayInsufficientBalance(
         contractInsufficientBalance = contractStatus?.insufficientBalance == true,
         accountBalanceExhausted = balanceExhausted,
-        connectRequested = connectStatus != ConnectStatus.DISCONNECTED,
+        connectRequested = displayConnectStatus != ConnectStatus.DISCONNECTED,
     ) && !isPro
 
     var promptSolanaReview by remember { mutableStateOf(false) }
@@ -246,7 +248,7 @@ fun ConnectScreen(
                 reconnectTunnel = {
                     application?.startVpnService()
                 },
-                connectStatus = connectStatus,
+                connectStatus = displayConnectStatus,
                 isPollingSubscriptionBalance = subscriptionBalanceViewModel.isPollingSubscriptionBalance,
                 displayReconnectTunnel = connectViewModel.displayReconnectTunnel,
                 privateDnsStrictHost = privateDnsStrictHost,
@@ -281,7 +283,7 @@ fun ConnectScreen(
         },
         mainContent = {
             ConnectMainContent(
-                connectStatus = connectStatus,
+                connectStatus = displayConnectStatus,
                 selectedLocation = connectViewModel.selectedLocation,
                 networkName = networkUser?.networkName,
                 connect = connectViewModel.connect,
