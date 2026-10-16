@@ -61,6 +61,30 @@ object QuickConnect {
     fun isConnected(app: MainApplication): Boolean =
         app.device?.let { app.connectCommands.connectRequested(SdkConnectDevice(it)) } == true
 
+    /**
+     * What the tile's subtitle and the dashboard widget's title say about the
+     * connection: connected only once the window holds its providers and the
+     * tunnel is up, else connecting, couldn't connect or the tunnel down, as
+     * the connect screen says it (quickConnectStatus). Reads the device: any
+     * thread.
+     */
+    internal fun status(app: MainApplication): com.bringyour.network.ui.connect.QuickConnectStatus {
+        val device = app.device ?: return com.bringyour.network.ui.connect.QuickConnectStatus.NOT_SIGNED_IN
+        val pending = app.connectCommands.pending(device)
+        val windowStatus = device.windowStatus
+        return com.bringyour.network.ui.connect.quickConnectStatus(
+            configured = true,
+            requested = pending ?: device.connectEnabled,
+            startWaiting = app.quickStartConnect.waiting,
+            connectQueued = pending == true,
+            minSatisfied = windowStatus?.minSatisfied == true,
+            failed = windowStatus?.failed == true,
+            addedProviderCount = (windowStatus?.providerStateAdded ?: 0L).coerceIn(0L, Int.MAX_VALUE.toLong()).toInt(),
+            locationProviderCount = device.connectLocation?.providerCount ?: 0,
+            tunnelStarted = device.tunnelStarted,
+        )
+    }
+
     /** What the surfaces show: on, connecting while a start waits on its balance, or off. */
     internal fun shown(app: MainApplication): com.bringyour.network.ui.connect.QuickConnectShown =
         com.bringyour.network.ui.connect.quickConnectShown(

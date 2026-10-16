@@ -390,9 +390,12 @@ internal fun locationMarkBitmap(sizePx: Int, color: Int): Bitmap {
 }
 
 internal fun locationTitle(context: Context, entry: WidgetEntry): String {
-    if (!entry.isConfigured) return context.getString(R.string.widget_not_signed_in)
-    if (entry.isConnecting) return context.getString(R.string.connecting_status_indicator)
-    if (!entry.isOn) return context.getString(R.string.tile_status_disconnected)
+    // the location only once connected, with the tunnel up; else the connect
+    // screen's line for the status (not signed in, disconnected, connecting,
+    // couldn't connect, tunnel down)
+    if (entry.status != com.bringyour.network.ui.connect.QuickConnectStatus.CONNECTED) {
+        return context.getString(com.bringyour.network.ui.connect.quickConnectStatusText(entry.status))
+    }
     val location = entry.tunnel.location
     if (!entry.showsTunnelData || location == null) return context.getString(R.string.tile_status_connected)
     if (location.bestAvailable) return context.getString(R.string.best_available_provider)
