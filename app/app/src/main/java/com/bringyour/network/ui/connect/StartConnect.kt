@@ -1,9 +1,8 @@
 package com.bringyour.network.ui.connect
 
 /**
- * The start connect of the quick connect surfaces (the Quick Settings tile,
- * the launcher shortcuts, the widget button), through the start connect gate
- * the connect screen uses.
+ * One app-level start admission shared by the connect screen and the quick
+ * connect surfaces (Quick Settings tile, launcher shortcuts, widget button).
  *
  * The gate may first fetch a fresh balance, for up to
  * [START_CONNECT_BALANCE_FETCH_TIMEOUT_MILLIS], and the surfaces showed the
@@ -19,13 +18,25 @@ package com.bringyour.network.ui.connect
  * the gate. Main thread only; [waiting] may be read from any thread (the
  * widgets render off the main thread).
  */
-internal class QuickStartConnect(
+internal class StartConnect(
     /** The gate: calls back once, at once or after a fetch, with whether the start is refused. */
     check: (onResult: (blocked: Boolean) -> Unit) -> Unit,
     /** Re-renders the surfaces: they read [waiting] and the device. */
     render: () -> Unit,
 ) {
-    private val admission = StartConnectAdmission(displayChanged = render, check = check)
+    private val listeners = mutableListOf<() -> Unit>()
+    private val admission = StartConnectAdmission(check = check, changed = {
+        render()
+        listeners.toList().forEach { it() }
+    })
+
+    /** Observes the one app-level wait; each surface owns its subscription. */
+    fun addListener(listener: () -> Unit): () -> Unit {
+        listeners.add(listener)
+        return { listeners.remove(listener) }
+    }
+
+    private var waitingOwner: Any? = null
 
     /** A start waits on its balance: the surfaces show connecting. */
     val waiting: Boolean get() = admission.waiting
@@ -48,6 +59,7 @@ internal class QuickStartConnect(
         waiting: () -> R,
         ended: () -> R,
         onResult: (R) -> Unit,
+        owner: Any? = null,
     ) {
         if (!connect) {
             // the user's disconnect: a start waiting on its balance does not connect
@@ -63,14 +75,17 @@ internal class QuickStartConnect(
             onResult(waiting())
             return
         }
+        waitingOwner = owner
         answerEnded = { onResult(ended()) }
         admission.connect(
             start = {
                 answerEnded = null
+                waitingOwner = null
                 onResult(apply(false))
             },
             refused = {
                 answerEnded = null
+                waitingOwner = null
                 onResult(apply(true))
             },
         )
@@ -81,11 +96,18 @@ internal class QuickStartConnect(
      * show off, and its request gets `ended()`. Nothing when none waits.
      */
     fun cancel() {
+        waitingOwner = null
         admission.cancel()
         val answer = answerEnded
         answerEnded = null
         answer?.invoke()
     }
+
+    /** Ends only this surface's wait when the surface itself goes away. */
+    fun cancel(owner: Any) {
+        if (waitingOwner === owner) cancel()
+    }
+
 }
 
 /** What the quick connect surfaces show: the tile's state and subtitle, the widget's button. */

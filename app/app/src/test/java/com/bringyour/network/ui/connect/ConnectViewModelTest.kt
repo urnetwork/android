@@ -106,10 +106,17 @@ class ConnectViewModelTest {
         var closed = false
         private var statusListener: (() -> Unit)? = null
 
+        // runs inside the next command, while the sdk holds it
+        var whileHeld: (() -> Unit)? = null
+
         private fun command(name: String, status: String) {
             if (closed) {
                 commands.add("refused $name")
                 return
+            }
+            whileHeld?.let {
+                whileHeld = null
+                it()
             }
             commands.add(name)
             connectionStatus = status
@@ -174,7 +181,14 @@ class ConnectViewModelTest {
     private class Harness {
         val gate = HeldGate()
         val queue = HeldQueue()
-        val commands = ConnectCommands(execute = queue::execute, postMain = { it.run() })
+        val startConnect = StartConnect(check = gate::check, render = {})
+        // the stall watchdog's posts, fired by the test
+        val delayed = mutableListOf<Runnable>()
+        val commands = ConnectCommands(
+            execute = queue::execute,
+            postMain = { it.run() },
+            postMainDelayed = { runnable, _ -> delayed.add(runnable) },
+        )
         private val lifecycleOwner: LifecycleOwner = object : LifecycleOwner {
             override val lifecycle: Lifecycle get() = registry
         }
@@ -191,7 +205,7 @@ class ConnectViewModelTest {
                 listener(null)
                 ({ deviceListener = null })
             },
-            checkStartConnect = gate::check,
+            startConnect = startConnect,
             connectCommands = commands,
         )
 
@@ -232,6 +246,54 @@ class ConnectViewModelTest {
         val controller = device.controllers.single()
         assertTrue(controller.started)
         return Triple(harness, device, controller)
+    }
+
+    @Test
+    fun screenDisconnectCancelsTheQuickSurfacesSharedAdmission() {
+        val (harness, _, controller) = presenting()
+        val quickResults = mutableListOf<String>()
+        harness.startConnect.request(
+            connectEnabled = false, connect = true,
+            apply = { "connected" }, waiting = { "waiting" }, ended = { "ended" },
+            onResult = { quickResults.add(it) },
+        )
+        assertEquals(ConnectStatus.DESTINATION_SET, harness.displayed)
+        harness.viewModel.connect(null)
+        assertEquals(1, harness.gate.checks)
+        harness.viewModel.disconnect()
+        harness.gate.decide(false)
+        harness.queue.runAll()
+        assertEquals(listOf("ended"), quickResults)
+        assertEquals(listOf("disconnect"), controller.commands)
+        assertEquals(ConnectStatus.DISCONNECTED, harness.displayed)
+    }
+
+    @Test
+    fun quickDisconnectCancelsTheScreensSharedAdmission() {
+        val (harness, _, controller) = presenting()
+        harness.viewModel.connect(null)
+        harness.startConnect.request(
+            connectEnabled = false, connect = false,
+            apply = {}, waiting = {}, ended = {}, onResult = {},
+        )
+        harness.gate.decide(false)
+        harness.queue.runAll()
+        assertEquals(emptyList<String>(), controller.commands)
+        assertEquals(ConnectStatus.DISCONNECTED, harness.displayed)
+    }
+
+    @Test
+    fun closingTheScreenDoesNotCancelAnotherSurfacesWait() {
+        val (harness, _, _) = presenting()
+        var applied = false
+        harness.startConnect.request(
+            connectEnabled = false, connect = true,
+            apply = { applied = true }, waiting = {}, ended = {}, onResult = {},
+        )
+        harness.clear()
+        assertTrue(harness.startConnect.waiting)
+        harness.gate.decide(false)
+        assertTrue(applied)
     }
 
     @Test
@@ -498,6 +560,26 @@ class ConnectViewModelTest {
         harness.viewModel.disconnect()
 
         harness.queue.runAll()
+        assertEquals(listOf("disconnect"), controller.commands)
+        assertEquals(ConnectStatus.DISCONNECTED, harness.displayed)
+    }
+
+    @Test
+    fun aDisconnectHeldPastItsBoundShowsTheReportedStatusUntilItReturns() {
+        // the sdk holds the disconnect: past the bound the screen shows what
+        // the controller reports instead of the tap's state for as long as
+        // the sdk holds it, and the disconnect still reaches the sdk
+        val (harness, _, controller) = presentingWith("CONNECTED")
+        harness.viewModel.disconnect()
+        assertEquals(ConnectStatus.DISCONNECTED, harness.displayed)
+
+        var displayedWhileHeld: ConnectStatus? = null
+        controller.whileHeld = {
+            harness.delayed.toList().forEach { it.run() }
+            displayedWhileHeld = harness.displayed
+        }
+        harness.queue.runAll()
+        assertEquals(ConnectStatus.CONNECTED, displayedWhileHeld)
         assertEquals(listOf("disconnect"), controller.commands)
         assertEquals(ConnectStatus.DISCONNECTED, harness.displayed)
     }

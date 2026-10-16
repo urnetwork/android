@@ -400,6 +400,7 @@
     <string name="dns_pill_recommended">Υπάρχουν μη εφαρμοσμένες προτεινόμενες ρυθμίσεις για %1$s</string>
     <string name="dns_recommendation_message">%1$s: οι πιο ισχυροί κανόνες ασφαλείας είναι γνωστό ότι δεν λειτουργούν εδώ. Υπάρχουν λιγότερο ασφαλείς προτεινόμενες ρυθμίσεις DNS που λειτουργούν καλύτερα.</string>
     <string name="dns_restore_secure_message">Επαναφέρετε τις πιο ασφαλείς ρυθμίσεις: κρυπτογραφημένο DNS μέσω HTTPS μέσα από το τούνελ.</string>
+    <string name="dns_settings_save_failed">Δεν ήταν δυνατή η αποθήκευση των ρυθμίσεων DNS. Δοκιμάστε ξανά.</string>
     <string name="dns_settings_unavailable">Οι ρυθμίσεις DNS δεν είναι διαθέσιμες</string>
     <string name="dns_using_recommended">Χρήση προτεινόμενων ρυθμίσεων περιοχής</string>
     <string name="dns_using_secure">Χρήση των πιο ασφαλών προεπιλογών</string>
@@ -963,6 +964,7 @@
     <string name="settings_add_quick_tile_description">Συνδεθείτε και αποσυνδεθείτε από τον πίνακα Γρήγορων ρυθμίσεων και την οθόνη κλειδώματος.</string>
     <string name="settings_add_widgets">Προσθήκη γραφικών στοιχείων στην αρχική οθόνη</string>
     <string name="settings_add_widgets_description">Γρήγορη σύνδεση, υπόλοιπο δεδομένων, πάροχοι στην υδρόγειο και τα κορυφαία συμβόλαιά σας.</string>
+    <string name="settings_editor_changed">Οι ρυθμίσεις άλλαξαν ενώ τις επεξεργαζόσασταν. Ελέγξτε τες και ενημερώστε ξανά.</string>
     <string name="share">Κοινή χρήση</string>
     <string name="share_extenders">Κοινοποίηση επεκτατών</string>
     <string name="share_extenders_hint">Σαρώστε αυτόν τον κωδικό με άλλη εφαρμογή URnetwork για να μοιραστείτε αυτούς τους επεκτατές.</string>
@@ -984,6 +986,7 @@
     <string name="sign_in_with_seedphrase">Σύνδεση με φράση ανάκτησης</string>
     <string name="sign_in_with_your_apple_id_to">Συνδεθείτε με το Apple ID σας για να το προσθέσετε ως μέθοδο σύνδεσης.</string>
     <string name="sign_out">Αποσύνδεση</string>
+    <string name="signing_out">Αποσύνδεση…</string>
     <string name="site_app_contracts">Συμβόλαια</string>
     <string name="site_app_email">Email</string>
     <string name="site_app_phone">Τηλέφωνο</string>

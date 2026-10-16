@@ -404,6 +404,7 @@
     <string name="dns_pill_recommended">There are unapplied recommended settings for %1$s</string>
     <string name="dns_recommendation_message">The strongest security rules are known not to work in %1$s. There are less secure recommended DNS settings that work better.</string>
     <string name="dns_restore_secure_message">Restore the most secure settings: encrypted DNS over HTTPS through the tunnel.</string>
+    <string name="dns_settings_save_failed">Couldn\'t save the DNS settings. Try again.</string>
     <string name="dns_settings_unavailable">DNS settings unavailable</string>
     <string name="dns_using_recommended">Using recommended regional settings</string>
     <string name="dns_using_secure">Using most secure default settings</string>
@@ -970,6 +971,7 @@
     <string name="settings_add_quick_tile_description">Connect and disconnect from the Quick Settings panel and the lock screen.</string>
     <string name="settings_add_widgets">Add Home Screen widgets</string>
     <string name="settings_add_widgets_description">Quick connect, transfer balance, providers on the globe and your top contracts.</string>
+    <string name="settings_editor_changed">The settings changed while you were editing. Review them and update again.</string>
     <string name="share">Share</string>
     <string name="share_extenders">Share extenders</string>
     <string name="share_extenders_hint">Scan this code with another URnetwork app to share these extenders.</string>
@@ -991,6 +993,7 @@
     <string name="sign_in_with_seedphrase">Sign in with Seedphrase</string>
     <string name="sign_in_with_your_apple_id_to">Sign in with your Apple ID to add it as a sign-in method.</string>
     <string name="sign_out">Sign out</string>
+    <string name="signing_out">Signing out…</string>
     <string name="site_app_contracts">Contracts</string>
     <string name="site_app_email">Email</string>
     <string name="site_app_phone">Phone</string>
