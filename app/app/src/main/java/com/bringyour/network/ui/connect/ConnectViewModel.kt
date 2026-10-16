@@ -74,7 +74,7 @@ internal constructor(
         private val appContext: android.content.Context,
         private val processLifecycle: Lifecycle,
         deviceChanges: (listener: (ConnectDevice?) -> Unit) -> (() -> Unit),
-        checkStartConnect: (onResult: (blocked: Boolean) -> Unit) -> Unit,
+        private val startConnect: StartConnect,
         private val connectCommands: ConnectCommands,
 ) : ViewModel(), DefaultLifecycleObserver {
 
@@ -91,14 +91,8 @@ internal constructor(
                 listener(device?.let { SdkConnectDevice(it) })
             }
         },
-        checkStartConnect = { onResult ->
-            val app = appContext as? com.bringyour.network.MainApplication
-            if (app == null) {
-                onResult(false)
-            } else {
-                app.checkStartConnect(onResult)
-            }
-        },
+        startConnect = (appContext as? com.bringyour.network.MainApplication)?.startConnect
+            ?: StartConnect(check = { it(false) }, render = {}),
         connectCommands = (appContext as? com.bringyour.network.MainApplication)?.connectCommands
             // only a test context has no app: commands run where they are made
             ?: ConnectCommands(execute = { it.run() }, postMain = { it.run() }),
@@ -112,6 +106,7 @@ internal constructor(
     private val subs = mutableListOf<Sub>()
     private var removeDeviceChangeListener: (() -> Unit)? = null
     private var removeCommandsListener: (() -> Unit)? = null
+    private var removeStartListener: (() -> Unit)? = null
     private val controllerOwner =
         ForegroundDeviceControllerOwner<ConnectDevice, ConnectController>(
             open = { openConnectViewController(it) },
@@ -291,13 +286,13 @@ internal constructor(
 
     // the start connect gate for the connect screen, and the connecting
     // state it shows while the gate fetches the balance
-    private val startConnectAdmission = StartConnectAdmission(checkStartConnect)
+    private val connectDisplay = ConnectStatusDisplay()
 
     /**
      * What the connect screen shows: the connecting state while a start waits
      * on its balance, else [connectStatus] (StartConnectAdmission).
      */
-    val displayConnectStatus: StateFlow<ConnectStatus> = startConnectAdmission.displayStatus
+    val displayConnectStatus: StateFlow<ConnectStatus> = connectDisplay.displayStatus
 
     /**
      * Every in-app connect (the connect button and drawer, a location pick, a
@@ -309,25 +304,30 @@ internal constructor(
      */
     val connect: (ConnectLocation?) -> Unit = { location ->
         val app = appContext as? com.bringyour.network.MainApplication
-        startConnectAdmission.connect(
-            start = {
-                // this connect replaces one still waiting on the balance
-                app?.clearBalanceRecovery()
-                // the app may have gone to the background while the gate
-                // fetched the balance: the connect still reaches the sdk
-                runCommand(connect = true) { vc ->
-                    if (location != null) {
-                        vc.connect(location)
-                    } else {
-                        vc.connectBestAvailable()
+        val device = currentDevice
+        if (device != null) {
+            startConnect.request(
+                connectEnabled = connectCommands.connectRequested(device),
+                connect = true,
+                owner = this,
+                apply = { blocked ->
+                    if (currentDevice?.identity === device.identity) {
+                        if (blocked) {
+                            Log.i(TAG, "[connect]blocked: insufficient balance")
+                            app?.startConnectBlocked(location)
+                        } else {
+                            app?.clearBalanceRecovery()
+                            runCommand(connect = true) { vc ->
+                                if (location != null) vc.connect(location) else vc.connectBestAvailable()
+                            }
+                        }
                     }
-                }
-            },
-            refused = {
-                Log.i(TAG, "[connect]blocked: insufficient balance")
-                app?.startConnectBlocked(location)
-            },
-        )
+                },
+                waiting = {},
+                ended = {},
+                onResult = {},
+            )
+        }
     }
 
 
@@ -523,7 +523,7 @@ internal constructor(
                     viewModelScope.launch {
                         val wasConnected = _connectStatus.value == ConnectStatus.CONNECTED
                         _connectStatus.value = statusFromStr
-                        startConnectAdmission.reported(statusFromStr)
+                        connectDisplay.reported(statusFromStr)
                         updateDisplayReconnectTunnel()
                         if (statusFromStr == ConnectStatus.CONNECTED && !wasConnected) {
                             // the activation mark, once per network (the facade dedups)
@@ -558,7 +558,7 @@ internal constructor(
         // the user's disconnect: nothing is reconnected by itself after it,
         // and a start still waiting on its balance does not connect
         (appContext as? com.bringyour.network.MainApplication)?.clearBalanceRecovery()
-        startConnectAdmission.cancel()
+        startConnect.cancel()
         runCommand(connect = false) { it.disconnect() }
     }
 
@@ -599,7 +599,7 @@ internal constructor(
      */
     private fun commandsChanged() {
         val pending = connectCommands.pending(currentDevice?.identity)
-        startConnectAdmission.commandPending(
+        connectDisplay.commandPending(
             pending?.let { connect -> if (connect) ConnectStatus.DESTINATION_SET else ConnectStatus.DISCONNECTED }
         )
         if (pending == null) {
@@ -652,6 +652,10 @@ internal constructor(
             processLifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)
         )
         removeCommandsListener = connectCommands.addListener { commandsChanged() }
+        removeStartListener = startConnect.addListener {
+            connectDisplay.startWaiting(startConnect.waiting)
+        }
+        connectDisplay.startWaiting(startConnect.waiting)
         removeDeviceChangeListener = deviceChanges { device ->
             viewModelScope.launch {
                 setupDevice(device)
@@ -692,11 +696,13 @@ internal constructor(
         _contractStatus.value = null
         resetConnectFailureMonitor()
         // a start waiting on its balance belonged to the previous device
-        startConnectAdmission.cancel()
+        if (currentDevice != null && currentDevice?.identity !== device?.identity) {
+            startConnect.cancel()
+        }
         currentDevice = device
         if (device == null) {
             _connectStatus.value = ConnectStatus.DISCONNECTED
-            startConnectAdmission.reported(ConnectStatus.DISCONNECTED)
+            connectDisplay.reported(ConnectStatus.DISCONNECTED)
         } else {
             loadPerformanceProfile()
         }
@@ -755,10 +761,12 @@ internal constructor(
         removeDeviceChangeListener = null
         removeCommandsListener?.invoke()
         removeCommandsListener = null
+        removeStartListener?.invoke()
+        removeStartListener = null
         processLifecycle.removeObserver(this)
         // a start still waiting on its balance never connects once the
         // screen is gone, as the Apple app's is dropped with its view model
-        startConnectAdmission.cancel()
+        startConnect.cancel(this)
         currentDevice = null
         controllerOwner.close()
         super.onCleared()

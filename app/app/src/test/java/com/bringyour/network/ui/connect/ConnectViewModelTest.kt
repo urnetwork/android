@@ -181,6 +181,7 @@ class ConnectViewModelTest {
     private class Harness {
         val gate = HeldGate()
         val queue = HeldQueue()
+        val startConnect = StartConnect(check = gate::check, render = {})
         // the stall watchdog's posts, fired by the test
         val delayed = mutableListOf<Runnable>()
         val commands = ConnectCommands(
@@ -204,7 +205,7 @@ class ConnectViewModelTest {
                 listener(null)
                 ({ deviceListener = null })
             },
-            checkStartConnect = gate::check,
+            startConnect = startConnect,
             connectCommands = commands,
         )
 
@@ -245,6 +246,54 @@ class ConnectViewModelTest {
         val controller = device.controllers.single()
         assertTrue(controller.started)
         return Triple(harness, device, controller)
+    }
+
+    @Test
+    fun screenDisconnectCancelsTheQuickSurfacesSharedAdmission() {
+        val (harness, _, controller) = presenting()
+        val quickResults = mutableListOf<String>()
+        harness.startConnect.request(
+            connectEnabled = false, connect = true,
+            apply = { "connected" }, waiting = { "waiting" }, ended = { "ended" },
+            onResult = { quickResults.add(it) },
+        )
+        assertEquals(ConnectStatus.DESTINATION_SET, harness.displayed)
+        harness.viewModel.connect(null)
+        assertEquals(1, harness.gate.checks)
+        harness.viewModel.disconnect()
+        harness.gate.decide(false)
+        harness.queue.runAll()
+        assertEquals(listOf("ended"), quickResults)
+        assertEquals(listOf("disconnect"), controller.commands)
+        assertEquals(ConnectStatus.DISCONNECTED, harness.displayed)
+    }
+
+    @Test
+    fun quickDisconnectCancelsTheScreensSharedAdmission() {
+        val (harness, _, controller) = presenting()
+        harness.viewModel.connect(null)
+        harness.startConnect.request(
+            connectEnabled = false, connect = false,
+            apply = {}, waiting = {}, ended = {}, onResult = {},
+        )
+        harness.gate.decide(false)
+        harness.queue.runAll()
+        assertEquals(emptyList<String>(), controller.commands)
+        assertEquals(ConnectStatus.DISCONNECTED, harness.displayed)
+    }
+
+    @Test
+    fun closingTheScreenDoesNotCancelAnotherSurfacesWait() {
+        val (harness, _, _) = presenting()
+        var applied = false
+        harness.startConnect.request(
+            connectEnabled = false, connect = true,
+            apply = { applied = true }, waiting = {}, ended = {}, onResult = {},
+        )
+        harness.clear()
+        assertTrue(harness.startConnect.waiting)
+        harness.gate.decide(false)
+        assertTrue(applied)
     }
 
     @Test

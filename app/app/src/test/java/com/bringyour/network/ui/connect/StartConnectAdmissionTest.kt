@@ -13,6 +13,18 @@ import org.junit.Test
  * thread, as the controller does. Nothing waits on time.
  */
 class StartConnectAdmissionTest {
+    /** The admission and its separate presentation, as wired by the app. */
+    private class AdmissionDisplay(check: (onResult: (Boolean) -> Unit) -> Unit) {
+        private val display = ConnectStatusDisplay()
+        private val admission = StartConnectAdmission(check = check, changed = {
+            display.startWaiting(waiting())
+        })
+        private fun waiting(): Boolean = admission.waiting
+        val displayStatus get() = display.displayStatus
+        fun reported(status: ConnectStatus) = display.reported(status)
+        fun connect(start: () -> Unit, refused: () -> Unit) = admission.connect(start, refused)
+        fun cancel() = admission.cancel()
+    }
 
     /** The start connect gate, held until [decide]. */
     private class HeldGate {
@@ -32,7 +44,7 @@ class StartConnectAdmissionTest {
     }
 
     /** The sdk side of a tap: what ran, and the screen's status at the time. */
-    private class Sdk(private val admission: () -> StartConnectAdmission) {
+    private class Sdk(private val admission: () -> AdmissionDisplay) {
         var starts = 0
         var refusals = 0
         val statusesAtRefusal = mutableListOf<ConnectStatus>()
@@ -49,9 +61,9 @@ class StartConnectAdmissionTest {
         }
     }
 
-    private fun admission(gate: HeldGate): Pair<StartConnectAdmission, Sdk> {
-        lateinit var admission: StartConnectAdmission
-        admission = StartConnectAdmission(gate::check)
+    private fun admission(gate: HeldGate): Pair<AdmissionDisplay, Sdk> {
+        lateinit var admission: AdmissionDisplay
+        admission = AdmissionDisplay(gate::check)
         val sdk = Sdk { admission }
         return Pair(admission, sdk)
     }
@@ -158,8 +170,8 @@ class StartConnectAdmissionTest {
         // a fresh balance or a known plan decides at once: the sdk's own
         // statuses are all the screen shows
         val shownAtStart = mutableListOf<ConnectStatus>()
-        lateinit var admission: StartConnectAdmission
-        admission = StartConnectAdmission({ onResult -> onResult(false) })
+        lateinit var admission: AdmissionDisplay
+        admission = AdmissionDisplay({ onResult -> onResult(false) })
         admission.connect(
             start = {
                 shownAtStart.add(admission.displayStatus.value)
@@ -171,7 +183,7 @@ class StartConnectAdmissionTest {
         assertEquals(ConnectStatus.DESTINATION_SET, admission.displayStatus.value)
 
         var refused = false
-        val blocked = StartConnectAdmission({ onResult -> onResult(true) })
+        val blocked = AdmissionDisplay({ onResult -> onResult(true) })
         blocked.connect(start = {}, refused = { refused = true })
         assertTrue(refused)
         assertEquals(ConnectStatus.DISCONNECTED, blocked.displayStatus.value)
