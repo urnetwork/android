@@ -805,7 +805,11 @@ class PhysicalLowbarSessionTest {
                 .put("successful", it.successful)
                 .put("timing", it.timing?.let { timing -> JSONObject(timing) } ?: JSONObject.NULL))
         }
-        writePrivate(statusFile, "${value}\n")
+        val encoded = "${value}\n"
+        if (extra.has("pacingJson")) {
+            check(encoded.toByteArray(Charsets.UTF_8).size <= 256 * 1024) { "pacing command receipt exceeds bound" }
+        }
+        writePrivate(statusFile, encoded)
     }
 
     /** Preserve the first observation of this exact failure before owned cleanup. */
@@ -1151,6 +1155,13 @@ class PhysicalLowbarSessionTest {
                 }
                 val stacks = File(acceptanceDir, "physical-stacks-$argument.txt")
                 check(!stacks.exists()) { "diagnostic evidence already exists" }
+                val extra = JSONObject()
+                ioLoopDiagnostics?.let { diagnostic ->
+                    // Same owned request and clock; no additional diagnostic command.
+                    val pacing = diagnostic.pacingSnapshotJson(device)
+                    check(pacing.toByteArray(Charsets.UTF_8).size <= 64 * 1024) { "pacing evidence exceeds bound" }
+                    extra.put("pacingJson", pacing)
+                }
                 Sdk.writeGoroutineStacks(stacks.absolutePath)
                 check(stacks.isFile && stacks.length() > 0) { "goroutine evidence is empty" }
                 status(
@@ -1158,7 +1169,7 @@ class PhysicalLowbarSessionTest {
                     "complete",
                     application,
                     startElapsedMs,
-                    JSONObject().put("stacksName", stacks.name).put("stacksBytes", stacks.length()),
+                    extra.put("stacksName", stacks.name).put("stacksBytes", stacks.length()),
                 )
                 return false
             }

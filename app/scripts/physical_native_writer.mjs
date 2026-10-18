@@ -83,7 +83,9 @@ async function runGradleOwner(nonce, args) {
       child.once("spawn", () => { childStarted = true; send("started"); });
       child.once("error", () => {}); // close owns the terminal path, including spawn refusal.
       child.once("close", (childExitCode, signal) => {
-        outcome = { childExitCode, signal }; childClosed = true;
+        // A refused spawn has no child exit status; Node's negative error code is not one.
+        outcome = childStarted ? { childExitCode, signal } : { childExitCode: null, signal: null };
+        childClosed = true;
         send("exited", { childStarted, ...outcome }); check();
       });
     } catch { childClosed = true; send("exited", { childStarted, ...outcome }); check(); }
@@ -163,6 +165,14 @@ export async function runNativeWriter(options, dependencies = {}) {
       { cwd: workingDirectory, env, detached: true, stdio: ["ignore", output, errors, "ipc"] });
       ownership.ownerPid = child.pid ?? null;
       await new Promise(finish => {
+        let ownerExit; let ownerDisconnected = false;
+        const finishOwner = (exitCode, signal) => {
+          if (ownership.ownerClosed) return;
+          ownership.ownerClosed = true; ownership.ownerExitCode = exitCode; ownership.ownerSignal = signal; finish();
+        };
+        const joinOwner = () => {
+          if (ownerExit && ownerDisconnected) finishOwner(ownerExit.exitCode, ownerExit.signal);
+        };
         child.on("message", message => {
           if (message?.nonce !== ownership.nonce || message.ownerPid !== child.pid) {
             ownership.failure ??= "owner-message-unbound"; stop("SIGTERM"); return;
@@ -196,9 +206,16 @@ export async function runNativeWriter(options, dependencies = {}) {
           }
         });
         child.once("error", () => { ownership.failure ??= "owner-spawn-failed"; });
-        child.once("close", (exitCode, signal) => {
-          ownership.ownerClosed = true; ownership.ownerExitCode = exitCode; ownership.ownerSignal = signal; finish();
+        // Output uses inherited file descriptors, not parent-owned pipes. Reaping
+        // plus actual IPC termination joins this owner even if manual disconnect
+        // prevents Node from emitting close. Group absence is proved separately.
+        child.once("exit", (exitCode, signal) => { ownerExit = { exitCode, signal }; joinOwner(); });
+        child.once("disconnect", () => {
+          ownerDisconnected = true;
+          if (!ownership.complete) ownership.failure ??= "owner-channel-failed";
+          joinOwner();
         });
+        child.once("close", finishOwner); // A refused owner spawn need not emit exit.
       });
       // Observation only after reaping: never signal a possibly reused group.
       if (Number.isSafeInteger(ownership.ownerPid) && ownership.ownerPid > 0) {

@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { spawn, spawnSync } from "node:child_process";
 import { createHash, randomUUID } from "node:crypto";
 import { EventEmitter, once } from "node:events";
-import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, renameSync, rmSync, statSync, symlinkSync, writeFileSync } from "node:fs";
+import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, renameSync, rmSync, statSync, symlinkSync, writeFileSync, writeSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { createServer } from "node:net";
@@ -499,6 +499,8 @@ test("writer nonzero and spawn failure publish failed terminal receipts that can
     assert.equal(receipt.eligible, false); assert.equal(receipt.state, "terminal");
     assert.equal(receipt.childExitCode, kind === "nonzero" ? 7 : null);
     assert.equal(receipt.childStarted, kind !== "spawn");
+    assert.equal(receipt.ownership.ownerClosed, true); assert.equal(receipt.ownership.groupJoined, true);
+    assert.equal(receipt.ownership.complete, true);
     assert.throws(() => prepareNativeConsumer({ ...f.paths, root: f.root }, { ...f.dependencies,
       consumerLock: () => assert.fail("failed writer must not reach consumption") }), /successful-native-writer-receipt-required/);
   }
@@ -628,6 +630,67 @@ test("native writer IPC loss before start joins its anchor without Gradle", { ti
   assert.equal(receipt.childStarted, false); assert.equal(receipt.eligible, false);
   assert.equal(receipt.ownership.groupJoined, true); assert.equal(receipt.stdout.bytes, 0);
   assert.notEqual(receipt.ownership.failure, null);
+});
+
+test("native writer joins owner exit and IPC disconnect without a close event", { timeout: 15000 }, async t => {
+  for (const first of ["exit", "disconnect"]) {
+    const f = writerFixture(t); const child = new EventEmitter(); child.connected = true;
+    let output; let receipt; let failure; let settled = false;
+    const pending = runNativeWriter(writerArgs(f.args.slice(1)), { ...f.dependencies, env: f.env,
+      spawn(command, args, options) { output = options.stdio[1]; return child; } })
+      .then(value => { receipt = value; settled = true; }, error => { failure = error; settled = true; });
+    const emit = event => {
+      if (event === "exit") child.emit("exit", 0, null);
+      else { child.connected = false; child.emit("disconnect"); }
+    };
+    try {
+      emit(first);
+      await new Promise(resolve => setImmediate(resolve)); // Drain continuations, not an elapsed-time oracle.
+      assert.equal(settled, false, `owner joined after only ${first}`);
+      assert.equal(existsSync(f.paths["writer-receipt"]), false);
+      const marker = `output remains owned after ${first}\n`;
+      writeSync(output, marker);
+      emit(first === "exit" ? "disconnect" : "exit");
+      await new Promise(resolve => setImmediate(resolve));
+      assert.equal(settled, true, "OWNER_EXIT_AND_IPC_DISCONNECT_DID_NOT_JOIN");
+      assert.equal(failure, undefined);
+      assert.equal(receipt.ownership.ownerClosed, true); assert.equal(receipt.ownership.ownerExitCode, 0);
+      assert.equal(receipt.ownership.ownerSignal, null); assert.equal(receipt.ownership.failure, "owner-channel-failed");
+      // No real owner/group was launched: these events alone cannot prove group absence.
+      assert.equal(receipt.ownership.ownerPid, null); assert.equal(receipt.ownership.groupJoined, false);
+      assert.equal(receipt.eligible, false); assert.equal(receipt.childStarted, false);
+      assert.equal(receipt.stdout.bytes, Buffer.byteLength(marker));
+      child.emit("close", 9, "SIGKILL"); // A redundant late event cannot rewrite joined evidence.
+      assert.equal(receipt.ownership.ownerExitCode, 0); assert.equal(receipt.ownership.ownerSignal, null);
+    } finally {
+      child.emit("close", 0, null); // Also releases the exact old close-only control after its semantic failure.
+      await pending;
+    }
+  }
+});
+
+test("native writer owner spawn refusal joins through close without an exit event", { timeout: 15000 }, async t => {
+  const f = writerFixture(t); const child = new EventEmitter(); child.connected = false;
+  let receipt; let failure; let settled = false;
+  const pending = runNativeWriter(writerArgs(f.args.slice(1)), { ...f.dependencies, env: f.env,
+    spawn() { return child; } })
+    .then(value => { receipt = value; settled = true; }, error => { failure = error; settled = true; });
+  try {
+    child.emit("error", new Error("fixture owner spawn refused"));
+    await new Promise(resolve => setImmediate(resolve));
+    assert.equal(settled, false); assert.equal(existsSync(f.paths["writer-receipt"]), false);
+    child.emit("close", -2, null);
+    await new Promise(resolve => setImmediate(resolve));
+    assert.equal(settled, true, "OWNER_SPAWN_REFUSAL_DID_NOT_JOIN");
+    assert.equal(failure, undefined);
+    assert.equal(receipt.ownership.ownerClosed, true); assert.equal(receipt.ownership.ownerExitCode, -2);
+    assert.equal(receipt.ownership.ownerSignal, null); assert.equal(receipt.ownership.failure, "owner-spawn-failed");
+    assert.equal(receipt.ownership.groupJoined, false); assert.equal(receipt.eligible, false);
+    assert.equal(receipt.childStarted, false); assert.equal(receipt.childExitCode, null);
+  } finally {
+    child.emit("exit", -2, null); child.emit("disconnect"); child.emit("close", -2, null);
+    await pending;
+  }
 });
 
 test("native writer complete IPC cannot qualify a subsequently killed anchor", { timeout: 15000 }, async t => {
