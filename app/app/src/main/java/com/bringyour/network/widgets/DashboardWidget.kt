@@ -206,7 +206,7 @@ private fun DashboardHeader(entry: WidgetEntry, compact: Boolean) {
  * (QuickConnectActivity, no UI), which toggles and opens the app only when
  * it is needed; a tap while connecting ends the wait. The writer asks for
  * a re-render on each connect and disconnect, and the quick connect start
- * on each start and end of a wait (QuickStartConnect); each reads the entry
+ * on each start and end of a wait (StartConnect); each reads the entry
  * again (rememberWidgetEntry), so no separate optimistic state is kept.
  */
 @Composable

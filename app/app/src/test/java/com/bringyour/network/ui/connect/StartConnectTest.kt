@@ -13,7 +13,7 @@ import org.junit.Test
  * held until the server answers, and each re-render of the surfaces records
  * what they show. Nothing waits on time.
  */
-class QuickStartConnectTest {
+class StartConnectTest {
 
     /** The start connect gate, held until [decide]. */
     private class HeldGate {
@@ -44,7 +44,7 @@ class QuickStartConnectTest {
         val shownWhenApplied = mutableListOf<QuickConnectShown>()
         val results = mutableListOf<String>()
 
-        val quick = QuickStartConnect(gate::check) { rendered.add(shown()) }
+        val quick = StartConnect(gate::check) { rendered.add(shown()) }
 
         fun shown(): QuickConnectShown = quickConnectShown(connectEnabled, quick.waiting)
 
@@ -149,7 +149,7 @@ class QuickStartConnectTest {
         val gate = HeldGate()
         val trampolineResults = mutableListOf<String>()
         val tileResults = mutableListOf<String>()
-        val quick = QuickStartConnect(gate::check) {}
+        val quick = StartConnect(gate::check) {}
         quick.request(
             connectEnabled = false,
             connect = true,
@@ -231,8 +231,8 @@ class QuickStartConnectTest {
         // a fresh balance or a known plan decides at once: no connecting state
         val rendered = mutableListOf<QuickConnectShown>()
         var connectEnabled = false
-        lateinit var quick: QuickStartConnect
-        quick = QuickStartConnect({ onResult -> onResult(false) }) {
+        lateinit var quick: StartConnect
+        quick = StartConnect({ onResult -> onResult(false) }) {
             rendered.add(quickConnectShown(connectEnabled, quick.waiting))
         }
         val results = mutableListOf<String>()

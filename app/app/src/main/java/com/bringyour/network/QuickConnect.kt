@@ -27,7 +27,7 @@ import com.bringyour.network.ui.connect.runOnDevice
  * (MainApplication.checkStartConnect): out of balance it does not start the
  * tunnel and the surface opens the upgrade screen. The gate may first fetch
  * a fresh balance, so the result is delivered to a callback (main thread),
- * and the surfaces show connecting meanwhile (QuickStartConnect): a tap on
+ * and the surfaces show connecting meanwhile (StartConnect): a tap on
  * the connecting tile or widget button ends the wait. A connection already
  * requested is left as is and never waits on the gate.
  */
@@ -75,7 +75,7 @@ object QuickConnect {
         return com.bringyour.network.ui.connect.quickConnectStatus(
             configured = true,
             requested = pending ?: device.connectEnabled,
-            startWaiting = app.quickStartConnect.waiting,
+            startWaiting = app.startConnect.waiting,
             connectQueued = pending == true,
             minSatisfied = windowStatus?.minSatisfied == true,
             failed = windowStatus?.failed == true,
@@ -89,7 +89,7 @@ object QuickConnect {
     internal fun shown(app: MainApplication): com.bringyour.network.ui.connect.QuickConnectShown =
         com.bringyour.network.ui.connect.quickConnectShown(
             connectEnabled = isConnected(app),
-            startWaiting = app.quickStartConnect.waiting,
+            startWaiting = app.startConnect.waiting,
         )
 
     /** Connecting shows as on: a tap on it is the user's disconnect, which ends the wait. */
@@ -103,7 +103,7 @@ object QuickConnect {
 
     fun setConnected(app: MainApplication, connect: Boolean, source: String, onResult: (Result) -> Unit) {
         val device = app.device ?: return onResult(Result.NEEDS_APP)
-        app.quickStartConnect.request(
+        app.startConnect.request(
             connectEnabled = app.connectCommands.connectRequested(SdkConnectDevice(device)),
             connect = connect,
             apply = { blocked -> apply(app, connect, blocked, source) },

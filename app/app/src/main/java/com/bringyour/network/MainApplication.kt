@@ -475,6 +475,9 @@ class MainApplication : Application() {
      */
     internal val connectCommands = com.bringyour.network.ui.connect.ConnectCommands.create(
         onFailure = { Log.e(TAG, "[connect]command failed: ${it.message}", it) },
+        onStalled = { connect, millis ->
+            Log.w(TAG, "[connect]${if (connect) "connect" else "disconnect"} command still running after $millis ms")
+        },
     )
 
     /**
@@ -482,7 +485,7 @@ class MainApplication : Application() {
      * same gate: they show connecting from the tap while it fetches the
      * balance, and re-render on each change. Main thread.
      */
-    internal val quickStartConnect = com.bringyour.network.ui.connect.QuickStartConnect(
+    internal val startConnect = com.bringyour.network.ui.connect.StartConnect(
         check = { onResult -> checkStartConnect(onResult) },
         render = { renderQuickConnect() },
     )
@@ -2288,7 +2291,7 @@ class MainApplication : Application() {
         // nor a quick connect start still waiting on its balance: the gate
         // could decide it once the next account's device is up. Its surface
         // is answered, so a shortcut's trampoline finishes
-        quickStartConnect.cancel()
+        startConnect.cancel()
         // nor may its plan decide the next account's start connect gate, which
         // reads this until the next connect screen sets its own
         uiIsPro = false

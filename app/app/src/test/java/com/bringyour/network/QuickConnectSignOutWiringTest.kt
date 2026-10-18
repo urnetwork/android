@@ -11,7 +11,7 @@ import org.junit.Test
  * The gate decides it up to five seconds later, by then possibly on the next
  * account's device. MainApplication needs a device, which these JVM tests do
  * not have; what the ending does (it never connects, and its surface is
- * answered) is QuickStartConnectTest's.
+ * answered) is StartConnectTest's.
  */
 class QuickConnectSignOutWiringTest {
 
@@ -25,6 +25,6 @@ class QuickConnectSignOutWiringTest {
         val from = source.indexOf("    private fun logoutInternal() {")
         assertTrue("missing logoutInternal", 0 <= from)
         val logout = source.substring(from, source.indexOf("\n    }\n", from))
-        assertTrue("the sign out leaves a waiting quick connect start", logout.contains("quickStartConnect.cancel()"))
+        assertTrue("the sign out leaves a waiting quick connect start", logout.contains("startConnect.cancel()"))
     }
 }
