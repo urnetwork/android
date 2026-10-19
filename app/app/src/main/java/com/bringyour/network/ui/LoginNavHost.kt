@@ -30,6 +30,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.bringyour.network.LoginClientCompletion
+import com.bringyour.network.LoginRequest
 import com.bringyour.network.MainApplication
 import com.bringyour.network.R
 import com.bringyour.network.ui.components.overlays.FullScreenOverlay
@@ -63,6 +64,7 @@ fun LoginNavHost(
     promptAccountSwitch: Boolean,
     currentNetworkName: String? = null,
     targetJwt: String? = null,
+    targetLoginRequest: LoginRequest? = null,
     startInstantCreate: Boolean = false,
     isLoadingAuthCode: Boolean,
     // the entrance animation for a sign-in that completes in the activity (an
@@ -114,6 +116,7 @@ fun LoginNavHost(
                 SwitchAccountScreen(
                     currentNetworkName = currentNetworkName,
                     targetJwt = targetJwt,
+                    request = targetLoginRequest,
                     setSwitchAccount = { switchAccount = it }
                 )
             } else {
@@ -335,12 +338,15 @@ fun LoginNavHost(
                                 if (app == null || activity == null) {
                                     return@continueIntoApp
                                 }
+                                val request = createNetworkInstantViewModel.loginRequest ?: return@continueIntoApp
+                                if (!app.isCurrentLoginRequest(request)) return@continueIntoApp
                                 finishInProgress = true
-                                app.authenticateLoginClient { completion ->
+                                app.authenticateLoginClient(request) { completion ->
                                     if (completion is LoginClientCompletion.Ready) {
-                                        activity.finishAuthenticatedLoginAfterWelcome()
+                                        activity.finishAuthenticatedLoginAfterWelcome(request)
                                     }
                                     scope.launch {
+                                        if (!app.ownsLoginRequest(request)) return@launch
                                         if (completion is LoginClientCompletion.Failed) {
                                             finishInProgress = false
                                             android.util.Log.e(
@@ -358,7 +364,7 @@ fun LoginNavHost(
                                         }
                                         contentVisible = false
                                         delay(500)
-                                        welcomeVisible = true
+                                        if (app.isCurrentLoginRequest(request)) welcomeVisible = true
                                     }
                                 }
                             }
@@ -367,8 +373,10 @@ fun LoginNavHost(
                         val createdSeedphrase = seedphrase
                         if (createdSeedphrase == null) {
                             CreateNetworkInstant(
-                                appLogin = { jwt, newNetwork, completion ->
+                                beginLoginRequest = { application?.beginLoginRequest() },
+                                appLogin = { request, jwt, newNetwork, completion ->
                                     application?.persistNetworkSession(
+                                        request,
                                         jwt,
                                         newNetwork,
                                         completion,

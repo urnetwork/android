@@ -20,6 +20,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.bringyour.network.LoginActivity
 import com.bringyour.network.LoginClientCompletion
+import com.bringyour.network.LoginRequest
 import com.bringyour.network.MainApplication
 import com.bringyour.network.R
 import com.bringyour.network.ui.components.ButtonStyle
@@ -30,6 +31,7 @@ import com.bringyour.network.ui.theme.URNetworkTheme
 fun SwitchAccountScreen(
     currentNetworkName: String,
     targetJwt: String?,
+    request: LoginRequest? = null,
     setSwitchAccount: (Boolean) -> Unit
 ) {
 
@@ -37,15 +39,19 @@ fun SwitchAccountScreen(
     val application = context.applicationContext as? MainApplication ?: return
     val loginActivity = context as? LoginActivity ?: return
 
-    val onAccept: () -> Unit = {
+    val onAccept: () -> Unit = accept@{
+        if (request == null || !application.isCurrentLoginRequest(request)) return@accept
+        if (targetJwt.isNullOrEmpty()) return@accept
         application.logout()
+        val acceptedRequest = application.beginLoginRequest() ?: return@accept
 
         if (!targetJwt.isNullOrEmpty()) {
             // switch to different account
 
-            application.authenticateNetworkSession(targetJwt, newNetwork = false) { completion ->
+            application.authenticateNetworkSession(acceptedRequest, targetJwt, newNetwork = false) { completion ->
+                if (!application.ownsLoginRequest(acceptedRequest)) return@authenticateNetworkSession
                 if (completion is LoginClientCompletion.Ready) {
-                    loginActivity.finishAuthenticatedLoginNow()
+                    loginActivity.finishAuthenticatedLoginNow(acceptedRequest)
                 } else {
                     setSwitchAccount(false)
                 }
@@ -57,7 +63,7 @@ fun SwitchAccountScreen(
     }
 
     val onDecline: () -> Unit = {
-        loginActivity.navigateToMain()
+        if (request != null && application.isCurrentLoginRequest(request)) loginActivity.navigateToMain()
     }
 
     Scaffold() { innerPadding ->

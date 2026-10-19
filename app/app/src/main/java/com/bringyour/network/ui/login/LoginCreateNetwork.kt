@@ -294,16 +294,22 @@ fun LoginCreateNetwork(
         createNetworkError = null
         inProgress = true
 
-        application?.api?.networkCreate(args) { result, err ->
-            application.dispatchLoginResult {
+        val request = application?.beginLoginRequest() ?: run {
+            inProgress = false
+            return@createNetwork
+        }
+        request.api.networkCreate(args) { result, err ->
+            application.dispatchLoginResult(request) {
                 if (err != null) {
                     CantReachPrompt.shared.report(err)
                     scope.launch {
+                        if (!application.ownsLoginRequest(request)) return@launch
                         createNetworkError = err.message ?: createNetworkErrorMsg
                         inProgress = false
                     }
                 } else if (result == null) {
                     scope.launch {
+                        if (!application.ownsLoginRequest(request)) return@launch
                         createNetworkError = createNetworkErrorMsg
                         inProgress = false
                     }
@@ -315,25 +321,28 @@ fun LoginCreateNetwork(
                         (params as? LoginCreateNetworkParams.LoginCreateWalletParams)?.manualWalletId,
                     )
                     scope.launch {
+                        if (!application.ownsLoginRequest(request)) return@launch
                         createNetworkError = mismatchWallet?.let { bittensorSignatureMismatchText(context, it) }
                             ?: result.error.message
                         inProgress = false
                     }
                 } else if (result.network != null && result.network.byJwt.isNotEmpty()) {
                     application.authenticateNetworkSession(
+                        request,
                         result.network.byJwt,
                         newNetwork = true,
                     ) { completion ->
                         if (completion is LoginClientCompletion.Ready) {
-                            loginActivity?.finishAuthenticatedLoginAfterWelcome()
+                            loginActivity?.finishAuthenticatedLoginAfterWelcome(request)
                         }
                         scope.launch {
+                            if (!application.ownsLoginRequest(request)) return@launch
                             val error = (completion as? LoginClientCompletion.Failed)?.message
                             if (completion is LoginClientCompletion.Ready) {
                                 createNetworkError = null
                                 isContentVisible = false
                                 delay(500)
-                                welcomeOverlayVisible = true
+                                if (application.isCurrentLoginRequest(request)) welcomeOverlayVisible = true
                                 return@launch
                             }
                             inProgress = false
@@ -346,6 +355,7 @@ fun LoginCreateNetwork(
                     }
                 } else if (result.verificationRequired != null) {
                     scope.launch {
+                        if (!application.ownsLoginRequest(request)) return@launch
                         val verificationUserAuth = when (params) {
                             is LoginCreateNetworkParams.LoginCreateUserAuthParams -> params.userAuth
                             is LoginCreateNetworkParams.LoginCreateAuthJwtParams ->
@@ -368,6 +378,7 @@ fun LoginCreateNetwork(
                     }
                 } else {
                     scope.launch {
+                        if (!application.ownsLoginRequest(request)) return@launch
                         createNetworkError = createNetworkErrorMsg
                         inProgress = false
                     }

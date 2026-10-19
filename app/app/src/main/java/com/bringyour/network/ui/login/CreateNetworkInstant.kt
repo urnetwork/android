@@ -57,7 +57,9 @@ internal const val ACCEPTANCE_INSTANT_REFERRAL_TAG = "acceptance.instant.referra
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateNetworkInstant(
+    beginLoginRequest: () -> com.bringyour.network.LoginRequest?,
     appLogin: (
+        request: com.bringyour.network.LoginRequest,
         byJwt: String,
         newNetwork: Boolean,
         completion: (Boolean) -> Unit,
@@ -79,7 +81,9 @@ fun CreateNetworkInstant(
         inProgress = inProgress,
         error = error,
         onCreate = {
-            createNetworkInstantViewModel.createNetwork(termsAgreed, productUpdates, appLogin)
+            beginLoginRequest()?.let { request ->
+                createNetworkInstantViewModel.createNetwork(request, termsAgreed, productUpdates, appLogin)
+            }
         },
         onBack = onBack,
         referralCode = referralInput.code,

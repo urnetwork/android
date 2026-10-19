@@ -45,7 +45,7 @@ class LoginStartupStateTest {
         val coordinator = PasswordLoginCoordinator(
             tracker = tracker,
             requester = requester,
-            sessionAuthenticator = NetworkSessionAuthenticator { _, newNetwork, completion ->
+            sessionAuthenticator = NetworkSessionAuthenticator { _, _, newNetwork, completion ->
                 assertFalse(newNetwork)
                 val attemptId = tracker.state.value.attemptId ?: error("missing attempt")
                 assertTrue(
@@ -82,7 +82,7 @@ class LoginStartupStateTest {
             requester = PasswordAuthRequester { _, _, callback ->
                 callback(PasswordAuthWireResult(byJwt = "network-jwt"), null)
             },
-            sessionAuthenticator = NetworkSessionAuthenticator { _, _, completion ->
+            sessionAuthenticator = NetworkSessionAuthenticator { _, _, _, completion ->
                 val attemptId = tracker.state.value.attemptId ?: error("missing attempt")
                 assertTrue(tracker.ready(attemptId, clientId))
                 completion(LoginClientCompletion.Ready(clientId))
@@ -137,7 +137,7 @@ class LoginStartupStateTest {
                 requester = PasswordAuthRequester { _, _, callback ->
                     callback(case.result, case.requestError)
                 },
-                sessionAuthenticator = NetworkSessionAuthenticator { _, _, _ ->
+                sessionAuthenticator = NetworkSessionAuthenticator { _, _, _, _ ->
                     error("must not authenticate session")
                 },
                 dispatch = { it() },
@@ -161,7 +161,7 @@ class LoginStartupStateTest {
         PasswordLoginCoordinator(
             tracker = tracker,
             requester = PasswordAuthRequester { _, _, _ -> error("request panic") },
-            sessionAuthenticator = NetworkSessionAuthenticator { _, _, _ ->
+            sessionAuthenticator = NetworkSessionAuthenticator { _, _, _, _ ->
                 error("must not authenticate session")
             },
             dispatch = { it() },
@@ -189,7 +189,7 @@ class LoginStartupStateTest {
                     null,
                 )
             },
-            sessionAuthenticator = NetworkSessionAuthenticator { _, _, _ ->
+            sessionAuthenticator = NetworkSessionAuthenticator { _, _, _, _ ->
                 error("must not authenticate session")
             },
             dispatch = { it() },
@@ -220,7 +220,7 @@ class LoginStartupStateTest {
                     null,
                 )
             },
-            sessionAuthenticator = NetworkSessionAuthenticator { _, _, _ ->
+            sessionAuthenticator = NetworkSessionAuthenticator { _, _, _, _ ->
                 error("must not authenticate session")
             },
             dispatch = { it() },
@@ -555,24 +555,23 @@ class LoginStartupStateTest {
     }
 
     @Test
-    fun `stored key creation tries bounded fallback branches`() {
+    fun `stored key construction failure does not retry with a fresh identity`() {
         val calls = mutableListOf<String?>()
-        var cleared = 0
-        val recovered = createDeviceWithStoredKey(
+        val failedStored = createDeviceWithStoredKey(
             storedKey = "retained",
-            clearStoredKey = { cleared += 1 },
             create = {
                 calls += it
                 if (it == null) "device" else null
             },
         )
-        assertEquals(DeviceCreationResult.Created("device"), recovered)
-        assertEquals(listOf("retained", null), calls)
-        assertEquals(1, cleared)
+        assertEquals(
+            DeviceCreationResult.Failed(DeviceInitFailure.DEVICE_LOCAL_CREATION_FAILED),
+            failedStored,
+        )
+        assertEquals(listOf("retained"), calls)
 
         val failed = createDeviceWithStoredKey<String, String>(
             storedKey = null,
-            clearStoredKey = { error("must not clear") },
             create = { throw IllegalStateException("creation") },
         )
         assertEquals(

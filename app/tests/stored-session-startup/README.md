@@ -1,7 +1,7 @@
 # Stored-session startup boundary regression
 
 This offline test compiles the actual `MainApplication` stored-startup,
-client-startup, stale-cleanup, explicit-logout and delivered-auth-logout callback
+client-startup, login-persistence, explicit-logout and delivered-auth-logout callback
 bodies. It extracts them directly from the selected source file without changing
 their predicates or effects. It also uses the source result types and failure
 mapping. The remaining framework and SDK calls are inert substitutes.
@@ -22,13 +22,18 @@ GOTOOLCHAIN=local GOPROXY=off GOSUMDB=off GOTELEMETRY=off \
   go run app/tests/stored-session-startup/main.go -output /tmp/android-startup-green
 ```
 
-For a causal RED, export the original `MainApplication.kt` from Git to a separate
-file and pass `-source /absolute/path/MainApplication.before.kt`. The same tests
-must compile successfully, then fail at state-retention assertions. Compilation
-failure is not RED. The runner records exact source/tool hashes, commands and
-exit codes in `receipt.json`; separate output directories retain both results.
-It fails if a source boundary or cached tool is missing. It does not configure
-Gradle, fetch dependencies, start Android or read app storage/signing material.
+The canonical startup repair's original RED/GREEN evidence and runner are
+preserved in the earlier Factury reviews. This current runner follows the new
+request token API: its obsolete direct destructive-cleanup witness was replaced
+by a failed-login persistence retention assertion after that helper was removed.
+The other startup, healthy, explicit/current logout and fence controls remain;
+all 15 checks pass. The continuation suite separately proves the removed cleanup
+bug against its preimage with the same behavioral assertions.
+
+The runner records exact source/tool hashes, commands and separate compile/test
+exit codes. It fails if a source boundary or cached tool is missing. It does not
+configure Gradle, fetch dependencies, start Android or read app storage/signing
+material.
 
 This is a Kotlin owning-boundary regression, not native qualification. The
 substitutes do not prove gomobile symbol availability, SDK file operations,

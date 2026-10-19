@@ -13,6 +13,8 @@ import com.bringyour.sdk.AuthLoginArgs
 import com.bringyour.sdk.AuthLoginResult
 import com.bringyour.sdk.NetworkSpace
 import com.bringyour.network.DeviceManager
+import com.bringyour.network.LoginRequest
+import com.bringyour.network.MainApplication
 import com.bringyour.network.NetworkSpaceManagerProvider
 import com.bringyour.network.R
 import com.bringyour.sdk.Api
@@ -66,14 +68,16 @@ class LoginViewModel @Inject constructor(
     val login: (
         ctx: Context,
         api: Api?,
-        onLogin: (AuthLoginResult) -> Unit,
+        onLogin: (LoginRequest, AuthLoginResult) -> Unit,
         onNewNetwork: (AuthLoginResult) -> Unit,
     ) -> Unit = login@{ ctx, api, onLogin, onNewNetwork ->
 
         when {
             !isValidUserAuth || userAuthInProgress -> {}
             else -> {
-                val authApi = api ?: run {
+                val loginApp = ctx.applicationContext as? MainApplication
+                val loginRequest = loginApp?.beginLoginRequest()
+                val authApi = loginRequest?.api ?: run {
                     runCatching { android.util.Log.i("AuthDiscovery", "category=api_unavailable") }
                     setLoginError(ctx.getString(R.string.login_error))
                     return@login
@@ -86,36 +90,40 @@ class LoginViewModel @Inject constructor(
                 args.userAuth = userAuth.text.trim()
 
                 authApi.authLogin(args) { result, err ->
-                    viewModelScope.launch {
+                    loginApp.dispatchLoginResult(loginRequest) {
+                        viewModelScope.launch {
+                            if (!loginApp.isCurrentLoginRequest(loginRequest)) return@launch
 
-                        if (err != null) {
-                            CantReachPrompt.shared.report(err)
-                            setLoginError(err.message)
-                        } else if (result.error != null) {
-                            setLoginError(result.error.message)
-                        } else if (result.authAllowed != null) {
+                            if (err != null) {
+                                CantReachPrompt.shared.report(err)
+                                setLoginError(err.message)
+                            } else if (result.error != null) {
+                                setLoginError(result.error.message)
+                            } else if (result.authAllowed != null) {
 
-                            if (result.authAllowed.contains("password")) {
-                                // to the login password screen
-                                setLoginError(null)
+                                if (result.authAllowed.contains("password")) {
+                                    // to the login password screen
+                                    setLoginError(null)
 
-                                onLogin(result)
-                            } else {
-                                val authAllowed = mutableListOf<String>()
-                                for (i in 0 until result.authAllowed.len()) {
-                                    authAllowed.add(result.authAllowed.get(i))
+                                    onLogin(loginRequest, result)
+                                } else {
+                                    val authAllowed = mutableListOf<String>()
+                                    for (i in 0 until result.authAllowed.len()) {
+                                        authAllowed.add(result.authAllowed.get(i))
+                                    }
+
+                                    setLoginError(ctx.getString(R.string.login_error_auth_allowed, authAllowed.joinToString(",")))
                                 }
-
-                                setLoginError(ctx.getString(R.string.login_error_auth_allowed, authAllowed.joinToString(",")))
+                            } else {
+                                onNewNetwork(result)
                             }
-                        } else {
-                            onNewNetwork(result)
-                        }
 
-                        // add a delay so when navigating to the next screen,
-                        // the "get started" button doesn't flash enabled again
-                        delay(200)
-                        userAuthInProgress = false
+                            // add a delay so when navigating to the next screen,
+                            // the "get started" button doesn't flash enabled again
+                            delay(200)
+                            if (!loginApp.isCurrentLoginRequest(loginRequest)) return@launch
+                            userAuthInProgress = false
+                        }
                     }
                 }
             }
@@ -126,12 +134,16 @@ class LoginViewModel @Inject constructor(
         ctx: Context,
         api: Api?,
         seedphrase: String,
-        onSuccess: (String) -> Unit,
+        onSuccess: (LoginRequest, String) -> Unit,
         onError: (String) -> Unit,
     ) {
         if (seedphraseAuthInProgress) return
 
-        val authApi = api ?: run {
+        val loginApp = ctx.applicationContext as? MainApplication
+
+        val loginRequest = loginApp?.beginLoginRequest()
+
+        val authApi = loginRequest?.api ?: run {
             val msg = ctx.getString(R.string.login_error)
             setLoginError(msg)
             onError(msg)
@@ -146,30 +158,36 @@ class LoginViewModel @Inject constructor(
         args.seedphrase = normalized
 
         authApi.authLogin(args) { result, err ->
-            val networkJwt = if (err == null && result?.error == null) {
-                result?.network?.byJwt?.takeIf(String::isNotEmpty)
-            } else {
-                null
-            }
-            if (networkJwt != null && result != null) {
-                onSuccess(networkJwt)
-                viewModelScope.launch { seedphraseAuthInProgress = false }
-                return@authLogin
-            }
-            viewModelScope.launch {
-                if (err != null) {
-                    CantReachPrompt.shared.report(err)
-                    setLoginError(err.message)
-                    onError(err.message ?: "Seedphrase login failed")
-                } else if (result?.error != null) {
-                    setLoginError(result.error.message)
-                    onError(result.error.message ?: "Invalid seedphrase")
+            loginApp.dispatchLoginResult(loginRequest) {
+                val networkJwt = if (err == null && result?.error == null) {
+                    result?.network?.byJwt?.takeIf(String::isNotEmpty)
                 } else {
-                    val msg = "Invalid seedphrase"
-                    setLoginError(msg)
-                    onError(msg)
+                    null
                 }
-                seedphraseAuthInProgress = false
+                if (networkJwt != null && result != null) {
+                    onSuccess(loginRequest, networkJwt)
+                    viewModelScope.launch {
+                        if (!loginApp.isCurrentLoginRequest(loginRequest)) return@launch
+                        seedphraseAuthInProgress = false
+                    }
+                    return@dispatchLoginResult
+                }
+                viewModelScope.launch {
+                    if (!loginApp.isCurrentLoginRequest(loginRequest)) return@launch
+                    if (err != null) {
+                        CantReachPrompt.shared.report(err)
+                        setLoginError(err.message)
+                        onError(err.message ?: "Seedphrase login failed")
+                    } else if (result?.error != null) {
+                        setLoginError(result.error.message)
+                        onError(result.error.message ?: "Invalid seedphrase")
+                    } else {
+                        val msg = "Invalid seedphrase"
+                        setLoginError(msg)
+                        onError(msg)
+                    }
+                    seedphraseAuthInProgress = false
+                }
             }
         }
     }
@@ -182,7 +200,7 @@ class LoginViewModel @Inject constructor(
         context: Context,
         api: Api?,
         account: GoogleSignInAccount,
-        onLogin: (AuthLoginResult) -> Unit,
+        onLogin: (LoginRequest, AuthLoginResult) -> Unit,
         onCreateNetwork: (email: String?, authJwt: String?, userName: String) -> Unit,
     ) -> Unit = googleLogin@{ ctx, api, account, onLogin, onCreateNetwork ->
 
@@ -190,7 +208,11 @@ class LoginViewModel @Inject constructor(
             return@googleLogin
         }
 
-        val authApi = api ?: run {
+        val loginApp = ctx.applicationContext as? MainApplication
+
+        val loginRequest = loginApp?.beginLoginRequest()
+
+        val authApi = loginRequest?.api ?: run {
             setLoginError(ctx.getString(R.string.login_error))
             return@googleLogin
         }
@@ -203,44 +225,47 @@ class LoginViewModel @Inject constructor(
         args.authJwtType = "google"
 
         authApi.authLogin(args) { result, err ->
-            val networkJwt = if (err == null && result?.error == null) {
-                result?.network?.byJwt?.takeIf(String::isNotEmpty)
-            } else {
-                null
-            }
-            if (networkJwt != null && result != null) {
-                onLogin(result)
-                return@authLogin
-            }
-            viewModelScope.launch {
-                // googleAuthInProgress = false
-
-                if (err != null) {
-                    CantReachPrompt.shared.report(err)
-                    setLoginError(err.message)
-                    setGoogleAuthInProgress(false)
-                } else if (result.error != null) {
-                    setLoginError(result.error.message)
-                    setGoogleAuthInProgress(false)
-                } else if (result.authAllowed != null) {
-                    val authAllowed = mutableListOf<String>()
-                    for (i in 0 until result.authAllowed.len()) {
-                        authAllowed.add(result.authAllowed.get(i))
-                    }
-
-                    setLoginError(ctx.getString(R.string.login_error_auth_allowed, authAllowed.joinToString(",")))
-                    setGoogleAuthInProgress(false)
+            loginApp.dispatchLoginResult(loginRequest) {
+                val networkJwt = if (err == null && result?.error == null) {
+                    result?.network?.byJwt?.takeIf(String::isNotEmpty)
                 } else {
-                    setLoginError(null)
+                    null
+                }
+                if (networkJwt != null && result != null) {
+                    onLogin(loginRequest, result)
+                    return@dispatchLoginResult
+                }
+                viewModelScope.launch {
+                    if (!loginApp.isCurrentLoginRequest(loginRequest)) return@launch
+                    // googleAuthInProgress = false
 
-                    val authJwt = account.idToken
-                    val userName = result.userName
+                    if (err != null) {
+                        CantReachPrompt.shared.report(err)
+                        setLoginError(err.message)
+                        setGoogleAuthInProgress(false)
+                    } else if (result.error != null) {
+                        setLoginError(result.error.message)
+                        setGoogleAuthInProgress(false)
+                    } else if (result.authAllowed != null) {
+                        val authAllowed = mutableListOf<String>()
+                        for (i in 0 until result.authAllowed.len()) {
+                            authAllowed.add(result.authAllowed.get(i))
+                        }
 
-                    onCreateNetwork(
-                        account.email,
-                        authJwt,
-                        userName
-                    )
+                        setLoginError(ctx.getString(R.string.login_error_auth_allowed, authAllowed.joinToString(",")))
+                        setGoogleAuthInProgress(false)
+                    } else {
+                        setLoginError(null)
+
+                        val authJwt = account.idToken
+                        val userName = result.userName
+
+                        onCreateNetwork(
+                            account.email,
+                            authJwt,
+                            userName
+                        )
+                    }
                 }
             }
         }
@@ -252,14 +277,18 @@ class LoginViewModel @Inject constructor(
         publicKey: String,
         signedMessage: String,
         signature: String,
-        onLogin: (AuthLoginResult) -> Unit,
+        onLogin: (LoginRequest, AuthLoginResult) -> Unit,
         onCreateNetwork: (blockchain: String, publicKey: String, signedMessage: String, signature: String) -> Unit,
         blockchain: String = "solana",
     ) {
 
         if (!solanaAuthInProgress) {
 
-            val authApi = api ?: run {
+            val loginApp = ctx.applicationContext as? MainApplication
+
+            val loginRequest = loginApp?.beginLoginRequest()
+
+            val authApi = loginRequest?.api ?: run {
                 setLoginError(ctx.getString(R.string.login_error))
                 return
             }
@@ -278,39 +307,42 @@ class LoginViewModel @Inject constructor(
             args.walletAuth = walletAuth
 
             authApi.authLogin(args) { result, err ->
-                val networkJwt = if (err == null && result?.error == null) {
-                    result?.network?.byJwt?.takeIf(String::isNotEmpty)
-                } else {
-                    null
-                }
-                if (networkJwt != null && result != null) {
-                    onLogin(result)
-                    return@authLogin
-                }
-                viewModelScope.launch {
-                    // googleAuthInProgress = false
-
-                    if (err != null) {
-                        CantReachPrompt.shared.report(err)
-                        setLoginError(err.message)
-                        setSolanaAuthInProgress(false)
-                    } else if (result.error != null) {
-                        setLoginError(result.error.message)
-                        setSolanaAuthInProgress(false)
+                loginApp.dispatchLoginResult(loginRequest) {
+                    val networkJwt = if (err == null && result?.error == null) {
+                        result?.network?.byJwt?.takeIf(String::isNotEmpty)
                     } else {
-                        setLoginError(null)
-
-                        onCreateNetwork(
-                            blockchain,
-                            result.walletAuth.publicKey,
-                            result.walletAuth.message,
-                            result.walletAuth.signature
-                        )
+                        null
                     }
+                    if (networkJwt != null && result != null) {
+                        onLogin(loginRequest, result)
+                        return@dispatchLoginResult
+                    }
+                    viewModelScope.launch {
+                        if (!loginApp.isCurrentLoginRequest(loginRequest)) return@launch
+                        // googleAuthInProgress = false
 
-                    // we can leave the spinner going while we navigate to the next page
-                    // it will reset
-                    // setSolanaAuthInProgress(false)
+                        if (err != null) {
+                            CantReachPrompt.shared.report(err)
+                            setLoginError(err.message)
+                            setSolanaAuthInProgress(false)
+                        } else if (result.error != null) {
+                            setLoginError(result.error.message)
+                            setSolanaAuthInProgress(false)
+                        } else {
+                            setLoginError(null)
+
+                            onCreateNetwork(
+                                blockchain,
+                                result.walletAuth.publicKey,
+                                result.walletAuth.message,
+                                result.walletAuth.signature
+                            )
+                        }
+
+                        // we can leave the spinner going while we navigate to the next page
+                        // it will reset
+                        // setSolanaAuthInProgress(false)
+                    }
                 }
             }
         }
@@ -322,13 +354,17 @@ class LoginViewModel @Inject constructor(
         publicKey: String,
         signedMessage: String,
         signature: String,
-        onLogin: (AuthLoginResult) -> Unit,
+        onLogin: (LoginRequest, AuthLoginResult) -> Unit,
         onCreateNetwork: (blockchain: String, publicKey: String, signedMessage: String, signature: String) -> Unit
     ) -> Unit = walletLoginEthereum@{ ctx, api, publicKey, signedMessage, signature, onLogin, onCreateNetwork ->
 
         if (!ethOsAuthInProgress) {
 
-            val authApi = api ?: run {
+            val loginApp = ctx.applicationContext as? MainApplication
+
+            val loginRequest = loginApp?.beginLoginRequest()
+
+            val authApi = loginRequest?.api ?: run {
                 setLoginError(ctx.getString(R.string.login_error))
                 return@walletLoginEthereum
             }
@@ -349,39 +385,42 @@ class LoginViewModel @Inject constructor(
             args.walletAuth = walletAuth
 
             authApi.authLogin(args) { result, err ->
-                val networkJwt = if (err == null && result?.error == null) {
-                    result?.network?.byJwt?.takeIf(String::isNotEmpty)
-                } else {
-                    null
-                }
-                if (networkJwt != null && result != null) {
-                    onLogin(result)
-                    return@authLogin
-                }
-                viewModelScope.launch {
-                    // googleAuthInProgress = false
-
-                    if (err != null) {
-                        CantReachPrompt.shared.report(err)
-                        setLoginError(err.message)
-                        setEthOsAuthInProgress(false)
-                    } else if (result.error != null) {
-                        setLoginError(result.error.message)
-                        setEthOsAuthInProgress(false)
+                loginApp.dispatchLoginResult(loginRequest) {
+                    val networkJwt = if (err == null && result?.error == null) {
+                        result?.network?.byJwt?.takeIf(String::isNotEmpty)
                     } else {
-                        setLoginError(null)
-
-                        onCreateNetwork(
-                            blockchain,
-                            result.walletAuth.publicKey,
-                            result.walletAuth.message,
-                            result.walletAuth.signature
-                        )
+                        null
                     }
+                    if (networkJwt != null && result != null) {
+                        onLogin(loginRequest, result)
+                        return@dispatchLoginResult
+                    }
+                    viewModelScope.launch {
+                        if (!loginApp.isCurrentLoginRequest(loginRequest)) return@launch
+                        // googleAuthInProgress = false
 
-                    // we can leave the spinner going while we navigate to the next page
-                    // it will reset
-                    // setSolanaAuthInProgress(false)
+                        if (err != null) {
+                            CantReachPrompt.shared.report(err)
+                            setLoginError(err.message)
+                            setEthOsAuthInProgress(false)
+                        } else if (result.error != null) {
+                            setLoginError(result.error.message)
+                            setEthOsAuthInProgress(false)
+                        } else {
+                            setLoginError(null)
+
+                            onCreateNetwork(
+                                blockchain,
+                                result.walletAuth.publicKey,
+                                result.walletAuth.message,
+                                result.walletAuth.signature
+                            )
+                        }
+
+                        // we can leave the spinner going while we navigate to the next page
+                        // it will reset
+                        // setSolanaAuthInProgress(false)
+                    }
                 }
             }
         }

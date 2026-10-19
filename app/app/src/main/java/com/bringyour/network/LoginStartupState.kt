@@ -333,6 +333,7 @@ internal fun interface PasswordAuthRequester {
 
 internal fun interface NetworkSessionAuthenticator {
     fun authenticate(
+        attemptId: Long,
         byJwt: String,
         newNetwork: Boolean,
         completion: (LoginClientCompletion) -> Unit,
@@ -362,9 +363,9 @@ internal class PasswordLoginCoordinator(
     fun authenticate(
         userAuth: String,
         password: String,
+        attemptId: Long = tracker.begin(LoginStartupStage.PASSWORD_AUTH),
         completion: (PasswordLoginCompletion) -> Unit,
     ): Long {
-        val attemptId = tracker.begin(LoginStartupStage.PASSWORD_AUTH)
         val completed = AtomicBoolean(false)
         try {
             requester.request(userAuth, password) { result, requestError ->
@@ -443,6 +444,7 @@ internal class PasswordLoginCoordinator(
         val sessionCompleted = AtomicBoolean(false)
         try {
             sessionAuthenticator.authenticate(
+                attemptId = attemptId,
                 byJwt,
                 false,
                 sessionResult@{ sessionCompletion ->

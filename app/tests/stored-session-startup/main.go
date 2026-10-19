@@ -104,7 +104,9 @@ func main() {
 	methodMarkers := []string{
 		"    private fun updateActiveNetworkSpace(networkSpace: NetworkSpace) {",
 		"    private fun startClientSession(byClientJwt: String): ClientSessionStartResult {",
-		"    private fun logoutStaleLocalState(localState: LocalState) {",
+		"    fun login(byJwt: String, newNetwork: Boolean = false): Boolean {",
+		"    private fun login(request: LoginRequest, byJwt: String, newNetwork: Boolean): Boolean {",
+		"    private fun captureLoginRequest(",
 		"    fun logout() {",
 		"    private fun logoutInternal() {",
 		"    private fun DeviceInitFailure.asLoginStartupFailure(): LoginStartupFailure = when (this) {",
@@ -112,6 +114,14 @@ func main() {
 	var methods []string
 	for _, marker := range methodMarkers {
 		methods = append(methods, block(application, marker, "\n    }\n"))
+	}
+	for _, marker := range []string{
+		"    fun beginLoginRequest(): LoginRequest?",
+		"    fun ownsLoginRequest(request:",
+		"    fun isCurrentLoginRequest(request:",
+		"    private fun isPendingLoginRequest(request:",
+	} {
+		methods = append(methods, block(application, marker, "\n\n"))
 	}
 	types := []string{
 		block(device, "enum class DeviceInitFailure {", "\n}\n"),

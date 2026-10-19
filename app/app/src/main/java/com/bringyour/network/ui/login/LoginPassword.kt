@@ -111,11 +111,12 @@ fun LoginPassword(
             inProgress = false
             return@login
         }
-        application.authenticateWithPassword(user.text, password.text) { completion ->
+        val attempt = application.authenticateWithPassword(user.text, password.text) { request, completion ->
             if (completion is PasswordLoginCompletion.Ready) {
-                loginActivity?.finishAuthenticatedLoginAfterWelcome()
+                loginActivity?.finishAuthenticatedLoginAfterWelcome(request)
             }
             scope.launch {
+                if (!application.ownsLoginRequest(request)) return@launch
                 when (completion) {
                     is PasswordLoginCompletion.Failed -> {
                         inProgress = false
@@ -129,10 +130,14 @@ fun LoginPassword(
                         loginError = null
                         isContentVisible = false
                         delay(500)
-                        welcomeOverlayVisible = true
+                        if (application.isCurrentLoginRequest(request)) welcomeOverlayVisible = true
                     }
                 }
             }
+        }
+        if (attempt == null) {
+            loginError = loginErrMsg
+            inProgress = false
         }
         Unit
     }

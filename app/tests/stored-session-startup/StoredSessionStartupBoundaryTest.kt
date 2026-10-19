@@ -172,7 +172,7 @@ class StoredSessionStartupBoundaryTest {
             val app = MainApplicationFixture(store)
             app.restore()
             assertNotNull(app.deviceManager.onAuthLogout)
-            app.deviceManager.onAuthLogout!!.invoke(Any())
+            app.deviceManager.onAuthLogout!!.invoke(app.device!!, Any())
             assertEquals(1, store.logoutCalls)
             assertTrue(store.savedFiles().isEmpty())
             assertNull(app.api!!.byJwt)
@@ -181,13 +181,14 @@ class StoredSessionStartupBoundaryTest {
     }
 
     @Test
-    fun staleCleanupReallyDeletesSessionAndSettingsDespitePreservingDeviceKey() {
+    fun failedLoginPersistenceRetainsSessionSettingsAndDeviceKey() {
         LocalState().use { store ->
             val app = MainApplicationFixture(store)
-            val key = store.deviceLocalKeyMaterial
-            app.staleCleanup()
-            assertEquals(1, store.logoutCalls)
-            assertEquals(mapOf("key.fixture" to key), store.savedFiles())
+            val saved = store.savedFiles()
+            store.adminWriteFailure = true
+            assertFalse(app.login("synthetic-new-admin"))
+            assertEquals(0, store.logoutCalls)
+            assertEquals(saved, store.savedFiles())
         }
     }
 }

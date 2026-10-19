@@ -243,11 +243,16 @@ class MainApplication : Application() {
     val loginStartupTracker = LoginStartupTracker()
     val loginStartupState get() = loginStartupTracker.state
 
+    // Main-looper confined. An accepted login owns auth before it has a device;
+    // pending requests alone do not replace the serving session.
+    private var authSessionOwner = Any()
+    private var activeLoginRequest: LoginRequest? = null
+
     private val loginClientCoordinator by lazy(LazyThreadSafetyMode.NONE) {
         LoginClientCoordinator(
             tracker = loginStartupTracker,
             requester = AuthClientRequester { callback ->
-                val currentApi = api
+                val currentApi = activeLoginRequest?.takeIf(::isPendingLoginRequest)?.api
                 if (currentApi == null) {
                     callback(
                         AuthClientWireResult(
@@ -299,7 +304,8 @@ class MainApplication : Application() {
         PasswordLoginCoordinator(
             tracker = loginStartupTracker,
             requester = PasswordAuthRequester { userAuth, password, callback ->
-                val currentApi = api
+                val request = captureLoginRequest(loginStartupState.value.attemptId)
+                val currentApi = request?.api
                 if (currentApi == null) {
                     callback(
                         PasswordAuthWireResult(
@@ -348,8 +354,13 @@ class MainApplication : Application() {
                     }
                 }
             },
-            sessionAuthenticator = NetworkSessionAuthenticator { byJwt, newNetwork, completion ->
-                authenticateNetworkSession(byJwt, newNetwork, completion)
+            sessionAuthenticator = NetworkSessionAuthenticator { attemptId, byJwt, newNetwork, completion ->
+                val request = activeLoginRequest?.takeIf { it.attemptId == attemptId }
+                if (request == null) {
+                    completion(LoginClientCompletion.Failed(LoginStartupFailure.STALE_ATTEMPT))
+                } else {
+                    authenticateNetworkSession(request, byJwt, newNetwork, completion)
+                }
             },
             dispatch = ::dispatchLoginAction,
         )
@@ -359,7 +370,43 @@ class MainApplication : Application() {
         if (android.os.Looper.myLooper() == mainLooper) action() else mainHandler.post(action)
     }
 
-    internal fun dispatchLoginResult(action: () -> Unit) = dispatchLoginAction(action)
+    /** Capture before the outer API call, never when its response arrives. */
+    fun beginLoginRequest(): LoginRequest? =
+        captureLoginRequest(loginStartupTracker.begin(LoginStartupStage.NETWORK_SESSION_PERSISTENCE))
+
+    private fun captureLoginRequest(attemptId: Long?): LoginRequest? {
+        if (attemptId == null || !loginStartupTracker.isActive(attemptId)) return null
+        val space = networkSpaceManagerProvider.getNetworkSpace() ?: return null
+        if (networkSpaceManagerProvider.getNetworkSpaceManager()?.activeNetworkSpace?.same(space) != true) return null
+        activeLoginRequest?.takeIf { it.attemptId == attemptId && it.networkSpace === space }?.let { return it }
+        val requestApi = space.api ?: return null
+        val state = space.asyncLocalState?.localState ?: return null
+        return LoginRequest(attemptId, space, requestApi, state).also { activeLoginRequest = it }
+    }
+
+    fun ownsLoginRequest(request: LoginRequest): Boolean =
+        activeLoginRequest === request &&
+            networkSpaceManagerProvider.getNetworkSpace() === request.networkSpace &&
+            networkSpaceManagerProvider.getNetworkSpaceManager()?.activeNetworkSpace?.same(request.networkSpace) == true &&
+            loginStartupState.value.attemptId == request.attemptId
+
+    fun isCurrentLoginRequest(request: LoginRequest): Boolean =
+        ownsLoginRequest(request) &&
+            (loginStartupState.value is LoginStartupState.Pending || loginStartupState.value is LoginStartupState.Ready)
+
+    private fun isPendingLoginRequest(request: LoginRequest): Boolean =
+        isCurrentLoginRequest(request) && loginStartupTracker.isActive(request.attemptId)
+
+    fun dispatchLoginResult(request: LoginRequest, action: () -> Unit) {
+        dispatchLoginAction {
+            if (isPendingLoginRequest(request) && request.resultConsumed.compareAndSet(false, true)) action()
+        }
+    }
+
+    // A nested local-state parse continues an already admitted server result.
+    internal fun dispatchLoginContinuation(request: LoginRequest, action: () -> Unit) {
+        dispatchLoginAction { if (isPendingLoginRequest(request)) action() }
+    }
 
     @Inject
     lateinit var deviceManager: DeviceManager
@@ -1132,7 +1179,7 @@ class MainApplication : Application() {
 
         networkSpaceSub = networkSpaceManager?.addActiveNetworkSpaceChangeListener { networkSpace ->
             Handler(mainLooper).post {
-                updateActiveNetworkSpace(networkSpace)
+                if (!applySelectedNetworkSpace(networkSpace)) return@post
 
                 val intent = Intent(applicationContext, LoginActivity::class.java)
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK.or(Intent.FLAG_ACTIVITY_TASK_ON_HOME))
@@ -1140,7 +1187,7 @@ class MainApplication : Application() {
             }
         }
 
-        networkSpaceManager?.activeNetworkSpace?.let { updateActiveNetworkSpace(it) }
+        networkSpaceManager?.activeNetworkSpace?.let { applySelectedNetworkSpace(it) }
 
         Handler(mainLooper).post {
             // Older builds installed a 15-minute periodic worker whose body
@@ -1355,7 +1402,19 @@ class MainApplication : Application() {
     }
 
 
+    private fun applySelectedNetworkSpace(networkSpace: NetworkSpace): Boolean {
+        val selected = networkSpaceManagerProvider.getNetworkSpaceManager()?.activeNetworkSpace ?: return false
+        if (!networkSpace.same(selected)) return false
+        val current = networkSpaceManagerProvider.getNetworkSpace()
+        if (current != null && networkSpace.same(current)) return false
+        updateActiveNetworkSpace(networkSpace)
+        return true
+    }
+
     private fun updateActiveNetworkSpace(networkSpace: NetworkSpace) {
+        // Retire held password/client replies before teardown can deliver one.
+        loginStartupTracker.loggedOut()
+        activeLoginRequest = null
         stop()
 
         networkSpaceManagerProvider.setNetworkSpace(networkSpace)
@@ -2103,41 +2162,61 @@ class MainApplication : Application() {
     internal fun authenticateWithPassword(
         userAuth: String,
         password: String,
-        completion: (PasswordLoginCompletion) -> Unit,
-    ): Long = passwordLoginCoordinator.authenticate(userAuth, password, completion)
+        completion: (LoginRequest, PasswordLoginCompletion) -> Unit,
+    ): Long? {
+        val request = captureLoginRequest(loginStartupTracker.begin(LoginStartupStage.PASSWORD_AUTH)) ?: return null
+        return passwordLoginCoordinator.authenticate(userAuth, password, request.attemptId) {
+            completion(request, it)
+        }
+    }
 
     internal fun authenticateNetworkSession(
+        request: LoginRequest,
         byJwt: String,
         newNetwork: Boolean,
         completion: (LoginClientCompletion) -> Unit,
     ) {
         dispatchLoginAction {
-            if (!login(byJwt, newNetwork)) {
+            if (!isPendingLoginRequest(request)) {
+                completion(LoginClientCompletion.Failed(LoginStartupFailure.STALE_ATTEMPT))
+                return@dispatchLoginAction
+            }
+            if (!request.sessionStarted.compareAndSet(false, true)) return@dispatchLoginAction
+            if (!login(request, byJwt, newNetwork)) {
                 val state = loginStartupState.value
                 val failure = (state as? LoginStartupState.Failed)?.failure
                     ?: LoginStartupFailure.NETWORK_SESSION_PERSISTENCE_FAILED
                 completion(LoginClientCompletion.Failed(failure))
                 return@dispatchLoginAction
             }
-            authenticateLoginClient(completion)
+            authenticateLoginClient(request, completion)
         }
     }
 
     internal fun persistNetworkSession(
+        request: LoginRequest,
         byJwt: String,
         newNetwork: Boolean,
         completion: (Boolean) -> Unit,
     ) {
-        dispatchLoginAction { completion(login(byJwt, newNetwork)) }
+        dispatchLoginAction {
+            if (!isPendingLoginRequest(request)) { completion(false); return@dispatchLoginAction }
+            if (!request.sessionStarted.compareAndSet(false, true)) return@dispatchLoginAction
+            completion(login(request, byJwt, newNetwork))
+        }
     }
 
     fun login(byJwt: String, newNetwork: Boolean = false): Boolean {
-        val attemptId = loginStartupTracker.ensureAttempt(LoginStartupStage.NETWORK_SESSION_PERSISTENCE)
-        val localState = asyncLocalState?.localState
-        val currentApi = api
-        if (localState == null || currentApi == null || byJwt.isEmpty()) {
-            localState?.let(::logoutStaleLocalState)
-            runCatching { currentApi?.byJwt = null }
+        val request = beginLoginRequest() ?: return false
+        return login(request, byJwt, newNetwork)
+    }
+
+    private fun login(request: LoginRequest, byJwt: String, newNetwork: Boolean): Boolean {
+        if (!isPendingLoginRequest(request)) return false
+        val attemptId = request.attemptId
+        val localState = request.localState
+        val currentApi = request.api
+        if (byJwt.isEmpty()) {
             loginStartupTracker.fail(
                 attemptId,
                 LoginStartupStage.NETWORK_SESSION_PERSISTENCE,
@@ -2147,12 +2226,15 @@ class MainApplication : Application() {
         }
         val persisted = runCatching {
             localState.byJwt = byJwt
+            // Credential acceptance supersedes the old device even when a
+            // subsequent settings/API update fails. A rejected write does not.
+            authSessionOwner = Any()
             localState.canPromptIntroFunnel = newNetwork
             currentApi.byJwt = byJwt
         }.isSuccess
         if (!persisted) {
-            logoutStaleLocalState(localState)
-            runCatching { currentApi.byJwt = null }
+            // An operational write failure is not proof that the saved session
+            // is stale. Preserve its keys, settings and any accepted credential.
             loginStartupTracker.fail(
                 attemptId,
                 LoginStartupStage.NETWORK_SESSION_PERSISTENCE,
@@ -2164,6 +2246,7 @@ class MainApplication : Application() {
 
     fun loginClient(byClientJwt: String): Boolean {
         val attemptId = loginStartupTracker.ensureAttempt(LoginStartupStage.CLIENT_JWT_VALIDATION)
+        if (activeLoginRequest?.attemptId != attemptId && captureLoginRequest(attemptId) == null) return false
         val identity = ClientJwtIdentity.decode(byClientJwt) as? ClientJwtIdentity.Valid
         if (identity == null) {
             loginStartupTracker.fail(
@@ -2188,7 +2271,11 @@ class MainApplication : Application() {
         }
     }
 
-    internal fun authenticateLoginClient(callback: (LoginClientCompletion) -> Unit) {
+    internal fun authenticateLoginClient(request: LoginRequest, callback: (LoginClientCompletion) -> Unit) {
+        if (!isPendingLoginRequest(request)) {
+            callback(LoginClientCompletion.Failed(LoginStartupFailure.STALE_ATTEMPT))
+            return
+        }
         val current = loginStartupState.value
         if (current !is LoginStartupState.Pending) {
             val failure = (current as? LoginStartupState.Failed)?.failure
@@ -2209,15 +2296,15 @@ class MainApplication : Application() {
         if (!loginStartupTracker.pending(attemptId, LoginStartupStage.CLIENT_JWT_PERSISTENCE)) {
             return ClientSessionStartResult.Failed(LoginStartupFailure.STALE_ATTEMPT)
         }
-        val localState = asyncLocalState?.localState
-            ?: return ClientSessionStartResult.Failed(
-                LoginStartupFailure.CLIENT_JWT_PERSISTENCE_FAILED,
-            )
+        val request = activeLoginRequest?.takeIf { it.attemptId == attemptId && isPendingLoginRequest(it) }
+            ?: return ClientSessionStartResult.Failed(LoginStartupFailure.STALE_ATTEMPT)
+        val localState = request.localState
         if (runCatching { localState.byClientJwt = byClientJwt }.isFailure) {
             return ClientSessionStartResult.Failed(
                 LoginStartupFailure.CLIENT_JWT_PERSISTENCE_FAILED,
             )
         }
+        authSessionOwner = Any()
         loginStartupTracker.pending(attemptId, LoginStartupStage.DEVICE_LOCAL_INITIALIZATION)
         val deviceInitResult = try {
             initDevice(byClientJwt)
@@ -2230,21 +2317,6 @@ class MainApplication : Application() {
             is DeviceInitResult.Failed -> {
                 ClientSessionStartResult.Failed(result.failure.asLoginStartupFailure())
             }
-        }
-    }
-
-    // Clear a stale or partial auth state without rotating the device
-    // identity. The identity key material is device-scoped, not
-    // session-scoped: auth staleness (token rotation, partial auth state,
-    // re-login) must not change the key peers use to verify this device, so
-    // re-persist the material across the localState.logout() wipe (which
-    // clears the whole local storage dir). Only an explicit user logout()
-    // deliberately severs and rotates the identity.
-    private fun logoutStaleLocalState(localState: LocalState) {
-        val keyMaterial = runCatching { localState.deviceLocalKeyMaterial }.getOrNull()
-        runCatching { localState.logout() }
-        keyMaterial?.let {
-            runCatching { localState.deviceLocalKeyMaterial = it }
         }
     }
 
@@ -2267,6 +2339,7 @@ class MainApplication : Application() {
         // the user signed out: the sign-in screen has nothing to explain
         signInNotices.clear()
         loginStartupTracker.loggedOut()
+        activeLoginRequest = null
         logoutInternal()
     }
 
@@ -2308,6 +2381,8 @@ class MainApplication : Application() {
      * callbacks, and resets transient connection and contract state.
      */
     fun stop() {
+        // Closing a subscription cannot retract work already on the main queue.
+        authSessionOwner = Any()
         // Invalidate a reconcile already queued by a listener before tearing
         // down the device; it must not restart the service after logout.
         vpnServiceUpdateGeneration += 1
@@ -2366,9 +2441,14 @@ class MainApplication : Application() {
         deviceManager.onLogoutStarted = { signedOutDevice ->
             connectCommands.signOutStarted(signedOutDevice)
         }
-        deviceManager.onAuthLogout = { cause ->
+        val logoutOwner = authSessionOwner
+        deviceManager.onAuthLogout = { signedOutDevice, cause ->
             Handler(mainLooper).post {
+                if (authSessionOwner !== logoutOwner || device !== signedOutDevice) {
+                    return@post
+                }
                 loginStartupTracker.authLoggedOut()
+                activeLoginRequest = null
                 logoutInternal()
                 signInNotices.authLoggedOut(cause)
                 val intent = Intent(applicationContext, LoginActivity::class.java)

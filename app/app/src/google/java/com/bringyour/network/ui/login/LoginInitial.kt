@@ -70,6 +70,7 @@ import androidx.navigation.compose.rememberNavController
 import com.bringyour.sdk.AuthLoginResult
 import com.bringyour.sdk.Api
 import com.bringyour.network.LoginActivity
+import com.bringyour.network.LoginRequest
 import com.bringyour.network.MainApplication
 import com.bringyour.network.R
 import com.bringyour.network.TAG
@@ -112,8 +113,9 @@ fun LoginInitial(
         onPauseOrDispose {}
     }
 
-    val onLogin: (String) -> Unit = { networkJwt ->
+    val onLogin: (LoginRequest, String) -> Unit = { request, networkJwt ->
         handleLoginFlow(
+            request = request,
             networkJwt = networkJwt,
             scope = scope,
             application = application,
@@ -127,7 +129,7 @@ fun LoginInitial(
                 welcomeOverlayVisible = it
             },
             finishAuthenticatedLoginAfterWelcome = {
-                loginActivity?.finishAuthenticatedLoginAfterWelcome()
+                loginActivity?.finishAuthenticatedLoginAfterWelcome(request)
             }
         )
     }
@@ -196,7 +198,7 @@ fun LoginInitial(
                             result.signed.publicKey,
                             result.signed.message,
                             result.signed.signature,
-                            { loginResult -> onLogin(loginResult.network.byJwt) },
+                            { request, loginResult -> onLogin(request, loginResult.network.byJwt) },
                             onCreateNetworkSolana
                         )
                     }
@@ -220,6 +222,7 @@ fun LoginInitial(
             flow = BittensorProofFlow(nowMillis = System::currentTimeMillis),
             scope = scope,
             api = { application?.api },
+            application = application,
             setLoginError = loginViewModel.setLoginError,
             setInProgress = loginViewModel.setBittensorAuthInProgress,
             defaultError = { context.getString(R.string.login_error) },
@@ -315,13 +318,13 @@ fun LoginInitial(
         // to time the overlay, which this sheet doesn't show, and they leave a
         // window where the session is already persisted but the login hasn't
         // finished
-        onLogin = { jwt ->
+        onLogin = { request, jwt ->
             val application = context.applicationContext as? com.bringyour.network.MainApplication
             val loginActivity = context as? com.bringyour.network.LoginActivity
-            application?.authenticateNetworkSession(jwt, newNetwork = false) { completion ->
+            application?.authenticateNetworkSession(request, jwt, newNetwork = false) { completion ->
                 when (completion) {
                     is com.bringyour.network.LoginClientCompletion.Ready ->
-                        loginActivity?.finishAuthenticatedLoginNow()
+                        loginActivity?.finishAuthenticatedLoginNow(request)
                     is com.bringyour.network.LoginClientCompletion.Failed -> {
                         android.util.Log.e("LoginInitial", "auth client finish err: ${completion.message}")
                         android.widget.Toast.makeText(context, context.getString(R.string.error_logging_in_please_try_again), android.widget.Toast.LENGTH_LONG).show()
@@ -353,14 +356,14 @@ fun LoginInitial(
     login: (
         ctx: Context,
         api: Api?,
-        onLogin: (AuthLoginResult) -> Unit,
+        onLogin: (LoginRequest, AuthLoginResult) -> Unit,
         onNewNetwork: (AuthLoginResult) -> Unit,
     ) -> Unit,
     googleLogin: (
         context: Context,
         api: Api?,
         account: GoogleSignInAccount,
-        onLogin: (AuthLoginResult) -> Unit,
+        onLogin: (LoginRequest, AuthLoginResult) -> Unit,
         onCreateNetwork: (email: String?, authJwt: String?, userName: String) -> Unit,
     ) -> Unit,
     loginError: String?,
@@ -374,7 +377,7 @@ fun LoginInitial(
     bittensorAuthInProgress: Boolean,
     appleLogin: () -> Unit = {},
     appleAuthInProgress: Boolean = false,
-    onLogin: (String) -> Unit,
+    onLogin: (LoginRequest, String) -> Unit,
     contentVisible: Boolean,
     setContentVisible: (Boolean) -> Unit,
     welcomeOverlayVisible: Boolean,
@@ -395,7 +398,7 @@ fun LoginInitial(
 
     val loginActivity = context as? LoginActivity
 
-    val navigateToLoginPassword: (AuthLoginResult) -> Unit = { result ->
+    val navigateToLoginPassword: (LoginRequest, AuthLoginResult) -> Unit = { _, result ->
         navController.navigate("login-password/${Uri.encode(result.userAuth)}")
     }
 
@@ -436,8 +439,8 @@ fun LoginInitial(
                 context,
                 application?.api,
                 account,
-                {result ->
-                    onLogin(result.network.byJwt)
+                { request, result ->
+                    onLogin(request, result.network.byJwt)
                 },
                 onNetworkCreateGoogle
             )
@@ -654,7 +657,7 @@ private fun LoginInitialPreview() {
     val login: (
         Context,
         Api?,
-        (AuthLoginResult) -> Unit,
+        (LoginRequest, AuthLoginResult) -> Unit,
         (AuthLoginResult) -> Unit,
     ) -> Unit = { context, api, onLogin, onNewNetwork ->
 
@@ -664,7 +667,7 @@ private fun LoginInitialPreview() {
         Context,
         Api?,
         GoogleSignInAccount,
-        (AuthLoginResult) -> Unit,
+        (LoginRequest, AuthLoginResult) -> Unit,
         (email: String?, authJwt: String?, userName: String) -> Unit,
     ) -> Unit = { context, api, account, onLogin, onNewNetwork ->
 
@@ -696,7 +699,7 @@ private fun LoginInitialPreview() {
                     solanaLogin = {},
                     bittensorAuthInProgress = false,
                     bittensorLogin = {},
-                    onLogin = {},
+                    onLogin = { _, _ -> },
                     contentVisible = true,
                     setContentVisible = {},
                     welcomeOverlayVisible = false,
@@ -720,7 +723,7 @@ private fun LoginInitialLandscapePreview() {
     val login: (
         Context,
         Api?,
-        (AuthLoginResult) -> Unit,
+        (LoginRequest, AuthLoginResult) -> Unit,
         (AuthLoginResult) -> Unit,
     ) -> Unit = { context, api, onLogin, onNewNetwork ->
 
@@ -730,7 +733,7 @@ private fun LoginInitialLandscapePreview() {
         Context,
         Api?,
         GoogleSignInAccount,
-        (AuthLoginResult) -> Unit,
+        (LoginRequest, AuthLoginResult) -> Unit,
         (email: String?, authJwt: String?, userName: String) -> Unit,
     ) -> Unit = { context, api, account, onLogin, onNewNetwork ->
 
@@ -762,7 +765,7 @@ private fun LoginInitialLandscapePreview() {
                     solanaLogin = {},
                     bittensorAuthInProgress = false,
                     bittensorLogin = {},
-                    onLogin = {},
+                    onLogin = { _, _ -> },
                     contentVisible = true,
                     setContentVisible = {},
                     welcomeOverlayVisible = false,

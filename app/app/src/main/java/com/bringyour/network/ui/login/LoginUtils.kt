@@ -11,6 +11,7 @@ import com.bringyour.network.ui.wallet.bittensorWalletDisplayName
 import androidx.browser.customtabs.CustomTabsIntent
 import com.bringyour.network.BuildConfig
 import com.bringyour.network.LoginClientCompletion
+import com.bringyour.network.LoginRequest
 import com.bringyour.network.MainApplication
 import com.bringyour.network.TAG
 import com.bringyour.sdk.Api
@@ -575,6 +576,7 @@ private fun launchInBrowser(context: Context, uri: Uri): Boolean {
  * Used on LoginInitial on individual build flavors
  */
 fun handleLoginFlow(
+    request: LoginRequest,
     networkJwt: String,
     scope: CoroutineScope,
     application: MainApplication?,
@@ -588,11 +590,12 @@ fun handleLoginFlow(
         scope.launch { onErr() }
         return
     }
-    app.authenticateNetworkSession(networkJwt, newNetwork = false) { completion ->
+    app.authenticateNetworkSession(request, networkJwt, newNetwork = false) { completion ->
         if (completion is LoginClientCompletion.Ready) {
             finishAuthenticatedLoginAfterWelcome()
         }
         scope.launch {
+            if (!app.ownsLoginRequest(request)) return@launch
             if (completion is LoginClientCompletion.Failed) {
                 Log.i(TAG, "auth client and finish err: ${completion.message}")
                 val visibility = loginRetryVisibility()
@@ -604,7 +607,7 @@ fun handleLoginFlow(
 
             onContentVisibilityChange(false)
             delay(500)
-            onWelcomeOverlayVisibilityChange(true)
+            if (app.isCurrentLoginRequest(request)) onWelcomeOverlayVisibilityChange(true)
         }
     }
 }

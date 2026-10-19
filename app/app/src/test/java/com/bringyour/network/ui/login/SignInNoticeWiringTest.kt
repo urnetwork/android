@@ -49,16 +49,16 @@ class SignInNoticeWiringTest {
     @Test
     fun theDevicesListenerReadsTheCauseBeforeTheLogoutIsPosted() {
         val deviceManager = source("DeviceManager.kt")
-        assertTrue(deviceManager.contains("var onAuthLogout: ((cause: String) -> Unit)? = null"))
+        assertTrue(deviceManager.contains("var onAuthLogout: ((device: DeviceLocal, cause: String) -> Unit)? = null"))
         val listener = between(deviceManager, "authLogoutSub = newDevice.addAuthLogoutListener {", "}\n")
         // on the sdk's thread, from the device that fired
-        assertTrue(listener, listener.contains("onAuthLogout?.invoke(newDevice.authLogoutCause.orEmpty())"))
+        assertTrue(listener, listener.contains("onAuthLogout?.invoke(newDevice, newDevice.authLogoutCause.orEmpty())"))
     }
 
     @Test
     fun theLogoutHandlerLeavesTheNoticeThenOpensTheSignInScreen() {
         val application = source("MainApplication.kt")
-        val handler = between(application, "deviceManager.onAuthLogout = { cause ->", "\n        }\n")
+        val handler = between(application, "deviceManager.onAuthLogout = { signedOutDevice, cause ->", "\n        }\n")
         val post = handler.indexOf("Handler(mainLooper).post {")
         val logout = handler.indexOf("logoutInternal()")
         val notice = handler.indexOf("signInNotices.authLoggedOut(cause)")

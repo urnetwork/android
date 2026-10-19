@@ -37,24 +37,12 @@ internal sealed class DeviceConfigurationResult<out T> {
     data class Failed(val failure: DeviceInitFailure) : DeviceConfigurationResult<Nothing>()
 }
 
-/** Tries a stored identity once, then clears it before one default-key fallback. */
+/** Construction failure does not establish key invalidity; retain the supplied identity. */
 internal fun <T, K> createDeviceWithStoredKey(
     storedKey: K?,
-    clearStoredKey: () -> Unit,
     create: (K?) -> T?,
 ): DeviceCreationResult<T> {
-    if (storedKey == null) {
-        return runCatching { create(null) }.getOrNull()?.let { DeviceCreationResult.Created(it) }
-            ?: DeviceCreationResult.Failed(DeviceInitFailure.DEVICE_LOCAL_CREATION_FAILED)
-    }
-
-    runCatching { create(storedKey) }.getOrNull()?.let {
-        return DeviceCreationResult.Created(it)
-    }
-    if (runCatching(clearStoredKey).isFailure) {
-        return DeviceCreationResult.Failed(DeviceInitFailure.DEVICE_LOCAL_CONFIGURATION_FAILED)
-    }
-    return runCatching { create(null) }.getOrNull()?.let { DeviceCreationResult.Created(it) }
+    return runCatching { create(storedKey) }.getOrNull()?.let { DeviceCreationResult.Created(it) }
         ?: DeviceCreationResult.Failed(DeviceInitFailure.DEVICE_LOCAL_CREATION_FAILED)
 }
 
@@ -124,7 +112,7 @@ class DeviceManager @Inject constructor(
     // login flow. The cause is the device's (Device.getAuthLogoutCause):
     // Sdk.AuthLogoutCauseSessionRevoked when the server confirmed another
     // device signed this session out, else "".
-    var onAuthLogout: ((cause: String) -> Unit)? = null
+    var onAuthLogout: ((device: DeviceLocal, cause: String) -> Unit)? = null
 
     // set by the application; fired on the sdk's thread as the sdk's logout
     // begins, before onAuthLogout, with the device it signs out: from here no
@@ -354,6 +342,9 @@ class DeviceManager @Inject constructor(
         deviceDescription: String,
         deviceSpec: String
     ): DeviceInitResult {
+        // A retired device must retain its original application session owner,
+        // even if its already admitted listener runs after the next init.
+        val onAuthLogout = onAuthLogout
         if (networkSpace == null) {
             clearDevice()
             return DeviceInitResult.Failed(DeviceInitFailure.MISSING_NETWORK_SPACE)
@@ -385,10 +376,16 @@ class DeviceManager @Inject constructor(
         val performanceProfile = localState.performanceProfile
 
         val provideSecretKeys = localState.provideSecretKeys
-        val keyMaterial = localState.deviceLocalKeyMaterial
+        val keyMaterial = try {
+            // The compatibility getter hides read failures as missing keys.
+            // Only a successful checked read may authorize a fresh identity.
+            checkNotNull(localState.readDeviceLocalKeyMaterial()).keyMaterial
+        } catch (_: Throwable) {
+            clearDevice()
+            return DeviceInitResult.Failed(DeviceInitFailure.DEVICE_LOCAL_CONFIGURATION_FAILED)
+        }
         val creation = createDeviceWithStoredKey(
             storedKey = keyMaterial,
-            clearStoredKey = { localState.deviceLocalKeyMaterial = null },
             create = { retainedKeyMaterial ->
                 if (retainedKeyMaterial == null) {
                     createDeviceLocalWithDefaults(
@@ -526,7 +523,7 @@ class DeviceManager @Inject constructor(
                         // read here, on the sdk's thread, before the app posts
                         // its logout: the device sets the cause before it
                         // notifies its listeners
-                        onAuthLogout?.invoke(newDevice.authLogoutCause.orEmpty())
+                        onAuthLogout?.invoke(newDevice, newDevice.authLogoutCause.orEmpty())
                     }
                     deviceChanges.prepareUpdate(newDevice)
                 }

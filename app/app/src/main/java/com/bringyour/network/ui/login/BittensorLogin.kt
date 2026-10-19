@@ -1,6 +1,8 @@
 package com.bringyour.network.ui.login
 
 import android.util.Log
+import com.bringyour.network.LoginRequest
+import com.bringyour.network.MainApplication
 import com.bringyour.network.ui.wallet.BittensorProof
 import com.bringyour.network.ui.wallet.BittensorProofFlow
 import com.bringyour.network.ui.wallet.BittensorProofRequest
@@ -69,17 +71,17 @@ fun bittensorLoginNext(
  * proof. A wallet with no network signs a second, address-bound challenge
  * (purpose create) and continues to the create-network screen.
  *
- * Callbacks run on the main thread except `onNetworkJwt`, which runs on the
- * api callback thread (as the other wallet logins do).
+ * Authentication results retain the request owner and are delivered on main.
  */
 class BittensorLoginController(
     val flow: BittensorProofFlow,
     private val scope: CoroutineScope,
     private val api: () -> Api?,
+    private val application: MainApplication?,
     private val setLoginError: (String?) -> Unit,
     private val setInProgress: (Boolean) -> Unit,
     private val defaultError: () -> String,
-    private val onNetworkJwt: (String) -> Unit,
+    private val onNetworkJwt: (LoginRequest, String) -> Unit,
     private val onCreateNetwork: (WalletCreateBundle) -> Unit,
     // opens a browser-bridge page (WalletConnect); false when no browser opened
     private val openUrl: (String) -> Boolean = { false },
@@ -133,7 +135,8 @@ class BittensorLoginController(
     }
 
     private fun login(proof: BittensorProof) {
-        val api = api()
+        val request = application?.beginLoginRequest()
+        val api = request?.api
         if (api == null) {
             setLoginError(defaultError())
             return
@@ -150,27 +153,30 @@ class BittensorLoginController(
         // result.error.code (a 401 error otherwise)
         args.resultErrors = true
         api.authLogin(args) { result, err ->
-            val next = bittensorLoginNext(
-                proof = proof,
-                networkJwt = result?.network?.byJwt,
-                unlinkedWallet = result?.walletAuth != null,
-                errorMessage = err?.message ?: result?.error?.message,
-                errorCode = result?.error?.code,
-            )
-            if (next is BittensorLoginNext.SignedIn) {
-                onNetworkJwt(next.networkJwt)
-                return@authLogin
-            }
-            scope.launch {
-                setInProgress(false)
-                when (next) {
-                    is BittensorLoginNext.CreateNetwork -> {
-                        flow.openForWallet(next.walletId, BittensorWallets.PURPOSE_CREATE, next.address)
-                            ?.let { startSession(it) }
+            application.dispatchLoginResult(request) {
+                val next = bittensorLoginNext(
+                    proof = proof,
+                    networkJwt = result?.network?.byJwt,
+                    unlinkedWallet = result?.walletAuth != null,
+                    errorMessage = err?.message ?: result?.error?.message,
+                    errorCode = result?.error?.code,
+                )
+                if (next is BittensorLoginNext.SignedIn) {
+                    onNetworkJwt(request, next.networkJwt)
+                    return@dispatchLoginResult
+                }
+                scope.launch {
+                    if (!application.isCurrentLoginRequest(request)) return@launch
+                    setInProgress(false)
+                    when (next) {
+                        is BittensorLoginNext.CreateNetwork -> {
+                            flow.openForWallet(next.walletId, BittensorWallets.PURPOSE_CREATE, next.address)
+                                ?.let { startSession(it) }
+                        }
+                        is BittensorLoginNext.Failed -> setLoginError(next.message ?: defaultError())
+                        is BittensorLoginNext.SignatureMismatch -> setLoginError(signatureMismatchText(next.walletId))
+                        else -> {}
                     }
-                    is BittensorLoginNext.Failed -> setLoginError(next.message ?: defaultError())
-                    is BittensorLoginNext.SignatureMismatch -> setLoginError(signatureMismatchText(next.walletId))
-                    else -> {}
                 }
             }
         }

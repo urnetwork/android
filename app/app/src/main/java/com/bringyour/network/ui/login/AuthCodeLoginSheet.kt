@@ -25,6 +25,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.bringyour.network.LoginRequest
 import com.bringyour.network.MainApplication
 import com.bringyour.network.R
 import com.bringyour.network.ui.components.URButton
@@ -40,7 +41,7 @@ import kotlinx.coroutines.launch
 fun AuthCodeLoginSheet(
     isPresenting: Boolean,
     setIsPresenting: (Boolean) -> Unit,
-    onLogin: (String) -> Unit, // network jwt
+    onLogin: (LoginRequest, String) -> Unit, // network jwt
     viewModel: AuthCodeLoginSheetViewModel = hiltViewModel()
 ) {
     val sheetState = rememberModalBottomSheetState(
@@ -88,7 +89,7 @@ fun AuthCodeLoginSheet(
     authCodeLoginLoading: Boolean,
     authCodeLoginError: String?,
     sheetState: SheetState,
-    onLogin: (String) -> Unit, // network jwt
+    onLogin: (LoginRequest, String) -> Unit, // network jwt
 ) {
 
     val scope = rememberCoroutineScope()
@@ -135,18 +136,20 @@ fun AuthCodeLoginSheet(
 
                 URButton(
                     onClick = {
+                        val request = application?.beginLoginRequest() ?: return@URButton
                         authCodeLogin(
-                            application?.api,
+                            request.api,
                             {},
                             { result ->
-                                onLogin(result.jwt)
-
-                                scope.launch { sheetState.hide() }.invokeOnCompletion {
-
-                                    if (!sheetState.isVisible) {
-                                        setIsPresenting(false)
+                                application.dispatchLoginResult(request) {
+                                    onLogin(request, result.jwt)
+                                    scope.launch {
+                                        if (!application.ownsLoginRequest(request)) return@launch
+                                        sheetState.hide()
+                                        if (application.ownsLoginRequest(request) && !sheetState.isVisible) {
+                                            setIsPresenting(false)
+                                        }
                                     }
-
                                 }
                             }
                         )

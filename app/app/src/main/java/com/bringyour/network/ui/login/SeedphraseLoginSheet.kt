@@ -31,6 +31,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.bringyour.network.LoginRequest
 import com.bringyour.network.MainApplication
 import com.bringyour.network.R
 import com.bringyour.network.ui.components.URButton
@@ -51,7 +52,7 @@ import kotlinx.coroutines.launch
 fun SeedphraseLoginSheet(
     isPresenting: Boolean,
     setIsPresenting: (Boolean) -> Unit,
-    onLogin: (String) -> Unit, // network jwt
+    onLogin: (LoginRequest, String) -> Unit, // network jwt
     loginViewModel: LoginViewModel = hiltViewModel()
 ) {
     val sheetState = rememberModalBottomSheetState(
@@ -154,12 +155,13 @@ fun SeedphraseLoginSheet(
                             ctx = context,
                             api = application?.api,
                             seedphrase = normalized,
-                            onSuccess = { jwt ->
-                                onLogin(jwt)
+                            onSuccess = { request, jwt ->
+                                onLogin(request, jwt)
                                 scope.launch {
+                                    if (application?.ownsLoginRequest(request) != true) return@launch
                                     isFinishing = true
                                     sheetState.hide()
-                                    if (!sheetState.isVisible) {
+                                    if (application?.ownsLoginRequest(request) == true && !sheetState.isVisible) {
                                         setIsPresenting(false)
                                     }
                                 }

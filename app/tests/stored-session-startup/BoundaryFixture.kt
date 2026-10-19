@@ -18,6 +18,8 @@ internal class LocalState : AutoCloseable {
     var legacyReads = 0
     var logoutCalls = 0
     var validAdmin = true
+    var canPromptIntroFunnel = false
+    var adminWriteFailure = false
     private var admin = "synthetic-admin-credential"
     private var client = "synthetic-client-credential"
     private var instance: String? = "synthetic-instance"
@@ -42,7 +44,7 @@ internal class LocalState : AutoCloseable {
             legacyReads += 1
             return runCatching { read(); admin }.getOrDefault("")
         }
-        set(value) { admin = value; persistAuth() }
+        set(value) { check(!adminWriteFailure); admin = value; persistAuth() }
 
     var byClientJwt: String
         get() {
@@ -92,8 +94,15 @@ internal class AsyncLocalState(val localState: LocalState?)
 internal class Api(var byJwt: String? = "synthetic-api-credential") {
     fun setClientInfo(value: Any) {}
 }
-internal class NetworkSpace(val asyncLocalState: AsyncLocalState, val api: Api? = Api())
+internal class NetworkSpace(val asyncLocalState: AsyncLocalState, val api: Api? = Api()) {
+    fun same(other: NetworkSpace?): Boolean = this === other
+}
+internal class NetworkSpaceManager(var activeNetworkSpace: NetworkSpace?)
+internal class LoginRequest(val attemptId: Long, val networkSpace: NetworkSpace, val api: Api, val localState: LocalState)
 internal class NetworkSpaceManagerProvider(var current: NetworkSpace?) {
+    val manager = NetworkSpaceManager(current)
+    fun getNetworkSpaceManager() = manager
+    fun getNetworkSpace() = current
     fun setNetworkSpace(space: NetworkSpace) { current = space }
 }
 internal class ClientEventQueue {
@@ -111,15 +120,23 @@ internal object Sdk {
 internal class DeviceManager {
     var clearCalls = 0
     var onLogoutStarted: ((Any) -> Unit)? = null
-    var onAuthLogout: ((Any) -> Unit)? = null
+    var onAuthLogout: ((Any, Any) -> Unit)? = null
     fun clearDevice() { clearCalls += 1 }
 }
-internal class LoginState(val attemptId: Long? = 1)
-internal class LoginStateFlow { val value = LoginState() }
+internal sealed class LoginStartupState(open val attemptId: Long? = 1) {
+    class Pending(override val attemptId: Long) : LoginStartupState(attemptId)
+    class Ready(override val attemptId: Long) : LoginStartupState(attemptId)
+    class Failed(override val attemptId: Long) : LoginStartupState(attemptId)
+}
+internal class LoginStateFlow { var value: LoginStartupState = LoginStartupState.Pending(1) }
 internal class LoginStartupTracker {
+    val state = LoginStateFlow()
     var logoutCalls = 0
     var authLogoutCalls = 0
-    fun pending(attempt: Long, stage: LoginStartupStage): Boolean = true
+    fun begin(stage: LoginStartupStage): Long { val id = (state.value.attemptId ?: 0) + 1; state.value = LoginStartupState.Pending(id); return id }
+    fun isActive(attempt: Long) = state.value is LoginStartupState.Pending && state.value.attemptId == attempt
+    fun pending(attempt: Long, stage: LoginStartupStage): Boolean = isActive(attempt)
+    fun fail(attempt: Long, stage: LoginStartupStage, failure: LoginStartupFailure) { state.value = LoginStartupState.Failed(attempt) }
     fun loggedOut() { logoutCalls += 1 }
     fun authLoggedOut() { authLogoutCalls += 1 }
 }
@@ -156,13 +173,15 @@ internal class MainApplicationFixture(val store: LocalState) {
     val deviceManager = DeviceManager()
     var clientEventQueue: ClientEventQueue? = null
     var loginVc: Any? = null
-    val loginStartupState = LoginStateFlow()
+    val loginStartupState get() = loginStartupTracker.state
     val loginStartupTracker = LoginStartupTracker()
     val signInNotices = Notices()
     val connectCommands = Commands()
     val startConnect = StartConnect()
     val widgetSnapshotWriter: SnapshotWriter? = null
     val device: Any? = Any()
+    private var authSessionOwner = Any()
+    private var activeLoginRequest: LoginRequest? = null
     val mainLooper = Any()
     val applicationContext = Any()
     var uiIsPro = true
@@ -175,8 +194,10 @@ internal class MainApplicationFixture(val store: LocalState) {
     val CLIENT_EVENT_LOGOUT_DRAIN_MILLIS = 1500L
 
     fun restore() { updateActiveNetworkSpace(space) }
-    fun startClient(jwt: String): ClientSessionStartResult = startClientSession(jwt)
-    fun staleCleanup() { logoutStaleLocalState(store) }
+    fun startClient(jwt: String): ClientSessionStartResult {
+        captureLoginRequest(loginStartupState.value.attemptId)
+        return startClientSession(jwt)
+    }
     fun stop() { deviceManager.clearDevice() }
     fun clearBalanceRecovery() {}
     fun startActivity(intent: Intent) {}

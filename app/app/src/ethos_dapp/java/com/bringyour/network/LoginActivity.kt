@@ -72,6 +72,7 @@ class LoginActivity : AppCompatActivity() {
     private var promptAccountSwitch by mutableStateOf(false)
     private var currentNetworkName by mutableStateOf<String?>(null)
     private var targetJwt by mutableStateOf<String?>(null)
+    private var targetLoginRequest by mutableStateOf<LoginRequest?>(null)
     private var targetUrl: String? = null
     private var defaultLocation: String? = null
     private var startInstantCreate by mutableStateOf(false)
@@ -185,6 +186,7 @@ class LoginActivity : AppCompatActivity() {
                     loginViewModel,
                     promptAccountSwitch = promptAccountSwitch,
                     targetJwt = targetJwt,
+                    targetLoginRequest = targetLoginRequest,
                     currentNetworkName = currentNetworkName,
                     startInstantCreate = startInstantCreate,
                     isLoadingAuthCode = isLoadingAuthCode,
@@ -243,13 +245,14 @@ class LoginActivity : AppCompatActivity() {
             val args = AuthCodeLoginArgs()
             args.authCode = authCode
 
-            app.api?.authCodeLogin(args) { result, err ->
+            val request = app.beginLoginRequest() ?: return
+            request.api.authCodeLogin(args) { result, err ->
 
                 val loginJwt = result?.jwt
 
                 if (err == null && loginJwt != null) {
 
-                    app.dispatchLoginResult {
+                    app.dispatchLoginResult(request) {
 
                         if (app.asyncLocalState?.localState?.byJwt == loginJwt) {
                             // user already logged into this network
@@ -266,16 +269,17 @@ class LoginActivity : AppCompatActivity() {
 
                             if (localState != null) {
                                 localState.parseByJwt { jwt, success ->
-                                    app.dispatchLoginResult {
+                                    app.dispatchLoginContinuation(request) {
                                         if (success && jwt != null) {
+                                            targetLoginRequest = request
                                             targetJwt = loginJwt
                                             currentNetworkName = jwt.networkName
                                             promptAccountSwitch = true
                                             isLoadingAuthCode = false
                                         } else {
                                             Log.i(TAG, "authCodeLogin: local byJwt parse failed")
-                                            app.logout()
                                             welcomeThenAuthClientAndFinish(
+                                                request = request,
                                                 byJwt = loginJwt,
                                                 callback = { error ->
                                                     if (error != null) {
@@ -289,8 +293,8 @@ class LoginActivity : AppCompatActivity() {
                                 }
                             } else {
                                 Log.i(TAG, "authCodeLogin: local state missing")
-                                app.logout()
                                 welcomeThenAuthClientAndFinish(
+                                    request = request,
                                     byJwt = loginJwt,
                                     callback = { error ->
                                         if (error != null) {
@@ -303,6 +307,7 @@ class LoginActivity : AppCompatActivity() {
 
                         } else {
                             welcomeThenAuthClientAndFinish(
+                                request = request,
                                 byJwt = loginJwt,
                                 callback = { err ->
                                     if (err != null) {
@@ -315,7 +320,7 @@ class LoginActivity : AppCompatActivity() {
                     }
 
                 } else {
-                    isLoadingAuthCode = false
+                    app.dispatchLoginResult(request) { isLoadingAuthCode = false }
                     Log.i(TAG, "authCodeLogin: error: result is: $result")
                 }
 
@@ -413,53 +418,58 @@ class LoginActivity : AppCompatActivity() {
         args.authJwt = authJwt
         args.authJwtType = provider
 
-        app.api?.authLogin(args) { result, err ->
-            val resultError = result?.error
-            val networkJwt = if (err == null && resultError == null) {
-                result?.network?.byJwt?.takeIf(String::isNotEmpty)
-            } else {
-                null
-            }
-            if (networkJwt != null) {
-                welcomeThenAuthClientAndFinish(
-                    byJwt = networkJwt,
-                    callback = { finishError ->
-                        if (finishError != null) {
-                            Log.i(TAG, "authClientAndFinish error: $finishError")
+        val request = app.beginLoginRequest() ?: return
+        request.api.authLogin(args) { result, err ->
+            app.dispatchLoginResult(request) {
+                val resultError = result?.error
+                val networkJwt = if (err == null && resultError == null) {
+                    result?.network?.byJwt?.takeIf(String::isNotEmpty)
+                } else {
+                    null
+                }
+                if (networkJwt != null) {
+                    welcomeThenAuthClientAndFinish(
+                        request = request,
+                        byJwt = networkJwt,
+                        callback = { finishError ->
+                            if (finishError != null) {
+                                Log.i(TAG, "authClientAndFinish error: $finishError")
+                            }
+                            isLoadingAuthCode = false
+                        },
+                    )
+                    return@dispatchLoginResult
+                }
+                lifecycleScope.launch {
+                    if (!app.isCurrentLoginRequest(request)) return@launch
+                    if (err != null) {
+                        isLoadingAuthCode = false
+                        loginViewModel.setLoginError(err.message)
+                    } else if (resultError != null) {
+                        isLoadingAuthCode = false
+                        loginViewModel.setLoginError(resultError.message)
+                    } else if (result == null) {
+                        isLoadingAuthCode = false
+                        loginViewModel.setLoginError(getString(R.string.login_error))
+                    } else if (result?.authAllowed != null) {
+                        val authAllowed = mutableListOf<String>()
+                        for (i in 0 until result.authAllowed.len()) {
+                            authAllowed.add(result.authAllowed.get(i))
                         }
                         isLoadingAuthCode = false
-                    },
-                )
-                return@authLogin
-            }
-            lifecycleScope.launch {
-                if (err != null) {
-                    isLoadingAuthCode = false
-                    loginViewModel.setLoginError(err.message)
-                } else if (resultError != null) {
-                    isLoadingAuthCode = false
-                    loginViewModel.setLoginError(resultError.message)
-                } else if (result == null) {
-                    isLoadingAuthCode = false
-                    loginViewModel.setLoginError(getString(R.string.login_error))
-                } else if (result?.authAllowed != null) {
-                    val authAllowed = mutableListOf<String>()
-                    for (i in 0 until result.authAllowed.len()) {
-                        authAllowed.add(result.authAllowed.get(i))
+                        loginViewModel.setLoginError(getString(R.string.login_error_auth_allowed, authAllowed.joinToString(",")))
+                    } else {
+                        // a new user: continue into create network with the identity token
+                        loginViewModel.setLoginError(null)
+                        isLoadingAuthCode = false
+                        jwtCreateNetworkParams = LoginCreateNetworkParams.LoginCreateAuthJwtParams(
+                            authJwt = authJwt,
+                            authJwtType = provider,
+                            userName = (result.userName ?: "").ifEmpty { appleUserName },
+                            userAuth = email,
+                            referralCode = referralCode
+                        )
                     }
-                    isLoadingAuthCode = false
-                    loginViewModel.setLoginError(getString(R.string.login_error_auth_allowed, authAllowed.joinToString(",")))
-                } else {
-                    // a new user: continue into create network with the identity token
-                    loginViewModel.setLoginError(null)
-                    isLoadingAuthCode = false
-                    jwtCreateNetworkParams = LoginCreateNetworkParams.LoginCreateAuthJwtParams(
-                        authJwt = authJwt,
-                        authJwtType = provider,
-                        userName = (result.userName ?: "").ifEmpty { appleUserName },
-                        userAuth = email,
-                        referralCode = referralCode
-                    )
                 }
             }
         } ?: run {
@@ -514,76 +524,81 @@ class LoginActivity : AppCompatActivity() {
 
         args.walletAuth = walletAuth
 
-        app.api?.authLogin(args) { result, err ->
-            val resultError = result?.error
-            val networkJwt = if (err == null && resultError == null) {
-                result?.network?.byJwt?.takeIf(String::isNotEmpty)
-            } else {
-                null
-            }
-            if (networkJwt != null) {
-                welcomeThenAuthClientAndFinish(
-                    byJwt = networkJwt,
-                    callback = { error ->
-                        if (error != null) {
-                            Log.i(TAG, "authClientAndFinish error: $error")
-                        }
-                        isLoadingAuthCode = false
-                    },
-                )
-                return@authLogin
-            }
-            lifecycleScope.launch {
-
-                if (err != null) {
-                    isLoadingAuthCode = false
-                    loginViewModel.setLoginError(err.message)
-                } else if (resultError != null) {
-                    isLoadingAuthCode = false
-                    loginViewModel.setLoginError(resultError.message)
-                } else if (result?.walletAuth != null) {
-                    loginViewModel.setLoginError(null)
-                    val api = app.api
-                    if (api == null) {
-                        isLoadingAuthCode = false
-                        loginViewModel.setLoginError(getString(R.string.login_error))
-                        return@launch
-                    }
-
-                    if (uri.getQueryParameter("wallet") == BittensorWallets.WALLET_CONNECT) {
-                        // a WalletConnect sign-in signs the create challenge with the same wallet
-                        val opened = startBittensorBridgeProof(
-                            this@LoginActivity,
-                            api,
-                            BittensorProofRequest(BittensorWallets.WALLET_CONNECT, BittensorWallets.PURPOSE_CREATE, address),
-                        )
-                        isLoadingAuthCode = false
-                        if (!opened) {
-                            loginViewModel.setLoginError(getString(R.string.login_error))
-                        }
-                        return@launch
-                    }
-
-                    requestBittensorChallenge(api, address)
-                        .onSuccess { createMessage ->
+        val request = app.beginLoginRequest() ?: return
+        request.api.authLogin(args) { result, err ->
+            app.dispatchLoginResult(request) {
+                val resultError = result?.error
+                val networkJwt = if (err == null && resultError == null) {
+                    result?.network?.byJwt?.takeIf(String::isNotEmpty)
+                } else {
+                    null
+                }
+                if (networkJwt != null) {
+                    welcomeThenAuthClientAndFinish(
+                        request = request,
+                        byJwt = networkJwt,
+                        callback = { error ->
+                            if (error != null) {
+                                Log.i(TAG, "authClientAndFinish error: $error")
+                            }
                             isLoadingAuthCode = false
-                            if (!launchBittensorSignMessage(
-                                    this@LoginActivity,
-                                    createMessage,
-                                    BITTENSOR_SIGN_PURPOSE_CREATE
-                                )
-                            ) {
+                        },
+                    )
+                    return@dispatchLoginResult
+                }
+                lifecycleScope.launch {
+                    if (!app.isCurrentLoginRequest(request)) return@launch
+
+                    if (err != null) {
+                        isLoadingAuthCode = false
+                        loginViewModel.setLoginError(err.message)
+                    } else if (resultError != null) {
+                        isLoadingAuthCode = false
+                        loginViewModel.setLoginError(resultError.message)
+                    } else if (result?.walletAuth != null) {
+                        loginViewModel.setLoginError(null)
+                        val api = app.api
+                        if (api == null) {
+                            isLoadingAuthCode = false
+                            loginViewModel.setLoginError(getString(R.string.login_error))
+                            return@launch
+                        }
+
+                        if (uri.getQueryParameter("wallet") == BittensorWallets.WALLET_CONNECT) {
+                            // a WalletConnect sign-in signs the create challenge with the same wallet
+                            val opened = startBittensorBridgeProof(
+                                this@LoginActivity,
+                                api,
+                                BittensorProofRequest(BittensorWallets.WALLET_CONNECT, BittensorWallets.PURPOSE_CREATE, address),
+                            )
+                            isLoadingAuthCode = false
+                            if (!opened) {
                                 loginViewModel.setLoginError(getString(R.string.login_error))
                             }
+                            return@launch
                         }
-                        .onFailure { challengeError ->
-                            isLoadingAuthCode = false
-                            Log.i(TAG, "unable to fetch create-network wallet challenge: $challengeError")
-                            loginViewModel.setLoginError(getString(R.string.login_error))
-                        }
-                } else {
-                    isLoadingAuthCode = false
-                    loginViewModel.setLoginError(getString(R.string.login_error))
+
+                        requestBittensorChallenge(api, address)
+                            .onSuccess { createMessage ->
+                                isLoadingAuthCode = false
+                                if (!launchBittensorSignMessage(
+                                        this@LoginActivity,
+                                        createMessage,
+                                        BITTENSOR_SIGN_PURPOSE_CREATE
+                                    )
+                                ) {
+                                    loginViewModel.setLoginError(getString(R.string.login_error))
+                                }
+                            }
+                            .onFailure { challengeError ->
+                                isLoadingAuthCode = false
+                                Log.i(TAG, "unable to fetch create-network wallet challenge: $challengeError")
+                                loginViewModel.setLoginError(getString(R.string.login_error))
+                            }
+                    } else {
+                        isLoadingAuthCode = false
+                        loginViewModel.setLoginError(getString(R.string.login_error))
+                    }
                 }
             }
         } ?: run {
@@ -645,6 +660,7 @@ class LoginActivity : AppCompatActivity() {
      * its own overlay; a failed finish takes the overlay down for the retry.
      */
     private fun welcomeThenAuthClientAndFinish(
+        request: LoginRequest,
         byJwt: String,
         callback: (String?) -> Unit,
     ) {
@@ -652,8 +668,9 @@ class LoginActivity : AppCompatActivity() {
             callback(getString(R.string.login_client_error))
             return
         }
-        app.authenticateNetworkSession(byJwt, newNetwork = false) { completion ->
+        app.authenticateNetworkSession(request, byJwt, newNetwork = false) { completion ->
             lifecycleScope.launch(Dispatchers.Main) {
+                if (!app.ownsLoginRequest(request)) return@launch
                 if (completion is LoginClientCompletion.Failed) {
                     welcomeOverlayVisible = false
                     callback(completion.message ?: getString(R.string.login_client_error))
@@ -661,28 +678,9 @@ class LoginActivity : AppCompatActivity() {
                 }
                 welcomeOverlayVisible = true
                 delay(2250)
+                if (!app.isCurrentLoginRequest(request)) return@launch
                 finishAuthenticatedLogin()
                 callback(null)
-            }
-        }
-    }
-
-    fun authClientAndFinish(
-        callback: (String?) -> Unit,
-    ) {
-        val app = app ?: run {
-            callback(getString(R.string.login_client_error))
-            return
-        }
-
-        app.authenticateLoginClient { completion ->
-            lifecycleScope.launch(Dispatchers.Main) {
-                if (completion is LoginClientCompletion.Failed) {
-                    callback(completion.message ?: getString(R.string.login_client_error))
-                } else {
-                    finishAuthenticatedLogin()
-                    callback(null)
-                }
             }
         }
     }
@@ -690,16 +688,16 @@ class LoginActivity : AppCompatActivity() {
     // LoginStartupState is already Ready before either method is called. The
     // Activity owns only animation/navigation; if it is destroyed, a fresh
     // LoginActivity observes app.device in onCreate and enters MainActivity.
-    fun finishAuthenticatedLoginAfterWelcome() {
+    fun finishAuthenticatedLoginAfterWelcome(request: LoginRequest) {
         lifecycleScope.launch(Dispatchers.Main) {
             delay(2750)
-            finishAuthenticatedLogin()
+            if (app?.isCurrentLoginRequest(request) == true) finishAuthenticatedLogin()
         }
     }
 
-    fun finishAuthenticatedLoginNow() {
+    fun finishAuthenticatedLoginNow(request: LoginRequest) {
         lifecycleScope.launch(Dispatchers.Main) {
-            finishAuthenticatedLogin()
+            if (app?.isCurrentLoginRequest(request) == true) finishAuthenticatedLogin()
         }
     }
 

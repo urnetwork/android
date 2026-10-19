@@ -175,23 +175,30 @@ fun LoginVerify(
         args.userAuth = userAuth
         args.verifyCode = code.joinToString("")
 
-        application?.api?.authVerify(args) { result, err ->
-            application.dispatchLoginResult {
+        val request = application?.beginLoginRequest() ?: run {
+            verifyInProgress = false
+            return@verify
+        }
+        request.api.authVerify(args) { result, err ->
+            application.dispatchLoginResult(request) {
                 if (err != null) {
                     CantReachPrompt.shared.report(err)
                     scope.launch {
+                        if (!application.ownsLoginRequest(request)) return@launch
                         verifyInProgress = false
                         verifyError = err.message
                         code = List(codeLength) { "" }
                     }
                 } else if (result == null) {
                     scope.launch {
+                        if (!application.ownsLoginRequest(request)) return@launch
                         verifyInProgress = false
                         verifyError = verifyErrMsg
                         code = List(codeLength) { "" }
                     }
                 } else if (result.error != null) {
                     scope.launch {
+                        if (!application.ownsLoginRequest(request)) return@launch
                         verifyInProgress = false
                         verifyError = result.error.message
                         code = List(codeLength) { "" }
@@ -199,19 +206,21 @@ fun LoginVerify(
                 } else if (result.network != null && result.network.byJwt.isNotEmpty()) {
                     // a verified sign-up is a new network: it gets the onboarding flow
                     application.authenticateNetworkSession(
+                        request,
                         result.network.byJwt,
                         newNetwork = true,
                     ) { completion ->
                         if (completion is LoginClientCompletion.Ready) {
-                            loginActivity?.finishAuthenticatedLoginAfterWelcome()
+                            loginActivity?.finishAuthenticatedLoginAfterWelcome(request)
                         }
                         scope.launch {
+                            if (!application.ownsLoginRequest(request)) return@launch
                             val error = (completion as? LoginClientCompletion.Failed)?.message
                             if (completion is LoginClientCompletion.Ready) {
                                 verifyError = null
                                 isContentVisible = false
                                 delay(500)
-                                welcomeOverlayVisible = true
+                                if (application.isCurrentLoginRequest(request)) welcomeOverlayVisible = true
                                 return@launch
                             }
                             verifyInProgress = false
@@ -224,6 +233,7 @@ fun LoginVerify(
                     }
                 } else {
                     scope.launch {
+                        if (!application.ownsLoginRequest(request)) return@launch
                         verifyInProgress = false
                         verifyError = verifyErrMsg
                         code = List(codeLength) { "" }
