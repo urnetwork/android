@@ -61,3 +61,17 @@ data class RegionalDnsSuggestionUi(
     val id: String
         get() = "$countryCode-$ipv4"
 }
+
+/**
+ * Which sections the dns settings screen shows
+ */
+data class DnsSettingsSections(
+    val connectionRegion: Boolean,
+    val trafficDns: Boolean,
+)
+
+fun dnsSettingsSections(draft: DnsSettingsUi?): DnsSettingsSections =
+    DnsSettingsSections(
+        connectionRegion = true,
+        trafficDns = draft != null,
+    )

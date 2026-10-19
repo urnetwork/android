@@ -102,6 +102,7 @@
     <string name="build_right_description">Jenga mtandao kwa njia sahihi ukitumia URnetwork</string>
     <string name="camera_permission_needed">Ruhusa ya kamera inahitajika ili kuchanganua msimbo.</string>
     <string name="cancel">Ghairi</string>
+    <string name="cant_reach_urnetwork_choose_region">Haiwezi kufikia URnetwork — chagua unakounganisha kutoka wapi</string>
     <string name="chain_rpc_unreachable">RPC ya mnyororo haifikiki. Jaribu tena.</string>
     <string name="change">Badili</string>
     <string name="change_network_api">Badilisha API ya mtandao</string>
@@ -158,8 +159,15 @@
     <string name="connect_wallet">Unganisha pochi</string>
     <string name="connect_wallet_first">Unganisha pochi ya Bittensor kwanza.</string>
     <string name="connected">Imeunganishwa</string>
+    <string name="connecting_from">Kuunganisha kutoka</string>
     <string name="connecting_status_indicator">Inaunganisha kwa watoa huduma</string>
     <string name="connection_mode">Hali ya muunganisho</string>
+    <string name="connection_region">Eneo la muunganisho</string>
+    <string name="connection_region_default_resolvers">Visuluhishi chaguo-msingi</string>
+    <string name="connection_region_description">Huathiri tu jinsi programu inavyofikia URnetwork, si trafiki yako.</string>
+    <string name="connection_region_encrypted_resolvers">Visuluhishi vilivyosimbwa</string>
+    <string name="connection_region_fallback_resolvers">Mbadala usiosimbwa (majina ya URnetwork pekee)</string>
+    <string name="connection_region_undisclosed">Nyingine / Haijatajwa</string>
     <string name="connections">Miunganisho</string>
     <string name="connectivity_label">Muunganisho</string>
     <string name="continue_txt">Endelea</string>
@@ -1097,6 +1105,7 @@
     <string name="total_account_points">Jumla ya pointi za akaunti</string>
     <string name="total_clients">Jumla ya wateja</string>
     <string name="total_referrals">Jumla ya marejeleo</string>
+    <string name="traffic_dns">DNS ya trafiki</string>
     <string name="transaction">Muamala</string>
     <string name="transfer">Hamisha</string>
     <string name="transfer_funds">Hamisha Fedha</string>
@@ -1199,6 +1208,7 @@
     <string name="welcome_offer_eyebrow">Ofa ya karibu</string>
     <string name="welcome_to_urnetwork">Karibu kwenye URnetwork</string>
     <string name="when_you_refer_a_friend">Unapomrejelea rafiki:</string>
+    <string name="where_are_you_connecting_from">Unaunganisha kutoka wapi?</string>
     <string name="widget_client">Mteja</string>
     <string name="widget_connect_once">Unganisha mara moja ili kuona trafiki yako hapa</string>
     <string name="widget_connect_to_see_contracts">Unganisha ili kuona mikataba yako</string>

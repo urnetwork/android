@@ -102,6 +102,7 @@
     <string name="build_right_description">Buduj internet we właściwy sposób z URnetwork</string>
     <string name="camera_permission_needed">Do zeskanowania kodu potrzebny jest dostęp do aparatu.</string>
     <string name="cancel">Anuluj</string>
+    <string name="cant_reach_urnetwork_choose_region">Nie można połączyć się z URnetwork — wybierz, skąd się łączysz</string>
     <string name="chain_rpc_unreachable">RPC łańcucha jest nieosiągalne. Spróbuj ponownie.</string>
     <string name="change">Zmień</string>
     <string name="change_network_api">Zmień API sieci</string>
@@ -158,8 +159,15 @@
     <string name="connect_wallet">Połącz portfel</string>
     <string name="connect_wallet_first">Najpierw połącz portfel Bittensor.</string>
     <string name="connected">Połączono</string>
+    <string name="connecting_from">Łączenie z</string>
     <string name="connecting_status_indicator">Łączenie z dostawcami</string>
     <string name="connection_mode">Tryb połączenia</string>
+    <string name="connection_region">Region połączenia</string>
+    <string name="connection_region_default_resolvers">Domyślne resolwery</string>
+    <string name="connection_region_description">Wpływa tylko na to, jak aplikacja łączy się z URnetwork, a nie na Twój ruch.</string>
+    <string name="connection_region_encrypted_resolvers">Szyfrowane resolwery</string>
+    <string name="connection_region_fallback_resolvers">Nieszyfrowana rezerwa (tylko nazwy URnetwork)</string>
+    <string name="connection_region_undisclosed">Inny / Nie podano</string>
     <string name="connections">Połączenia</string>
     <string name="connectivity_label">Łączność</string>
     <string name="continue_txt">Kontynuuj</string>
@@ -1097,6 +1105,7 @@
     <string name="total_account_points">Łączna liczba punktów konta</string>
     <string name="total_clients">Łączna liczba klientów</string>
     <string name="total_referrals">Liczba wszystkich poleceń</string>
+    <string name="traffic_dns">DNS ruchu</string>
     <string name="transaction">Transakcja</string>
     <string name="transfer">Przenieś</string>
     <string name="transfer_funds">Przenieś środki</string>
@@ -1199,6 +1208,7 @@
     <string name="welcome_offer_eyebrow">Oferta powitalna</string>
     <string name="welcome_to_urnetwork">Witaj w URnetwork</string>
     <string name="when_you_refer_a_friend">Gdy polecisz znajomego:</string>
+    <string name="where_are_you_connecting_from">Skąd się łączysz?</string>
     <string name="widget_client">Klient</string>
     <string name="widget_connect_once">Połącz się raz, aby zobaczyć tu swój ruch</string>
     <string name="widget_connect_to_see_contracts">Połącz się, aby zobaczyć swoje kontrakty</string>

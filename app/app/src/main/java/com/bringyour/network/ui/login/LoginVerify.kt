@@ -1,5 +1,6 @@
 package com.bringyour.network.ui.login
 
+import com.bringyour.network.ui.connection_region.CantReachPrompt
 import com.bringyour.network.ui.components.tabletForm
 import android.util.Patterns
 import android.widget.Toast
@@ -177,6 +178,7 @@ fun LoginVerify(
         application?.api?.authVerify(args) { result, err ->
             application.dispatchLoginResult {
                 if (err != null) {
+                    CantReachPrompt.shared.report(err)
                     scope.launch {
                         verifyInProgress = false
                         verifyError = err.message

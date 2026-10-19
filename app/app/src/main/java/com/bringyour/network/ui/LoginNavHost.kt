@@ -39,6 +39,7 @@ import com.bringyour.network.ui.login.CreateNetworkInstant
 import com.bringyour.network.ui.login.CreateNetworkInstantViewModel
 import com.bringyour.network.ui.login.LoginCreateNetwork
 import com.bringyour.network.ui.login.LoginCreateNetworkParams
+import com.bringyour.network.ui.connection_region.CantReachRegionPrompt
 import com.bringyour.network.ui.login.LoginInitial
 import com.bringyour.network.ui.login.LoginPassword
 import com.bringyour.network.ui.login.LoginPasswordReset
@@ -454,6 +455,10 @@ fun LoginNavHost(
                 onDismiss = { signInNotice = null },
             )
         }
+
+        // a network-level failure reaching URnetwork offers the connection
+        // region picker; it never changes the region by itself
+        CantReachRegionPrompt()
 
     }
 

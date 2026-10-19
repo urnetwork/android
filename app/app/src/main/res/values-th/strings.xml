@@ -102,6 +102,7 @@
     <string name="build_right_description">สร้างโครงข่ายที่ถูกที่ถูกทางด้วย URnetwork</string>
     <string name="camera_permission_needed">ต้องใช้สิทธิ์เข้าถึงกล้องเพื่อสแกนรหัส</string>
     <string name="cancel">ยกเลิก</string>
+    <string name="cant_reach_urnetwork_choose_region">เชื่อมต่อ URnetwork ไม่ได้ — เลือกตำแหน่งที่คุณเชื่อมต่อ</string>
     <string name="chain_rpc_unreachable">เข้าถึง RPC ของเชนไม่ได้ โปรดลองอีกครั้ง</string>
     <string name="change">เปลี่ยน</string>
     <string name="change_network_api">เปลี่ยน API เครือข่าย</string>
@@ -158,8 +159,15 @@
     <string name="connect_wallet">เชื่อมต่อกระเป๋าเงิน</string>
     <string name="connect_wallet_first">เชื่อมต่อกระเป๋าเงิน Bittensor ก่อน</string>
     <string name="connected">เชื่อมต่อแล้ว</string>
+    <string name="connecting_from">เชื่อมต่อจาก</string>
     <string name="connecting_status_indicator">กำลังเชื่อมต่อกับผู้ให้บริการ</string>
     <string name="connection_mode">โหมดการเชื่อมต่อ</string>
+    <string name="connection_region">ภูมิภาคการเชื่อมต่อ</string>
+    <string name="connection_region_default_resolvers">ตัวแปลง DNS เริ่มต้น</string>
+    <string name="connection_region_description">มีผลเฉพาะวิธีที่แอปเชื่อมต่อกับ URnetwork ไม่ใช่ทราฟฟิกของคุณ</string>
+    <string name="connection_region_encrypted_resolvers">ตัวแปลง DNS ที่เข้ารหัส</string>
+    <string name="connection_region_fallback_resolvers">สำรองแบบไม่เข้ารหัส (เฉพาะชื่อของ URnetwork)</string>
+    <string name="connection_region_undisclosed">อื่นๆ / ไม่ระบุ</string>
     <string name="connections">การเชื่อมต่อ</string>
     <string name="connectivity_label">การเชื่อมต่อ</string>
     <string name="continue_txt">ดำเนินการต่อ</string>
@@ -1097,6 +1105,7 @@
     <string name="total_account_points">ยอดคะแนนบัญชี</string>
     <string name="total_clients">จำนวนไคลเอนต์ทั้งหมด</string>
     <string name="total_referrals">ยอดแนะนำทั้งหมด</string>
+    <string name="traffic_dns">DNS ของทราฟฟิก</string>
     <string name="transaction">รายการ</string>
     <string name="transfer">โอน</string>
     <string name="transfer_funds">โอนยอด</string>
@@ -1199,6 +1208,7 @@
     <string name="welcome_offer_eyebrow">ข้อเสนอต้อนรับ</string>
     <string name="welcome_to_urnetwork">ยินดีต้อนรับสู่ URnetwork</string>
     <string name="when_you_refer_a_friend">เมื่อคุณแนะนำเพื่อน:</string>
+    <string name="where_are_you_connecting_from">คุณเชื่อมต่อจากที่ไหน?</string>
     <string name="widget_client">ไคลเอ็นต์</string>
     <string name="widget_connect_once">เชื่อมต่อหนึ่งครั้งเพื่อดูทราฟฟิกของคุณที่นี่</string>
     <string name="widget_connect_to_see_contracts">เชื่อมต่อเพื่อดูสัญญาของคุณ</string>

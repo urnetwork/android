@@ -1,5 +1,6 @@
 package com.bringyour.network.ui.login
 
+import com.bringyour.network.ui.connection_region.CantReachPrompt
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -129,6 +130,7 @@ class CreateNetworkInstantViewModel @Inject constructor(
                 _inProgress.value = false
 
                 if (err != null) {
+                    CantReachPrompt.shared.report(err)
                     _error.value = err.message ?: "Unable to connect. Please try again."
                     return@launch
                 }

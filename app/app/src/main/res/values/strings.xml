@@ -105,6 +105,7 @@
     <string name="build_right_description">Build the internet the right way with URnetwork</string>
     <string name="camera_permission_needed">Camera access is needed to scan a code.</string>
     <string name="cancel">Cancel</string>
+    <string name="cant_reach_urnetwork_choose_region">Can\'t reach URnetwork — choose where you\'re connecting from</string>
     <string name="chain_rpc_unreachable">The chain RPC is unreachable. Try again.</string>
     <string name="change">Change</string>
     <string name="change_network_api">Change Network API</string>
@@ -161,8 +162,15 @@
     <string name="connect_wallet">Connect Wallet</string>
     <string name="connect_wallet_first">Connect a Bittensor wallet first.</string>
     <string name="connected">Connected</string>
+    <string name="connecting_from">Connecting from</string>
     <string name="connecting_status_indicator">Connecting to providers</string>
     <string name="connection_mode">Connection Mode</string>
+    <string name="connection_region">Connection region</string>
+    <string name="connection_region_default_resolvers">Default resolvers</string>
+    <string name="connection_region_description">Only affects how the app reaches URnetwork, not your traffic.</string>
+    <string name="connection_region_encrypted_resolvers">Encrypted resolvers</string>
+    <string name="connection_region_fallback_resolvers">Unencrypted fallback (URnetwork names only)</string>
+    <string name="connection_region_undisclosed">Other / Undisclosed</string>
     <string name="connections">Connections</string>
     <string name="connectivity_label">Connectivity</string>
     <string name="continue_txt">Continue</string>
@@ -1108,6 +1116,7 @@
     <string name="total_account_points">Total account points</string>
     <string name="total_clients">Total Clients</string>
     <string name="total_referrals">Total referrals</string>
+    <string name="traffic_dns">Traffic DNS</string>
     <string name="transaction">Transaction</string>
     <string name="transfer">Transfer</string>
     <string name="transfer_funds">Transfer Funds</string>
@@ -1218,6 +1227,7 @@
     <string name="welcome_offer_eyebrow">Welcome offer</string>
     <string name="welcome_to_urnetwork">Welcome to URnetwork</string>
     <string name="when_you_refer_a_friend">When you refer a friend:</string>
+    <string name="where_are_you_connecting_from">Where are you connecting from?</string>
     <string name="widget_client">Client</string>
     <string name="widget_connect_once">Connect once to see your traffic here</string>
     <string name="widget_connect_to_see_contracts">Connect to see your contracts</string>
