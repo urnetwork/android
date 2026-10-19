@@ -1379,32 +1379,24 @@ class MainApplication : Application() {
         loginVc = Sdk.newLoginViewController(api)
 
         asyncLocalState?.localState?.let { localState ->
-            val byClientJwt = localState.byClientJwt
-            val hasByJwt = !localState.byJwt.isNullOrEmpty()
+            // Legacy getters hide read failures as empty credentials. Observe
+            // one checked generation before deciding whether startup can proceed.
+            val auth = runCatching { localState.authStateSnapshot }.getOrNull() ?: return@let
+            val byClientJwt = auth.byClientJwt
+            if (byClientJwt.isNullOrEmpty() || runCatching { auth.parseByJwt() }.getOrNull() == null) {
+                return@let
+            }
 
-            if (byClientJwt.isNullOrEmpty()) {
-                if (hasByJwt) {
-                    // missing client jwt after saving byJwt; clean up partial auth state
-                    logoutStaleLocalState(localState)
-                    api?.byJwt = null
-                }
-            } else {
-                val hasValidByJwt = runCatching {
-                    localState.parseByJwt()
-                }.getOrNull() != null
-
-                if (!hasValidByJwt) {
-                    // missing one or both of jwt or client jwt
-                    // clean up the local state
-                    logoutStaleLocalState(localState)
-                    api?.byJwt = null
-                } else {
-                    // the device wraps the api and sets the jwt
-                    if (initDevice(byClientJwt) !is DeviceInitResult.Ready) {
-                        logoutStaleLocalState(localState)
-                        api?.byJwt = null
-                    }
-                }
+            val deviceInitResult = try {
+                initDevice(byClientJwt)
+            } catch (_: Throwable) {
+                runCatching { deviceManager.clearDevice() }
+                DeviceInitResult.Failed(DeviceInitFailure.DEVICE_LOCAL_CONFIGURATION_FAILED)
+            }
+            if (deviceInitResult !is DeviceInitResult.Ready) {
+                // Storage, construction and configuration failures do not revoke
+                // a saved session. Explicit logout and SDK rejection own cleanup.
+                Log.w(TAG, "Saved session device initialization did not complete")
             }
         }
 
@@ -2236,8 +2228,6 @@ class MainApplication : Application() {
         return when (val result = deviceInitResult) {
             DeviceInitResult.Ready -> ClientSessionStartResult.Ready
             is DeviceInitResult.Failed -> {
-                logoutStaleLocalState(localState)
-                api?.byJwt = null
                 ClientSessionStartResult.Failed(result.failure.asLoginStartupFailure())
             }
         }
