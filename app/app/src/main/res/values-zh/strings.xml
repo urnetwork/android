@@ -102,6 +102,7 @@
     <string name="build_right_description">使用 URnetwork 以正确的方式构建互联网</string>
     <string name="camera_permission_needed">需要相机权限才能扫码。</string>
     <string name="cancel">取消</string>
+    <string name="cant_reach_urnetwork_choose_region">无法连接 URnetwork — 请选择你的连接位置</string>
     <string name="chain_rpc_unreachable">无法访问链的 RPC。请重试。</string>
     <string name="change">更改</string>
     <string name="change_network_api">更改网络 API</string>
@@ -158,8 +159,15 @@
     <string name="connect_wallet">连接钱包</string>
     <string name="connect_wallet_first">请先连接 Bittensor 钱包。</string>
     <string name="connected">已连接</string>
+    <string name="connecting_from">连接位置</string>
     <string name="connecting_status_indicator">正在连接到提供商</string>
     <string name="connection_mode">连接模式</string>
+    <string name="connection_region">连接地区</string>
+    <string name="connection_region_default_resolvers">默认解析器</string>
+    <string name="connection_region_description">只影响应用连接 URnetwork 的方式，不影响你的流量。</string>
+    <string name="connection_region_encrypted_resolvers">加密解析器</string>
+    <string name="connection_region_fallback_resolvers">未加密的备用方式（仅限 URnetwork 名称）</string>
+    <string name="connection_region_undisclosed">其他 / 不透露</string>
     <string name="connections">连接</string>
     <string name="connectivity_label">连接</string>
     <string name="continue_txt">继续</string>
@@ -1097,6 +1105,7 @@
     <string name="total_account_points">账户总积分</string>
     <string name="total_clients">客户端总数</string>
     <string name="total_referrals">推荐总数</string>
+    <string name="traffic_dns">流量 DNS</string>
     <string name="transaction">交易</string>
     <string name="transfer">转移</string>
     <string name="transfer_funds">转移资金</string>
@@ -1199,6 +1208,7 @@
     <string name="welcome_offer_eyebrow">欢迎优惠</string>
     <string name="welcome_to_urnetwork">欢迎来到 URnetwork</string>
     <string name="when_you_refer_a_friend">当你推荐朋友时：</string>
+    <string name="where_are_you_connecting_from">你从哪里连接？</string>
     <string name="widget_client">客户端</string>
     <string name="widget_connect_once">连接一次即可在此查看您的流量</string>
     <string name="widget_connect_to_see_contracts">连接后即可查看您的合约</string>

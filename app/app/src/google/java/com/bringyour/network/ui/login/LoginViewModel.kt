@@ -1,5 +1,6 @@
 package com.bringyour.network.ui.login
 
+import com.bringyour.network.ui.connection_region.CantReachPrompt
 import android.content.Context
 import android.util.Patterns
 import androidx.compose.runtime.getValue
@@ -85,6 +86,7 @@ class LoginViewModel @Inject constructor(
                     viewModelScope.launch {
 
                         if (err != null) {
+                            CantReachPrompt.shared.report(err)
                             setLoginError(err.message)
                         } else if (result.error != null) {
                             setLoginError(result.error.message)
@@ -153,6 +155,7 @@ class LoginViewModel @Inject constructor(
             }
             viewModelScope.launch {
                 if (err != null) {
+                    CantReachPrompt.shared.report(err)
                     setLoginError(err.message)
                     onError(err.message ?: "Seedphrase login failed")
                 } else if (result?.error != null) {
@@ -210,6 +213,7 @@ class LoginViewModel @Inject constructor(
                 // googleAuthInProgress = false
 
                 if (err != null) {
+                    CantReachPrompt.shared.report(err)
                     setLoginError(err.message)
                     setGoogleAuthInProgress(false)
                 } else if (result.error != null) {
@@ -284,6 +288,7 @@ class LoginViewModel @Inject constructor(
                     // googleAuthInProgress = false
 
                     if (err != null) {
+                        CantReachPrompt.shared.report(err)
                         setLoginError(err.message)
                         setSolanaAuthInProgress(false)
                     } else if (result.error != null) {

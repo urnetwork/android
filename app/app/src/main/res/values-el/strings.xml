@@ -102,6 +102,7 @@
     <string name="build_right_description">Δημιουργήστε το Διαδίκτυο με τον σωστό τρόπο με το URnetwork</string>
     <string name="camera_permission_needed">Απαιτείται πρόσβαση στην κάμερα για τη σάρωση κωδικού.</string>
     <string name="cancel">Ακύρωση</string>
+    <string name="cant_reach_urnetwork_choose_region">Δεν είναι δυνατή η πρόσβαση στο URnetwork — επιλέξτε από πού συνδέεστε</string>
     <string name="chain_rpc_unreachable">Το RPC της αλυσίδας δεν είναι προσβάσιμο. Δοκιμάστε ξανά.</string>
     <string name="change">Αλλαγή</string>
     <string name="change_network_api">Αλλαγή API δικτύου</string>
@@ -158,8 +159,15 @@
     <string name="connect_wallet">Σύνδεση πορτοφολιού</string>
     <string name="connect_wallet_first">Συνδέστε πρώτα ένα πορτοφόλι Bittensor.</string>
     <string name="connected">Συνδεδεμένο</string>
+    <string name="connecting_from">Σύνδεση από</string>
     <string name="connecting_status_indicator">Σύνδεση με παρόχους</string>
     <string name="connection_mode">Λειτουργία σύνδεσης</string>
+    <string name="connection_region">Περιοχή σύνδεσης</string>
+    <string name="connection_region_default_resolvers">Προεπιλεγμένοι επιλυτές</string>
+    <string name="connection_region_description">Επηρεάζει μόνο τον τρόπο που η εφαρμογή φτάνει στο URnetwork, όχι την κίνησή σας.</string>
+    <string name="connection_region_encrypted_resolvers">Κρυπτογραφημένοι επιλυτές</string>
+    <string name="connection_region_fallback_resolvers">Μη κρυπτογραφημένη εφεδρεία (μόνο ονόματα URnetwork)</string>
+    <string name="connection_region_undisclosed">Άλλη / Δεν δηλώνεται</string>
     <string name="connections">Συνδέσεις</string>
     <string name="connectivity_label">Συνδεσιμότητα</string>
     <string name="continue_txt">Συνέχεια</string>
@@ -1097,6 +1105,7 @@
     <string name="total_account_points">Σύνολο πόντων λογαριασμού</string>
     <string name="total_clients">Συνολικοί πελάτες</string>
     <string name="total_referrals">Συνολικές παραπομπές</string>
+    <string name="traffic_dns">DNS κίνησης</string>
     <string name="transaction">Συναλλαγή</string>
     <string name="transfer">Μεταφορά</string>
     <string name="transfer_funds">Μεταφορά χρημάτων</string>
@@ -1199,6 +1208,7 @@
     <string name="welcome_offer_eyebrow">Προσφορά καλωσορίσματος</string>
     <string name="welcome_to_urnetwork">Καλώς ήρθατε στο URnetwork</string>
     <string name="when_you_refer_a_friend">Όταν προτείνετε έναν φίλο:</string>
+    <string name="where_are_you_connecting_from">Από πού συνδέεστε;</string>
     <string name="widget_client">Πελάτης</string>
     <string name="widget_connect_once">Συνδεθείτε μία φορά για να βλέπετε εδώ την κίνησή σας</string>
     <string name="widget_connect_to_see_contracts">Συνδεθείτε για να δείτε τα συμβόλαιά σας</string>

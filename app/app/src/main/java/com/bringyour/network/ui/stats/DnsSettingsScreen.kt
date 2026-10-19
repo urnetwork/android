@@ -50,6 +50,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.bringyour.network.R
 import com.bringyour.network.ui.components.URButton
+import com.bringyour.network.ui.connection_region.ConnectionRegionSettingsRow
 import com.bringyour.network.ui.components.URSwitch
 import com.bringyour.network.ui.components.URTextInput
 import com.bringyour.network.ui.theme.Black
@@ -118,9 +119,9 @@ fun DnsSettingsScreen(
                 .fillMaxSize()
         ) {
 
-            if (currentDraft == null) {
-                return@Column
-            }
+            // the connection region comes from the network space and shows
+            // at once; the traffic dns editor waits for the device's report
+            val sections = dnsSettingsSections(currentDraft)
 
             Column(
                 modifier = Modifier
@@ -129,6 +130,29 @@ fun DnsSettingsScreen(
                     .verticalScroll(rememberScrollState())
                     .padding(horizontal = 16.dp)
             ) {
+
+                /**
+                 * Connection region (ingress dns): how the app reaches
+                 * URnetwork. Separate from the traffic dns below; changing
+                 * one never changes the other.
+                 */
+                if (sections.connectionRegion) {
+                    ConnectionRegionSettingsRow()
+
+                    Spacer(modifier = Modifier.height(24.dp))
+                }
+
+                if (!sections.trafficDns || currentDraft == null) {
+                    return@Column
+                }
+
+                Text(
+                    stringResource(id = R.string.traffic_dns),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = Color.White
+                )
+
+                Spacer(modifier = Modifier.height(12.dp))
 
                 /**
                  * Recommendation panel when the connected country has one,
@@ -390,7 +414,7 @@ fun DnsSettingsScreen(
 
             // pinned below the scrolling content; on a tablet it is exactly as
             // wide as the content column above it, never the whole screen
-            Column(
+            if (sections.trafficDns) Column(
                 modifier = Modifier
                     .tabletReadableColumn()
                     .padding(16.dp)

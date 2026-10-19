@@ -102,6 +102,7 @@
     <string name="build_right_description">Vytvářejte internet správným způsobem s URnetwork</string>
     <string name="camera_permission_needed">Ke skenování kódu je potřeba přístup ke kameře.</string>
     <string name="cancel">Zrušit</string>
+    <string name="cant_reach_urnetwork_choose_region">URnetwork je nedostupný — vyberte, odkud se připojujete</string>
     <string name="chain_rpc_unreachable">RPC řetězce je nedostupné. Zkuste to znovu.</string>
     <string name="change">Změnit</string>
     <string name="change_network_api">Změnit síťové API</string>
@@ -158,8 +159,15 @@
     <string name="connect_wallet">Připojit peněženku</string>
     <string name="connect_wallet_first">Nejprve připojte peněženku Bittensor.</string>
     <string name="connected">Připojeno</string>
+    <string name="connecting_from">Připojení z</string>
     <string name="connecting_status_indicator">Připojení k poskytovatelům</string>
     <string name="connection_mode">Režim připojení</string>
+    <string name="connection_region">Oblast připojení</string>
+    <string name="connection_region_default_resolvers">Výchozí resolvery</string>
+    <string name="connection_region_description">Ovlivňuje jen to, jak se aplikace připojuje k URnetwork, ne váš provoz.</string>
+    <string name="connection_region_encrypted_resolvers">Šifrované resolvery</string>
+    <string name="connection_region_fallback_resolvers">Nešifrovaná záloha (jen názvy URnetwork)</string>
+    <string name="connection_region_undisclosed">Jiná / Neuvedeno</string>
     <string name="connections">Připojení</string>
     <string name="connectivity_label">Připojení</string>
     <string name="continue_txt">Pokračovat</string>
@@ -1097,6 +1105,7 @@
     <string name="total_account_points">Celkový počet bodů na účtu</string>
     <string name="total_clients">Celkový počet klientů</string>
     <string name="total_referrals">Celkový počet doporučení</string>
+    <string name="traffic_dns">DNS pro provoz</string>
     <string name="transaction">Transakce</string>
     <string name="transfer">Převést</string>
     <string name="transfer_funds">Převod finančních prostředků</string>
@@ -1199,6 +1208,7 @@
     <string name="welcome_offer_eyebrow">Uvítací nabídka</string>
     <string name="welcome_to_urnetwork">Vítejte v URnetwork</string>
     <string name="when_you_refer_a_friend">Když doporučíte přítele:</string>
+    <string name="where_are_you_connecting_from">Odkud se připojujete?</string>
     <string name="widget_client">Klient</string>
     <string name="widget_connect_once">Připojte se jednou a uvidíte tu svůj provoz</string>
     <string name="widget_connect_to_see_contracts">Připojte se a uvidíte své kontrakty</string>

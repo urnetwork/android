@@ -69,6 +69,19 @@ class LocationsListViewModel @Inject constructor(
         locationsVc?.filterLocations(currentSearchQuery)
     }
 
+    // while the home screen shows, fetch the locations again so the selected
+    // location's provider count follows the network
+    private val refreshTicker = LocationsRefreshTicker(
+        scope = viewModelScope,
+        intervalMillis = LOCATIONS_REFRESH_INTERVAL_MILLIS,
+        isFetching = { _filterLocationsState.value == FilterLocationsState.Loading },
+        refresh = { refreshLocations() },
+    )
+
+    val setHomeVisible: (Boolean) -> Unit = { visible ->
+        refreshTicker.setVisible(visible)
+    }
+
     val filterLocations:(String) -> Unit = { search ->
 
         if (
@@ -228,3 +241,6 @@ enum class FilterLocationsState {
         }
     }
 }
+
+// one GET /network/provider-locations a minute while the home screen shows
+const val LOCATIONS_REFRESH_INTERVAL_MILLIS = 60_000L

@@ -1,5 +1,6 @@
 package com.bringyour.network.ui.login
 
+import com.bringyour.network.ui.connection_region.ConnectionRegionLoginControl
 import com.bringyour.network.ui.components.tabletForm
 import com.bringyour.network.ui.wallet.BittensorProofFlow
 import com.bringyour.network.ui.wallet.BittensorProofSheets
@@ -502,6 +503,11 @@ fun LoginInitial(
                         },
                         onSeedphraseLogin = onSeedphraseLogin,
                         onInstantAccountCreate = onInstantAccountCreate
+                    )
+
+                    // optional: how the app reaches URnetwork (ingress dns)
+                    ConnectionRegionLoginControl(
+                        modifier = Modifier.align(Alignment.CenterHorizontally)
                     )
                 }
 

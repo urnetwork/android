@@ -83,6 +83,8 @@ internal fun ConnectActions(
     providerDiscoverable: Boolean,
     deviceName: String,
     selectedPeerName: String?,
+    // the selected location's current provider count (selectedProviderCount)
+    selectedProviderCount: Int,
     presentSelectProvider: (Boolean) -> Unit,
     getLocationColor: (String) -> Color,
     minHeight: Dp,
@@ -190,6 +192,7 @@ internal fun ConnectActions(
                 OpenProviderListButton(
                     selectedLocation = selectedLocation,
                     selectedPeerName = selectedPeerName,
+                    providerCount = selectedProviderCount,
                     getLocationColor = getLocationColor,
                     onClick = { presentSelectProvider(true) }
                 )
@@ -763,6 +766,7 @@ internal fun shortClientIdLabel(label: String, clientId: String?): String {
 fun OpenProviderListButton(
     selectedLocation: ConnectLocation?,
     selectedPeerName: String?,
+    providerCount: Int,
     getLocationColor: (String) -> Color,
     onClick: () -> Unit
 ) {
@@ -828,12 +832,12 @@ fun OpenProviderListButton(
 
                 if (selectedLocation != null) {
 
-                    if (selectedLocation.providerCount > 0) {
+                    if (providerCount > 0) {
                         Text(
                             pluralStringResource(
                                 id = R.plurals.provider_count,
-                                count = selectedLocation.providerCount,
-                                selectedLocation.providerCount,
+                                count = providerCount,
+                                providerCount,
                             ),
                             style = MaterialTheme.typography.bodyMedium,
                             color = TextMuted

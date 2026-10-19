@@ -27,6 +27,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.BottomSheetDefaults
+import androidx.lifecycle.compose.LifecycleStartEffect
 import com.bringyour.network.ui.components.isTabletWidth
 import com.bringyour.network.ui.components.tabletDrawerWidth
 import com.bringyour.network.ui.components.TabletLayout
@@ -195,6 +196,14 @@ fun ConnectScreen(
 
     val scope = rememberCoroutineScope()
 
+    // started only while this screen shows and the app is in the foreground
+    LifecycleStartEffect(locationsViewModel) {
+        locationsViewModel.setHomeVisible(true)
+        onStopOrDispose {
+            locationsViewModel.setHomeVisible(false)
+        }
+    }
+
     LaunchedEffect(Unit) {
 
         connectViewModel.refreshContractStatus()
@@ -228,6 +237,21 @@ fun ConnectScreen(
         networkPeersViewModel.connectedProvidePeers.firstOrNull { it.clientId == cid }?.displayName
     }
 
+    // the selected location's count from the last locations fetch, not the
+    // copy taken when it was selected
+    val selectedLocation = connectViewModel.selectedLocation
+    val selectedProviderCount = selectedProviderCount(
+        selectedId = selectedLocation?.connectLocationId?.toString(),
+        selectedCount = selectedLocation?.providerCount ?: 0,
+        fetched = sequenceOf(
+            locationsViewModel.connectCountries,
+            locationsViewModel.regions,
+            locationsViewModel.cities,
+            locationsViewModel.devices,
+            locationsViewModel.bestSearchMatches,
+        ).flatMap { it.asSequence() }.map { it.connectLocationId.toString() to it.providerCount },
+    )
+
     ConnectActionsSheetScaffold(
         drawerState = connectActionsSheetState,
         sheetContent = { minSheetHeight, belowFoldGap, onFoldMarkerPositioned ->
@@ -240,6 +264,7 @@ fun ConnectScreen(
                 providerDiscoverable = networkPeersViewModel.providerDiscoverable,
                 deviceName = networkPeersViewModel.deviceName,
                 selectedPeerName = selectedPeerName,
+                selectedProviderCount = selectedProviderCount,
                 presentSelectProvider = {
                     navController.navigate(Route.BrowseLocations)
                 },

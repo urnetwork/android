@@ -102,6 +102,7 @@
     <string name="build_right_description">URnetwork के साथ इंटरनेट को सही तरीके से बनाएं</string>
     <string name="camera_permission_needed">कोड स्कैन करने के लिए कैमरा एक्सेस ज़रूरी है।</string>
     <string name="cancel">रद्द करें</string>
+    <string name="cant_reach_urnetwork_choose_region">URnetwork तक नहीं पहुँच सके — चुनें कि आप कहाँ से कनेक्ट कर रहे हैं</string>
     <string name="chain_rpc_unreachable">चेन RPC तक नहीं पहुँचा जा सकता। दोबारा कोशिश करें।</string>
     <string name="change">बदलें</string>
     <string name="change_network_api">नेटवर्क API बदलें</string>
@@ -158,8 +159,15 @@
     <string name="connect_wallet">वॉलेट कनेक्ट करें</string>
     <string name="connect_wallet_first">पहले Bittensor वॉलेट कनेक्ट करें।</string>
     <string name="connected">कनेक्टेड</string>
+    <string name="connecting_from">यहाँ से कनेक्ट</string>
     <string name="connecting_status_indicator">प्रदाताओं से कनेक्ट हो रहा है</string>
     <string name="connection_mode">कनेक्शन मोड</string>
+    <string name="connection_region">कनेक्शन क्षेत्र</string>
+    <string name="connection_region_default_resolvers">डिफ़ॉल्ट रिज़ॉल्वर</string>
+    <string name="connection_region_description">केवल यह बदलता है कि ऐप URnetwork तक कैसे पहुँचता है, आपका ट्रैफ़िक नहीं।</string>
+    <string name="connection_region_encrypted_resolvers">एन्क्रिप्टेड रिज़ॉल्वर</string>
+    <string name="connection_region_fallback_resolvers">बिना एन्क्रिप्शन वाला फ़ॉलबैक (केवल URnetwork नाम)</string>
+    <string name="connection_region_undisclosed">अन्य / अघोषित</string>
     <string name="connections">कनेक्शन</string>
     <string name="connectivity_label">कनेक्टिविटी</string>
     <string name="continue_txt">जारी रखें</string>
@@ -1097,6 +1105,7 @@
     <string name="total_account_points">कुल खाता अंक</string>
     <string name="total_clients">कुल क्लाइंट्स</string>
     <string name="total_referrals">कुल रेफरल</string>
+    <string name="traffic_dns">ट्रैफ़िक DNS</string>
     <string name="transaction">लेन-देन</string>
     <string name="transfer">ट्रांसफर करें</string>
     <string name="transfer_funds">धनराशि स्थानांतरित करें</string>
@@ -1199,6 +1208,7 @@
     <string name="welcome_offer_eyebrow">स्वागत ऑफ़र</string>
     <string name="welcome_to_urnetwork">URnetwork में आपका स्वागत है</string>
     <string name="when_you_refer_a_friend">जब आप किसी मित्र को रेफ़र करते हैं:</string>
+    <string name="where_are_you_connecting_from">आप कहाँ से कनेक्ट कर रहे हैं?</string>
     <string name="widget_client">क्लाइंट</string>
     <string name="widget_connect_once">अपना ट्रैफ़िक यहाँ देखने के लिए एक बार कनेक्ट करें</string>
     <string name="widget_connect_to_see_contracts">अपने कॉन्ट्रैक्ट देखने के लिए कनेक्ट करें</string>

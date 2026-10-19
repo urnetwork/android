@@ -102,6 +102,7 @@
     <string name="build_right_description">URnetwork로 올바른 방식으로 인터넷 구축하기</string>
     <string name="camera_permission_needed">코드를 스캔하려면 카메라 접근 권한이 필요합니다.</string>
     <string name="cancel">취소</string>
+    <string name="cant_reach_urnetwork_choose_region">URnetwork에 연결할 수 없습니다 — 연결 위치를 선택하세요</string>
     <string name="chain_rpc_unreachable">체인 RPC에 연결할 수 없습니다. 다시 시도하세요.</string>
     <string name="change">변경</string>
     <string name="change_network_api">네트워크 API 변경</string>
@@ -158,8 +159,15 @@
     <string name="connect_wallet">지갑 연결</string>
     <string name="connect_wallet_first">먼저 Bittensor 지갑을 연결하세요.</string>
     <string name="connected">연결됨</string>
+    <string name="connecting_from">연결 위치</string>
     <string name="connecting_status_indicator">제공업체에 연결 중</string>
     <string name="connection_mode">연결 모드</string>
+    <string name="connection_region">연결 지역</string>
+    <string name="connection_region_default_resolvers">기본 리졸버</string>
+    <string name="connection_region_description">앱이 URnetwork에 연결하는 방식에만 영향을 주며 트래픽에는 영향을 주지 않습니다.</string>
+    <string name="connection_region_encrypted_resolvers">암호화된 리졸버</string>
+    <string name="connection_region_fallback_resolvers">암호화되지 않은 대체 경로 (URnetwork 이름만)</string>
+    <string name="connection_region_undisclosed">기타 / 밝히지 않음</string>
     <string name="connections">연결</string>
     <string name="connectivity_label">연결성</string>
     <string name="continue_txt">계속</string>
@@ -1097,6 +1105,7 @@
     <string name="total_account_points">총 계정 포인트</string>
     <string name="total_clients">전체 클라이언트</string>
     <string name="total_referrals">총 추천 수</string>
+    <string name="traffic_dns">트래픽 DNS</string>
     <string name="transaction">트랜잭션</string>
     <string name="transfer">전송</string>
     <string name="transfer_funds">자금 이체</string>
@@ -1199,6 +1208,7 @@
     <string name="welcome_offer_eyebrow">웰컴 오퍼</string>
     <string name="welcome_to_urnetwork">URnetwork에 오신 것을 환영합니다</string>
     <string name="when_you_refer_a_friend">친구를 추천하면:</string>
+    <string name="where_are_you_connecting_from">어디에서 연결하나요?</string>
     <string name="widget_client">클라이언트</string>
     <string name="widget_connect_once">한 번 연결하면 여기에 트래픽이 표시됩니다</string>
     <string name="widget_connect_to_see_contracts">연결하면 계약이 표시됩니다</string>

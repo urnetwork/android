@@ -1,5 +1,6 @@
 package com.bringyour.network.ui.shared.viewmodels
 
+import com.bringyour.network.ui.connection_region.CantReachPrompt
 import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
@@ -123,6 +124,7 @@ class SubscriptionBalanceViewModel @Inject constructor(
             viewModelScope.launch {
                 issuingOffer = false
                 if (err != null) {
+                    CantReachPrompt.shared.report(err)
                     Log.i(TAG, "offer issue error: ${err.message}")
                     return@launch
                 }
@@ -428,6 +430,7 @@ class SubscriptionBalanceViewModel @Inject constructor(
 
                     viewModelScope.launch {
                         if (err != null) {
+                            CantReachPrompt.shared.report(err)
 
                             _isLoading.value = false
                             isRefreshingSubscriptionBalance = false

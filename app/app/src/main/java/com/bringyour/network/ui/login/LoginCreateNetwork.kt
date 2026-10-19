@@ -1,5 +1,6 @@
 package com.bringyour.network.ui.login
 
+import com.bringyour.network.ui.connection_region.CantReachPrompt
 import com.bringyour.network.ui.components.tabletForm
 import android.util.Patterns
 import androidx.compose.animation.AnimatedVisibility
@@ -296,6 +297,7 @@ fun LoginCreateNetwork(
         application?.api?.networkCreate(args) { result, err ->
             application.dispatchLoginResult {
                 if (err != null) {
+                    CantReachPrompt.shared.report(err)
                     scope.launch {
                         createNetworkError = err.message ?: createNetworkErrorMsg
                         inProgress = false
