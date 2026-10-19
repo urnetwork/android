@@ -1,5 +1,6 @@
 package com.bringyour.network.ui.login
 
+import com.bringyour.network.ui.connection_region.CantReachPrompt
 import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -72,6 +73,7 @@ class AuthCodeLoginSheetViewModel @Inject constructor(): ViewModel() {
                 viewModelScope.launch {
 
                     if (error != null) {
+                        CantReachPrompt.shared.report(error)
                         Log.i(TAG, "authCodeLogin err: ${error.message}")
                         authCodeLoginError = error.message
                         onErr(error.message)

@@ -1,5 +1,6 @@
 package com.bringyour.network.ui.login
 
+import com.bringyour.network.ui.connection_region.CantReachPrompt
 import com.bringyour.network.ui.components.tabletForm
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -98,6 +99,7 @@ fun LoginPasswordResetAfterSend(
 
                 val error = result?.error?.toVerifySendError()
                 if (err != null) {
+                    CantReachPrompt.shared.report(err)
                     passwordResetError = err.message
                 } else if (passwordResetNotice(result == null, error) != VerifySendNotice.Sent) {
                     resetNotice = passwordResetNotice(result == null, error)

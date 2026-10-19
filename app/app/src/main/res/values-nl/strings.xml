@@ -102,6 +102,7 @@
     <string name="build_right_description">Bouw het internet op de juiste manier met URnetwork</string>
     <string name="camera_permission_needed">Cameratoegang is nodig om een code te scannen.</string>
     <string name="cancel">Annuleren</string>
+    <string name="cant_reach_urnetwork_choose_region">URnetwork is niet bereikbaar — kies waarvandaan je verbindt</string>
     <string name="chain_rpc_unreachable">De chain-RPC is onbereikbaar. Probeer het opnieuw.</string>
     <string name="change">Veranderen</string>
     <string name="change_network_api">Netwerk-API wijzigen</string>
@@ -158,8 +159,15 @@
     <string name="connect_wallet">Verbind Wallet</string>
     <string name="connect_wallet_first">Koppel eerst een Bittensor-wallet.</string>
     <string name="connected">Verbonden</string>
+    <string name="connecting_from">Verbinden vanuit</string>
     <string name="connecting_status_indicator">Verbinden met providers</string>
     <string name="connection_mode">Verbindingsmodus</string>
+    <string name="connection_region">Verbindingsregio</string>
+    <string name="connection_region_default_resolvers">Standaardresolvers</string>
+    <string name="connection_region_description">Bepaalt alleen hoe de app URnetwork bereikt, niet je verkeer.</string>
+    <string name="connection_region_encrypted_resolvers">Versleutelde resolvers</string>
+    <string name="connection_region_fallback_resolvers">Onversleutelde terugval (alleen URnetwork-namen)</string>
+    <string name="connection_region_undisclosed">Overig / Niet opgegeven</string>
     <string name="connections">Verbindingen</string>
     <string name="connectivity_label">Verbondenheid</string>
     <string name="continue_txt">Doorgaan</string>
@@ -1097,6 +1105,7 @@
     <string name="total_account_points">Totaal punten saldo</string>
     <string name="total_clients">Totaal aantal clients</string>
     <string name="total_referrals">Totaal aantal doorverwijzingen</string>
+    <string name="traffic_dns">DNS voor verkeer</string>
     <string name="transaction">Transactie</string>
     <string name="transfer">Overdragen</string>
     <string name="transfer_funds">Gelden overmaken</string>
@@ -1199,6 +1208,7 @@
     <string name="welcome_offer_eyebrow">Welkomstaanbieding</string>
     <string name="welcome_to_urnetwork">Welkom bij URnetwork</string>
     <string name="when_you_refer_a_friend">Wanneer je een vriend doorverwijst:</string>
+    <string name="where_are_you_connecting_from">Waarvandaan verbind je?</string>
     <string name="widget_client">Client</string>
     <string name="widget_connect_once">Maak één keer verbinding om hier je verkeer te zien</string>
     <string name="widget_connect_to_see_contracts">Maak verbinding om je contracten te zien</string>

@@ -1,5 +1,6 @@
 package com.bringyour.network.ui
 
+import com.bringyour.network.ui.connection_region.CantReachRegionPrompt
 import com.bringyour.network.ui.introduction.LocalIntroConnector
 import com.bringyour.network.ui.introduction.IntroConnectorState
 import com.bringyour.network.ui.introduction.FloatingIntroConnector
@@ -568,6 +569,10 @@ private fun MainNavHostContent(
      * A payment error the user cannot see is a payment error they will hit again, so
      * this always offers the remedy (try again) rather than just reporting the failure.
      */
+    // a network-level failure reaching URnetwork offers the connection
+    // region picker; it never changes the region by itself
+    CantReachRegionPrompt()
+
     planViewModel.changePlanError?.let { changePlanError ->
         AlertDialog(
             onDismissRequest = { planViewModel.setChangePlanError(null) },

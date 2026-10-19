@@ -1,5 +1,6 @@
 package com.bringyour.network.ui.login
 
+import com.bringyour.network.ui.connection_region.CantReachPrompt
 import android.net.Uri
 import android.util.Log
 import androidx.compose.runtime.getValue
@@ -103,6 +104,7 @@ class LoginCreateNetworkViewModel @Inject constructor(
             networkNameValidationVc?.networkCheck(nn) { result, err ->
                 viewModelScope.launch {
                     if (err != null) {
+                        CantReachPrompt.shared.report(err)
                         Log.i(TAG, "network name check failed: ${err.message}")
                     }
                     onResult(if (err == null) result?.available else null)

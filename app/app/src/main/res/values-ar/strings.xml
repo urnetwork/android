@@ -102,6 +102,7 @@
     <string name="build_right_description">ابنِ الإنترنت بالطريقة الصحيحة مع URnetwork</string>
     <string name="camera_permission_needed">يلزم الوصول إلى الكاميرا لمسح الرمز.</string>
     <string name="cancel">ألغِ</string>
+    <string name="cant_reach_urnetwork_choose_region">تعذّر الوصول إلى URnetwork — اختر المكان الذي تتصل منه</string>
     <string name="chain_rpc_unreachable">تعذّر الوصول إلى RPC الخاص بالسلسلة. حاول مرة أخرى.</string>
     <string name="change">غيّر</string>
     <string name="change_network_api">تغيير API الشبكة</string>
@@ -158,8 +159,15 @@
     <string name="connect_wallet">ربط المحفظة</string>
     <string name="connect_wallet_first">اربط محفظة Bittensor أولًا.</string>
     <string name="connected">متصل</string>
+    <string name="connecting_from">الاتصال من</string>
     <string name="connecting_status_indicator">جاري الاتصال بمزودي الخدمة</string>
     <string name="connection_mode">وضع الاتصال</string>
+    <string name="connection_region">منطقة الاتصال</string>
+    <string name="connection_region_default_resolvers">خوادم DNS الافتراضية</string>
+    <string name="connection_region_description">يؤثر فقط على كيفية وصول التطبيق إلى URnetwork، وليس على حركة بياناتك.</string>
+    <string name="connection_region_encrypted_resolvers">خوادم DNS المشفرة</string>
+    <string name="connection_region_fallback_resolvers">احتياطي غير مشفر (أسماء URnetwork فقط)</string>
+    <string name="connection_region_undisclosed">أخرى / غير محددة</string>
     <string name="connections">الاتصالات</string>
     <string name="connectivity_label">الاتصال</string>
     <string name="continue_txt">تابع</string>
@@ -1097,6 +1105,7 @@
     <string name="total_account_points">إجمالي نقاط الحساب</string>
     <string name="total_clients">إجمالي العملاء</string>
     <string name="total_referrals">إجمالي الإحالات</string>
+    <string name="traffic_dns">DNS لحركة البيانات</string>
     <string name="transaction">المعاملة</string>
     <string name="transfer">تحويل</string>
     <string name="transfer_funds">تحويل الأموال</string>
@@ -1199,6 +1208,7 @@
     <string name="welcome_offer_eyebrow">عرض الترحيب</string>
     <string name="welcome_to_urnetwork">مرحبًا بك في URnetwork</string>
     <string name="when_you_refer_a_friend">عندما تقوم بإحالة صديق:</string>
+    <string name="where_are_you_connecting_from">من أين تتصل؟</string>
     <string name="widget_client">العميل</string>
     <string name="widget_connect_once">اتصل مرة واحدة لترى حركة بياناتك هنا</string>
     <string name="widget_connect_to_see_contracts">اتصل لعرض عقودك</string>

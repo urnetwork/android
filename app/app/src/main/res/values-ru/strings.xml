@@ -102,6 +102,7 @@
     <string name="build_right_description">Стройте интернет правильно вместе с URnetwork</string>
     <string name="camera_permission_needed">Для сканирования кода нужен доступ к камере.</string>
     <string name="cancel">Отмена</string>
+    <string name="cant_reach_urnetwork_choose_region">Не удаётся связаться с URnetwork — выберите, откуда вы подключаетесь</string>
     <string name="chain_rpc_unreachable">RPC блокчейна недоступен. Попробуйте снова.</string>
     <string name="change">Изменить</string>
     <string name="change_network_api">Изменить API сети</string>
@@ -158,8 +159,15 @@
     <string name="connect_wallet">Подключить кошелек</string>
     <string name="connect_wallet_first">Сначала подключите кошелек Bittensor.</string>
     <string name="connected">Подключено</string>
+    <string name="connecting_from">Подключение из</string>
     <string name="connecting_status_indicator">Подключение к провайдерам</string>
     <string name="connection_mode">Режим подключения</string>
+    <string name="connection_region">Регион подключения</string>
+    <string name="connection_region_default_resolvers">Резолверы по умолчанию</string>
+    <string name="connection_region_description">Влияет только на то, как приложение связывается с URnetwork, а не на ваш трафик.</string>
+    <string name="connection_region_encrypted_resolvers">Зашифрованные резолверы</string>
+    <string name="connection_region_fallback_resolvers">Незашифрованный резерв (только имена URnetwork)</string>
+    <string name="connection_region_undisclosed">Другой / Не указан</string>
     <string name="connections">Подключения</string>
     <string name="connectivity_label">Подключение</string>
     <string name="continue_txt">Продолжить</string>
@@ -1097,6 +1105,7 @@
     <string name="total_account_points">Всего очков аккаунта</string>
     <string name="total_clients">Всего клиентов</string>
     <string name="total_referrals">Всего рефералов</string>
+    <string name="traffic_dns">DNS для трафика</string>
     <string name="transaction">Транзакция</string>
     <string name="transfer">Перевести</string>
     <string name="transfer_funds">Перевести средства</string>
@@ -1199,6 +1208,7 @@
     <string name="welcome_offer_eyebrow">Приветственное предложение</string>
     <string name="welcome_to_urnetwork">Добро пожаловать в URnetwork</string>
     <string name="when_you_refer_a_friend">Когда вы приглашаете друга:</string>
+    <string name="where_are_you_connecting_from">Откуда вы подключаетесь?</string>
     <string name="widget_client">Клиент</string>
     <string name="widget_connect_once">Подключитесь хотя бы раз, чтобы видеть здесь свой трафик</string>
     <string name="widget_connect_to_see_contracts">Подключитесь, чтобы увидеть свои контракты</string>

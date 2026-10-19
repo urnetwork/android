@@ -102,6 +102,7 @@
     <string name="build_right_description">Construir a internet da maneira certa com a URnetwork</string>
     <string name="camera_permission_needed">É necessário acesso à câmera para escanear um código.</string>
     <string name="cancel">Cancelar</string>
+    <string name="cant_reach_urnetwork_choose_region">Não foi possível acessar a URnetwork — escolha de onde você está conectando</string>
     <string name="chain_rpc_unreachable">O RPC da cadeia está inacessível. Tente novamente.</string>
     <string name="change">Alterar</string>
     <string name="change_network_api">Alterar API de rede</string>
@@ -158,8 +159,15 @@
     <string name="connect_wallet">Conectar carteira</string>
     <string name="connect_wallet_first">Primeiro conecte uma carteira Bittensor.</string>
     <string name="connected">Conectado</string>
+    <string name="connecting_from">Conectando de</string>
     <string name="connecting_status_indicator">Conectando aos provedores</string>
     <string name="connection_mode">Modo de conexão</string>
+    <string name="connection_region">Região de conexão</string>
+    <string name="connection_region_default_resolvers">Resolvedores padrão</string>
+    <string name="connection_region_description">Afeta apenas como o app chega à URnetwork, não o seu tráfego.</string>
+    <string name="connection_region_encrypted_resolvers">Resolvedores criptografados</string>
+    <string name="connection_region_fallback_resolvers">Alternativa sem criptografia (apenas nomes da URnetwork)</string>
+    <string name="connection_region_undisclosed">Outra / Não informada</string>
     <string name="connections">Conexões</string>
     <string name="connectivity_label">Conectividade</string>
     <string name="continue_txt">Continua</string>
@@ -1097,6 +1105,7 @@
     <string name="total_account_points">Total de pontos da conta</string>
     <string name="total_clients">Total de clientes</string>
     <string name="total_referrals">Total de indicações</string>
+    <string name="traffic_dns">DNS do tráfego</string>
     <string name="transaction">Transação</string>
     <string name="transfer">Transferir</string>
     <string name="transfer_funds">Transferir fundos</string>
@@ -1199,6 +1208,7 @@
     <string name="welcome_offer_eyebrow">Oferta de boas-vindas</string>
     <string name="welcome_to_urnetwork">Bem-vindo ao URnetwork</string>
     <string name="when_you_refer_a_friend">Quando você indica um amigo:</string>
+    <string name="where_are_you_connecting_from">De onde você está conectando?</string>
     <string name="widget_client">Cliente</string>
     <string name="widget_connect_once">Conecte-se uma vez para ver seu tráfego aqui</string>
     <string name="widget_connect_to_see_contracts">Conecte-se para ver seus contratos</string>

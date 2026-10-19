@@ -50,6 +50,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.bringyour.network.R
 import com.bringyour.network.ui.components.URButton
+import com.bringyour.network.ui.connection_region.ConnectionRegionSettingsRow
 import com.bringyour.network.ui.components.URSwitch
 import com.bringyour.network.ui.components.URTextInput
 import com.bringyour.network.ui.theme.Black
@@ -129,6 +130,23 @@ fun DnsSettingsScreen(
                     .verticalScroll(rememberScrollState())
                     .padding(horizontal = 16.dp)
             ) {
+
+                /**
+                 * Connection region (ingress dns): how the app reaches
+                 * URnetwork. Separate from the traffic dns below; changing
+                 * one never changes the other.
+                 */
+                ConnectionRegionSettingsRow()
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                Text(
+                    stringResource(id = R.string.traffic_dns),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = Color.White
+                )
+
+                Spacer(modifier = Modifier.height(12.dp))
 
                 /**
                  * Recommendation panel when the connected country has one,
