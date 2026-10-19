@@ -119,9 +119,9 @@ fun DnsSettingsScreen(
                 .fillMaxSize()
         ) {
 
-            if (currentDraft == null) {
-                return@Column
-            }
+            // the connection region comes from the network space and shows
+            // at once; the traffic dns editor waits for the device's report
+            val sections = dnsSettingsSections(currentDraft)
 
             Column(
                 modifier = Modifier
@@ -136,9 +136,15 @@ fun DnsSettingsScreen(
                  * URnetwork. Separate from the traffic dns below; changing
                  * one never changes the other.
                  */
-                ConnectionRegionSettingsRow()
+                if (sections.connectionRegion) {
+                    ConnectionRegionSettingsRow()
 
-                Spacer(modifier = Modifier.height(24.dp))
+                    Spacer(modifier = Modifier.height(24.dp))
+                }
+
+                if (!sections.trafficDns || currentDraft == null) {
+                    return@Column
+                }
 
                 Text(
                     stringResource(id = R.string.traffic_dns),
@@ -408,7 +414,7 @@ fun DnsSettingsScreen(
 
             // pinned below the scrolling content; on a tablet it is exactly as
             // wide as the content column above it, never the whole screen
-            Column(
+            if (sections.trafficDns) Column(
                 modifier = Modifier
                     .tabletReadableColumn()
                     .padding(16.dp)
