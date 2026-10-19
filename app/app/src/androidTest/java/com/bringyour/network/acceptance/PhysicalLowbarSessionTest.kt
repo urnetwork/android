@@ -23,6 +23,7 @@ import com.bringyour.sdk.MemoryTeardownObservation
 import com.bringyour.sdk.PacketStats
 import com.bringyour.sdk.PeerViewController
 import com.bringyour.sdk.Sdk
+import com.bringyour.sdk.WindowStatus
 import java.io.File
 import java.io.FileOutputStream
 import java.util.UUID
@@ -276,6 +277,19 @@ class PhysicalLowbarSessionTest {
             val provider = providers.get(i) ?: continue
             add(PhysicalProviderEvidence(provider.clientId?.idStr.orEmpty(), provider.countryCode, provider.hasLocation))
         }
+    }
+
+    /** Copy existing window reads only; no provider identities or extra window queries. */
+    private fun publicWindowSnapshot(window: WindowStatus?): PhysicalPublicWindowSnapshot? = window?.let {
+        PhysicalPublicWindowSnapshot(
+            targetSize = it.targetSize,
+            stallReason = it.stallReason,
+            providerStateInEvaluation = it.providerStateInEvaluation,
+            providerStateEvaluationFailed = it.providerStateEvaluationFailed,
+            providerStateNotAdded = it.providerStateNotAdded,
+            providerStateAdded = it.providerStateAdded,
+            providerStateRemoved = it.providerStateRemoved,
+        )
     }
 
     private fun snapshot(application: MainApplication, startElapsedMs: Long): JSONObject {
@@ -926,6 +940,8 @@ class PhysicalLowbarSessionTest {
                     minSatisfied = before?.minSatisfied == true && after?.minSatisfied == true,
                     failed = before?.failed != false || after?.failed != false,
                     providers = providers,
+                    windowBefore = publicWindowSnapshot(before),
+                    windowAfter = publicWindowSnapshot(after),
                 )
             },
             // Byte progress is proved only after independent window admission.

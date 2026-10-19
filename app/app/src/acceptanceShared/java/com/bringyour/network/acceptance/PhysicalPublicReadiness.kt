@@ -1,5 +1,31 @@
 package com.bringyour.network.acceptance
 
+/** Immutable SDK window counters; unknown reason text is never retained. */
+internal class PhysicalPublicWindowSnapshot(
+    val targetSize: Long,
+    stallReason: String?,
+    val providerStateInEvaluation: Long,
+    val providerStateEvaluationFailed: Long,
+    val providerStateNotAdded: Long,
+    val providerStateAdded: Long,
+    val providerStateRemoved: Long,
+) {
+    val stallReason: String? = when (stallReason) {
+        "", "evaluating", "platform-unreachable", "providers-unresponsive", "rate-limited", "auth-failing" -> stallReason
+        else -> null
+    }
+
+    fun statusFields(): Map<String, Any> = buildMap {
+        put("targetSize", targetSize)
+        stallReason?.let { put("stallReason", it) }
+        put("providerStateInEvaluation", providerStateInEvaluation)
+        put("providerStateEvaluationFailed", providerStateEvaluationFailed)
+        put("providerStateNotAdded", providerStateNotAdded)
+        put("providerStateAdded", providerStateAdded)
+        put("providerStateRemoved", providerStateRemoved)
+    }
+}
+
 /** Current SDK window evidence, bracketed around the live-provider read. */
 internal data class PhysicalPublicRouteState(
     val controllerConnected: Boolean,
@@ -10,6 +36,8 @@ internal data class PhysicalPublicRouteState(
     val minSatisfied: Boolean,
     val failed: Boolean,
     val providers: List<PhysicalProviderEvidence>,
+    val windowBefore: PhysicalPublicWindowSnapshot? = null,
+    val windowAfter: PhysicalPublicWindowSnapshot? = null,
 )
 
 /** Last successful route read only; no provider identities, list aliases, or history. */
@@ -26,21 +54,25 @@ internal data class PhysicalPublicReadinessSnapshot(
     val failed: Boolean,
     val providerCount: Int,
     val usProvidersValid: Boolean,
+    val windowBefore: PhysicalPublicWindowSnapshot? = null,
+    val windowAfter: PhysicalPublicWindowSnapshot? = null,
 ) {
-    fun statusFields(): Map<String, Any> = mapOf(
-        "observationIndex" to observationIndex,
-        "elapsedMs" to elapsedMillis,
-        "expectedConnectionGeneration" to expectedConnectionGeneration,
-        "generationBefore" to generationBefore,
-        "generationAfter" to generationAfter,
-        "controllerConnected" to controllerConnected,
-        "connectEnabled" to connectEnabled,
-        "tunnelStarted" to tunnelStarted,
-        "minSatisfied" to minSatisfied,
-        "failed" to failed,
-        "providerCount" to providerCount,
-        "usProvidersValid" to usProvidersValid,
-    )
+    fun statusFields(): Map<String, Any> = buildMap {
+        put("observationIndex", observationIndex)
+        put("elapsedMs", elapsedMillis)
+        put("expectedConnectionGeneration", expectedConnectionGeneration)
+        put("generationBefore", generationBefore)
+        put("generationAfter", generationAfter)
+        put("controllerConnected", controllerConnected)
+        put("connectEnabled", connectEnabled)
+        put("tunnelStarted", tunnelStarted)
+        put("minSatisfied", minSatisfied)
+        put("failed", failed)
+        put("providerCount", providerCount)
+        put("usProvidersValid", usProvidersValid)
+        windowBefore?.let { put("windowBefore", it.statusFields()) }
+        windowAfter?.let { put("windowAfter", it.statusFields()) }
+    }
 }
 
 /**
@@ -88,6 +120,8 @@ internal fun <T> runPhysicalPublicEgress(
                 failed = state.failed,
                 providerCount = state.providers.size,
                 usProvidersValid = usProvidersValid,
+                windowBefore = state.windowBefore,
+                windowAfter = state.windowAfter,
             )
             state.controllerConnected && state.connectEnabled && state.tunnelStarted &&
                 state.generationBefore == expectedConnectionGeneration &&
