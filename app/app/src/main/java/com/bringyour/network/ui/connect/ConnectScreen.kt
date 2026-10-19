@@ -27,6 +27,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.BottomSheetDefaults
+import androidx.lifecycle.compose.LifecycleStartEffect
 import com.bringyour.network.ui.components.isTabletWidth
 import com.bringyour.network.ui.components.tabletDrawerWidth
 import com.bringyour.network.ui.components.TabletLayout
@@ -194,6 +195,14 @@ fun ConnectScreen(
     }
 
     val scope = rememberCoroutineScope()
+
+    // started only while this screen shows and the app is in the foreground
+    LifecycleStartEffect(locationsViewModel) {
+        locationsViewModel.setHomeVisible(true)
+        onStopOrDispose {
+            locationsViewModel.setHomeVisible(false)
+        }
+    }
 
     LaunchedEffect(Unit) {
 
