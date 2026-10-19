@@ -46,3 +46,24 @@ fun methodDisplayName(method: String): String {
         else -> method.replaceFirstChar { it.uppercase() }
     }
 }
+
+/**
+ * The address the profile's Change password sends a reset link to, or null when the account
+ * has no password sign-in to change.
+ *
+ * `userAuth` is the email or phone the account was created with. A Google or Apple account
+ * has one too but no password: its reset link arrived and the new password changed nothing.
+ * Only an email or phone sign-in has a password. An old server sends no `authTypes`; its
+ * password accounts have the `password` auth type.
+ */
+fun passwordResetUserAuth(authTypes: List<String>, authType: String, userAuth: String?): String? {
+    if (userAuth.isNullOrEmpty()) {
+        return null
+    }
+    val hasPassword = if (authTypes.any { it.isNotEmpty() }) {
+        authTypes.contains("email") || authTypes.contains("phone")
+    } else {
+        authType == "password"
+    }
+    return if (hasPassword) userAuth else null
+}
