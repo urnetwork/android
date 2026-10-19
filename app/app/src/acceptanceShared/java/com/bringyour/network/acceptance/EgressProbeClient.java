@@ -37,8 +37,9 @@ final class EgressProbeClient {
     private static final int QUERY_TIMEOUT_MILLIS = 20_000;
     // A losing HttpURLConnection is allowed its remaining platform I/O timeout
     // after disconnect. The outer Binder request is 45 seconds, so a 20-second
-    // query plus this cleanup bound still returns a result or a cleanup failure
-    // before the caller's deadline.
+    // query plus this cleanup allowance fits the caller's deadline. The opt-in
+    // stack diagnostic below has no hard VM time/allocation bound and is never
+    // part of a qualifying measurement; its enclosing owner remains a backstop.
     private static final int WORKER_SHUTDOWN_TIMEOUT_MILLIS = 20_000;
     private static final int MAX_RESPONSE_BYTES = 256;
     private static final Pattern IPV6_CHARACTERS = Pattern.compile("[0-9a-fA-F:]+");
@@ -57,6 +58,46 @@ final class EgressProbeClient {
     interface ConnectionFactory {
         HttpURLConnection open(String endpoint) throws Exception;
     }
+
+    interface WorkerStackCapture {
+        StackTraceElement[] capture(Thread worker);
+    }
+
+    interface QuerySetupBarrier {
+        void await() throws InterruptedException;
+    }
+
+    private static final int MAX_STACK_WORKERS = 2;
+    private static final int MAX_STACK_FRAMES_EXAMINED = 32;
+    private static final int MAX_STACK_FRAMES_RETAINED = 8;
+    // One-based codes, not inferred causes. Only these exact class/method pairs
+    // may be retained; no arbitrary names, source paths, line numbers or values.
+    // A missing code is unknown, not evidence that a platform operation ended.
+    private static final String[][] STACK_FRAME_CODES = {
+        {"libcore.io.Linux", "android_getaddrinfo"},
+        {"java.net.Inet6AddressImpl", "lookupHostByName"},
+        {"java.net.InetAddress", "getAllByName"},
+        {"libcore.io.Linux", "connect"},
+        {"libcore.io.IoBridge", "connect"},
+        {"java.net.PlainSocketImpl", "socketConnect"},
+        {"com.android.org.conscrypt.NativeCrypto", "SSL_do_handshake"},
+        {"com.android.org.conscrypt.ConscryptFileDescriptorSocket", "startHandshake"},
+        {"com.android.org.conscrypt.OpenSSLSocketImpl", "startHandshake"},
+        {"com.android.org.conscrypt.NativeCrypto", "SSL_read"},
+        {"com.android.org.conscrypt.ConscryptFileDescriptorSocket$SSLInputStream", "read"},
+        {"com.android.org.conscrypt.OpenSSLSocketImpl$SSLInputStream", "read"},
+        {"java.net.SocketInputStream", "socketRead0"},
+        {"libcore.io.Linux", "read"},
+        {"com.android.okhttp.internal.http.Http1xStream", "readResponse"},
+        {"com.android.okhttp.internal.http.Http1xStream", "readResponseHeaders"},
+        {"com.android.okhttp.internal.io.RealConnection", "connect"},
+        {"com.android.okhttp.internal.io.RealConnection", "connectTls"},
+        {"com.android.okhttp.internal.http.HttpEngine", "readNetworkResponse"},
+        {"com.android.okhttp.internal.huc.HttpURLConnectionImpl", "getResponse"},
+        {"com.android.okhttp.internal.huc.HttpURLConnectionImpl", "getResponseCode"},
+        {"com.android.okhttp.internal.huc.DelegatingHttpsURLConnection", "getResponseCode"},
+        {"com.android.okhttp.okio.RealBufferedSource", "readUtf8LineStrict"},
+    };
 
     /** Owns one endpoint connection across cancellation and late publication. */
     static final class Attempt implements Callable<String> {
@@ -86,6 +127,13 @@ final class EgressProbeClient {
         private int httpStatus = -1;
         private int acceptedBytes;
         private String frozenDiagnostic;
+        private Thread worker;
+        // Unlike the frozen failure record, these track late progress. A stack
+        // from a different boundary or a completed owner must not be attributed
+        // to the original deadline, even when the worker finishes during capture.
+        private long boundaryGeneration;
+        private long frozenBoundaryGeneration;
+        private int livePhase;
 
         Attempt(
             String endpoint,
@@ -105,6 +153,8 @@ final class EgressProbeClient {
                     if (canceled) {
                         throw new IOException("egress endpoint attempt canceled before open");
                     }
+                    worker = Thread.currentThread();
+                    boundaryGeneration += 1;
                 }
 
                 phase(OPEN);
@@ -130,11 +180,11 @@ final class EgressProbeClient {
                 failures.put(endpoint, failureDetail(error));
                 throw error;
             } finally {
-                if (openedConnection != null) {
-                    synchronized (stateLock) {
-                        if (connection == openedConnection) {
-                            connection = null;
-                        }
+                synchronized (stateLock) {
+                    worker = null;
+                    boundaryGeneration += 1;
+                    if (connection == openedConnection) {
+                        connection = null;
                     }
                 }
             }
@@ -165,6 +215,8 @@ final class EgressProbeClient {
 
         private void phase(int next) {
             synchronized (stateLock) {
+                boundaryGeneration += 1;
+                livePhase = next;
                 if (frozenDiagnostic == null) {
                     phase = next;
                     phaseStartNanos = System.nanoTime();
@@ -174,6 +226,7 @@ final class EgressProbeClient {
 
         private void progress() {
             synchronized (stateLock) {
+                boundaryGeneration += 1;
                 if (frozenDiagnostic == null) {
                     progressed = true;
                     progressNanos = System.nanoTime();
@@ -185,8 +238,8 @@ final class EgressProbeClient {
             synchronized (stateLock) {
                 if (frozenDiagnostic == null) {
                     httpStatus = 100 <= status && status <= 599 ? status : -1;
-                    progress();
                 }
+                progress();
             }
         }
 
@@ -194,8 +247,8 @@ final class EgressProbeClient {
             synchronized (stateLock) {
                 if (frozenDiagnostic == null) {
                     acceptedBytes = Math.max(0, Math.min(MAX_RESPONSE_BYTES, bytes));
-                    progress();
                 }
+                progress();
             }
         }
 
@@ -204,6 +257,7 @@ final class EgressProbeClient {
         String freezeDiagnostic() {
             synchronized (stateLock) {
                 if (frozenDiagnostic == null) {
+                    frozenBoundaryGeneration = boundaryGeneration;
                     long now = System.nanoTime();
                     frozenDiagnostic = phase + "," + elapsedMillis(diagnosticStartNanos, now)
                         + "," + elapsedMillis(phaseStartNanos, now)
@@ -212,6 +266,64 @@ final class EgressProbeClient {
                 }
                 return frozenDiagnostic;
             }
+        }
+
+        // Called only after the query's original verdict and all phase records
+        // are frozen, and only in an explicitly unqualified diagnostic session.
+        // Never hold stateLock while asking the VM for the exact owned worker.
+        // The private executor cannot run any other endpoint task on this thread.
+        String captureWorkerStack(WorkerStackCapture capture) {
+            Thread target;
+            long generation;
+            int before;
+            synchronized (stateLock) {
+                target = worker;
+                generation = boundaryGeneration;
+                before = livePhase;
+                if (target == null) {
+                    return stackRow(0, before, before, 0, 0, 0, 0, "0");
+                }
+                if (frozenDiagnostic == null || generation != frozenBoundaryGeneration) {
+                    return stackRow(2, before, before, 0, 0, 0, 0, "0");
+                }
+            }
+
+            long started = System.nanoTime();
+            StackTraceElement[] frames = null;
+            boolean failed = false;
+            try {
+                frames = capture.capture(target);
+            } catch (RuntimeException error) {
+                // Security/VM access refusal is diagnostic unavailability. Do
+                // not copy the exception class/message or replace the verdict.
+                failed = true;
+            }
+            long finished = System.nanoTime();
+            int after;
+            boolean changed;
+            synchronized (stateLock) {
+                after = livePhase;
+                changed = worker != target || boundaryGeneration != generation;
+            }
+            long startMillis = elapsedMillis(diagnosticStartNanos, started);
+            long durationNanos = Math.max(0, finished - started);
+            if (changed || failed || frames == null || frames.length == 0) {
+                int state = changed ? 2 : failed ? 4 : 3;
+                return stackRow(state, before, after, startMillis, durationNanos, 0, 0, "0");
+            }
+            int examined = Math.min(frames.length, MAX_STACK_FRAMES_EXAMINED);
+            int retained = 0;
+            StringBuilder codes = new StringBuilder();
+            for (int i = 0; i < examined; i += 1) {
+                int code = stackFrameCode(frames[i]);
+                if (code != 0 && retained < MAX_STACK_FRAMES_RETAINED) {
+                    if (retained != 0) codes.append('.');
+                    codes.append(code);
+                    retained += 1;
+                }
+            }
+            return stackRow(1, before, after, startMillis, durationNanos, examined,
+                frames.length, retained == 0 ? "0" : codes.toString());
         }
     }
 
@@ -231,8 +343,14 @@ final class EgressProbeClient {
     }
 
     static String queryPublicIp() throws Exception {
-        return queryPublicIp(ENDPOINTS, endpoint ->
-            (HttpURLConnection) new URL(endpoint).openConnection()
+        return queryPublicIp(false);
+    }
+
+    static String queryPublicIp(boolean diagnosticWorkerStacks) throws Exception {
+        return queryPublicIp(ENDPOINTS,
+            endpoint -> (HttpURLConnection) new URL(endpoint).openConnection(),
+            QUERY_TIMEOUT_MILLIS, WORKER_SHUTDOWN_TIMEOUT_MILLIS,
+            diagnosticWorkerStacks, Thread::getStackTrace
         );
     }
 
@@ -258,6 +376,33 @@ final class EgressProbeClient {
         ConnectionFactory connectionFactory,
         long timeoutMillis,
         long workerShutdownTimeoutMillis
+    ) throws Exception {
+        return queryPublicIp(endpoints, connectionFactory, timeoutMillis,
+            workerShutdownTimeoutMillis, false, Thread::getStackTrace);
+    }
+
+    static String queryPublicIp(
+        String[] endpoints,
+        ConnectionFactory connectionFactory,
+        long timeoutMillis,
+        long workerShutdownTimeoutMillis,
+        boolean diagnosticWorkerStacks,
+        WorkerStackCapture stackCapture
+    ) throws Exception {
+        return queryPublicIp(endpoints, connectionFactory, timeoutMillis,
+            workerShutdownTimeoutMillis, diagnosticWorkerStacks, stackCapture, () -> {});
+    }
+
+    // Package-private fake-I/O seam: tests establish blocking worker boundaries
+    // before the query clock starts. Real requests use only the no-op overload.
+    static String queryPublicIp(
+        String[] endpoints,
+        ConnectionFactory connectionFactory,
+        long timeoutMillis,
+        long workerShutdownTimeoutMillis,
+        boolean diagnosticWorkerStacks,
+        WorkerStackCapture stackCapture,
+        QuerySetupBarrier setupBarrier
     ) throws Exception {
         if (endpoints.length == 0) {
             throw new IllegalArgumentException("at least one egress endpoint is required");
@@ -292,11 +437,13 @@ final class EgressProbeClient {
         }
 
         String address = null;
-        Exception queryFailure = null;
+        Throwable queryFailure = null;
+        String stackDiagnostic = "";
         Throwable lastEndpointFailure = null;
-        long queryDeadlineNanos = System.nanoTime()
-            + TimeUnit.MILLISECONDS.toNanos(timeoutMillis);
         try {
+            setupBarrier.await();
+            long queryDeadlineNanos = System.nanoTime()
+                + TimeUnit.MILLISECONDS.toNanos(timeoutMillis);
             int remainingAttempts = attempts.size();
             while (0 < remainingAttempts && address == null) {
                 long remainingNanos = queryDeadlineNanos - System.nanoTime();
@@ -322,22 +469,31 @@ final class EgressProbeClient {
                 boolean allFailed = failures.size() == endpoints.length;
                 String details = formatFailures(endpoints, failures);
                 String diagnostic = formatPhaseDiagnostics(attempts);
+                if (diagnosticWorkerStacks) {
+                    stackDiagnostic = formatWorkerStackDiagnostics(attempts, stackCapture);
+                }
                 if (allFailed) {
                     queryFailure = new IOException(
-                        "all egress endpoints failed: " + details + diagnostic,
+                        "all egress endpoints failed: " + details + stackDiagnostic + diagnostic,
                         lastEndpointFailure
                     );
                 } else {
                     queryFailure = new IOException(
                         "egress query deadline exceeded after " + timeoutMillis + "ms: "
-                            + details + diagnostic,
+                            + details + stackDiagnostic + diagnostic,
                         new TimeoutException("egress query deadline exceeded")
                     );
                 }
             }
         } catch (InterruptedException error) {
+            // Owner cancellation takes priority over this optional diagnostic.
             Thread.currentThread().interrupt();
             queryFailure = new IOException("egress query interrupted" + formatPhaseDiagnostics(attempts), error);
+        } catch (RuntimeException | Error error) {
+            // A broken test barrier or unexpected VM failure must not skip the
+            // same connection cancellation and executor join. Preserve it as-is
+            // after cleanup; fatal VM failures are not diagnostic availability.
+            queryFailure = error;
         }
 
         // Even a winning query may later fail to join a loser. Capture its
@@ -364,16 +520,16 @@ final class EgressProbeClient {
         }
         if (!stopped) {
             IOException cleanupFailure = new IOException(
-                "egress probe workers did not stop after cancellation" + formatPhaseDiagnostics(attempts)
+                "egress probe workers did not stop after cancellation" + stackDiagnostic
+                    + formatPhaseDiagnostics(attempts)
             );
             if (queryFailure != null) {
                 cleanupFailure.addSuppressed(queryFailure);
             }
             throw cleanupFailure;
         }
-        if (queryFailure != null) {
-            throw queryFailure;
-        }
+        if (queryFailure instanceof Error) throw (Error) queryFailure;
+        if (queryFailure != null) throw (Exception) queryFailure;
         return address;
     }
 
@@ -531,6 +687,48 @@ final class EgressProbeClient {
 
     private static long elapsedMillis(long start, long end) {
         return Math.max(0, TimeUnit.NANOSECONDS.toMillis(end - start));
+    }
+
+    // This is deliberately not a hard time/allocation bound: getStackTrace may
+    // allocate/suspend inside the VM before returning. Only the call count,
+    // frames examined, codes retained and formatted output are bounded here.
+    // Default-off; the existing diagnostic owner is explicitly non-qualifying.
+    private static String formatWorkerStackDiagnostics(
+        List<Attempt> attempts,
+        WorkerStackCapture capture
+    ) {
+        StringBuilder result = new StringBuilder("; probe_stack_v1=");
+        int count = Math.min(attempts.size(), MAX_STACK_WORKERS);
+        for (int i = 0; i < count; i += 1) {
+            if (i != 0) result.append('|');
+            result.append(i + 1).append(',').append(attempts.get(i).captureWorkerStack(capture));
+        }
+        return result.toString();
+    }
+
+    // Row after endpoint ordinal: state, phase-before, phase-after,
+    // capture-start ms from attempt creation, API duration ns, frames examined,
+    // returned depth, dot-separated allowlist codes (0 = no recognized frame).
+    // States: 0 no running owner; 1 stable observed boundary; 2 boundary changed
+    // or already late; 3 empty/unavailable; 4 capture refused. Unknown is not a
+    // DNS/connect/TLS/header verdict, and a stable boundary is not a frozen VM.
+    private static String stackRow(
+        int state, int before, int after, long startMillis, long durationNanos,
+        int examined, int depth, String codes
+    ) {
+        return state + "," + before + "," + after + "," + startMillis + "," + durationNanos
+            + "," + examined + "," + depth + "," + codes;
+    }
+
+    private static int stackFrameCode(StackTraceElement frame) {
+        if (frame == null) return 0;
+        for (int i = 0; i < STACK_FRAME_CODES.length; i += 1) {
+            if (STACK_FRAME_CODES[i][0].equals(frame.getClassName())
+                && STACK_FRAME_CODES[i][1].equals(frame.getMethodName())) {
+                return i + 1;
+            }
+        }
+        return 0;
     }
 
     private static String formatPhaseDiagnostics(List<Attempt> attempts) {

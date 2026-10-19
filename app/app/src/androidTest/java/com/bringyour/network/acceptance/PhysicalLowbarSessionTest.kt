@@ -177,7 +177,14 @@ class PhysicalLowbarSessionTest {
 
     private fun peerEgressProbe(): String {
         try {
-            return EgressProbeRequest.queryPublicIp(instrumentation, EGRESS_TIMEOUT_MILLIS).also {
+            // This owner is created only by the existing explicit debug opt-in;
+            // its launch/ready receipts are qualificationEligible=false. Never
+            // enable VM stack capture in ordinary MEMSTEADY/PERFVAR sessions.
+            return EgressProbeRequest.queryPublicIp(
+                instrumentation,
+                EGRESS_TIMEOUT_MILLIS,
+                diagnosticWorkerStacks = ioLoopDiagnostics != null,
+            ).also {
                 check(it.matches(Regex("[0-9a-fA-F:.]+"))) { "invalid peer egress address" }
             }
         } catch (error: Throwable) {

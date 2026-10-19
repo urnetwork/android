@@ -29,6 +29,9 @@ public final class EgressProbeActivity extends Activity {
     public static final String EXTRA_FIXED_RESULT = "com.bringyour.network.acceptance.FIXED_RESULT";
     // When positive, a bounded traffic download instead of the address query.
     public static final String EXTRA_TRAFFIC_BYTES = "com.bringyour.network.acceptance.TRAFFIC_BYTES";
+    // Acceptance-only, request-scoped and default off. The physical runner sets
+    // this only for its already non-qualifying native-loop diagnostic owner.
+    public static final String EXTRA_DIAGNOSTIC_WORKER_STACKS = "com.bringyour.network.acceptance.DIAGNOSTIC_WORKER_STACKS";
     public static final String RESULT_MESSAGE = "message";
     public static final String RESULT_NONCE = "nonce";
 
@@ -53,6 +56,7 @@ public final class EgressProbeActivity extends Activity {
         }
 
         long trafficBytes = getIntent().getLongExtra(EXTRA_TRAFFIC_BYTES, 0);
+        boolean diagnosticWorkerStacks = getIntent().getBooleanExtra(EXTRA_DIAGNOSTIC_WORKER_STACKS, false);
         probe = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -61,7 +65,7 @@ public final class EgressProbeActivity extends Activity {
                     if (0 < trafficBytes) {
                         message = "ACCEPTANCE_TRAFFIC_BYTES=" + EgressProbeClient.downloadTraffic(trafficBytes);
                     } else {
-                        message = "ACCEPTANCE_IP=" + EgressProbeClient.queryPublicIp();
+                        message = "ACCEPTANCE_IP=" + EgressProbeClient.queryPublicIp(diagnosticWorkerStacks);
                     }
                 } catch (Exception error) {
                     String detail = error.getMessage();

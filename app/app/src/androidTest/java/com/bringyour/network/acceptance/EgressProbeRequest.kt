@@ -36,6 +36,7 @@ internal object EgressProbeRequest {
         timeoutMillis: Long,
         fixedResult: String? = null,
         trafficBytes: Long = 0,
+        diagnosticWorkerStacks: Boolean = false,
     ): EgressProbeResponse {
         require(timeoutMillis > 0) { "egress probe timeout must be positive" }
 
@@ -58,15 +59,7 @@ internal object EgressProbeRequest {
         }
 
         val testContext = instrumentation.context
-        val intent = Intent().apply {
-            component = ComponentName(testContext.packageName, EgressProbeActivity::class.java.name)
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            putExtra(EgressProbeActivity.EXTRA_RESULT_RECEIVER, receiver)
-            putExtra(EgressProbeActivity.EXTRA_REQUEST_NONCE, nonce)
-            putExtra(EgressProbeActivity.EXTRA_FINISH_AFTER_RESULT, true)
-            fixedResult?.let { putExtra(EgressProbeActivity.EXTRA_FIXED_RESULT, it) }
-            if (0 < trafficBytes) putExtra(EgressProbeActivity.EXTRA_TRAFFIC_BYTES, trafficBytes)
-        }
+        val intent = requestIntent(testContext, receiver, nonce, fixedResult, trafficBytes, diagnosticWorkerStacks)
         testContext.startActivity(intent)
 
         val received = try {
@@ -104,8 +97,32 @@ internal object EgressProbeRequest {
         )
     }
 
-    fun queryPublicIp(instrumentation: Instrumentation, timeoutMillis: Long): String {
-        val message = execute(instrumentation, timeoutMillis).message
+    internal fun requestIntent(
+        testContext: Context,
+        receiver: ResultReceiver,
+        nonce: String,
+        fixedResult: String? = null,
+        trafficBytes: Long = 0,
+        diagnosticWorkerStacks: Boolean = false,
+    ): Intent = Intent().apply {
+        component = ComponentName(testContext.packageName, EgressProbeActivity::class.java.name)
+        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        putExtra(EgressProbeActivity.EXTRA_RESULT_RECEIVER, receiver)
+        putExtra(EgressProbeActivity.EXTRA_REQUEST_NONCE, nonce)
+        putExtra(EgressProbeActivity.EXTRA_FINISH_AFTER_RESULT, true)
+        fixedResult?.let { putExtra(EgressProbeActivity.EXTRA_FIXED_RESULT, it) }
+        if (0 < trafficBytes) putExtra(EgressProbeActivity.EXTRA_TRAFFIC_BYTES, trafficBytes)
+        if (diagnosticWorkerStacks && fixedResult == null && trafficBytes <= 0) {
+            putExtra(EgressProbeActivity.EXTRA_DIAGNOSTIC_WORKER_STACKS, true)
+        }
+    }
+
+    fun queryPublicIp(
+        instrumentation: Instrumentation,
+        timeoutMillis: Long,
+        diagnosticWorkerStacks: Boolean = false,
+    ): String {
+        val message = execute(instrumentation, timeoutMillis, diagnosticWorkerStacks = diagnosticWorkerStacks).message
         if (message.startsWith("ACCEPTANCE_ERROR=")) {
             throw AssertionError("egress probe failed: ${message.removePrefix("ACCEPTANCE_ERROR=")}")
         }

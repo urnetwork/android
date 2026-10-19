@@ -188,22 +188,39 @@ test("unjoined instrumentation cannot trigger final reads or credential cleanup"
   }
 });
 
-// A socket barrier ends the actual PTY child's finite cleanup only when the
-// canonical schedule reaches join. No polling or elapsed-time guess proves it.
-async function failedInstrumentationPty(t, signal) {
-  const directory = fixture(t); const c = { ...context(), directory };
-  const connection = Promise.withResolvers(); const socketPath = join(directory, "child.sock");
+// A loopback socket barrier ends the actual PTY child's finite cleanup only
+// when the canonical schedule reaches join, independently of artifact path length.
+// No polling or elapsed-time guess proves it.
+async function failedInstrumentationPty(t, signal, directory = fixture(t)) {
+  const c = { ...context(), directory };
+  const connection = Promise.withResolvers(); let peer;
   const server = createServer(socket => {
-    socket.setEncoding("utf8");
-    socket.once("data", text => {
-      const message = JSON.parse(text);
-      connection.resolve({ socket, pid: message.pid });
-    });
+    peer = socket; socket.setEncoding("utf8");
+    let pending = "";
+    socket.on("error", connection.reject);
+    socket.once("close", () => connection.reject(new Error("instrumentation-pid-barrier-closed")));
+    const receive = text => {
+      if (Buffer.byteLength(pending) + Buffer.byteLength(text) > 64) {
+        connection.reject(new Error("instrumentation-pid-frame-too-large")); socket.destroy(); return;
+      }
+      pending += text;
+      const end = pending.indexOf("\n");
+      if (end < 0) return;
+      try {
+        assert.equal(end, pending.length - 1, "one complete PID frame");
+        const message = JSON.parse(pending.slice(0, end));
+        assert.deepEqual(Object.keys(message), ["pid"]);
+        assert.ok(Number.isSafeInteger(message.pid) && message.pid > 0, "actual positive child PID");
+        socket.off("data", receive);
+        connection.resolve({ socket, pid: message.pid });
+      } catch (error) { connection.reject(error); socket.destroy(); }
+    };
+    socket.on("data", receive);
   });
-  await new Promise((done, reject) => { server.once("error", reject); server.listen(socketPath, done); });
+  await new Promise((done, reject) => { server.once("error", reject); server.listen(0, "127.0.0.1", done); });
   const code = `import {connect} from 'node:net';
-    const socket=connect(${JSON.stringify(socketPath)});
-    socket.once('connect',()=>socket.write(JSON.stringify({pid:process.pid})));
+    const socket=connect(${server.address().port},'127.0.0.1');
+    socket.once('connect',()=>socket.write(JSON.stringify({pid:process.pid})+'\\n'));
     socket.once('data',()=>{
       process.stdout.write('finite-cleanup-ended\\n'); socket.end();
       ${signal ? "process.kill(process.pid,'SIGHUP');" : "process.exitCode=7;"}
@@ -215,7 +232,9 @@ async function failedInstrumentationPty(t, signal) {
     assert.equal(step.id, "instrumentation");
     handle = launchPrivate({ id: step.id, command: process.execPath, args: ["--input-type=module", "-e", code],
       retained: true, timeoutMs: 10_000 }, c, process.stdin.isTTY ? {} : { ptyInput: "ignore" });
-    child = await connection.promise;
+    child = await Promise.race([connection.promise, handle.done.then(() => {
+      throw new Error("instrumentation-exited-before-pid-barrier");
+    })]);
     return handle;
   };
   driver.execute = async step => {
@@ -243,7 +262,7 @@ async function failedInstrumentationPty(t, signal) {
     assert.equal(result.eligible, false); assert.equal(result.memoryQualified, false); assert.equal(result.cleanupComplete, false);
   } finally {
     if (handle?.live) { handle.interrupt(); await handle.done; }
-    child?.socket.destroy();
+    peer?.destroy();
     await new Promise(done => server.close(done));
   }
 }
@@ -254,6 +273,22 @@ test("joined nonzero instrumentation PTY retains custody without a second interr
 
 test("pre-ready SIGHUP instrumentation PTY is joined without credential adoption", async t => {
   await failedInstrumentationPty(t, true);
+});
+
+// Valid filesystem ancestors must not be constrained by Unix socket path limits.
+function longPtyFixture(t) {
+  const directory = join(fixture(t), "synthetic-long-ancestor-".repeat(10));
+  mkdirSync(directory, { mode: 0o700 });
+  assert.ok(Buffer.byteLength(join(directory, "child.sock")) >= 233, "synthetic ancestor must reproduce the path-length boundary");
+  return directory;
+}
+
+test("joined nonzero instrumentation PTY preserves custody below a long temporary ancestor", async t => {
+  await failedInstrumentationPty(t, false, longPtyFixture(t));
+});
+
+test("pre-ready SIGHUP instrumentation PTY preserves custody below a long temporary ancestor", async t => {
+  await failedInstrumentationPty(t, true, longPtyFixture(t));
 });
 
 test("the real schedule binds one root, identifiers and rate zero through Bash writer/consumer", () => {

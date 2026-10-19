@@ -25,6 +25,423 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.junit.Test;
 
 public final class EgressProbeClientTest {
+    @Test
+    public void workerStacksDefaultOffPreservesFailureTextAndCauseWithoutCapture() {
+        String endpoint = "https://egress.example/";
+        IOException original = new UnknownHostException("synthetic resolver refusal");
+        AtomicInteger captures = new AtomicInteger();
+        IOException ordinary = assertThrows(IOException.class, () -> EgressProbeClient.queryPublicIp(
+            new String[] {endpoint}, ignored -> { throw original; }, 1_000, 1_000));
+        IOException injected = assertThrows(IOException.class, () -> EgressProbeClient.queryPublicIp(
+            new String[] {endpoint}, ignored -> { throw original; }, 1_000, 1_000, false, worker -> {
+                captures.incrementAndGet();
+                throw new AssertionError("disabled stack API called");
+            }));
+        String expected = "all egress endpoints failed: " + endpoint
+            + "=UnknownHostException:synthetic resolver refusal";
+        for (IOException error : List.of(ordinary, injected)) {
+            assertEquals(expected, error.getMessage().split("; probe_phase_v1=", -1)[0]);
+            assertEquals(original, error.getCause());
+            assertEquals(1, diagnosticRows(error)[0][1]);
+            assertFalse(error.getMessage().contains("probe_stack_v1"));
+        }
+        assertEquals(0, captures.get());
+    }
+
+    @Test(timeout = 5_000)
+    public void disabledDeadlineNeverCallsStackApiForBlockedWorkers() throws Exception {
+        CountDownLatch entered = new CountDownLatch(1);
+        CountDownLatch release = new CountDownLatch(1);
+        CountDownLatch exited = new CountDownLatch(1);
+        AtomicInteger captures = new AtomicInteger();
+        try {
+            IOException error = assertThrows(IOException.class, () -> EgressProbeClient.queryPublicIp(
+                new String[] {"https://egress.example/"}, endpoint ->
+                    blockingConnection(endpoint, entered, release, exited, () -> {}),
+                1_000, 1_000, false, worker -> {
+                    captures.incrementAndGet();
+                    return new StackTraceElement[] {dnsFrame()};
+                }, entered::await));
+            assertEquals(0, entered.getCount());
+            assertEquals(0, exited.getCount());
+            assertEquals(0, captures.get());
+            assertTrue(error.getMessage().startsWith("egress query deadline exceeded after 1000ms:"));
+            assertFalse(error.getMessage().contains("probe_stack_v1"));
+            assertEquals(2, diagnosticRows(error)[0][1]);
+        } finally {
+            release.countDown();
+        }
+    }
+
+    @Test(timeout = 5_000)
+    public void enabledWorkerStacksSuccessDoesNotCaptureOrChangeWinnerCleanup() throws Exception {
+        String[] endpoints = {"https://loser.example/", "https://winner.example/"};
+        CountDownLatch entered = new CountDownLatch(1);
+        CountDownLatch release = new CountDownLatch(1);
+        CountDownLatch exited = new CountDownLatch(1);
+        AtomicInteger opens = new AtomicInteger();
+        AtomicInteger disconnects = new AtomicInteger();
+        AtomicInteger captures = new AtomicInteger();
+        try {
+            String address = EgressProbeClient.queryPublicIp(endpoints, endpoint -> {
+                opens.incrementAndGet();
+                if (endpoint.equals(endpoints[0])) {
+                    return blockingConnection(endpoint, entered, release, exited, disconnects::incrementAndGet);
+                }
+                assertTrue(entered.await(1, TimeUnit.SECONDS));
+                return responseConnection(endpoint, 200, "203.0.113.9\n");
+            }, 1_000, 1_000, true, worker -> {
+                captures.incrementAndGet();
+                throw new AssertionError("successful query captured stacks");
+            });
+            assertEquals("203.0.113.9", address);
+            assertEquals(2, opens.get());
+            assertEquals(1, disconnects.get());
+            assertEquals(0, exited.getCount());
+            assertEquals(0, captures.get());
+        } finally {
+            release.countDown();
+        }
+    }
+
+    @Test(timeout = 5_000)
+    public void enabledDeadlineCapturesOnlyTwoExactBlockedResponseWorkersAndJoinsAll() throws Exception {
+        String[] endpoints = {"https://first.example/", "https://second.example/", "https://third.example/"};
+        CountDownLatch entered = new CountDownLatch(3);
+        CountDownLatch release = new CountDownLatch(1);
+        CountDownLatch exited = new CountDownLatch(3);
+        AtomicInteger disconnects = new AtomicInteger();
+        Set<Thread> owned = java.util.concurrent.ConcurrentHashMap.newKeySet();
+        Set<Thread> captured = new HashSet<>();
+        try {
+            IOException error = assertThrows(IOException.class, () -> EgressProbeClient.queryPublicIp(
+                endpoints, endpoint -> {
+                    owned.add(Thread.currentThread());
+                    return blockingConnection(endpoint, entered, release, exited, disconnects::incrementAndGet);
+                }, 1_000, 1_000, true, worker -> {
+                    assertEquals("all workers must be blocked before the deadline", 0, entered.getCount());
+                    assertTrue(owned.contains(worker));
+                    assertTrue(worker != Thread.currentThread());
+                    assertTrue("same worker captured twice", captured.add(worker));
+                    return new StackTraceElement[] {dnsFrame(),
+                        new StackTraceElement("private.synthetic.Token", "secretValue", "/private/secret", 123),
+                        new StackTraceElement("com.android.okhttp.internal.http.Http1xStream", "readResponseHeaders", null, -1)};
+                }, entered::await));
+            assertTrue(error.getMessage().startsWith("egress query deadline exceeded after 1000ms:"));
+            assertTrue(error.getCause() instanceof java.util.concurrent.TimeoutException);
+            assertEquals(2, captured.size());
+            String[] rows = stackRows(error);
+            assertEquals(2, rows.length);
+            for (int i = 0; i < rows.length; i += 1) {
+                String[] fields = stackFields(rows[i]);
+                assertEquals(Integer.toString(i + 1), fields[0]);
+                assertEquals("1", fields[1]);
+                assertEquals("2", fields[2]);
+                assertEquals("2", fields[3]);
+                assertEquals("3", fields[6]);
+                assertEquals("3", fields[7]);
+                assertEquals("1.16", fields[8]);
+            }
+            assertFalse(error.getMessage().contains("private.synthetic"));
+            assertFalse(error.getMessage().contains("secretValue"));
+            assertFalse(error.getMessage().contains("/private/secret"));
+            for (long[] row : diagnosticRows(error)) {
+                assertEquals(2, row[1]);
+                assertEquals(-1, row[5]);
+                assertEquals(0, row[6]);
+            }
+            long[][] phases = diagnosticRows(error);
+            for (int i = 0; i < rows.length; i += 1) {
+                assertTrue("capture must follow the frozen verdict",
+                    Long.parseLong(stackFields(rows[i])[4]) >= phases[i][2]);
+            }
+            assertEquals(3, disconnects.get());
+            assertEquals(0, exited.getCount());
+            for (Thread worker : owned) {
+                worker.join(1_000);
+                assertFalse("owned worker survived query cleanup", worker.isAlive());
+            }
+        } finally {
+            release.countDown();
+        }
+    }
+
+    @Test(timeout = 5_000)
+    public void workerCompletionDuringCaptureCannotDeadlockOrRelabelTheFrozenFailure() throws Exception {
+        try (BoundaryAttempt fixture = new BoundaryAttempt(2)) {
+            fixture.start();
+            assertTrue(fixture.entered.await(1, TimeUnit.SECONDS));
+            String frozen = fixture.attempt.freezeDiagnostic();
+            String capture = fixture.attempt.captureWorkerStack(worker -> {
+                assertEquals(fixture.worker, worker);
+                fixture.release.countDown();
+                try {
+                    // Requires the same stateLock on the worker. Holding that
+                    // lock across capture would deterministically fail this join.
+                    fixture.join();
+                } catch (InterruptedException error) {
+                    Thread.currentThread().interrupt();
+                    throw new AssertionError(error);
+                }
+                return new StackTraceElement[] {dnsFrame()};
+            });
+            String[] fields = stackFields("1," + capture);
+            assertEquals("2", fields[1]);
+            assertEquals("2", fields[2]);
+            assertEquals("8", fields[3]);
+            assertEquals("0", fields[6]);
+            assertEquals("0", fields[8]);
+            assertEquals(frozen, fixture.attempt.freezeDiagnostic());
+            assertEquals(2, diagnosticRow("1," + frozen)[1]);
+            String after = fixture.attempt.captureWorkerStack(worker -> {
+                throw new AssertionError("completed owner must not be captured");
+            });
+            assertEquals("0", stackFields("1," + after)[1]);
+        }
+    }
+
+    @Test(timeout = 5_000)
+    public void unavailableAndRefusedWorkerStacksRemainUnknownWithoutExceptionText() throws Exception {
+        try (BoundaryAttempt fixture = new BoundaryAttempt(2)) {
+            fixture.start();
+            assertTrue(fixture.entered.await(1, TimeUnit.SECONDS));
+            String frozen = fixture.attempt.freezeDiagnostic();
+            for (int mode = 0; mode < 3; mode += 1) {
+                final int selected = mode;
+                String row = fixture.attempt.captureWorkerStack(worker -> {
+                    if (selected == 2) throw new SecurityException("synthetic private capture refusal");
+                    return selected == 0 ? null : new StackTraceElement[0];
+                });
+                String[] fields = stackFields("1," + row);
+                assertEquals(mode == 2 ? "4" : "3", fields[1]);
+                assertEquals("0", fields[6]);
+                assertEquals("0", fields[7]);
+                assertEquals("0", fields[8]);
+                assertFalse(row.contains("SecurityException"));
+                assertFalse(row.contains("private"));
+                assertEquals(frozen, fixture.attempt.freezeDiagnostic());
+            }
+        }
+    }
+
+    @Test(timeout = 5_000)
+    public void workerStackCapsBoundExaminedFramesAndOutputNotOnlyMatches() throws Exception {
+        try (BoundaryAttempt fixture = new BoundaryAttempt(2)) {
+            fixture.start();
+            assertTrue(fixture.entered.await(1, TimeUnit.SECONDS));
+            fixture.attempt.freezeDiagnostic();
+            StackTraceElement[] frames = new StackTraceElement[1_024];
+            java.util.Arrays.fill(frames, new StackTraceElement("private." + "x".repeat(1_024),
+                "secret-method", "/private/path", 123));
+            frames[31] = dnsFrame();
+            frames[32] = new StackTraceElement("com.android.org.conscrypt.NativeCrypto", "SSL_do_handshake", null, -1);
+            String[] sparse = stackFields("1," + fixture.attempt.captureWorkerStack(worker -> frames));
+            assertEquals("32", sparse[6]);
+            assertEquals("1024", sparse[7]);
+            assertEquals("1", sparse[8]);
+            java.util.Arrays.fill(frames, dnsFrame());
+            String[] dense = stackFields("1," + fixture.attempt.captureWorkerStack(worker -> frames));
+            assertEquals("32", dense[6]);
+            assertEquals("1.1.1.1.1.1.1.1", dense[8]);
+            java.util.Arrays.fill(frames, null);
+            String[] unknown = stackFields("1," + fixture.attempt.captureWorkerStack(worker -> frames));
+            assertEquals("1", unknown[1]);
+            assertEquals("32", unknown[6]);
+            assertEquals("0", unknown[8]);
+        }
+    }
+
+    @Test
+    public void unopenedOrAlreadyCompletedAttemptNeverCapturesAnotherThread() throws Exception {
+        EgressProbeClient.Attempt attempt = new EgressProbeClient.Attempt("https://egress.example/",
+            endpoint -> responseConnection(endpoint, 200, "203.0.113.9\n"),
+            new java.util.concurrent.ConcurrentHashMap<>());
+        assertEquals("0", stackFields("1," + attempt.captureWorkerStack(worker -> {
+            throw new AssertionError("unopened attempt captured a worker");
+        }))[1]);
+        assertEquals("203.0.113.9", attempt.call());
+        attempt.freezeDiagnostic();
+        assertEquals("0", stackFields("1," + attempt.captureWorkerStack(worker -> {
+            throw new AssertionError("completed attempt captured its previous caller");
+        }))[1]);
+    }
+
+    @Test(timeout = 5_000)
+    public void enabledCaptureRefusalPreservesDeadlineAndNormalCancellationJoin() throws Exception {
+        CountDownLatch entered = new CountDownLatch(1);
+        CountDownLatch release = new CountDownLatch(1);
+        CountDownLatch exited = new CountDownLatch(1);
+        AtomicInteger captures = new AtomicInteger();
+        AtomicInteger disconnects = new AtomicInteger();
+        try {
+            IOException error = assertThrows(IOException.class, () -> EgressProbeClient.queryPublicIp(
+                new String[] {"https://egress.example/"}, endpoint ->
+                    blockingConnection(endpoint, entered, release, exited, disconnects::incrementAndGet),
+                1_000, 1_000, true, worker -> {
+                    captures.incrementAndGet();
+                    throw new SecurityException("synthetic private refusal");
+                }, entered::await));
+            assertTrue(error.getMessage().startsWith("egress query deadline exceeded after 1000ms:"));
+            assertTrue(error.getCause() instanceof java.util.concurrent.TimeoutException);
+            assertEquals(1, captures.get());
+            assertEquals(1, disconnects.get());
+            assertEquals(0, exited.getCount());
+            assertEquals("4", stackFields(stackRows(error)[0])[1]);
+            assertFalse(error.getMessage().contains("synthetic private refusal"));
+        } finally {
+            release.countDown();
+        }
+    }
+
+    @Test(timeout = 5_000)
+    public void enabledCaptureDoesNotHideWorkerJoinFailureOrReplaceOriginalDeadline() throws Exception {
+        CountDownLatch entered = new CountDownLatch(1);
+        CountDownLatch release = new CountDownLatch(1);
+        CountDownLatch exited = new CountDownLatch(1);
+        AtomicBoolean disconnected = new AtomicBoolean();
+        AtomicReference<Thread> worker = new AtomicReference<>();
+        try {
+            IOException error = assertThrows(IOException.class, () -> EgressProbeClient.queryPublicIp(
+                new String[] {"https://egress.example/"}, endpoint ->
+                    cancellationResistantConnection(endpoint, entered, release, exited, disconnected),
+                1_000, 100, true, target -> {
+                    worker.set(target);
+                    return new StackTraceElement[] {dnsFrame()};
+                }, entered::await));
+            assertTrue(error.getMessage().startsWith("egress probe workers did not stop after cancellation"));
+            assertEquals(1, error.getSuppressed().length);
+            assertTrue(error.getSuppressed()[0].getMessage().startsWith("egress query deadline exceeded after 1000ms:"));
+            assertTrue(error.getSuppressed()[0].getCause() instanceof java.util.concurrent.TimeoutException);
+            assertEquals(stackRows((IOException) error.getSuppressed()[0])[0], stackRows(error)[0]);
+            assertTrue(disconnected.get());
+            assertEquals(2, diagnosticRows(error)[0][1]);
+        } finally {
+            release.countDown();
+            assertTrue(exited.await(1, TimeUnit.SECONDS));
+            if (worker.get() != null) {
+                worker.get().join(1_000);
+                assertFalse(worker.get().isAlive());
+            }
+        }
+    }
+
+    @Test(timeout = 5_000)
+    public void enabledCallerInterruptionSkipsCaptureAndStillJoinsOwnedWorker() throws Exception {
+        CountDownLatch entered = new CountDownLatch(1);
+        CountDownLatch release = new CountDownLatch(1);
+        CountDownLatch exited = new CountDownLatch(1);
+        AtomicReference<Throwable> failure = new AtomicReference<>();
+        AtomicBoolean restored = new AtomicBoolean();
+        AtomicInteger captures = new AtomicInteger();
+        Thread query = new Thread(() -> {
+            try {
+                EgressProbeClient.queryPublicIp(new String[] {"https://egress.example/"}, endpoint ->
+                    blockingConnection(endpoint, entered, release, exited, () -> {}),
+                    5_000, 1_000, true, worker -> {
+                        captures.incrementAndGet();
+                        return new StackTraceElement[] {dnsFrame()};
+                    });
+            } catch (Throwable error) {
+                failure.set(error);
+                restored.set(Thread.currentThread().isInterrupted());
+            }
+        }, "synthetic-egress-query-owner");
+        query.setDaemon(true);
+        try {
+            query.start();
+            assertTrue(entered.await(1, TimeUnit.SECONDS));
+            query.interrupt();
+            query.join(2_000);
+            assertFalse(query.isAlive());
+            assertTrue(failure.get() instanceof IOException);
+            assertTrue(failure.get().getMessage().startsWith("egress query interrupted; probe_phase_v1="));
+            assertTrue(restored.get());
+            assertEquals(0, captures.get());
+            assertEquals(0, exited.getCount());
+        } finally {
+            release.countDown();
+            query.interrupt();
+            query.join(1_000);
+        }
+    }
+
+    @Test(timeout = 5_000)
+    public void querySetupBarrierInterruptionStillCancelsJoinsAndRestoresInterrupt() throws Exception {
+        CountDownLatch entered = new CountDownLatch(1);
+        CountDownLatch release = new CountDownLatch(1);
+        CountDownLatch exited = new CountDownLatch(1);
+        InterruptedException original = new InterruptedException("synthetic setup cancellation");
+        boolean wasInterrupted = Thread.currentThread().isInterrupted();
+        try {
+            IOException error = assertThrows(IOException.class, () -> EgressProbeClient.queryPublicIp(
+                new String[] {"https://egress.example/"}, endpoint ->
+                    blockingConnection(endpoint, entered, release, exited, () -> {}),
+                1_000, 1_000, true, worker -> { throw new AssertionError("interrupted setup captured a stack"); },
+                () -> { entered.await(); throw original; }));
+            assertEquals(original, error.getCause());
+            assertTrue(error.getMessage().startsWith("egress query interrupted; probe_phase_v1="));
+            assertTrue(Thread.currentThread().isInterrupted());
+            assertEquals(0, exited.getCount());
+        } finally {
+            release.countDown();
+            if (!wasInterrupted) Thread.interrupted();
+        }
+    }
+
+    @Test(timeout = 5_000)
+    public void querySetupBarrierErrorsStillCancelAndJoinBeforeRethrowing() throws Exception {
+        for (Throwable original : List.of(new IllegalStateException("synthetic setup refusal"),
+            new AssertionError("synthetic setup assertion"))) {
+            CountDownLatch entered = new CountDownLatch(1);
+            CountDownLatch release = new CountDownLatch(1);
+            CountDownLatch exited = new CountDownLatch(1);
+            AtomicInteger disconnects = new AtomicInteger();
+            try {
+                Throwable error = assertThrows(Throwable.class, () -> EgressProbeClient.queryPublicIp(
+                    new String[] {"https://egress.example/"}, endpoint ->
+                        blockingConnection(endpoint, entered, release, exited, disconnects::incrementAndGet),
+                    1_000, 1_000, true, worker -> { throw new AssertionError("failed setup captured a stack"); },
+                    () -> {
+                        entered.await();
+                        if (original instanceof Error) throw (Error) original;
+                        throw (RuntimeException) original;
+                    }));
+                assertEquals(original, error);
+                assertEquals(1, disconnects.get());
+                assertEquals(0, exited.getCount());
+            } finally {
+                release.countDown();
+            }
+        }
+    }
+
+    private static StackTraceElement dnsFrame() {
+        return new StackTraceElement("libcore.io.Linux", "android_getaddrinfo", "/private/synthetic/source", 123);
+    }
+
+    private static String[] stackRows(IOException error) {
+        String marker = "; probe_stack_v1=";
+        int start = error.getMessage().indexOf(marker);
+        int end = error.getMessage().indexOf("; probe_phase_v1=");
+        assertTrue("missing diagnostic stack segment", start >= 0 && start < end);
+        String value = error.getMessage().substring(start + marker.length(), end);
+        assertTrue("stack output exceeds fixed formatting bound", value.length() <= 512);
+        return value.split("\\|", -1);
+    }
+
+    private static String[] stackFields(String row) {
+        assertTrue("stack row exceeds fixed formatting bound", row.length() <= 256);
+        assertTrue("stack output must contain fixed numeric fields/codes only", row.matches(
+            "[1-9][0-9]*,[0-4],[0-8],[0-8],[0-9]+,[0-9]+,[0-9]+,[0-9]+,[0-9]+(\\.[0-9]+){0,7}"));
+        String[] fields = row.split(",", -1);
+        assertTrue(Long.parseLong(fields[6]) <= 32);
+        assertTrue(Long.parseLong(fields[6]) <= Long.parseLong(fields[7]));
+        for (String code : fields[8].split("\\.")) {
+            assertTrue(Integer.parseInt(code) <= 23);
+        }
+        return fields;
+    }
+
     @Test(timeout = 5_000)
     public void deadlineRetainsNumericResponseWaitBeforeCancellation() throws Exception {
         String[] endpoints = {"https://first.invalid/", "https://second.invalid/"};

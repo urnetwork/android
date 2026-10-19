@@ -1444,6 +1444,30 @@ test("physical egress and startup errors are attributed only at their actual thr
   assert.match(source, /throwLoginStartupTimeout\(\s+state,\s+PhysicalLoginStartupTimeout\(state, AUTH_TIMEOUT_MILLIS\)/);
 });
 
+test("egress worker stacks are default off and wired only to the nonqualifying diagnostic owner", () => {
+  const base = "../app/src/androidTest/java/com/bringyour/network/acceptance/";
+  const source = readFileSync(new URL(`${base}PhysicalLowbarSessionTest.kt`, import.meta.url), "utf8");
+  const request = readFileSync(new URL(`${base}EgressProbeRequest.kt`, import.meta.url), "utf8");
+  const activity = readFileSync(new URL(`${base}EgressProbeActivity.java`, import.meta.url), "utf8");
+  const client = readFileSync(new URL("../app/src/acceptanceShared/java/com/bringyour/network/acceptance/EgressProbeClient.java", import.meta.url), "utf8");
+  const probe = source.slice(source.indexOf("    private fun peerEgressProbe(): String"),
+    source.indexOf("    private fun peerEgressProbeWithTrafficProof("));
+  assert.match(probe, /EgressProbeRequest\.queryPublicIp\(\s*instrumentation,\s*EGRESS_TIMEOUT_MILLIS,\s*diagnosticWorkerStacks = ioLoopDiagnostics != null,/);
+  assert.match(source, /private var ioLoopDiagnostics: com\.bringyour\.sdk\.IoLoopDiagnosticSession\? = null/);
+  assert.match(source, /physicalIoLoopDiagnosticRequested\(ioLoopDiagnosticOption, BuildConfig\.DEBUG\)/);
+  assert.match(source, /if \(ioLoopDiagnosticRequested\) \{[\s\S]*?val diagnostic = Sdk\.newIoLoopDiagnosticSession\(\)\s*ioLoopDiagnostics = diagnostic/);
+  assert.equal((source.match(/ioLoopDiagnostics = diagnostic/g) || []).length, 2,
+    "only the explicit branch may assign the session and application diagnostic owners");
+  assert.equal((request.match(/diagnosticWorkerStacks: Boolean = false/g) || []).length, 3);
+  assert.match(request, /execute\(instrumentation, timeoutMillis, diagnosticWorkerStacks = diagnosticWorkerStacks\)/);
+  assert.match(request, /if \(diagnosticWorkerStacks && fixedResult == null && trafficBytes <= 0\) \{\s*putExtra\(EgressProbeActivity\.EXTRA_DIAGNOSTIC_WORKER_STACKS, true\)/);
+  assert.match(activity, /getBooleanExtra\(EXTRA_DIAGNOSTIC_WORKER_STACKS, false\)/);
+  assert.match(activity, /EgressProbeClient\.queryPublicIp\(diagnosticWorkerStacks\)/);
+  assert.match(client, /static String queryPublicIp\(\) throws Exception \{\s*return queryPublicIp\(false\);/);
+  const collector = readFileSync(new URL("physical_collector_session.mjs", import.meta.url), "utf8");
+  assert.match(collector, /"io-loop-diagnostic"\] === "1" \? \{ ioLoopDiagnostic: true, qualificationEligible: false \}/);
+});
+
 test("public startup rejects intent-only readiness before egress", () => {
   const source = readFileSync(new URL("../app/src/androidTest/java/com/bringyour/network/acceptance/PhysicalLowbarSessionTest.kt", import.meta.url), "utf8");
   const body = source.slice(source.indexOf("    private fun connectPublic("),
