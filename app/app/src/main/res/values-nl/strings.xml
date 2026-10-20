@@ -219,8 +219,10 @@
     <string name="delete">Verwijderen</string>
     <string name="delete_account">Verwijder Account</string>
     <string name="delete_account_type_network_name">Typ %1$s om te bevestigen.</string>
+    <string name="dev_affinity_max_time">Maximale affiniteitsleeftijd</string>
+    <string name="dev_affinity_max_time_detail">Hergebruik voor gewone nieuwe verbindingen alleen een gezonde IP-/domeinexit als de tijd sinds het aanmaken van de oorspronkelijke verbinding korter is dan deze limiet. Standaard: 1 minuut. Nul of een negatieve waarde schakelt hergebruik uit. Gewaarschuwde of ongezonde exits leiden altijd tot een race. Bestaande verbindingen en expliciete pins blijven ongewijzigd.</string>
     <string name="dev_affinity_performance">Prestatiebewuste affiniteit</string>
-    <string name="dev_affinity_performance_detail">Weeg nieuwe TLS-races op de piekhoeveelheid bevestigde bytes per seconde van elke provider, afgezet tegen de opgegeven bandbreedte. Met harde affiniteit aan geven laag gemeten donors voorrang aan de race. Bestaande verbindingen en expliciete pins blijven vast</string>
+    <string name="dev_affinity_performance_detail">Weeg nieuwe TLS-races op de piekhoeveelheid bevestigde bytes per seconde van elke provider, afgezet tegen de opgegeven bandbreedte. Binnen de affiniteitsleeftijdslimiet geven laag gemeten donors voorrang aan de race. Bestaande verbindingen en expliciete pins blijven vast</string>
     <string name="dev_affinity_sticky">Vaste site-affiniteit</string>
     <string name="dev_affinity_sticky_detail">Nieuwe verbindingen van een site blijven op de exit die de eerdere al gebruiken, zelfs boven de flowlimiet, zodat een drukke site één egress-IP houdt. De limiet bepaalt nog steeds welke exits nieuwe sites krijgen. Uit herstelt de strikte limiet</string>
     <string name="dev_all">Alle</string>
@@ -275,12 +277,9 @@
     <string name="dev_flows_reraced_detail">Hoeveel van die storingen ongemerkt zijn verplaatst in plaats van te blijven hangen</string>
     <string name="dev_formation_poll">Snelle peiling eerste exit</string>
     <string name="dev_formation_poll_detail">Hoe vaak een flow die verbinding maakt een leeg venster opnieuw controleert, zodat het eerste verzoek vertrekt zodra de eerste exit er is. Uit wacht het herhaaltempo van 2 s</string>
-    <string name="dev_fresh_flow_affinity">Harde affiniteit voor nieuwe flows</string>
-    <string name="dev_fresh_flow_affinity_detail">Wijs elke nieuwe verbinding toe aan de exit die het IP-adres of domein al gebruikt. Uit is de standaard: elke gewone nieuwe verbinding komt in de providerrace. Bestaande verbindingen en expliciete pins blijven altijd vast</string>
     <string name="dev_group_follow">Exits op de bank volgen</string>
-    <string name="dev_group_follow_detail">Een exit in quarantaine houdt de nieuwe verbindingen van zijn eigen sites tijdens het begin van de bankperiode, wanneer het oordeel het minst bewezen is, zodat de bank het egress-IP van de site niet opsplitst. Nieuwe sites vermijden hem nog steeds. Uit verspreidt ze</string>
+    <string name="dev_group_follow_compat_detail">Oude compatibiliteitsinstelling, geen uitzondering op de gezondheidscontrole. Gewone nieuwe verbindingen hergebruiken nooit gewaarschuwde of ongezonde exits; ze starten altijd een nieuwe providerrace. Bestaande verbindingen en expliciete pins blijven ongewijzigd.</string>
     <string name="dev_group_follow_window">Volgvenster</string>
-    <string name="dev_group_follow_window_detail">Hoe lang na het begin van een bankperiode nieuwe verbindingen van een site hun exit blijven volgen — vroege bankperiodes zijn meestal vals alarm; een die aanhoudt koerst af op verwijdering en krijgt geen flows meer. Uit verspreidt direct</string>
     <string name="dev_heartbeat">Statushartslag</string>
     <string name="dev_heartbeat_detail">Hoe vaak één regel met de huidige status naar de log wordt geschreven voor later onderzoek. Uit zet hem stil; korter vangt een overgang, langer bewaart meer buffer</string>
     <string name="dev_ip_family">Besturingsverbindingen</string>

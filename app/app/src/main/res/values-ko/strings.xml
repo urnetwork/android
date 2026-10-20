@@ -219,8 +219,10 @@
     <string name="delete">삭제</string>
     <string name="delete_account">계정 삭제</string>
     <string name="delete_account_type_network_name">확인하려면 %1$s을(를) 입력하세요.</string>
+    <string name="dev_affinity_max_time">선호도 최대 유효 시간</string>
+    <string name="dev_affinity_max_time_detail">일반적인 새 연결에서는 원래 연결 생성 후 경과 시간이 이 한도보다 짧은 정상 IP/도메인 출구만 재사용합니다. 기본값은 1분입니다. 0 또는 음수는 재사용을 끕니다. 경고가 있거나 비정상인 출구는 항상 새 경쟁을 시작합니다. 기존 연결과 명시적 고정은 변경하지 않습니다.</string>
     <string name="dev_affinity_performance">성능 기반 선호도</string>
-    <string name="dev_affinity_performance_detail">새 TLS 경쟁에 각 제공자의 확인된 바이트 최대 속도를 공시 대역폭에 대비해 가중치로 반영합니다. 강제 선호도가 켜져 있으면 측정값이 낮은 제공자는 경쟁에서 양보합니다. 기존 연결과 명시적 고정은 그대로 유지됩니다</string>
+    <string name="dev_affinity_performance_detail">새 TLS 경쟁에 각 제공자의 확인된 바이트 최대 속도를 공시 대역폭에 대비해 가중치로 반영합니다. 선호도 유효 시간 한도 내에서도 측정값이 낮은 제공자는 경쟁에서 양보합니다. 기존 연결과 명시적 고정은 그대로 유지됩니다</string>
     <string name="dev_affinity_sticky">사이트 고정 선호도</string>
     <string name="dev_affinity_sticky_detail">사이트의 새 연결은 플로우 한도를 넘더라도 이전 연결이 이미 쓰는 출구에 머물러, 바쁜 사이트가 하나의 송신 IP를 유지합니다. 어떤 출구가 새 사이트를 받을지는 여전히 한도가 정합니다. 끄면 엄격한 한도로 돌아갑니다</string>
     <string name="dev_all">전체</string>
@@ -275,12 +277,9 @@
     <string name="dev_flows_reraced_detail">그 장애 중 멈춰 있지 않고 조용히 옮겨진 수</string>
     <string name="dev_formation_poll">첫 출구 빠른 확인</string>
     <string name="dev_formation_poll_detail">연결 중인 플로우가 빈 창을 다시 확인하는 빈도로, 첫 출구가 들어오자마자 첫 요청이 나갈 수 있게 합니다. 끄면 2초 재시도 간격을 기다립니다</string>
-    <string name="dev_fresh_flow_affinity">새 플로우 강제 선호도</string>
-    <string name="dev_fresh_flow_affinity_detail">각 새 연결을 그 IP나 도메인이 이미 쓰는 출구에 배정합니다. 기본값은 끔이며, 일반적인 새 연결은 모두 제공자 경쟁으로 갑니다. 기존 연결과 명시적 고정은 항상 그대로 유지됩니다</string>
     <string name="dev_group_follow">대기 중인 출구 따라가기</string>
-    <string name="dev_group_follow_detail">격리된 출구는 판정의 근거가 가장 약한 대기 초기에 자기 사이트의 새 연결을 유지해, 대기 때문에 사이트의 송신 IP가 나뉘지 않게 합니다. 새 사이트는 여전히 그 출구를 피합니다. 끄면 흩어지게 합니다</string>
+    <string name="dev_group_follow_compat_detail">이전 호환성 설정이며 상태 검사를 무시하는 옵션이 아닙니다. 일반적인 새 연결은 경고가 있거나 비정상인 출구를 재사용하지 않으며 항상 새 제공자 경쟁을 시작합니다. 기존 연결과 명시적 고정은 변경하지 않습니다.</string>
     <string name="dev_group_follow_window">따라가기 기간</string>
-    <string name="dev_group_follow_window_detail">대기가 시작된 뒤 사이트의 새 연결이 출구를 계속 따라가는 시간입니다. 초기 대기는 대개 오경보이며, 오래 이어지는 대기는 제외로 향하고 플로우를 더 받지 않습니다. 끄면 바로 흩어지게 합니다</string>
     <string name="dev_heartbeat">상태 하트비트</string>
     <string name="dev_heartbeat_detail">나중에 분석할 수 있도록 현재 상태를 요약한 한 줄을 로그에 기록하는 빈도입니다. 끄면 기록하지 않습니다. 짧을수록 상태 변화를 잘 잡고, 길수록 버퍼를 더 많이 보관합니다</string>
     <string name="dev_ip_family">제어 연결</string>

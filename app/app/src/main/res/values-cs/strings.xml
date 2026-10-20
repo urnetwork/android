@@ -219,8 +219,10 @@
     <string name="delete">Odstranit</string>
     <string name="delete_account">Odstranit účet</string>
     <string name="delete_account_type_network_name">Pro potvrzení napište %1$s.</string>
+    <string name="dev_affinity_max_time">Maximální stáří afinity</string>
+    <string name="dev_affinity_max_time_detail">U běžných nových připojení znovu použijte jen zdravý výstup IP/domény, pokud je stáří původního připojení od jeho vytvoření pod tímto limitem. Výchozí: 1 minuta. Nula nebo záporná hodnota opětovné použití vypne. Výstupy s varováním nebo nezdravé výstupy vždy přejdou do závodu. Stávající připojení a explicitní připnutí se nemění.</string>
     <string name="dev_affinity_performance">Afinita podle výkonu</string>
-    <string name="dev_affinity_performance_detail">Váží nové závody TLS podle špičkové rychlosti potvrzených bajtů každého poskytovatele vzhledem k jeho inzerované šířce pásma. Se zapnutou pevnou afinitou ustupují poskytovatelé s nízkým naměřeným výkonem závodu. Stávající připojení a explicitní připnutí zůstávají beze změny</string>
+    <string name="dev_affinity_performance_detail">Váží nové závody TLS podle špičkové rychlosti potvrzených bajtů každého poskytovatele vzhledem k jeho inzerované šířce pásma. V rámci limitu stáří afinity ustupují poskytovatelé s nízkým naměřeným výkonem závodu. Stávající připojení a explicitní připnutí zůstávají beze změny</string>
     <string name="dev_affinity_sticky">Trvalá afinita webu</string>
     <string name="dev_affinity_sticky_detail">Nová připojení webu zůstávají na výstupu, který už používají ta předchozí, i nad limit toků, takže vytížený web si ponechá jednu výstupní IP. Limit dál určuje, které výstupy přijímají nové weby. Vypnuto obnoví přísný limit</string>
     <string name="dev_all">Vše</string>
@@ -275,12 +277,9 @@
     <string name="dev_flows_reraced_detail">Kolik z těch selhání bylo potichu přesunuto, místo aby zůstala viset</string>
     <string name="dev_formation_poll">Rychlá kontrola prvního výstupu</string>
     <string name="dev_formation_poll_detail">Jak často připojující se tok znovu zkontroluje prázdné okno, aby první požadavek odešel hned, jak dorazí první výstup. Vypnuto čeká 2s tempo opakování</string>
-    <string name="dev_fresh_flow_affinity">Pevná afinita nových toků</string>
-    <string name="dev_fresh_flow_affinity_detail">Přiřadí každé nové připojení výstupu, který už používá jeho IP nebo doména. Výchozí je vypnuto: každé běžné nové připojení se dostane do závodu poskytovatelů. Stávající připojení a explicitní připnutí zůstávají vždy beze změny</string>
     <string name="dev_group_follow">Sledovat výstupy na lavičce</string>
-    <string name="dev_group_follow_detail">Výstup v karanténě si ponechá nová připojení svých vlastních webů během začátku pobytu na lavičce, kdy je verdikt nejméně prokázaný, aby lavička nerozdělila výstupní IP webu. Nové weby se mu dál vyhýbají. Vypnuto je rozptýlí</string>
+    <string name="dev_group_follow_compat_detail">Starší nastavení kompatibility, nikoli obejití kontroly zdraví. Běžná nová připojení nikdy znovu nepoužijí výstupy s varováním nebo nezdravé výstupy; vždy zahájí nový závod poskytovatelů. Stávající připojení a explicitní připnutí se nemění.</string>
     <string name="dev_group_follow_window">Okno sledování</string>
-    <string name="dev_group_follow_window_detail">Jak dlouho od začátku pobytu na lavičce nová připojení webu dál sledují svůj výstup — rané lavičky bývají plané poplachy; ta, která trvá, směřuje k odstranění a přestane přijímat toky. Vypnuto rozptýlí okamžitě</string>
     <string name="dev_heartbeat">Tep stavu</string>
     <string name="dev_heartbeat_detail">Jak často se do logu zapíše jeden řádek se shrnutím aktuálního stavu pro pozdější analýzu. Vypnuto ho ztiší; kratší zachytí přechod, delší drží víc vyrovnávací paměti</string>
     <string name="dev_ip_family">Řídicí připojení</string>

@@ -611,9 +611,13 @@ class DeveloperViewModel @Inject constructor(
         update { s -> s.affinityStickyPastCap = sticky }
     }
 
-    /** Restores legacy hard IP/domain inheritance for controlled A/B runs. */
-    val setFreshFlowAffinity: (Boolean) -> Unit = { enabled ->
-        update { s -> s.freshFlowAffinity = enabled }
+    /**
+     * Caps healthy donor reuse by original connection creation age, setup included.
+     * Reuse does not renew its origin. Nonpositive values disable reuse;
+     * warned or unhealthy exits always race.
+     */
+    val setAffinityMaxTimeMillis: (Long) -> Unit = { millis ->
+        update { s -> s.affinityMaxTimeMillis = millis }
     }
 
     /**
@@ -625,20 +629,16 @@ class DeveloperViewModel @Inject constructor(
     }
 
     /**
-     * Lets a quarantined exit keep inheriting new flows from sites already on
-     * it (through the early part of the bench, when the verdict is least
-     * proven), so a bench does not split the site's egress IP. Off restores
-     * the scatter, the A/B point.
+     * Retained compatibility value, not a fresh-flow health override.
+     * Warned or unhealthy donors always yield to a fresh provider race.
      */
     val setQuarantineGroupFollow: (Boolean) -> Unit = { follow ->
         update { s -> s.quarantineGroupFollow = follow }
     }
 
     /**
-     * How long into a quarantine episode a site's new connections keep
-     * following their benched exit. Early benches are usually false alarms;
-     * one that sustains is trending toward removal and stops collecting
-     * flows first. 0 disables the follow.
+     * Retained compatibility duration. It cannot extend ordinary fresh-flow
+     * donor eligibility past a warning or unhealthy verdict.
      */
     val setGroupFollowWindowMillis: (Long) -> Unit = { millis ->
         update { s -> s.groupFollowWindowMillis = millis }
@@ -920,6 +920,9 @@ class DeveloperViewModel @Inject constructor(
         // before the fix -- so each one can still be switched off entirely.
         // the defaults in connect's DefaultMultiClientSettings are marked.
 
+        /** connect default 1 minute; 0 disables ordinary donor reuse. */
+        val AFFINITY_MAX_TIME_PRESETS = listOf(0L, 15_000L, 30_000L, 60_000L, 120_000L, 300_000L)
+
         /** connect default 3s */
         val SEND_STALL_PRESETS = listOf(0L, 1_000L, 2_000L, 3_000L, 5_000L, 10_000L)
 
@@ -1022,10 +1025,8 @@ class DeveloperViewModel @Inject constructor(
         val PROBE_SAMPLE_PRESETS = listOf(0, 4, 16, 64)
 
         /**
-         * connect default 45s. How long into a bench a site keeps following
-         * its exit; 0 turns the follow off. 45s covers the observed
-         * false-positive bench range (every field acquittal landed inside
-         * ~50s) while stopping before the ~60s drain-to-conviction zone.
+         * Legacy compatibility values only; no preset allows ordinary new
+         * connections to inherit a warned or unhealthy donor.
          */
         val GROUP_FOLLOW_WINDOW_PRESETS = listOf(0L, 15_000L, 45_000L, 90_000L)
 

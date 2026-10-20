@@ -219,8 +219,10 @@
     <string name="delete">Eliminar</string>
     <string name="delete_account">Eliminar cuenta</string>
     <string name="delete_account_type_network_name">Escribe %1$s para confirmar.</string>
+    <string name="dev_affinity_max_time">Edad máxima de afinidad</string>
+    <string name="dev_affinity_max_time_detail">Para conexiones nuevas normales, reutiliza solo una salida de IP/dominio en buen estado si la edad de la conexión original desde su creación es menor que este límite. Predeterminado: 1 minuto. Cero o un valor negativo desactiva la reutilización. Las salidas con advertencias o en mal estado siempre pasan a la carrera. Las conexiones existentes y las fijaciones explícitas no cambian.</string>
     <string name="dev_affinity_performance">Afinidad según rendimiento</string>
-    <string name="dev_affinity_performance_detail">Pondera las nuevas carreras TLS según la tasa máxima de bytes confirmados de cada proveedor en relación con su ancho de banda anunciado. Con la afinidad estricta activada, los proveedores con mediciones bajas ceden ante la carrera. Las conexiones existentes y las fijaciones explícitas no cambian</string>
+    <string name="dev_affinity_performance_detail">Pondera las nuevas carreras TLS según la tasa máxima de bytes confirmados de cada proveedor en relación con su ancho de banda anunciado. Dentro del límite de edad de afinidad, los proveedores con mediciones bajas ceden ante la carrera. Las conexiones existentes y las fijaciones explícitas no cambian</string>
     <string name="dev_affinity_sticky">Afinidad persistente por sitio</string>
     <string name="dev_affinity_sticky_detail">Las conexiones nuevas de un sitio se quedan en la salida que ya usan las anteriores, incluso por encima del límite de flujos, para que un sitio con mucho tráfico conserve una sola IP de salida. El límite sigue decidiendo qué salidas aceptan sitios nuevos. Si está desactivado, se restablece el límite estricto</string>
     <string name="dev_all">Todos</string>
@@ -275,12 +277,9 @@
     <string name="dev_flows_reraced_detail">Cuántas de esas fallas se movieron sin que se notara en lugar de quedarse colgadas</string>
     <string name="dev_formation_poll">Sondeo rápido de la primera salida</string>
     <string name="dev_formation_poll_detail">Con qué frecuencia un flujo que se está conectando vuelve a revisar una ventana vacía, para que la primera solicitud salga justo cuando llega la primera salida. Si está desactivado, se espera el ritmo de reintento de 2 s</string>
-    <string name="dev_fresh_flow_affinity">Afinidad estricta para flujos nuevos</string>
-    <string name="dev_fresh_flow_affinity_detail">Asigna cada conexión nueva a la salida que ya usa su IP o dominio. Desactivado es el valor predeterminado: cada conexión nueva normal llega a la carrera de proveedores. Las conexiones existentes y las fijaciones explícitas nunca cambian</string>
     <string name="dev_group_follow">Seguir a las salidas en la banca</string>
-    <string name="dev_group_follow_detail">Una salida en cuarentena conserva las conexiones nuevas de sus propios sitios durante el inicio de la banca, cuando el veredicto es menos seguro, para que la banca no divida la IP de salida del sitio. Los sitios nuevos la siguen evitando. Si está desactivado, se dispersan</string>
+    <string name="dev_group_follow_compat_detail">Ajuste de compatibilidad heredado, no una excepción al estado de salud. Las conexiones nuevas normales nunca reutilizan salidas con advertencias o en mal estado; siempre inician una nueva carrera de proveedores. Las conexiones existentes y las fijaciones explícitas no cambian.</string>
     <string name="dev_group_follow_window">Ventana de seguimiento</string>
-    <string name="dev_group_follow_window_detail">Durante cuánto tiempo, ya en la banca, las conexiones nuevas de un sitio siguen a su salida — las bancas tempranas suelen ser falsas alarmas; una que se prolonga tiende a la eliminación y deja de recibir flujos. Si está desactivado, se dispersan de inmediato</string>
     <string name="dev_heartbeat">Latido de estado</string>
     <string name="dev_heartbeat_detail">Con qué frecuencia se escribe en el registro una línea que resume el estado actual para un análisis forense posterior. Si está desactivado, se silencia; un intervalo más corto detecta una transición y uno más largo conserva más búfer</string>
     <string name="dev_ip_family">Conexiones de control</string>

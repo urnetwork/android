@@ -646,11 +646,12 @@ private fun DeveloperContent(developerViewModel: DeveloperViewModel) {
         checked = reliability?.affinityStickyPastCap == true,
         toggle = developerViewModel.setAffinityStickyPastCap,
     )
-    DeveloperToggle(
-        label = stringResource(id = R.string.dev_fresh_flow_affinity),
-        detail = stringResource(id = R.string.dev_fresh_flow_affinity_detail),
-        checked = reliability?.freshFlowAffinity == true,
-        toggle = developerViewModel.setFreshFlowAffinity,
+    DeveloperDurationSetting(
+        label = stringResource(id = R.string.dev_affinity_max_time),
+        detail = stringResource(id = R.string.dev_affinity_max_time_detail),
+        millis = reliability?.affinityMaxTimeMillis ?: 0L,
+        presets = DeveloperViewModel.AFFINITY_MAX_TIME_PRESETS,
+        onSelect = developerViewModel.setAffinityMaxTimeMillis,
     )
     DeveloperToggle(
         label = stringResource(id = R.string.dev_affinity_performance),
@@ -660,13 +661,13 @@ private fun DeveloperContent(developerViewModel: DeveloperViewModel) {
     )
     DeveloperToggle(
         label = stringResource(id = R.string.dev_group_follow),
-        detail = stringResource(id = R.string.dev_group_follow_detail),
+        detail = stringResource(id = R.string.dev_group_follow_compat_detail),
         checked = reliability?.quarantineGroupFollow == true,
         toggle = developerViewModel.setQuarantineGroupFollow,
     )
     DeveloperDurationSetting(
         label = stringResource(id = R.string.dev_group_follow_window),
-        detail = stringResource(id = R.string.dev_group_follow_window_detail),
+        detail = stringResource(id = R.string.dev_group_follow_compat_detail),
         millis = reliability?.groupFollowWindowMillis ?: 0L,
         presets = DeveloperViewModel.GROUP_FOLLOW_WINDOW_PRESETS,
         onSelect = developerViewModel.setGroupFollowWindowMillis,

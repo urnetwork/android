@@ -219,8 +219,10 @@
     <string name="delete">Excluir</string>
     <string name="delete_account">Excluir conta</string>
     <string name="delete_account_type_network_name">Digite %1$s para confirmar.</string>
+    <string name="dev_affinity_max_time">Idade máxima da afinidade</string>
+    <string name="dev_affinity_max_time_detail">Para novas conexões comuns, reutilize apenas uma saída IP/domínio saudável se o tempo desde a criação da conexão original for inferior a este limite. Padrão: 1 minuto. Zero ou um valor negativo desativa a reutilização. Saídas com avisos ou sem saúde sempre iniciam uma corrida. Conexões existentes e fixações explícitas não mudam.</string>
     <string name="dev_affinity_performance">Afinidade por desempenho</string>
-    <string name="dev_affinity_performance_detail">Pondera as novas corridas TLS pela taxa máxima de bytes confirmados de cada provedor em relação à largura de banda anunciada. Com a afinidade estrita ativada, provedores com medições baixas cedem à corrida. Conexões existentes e fixações explícitas não mudam</string>
+    <string name="dev_affinity_performance_detail">Pondera as novas corridas TLS pela taxa máxima de bytes confirmados de cada provedor em relação à largura de banda anunciada. Dentro do limite de idade da afinidade, provedores com medições baixas cedem à corrida. Conexões existentes e fixações explícitas não mudam</string>
     <string name="dev_affinity_sticky">Afinidade fixa por site</string>
     <string name="dev_affinity_sticky_detail">As novas conexões de um site ficam na saída que as anteriores já usam, mesmo acima do limite de fluxos, para que um site movimentado mantenha um único IP de saída. O limite ainda decide quais saídas recebem novos sites. Desativado restaura o limite estrito</string>
     <string name="dev_all">Todos</string>
@@ -275,12 +277,9 @@
     <string name="dev_flows_reraced_detail">Quantas dessas falhas foram movidas discretamente em vez de ficarem travadas</string>
     <string name="dev_formation_poll">Verificação rápida da primeira saída</string>
     <string name="dev_formation_poll_detail">Com que frequência um fluxo em conexão verifica de novo uma janela vazia, para que a primeira solicitação saia logo que a primeira saída chega. Desativado espera o ritmo de nova tentativa de 2 s</string>
-    <string name="dev_fresh_flow_affinity">Afinidade estrita para novos fluxos</string>
-    <string name="dev_fresh_flow_affinity_detail">Atribui cada nova conexão à saída que seu IP ou domínio já usa. Desativado é o padrão: toda nova conexão comum chega à corrida de provedores. Conexões existentes e fixações explícitas nunca mudam</string>
     <string name="dev_group_follow">Seguir saídas no banco</string>
-    <string name="dev_group_follow_detail">Uma saída em quarentena mantém as novas conexões dos seus próprios sites no início do banco, quando o veredito é menos comprovado, para que o banco não divida o IP de saída do site. Novos sites continuam evitando-a. Desativado os dispersa</string>
+    <string name="dev_group_follow_compat_detail">Configuração de compatibilidade antiga, não uma exceção à verificação de saúde. Novas conexões comuns nunca reutilizam saídas com avisos ou sem saúde; sempre iniciam uma nova corrida de provedores. Conexões existentes e fixações explícitas não mudam.</string>
     <string name="dev_group_follow_window">Janela de acompanhamento</string>
-    <string name="dev_group_follow_window_detail">Por quanto tempo, já no banco, as novas conexões de um site continuam seguindo sua saída — bancos iniciais costumam ser alarmes falsos; um que se prolonga tende à remoção e deixa de receber fluxos. Desativado dispersa imediatamente</string>
     <string name="dev_heartbeat">Pulsação de estado</string>
     <string name="dev_heartbeat_detail">Com que frequência uma linha que resume o estado atual é gravada no log para análise posterior. Desativado a silencia; mais curto detecta uma transição, mais longo guarda mais buffer</string>
     <string name="dev_ip_family">Conexões de controle</string>

@@ -704,22 +704,42 @@ capture_device_fleet() {
 # Enumeration alone never grants mutation or cleanup authority. Recheck the
 # owned emulator identity or exact authorized physical lane at each boundary.
 authorize_selected_device() {
-  local target_serial="$1" reserved
+  local target_serial="$1" diagnostic_file="${2:-}" reserved authorization_status
   for reserved in "${reserved_device_serials[@]}"; do
-    [ "$target_serial" != "$reserved" ] || return 1
+    [ "$target_serial" != "$reserved" ] || {
+      [ -z "$diagnostic_file" ] || \
+        android_acceptance_authorization_failure "$diagnostic_file" selection not-authorized not-run || true
+      return 1
+    }
   done
   if [ -n "$started_emulator_serial" ] && [ "$target_serial" = "$started_emulator_serial" ]; then
-    android_acceptance_runner_owns_emulator \
-      "$adb" "$target_serial" "$avd_name" "$emulator_pid" "$emulator_owner_token"
+    if android_acceptance_runner_owns_emulator \
+        "$adb" "$target_serial" "$avd_name" "$emulator_pid" "$emulator_owner_token"; then
+      return 0
+    else
+      authorization_status=$?
+      [ -z "$diagnostic_file" ] || \
+        android_acceptance_authorization_failure "$diagnostic_file" owned-emulator ownership-unverified unknown || true
+      return "$authorization_status"
+    fi
   elif [ -n "$peer_serial" ] && [ "$target_serial" = "$peer_serial" ]; then
-    runner_owns_peer_emulator
+    if runner_owns_peer_emulator; then
+      return 0
+    else
+      authorization_status=$?
+      [ -z "$diagnostic_file" ] || \
+        android_acceptance_authorization_failure "$diagnostic_file" peer-emulator ownership-unverified unknown || true
+      return "$authorization_status"
+    fi
   elif [ "$execution_mode" = canonical ] && [ -n "$canonical_solana_serial" ] && \
        [ "$target_serial" = "$canonical_solana_serial" ]; then
-    android_acceptance_validate_canonical_solana_device "$adb" "$target_serial"
+    android_acceptance_validate_canonical_solana_device "$adb" "$target_serial" "$diagnostic_file"
   elif [ "$execution_mode" = diagnostic ] && [ "${diagnostic_owned_avd:-0}" -eq 0 ] && \
        [ "$target_serial" = "$diagnostic_device" ]; then
-    android_acceptance_adb_device_ready "$adb" "$target_serial"
+    android_acceptance_adb_device_ready "$adb" "$target_serial" "$diagnostic_file"
   else
+    [ -z "$diagnostic_file" ] || \
+      android_acceptance_authorization_failure "$diagnostic_file" selection not-authorized not-run || true
     return 1
   fi
 }
@@ -2329,12 +2349,16 @@ for target in $build_targets; do
 
     echo
     echo "[android acceptance] ════════ $target on $serial ($device_id) ════════"
-    if ! authorize_selected_device "$serial"; then
+    if ! authorize_selected_device "$serial" "$out/authorization-failure.txt"; then
       echo "selected Android device $serial is no longer available or authorized" >&2
-      write_target_diagnostic "$out" "selected Android device became unavailable"
+      write_target_diagnostic "$out" "Android device authorization failed; see authorization-failure.txt"
+      authorization_repro="./test-main.sh --profile=$profile --flavor=$target"
+      if [ "$execution_mode" = diagnostic ]; then
+        authorization_repro="./test-main.sh $diagnostic_selector --diagnostic-case=$diagnostic_case --flavor=$target"
+      fi
       record_acceptance_result \
         "$out" "$target" device failed 1 \
-        "adb -s $serial get-state" \
+        "$authorization_repro" \
         "$build_id" "$input_fingerprint" "$out/runner-error.log" || overall=1
       if [ "$execution_mode" = diagnostic ]; then
         record_device_cases "$device_id" "$serial" "$target" FAIL "device became unavailable" \

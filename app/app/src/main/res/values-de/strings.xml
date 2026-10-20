@@ -219,8 +219,10 @@
     <string name="delete">Löschen</string>
     <string name="delete_account">Konto löschen</string>
     <string name="delete_account_type_network_name">Gib zur Bestätigung %1$s ein.</string>
+    <string name="dev_affinity_max_time">Maximales Affinitätsalter</string>
+    <string name="dev_affinity_max_time_detail">Für gewöhnliche neue Verbindungen nur einen gesunden IP-/Domain-Exit wiederverwenden, wenn seit der Erstellung der ursprünglichen Verbindung weniger Zeit als dieses Limit vergangen ist. Standard: 1 Minute. Null oder negative Werte deaktivieren die Wiederverwendung. Bei gewarnten oder ungesunden Exits wird immer ein Race gestartet. Bestehende Verbindungen und explizite Pins bleiben unverändert.</string>
     <string name="dev_affinity_performance">Leistungsbewusste Affinität</string>
-    <string name="dev_affinity_performance_detail">Gewichtet neue TLS-Races nach der höchsten Rate bestätigter Bytes jedes Anbieters im Verhältnis zu seiner angegebenen Bandbreite. Bei aktivierter harter Affinität weichen Anbieter mit niedrigen Messwerten dem Race. Bestehende Verbindungen und explizite Pins bleiben unverändert</string>
+    <string name="dev_affinity_performance_detail">Gewichtet neue TLS-Races nach der höchsten Rate bestätigter Bytes jedes Anbieters im Verhältnis zu seiner angegebenen Bandbreite. Innerhalb des Affinitätsalterslimits weichen Anbieter mit niedrigen Messwerten dem Race. Bestehende Verbindungen und explizite Pins bleiben unverändert</string>
     <string name="dev_affinity_sticky">Feste Website-Affinität</string>
     <string name="dev_affinity_sticky_detail">Neue Verbindungen einer Website bleiben auf dem Exit, den ihre früheren bereits nutzen, auch über das Flow-Limit hinaus, sodass eine stark genutzte Website eine Egress-IP behält. Das Limit bestimmt weiterhin, welche Exits neue Websites aufnehmen. Aus: stellt das strikte Limit wieder her</string>
     <string name="dev_all">Alle</string>
@@ -275,12 +277,9 @@
     <string name="dev_flows_reraced_detail">Wie viele dieser Ausfälle unbemerkt verschoben wurden, statt hängen zu bleiben</string>
     <string name="dev_formation_poll">Schnelle Abfrage des ersten Exits</string>
     <string name="dev_formation_poll_detail">Wie oft ein Flow im Verbindungsaufbau ein leeres Fenster erneut prüft, damit die erste Anfrage direkt nach dem Eintreffen des ersten Exits losgeht. Aus: wartet den 2-s-Wiederholungstakt ab</string>
-    <string name="dev_fresh_flow_affinity">Harte Affinität für neue Flows</string>
-    <string name="dev_fresh_flow_affinity_detail">Weist jede neue Verbindung dem Exit zu, den ihre IP oder Domain bereits nutzt. Aus ist die Voreinstellung: Jede gewöhnliche neue Verbindung geht in das Anbieter-Race. Bestehende Verbindungen und explizite Pins bleiben immer unverändert</string>
     <string name="dev_group_follow">Exits auf der Ersatzbank folgen</string>
-    <string name="dev_group_follow_detail">Ein Exit in Quarantäne behält in der frühen Ersatzbankphase, in der das Urteil am wenigsten gesichert ist, die neuen Verbindungen seiner eigenen Websites, damit die Ersatzbank die Egress-IP der Website nicht aufteilt. Neue Websites meiden ihn weiterhin. Aus: verteilt sie</string>
+    <string name="dev_group_follow_compat_detail">Alte Kompatibilitätseinstellung, keine Ausnahme von der Zustandsprüfung. Gewöhnliche neue Verbindungen verwenden gewarnte oder ungesunde Exits nie wieder, sondern starten immer ein neues Anbieter-Race. Bestehende Verbindungen und explizite Pins bleiben unverändert.</string>
     <string name="dev_group_follow_window">Folgefenster</string>
-    <string name="dev_group_follow_window_detail">Wie lange während einer Ersatzbankphase die neuen Verbindungen einer Website ihrem Exit weiter folgen — frühe Ersatzbankphasen sind meist Fehlalarme; eine, die anhält, läuft auf eine Entfernung hinaus und nimmt keine Flows mehr auf. Aus: verteilt sofort</string>
     <string name="dev_heartbeat">Status-Heartbeat</string>
     <string name="dev_heartbeat_detail">Wie oft eine Zeile mit einer Zusammenfassung des aktuellen Zustands für spätere Analysen ins Log geschrieben wird. Aus: schaltet sie stumm; kürzer erfasst Übergänge, länger behält mehr Puffer</string>
     <string name="dev_ip_family">Steuerverbindungen</string>

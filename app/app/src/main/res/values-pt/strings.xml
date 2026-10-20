@@ -219,8 +219,10 @@
     <string name="delete">Eliminar</string>
     <string name="delete_account">Eliminar conta</string>
     <string name="delete_account_type_network_name">Escreva %1$s para confirmar.</string>
+    <string name="dev_affinity_max_time">Idade máxima da afinidade</string>
+    <string name="dev_affinity_max_time_detail">Para novas ligações comuns, reutiliza apenas uma saída IP/domínio saudável se o tempo desde a criação da ligação original for inferior a este limite. Predefinição: 1 minuto. Zero ou um valor negativo desativa a reutilização. Saídas com avisos ou sem saúde iniciam sempre uma corrida. As ligações existentes e as fixações explícitas não mudam.</string>
     <string name="dev_affinity_performance">Afinidade por desempenho</string>
-    <string name="dev_affinity_performance_detail">Pondera as novas corridas TLS pela taxa máxima de bytes confirmados de cada fornecedor em relação à largura de banda anunciada. Com a afinidade estrita ativada, os fornecedores com medições baixas cedem à corrida. As ligações existentes e as fixações explícitas não mudam</string>
+    <string name="dev_affinity_performance_detail">Pondera as novas corridas TLS pela taxa máxima de bytes confirmados de cada fornecedor em relação à largura de banda anunciada. Dentro do limite de idade da afinidade, os fornecedores com medições baixas cedem à corrida. As ligações existentes e as fixações explícitas não mudam</string>
     <string name="dev_affinity_sticky">Afinidade fixa por site</string>
     <string name="dev_affinity_sticky_detail">As novas ligações de um site ficam na saída que as anteriores já usam, mesmo acima do limite de fluxos, para que um site movimentado mantenha um único IP de saída. O limite continua a decidir que saídas recebem novos sites. Desativado repõe o limite estrito</string>
     <string name="dev_all">Todos</string>
@@ -275,12 +277,9 @@
     <string name="dev_flows_reraced_detail">Quantas dessas falhas foram movidas discretamente em vez de ficarem penduradas</string>
     <string name="dev_formation_poll">Verificação rápida da primeira saída</string>
     <string name="dev_formation_poll_detail">Com que frequência um fluxo em ligação volta a verificar uma janela vazia, para que o primeiro pedido saia logo que a primeira saída chega. Desativado espera o ritmo de nova tentativa de 2 s</string>
-    <string name="dev_fresh_flow_affinity">Afinidade estrita para novos fluxos</string>
-    <string name="dev_fresh_flow_affinity_detail">Atribui cada nova ligação à saída que o seu IP ou domínio já usa. Desativado é a predefinição: todas as novas ligações comuns chegam à corrida de fornecedores. As ligações existentes e as fixações explícitas nunca mudam</string>
     <string name="dev_group_follow">Seguir saídas no banco</string>
-    <string name="dev_group_follow_detail">Uma saída em quarentena mantém as novas ligações dos seus próprios sites no início do banco, quando o veredicto está menos comprovado, para que o banco não divida o IP de saída do site. Os novos sites continuam a evitá-la. Desativado dispersa-as</string>
+    <string name="dev_group_follow_compat_detail">Definição de compatibilidade antiga, não uma exceção à verificação de saúde. As novas ligações comuns nunca reutilizam saídas com avisos ou sem saúde; iniciam sempre uma nova corrida de fornecedores. As ligações existentes e as fixações explícitas não mudam.</string>
     <string name="dev_group_follow_window">Janela de acompanhamento</string>
-    <string name="dev_group_follow_window_detail">Durante quanto tempo, já no banco, as novas ligações de um site continuam a seguir a sua saída — os bancos iniciais costumam ser falsos alarmes; um que se prolonga tende para a remoção e deixa de receber fluxos. Desativado dispersa de imediato</string>
     <string name="dev_heartbeat">Pulsação de estado</string>
     <string name="dev_heartbeat_detail">Com que frequência uma linha que resume o estado atual é escrita no log para análise posterior. Desativado silencia-a; mais curto deteta uma transição, mais longo guarda mais buffer</string>
     <string name="dev_ip_family">Ligações de controlo</string>

@@ -1092,13 +1092,81 @@ remove_android_acceptance_run_dir() {
   rm -rf -- "$run_dir"
 }
 
-android_acceptance_adb_device_ready() {
-  local adb="$1" serial="$2" state
+# Retain one fixed-schema authorization failure in the caller's private cell.
+# Never retain device values, command output, serials or credentials. An absent
+# sink keeps existing read-only callers unchanged; a failed write cannot grant
+# authority. The caller owns the existing parent directory.
+android_acceptance_authorization_failure() {
+  local diagnostic_file="$1" stage="$2" outcome="$3" command_status="$4"
+  local observed_utc temporary parent
 
-  if ! state="$(timeout 15 "$adb" -s "$serial" get-state </dev/null 2>/dev/null)"; then
+  [ -n "$diagnostic_file" ] || return 0
+  case "$diagnostic_file" in *$'\r'*|*$'\n'*) return 2 ;; esac
+  case "$stage" in
+    selection|owned-emulator|peer-emulator|adb-state|serial|qemu|boot-qemu|\
+    emulator-flags|identity-manufacturer|identity-brand|identity-model|\
+    identity-name|identity-device|hardware|api|abi) ;;
+    *) return 2 ;;
+  esac
+  case "$outcome:$command_status" in
+    command-failed:*)
+      case "$command_status" in ''|*[!0-9]*) return 2 ;; esac
+      [ "${#command_status}" -le 3 ] && [ "$command_status" -ge 1 ] && \
+        [ "$command_status" -le 255 ] || return 2
+      ;;
+    value-mismatch:0|unsupported:0|not-authorized:not-run|ownership-unverified:unknown) ;;
+    *) return 2 ;;
+  esac
+  parent="$(dirname "$diagnostic_file")"
+  [ -d "$parent" ] && [ ! -L "$parent" ] && \
+    [ ! -e "$diagnostic_file" ] && [ ! -L "$diagnostic_file" ] || return 1
+  observed_utc="$(date -u +%Y-%m-%dT%H:%M:%SZ)" || return 1
+  temporary="$(mktemp "${diagnostic_file}.tmp.XXXXXX")" || return 1
+  if ! printf '%s\n' 'version=1' 'boundary=preinstall-authorization' \
+      "stage=$stage" "outcome=$outcome" "command_exit_status=$command_status" \
+      "observed_utc=$observed_utc" >"$temporary" || \
+      ! chmod 600 "$temporary" || ! ln "$temporary" "$diagnostic_file"; then
+    rm -f "$temporary"
     return 1
   fi
-  [ "$(printf '%s' "$state" | tr -d '\r\n')" = device ]
+  rm -f "$temporary"
+}
+
+# Capture the status of the actual bounded ADB command, before whitespace
+# normalization. The optional receipt has no raw stdout/stderr; a status such
+# as 124 is evidence of that exit status, not proof of why the command exited.
+android_acceptance_authorization_read() {
+  local diagnostic_file="$1" stage="$2" adb="$3" serial="$4" value command_status
+  shift 4
+  if value="$(timeout 15 "$adb" -s "$serial" "$@" </dev/null 2>/dev/null)"; then
+    printf '%s' "$value" | tr -d '\r\n'
+  else
+    command_status=$?
+    android_acceptance_authorization_failure \
+      "$diagnostic_file" "$stage" command-failed "$command_status" || \
+      echo "could not retain Android authorization failure stage" >&2
+    return 1
+  fi
+}
+
+android_acceptance_adb_device_ready() {
+  local adb="$1" serial="$2" diagnostic_file="${3:-}" state
+
+  # Existing lifecycle/ownership callers do not opt into cell diagnostics.
+  if [ -z "$diagnostic_file" ]; then
+    if ! state="$(timeout 15 "$adb" -s "$serial" get-state </dev/null 2>/dev/null)"; then
+      return 1
+    fi
+    [ "$(printf '%s' "$state" | tr -d '\r\n')" = device ]
+    return "$?"
+  fi
+  state="$(android_acceptance_authorization_read \
+    "$diagnostic_file" adb-state "$adb" "$serial" get-state)" || return 1
+  if [ "$state" != device ]; then
+    android_acceptance_authorization_failure "$diagnostic_file" adb-state value-mismatch 0 || \
+      echo "could not retain Android authorization failure stage" >&2
+    return 1
+  fi
 }
 
 android_acceptance_write_readiness_status() {
@@ -1980,32 +2048,55 @@ android_acceptance_canonical_solana_serial() {
 # installing, or cleaning up packages. Do not substitute a ready foreign phone
 # or an emulator whose model was configured to look like Solana hardware.
 android_acceptance_validate_canonical_solana_device() {
-  local adb="$1" serial="$2" actual qemu boot_qemu api abis value property
+  local adb="$1" serial="$2" diagnostic_file="${3:-}" actual qemu boot_qemu api abis value property
   local -a identity=()
 
   [ "$serial" = "$(android_acceptance_canonical_solana_serial)" ] || {
     echo "physical Solana device is outside canonical acceptance authorization" >&2
+    android_acceptance_authorization_failure "$diagnostic_file" selection not-authorized not-run || true
     return 1
   }
-  android_acceptance_adb_device_ready "$adb" "$serial" || return 1
-  actual="$(timeout 15 "$adb" -s "$serial" get-serialno </dev/null | tr -d '\r\n')" || return 1
-  [ "$actual" = "$serial" ] || return 1
-  qemu="$(timeout 15 "$adb" -s "$serial" shell getprop ro.kernel.qemu </dev/null | tr -d '\r\n')" || return 1
-  boot_qemu="$(timeout 15 "$adb" -s "$serial" shell getprop ro.boot.qemu </dev/null | tr -d '\r\n')" || return 1
-  case "$qemu:$boot_qemu" in :|0:|:0|0:0) ;; *) return 1 ;; esac
+  android_acceptance_adb_device_ready "$adb" "$serial" "$diagnostic_file" || return 1
+  actual="$(android_acceptance_authorization_read \
+    "$diagnostic_file" serial "$adb" "$serial" get-serialno)" || return 1
+  [ "$actual" = "$serial" ] || {
+    android_acceptance_authorization_failure "$diagnostic_file" serial value-mismatch 0 || true
+    return 1
+  }
+  qemu="$(android_acceptance_authorization_read \
+    "$diagnostic_file" qemu "$adb" "$serial" shell getprop ro.kernel.qemu)" || return 1
+  boot_qemu="$(android_acceptance_authorization_read \
+    "$diagnostic_file" boot-qemu "$adb" "$serial" shell getprop ro.boot.qemu)" || return 1
+  case "$qemu:$boot_qemu" in :|0:|:0|0:0) ;; *)
+    android_acceptance_authorization_failure "$diagnostic_file" emulator-flags value-mismatch 0 || true
+    return 1 ;;
+  esac
   for property in ro.product.manufacturer ro.product.brand ro.product.model ro.product.name ro.product.device; do
-    value="$(timeout 15 "$adb" -s "$serial" shell getprop "$property" </dev/null | tr -d '\r\n')" || return 1
+    value="$(android_acceptance_authorization_read \
+      "$diagnostic_file" "identity-${property##*.}" "$adb" "$serial" shell getprop "$property")" || return 1
     identity+=("$value")
   done
   android_acceptance_is_solana_device "${identity[@]}" || {
     echo "authorized physical device is not Saga or Seeker hardware" >&2
+    android_acceptance_authorization_failure "$diagnostic_file" hardware unsupported 0 || true
     return 1
   }
-  api="$(timeout 15 "$adb" -s "$serial" shell getprop ro.build.version.sdk </dev/null | tr -d '\r\n')" || return 1
-  case "$api" in ''|*[!0-9]*) return 1 ;; esac
-  [ "$api" -ge 26 ] || return 1
-  abis="$(timeout 15 "$adb" -s "$serial" shell getprop ro.product.cpu.abilist </dev/null | tr -d '\r\n')" || return 1
-  android_acceptance_device_has_shipping_abi "$abis"
+  api="$(android_acceptance_authorization_read \
+    "$diagnostic_file" api "$adb" "$serial" shell getprop ro.build.version.sdk)" || return 1
+  case "$api" in ''|*[!0-9]*)
+    android_acceptance_authorization_failure "$diagnostic_file" api value-mismatch 0 || true
+    return 1 ;;
+  esac
+  [ "$api" -ge 26 ] || {
+    android_acceptance_authorization_failure "$diagnostic_file" api unsupported 0 || true
+    return 1
+  }
+  abis="$(android_acceptance_authorization_read \
+    "$diagnostic_file" abi "$adb" "$serial" shell getprop ro.product.cpu.abilist)" || return 1
+  android_acceptance_device_has_shipping_abi "$abis" || {
+    android_acceptance_authorization_failure "$diagnostic_file" abi unsupported 0 || true
+    return 1
+  }
 }
 
 # Resolve explicit serials from `adb devices -l`. The fourth argument is an

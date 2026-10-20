@@ -219,8 +219,10 @@
     <string name="delete">删除</string>
     <string name="delete_account">删除帐户</string>
     <string name="delete_account_type_network_name">输入 %1$s 以确认。</string>
+    <string name="dev_affinity_max_time">亲和性最长时效</string>
+    <string name="dev_affinity_max_time_detail">对于普通新连接，仅在原始连接创建至今的时间未达到此上限时，复用健康的 IP／域名出口。默认：1 分钟。零或负值禁用复用。出现警告或不健康的出口始终触发重新竞速。现有连接和显式固定不变。</string>
     <string name="dev_affinity_performance">性能感知亲和性</string>
-    <string name="dev_affinity_performance_detail">按各提供商的峰值已确认字节速率相对其宣称带宽的比例，为新的 TLS 竞速加权。启用强亲和性时，测量值低的提供商会让位于竞速。现有连接和显式固定保持不变</string>
+    <string name="dev_affinity_performance_detail">按各提供商的峰值已确认字节速率相对其宣称带宽的比例，为新的 TLS 竞速加权。在亲和性时效上限内，测量值低的提供商会让位于竞速。现有连接和显式固定保持不变</string>
     <string name="dev_affinity_sticky">站点粘性亲和性</string>
     <string name="dev_affinity_sticky_detail">站点的新连接会留在其早先连接已使用的出口上，即使超过流上限也是如此，从而让繁忙的站点保持同一个出口 IP。上限仍决定哪些出口可以接收新站点。关闭时恢复严格上限</string>
     <string name="dev_all">全部</string>
@@ -275,12 +277,9 @@
     <string name="dev_flows_reraced_detail">这些故障中有多少被静默转移，而没有挂起</string>
     <string name="dev_formation_poll">快速轮询首个出口</string>
     <string name="dev_formation_poll_detail">正在连接的流重新检查空窗口的频率，使第一个请求在首个出口就绪后立即发出。关闭时按 2 秒的重试节奏等待</string>
-    <string name="dev_fresh_flow_affinity">新流强亲和性</string>
-    <string name="dev_fresh_flow_affinity_detail">将每个新连接分配给其 IP 或域名已在使用的出口。默认关闭：每个普通的新连接都会进入提供商竞速。现有连接和显式固定始终保持不变</string>
     <string name="dev_group_follow">跟随被隔离的出口</string>
-    <string name="dev_group_follow_detail">被隔离的出口在隔离初期（此时判定最不可靠）仍会承接其自身站点的新连接，以免隔离导致站点的出口 IP 分散。新站点仍会避开它。关闭时将这些连接分散出去</string>
+    <string name="dev_group_follow_compat_detail">此为旧版兼容设置，不会绕过健康检查。普通新连接绝不复用出现警告或不健康的出口，而是始终启动新的提供商竞速。现有连接和显式固定不变。</string>
     <string name="dev_group_follow_window">跟随窗口</string>
-    <string name="dev_group_follow_window_detail">隔离开始后，站点的新连接继续跟随其出口的时长——早期隔离通常是误报；持续的隔离则趋向于移除，并停止接收新流。关闭时立即分散</string>
     <string name="dev_heartbeat">状态心跳</string>
     <string name="dev_heartbeat_detail">将一行实时状态摘要写入日志以供事后排查的频率。关闭时不写入；间隔越短越容易发现状态切换，越长则保留越多缓冲</string>
     <string name="dev_ip_family">控制连接</string>

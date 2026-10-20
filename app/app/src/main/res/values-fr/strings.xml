@@ -219,8 +219,10 @@
     <string name="delete">Supprimer</string>
     <string name="delete_account">Supprimer le compte</string>
     <string name="delete_account_type_network_name">Saisissez %1$s pour confirmer.</string>
+    <string name="dev_affinity_max_time">Âge maximal de l’affinité</string>
+    <string name="dev_affinity_max_time_detail">Pour les nouvelles connexions ordinaires, réutilise uniquement une sortie IP/domaine saine si le temps écoulé depuis la création de la connexion d’origine est inférieur à cette limite. Valeur par défaut : 1 minute. Zéro ou une valeur négative désactive la réutilisation. Une sortie avertie ou défaillante déclenche toujours une course. Les connexions existantes et les épinglages explicites ne changent pas.</string>
     <string name="dev_affinity_performance">Affinité selon les performances</string>
-    <string name="dev_affinity_performance_detail">Pondère les nouvelles courses TLS selon le débit maximal d’octets acquittés de chaque fournisseur par rapport à sa bande passante annoncée. Avec l’affinité stricte activée, les fournisseurs peu performants cèdent à la course. Les connexions existantes et les épinglages explicites restent fixes</string>
+    <string name="dev_affinity_performance_detail">Pondère les nouvelles courses TLS selon le débit maximal d’octets acquittés de chaque fournisseur par rapport à sa bande passante annoncée. Dans la limite d’âge de l’affinité, les fournisseurs peu performants cèdent à la course. Les connexions existantes et les épinglages explicites restent fixes</string>
     <string name="dev_affinity_sticky">Affinité persistante par site</string>
     <string name="dev_affinity_sticky_detail">Les nouvelles connexions d’un site restent sur la sortie que ses connexions précédentes utilisent déjà, même au-delà du plafond de flux, pour qu’un site chargé garde une seule IP de sortie. Le plafond limite toujours les sorties qui accueillent de nouveaux sites. Désactivé rétablit le plafond strict</string>
     <string name="dev_all">Tous</string>
@@ -275,12 +277,9 @@
     <string name="dev_flows_reraced_detail">Combien de ces échecs ont été déplacés discrètement au lieu de rester en suspens</string>
     <string name="dev_formation_poll">Sondage rapide de la première sortie</string>
     <string name="dev_formation_poll_detail">Fréquence à laquelle un flux en cours de connexion revérifie une fenêtre vide, pour que la première requête parte dès que la première sortie arrive. Désactivé attend le rythme de nouvelle tentative de 2 s</string>
-    <string name="dev_fresh_flow_affinity">Affinité stricte des nouveaux flux</string>
-    <string name="dev_fresh_flow_affinity_detail">Attribue chaque nouvelle connexion à la sortie que son IP ou son domaine utilise déjà. Désactivé par défaut : chaque nouvelle connexion ordinaire passe par la course des fournisseurs. Les connexions existantes et les épinglages explicites restent toujours fixes</string>
     <string name="dev_group_follow">Suivre les sorties mises sur la touche</string>
-    <string name="dev_group_follow_detail">Une sortie en quarantaine garde les nouvelles connexions de ses propres sites au début de la mise sur la touche, quand le verdict est le moins établi, pour que la mise sur la touche ne divise pas l’IP de sortie du site. Les nouveaux sites l’évitent toujours. Désactivé les disperse</string>
+    <string name="dev_group_follow_compat_detail">Ancien réglage de compatibilité, sans dérogation au contrôle de santé. Les nouvelles connexions ordinaires ne réutilisent jamais une sortie avertie ou défaillante ; elles lancent toujours une nouvelle course de fournisseurs. Les connexions existantes et les épinglages explicites ne changent pas.</string>
     <string name="dev_group_follow_window">Fenêtre de suivi</string>
-    <string name="dev_group_follow_window_detail">Combien de temps après une mise sur la touche les nouvelles connexions d’un site suivent encore leur sortie — les mises sur la touche précoces sont souvent de fausses alertes ; une qui dure tend vers le retrait et cesse de recevoir des flux. Désactivé disperse immédiatement</string>
     <string name="dev_heartbeat">Pouls d’état</string>
     <string name="dev_heartbeat_detail">Fréquence à laquelle une ligne résumant l’état en direct est écrite dans le journal pour une analyse ultérieure. Désactivé la coupe ; plus court repère une transition, plus long garde plus de tampon</string>
     <string name="dev_ip_family">Connexions de contrôle</string>

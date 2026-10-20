@@ -219,8 +219,10 @@
     <string name="delete">削除</string>
     <string name="delete_account">アカウントを削除</string>
     <string name="delete_account_type_network_name">確認のため %1$s と入力してください。</string>
+    <string name="dev_affinity_max_time">アフィニティの最大経過時間</string>
+    <string name="dev_affinity_max_time_detail">通常の新しい接続では、元の接続の作成からの経過時間がこの上限未満の、正常な IP／ドメインの出口だけを再利用します。デフォルトは1分です。0または負の値で再利用を無効にします。警告のある出口や異常な出口では常にレースを行います。既存の接続と明示的な固定は変更しません。</string>
     <string name="dev_affinity_performance">性能を考慮したアフィニティ</string>
-    <string name="dev_affinity_performance_detail">新しい TLS レースを、各プロバイダーの確認済みバイトのピーク速度と公表帯域幅の比で重み付けします。ハードアフィニティが有効な場合、測定値の低い提供元はレースで譲ります。既存の接続と明示的な固定は変わりません</string>
+    <string name="dev_affinity_performance_detail">新しい TLS レースを、各プロバイダーの確認済みバイトのピーク速度と公表帯域幅の比で重み付けします。アフィニティの経過時間の上限内でも、測定値の低い提供元はレースで譲ります。既存の接続と明示的な固定は変わりません</string>
     <string name="dev_affinity_sticky">サイトの固定アフィニティ</string>
     <string name="dev_affinity_sticky_detail">サイトの新しい接続は、フロー上限を超えても、以前の接続が使っている出口にとどまります。これにより、混雑したサイトでも出口 IP がひとつに保たれます。新しいサイトをどの出口が受け入れるかは引き続き上限で決まります。オフにすると厳密な上限に戻ります</string>
     <string name="dev_all">すべて</string>
@@ -275,12 +277,9 @@
     <string name="dev_flows_reraced_detail">それらの失敗のうち、止まったままにせず静かに移動できた数</string>
     <string name="dev_formation_poll">最初の出口の高速ポーリング</string>
     <string name="dev_formation_poll_detail">接続中のフローが空のウィンドウを再確認する頻度。最初の出口が到着した直後に最初のリクエストを送れます。オフにすると 2 秒の再試行間隔を待ちます</string>
-    <string name="dev_fresh_flow_affinity">新規フローのハードアフィニティ</string>
-    <string name="dev_fresh_flow_affinity_detail">新しい接続を、その IP またはドメインがすでに使っている出口に割り当てます。デフォルトはオフで、通常の新しい接続はすべてプロバイダーのレースに参加します。既存の接続と明示的な固定は常にそのままです</string>
     <string name="dev_group_follow">待機中の出口に追従</string>
-    <string name="dev_group_follow_detail">隔離された出口は、判定の裏付けが最も弱い待機の初期段階では、自分のサイトの新しい接続を保持します。これにより、待機によってサイトの出口 IP が分かれることを防ぎます。新しいサイトは引き続きその出口を避けます。オフにすると分散させます</string>
+    <string name="dev_group_follow_compat_detail">互換性のために残された設定であり、正常性チェックを無視するものではありません。通常の新しい接続は、警告のある出口や異常な出口を再利用せず、常に新しいプロバイダーレースを行います。既存の接続と明示的な固定は変更しません。</string>
     <string name="dev_group_follow_window">追従ウィンドウ</string>
-    <string name="dev_group_follow_window_detail">待機が始まってから、サイトの新しい接続が出口に追従し続ける時間。初期の待機はたいてい誤検知ですが、長引く待機は除外に向かい、フローを受け付けなくなります。オフにするとすぐに分散させます</string>
     <string name="dev_heartbeat">状態ハートビート</string>
     <string name="dev_heartbeat_detail">後で調査するために、現在の状態を要約した 1 行をログに書き込む頻度。オフにすると停止します。短くすると状態遷移を捉えやすく、長くするとバッファを多く保持できます</string>
     <string name="dev_ip_family">制御用の接続</string>

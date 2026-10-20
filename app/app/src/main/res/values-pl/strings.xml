@@ -219,8 +219,10 @@
     <string name="delete">Usuń</string>
     <string name="delete_account">Usuń konto</string>
     <string name="delete_account_type_network_name">Wpisz %1$s, aby potwierdzić.</string>
+    <string name="dev_affinity_max_time">Maksymalny wiek powinowactwa</string>
+    <string name="dev_affinity_max_time_detail">Dla zwykłych nowych połączeń używaj ponownie tylko zdrowego wyjścia IP/domeny, jeśli czas od utworzenia pierwotnego połączenia jest krótszy niż ten limit. Domyślnie: 1 minuta. Zero lub wartość ujemna wyłącza ponowne użycie. Wyjścia z ostrzeżeniem lub niesprawne zawsze uruchamiają wyścig. Istniejące połączenia i jawne przypięcia nie zmieniają się.</string>
     <string name="dev_affinity_performance">Powinowactwo według wydajności</string>
-    <string name="dev_affinity_performance_detail">Waży nowe wyścigi TLS według szczytowej szybkości potwierdzonych bajtów każdego dostawcy względem jego deklarowanej przepustowości. Przy włączonym twardym powinowactwie dostawcy o niskich pomiarach ustępują w wyścigu. Istniejące połączenia i jawne przypięcia pozostają bez zmian</string>
+    <string name="dev_affinity_performance_detail">Waży nowe wyścigi TLS według szczytowej szybkości potwierdzonych bajtów każdego dostawcy względem jego deklarowanej przepustowości. W granicach limitu wieku powinowactwa dostawcy o niskich pomiarach ustępują w wyścigu. Istniejące połączenia i jawne przypięcia pozostają bez zmian</string>
     <string name="dev_affinity_sticky">Trwałe powinowactwo witryny</string>
     <string name="dev_affinity_sticky_detail">Nowe połączenia witryny zostają na wyjściu, którego używają już wcześniejsze, nawet ponad limit przepływów, aby obciążona witryna zachowała jeden wyjściowy adres IP. Limit nadal decyduje, które wyjścia przyjmują nowe witryny. Wyłączenie przywraca ścisły limit</string>
     <string name="dev_all">Wszystkie</string>
@@ -275,12 +277,9 @@
     <string name="dev_flows_reraced_detail">Ile z tych awarii przeniesiono po cichu, zamiast zostawić je zawieszone</string>
     <string name="dev_formation_poll">Szybkie odpytywanie pierwszego wyjścia</string>
     <string name="dev_formation_poll_detail">Jak często łączący się przepływ ponownie sprawdza puste okno, aby pierwsze żądanie wyszło zaraz po pojawieniu się pierwszego wyjścia. Wyłączenie czeka na 2-sekundowy rytm ponowień</string>
-    <string name="dev_fresh_flow_affinity">Twarde powinowactwo nowych przepływów</string>
-    <string name="dev_fresh_flow_affinity_detail">Przypisuje każde nowe połączenie do wyjścia, którego już używa jego adres IP lub domena. Domyślnie wyłączone: każde zwykłe nowe połączenie trafia do wyścigu dostawców. Istniejące połączenia i jawne przypięcia zawsze pozostają bez zmian</string>
     <string name="dev_group_follow">Podążaj za wyjściami na ławce</string>
-    <string name="dev_group_follow_detail">Wyjście w kwarantannie zachowuje nowe połączenia swoich witryn na początku ławki, gdy werdykt jest najmniej pewny, aby ławka nie rozdzieliła wyjściowego IP witryny. Nowe witryny nadal go unikają. Wyłączenie je rozprasza</string>
+    <string name="dev_group_follow_compat_detail">Starsze ustawienie zgodności, nie obejście kontroli stanu. Zwykłe nowe połączenia nigdy nie używają ponownie wyjść z ostrzeżeniem lub niesprawnych; zawsze rozpoczynają nowy wyścig dostawców. Istniejące połączenia i jawne przypięcia nie zmieniają się.</string>
     <string name="dev_group_follow_window">Okno podążania</string>
-    <string name="dev_group_follow_window_detail">Jak długo od początku ławki nowe połączenia witryny nadal podążają za swoim wyjściem — wczesne ławki to zwykle fałszywe alarmy; ta, która trwa, zmierza do usunięcia i przestaje przyjmować przepływy. Wyłączenie rozprasza od razu</string>
     <string name="dev_heartbeat">Puls stanu</string>
     <string name="dev_heartbeat_detail">Jak często do logu trafia jeden wiersz podsumowujący bieżący stan, do późniejszej analizy. Wyłączenie go wycisza; krótszy wyłapie przejście, dłuższy zachowa więcej bufora</string>
     <string name="dev_ip_family">Połączenia sterujące</string>

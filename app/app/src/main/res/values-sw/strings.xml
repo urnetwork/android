@@ -219,8 +219,10 @@
     <string name="delete">Futa</string>
     <string name="delete_account">Futa akaunti</string>
     <string name="delete_account_type_network_name">Andika %1$s ili kuthibitisha.</string>
+    <string name="dev_affinity_max_time">Umri wa juu wa mshikamano</string>
+    <string name="dev_affinity_max_time_detail">Kwa miunganisho mipya ya kawaida, tumia tena njia ya kutoka ya IP/kikoa iliyo salama tu ikiwa muda tangu kuundwa kwa muunganisho wa awali ni chini ya kikomo hiki. Chaguomsingi: dakika 1. Sifuri au thamani hasi huzima utumiaji tena. Njia zilizoonywa au zisizo salama daima huanzisha mashindano. Miunganisho iliyopo na ubanaji wazi havibadiliki.</string>
     <string name="dev_affinity_performance">Mshikamano unaozingatia utendaji</string>
-    <string name="dev_affinity_performance_detail">Pima mashindano mapya ya TLS kwa kasi ya juu ya baiti zilizothibitishwa za kila mtoa huduma ikilinganishwa na kipimo data alichotangaza. Mshikamano mkali ukiwashwa, watoa huduma wenye vipimo vya chini hupisha mashindano. Miunganisho iliyopo na ubanaji uliowekwa wazi hubaki vilevile</string>
+    <string name="dev_affinity_performance_detail">Pima mashindano mapya ya TLS kwa kasi ya juu ya baiti zilizothibitishwa za kila mtoa huduma ikilinganishwa na kipimo data alichotangaza. Ndani ya kikomo cha umri wa mshikamano, watoa huduma wenye vipimo vya chini hupisha mashindano. Miunganisho iliyopo na ubanaji uliowekwa wazi hubaki vilevile</string>
     <string name="dev_affinity_sticky">Mshikamano wa kudumu wa tovuti</string>
     <string name="dev_affinity_sticky_detail">Miunganisho mipya ya tovuti hubaki kwenye njia ya kutoka ambayo miunganisho yake ya awali tayari inatumia, hata kupita kikomo cha mitiririko, ili tovuti yenye shughuli nyingi ibaki na IP moja ya kutokea. Kikomo bado huamua njia zipi za kutoka zinapokea tovuti mpya. Kuzima kunarejesha kikomo kikali</string>
     <string name="dev_all">Zote</string>
@@ -275,12 +277,9 @@
     <string name="dev_flows_reraced_detail">Ni ngapi kati ya hitilafu hizo zilihamishwa kimyakimya badala ya kukwama</string>
     <string name="dev_formation_poll">Ukaguzi wa haraka wa njia ya kwanza ya kutoka</string>
     <string name="dev_formation_poll_detail">Mara ngapi mtiririko unaounganika hukagua upya dirisha tupu, ili ombi la kwanza liondoke mara tu njia ya kwanza ya kutoka inapofika. Kuzima kunasubiri mwendo wa kujaribu tena wa sekunde 2</string>
-    <string name="dev_fresh_flow_affinity">Mshikamano mkali wa mitiririko mipya</string>
-    <string name="dev_fresh_flow_affinity_detail">Panga kila muunganisho mpya kwenye njia ya kutoka ambayo IP au kikoa chake tayari kinatumia. Chaguomsingi ni kuzimwa: kila muunganisho mpya wa kawaida hufika kwenye mashindano ya watoa huduma. Miunganisho iliyopo na ubanaji uliowekwa wazi hubaki vilevile kila wakati</string>
     <string name="dev_group_follow">Fuata njia za kutoka zilizowekwa benchi</string>
-    <string name="dev_group_follow_detail">Njia ya kutoka iliyotengwa huendelea kupokea miunganisho mipya ya tovuti zake mwanzoni mwa kukaa benchi, wakati hukumu bado haijathibitishwa sana, ili benchi lisigawanye IP ya kutokea ya tovuti. Tovuti mpya bado huiepuka. Kuzima kunazitawanya</string>
+    <string name="dev_group_follow_compat_detail">Mpangilio wa zamani wa uoanifu, si kupuuza ukaguzi wa afya. Miunganisho mipya ya kawaida haitumii tena njia zilizoonywa au zisizo salama; daima huanza mashindano mapya ya watoa huduma. Miunganisho iliyopo na ubanaji wazi havibadiliki.</string>
     <string name="dev_group_follow_window">Dirisha la kufuata</string>
-    <string name="dev_group_follow_window_detail">Muda ambao miunganisho mipya ya tovuti huendelea kufuata njia yake ya kutoka tangu ianze kukaa benchi — benchi za mapema mara nyingi ni kengele za uongo; inayodumu huelekea kuondolewa na huacha kupokea mitiririko. Kuzima kunatawanya mara moja</string>
     <string name="dev_heartbeat">Mpigo wa hali</string>
     <string name="dev_heartbeat_detail">Mara ngapi mstari mmoja unaofupisha hali ya sasa huandikwa kwenye kumbukumbu kwa uchunguzi wa baadaye. Kuzima kunaunyamazisha; muda mfupi hunasa mabadiliko, mrefu huhifadhi bafa zaidi</string>
     <string name="dev_ip_family">Miunganisho ya udhibiti</string>
