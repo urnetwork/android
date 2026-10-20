@@ -20,6 +20,11 @@
         android:targetPackage="com.bringyour.network"
         android:functionalTest="false"
         android:handleProfiling="false" />
+    <instrumentation
+        android:name="com.bringyour.network.acceptance.HostedH1PhysicalRunner"
+        android:targetPackage="com.bringyour.network"
+        android:functionalTest="false"
+        android:handleProfiling="false" />
 
     <application>
         <!--

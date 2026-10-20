@@ -14,9 +14,9 @@ class NetworkSpaceManagerProvider @Inject constructor() {
     @Volatile
     private var networkSpace: NetworkSpace? = null
 
-    val init: (filesDirPath: String) -> Unit = { filesDirPath ->
-        networkSpaceManager = Sdk.newNetworkSpaceManager(filesDirPath)
-        // networkSpaceManager
+    /** The constructor copies this owner's choice before restoring any space. */
+    fun init(filesDirPath: String, apiAltEnabled: Boolean = true) {
+        networkSpaceManager = Sdk.newNetworkSpaceManagerWithApiAlt(filesDirPath, apiAltEnabled)
     }
 
     val setNetworkSpace: (NetworkSpace?) -> Unit = { updatedNetworkSpace ->

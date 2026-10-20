@@ -468,6 +468,10 @@ class MainApplication : Application() {
     private var applicationStateInitialized = false
     private var applicationStateInitializing = false
 
+    // Bound only by the dedicated test runner before onCreate; ordinary app
+    // instances retain api alt. Consumed before even persisted spaces load.
+    internal val networkSpaceApiAltStartup = NetworkSpaceApiAltStartup()
+
     val device get() = deviceManager.device
 
     // Private diagnostic build: only the acceptance owner installs this on the
@@ -1125,7 +1129,9 @@ class MainApplication : Application() {
         // spoof list while the extender hint cannot be fetched (P052).
         addNetworkCountryCallback()
 
-        networkSpaceManagerProvider.init(filesDir.absolutePath)
+        networkSpaceApiAltStartup.construct { apiAltEnabled ->
+            networkSpaceManagerProvider.init(filesDir.absolutePath, apiAltEnabled)
+        }
 
         val networkSpaceManager = networkSpaceManagerProvider.getNetworkSpaceManager()
 

@@ -472,3 +472,99 @@ test("foreign repeated and invalid native representations retain a finite dedupl
   assert.equal(result.combinedRetainedRuntimeEventCount, 8);
   assert.ok(result.reasons.includes("native-conflict-runtime-value-invalid"));
 });
+
+// Match the actual opt-in producer: only ready and app status attest API state.
+function hostedMemoryEvidence(profile = "ios-memory-audit-v2") {
+  const input = evidence(profile);
+  Object.assign(input.owner, {
+    component: "com.bringyour.network.test/com.bringyour.network.acceptance.HostedH1PhysicalRunner",
+    hostedTransportPolicy: "hosted-h1-api-alt-off-v1", qualificationEligible: false,
+    launchId: "a".repeat(32), buildId: input.teardown.buildId,
+  });
+  for (const row of [input.ready, input.finish]) Object.assign(row, {
+    hostedTransportPolicy: input.owner.hostedTransportPolicy, apiAltEnabled: false,
+    launchId: input.owner.launchId, buildId: input.owner.buildId,
+  });
+  Object.assign(input.ready, { qualificationEligible: false, targetSessionId: input.teardown.sessionId });
+  Object.assign(input.terminal, input.owner, { state: "complete" });
+  return input;
+}
+
+test("exact hosted runner reaches the real memory replay under both hard caps", () => {
+  for (const profile of ["ios-memory-audit-v2", "android"]) {
+    const input = hostedMemoryEvidence(profile);
+    const result = evaluateMemoryTeardown(input);
+    assert.equal(result.eligible, true, JSON.stringify(result));
+    assert.equal(result.requiredGoRuntimeLimitBytes, (profile === "android" ? 64 : 32) * 1024 * 1024);
+    assert.equal(result.combinedRetainedRuntimeEventCount, 8);
+  }
+});
+
+test("hosted memory replay rejects unknown runners and misbound existing policy evidence", () => {
+  for (const [name, mutate] of [
+    ["unknown-runner", input => { input.owner.component = "synthetic/UnknownRunner"; }],
+    ["legacy-runner-with-policy", input => { input.owner.component = "com.bringyour.network.test/androidx.test.runner.AndroidJUnitRunner"; }],
+    ["missing-policy", input => { delete input.owner.hostedTransportPolicy; }],
+    ["wrong-policy", input => { input.owner.hostedTransportPolicy = "synthetic-other-policy"; }],
+    ["qualified-owner", input => { input.owner.qualificationEligible = true; }],
+    ["missing-launch", input => { delete input.owner.launchId; }],
+    ["foreign-build", input => { input.owner.buildId = "synthetic-other-build"; }],
+    ["ready-policy", input => { delete input.ready.hostedTransportPolicy; }],
+    ["ready-actual-true", input => { input.ready.apiAltEnabled = true; }],
+    ["ready-actual-string", input => { input.ready.apiAltEnabled = "false"; }],
+    ["ready-qualification", input => { delete input.ready.qualificationEligible; }],
+    ["ready-launch", input => { input.ready.launchId = "b".repeat(32); }],
+    ["ready-build", input => { input.ready.buildId = "synthetic-other-build"; }],
+    ["ready-session", input => { input.ready.targetSessionId = "synthetic-other-session"; }],
+    ["finish-policy", input => { input.finish.hostedTransportPolicy = "synthetic-other-policy"; }],
+    ["finish-actual-missing", input => { delete input.finish.apiAltEnabled; }],
+    ["finish-actual-string", input => { input.finish.apiAltEnabled = "false"; }],
+    ["finish-launch", input => { input.finish.launchId = "b".repeat(32); }],
+  ]) {
+    const input = hostedMemoryEvidence();
+    mutate(input);
+    // Match the owner's changed fields so terminal mismatch cannot mask policy.
+    for (const field of ["component", "hostedTransportPolicy", "qualificationEligible", "launchId", "buildId"]) {
+      delete input.terminal[field];
+      if (Object.hasOwn(input.owner, field)) input.terminal[field] = input.owner[field];
+    }
+    const result = evaluateMemoryTeardown(input);
+    assert.equal(result.eligible, false, name);
+    assert.equal(result.reasons.some(reason => ["instrumentation-hosted-policy-mismatch",
+      "instrumentation-owner-schema-incomplete"].includes(reason)), true, name + ":" + JSON.stringify(result));
+  }
+});
+
+test("hosted memory replay keeps late native highs and failed live proofs for both caps", () => {
+  for (const profile of ["ios-memory-audit-v2", "android"]) {
+    const limit = (profile === "android" ? 64 : 32) * 1024 * 1024;
+    for (const failure of ["late-peak", "live-proof"]) {
+      const input = hostedMemoryEvidence(profile);
+      if (failure === "late-peak") input.teardown.native.samples[1].goRuntimeBytes = limit + 1;
+      else input.liveGate.eligible = false;
+      const result = evaluateMemoryTeardown(input);
+      assert.equal(result.eligible, false, profile + ":" + failure);
+      assert.equal(result.reasons.includes("instrumentation-hosted-policy-mismatch"), false);
+      assert.equal(result.reasons.includes("instrumentation-owner-schema-incomplete"), false);
+      if (failure === "late-peak") {
+        assert.equal(result.classification, "FAILED_MEMORY_LIMIT");
+        assert.equal(result.peakGoRuntimeBytes, limit + 1);
+        assert.equal(result.goRuntimeBreachSampleCount, 1);
+      } else {
+        assert.equal(result.classification, "INCOMPLETE_TEARDOWN");
+      }
+      assert.equal(result.combinedRetainedRuntimeEventCount, 8);
+    }
+  }
+});
+
+test("hosted admission preserves ordinary and diagnostic runner memory replay", () => {
+  for (const component of ["com.bringyour.network.test/androidx.test.runner.AndroidJUnitRunner",
+    "com.bringyour.network.test/com.bringyour.network.acceptance.PhysicalCredentialDiagnosticRunner"]) {
+    const input = evidence();
+    input.owner.component = input.terminal.component = component;
+    input.finish.hostedTransportPolicy = "";
+    const result = evaluateMemoryTeardown(input);
+    assert.equal(result.eligible, true, JSON.stringify(result));
+  }
+});

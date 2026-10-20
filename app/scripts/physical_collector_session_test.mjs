@@ -84,7 +84,8 @@ function instrumentationFixture(t) {
     hostProcess(pid) {
       if (pid === process.pid) return psRow(pid, "/node /fixture/retained-supervisor.mjs");
       assert.equal(pid, f.child.pid);
-      return psRow(pid, adbCommand);
+      return psRow(pid, adbCommand.replace("com.bringyour.network.test/androidx.test.runner.AndroidJUnitRunner",
+        `${options["hosted-transport-policy"] === undefined ? "" : `-e hostedTransportPolicy ${options["hosted-transport-policy"]} `}${options.component ?? "com.bringyour.network.test/androidx.test.runner.AndroidJUnitRunner"}`));
     },
     async start(dependencies = {}) {
       f.result = runInstrumentationSession(options, { foreground: () => foreground, signals, hostProcess: f.hostProcess, ...dependencies,
@@ -94,7 +95,8 @@ function instrumentationFixture(t) {
             "com.bringyour.network.acceptance.PhysicalLowbarSessionTest", "-e", "acceptanceBuildId", "fixture",
             ...(options["launch-id"] === undefined ? [] : ["-e", "acceptanceLaunchId", options["launch-id"]]),
             ...(options["io-loop-diagnostic"] === "1" ? ["-e", "ioLoopDiagnostic", "1"] : []),
-            "com.bringyour.network.test/androidx.test.runner.AndroidJUnitRunner"]);
+            ...(options["hosted-transport-policy"] === undefined ? [] : ["-e", "hostedTransportPolicy", options["hosted-transport-policy"]]),
+            options.component ?? "com.bringyour.network.test/androidx.test.runner.AndroidJUnitRunner"]);
           f.child = spawn(process.execPath, ["-e", fakeInstrumentation, join(directory, "stop")], settings);
           assert.equal(existsSync(options.owner), false, "no running receipt before live child verification");
           dependencies.afterSpawn?.(f.child);
@@ -1603,5 +1605,104 @@ test("native-loop absent option stays absent and invalid opt-ins cannot spawn", 
   h.options["io-loop-diagnostic"] = "1";
   await assert.rejects(runInstrumentationSession(h.options, { foreground: () => foreground,
     spawn: () => assert.fail("unbound launch must not spawn") }), /native-loop-diagnostic-launch-binding-required-no-spawn/);
+});
+
+const hostedH1Policy = "hosted-h1-api-alt-off-v1";
+const hostedH1Runner = "com.bringyour.network.test/com.bringyour.network.acceptance.HostedH1PhysicalRunner";
+
+test("hosted H1 policy parser requires the exact dedicated runner and policy together", () => {
+  const base = ["run-instrumentation", "--owner", "/fixture/owner.json", "--stdout", "/fixture/stdout",
+    "--stderr", "/fixture/stderr", "--serial", "fake-device", "--label", "fixture", "--build-id", "fixture",
+    "--native-inputs", "/fixture/native.json", "--launch-id", "abcdef0123456789abcdef0123456789"];
+  const parsed = parseArgs([...base, "--component", hostedH1Runner, "--hosted-transport-policy", hostedH1Policy]);
+  assert.equal(parsed.component, hostedH1Runner);
+  assert.equal(parsed["hosted-transport-policy"], hostedH1Policy);
+  assert.equal(parseArgs(base)["hosted-transport-policy"], undefined);
+  for (const tail of [["--component", hostedH1Runner], ["--hosted-transport-policy", hostedH1Policy],
+    ["--component", hostedH1Runner, "--hosted-transport-policy", "hosted-h1-api-alt-off-v2"],
+    ["--component", "com.bringyour.network.test/androidx.test.runner.AndroidJUnitRunner", "--hosted-transport-policy", hostedH1Policy]]) {
+    assert.throws(() => parseArgs([...base, ...tail]), /invalid-hosted-h1-policy-no-spawn/);
+  }
+});
+
+test("hosted H1 launch forwards exact policy and requires actual API alt off before ready", async (t) => {
+  const f = boundInstrumentationFixture(t);
+  f.options.component = hostedH1Runner;
+  f.options["hosted-transport-policy"] = hostedH1Policy;
+  await f.start();
+  const owner = JSON.parse(readFileSync(f.options.owner, "utf8"));
+  assert.equal(owner.hostedTransportPolicy, hostedH1Policy);
+  assert.equal(owner.qualificationEligible, false);
+  for (const status of [disconnectedStatus,
+    { ...disconnectedStatus, hostedTransportPolicy: hostedH1Policy },
+    { ...disconnectedStatus, hostedTransportPolicy: hostedH1Policy, apiAltEnabled: true },
+    { ...disconnectedStatus, hostedTransportPolicy: hostedH1Policy, apiAltEnabled: "false" },
+    { ...disconnectedStatus, hostedTransportPolicy: "another-policy", apiAltEnabled: false }]) {
+    await assert.rejects(f.boundBind({ adb: roleAdb([status]) }), /hosted-h1-policy-not-observed/);
+    assert.equal(existsSync(`${f.options.owner}.ready.json`), false);
+  }
+  const status = { ...disconnectedStatus, hostedTransportPolicy: hostedH1Policy, apiAltEnabled: false };
+  await f.boundBind({ adb: roleAdb([status]) });
+  const ready = JSON.parse(readFileSync(`${f.options.owner}.ready.json`, "utf8"));
+  assert.equal(ready.hostedTransportPolicy, hostedH1Policy);
+  assert.equal(ready.apiAltEnabled, false);
+  assert.equal(ready.qualificationEligible, false);
+  assert.equal(ready.targetSessionId, disconnectedStatus.sessionId);
+  const commandOptions = { owner: f.options.owner, serial: "fake-device" };
+  assert.throws(() => checkInstrumentationCommandSession(commandOptions, {
+    hostProcess: f.hostProcess, adb: roleAdb([{ ...status, apiAltEnabled: true }]),
+  }), /hosted-h1-policy-not-observed/);
+  const command = checkInstrumentationCommandSession(commandOptions, { hostProcess: f.hostProcess, adb: roleAdb([status]) });
+  assert.equal(command.sessionId, owner.ownerId);
+  f.stop(); assert.equal(await f.result, 0);
+  const terminal = JSON.parse(readFileSync(`${f.options.owner}.terminal.json`, "utf8"));
+  assert.equal(terminal.ownerId, owner.ownerId);
+  assert.equal(terminal.hostedTransportPolicy, hostedH1Policy);
+  assert.equal(terminal.qualificationEligible, false);
+});
+
+test("hosted H1 rejects unbound or mismatched launch before spawn", async (t) => {
+  for (const change of [{ component: hostedH1Runner }, { "hosted-transport-policy": hostedH1Policy },
+    { component: hostedH1Runner, "hosted-transport-policy": "unknown" }]) {
+    const f = boundInstrumentationFixture(t);
+    Object.assign(f.options, change);
+    await assert.rejects(runInstrumentationSession(f.options, {
+      foreground: () => assert.fail("invalid policy must precede process inspection"),
+      spawn: () => assert.fail("invalid policy cannot spawn"),
+    }), /invalid-hosted-h1-policy-no-spawn/);
+    assert.equal(existsSync(f.options.owner), false);
+  }
+  const unbound = instrumentationFixture(t);
+  unbound.options.component = hostedH1Runner;
+  unbound.options["hosted-transport-policy"] = hostedH1Policy;
+  await assert.rejects(runInstrumentationSession(unbound.options, { foreground: () => foreground,
+    spawn: () => assert.fail("unbound hosted policy cannot spawn") }), /hosted-h1-policy-launch-binding-required-no-spawn/);
+});
+
+test("hosted H1 process and ready records cannot relabel a default or different policy", async (t) => {
+  const validCommand = adbCommand.replace("com.bringyour.network.test/androidx.test.runner.AndroidJUnitRunner",
+    `-e hostedTransportPolicy ${hostedH1Policy} ${hostedH1Runner}`);
+  assert.match(instrumentationProcessIdentity(psRow(4321, validCommand), "fake-device", 4321), /^[a-f0-9]{64}$/);
+  for (const command of [validCommand.replace(hostedH1Policy, "unknown"),
+    validCommand.replace(`-e hostedTransportPolicy ${hostedH1Policy} `, ""),
+    validCommand.replace(hostedH1Runner, `-e hostedTransportPolicy ${hostedH1Policy} ${hostedH1Runner}`)]) {
+    assert.throws(() => instrumentationProcessIdentity(psRow(4321, command), "fake-device", 4321), /retained-adb-hosted-h1-policy-required/);
+  }
+  const f = boundInstrumentationFixture(t);
+  f.options.component = hostedH1Runner;
+  f.options["hosted-transport-policy"] = hostedH1Policy;
+  await f.start();
+  await f.boundBind({ adb: roleAdb([{ ...disconnectedStatus, hostedTransportPolicy: hostedH1Policy, apiAltEnabled: false }]) });
+  const path = `${f.options.owner}.ready.json`;
+  const original = readFileSync(path, "utf8");
+  for (const change of [{ hostedTransportPolicy: undefined }, { hostedTransportPolicy: "unknown" },
+    { apiAltEnabled: true }, { apiAltEnabled: "false" }, { qualificationEligible: true }]) {
+    writeFileSync(path, JSON.stringify({ ...JSON.parse(original), ...change }));
+    assert.throws(() => checkInstrumentationCommandSession({ owner: f.options.owner, serial: "fake-device" }, {
+      hostProcess: f.hostProcess, adb: () => assert.fail("invalid ready policy must precede device reads"),
+    }), /bound-ready-instrumentation-required/);
+  }
+  writeFileSync(path, original);
+  f.stop(); assert.equal(await f.result, 0);
 });
 

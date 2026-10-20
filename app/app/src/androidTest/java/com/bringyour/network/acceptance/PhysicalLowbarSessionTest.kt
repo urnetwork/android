@@ -73,6 +73,9 @@ class PhysicalLowbarSessionTest {
     private val teardownMemoryFile = File(acceptanceDir, "physical-memory-teardown.json")
     private val teardownFallbackFile = File(acceptanceDir, "physical-memory-teardown-incomplete.json")
     private val memorySessionId = UUID.randomUUID().toString()
+    private val hostedTransportPolicy = InstrumentationRegistry.getArguments().getString(HOSTED_H1_POLICY_ARGUMENT).orEmpty().also {
+        require(it.isEmpty() || it == HOSTED_H1_POLICY) { "invalid hosted physical transport policy" }
+    }
     private val acceptanceLaunchId = InstrumentationRegistry.getArguments().getString("acceptanceLaunchId")?.also {
         require(Regex("^[a-f0-9]{32}$").matches(it)) { "invalid acceptanceLaunchId" }
     }
@@ -810,6 +813,8 @@ class PhysicalLowbarSessionTest {
             .put("launchId", acceptanceLaunchId)
             .put("sessionId", memorySessionId)
             .put("buildId", BuildConfig.URNETWORK_ACCEPTANCE_BUILD_ID)
+            .put("hostedTransportPolicy", hostedTransportPolicy)
+            .apply { application.device?.networkSpace?.let { put("apiAltEnabled", it.apiAltEnabled) } }
             .put("commandId", id)
             .put("commandSequence", peerTimingEvidence.commandSequence)
             .apply { if (ioLoopDiagnostics != null) put("ioLoopDiagnosticEnabled", true) }
@@ -854,8 +859,10 @@ class PhysicalLowbarSessionTest {
         application: MainApplication,
         startElapsedMs: Long,
         failure: PhysicalFailureSnapshot,
+        cleanupOnly: Boolean = false,
     ) {
         val extra = JSONObject(failure.statusFields())
+        if (cleanupOnly) extra.put("cleanupOnly", true)
         status(id, "error", application, startElapsedMs, extra, failure.phase)
     }
 
@@ -895,6 +902,7 @@ class PhysicalLowbarSessionTest {
         connectVc: ConnectViewController,
         mode: String,
     ) {
+        require(hostedTransportPolicy.isEmpty() || mode == Sdk.TransportModeH1) { "hosted H1 policy refuses other public modes" }
         stopClient(connectVc, device)
         stopProvider(application, device)
         configureClientMode(device, mode)
@@ -1287,7 +1295,7 @@ class PhysicalLowbarSessionTest {
                 launchLoggedOut = { launchLoggedOutApp(application) },
                 login = { loginWithPassword(application, ledgerFailure) },
             )
-            runOwnedDeviceSession(application, startElapsedMs, startUnixMs, stopped, summary, ledgerFailure)
+            sessionFailure = runOwnedDeviceSession(application, startElapsedMs, startUnixMs, stopped, summary, ledgerFailure)
         } catch (error: Throwable) {
             sessionFailure = error
             runCatching { failureStatus(activeCommandId, application, startElapsedMs, captureFailure(error)) }
@@ -1310,6 +1318,9 @@ class PhysicalLowbarSessionTest {
                 if (sessionFailure != null) sessionFailure.addSuppressed(finalError) else throw finalError
             }
         }
+        // A failed command remains a failed JUnit result after the exact finish
+        // and normal teardown; do not replace the final finish acknowledgment.
+        sessionFailure?.let { throw it }
     }
 
     /** Only this scope retains device/controller wrappers during live commands. */
@@ -1320,7 +1331,7 @@ class PhysicalLowbarSessionTest {
         stopped: AtomicBoolean,
         summary: SampleSummary,
         ledgerFailure: AtomicReference<Throwable?>,
-    ) {
+    ): PhysicalWaitTimeout? {
         memoryTeardown.ownerScopeEntered = true
         var device: DeviceLocal? = null
         var connectVc: ConnectViewController? = null
@@ -1335,6 +1346,7 @@ class PhysicalLowbarSessionTest {
             phase = "ready"
             status("0", "ready", application, startElapsedMs)
             var lastCommandId = ""
+            val commandOwner = PhysicalCommandOwner()
             val deadline = startElapsedMs + MAX_SESSION_MILLIS
             var finished = false
             while (!finished && SystemClock.elapsedRealtime() < deadline) {
@@ -1349,13 +1361,22 @@ class PhysicalLowbarSessionTest {
                     if (id != lastCommandId) {
                         lastCommandId = id
                         activeCommandId = id
-                        finished = commandResult(text, application, activeDevice,
-                            checkNotNull(connectVc), checkNotNull(peerVc), startElapsedMs)
+                        finished = commandOwner.run(
+                            finish = text.split('|', limit = 3).getOrNull(1) == "finish",
+                            command = {
+                                commandResult(text, application, activeDevice,
+                                    checkNotNull(connectVc), checkNotNull(peerVc), startElapsedMs)
+                            },
+                            failed = { error ->
+                                failureStatus(id, application, startElapsedMs, captureFailure(error), cleanupOnly = true)
+                            },
+                        )
                     }
                 }
                 SystemClock.sleep(COMMAND_POLL_MILLIS)
             }
             assertTrue("physical session reached its safety timeout", finished)
+            return commandOwner.failure
         } catch (error: Throwable) {
             runCatching { captureFailure(error) }.onFailure(error::addSuppressed)
             throw error

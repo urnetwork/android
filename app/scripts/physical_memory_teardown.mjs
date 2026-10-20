@@ -150,20 +150,37 @@ export function evaluateAuxiliaryRuntimeValues(memory, statusRuntime, ownerCensu
 
 // Match the existing retained instrumentation schema and its already-verified
 // native proof. Offline evaluation does not re-run native tooling or liveness.
-export function evaluateJoinedMemoryOwner(owner, ready, terminal, nativeProof, identity) {
+export function evaluateJoinedMemoryOwner(owner, ready, terminal, nativeProof, identity, finish) {
   const reasons = new Set();
   const hash = value => typeof value === "string" && /^[a-f0-9]{64}$/.test(value);
   const label = value => typeof value === "string" && /^[A-Za-z0-9][A-Za-z0-9._-]{0,199}$/.test(value);
   const pid = value => integer(value) && value > 0;
   const component = owner?.component;
+  const hostedComponent = "com.bringyour.network.test/com.bringyour.network.acceptance.HostedH1PhysicalRunner";
   if (owner?.schema !== 1 || owner.type !== "instrumentation-session" || owner.state !== "running" ||
       typeof owner.ownerId !== "string" || !/^[a-f0-9-]{36}$/.test(owner.ownerId) || !label(owner.label) || !hash(owner.serialHash) ||
       !pid(owner.supervisorPid) || !pid(owner.adbPid) || owner.supervisorPid === owner.adbPid ||
       !hash(owner.supervisorIdentity) || !hash(owner.adbIdentity) || !hash(owner.nativeInputHash) || !label(owner.nativeBuildOwner) ||
       owner.targetPackage !== "com.bringyour.network" || owner.className !== "com.bringyour.network.acceptance.PhysicalLowbarSessionTest" ||
       !["com.bringyour.network.test/androidx.test.runner.AndroidJUnitRunner",
-        "com.bringyour.network.test/com.bringyour.network.acceptance.PhysicalCredentialDiagnosticRunner"].includes(component) ||
+        "com.bringyour.network.test/com.bringyour.network.acceptance.PhysicalCredentialDiagnosticRunner", hostedComponent].includes(component) ||
       !integer(owner.startedHostTimeUnixMs) || owner.foreground?.inputTTY !== true || owner.foreground?.outputTTY !== true) reasons.add("instrumentation-owner-schema-incomplete");
+  // Keep the dedicated hosted runner bound to the original opt-in and actual
+  // disabled-API ready/finish evidence; memory and join rules stay unchanged.
+  if (component === hostedComponent) {
+    const policy = "hosted-h1-api-alt-off-v1";
+    if (owner.hostedTransportPolicy !== policy || owner.qualificationEligible !== false ||
+        typeof owner.launchId !== "string" || !/^[a-f0-9]{32}$/.test(owner.launchId) ||
+        !label(owner.buildId) || owner.buildId !== identity?.buildId ||
+        ready?.hostedTransportPolicy !== policy || ready.apiAltEnabled !== false || ready.qualificationEligible !== false ||
+        ready.launchId !== owner.launchId || ready.buildId !== owner.buildId || ready.targetSessionId !== identity?.sessionId ||
+        finish?.hostedTransportPolicy !== policy || finish.apiAltEnabled !== false || finish.launchId !== owner.launchId) {
+      reasons.add("instrumentation-hosted-policy-mismatch");
+    }
+  } else if (owner?.hostedTransportPolicy !== undefined || ready?.hostedTransportPolicy !== undefined ||
+      finish?.hostedTransportPolicy !== undefined && finish.hostedTransportPolicy !== "") {
+    reasons.add("instrumentation-hosted-policy-mismatch");
+  }
   try { requireRetainedForeground(owner?.foreground ?? {}); } catch { reasons.add("instrumentation-owner-not-retained"); }
   if (nativeProof?.type !== "physical-native-input-verification" || nativeProof.schemaVersion !== 1 || nativeProof.eligible !== true ||
       nativeProof.classification !== "NATIVE_INPUTS_VERIFIED" || nativeProof.buildId !== identity?.buildId ||
@@ -332,7 +349,7 @@ export function evaluateMemoryTeardown({ teardown, fallback, producerSummary, me
   if (!integer(teardown?.referencesReleasedTimeUnixMs) || nativeSamples.at(-1)?.timeUnixMs < teardown.referencesReleasedTimeUnixMs ||
       nativeSamples[0]?.timeUnixMs < finish?.teardownBeginTimeUnixMs ||
       !integer(finish?.teardownBeginTimeUnixMs)) fail("native-terminal-not-fresh");
-  evaluateJoinedMemoryOwner(owner, ready, terminal, nativeProof, teardown).forEach(fail);
+  evaluateJoinedMemoryOwner(owner, ready, terminal, nativeProof, teardown, finish).forEach(fail);
   const prefix = liveGate?.memoryPrefix;
   const bytes = Buffer.from(memoryContents ?? "", "utf8");
   if (!matchesMemoryProfileProof(liveGate, profile) || liveGate?.memoryProfile !== profile ||
