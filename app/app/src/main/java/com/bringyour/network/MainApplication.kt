@@ -228,6 +228,9 @@ class MainApplication : Application() {
     private var thermalDegraded = false
     private var dataSaverDegraded = false
     private var defaultNetworkDegraded = false
+    // the physical default's own NOT_METERED (see addDefaultNetworkCallback);
+    // null while no physical default is tracked
+    private var defaultNetworkMetered: Boolean? = null
     private var performanceDegradedDevice: DeviceLocal? = null
     private var performanceDegradedApplied: Boolean? = null
 
@@ -447,7 +450,11 @@ class MainApplication : Application() {
 //    private var connectEnabled: Boolean = false
 
     private val mainHandler by lazy(LazyThreadSafetyMode.NONE) { Handler(mainLooper) }
-    private val tunnelRecoveryPolicy = TunnelRecoveryPolicy()
+    // Timing lives on these settings, with the shipped values as defaults;
+    // nothing in the recovery or tunnel path reads a timing constant.
+    private val tunnelRecoveryPolicy = TunnelRecoveryPolicy(TunnelRecoverySettings())
+    /** Read by MainService for its TUN retries and here for the Always-on connect retry. */
+    internal val vpnTunnelTimingSettings = VpnTunnelTimingSettings()
     private var pendingTransportRecovery: Runnable? = null
     private var pendingWakeStart: Runnable? = null
     private var pendingWakeHealthAudit: Runnable? = null
@@ -1503,26 +1510,41 @@ class MainApplication : Application() {
             capabilities.hasCapability(NET_CAPABILITY_PARTIAL_CONNECTIVITY_COMPAT)
     }
 
-    private fun addOfflineCallback() {
+    /**
+     * The membership of every physical internet network: it drives the device's
+     * offline state, Private DNS, and the capability-restored wake audits. It
+     * re-dials the transports only when a path returns after there was none
+     * (PhysicalPathRecovery); a network joining or leaving while another one
+     * carries the default leaves every socket where it was.
+     */
+    private fun addOfflineCallback(pathRecovery: PhysicalPathRecovery<Network>) {
         removeOfflineCallback()
 
         val callbackDevice = device
-        val availableNetworks = AvailableNetworkTracker<Network>()
+        val connectivityManager =
+            getSystemService(ConnectivityManager::class.java) as ConnectivityManager
+        // Asked before registering, so a path appearing in between errs toward
+        // one extra re-dial rather than a missed one. With no physical path
+        // now, the transports' dials fail and back off until a network arrives,
+        // and only a re-dial signal resets that backoff. device.offline is left
+        // to the callbacks: a wrong snapshot must not escape the tunnel.
+        if (!hasPhysicalInternetNetwork(connectivityManager)) {
+            Log.i(TAG, "network callbacks registered with no physical network")
+            pathRecovery.startedWithoutNetwork()
+        }
         offlineCallback = object : ConnectivityManager.NetworkCallback() {
             override fun onAvailable(network: Network) {
                 if (offlineCallback !== this || device !== callbackDevice) {
                     return
                 }
-                val change = availableNetworks.onAvailable(network)
-                Log.i(TAG, "network available device = $network count=${availableNetworks.size}")
-                physicalNetworkAvailable = change.available
+                val update = pathRecovery.onMemberAvailable(network)
+                Log.i(TAG, "network available device = $network count=${pathRecovery.memberCount}")
+                physicalNetworkAvailable = update.available
                 callbackDevice?.offline = false
-                if (change.recoveryRequired) {
-                    // Existing sockets may be bound to the previous physical path:
-                    // re-dial platform transports and re-warm tunnel DoH now instead
-                    // of waiting for ping timeouts.
-                    requestTransportRecovery("physical-network-available")
-                }
+                // A path returned after there was none: re-dial platform
+                // transports and re-warm tunnel DoH now instead of waiting out
+                // the failed-dial backoff.
+                update.recoveryReason?.let { requestTransportRecovery(it) }
             }
 
             override fun onLinkPropertiesChanged(network: Network, linkProperties: LinkProperties) {
@@ -1539,25 +1561,8 @@ class MainApplication : Application() {
                         linkProperties.privateDnsServerName,
                     )
                 }
-
-                // Same network, new addressing (DHCP renew, IPv6 renumbering,
-                // AP roam, DNS or route update): old sockets may be stale too.
-                val fingerprint = listOf(
-                    linkProperties.interfaceName.orEmpty(),
-                    linkProperties.linkAddresses.map { it.toString() }.sorted().joinToString(","),
-                    linkProperties.routes.map { it.toString() }.sorted().joinToString(","),
-                    linkProperties.dnsServers.map { it.toString() }.sorted().joinToString(","),
-                    linkProperties.domains.orEmpty(),
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                        linkProperties.mtu.toString()
-                    } else {
-                        "0"
-                    },
-                ).joinToString("|")
-                if (availableNetworks.onLinkPropertiesChanged(network, fingerprint)) {
-                    Log.i(TAG, "network link changed device = $network")
-                    requestTransportRecovery("link-properties-changed")
-                }
+                // Addressing changes re-dial only on the physical default (see
+                // addDefaultNetworkCallback): no transport socket uses another path.
             }
 
             override fun onCapabilitiesChanged(
@@ -1565,7 +1570,7 @@ class MainApplication : Application() {
                 networkCapabilities: NetworkCapabilities,
             ) {
                 if (offlineCallback !== this || device !== callbackDevice) return
-                val change = availableNetworks.onCapabilitiesChanged(
+                val change = pathRecovery.onMemberCapabilitiesChanged(
                     network,
                     physicalNetworkCapabilitiesSnapshot(networkCapabilities),
                 )
@@ -1575,9 +1580,6 @@ class MainApplication : Application() {
                     "network capabilities changed device=$network transports=${change.transportChanged} " +
                         "recovered=${change.recovered} degraded=${change.degraded}",
                 )
-                if (change.transportChanged) {
-                    requestTransportRecovery("network-transport-changed")
-                }
                 if (change.recovered) {
                     requestWakeHealthAudit("network-capability-restored")
                 }
@@ -1585,7 +1587,7 @@ class MainApplication : Application() {
 
             override fun onBlockedStatusChanged(network: Network, blocked: Boolean) {
                 if (offlineCallback !== this || device !== callbackDevice) return
-                val change = availableNetworks.onBlockedStatusChanged(network, blocked)
+                val change = pathRecovery.onMemberBlockedStatusChanged(network, blocked)
                 if (!change.changed) return
                 Log.i(TAG, "network blocked changed device=$network blocked=$blocked")
                 if (change.recovered) {
@@ -1597,18 +1599,14 @@ class MainApplication : Application() {
                 if (offlineCallback !== this || device !== callbackDevice) {
                     return
                 }
-                val change = availableNetworks.onLost(network)
-                if (!change.topologyChanged) {
+                val update = pathRecovery.onMemberLost(network)
+                if (!update.topologyChanged) {
                     return
                 }
-                Log.i(TAG, "network lost device = $network count=${availableNetworks.size}")
-                physicalNetworkAvailable = change.available
-                callbackDevice?.offline = !change.available
-                if (change.recoveryRequired) {
-                    // Another physical path remains. It may now become the route
-                    // for transport sockets even though the device stayed online.
-                    requestTransportRecovery("physical-network-lost")
-                }
+                Log.i(TAG, "network lost device = $network count=${pathRecovery.memberCount}")
+                physicalNetworkAvailable = update.available
+                callbackDevice?.offline = !update.available
+                update.recoveryReason?.let { requestTransportRecovery(it) }
             }
         }
 
@@ -1617,8 +1615,6 @@ class MainApplication : Application() {
         // Explicit NOT_VPN prevents the tunnel satisfying its own observer.
         val networkRequest = physicalInternetNetworkRequestBuilder().build()
 
-        val connectivityManager =
-            getSystemService(ConnectivityManager::class.java) as ConnectivityManager
         connectivityManager.registerNetworkCallback(
             networkRequest,
             offlineCallback!!,
@@ -1639,17 +1635,6 @@ class MainApplication : Application() {
         physicalNetworkAvailable = false
     }
 
-    /**
-     * The membership callback above tracks the set of physical networks, so it
-     * cannot see a default-preference flip between two still-attached networks
-     * (bad-wifi avoidance moving the default to cell while wifi stays
-     * associated, or the reverse). Existing transport sockets do not migrate on
-     * such a flip; they linger on the old path until a ping timeout. Track the
-     * per-app default network's identity and kick the transports the moment it
-     * changes. This app never routes through its own tunnel (see MainService
-     * updatePfd's app rules for every mode), so the per-app default here is
-     * always a physical network, never the tunnel itself.
-     */
     @SuppressLint("WrongConstant")
     private fun defaultNetworkPressure(
         capabilities: NetworkCapabilities,
@@ -1709,11 +1694,27 @@ class MainApplication : Application() {
         )
     }
 
-    private fun addDefaultNetworkCallback() {
+    /**
+     * Tracks the physical default network: the path this app's unbound
+     * transport sockets leave on. The membership callback above cannot see a
+     * default-preference flip between two still-attached networks (bad-wifi
+     * avoidance moving the default to cell while wifi stays associated, or a
+     * wifi join that only takes the default once it validates). Existing
+     * sockets do not migrate on such a flip; they linger on the old path until
+     * a ping timeout. Kick the transports the moment the identity changes, or
+     * when the same network loses what open sockets use.
+     *
+     * From API 31 registerDefaultNetworkCallback reports the per-app default,
+     * which is this app's own VPN while the ESCAPE tunnel (no app rules) covers
+     * it, and that network keeps its identity across wifi<->cell. The best
+     * match for the physical request is the system default in every tunnel
+     * mode. Before API 31 the default callback already follows the system
+     * default, which is never a VPN.
+     */
+    private fun addDefaultNetworkCallback(pathRecovery: PhysicalPathRecovery<Network>) {
         removeDefaultNetworkCallback()
 
         val callbackDevice = device
-        val tracker = DefaultNetworkTracker<Network>()
         val pressureTracker = DefaultNetworkPressureTracker<Network>()
         val qualityTracker = DefaultNetworkQualityTracker<Network>()
         val cellularQualityTracker = DefaultCellularQualityTracker()
@@ -1729,11 +1730,26 @@ class MainApplication : Application() {
                 if (qualityTracker.onAvailable(network)) {
                     defaultNetworkIsCellular = false
                 }
-                if (tracker.onAvailable(network)) {
+                pathRecovery.onDefaultAvailable(network)?.let { reason ->
                     Log.i(TAG, "network default changed to $network")
-                    requestTransportRecovery("default-network-changed")
+                    requestTransportRecovery(reason)
                 }
                 updateDataSaverDegraded()
+            }
+
+            override fun onLinkPropertiesChanged(network: Network, linkProperties: LinkProperties) {
+                if (defaultNetworkCallback !== this || device !== callbackDevice) return
+                // Same network, new addressing (DHCP lease change, IPv6
+                // renumbering, interface replaced): sockets bound to a removed
+                // address are stranded. Added addresses, DNS and routes are not.
+                val link = physicalLinkSnapshot(
+                    linkProperties.interfaceName,
+                    linkProperties.linkAddresses.map { it.address },
+                )
+                pathRecovery.onDefaultLinkPropertiesChanged(network, link)?.let { reason ->
+                    Log.i(TAG, "network default link changed $network")
+                    requestTransportRecovery(reason)
+                }
             }
 
             override fun onCapabilitiesChanged(
@@ -1759,6 +1775,11 @@ class MainApplication : Application() {
                     notifyNetworkQualityChanged(callbackDevice, "Wi-Fi or link estimate")
                 }
                 defaultNetworkIsCellular = qualityTracker.currentIsCellular()
+                if (pathRecovery.isPhysicalDefault(network)) {
+                    defaultNetworkMetered = !networkCapabilities.hasCapability(
+                        NetworkCapabilities.NET_CAPABILITY_NOT_METERED,
+                    )
+                }
                 // Meteredness can change with capabilities without a Data Saver
                 // preference broadcast (for example Wi-Fi policy changes).
                 updateDataSaverDegraded()
@@ -1768,9 +1789,12 @@ class MainApplication : Application() {
                 if (defaultNetworkCallback !== this || device !== callbackDevice) {
                     return
                 }
+                if (pathRecovery.isPhysicalDefault(network)) {
+                    defaultNetworkMetered = null
+                }
                 // A loss->replacement with the same Network identity is still
                 // a dead-path crossing and is detected by the tracker.
-                tracker.onLost(network)
+                pathRecovery.onDefaultLost(network)
                 if (qualityTracker.onLost(network)) {
                     defaultNetworkIsCellular = false
                 }
@@ -1783,10 +1807,18 @@ class MainApplication : Application() {
 
         val connectivityManager =
             getSystemService(ConnectivityManager::class.java) as ConnectivityManager
-        connectivityManager.registerDefaultNetworkCallback(
-            defaultNetworkCallback!!,
-            Handler(mainLooper),
-        )
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            connectivityManager.registerBestMatchingNetworkCallback(
+                physicalDefaultNetworkRequestBuilder().build(),
+                defaultNetworkCallback!!,
+                Handler(mainLooper),
+            )
+        } else {
+            connectivityManager.registerDefaultNetworkCallback(
+                defaultNetworkCallback!!,
+                Handler(mainLooper),
+            )
+        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             defaultNetworkTelephonyCallback = addDefaultNetworkTelephonyCallback(
                 cellularQualityTracker,
@@ -1846,6 +1878,7 @@ class MainApplication : Application() {
             }
         }
         defaultNetworkCallback = null
+        defaultNetworkMetered = null
         defaultNetworkTelephonyCallback?.let {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 removeDefaultNetworkTelephonyCallback(it)
@@ -1904,7 +1937,13 @@ class MainApplication : Application() {
                 else -> BackgroundDataRestriction.DISABLED
             }
             dataSaverDegradesPerformance(
-                activeNetworkMetered = connectivityManager.isActiveNetworkMetered,
+                // The physical default's own capabilities: this app's active
+                // network is its VPN while the ESCAPE tunnel covers it, and the
+                // VPN declares itself unmetered. With no tracked physical
+                // default (offline, or before its first callback) ask the
+                // platform as before.
+                activeNetworkMetered = defaultNetworkMetered
+                    ?: connectivityManager.isActiveNetworkMetered,
                 restriction = restriction,
             )
         }.onFailure {
@@ -2544,8 +2583,11 @@ class MainApplication : Application() {
             }
         }
 
-        addOfflineCallback()
-        addDefaultNetworkCallback()
+        // one path state per device: membership and the physical default
+        // decide together when the transports re-dial
+        val pathRecovery = PhysicalPathRecovery<Network>()
+        addOfflineCallback(pathRecovery)
+        addDefaultNetworkCallback(pathRecovery)
         addNetworkCallback()
         addPowerSaveReceiver()
         addNetworkPolicyReceiver()
@@ -3005,7 +3047,7 @@ class MainApplication : Application() {
                 alwaysOnConnectRequestedDevice = null
                 ensureAlwaysOnConnected()
             }
-        }, 30_000L)
+        }, vpnTunnelTimingSettings.alwaysOnConnectRetryMillis)
     }
 
     fun restoredVpnServiceRequired(): Boolean {

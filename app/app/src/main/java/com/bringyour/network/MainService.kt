@@ -481,14 +481,25 @@ import kotlin.concurrent.thread
         )
     }
 
+    /**
+     * The Always-on guard replaces the tunnel only while there is no device or
+     * the tunnel the device wants would escape; a provider dip under a connect
+     * request keeps the capture tunnel, which already fails closed.
+     */
+    private fun alwaysOnGuardRequired(
+        app: MainApplication,
+        desired: VpnPacketFlowConfiguration?,
+    ): Boolean = vpnAlwaysOnGuardRequired(
+        systemAlwaysOn = app.isSystemAlwaysOnVpnActive(),
+        deviceAvailable = desired != null,
+        wouldEscape = desired?.packetFlowMode == VpnPacketFlowMode.ESCAPE,
+    )
+
     private fun reconcilePfd() {
         val app = application as MainApplication
-        val guardRequired = vpnAlwaysOnGuardRequired(
-                systemAlwaysOn = app.isSystemAlwaysOnVpnActive(),
-                deviceAvailable = boundDevice != null,
-                providerConnected = connected,
-            )
-        if (guardRequired) {
+        // null exactly when no device is bound
+        val desired = boundDevice?.let { desiredTunnelConfiguration() }
+        if (alwaysOnGuardRequired(app, desired)) {
             if (tunnelRetryKind == TunnelRetryKind.CONFIGURATION) cancelTunnelRetry()
             if (
                 alwaysOnGuardPfd == null &&
@@ -499,12 +510,11 @@ import kotlin.concurrent.thread
             return
         }
         if (tunnelRetryKind == TunnelRetryKind.ALWAYS_ON_GUARD) cancelTunnelRetry()
-        if (boundDevice == null) {
+        if (desired == null) {
             Log.i(TAG, "[service]device unavailable outside Always-on; stopping")
             stop()
             return
         }
-        val desired = desiredTunnelConfiguration()
         if (
             tunnelRetryKind == TunnelRetryKind.CONFIGURATION &&
             tunnelRetryConfiguration != desired
@@ -540,7 +550,10 @@ import kotlin.concurrent.thread
         }
         if (tunnelRetryRunnable != null) return
 
-        val delayMillis = tunnelRetryDelayMillis(tunnelRetryFailureCount)
+        val delayMillis = tunnelRetryDelayMillis(
+            (application as MainApplication).vpnTunnelTimingSettings,
+            tunnelRetryFailureCount,
+        )
         if (tunnelRetryFailureCount < Int.MAX_VALUE) tunnelRetryFailureCount += 1
         val retryDevice = boundDevice
         lateinit var runnable: Runnable
@@ -551,13 +564,7 @@ import kotlin.concurrent.thread
             if (stopping || app.service?.get() !== this) return@Runnable
             when (kind) {
                 TunnelRetryKind.ALWAYS_ON_GUARD -> {
-                    if (
-                        vpnAlwaysOnGuardRequired(
-                            systemAlwaysOn = app.isSystemAlwaysOnVpnActive(),
-                            deviceAvailable = boundDevice != null,
-                            providerConnected = connected,
-                        )
-                    ) {
+                    if (alwaysOnGuardRequired(app, boundDevice?.let { desiredTunnelConfiguration() })) {
                         establishAlwaysOnGuard()
                     } else {
                         cancelTunnelRetry()
@@ -618,14 +625,11 @@ import kotlin.concurrent.thread
         // for provide with no live exit) keeps the tunnel established but adds
         // no routes and no DNS, so Android points nothing at it: every app
         // (including the tunnel owner) keeps its native network and DNS, and
-        // there is no dependence on an installed allow-listed package.
-        val mode = vpnPacketFlowMode(
-            offline = configuration.offline,
-            connected = configuration.connected,
-            killSwitch = configuration.killSwitch,
-            connectRequested = configuration.connectRequested,
-            includedAppIds = tunnelIncludedAppIds,
-        )
+        // there is no dependence on an installed allow-listed package. The
+        // owner stays inside the ESCAPE tunnel: MainApplication tracks the
+        // physical default with a VPN-blind callback, not the per-app default.
+        // The same mode decides whether Always-on holds its guard instead.
+        val mode = configuration.packetFlowMode
         when (mode) {
             VpnPacketFlowMode.ESCAPE -> {
                 // no app rules; the escape build below adds routes/DNS only for

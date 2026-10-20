@@ -9,9 +9,15 @@ internal class DefaultNetworkTracker<T> {
     private var initialized = false
     private var current: T? = null
     private var lostSinceLastAvailable = false
+    private var link: PhysicalLinkSnapshot? = null
 
     fun onAvailable(network: T): Boolean {
-        val changed = initialized && (lostSinceLastAvailable || current != network)
+        val identityChanged = lostSinceLastAvailable || current != network
+        val changed = initialized && identityChanged
+        if (identityChanged) {
+            // a new path: its first link properties are the next baseline
+            link = null
+        }
         initialized = true
         current = network
         lostSinceLastAvailable = false
@@ -22,8 +28,23 @@ internal class DefaultNetworkTracker<T> {
         if (initialized && current == network) {
             current = null
             lostSinceLastAvailable = true
+            link = null
         }
     }
+
+    /**
+     * Android sends the default network's link properties right after
+     * onAvailable; that is the baseline. Later, only a change that can strand
+     * an open socket on the same network is reported.
+     */
+    fun onLinkPropertiesChanged(network: T, next: PhysicalLinkSnapshot): Boolean {
+        if (!isCurrent(network)) return false
+        val previous = link
+        link = next
+        return previous != null && physicalLinkChangeStrandsSockets(previous, next)
+    }
+
+    fun isCurrent(network: T): Boolean = current != null && current == network
 }
 
 /** Radio and link estimates for one unchanged default network. */

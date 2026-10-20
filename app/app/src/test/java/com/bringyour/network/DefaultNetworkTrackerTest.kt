@@ -46,6 +46,90 @@ class DefaultNetworkTrackerTest {
 
         assertFalse(tracker.onAvailable("wifi"))
     }
+
+    private fun link(interfaceName: String, vararg addresses: String) =
+        PhysicalLinkSnapshot(interfaceName, addresses.toSet())
+
+    @Test
+    fun initialLinkIsOnlyABaseline() {
+        val tracker = DefaultNetworkTracker<String>()
+        tracker.onAvailable("wifi")
+
+        assertFalse(tracker.onLinkPropertiesChanged("wifi", link("wlan0", "192.0.2.10")))
+    }
+
+    @Test
+    fun addedAddressDoesNotStrandSockets() {
+        val tracker = DefaultNetworkTracker<String>()
+        tracker.onAvailable("wifi")
+        tracker.onLinkPropertiesChanged("wifi", link("wlan0", "192.0.2.10"))
+
+        assertFalse(
+            tracker.onLinkPropertiesChanged("wifi", link("wlan0", "192.0.2.10", "2001:db8::10")),
+        )
+    }
+
+    @Test
+    fun removedAddressStrandsSockets() {
+        val tracker = DefaultNetworkTracker<String>()
+        tracker.onAvailable("wifi")
+        tracker.onLinkPropertiesChanged("wifi", link("wlan0", "192.0.2.10", "2001:db8::10"))
+
+        assertTrue(tracker.onLinkPropertiesChanged("wifi", link("wlan0", "2001:db8::10")))
+    }
+
+    @Test
+    fun replacedInterfaceStrandsSockets() {
+        val tracker = DefaultNetworkTracker<String>()
+        tracker.onAvailable("cell")
+        tracker.onLinkPropertiesChanged("cell", link("rmnet0", "198.51.100.7"))
+
+        assertTrue(tracker.onLinkPropertiesChanged("cell", link("rmnet1", "198.51.100.7")))
+    }
+
+    @Test
+    fun linkOfANetworkThatIsNotTheDefaultIsIgnored() {
+        val tracker = DefaultNetworkTracker<String>()
+        tracker.onAvailable("wifi")
+        tracker.onLinkPropertiesChanged("wifi", link("wlan0", "192.0.2.10"))
+
+        assertFalse(tracker.onLinkPropertiesChanged("cell", link("rmnet0", "198.51.100.7")))
+        assertFalse(tracker.onLinkPropertiesChanged("cell", link("rmnet0")))
+    }
+
+    @Test
+    fun newDefaultTakesItsFirstLinkAsTheBaseline() {
+        val tracker = DefaultNetworkTracker<String>()
+        tracker.onAvailable("wifi")
+        tracker.onLinkPropertiesChanged("wifi", link("wlan0", "192.0.2.10"))
+        tracker.onAvailable("cell")
+
+        assertFalse(tracker.onLinkPropertiesChanged("cell", link("rmnet0", "198.51.100.7")))
+    }
+
+    @Test
+    fun lossThenReturnTakesANewLinkBaseline() {
+        val tracker = DefaultNetworkTracker<String>()
+        tracker.onAvailable("wifi")
+        tracker.onLinkPropertiesChanged("wifi", link("wlan0", "192.0.2.10"))
+        tracker.onLost("wifi")
+        tracker.onAvailable("wifi")
+
+        assertFalse(tracker.onLinkPropertiesChanged("wifi", link("wlan0", "192.0.2.99")))
+    }
+
+    @Test
+    fun currentFollowsOnlyTheLiveDefault() {
+        val tracker = DefaultNetworkTracker<String>()
+        assertFalse(tracker.isCurrent("wifi"))
+
+        tracker.onAvailable("wifi")
+        assertTrue(tracker.isCurrent("wifi"))
+        assertFalse(tracker.isCurrent("cell"))
+
+        tracker.onLost("wifi")
+        assertFalse(tracker.isCurrent("wifi"))
+    }
 }
 
 class DefaultNetworkQualityTrackerTest {

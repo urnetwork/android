@@ -217,7 +217,7 @@ private fun SeedphraseLoginSheetPreview() {
                 SeedphraseLoginSheet(
                     isPresenting = true,
                     setIsPresenting = {},
-                    onLogin = {}
+                    onLogin = { _, _ -> }
                 )
             }
         }

@@ -95,6 +95,8 @@ class DeveloperAffinityMaxTimeTest {
         val refresh = reset.indexOf("refresh()")
         assertTrue(call >= 0 && call < refresh)
         assertFalse(reset.contains("affinityMaxTimeMillis ="))
-        assertFalse(reset.contains("ReliabilitySettings("))
+        // a constructed settings object, not the resetReliabilitySettings()
+        // call above, whose name contains the same text
+        assertFalse(Regex("(?<![A-Za-z0-9_])ReliabilitySettings\\(").containsMatchIn(reset))
     }
 }

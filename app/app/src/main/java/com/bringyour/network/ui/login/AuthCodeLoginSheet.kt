@@ -199,7 +199,7 @@ private fun AuthCodeLoginSheetPreview() {
                 AuthCodeLoginSheet(
                     isPresenting = true,
                     setIsPresenting = {},
-                    onLogin = {}
+                    onLogin = { _, _ -> }
                 )
             }
         }

@@ -77,6 +77,16 @@ internal fun vpnPacketFlowMode(
     else -> VpnPacketFlowMode.DENYLIST
 }
 
+/** The routing mode this configuration builds; see [vpnPacketFlowMode]. */
+internal val VpnPacketFlowConfiguration.packetFlowMode: VpnPacketFlowMode
+    get() = vpnPacketFlowMode(
+        offline = offline,
+        connected = connected,
+        killSwitch = killSwitch,
+        connectRequested = connectRequested,
+        includedAppIds = includedAppIds,
+    )
+
 internal fun vpnPacketFlowNeedsRebuild(
     packetFlowActive: Boolean,
     applied: VpnPacketFlowConfiguration?,

@@ -1,5 +1,6 @@
 package com.bringyour.network
 
+import android.annotation.SuppressLint
 import android.annotation.TargetApi
 import android.net.NetworkCapabilities
 import android.os.Build
@@ -56,5 +57,23 @@ class PhysicalInternetNetworkRequestTest {
         assertTrue(request.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET))
         assertTrue(request.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_RESTRICTED))
         assertTrue(request.hasCapability(NetworkCapabilities.NET_CAPABILITY_TRUSTED))
+    }
+
+    @Test
+    fun physicalDefaultRequestBuildsAcrossTheSupportedApiRange() {
+        assertNotNull(physicalDefaultNetworkRequestBuilder().build())
+    }
+
+    @Test
+    @SuppressLint("WrongConstant")
+    fun physicalDefaultRequestMirrorsTheSystemDefaultWithoutVpns() {
+        // the best match must be the system default, never this app's tunnel,
+        // and on API 31+ never a carrier VCN's underlying network
+        assumeTrue(Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
+        val request = physicalDefaultNetworkRequestBuilder().build()
+
+        assertTrue(request.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET))
+        assertTrue(request.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_VPN))
+        assertTrue(request.hasCapability(NET_CAPABILITY_NOT_VCN_MANAGED_COMPAT))
     }
 }

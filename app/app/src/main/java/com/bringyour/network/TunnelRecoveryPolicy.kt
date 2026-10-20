@@ -1,8 +1,29 @@
 package com.bringyour.network
 
-internal const val TRANSPORT_RECOVERY_DEBOUNCE_MILLIS = 350L
-internal const val MINIMUM_TRANSPORT_RECOVERY_INTERVAL_MILLIS = 2_000L
-internal const val WAKE_HEALTH_GRACE_MILLIS = 5_000L
+/**
+ * Every timing value of [TunnelRecoveryPolicy]. The defaults are the shipped
+ * behavior; tests and callers pass their own instance to change any of them.
+ */
+internal data class TunnelRecoverySettings(
+    /**
+     * Coalesces a burst of path signals into one transport recovery; 0 does not
+     * wait for the burst to settle (the minimum interval still spaces kicks).
+     */
+    val transportRecoveryDebounceMillis: Long = 350L,
+    /**
+     * The least time between two transport recoveries. Every kick cancels any
+     * dial in flight, so a default that flaps re-dials once per interval
+     * instead of once per flip. 0 leaves only the debounce between kicks.
+     */
+    val minimumTransportRecoveryIntervalMillis: Long = 2_000L,
+    /** Coalesces wake signals (screen-on, unlock, foreground) before the probe pass; 0 audits each one. */
+    val wakeAuditDebounceMillis: Long = 350L,
+    /**
+     * How long a wake audit lets the probe pass run before judging the provider
+     * window; 0 judges it at once, before the probes can answer.
+     */
+    val wakeHealthGraceMillis: Long = 5_000L,
+)
 
 internal data class ScheduledRecovery(
     val generation: Long,
@@ -18,7 +39,7 @@ internal data class WakeHealthAudit(
     val generation: Long,
     val startedAtMillis: Long,
     val reasons: Set<String>,
-    val delayMillis: Long = WAKE_HEALTH_GRACE_MILLIS,
+    val delayMillis: Long,
 )
 
 internal data class WakeHealthFacts(
@@ -40,8 +61,11 @@ internal enum class WakeHealthDecision {
  * Main-looper state machine for wake and network recovery. Android callbacks
  * arrive in bursts (screen-on, unlock, process foreground, capabilities and
  * default-network changes); generations coalesce those into one bounded action.
+ * All timing comes from [settings].
  */
-internal class TunnelRecoveryPolicy {
+internal class TunnelRecoveryPolicy(
+    private val settings: TunnelRecoverySettings = TunnelRecoverySettings(),
+) {
     private var transportGeneration = 0L
     private var wakeGeneration = 0L
     private var lastTransportRecoveryAt: Long? = null
@@ -62,11 +86,11 @@ internal class TunnelRecoveryPolicy {
             lastPhysicalPathSignalAt = nowMillis
         }
         val intervalDelay = lastTransportRecoveryAt?.let {
-            (it + MINIMUM_TRANSPORT_RECOVERY_INTERVAL_MILLIS - nowMillis).coerceAtLeast(0L)
+            (it + settings.minimumTransportRecoveryIntervalMillis - nowMillis).coerceAtLeast(0L)
         } ?: 0L
         return ScheduledRecovery(
             generation = transportGeneration,
-            delayMillis = maxOf(TRANSPORT_RECOVERY_DEBOUNCE_MILLIS, intervalDelay),
+            delayMillis = maxOf(settings.transportRecoveryDebounceMillis, intervalDelay),
         )
     }
 
@@ -87,7 +111,7 @@ internal class TunnelRecoveryPolicy {
     fun requestWakeAudit(reason: String): ScheduledRecovery {
         wakeGeneration += 1
         pendingWakeReasons.add(reason)
-        return ScheduledRecovery(wakeGeneration, TRANSPORT_RECOVERY_DEBOUNCE_MILLIS)
+        return ScheduledRecovery(wakeGeneration, settings.wakeAuditDebounceMillis)
     }
 
     fun beginWakeAudit(generation: Long, nowMillis: Long): WakeHealthAudit? {
@@ -98,6 +122,7 @@ internal class TunnelRecoveryPolicy {
             generation = generation,
             startedAtMillis = nowMillis,
             reasons = pendingWakeReasons.toSet(),
+            delayMillis = settings.wakeHealthGraceMillis,
         )
         pendingWakeReasons.clear()
         return audit
