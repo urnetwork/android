@@ -82,7 +82,7 @@ class FlightGateDebugReceiver : BroadcastReceiver() {
             Log.i(TAG, "result action=login ok=true already=true")
             return
         }
-        app.authenticateWithPassword(lines[0].trim(), lines[1].trim()) { completion ->
+        app.authenticateWithPassword(lines[0].trim(), lines[1].trim()) { _, completion ->
             when (completion) {
                 is PasswordLoginCompletion.Ready ->
                     Log.i(TAG, "result action=login ok=true")
