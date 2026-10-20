@@ -44,7 +44,7 @@ function fixture() {
         for (let i = 0; i < f.finished; i += 1) listeners.get("Network.loadingFinished")({ encodedDataLength: f.encodedBytes });
         for (let i = 0; i < f.failed; i += 1) listeners.get("Network.loadingFailed")({});
         for (const event of f.failedEvents) listeners.get("Network.loadingFailed")(event);
-        if (f.navigationError) return { errorText: "synthetic navigation failure" };
+        if (f.navigationError) return { errorText: f.navigationError };
       }
       if (method === "Runtime.evaluate") {
         elapsed += f.evaluateDelay;
@@ -377,9 +377,18 @@ test("page failure diagnostics are fresh per page invocation and do not attach w
 });
 
 test("navigation failure still closes only the owned target and propagates failure", async () => {
-  const f = fixture(); f.navigationError = true;
-  await assert.rejects(runFastBenchmark(f.options, f.deps), /synthetic navigation failure/);
-  assertClosed(f);
+  for (const errorText of ["net::ERR_CONNECTION_RESET", "synthetic-private-navigation",
+    { toString() { throw new Error("navigation coerced a private value"); } }]) {
+    const f = fixture(); f.navigationError = errorText;
+    await assert.rejects(runFastBenchmark(f.options, f.deps), error => {
+      assert.equal(error.message, "Fast.com navigation failed");
+      assert.equal(error.phase, "navigation");
+      assert.equal(error.category, errorText === "net::ERR_CONNECTION_RESET" ? "reset" : undefined);
+      assert.doesNotMatch(JSON.stringify(error), /synthetic|private|net::|errorText|cause/);
+      return true;
+    });
+    assertClosed(f);
+  }
 });
 
 test("whole-run deadline bounds discovery, CDP operations and owned-target cleanup", async (t) => {
@@ -550,4 +559,147 @@ test(`actual CLI preserves sanitized ${mode} websocket failure without inventing
     websocketCloseCode: 1006, phase: mode,
   });
   assert.doesNotMatch(child.stderr, /private|fake|Node\.js|stack|url|expression/);
+});
+
+// Exercise the real CLI/CDP response path, including the owned cleanup sequence.
+// Only host APIs are replaced; unexpected operations never reach a real socket.
+function navigationCli({ errorText, failure = "navigation", cleanup = "reply" }) {
+  const preload = `
+    const config = ${JSON.stringify({ errorText, failure, cleanup })};
+    let now = 0, created = 0, navigated = 0;
+    const closed = [];
+    const realTimeout = globalThis.setTimeout;
+    globalThis.performance = { now: () => now };
+    globalThis.setTimeout = (callback, ms, ...args) => ms <= 2000
+      ? realTimeout(() => { now += ms; callback(...args); }, 0)
+      : realTimeout(callback, ms, ...args);
+    const exit = process.exit.bind(process);
+    process.exit = code => {
+      if (created !== 1 || navigated !== 1 || now > 2000 ||
+          JSON.stringify(closed) !== '["page","target","browser"]') exit(97);
+      exit(code);
+    };
+    globalThis.fetch = async url => {
+      if (url === "http://127.0.0.1:9223/json/version") return { ok: true, json: async () => ({ webSocketDebuggerUrl: "ws://fake/browser" }) };
+      if (url === "http://127.0.0.1:9223/json/list") return { ok: true, json: async () => [{ id: "owned", webSocketDebuggerUrl: "ws://fake/page" }] };
+      throw new Error("unexpected fake request");
+    };
+    globalThis.WebSocket = class extends EventTarget {
+      constructor(url) {
+        super();
+        if (!["ws://fake/browser", "ws://fake/page"].includes(url)) throw new Error("unexpected fake socket");
+        this.kind = url.endsWith("/page") ? "page" : "browser";
+        setInterval(() => {}, 1000); // Exercise the CLI's explicit owned exit.
+        queueMicrotask(() => this.dispatchEvent(new Event("open")));
+      }
+      send(data) {
+        const { id, method, params } = JSON.parse(data);
+        let result = {}, error;
+        if (this.kind === "browser" && method === "Target.createTarget") {
+          if (params.url !== "about:blank" || ++created !== 1) throw new Error("unexpected target creation");
+          result = { targetId: "owned" };
+        } else if (this.kind === "browser" && method === "Target.closeTarget") {
+          if (params.targetId !== "owned") throw new Error("unexpected target cleanup");
+          closed.push("target");
+          if (config.cleanup === "hang") return;
+          if (config.cleanup === "failure") error = { code: -32000, message: "synthetic-private-cleanup" };
+        } else if (this.kind === "page" && method === "Page.navigate") {
+          navigated++;
+          if (config.failure === "hang") return;
+          if (config.failure === "command") error = { code: -32001, message: config.errorText };
+          else result = { errorText: config.errorText, frameId: "synthetic-private-frame",
+            loaderId: "synthetic-private-loader", url: "https://download.example/?token=synthetic-private" };
+        } else if (this.kind !== "page" || !["Page.enable", "Network.enable", "Runtime.enable",
+          "Network.setCacheDisabled", "Network.clearBrowserCache"].includes(method)) {
+          throw new Error("unexpected fake operation");
+        }
+        queueMicrotask(() => this.dispatchEvent(new MessageEvent("message", {
+          data: JSON.stringify(error ? { id, error } : { id, result }),
+        })));
+      }
+      close() { closed.push(this.kind); }
+    };
+  `;
+  const child = spawnSync(process.execPath, ["--import", `data:text/javascript,${encodeURIComponent(preload)}`,
+    fileURLToPath(new URL("./chrome_fast_benchmark.mjs", import.meta.url)), "--port", "9223", "--timeout-ms", "2000"],
+  { encoding: "utf8", timeout: 5000, maxBuffer: 64 * 1024 });
+  assert.equal(child.error, undefined);
+  assert.equal(child.signal, null);
+  return child;
+}
+
+test("actual CLI reports only allowlisted navigation categories and exits without a speed sample", () => {
+  for (const [code, category] of [
+    ["ERR_TIMED_OUT", "timeout"], ["ERR_CONNECTION_TIMED_OUT", "timeout"],
+    ["ERR_NAME_NOT_RESOLVED", "dns"], ["ERR_NAME_RESOLUTION_FAILED", "dns"], ["ERR_DNS_TIMED_OUT", "dns"],
+    ["ERR_CONNECTION_RESET", "reset"],
+    ["ERR_SSL_PROTOCOL_ERROR", "tls"], ["ERR_SSL_VERSION_OR_CIPHER_MISMATCH", "tls"],
+    ["ERR_CERT_COMMON_NAME_INVALID", "tls"], ["ERR_CERT_DATE_INVALID", "tls"], ["ERR_CERT_AUTHORITY_INVALID", "tls"],
+    ["ERR_BLOCKED_BY_CLIENT", "blocked"], ["ERR_BLOCKED_BY_ADMINISTRATOR", "blocked"],
+    ["ERR_BLOCKED_BY_RESPONSE", "blocked"], ["ERR_BLOCKED_BY_CSP", "blocked"], ["ERR_ABORTED", "aborted"],
+  ]) {
+    const child = navigationCli({ errorText: `net::${code}` });
+    assert.equal(child.status, 1, code);
+    assert.equal(child.stdout, "", "navigation failure must never become a fast-result");
+    assert.deepEqual(JSON.parse(child.stderr), { type: "fast-error", reason: "navigation-failed",
+      navigationFailureCategory: category, phase: "navigation" }, code);
+    assert.ok(child.stderr.length < 160);
+    assert.doesNotMatch(child.stderr, /net::|ERR_|synthetic|private|download|frameId|loaderId|token|https|stack/);
+  }
+});
+
+test("actual CLI keeps unknown and private navigation text generic without substring classification", () => {
+  for (const errorText of [
+    "synthetic-private-navigation", "net::ERR_FAILED", "net::ERR_CONNECTION_ABORTED",
+    "net::ERR_TIMED_OUT https://download.example/?token=synthetic-private",
+    "prefix net::ERR_CONNECTION_RESET", "net::ERR_CONNECTION_RESET\nsynthetic-private",
+    "net::ERR_CERT_DATE_INVALID\u0000", "net::err_name_not_resolved", " net::ERR_ABORTED",
+    "__proto__", "constructor", "toString", 42, true, ["net::ERR_TIMED_OUT"],
+    { errorText: "net::ERR_TIMED_OUT", url: "https://download.example/?token=synthetic-private" },
+    "synthetic-private".repeat(1024),
+  ]) {
+    const child = navigationCli({ errorText });
+    assert.equal(child.status, 1);
+    assert.equal(child.stdout, "");
+    assert.deepEqual(JSON.parse(child.stderr), {
+      type: "fast-error", reason: "benchmark-operation-failed", phase: "navigation",
+    });
+    assert.ok(child.stderr.length < 100);
+    assert.doesNotMatch(child.stderr, /net::|ERR_|synthetic|private|download|frameId|loaderId|token|https|stack/);
+  }
+});
+
+test("actual CLI keeps navigation failure primary through bounded cleanup failure", () => {
+  for (const cleanup of ["failure", "hang"]) {
+    const child = navigationCli({ errorText: "net::ERR_CONNECTION_RESET", cleanup });
+    assert.equal(child.status, 1);
+    assert.equal(child.stdout, "");
+    assert.deepEqual(JSON.parse(child.stderr), { type: "fast-error", reason: "navigation-failed",
+      navigationFailureCategory: "reset", phase: "navigation" });
+  }
+});
+
+test("actual CLI does not reinterpret a typed navigation command error as a network category", () => {
+  const child = navigationCli({ errorText: "net::ERR_CONNECTION_RESET", failure: "command" });
+  assert.equal(child.status, 1);
+  assert.equal(child.stdout, "");
+  assert.deepEqual(JSON.parse(child.stderr), { type: "fast-error", reason: "command-failed",
+    operation: "Page.navigate", protocolCode: -32001, phase: "navigation" });
+});
+
+test("actual CLI retains the whole-run deadline for an unanswered navigation", () => {
+  const child = navigationCli({ failure: "hang" });
+  assert.equal(child.status, 2);
+  assert.equal(child.stderr, "");
+  const result = JSON.parse(child.stdout);
+  assert.equal(result.type, "fast-result");
+  assert.equal(result.valid, false);
+  assert.equal(result.completed, false);
+  assert.equal(result.timedOut, true);
+  assert.equal(result.timeoutPhase, "navigation");
+  assert.equal(result.failureReason, "deadline-exceeded");
+  assert.equal(result.totalElapsedMs, 2000);
+  assert.equal(result.displayValue, "");
+  assert.equal(result.pageRequestCount, 0);
+  assert.equal(Object.hasOwn(result, "navigationFailureCategory"), false);
 });

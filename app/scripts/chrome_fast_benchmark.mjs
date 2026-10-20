@@ -52,6 +52,32 @@ class DeadlineError extends Error {
   constructor(phase) { super("Fast.com lifecycle deadline exceeded"); this.phase = phase; }
 }
 
+// Navigation replies can contain private text. Retain only exact, known codes
+// as fixed categories; do not coerce, store or echo the supplied value.
+class NavigationError extends Error {
+  constructor(errorText) {
+    super("Fast.com navigation failed");
+    switch (errorText) {
+      case "net::ERR_TIMED_OUT":
+      case "net::ERR_CONNECTION_TIMED_OUT": this.category = "timeout"; break;
+      case "net::ERR_NAME_NOT_RESOLVED":
+      case "net::ERR_NAME_RESOLUTION_FAILED":
+      case "net::ERR_DNS_TIMED_OUT": this.category = "dns"; break;
+      case "net::ERR_CONNECTION_RESET": this.category = "reset"; break;
+      case "net::ERR_SSL_PROTOCOL_ERROR":
+      case "net::ERR_SSL_VERSION_OR_CIPHER_MISMATCH":
+      case "net::ERR_CERT_COMMON_NAME_INVALID":
+      case "net::ERR_CERT_DATE_INVALID":
+      case "net::ERR_CERT_AUTHORITY_INVALID": this.category = "tls"; break;
+      case "net::ERR_BLOCKED_BY_CLIENT":
+      case "net::ERR_BLOCKED_BY_ADMINISTRATOR":
+      case "net::ERR_BLOCKED_BY_RESPONSE":
+      case "net::ERR_BLOCKED_BY_CSP": this.category = "blocked"; break;
+      case "net::ERR_ABORTED": this.category = "aborted"; break;
+    }
+  }
+}
+
 // Platform-binding exception only: export the existing owned CDP poll, not a
 // second browser/controller or app-command publisher. Go owns every decision.
 // One atomic latest record (at most4096 bytes), at most96 updates, no history,
@@ -291,7 +317,7 @@ export async function runFastBenchmark(options, dependencies = {}) {
     const navigation = await deadline.wait("navigation", () => session.send("Page.navigate", {
       url: "https://fast.com/",
     }));
-    if (navigation.errorText) throw new Error(navigation.errorText);
+    if (navigation.errorText) throw new NavigationError(navigation.errorText);
 
     while (deadline.remaining() > 0) {
       await deadline.wait("display-poll", () => sleep(Math.min(1_000, deadline.remaining())));
@@ -411,6 +437,8 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
       const phases = new Set(["browser-discovery", "browser-open", "target-create", "target-discovery", "page-open",
         "page-enable", "cache-disable", "cache-clear", "navigation", "display-poll", "display-evaluate", "target-cleanup"]);
       process.stderr.write(`${JSON.stringify({ type: "fast-error", ...cdpFailureDetails(error),
+        ...(error instanceof NavigationError && error.category
+          ? { reason: "navigation-failed", navigationFailureCategory: error.category } : {}),
         ...(phases.has(error?.phase) ? { phase: error.phase } : {}) })}\n`, () => process.exit(1));
     });
 }
