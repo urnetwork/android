@@ -101,19 +101,34 @@ internal fun decideVpnServiceLaunch(
     else -> VpnServiceLaunchDecision.START_FOREGROUND
 }
 
-private val TUNNEL_RETRY_DELAYS_MILLIS = longArrayOf(
-    250L,
-    1_000L,
-    2_000L,
-    5_000L,
-    10_000L,
-    30_000L,
-)
+/**
+ * Timing for keeping the VPN interface up. The defaults are the shipped
+ * behavior; tests and callers pass their own instance to change any of them.
+ */
+internal data class VpnTunnelTimingSettings(
+    /**
+     * The TUN establish retry delay by consecutive failure; the last entry
+     * repeats. Configuration rebuilds and the Always-on guard share it. A 0
+     * entry retries at once; a 0 last entry would retry a persistent failure
+     * in a loop.
+     */
+    val tunnelRetryDelaysMillis: List<Long> = listOf(250L, 1_000L, 2_000L, 5_000L, 10_000L, 30_000L),
+    /**
+     * How long an Always-on start waits for its connect request to take before
+     * asking again. The guard holds while that connect is outstanding; 0 asks
+     * again at once.
+     */
+    val alwaysOnConnectRetryMillis: Long = 30_000L,
+) {
+    init {
+        require(tunnelRetryDelaysMillis.isNotEmpty()) { "tunnelRetryDelaysMillis must not be empty" }
+    }
+}
 
 /** Infinite retry with a bounded delay: a transient TUN failure must not permanently stop VPN. */
-internal fun tunnelRetryDelayMillis(failureCount: Int): Long {
-    val index = failureCount.coerceIn(0, TUNNEL_RETRY_DELAYS_MILLIS.lastIndex)
-    return TUNNEL_RETRY_DELAYS_MILLIS[index]
+internal fun tunnelRetryDelayMillis(settings: VpnTunnelTimingSettings, failureCount: Int): Long {
+    val delays = settings.tunnelRetryDelaysMillis
+    return delays[failureCount.coerceIn(0, delays.lastIndex)]
 }
 
 /**
@@ -164,9 +179,16 @@ internal fun vpnServiceSystemStart(source: String?, frameworkAlwaysOn: Boolean):
     return source != "app" || frameworkAlwaysOn
 }
 
-/** Hold a fail-closed interface until an always-on service has a live provider. */
+/**
+ * Hold a fail-closed interface while an always-on service has no device, or
+ * while the tunnel the device wants would escape (offline, or before the
+ * always-on connect is requested). Once connect is requested the capture
+ * tunnel already fails closed through a provider dip; swapping in the guard
+ * then would close the packet flow, blackhole the excluded apps and, when the
+ * allow/deny lists differ, make Android replace the VPN network twice.
+ */
 internal fun vpnAlwaysOnGuardRequired(
     systemAlwaysOn: Boolean,
     deviceAvailable: Boolean,
-    providerConnected: Boolean,
-): Boolean = systemAlwaysOn && (!deviceAvailable || !providerConnected)
+    wouldEscape: Boolean,
+): Boolean = systemAlwaysOn && (!deviceAvailable || wouldEscape)

@@ -2,6 +2,7 @@ package com.bringyour.network
 
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -129,11 +130,51 @@ class VpnServiceStartPolicyTest {
     }
 
     @Test
-    fun alwaysOnGuardsUntilADeviceAndProviderAreBothReady() {
-        assertTrue(vpnAlwaysOnGuardRequired(true, deviceAvailable = false, providerConnected = false))
-        assertTrue(vpnAlwaysOnGuardRequired(true, deviceAvailable = true, providerConnected = false))
-        assertFalse(vpnAlwaysOnGuardRequired(true, deviceAvailable = true, providerConnected = true))
-        assertFalse(vpnAlwaysOnGuardRequired(false, deviceAvailable = false, providerConnected = false))
+    fun alwaysOnGuardsWithoutADeviceOrWhileTheTunnelWouldEscape() {
+        assertTrue(vpnAlwaysOnGuardRequired(true, deviceAvailable = false, wouldEscape = false))
+        assertTrue(vpnAlwaysOnGuardRequired(true, deviceAvailable = true, wouldEscape = true))
+        assertFalse(vpnAlwaysOnGuardRequired(true, deviceAvailable = true, wouldEscape = false))
+        assertFalse(vpnAlwaysOnGuardRequired(false, deviceAvailable = false, wouldEscape = true))
+    }
+
+    private fun tunnel(
+        offline: Boolean = false,
+        connected: Boolean = false,
+        killSwitch: Boolean = false,
+        connectRequested: Boolean = false,
+    ) = VpnPacketFlowConfiguration(
+        offline = offline,
+        connected = connected,
+        killSwitch = killSwitch,
+        connectRequested = connectRequested,
+        includedAppIds = emptySet(),
+        excludedAppIds = emptySet(),
+        dnsIpv4s = emptyList(),
+        clientIpv4 = null,
+        dnsIpv6s = emptyList(),
+        clientIpv6 = null,
+    )
+
+    private fun alwaysOnGuards(tunnel: VpnPacketFlowConfiguration) = vpnAlwaysOnGuardRequired(
+        systemAlwaysOn = true,
+        deviceAvailable = true,
+        wouldEscape = tunnel.packetFlowMode == VpnPacketFlowMode.ESCAPE,
+    )
+
+    @Test
+    fun alwaysOnKeepsTheCaptureTunnelThroughAProviderDip() {
+        // Always-on requests connect; a dip under that request still captures
+        // and fails closed, so the packet flow is not replaced by the guard.
+        assertEquals(VpnPacketFlowMode.DENYLIST, tunnel(connectRequested = true).packetFlowMode)
+        assertFalse(alwaysOnGuards(tunnel(connected = false, connectRequested = true)))
+        assertFalse(alwaysOnGuards(tunnel(connected = false, killSwitch = true)))
+        assertFalse(alwaysOnGuards(tunnel(connected = true, connectRequested = true)))
+    }
+
+    @Test
+    fun alwaysOnGuardsBeforeConnectIsRequestedAndWhileOffline() {
+        assertTrue(alwaysOnGuards(tunnel(connected = false)))
+        assertTrue(alwaysOnGuards(tunnel(offline = true, connected = true, connectRequested = true)))
     }
 
     @Test
@@ -231,13 +272,32 @@ class VpnServiceStartPolicyTest {
 
     @Test
     fun tunnelRetryBackoffIsImmediateEnoughThenCapsAtThirtySeconds() {
-        assertEquals(250L, tunnelRetryDelayMillis(0))
-        assertEquals(1_000L, tunnelRetryDelayMillis(1))
-        assertEquals(2_000L, tunnelRetryDelayMillis(2))
-        assertEquals(5_000L, tunnelRetryDelayMillis(3))
-        assertEquals(10_000L, tunnelRetryDelayMillis(4))
-        assertEquals(30_000L, tunnelRetryDelayMillis(5))
-        assertEquals(30_000L, tunnelRetryDelayMillis(500))
-        assertEquals(250L, tunnelRetryDelayMillis(-1))
+        val settings = VpnTunnelTimingSettings()
+        assertEquals(250L, tunnelRetryDelayMillis(settings, 0))
+        assertEquals(1_000L, tunnelRetryDelayMillis(settings, 1))
+        assertEquals(2_000L, tunnelRetryDelayMillis(settings, 2))
+        assertEquals(5_000L, tunnelRetryDelayMillis(settings, 3))
+        assertEquals(10_000L, tunnelRetryDelayMillis(settings, 4))
+        assertEquals(30_000L, tunnelRetryDelayMillis(settings, 5))
+        assertEquals(30_000L, tunnelRetryDelayMillis(settings, 500))
+        assertEquals(250L, tunnelRetryDelayMillis(settings, -1))
+        assertEquals(30_000L, settings.alwaysOnConnectRetryMillis)
+    }
+
+    @Test
+    fun nonDefaultTunnelRetryDelaysAreHonored() {
+        val settings = VpnTunnelTimingSettings(tunnelRetryDelaysMillis = listOf(5L, 7L))
+
+        assertEquals(5L, tunnelRetryDelayMillis(settings, 0))
+        assertEquals(7L, tunnelRetryDelayMillis(settings, 1))
+        assertEquals(7L, tunnelRetryDelayMillis(settings, 9))
+        assertEquals(5L, tunnelRetryDelayMillis(settings, -1))
+    }
+
+    @Test
+    fun emptyTunnelRetryDelaysAreRejected() {
+        assertThrows(IllegalArgumentException::class.java) {
+            VpnTunnelTimingSettings(tunnelRetryDelaysMillis = emptyList())
+        }
     }
 }

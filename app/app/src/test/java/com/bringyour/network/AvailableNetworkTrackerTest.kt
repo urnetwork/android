@@ -52,8 +52,43 @@ class AvailableNetworkTrackerTest {
         assertTrue(change.available)
         assertFalse(change.availabilityChanged)
         assertTrue(change.topologyChanged)
-        assertTrue(change.recoveryRequired)
+        // the remaining network carries no stranded socket; a change of the
+        // physical default is tracked separately
+        assertFalse(change.recoveryRequired)
         assertEquals(1, tracker.size)
+    }
+
+    @Test
+    fun secondNetworkJoiningIsNotARecovery() {
+        val tracker = AvailableNetworkTracker<String>()
+        tracker.onAvailable("cell")
+
+        val change = tracker.onAvailable("wifi")
+
+        assertTrue(change.topologyChanged)
+        assertFalse(change.availabilityChanged)
+        assertFalse(change.recoveryRequired)
+        assertEquals(2, tracker.size)
+    }
+
+    @Test
+    fun firstNetworkAfterAnEmptyRegistrationIsARecovery() {
+        val tracker = AvailableNetworkTracker<String>()
+        tracker.startedWithoutNetwork()
+
+        val change = tracker.onAvailable("cell")
+
+        assertTrue(change.availabilityChanged)
+        assertTrue(change.recoveryRequired)
+    }
+
+    @Test
+    fun emptyRegistrationMarkIsIgnoredOnceANetworkIsKnown() {
+        val tracker = AvailableNetworkTracker<String>()
+        tracker.onAvailable("cell")
+        tracker.startedWithoutNetwork()
+
+        assertFalse(tracker.onAvailable("wifi").recoveryRequired)
     }
 
     @Test
@@ -82,50 +117,6 @@ class AvailableNetworkTrackerTest {
         assertFalse(change.topologyChanged)
         assertFalse(change.recoveryRequired)
         assertEquals(1, tracker.size)
-    }
-
-    @Test
-    fun initialLinkFingerprintDoesNotReportAChange() {
-        val tracker = AvailableNetworkTracker<String>()
-        tracker.onAvailable("cell")
-
-        assertFalse(tracker.onLinkPropertiesChanged("cell", "route-a"))
-    }
-
-    @Test
-    fun repeatedLinkFingerprintDoesNotReportAChange() {
-        val tracker = AvailableNetworkTracker<String>()
-        tracker.onAvailable("cell")
-        tracker.onLinkPropertiesChanged("cell", "route-a")
-
-        assertFalse(tracker.onLinkPropertiesChanged("cell", "route-a"))
-    }
-
-    @Test
-    fun materialLinkFingerprintChangeIsReported() {
-        val tracker = AvailableNetworkTracker<String>()
-        tracker.onAvailable("cell")
-        tracker.onLinkPropertiesChanged("cell", "route-a")
-
-        assertTrue(tracker.onLinkPropertiesChanged("cell", "route-b"))
-    }
-
-    @Test
-    fun linkCallbackForUnknownNetworkIsIgnored() {
-        val tracker = AvailableNetworkTracker<String>()
-
-        assertFalse(tracker.onLinkPropertiesChanged("stale", "route-a"))
-    }
-
-    @Test
-    fun readdedNetworkGetsANewLinkBaseline() {
-        val tracker = AvailableNetworkTracker<String>()
-        tracker.onAvailable("cell")
-        tracker.onLinkPropertiesChanged("cell", "route-a")
-        tracker.onLost("cell")
-        tracker.onAvailable("cell")
-
-        assertFalse(tracker.onLinkPropertiesChanged("cell", "route-b"))
     }
 
     @Test
@@ -197,7 +188,7 @@ class AvailableNetworkTrackerTest {
     }
 
     @Test
-    fun transportIdentityChangeRequiresSocketRecovery() {
+    fun transportIdentityChangeIsReported() {
         val tracker = AvailableNetworkTracker<String>()
         tracker.onAvailable("network")
         tracker.onCapabilitiesChanged("network", capabilities(transports = setOf(1)))

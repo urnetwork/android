@@ -4,7 +4,7 @@ internal data class AvailableNetworkChange(
     val available: Boolean,
     val availabilityChanged: Boolean,
     val topologyChanged: Boolean,
-    /** A live path changed after the initial callback baseline. */
+    /** A path returned after there was none, past the initial baseline. */
     val recoveryRequired: Boolean,
 )
 
@@ -40,13 +40,15 @@ internal data class PhysicalNetworkAttributeChange(
  */
 internal class AvailableNetworkTracker<T> {
     private data class NetworkRecord(
-        var linkFingerprint: String? = null,
         var capabilities: PhysicalNetworkCapabilitiesSnapshot? = null,
         var blocked: Boolean? = null,
     )
 
     private val networks = LinkedHashMap<T, NetworkRecord>()
-    private var hasSeenAvailableNetwork = false
+
+    // Whether the device's path state before the next delivery is known: from
+    // a first delivery, or from a registration that found no network at all.
+    private var baselineKnown = false
 
     val available: Boolean
         get() = networks.isNotEmpty()
@@ -54,13 +56,27 @@ internal class AvailableNetworkTracker<T> {
     val size: Int
         get() = networks.size
 
+    /**
+     * The registration found no matching network, so the first one to arrive
+     * returns the device from offline instead of describing the current state.
+     */
+    fun startedWithoutNetwork() {
+        if (networks.isEmpty()) {
+            baselineKnown = true
+        }
+    }
+
+    /**
+     * Only a path arriving while there was none requires recovery. A second
+     * network joining leaves existing sockets on the path they use.
+     */
     fun onAvailable(network: T): AvailableNetworkChange {
         val wasAvailable = available
         val added = !networks.containsKey(network)
-        val recoveryRequired = added && hasSeenAvailableNetwork
+        val recoveryRequired = added && !wasAvailable && baselineKnown
         if (added) {
             networks[network] = NetworkRecord()
-            hasSeenAvailableNetwork = true
+            baselineKnown = true
         }
         return AvailableNetworkChange(
             available = true,
@@ -80,32 +96,21 @@ internal class AvailableNetworkTracker<T> {
             available = available,
             availabilityChanged = wasAvailable != available,
             topologyChanged = removed,
-            // If another network remains, socket routing can move to it now.
-            // If the last path disappeared, defer recovery until one returns.
-            recoveryRequired = removed && available,
+            // A remaining network carries no stranded socket: sockets follow
+            // the physical default, whose change is tracked on its own. If the
+            // last path disappeared, defer recovery until one returns.
+            recoveryRequired = false,
         )
     }
 
     /**
-     * Returns true only for a material change after the initial fingerprint.
-     * Android sends the initial LinkProperties immediately after onAvailable;
-     * that establishes the baseline and must not cause a duplicate reconnect.
-     */
-    fun onLinkPropertiesChanged(network: T, fingerprint: String): Boolean {
-        val record = networks[network] ?: run {
-            return false
-        }
-        val previous = record.linkFingerprint
-        record.linkFingerprint = fingerprint
-        return previous != null && previous != fingerprint
-    }
-
-    /**
      * Android sends an initial capabilities callback immediately after
-     * onAvailable. It is a baseline, not a path transition. Later transport
-     * identity changes require a socket reset; validation/suspension recovery
-     * requests a health audit first so transient captive-portal signals do not
-     * destructively churn an otherwise healthy tunnel.
+     * onAvailable. It is a baseline, not a path transition. A transport-set
+     * change is reported for diagnostics only: the platform keeps a physical
+     * network's transports fixed, and a real path move is a physical default
+     * change. Validation/suspension recovery requests a health audit first so
+     * transient captive-portal signals do not destructively churn an otherwise
+     * healthy tunnel.
      */
     fun onCapabilitiesChanged(
         network: T,
