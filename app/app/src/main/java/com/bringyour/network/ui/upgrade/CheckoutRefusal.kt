@@ -30,7 +30,8 @@ sealed interface StripeSheetFailure {
  * - no answer reads the screen's own line with the sdk's error text under it,
  *   as it did before the codes.
  * `guest_sign_in_required` never gets here: it opens the add-sign-in sheet
- * (GuestAccount.purchaseRefusal).
+ * (GuestAccount.purchaseRefusal). The non-Play flavors word a refused crypto
+ * invoice start the same way ([refusedMessage]).
  */
 object CheckoutRefusal {
 
@@ -58,16 +59,19 @@ object CheckoutRefusal {
      */
     fun message(failure: StripeSheetFailure, screenLine: String, text: (Int) -> String): String =
         when (failure) {
-            is StripeSheetFailure.Refused -> {
-                val line = lineFor(failure.code)
-                when {
-                    line != null -> text(line)
-                    failure.code == INVALID_REQUEST || failure.code == START_FAILED -> screenLine
-                    else -> withWords(screenLine, failure.words)
-                }
-            }
+            is StripeSheetFailure.Refused -> refusedMessage(failure.code, failure.words, screenLine, text)
             is StripeSheetFailure.NoAnswer -> withWords(screenLine, failure.words)
         }
+
+    /** The error text for a refusal: the server's [code] (empty when it sent none) and its [words]. */
+    fun refusedMessage(code: String, words: String, screenLine: String, text: (Int) -> String): String {
+        val line = lineFor(code)
+        return when {
+            line != null -> text(line)
+            code == INVALID_REQUEST || code == START_FAILED -> screenLine
+            else -> withWords(screenLine, words)
+        }
+    }
 
     private fun withWords(screenLine: String, words: String): String =
         listOf(screenLine, words).filter { it.isNotEmpty() }.joinToString("\n")

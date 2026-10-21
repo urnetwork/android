@@ -35,6 +35,8 @@ import com.bringyour.network.ui.theme.ProGoldLight
 import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.upgrade.FREE_TRIAL_DAYS
 import com.bringyour.network.ui.upgrade.PlanCards
+import com.bringyour.network.ui.upgrade.PlanFinePrintLine
+import com.bringyour.network.ui.upgrade.PlanMethodSlot
 import com.bringyour.network.ui.upgrade.PlanPresentation
 import com.bringyour.network.ui.upgrade.PlanTermsLine
 import com.bringyour.network.ui.upgrade.formatOfferDeadline
@@ -51,6 +53,13 @@ import com.bringyour.sdk.Sdk
  *
  * The events: `offer.screen.shown` when it appears, `offer.cta.tapped` on the
  * button, `offer.declined` with the control that closed it.
+ *
+ * On the flavors that sell outside a store, [methodSlot] puts the payment
+ * method row directly above the button (PlanMethodSlot). While a method other
+ * than the card is chosen its purchase replaces the button and the terms line
+ * and emits its own events, the trial timeline is left out, and the card
+ * prints no trial or renewal line: that method buys one year once. Play
+ * passes none.
  */
 @Composable
 fun IntroductionOffer(
@@ -61,9 +70,11 @@ fun IntroductionOffer(
     startTrial: () -> Unit,
     dismiss: () -> Unit,
     onBack: (() -> Unit)? = null,
+    methodSlot: PlanMethodSlot? = null,
 ) {
     val shownAt = remember { System.currentTimeMillis() }
     val offer = presentation.offer
+    val alternative = methodSlot?.alternative
 
     LaunchedEffect(Unit) {
         ClientEvents.offerScreenShown(
@@ -129,15 +140,18 @@ fun IntroductionOffer(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                TrialTimeline(presentation = presentation)
+                if (alternative == null) {
+                    TrialTimeline(presentation = presentation)
 
-                Spacer(modifier = Modifier.height(24.dp))
+                    Spacer(modifier = Modifier.height(24.dp))
+                }
 
                 PlanCards(
                     presentation = presentation,
                     selectedPlan = PlanType.YEARLY,
                     setSelectedPlan = {},
                     showMonthly = false,
+                    oneTimeYear = alternative != null,
                 )
             }
 
@@ -147,16 +161,24 @@ fun IntroductionOffer(
             ) {
                 Spacer(modifier = Modifier.height(24.dp))
 
+                if (methodSlot != null) {
+                    methodSlot.row()
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
+
                 URButton(
-                    onClick = {
+                    // a method other than the card starts its own purchase, with its own events
+                    onClick = alternative?.start ?: {
                         ClientEvents.offerCtaTapped(Sdk.PlanYearly, store)
                         startTrial()
                     },
                     enabled = !upgradeInProgress,
-                    isProcessing = upgradeInProgress
+                    isProcessing = alternative?.inProgress ?: upgradeInProgress
                 ) { btnStyle ->
                     Text(
-                        if (offer != null) {
+                        if (alternative != null) {
+                            alternative.label
+                        } else if (offer != null) {
                             pluralStringResource(id = R.plurals.offer_cta_start_trial_months_free, count = offer.monthsFree, offer.monthsFree)
                         } else {
                             stringResource(id = R.string.start_free_trial)
@@ -167,7 +189,11 @@ fun IntroductionOffer(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                PlanTermsLine(presentation = presentation, selectedPlan = PlanType.YEARLY)
+                if (alternative != null) {
+                    PlanFinePrintLine(alternative.finePrint)
+                } else {
+                    PlanTermsLine(presentation = presentation, selectedPlan = PlanType.YEARLY)
+                }
 
                 Spacer(modifier = Modifier.height(8.dp))
 
