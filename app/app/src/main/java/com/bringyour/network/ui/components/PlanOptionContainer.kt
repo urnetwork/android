@@ -16,6 +16,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -25,7 +26,9 @@ import com.bringyour.network.ui.theme.TextMuted
 
 /**
  * A selectable plan card. The recommended plan (`glow`) wears the Pro-gold
- * dress (GoldPlanDress.kt) so it is the first thing the eye lands on.
+ * dress (GoldPlanDress.kt) so it is the first thing the eye lands on. A card
+ * that is not `enabled` (a plan the chosen payment method does not sell) is
+ * greyed and can't be selected.
  */
 @Composable
 fun PlanOptionContainer(
@@ -34,6 +37,7 @@ fun PlanOptionContainer(
     content: @Composable () -> Unit,
     badge: (@Composable () -> Unit)? = null,
     glow: Boolean = false,
+    enabled: Boolean = true,
 ) {
     val shape = RoundedCornerShape(12.dp)
     val accent = if (glow) ProGold else Pink
@@ -41,7 +45,9 @@ fun PlanOptionContainer(
 
     // use the box for the badge alignment
     Box(
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
+            .alpha(if (enabled) 1f else DISABLED_PLAN_ALPHA)
     ) {
 
         Row(
@@ -59,7 +65,7 @@ fun PlanOptionContainer(
                     }
                 )
                 .clip(shape)
-                .clickable {
+                .clickable(enabled = enabled) {
                     select()
                 }
                 // taller than wide: the plan lines get room to breathe
@@ -93,3 +99,6 @@ fun PlanOptionContainer(
     }
 
 }
+
+// a plan card the chosen payment method does not sell
+private const val DISABLED_PLAN_ALPHA = 0.4f

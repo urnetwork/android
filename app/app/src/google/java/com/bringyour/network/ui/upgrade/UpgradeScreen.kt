@@ -1,6 +1,5 @@
 package com.bringyour.network.ui.upgrade
 
-import com.bringyour.network.ui.account.PurchaseRefusal
 import com.bringyour.network.ui.components.tabletReadableColumn
 import com.bringyour.network.R
 import androidx.compose.ui.res.stringResource
@@ -31,7 +30,6 @@ import com.bringyour.network.ui.shared.viewmodels.SubscriptionBalanceViewModel
 import com.bringyour.sdk.Sdk
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.URNetworkTheme
-import com.bringyour.network.utils.SolanaPaymentQuote
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -39,15 +37,7 @@ fun UpgradeScreen(
     navController: NavHostController,
     planViewModel: PlanViewModel,
     subscriptionBalanceViewModel: SubscriptionBalanceViewModel,
-    setPendingSolanaSubscriptionReference: (String) -> Unit,
-    createSolanaPaymentIntent: (
-        reference: String,
-        plan: String,
-        onSuccess: (quote: SolanaPaymentQuote) -> Unit,
-        onError: (PurchaseRefusal) -> Unit
-    ) -> Unit,
     onStripePaymentSuccess: () -> Unit,
-    isCheckingSolanaTransaction: Boolean
 ) {
     // the store offers load at launch; repeat the query here when that one
     // failed, so the picker shows the yearly plan Play has for this account
@@ -95,12 +85,7 @@ fun UpgradeScreen(
                     planViewModel = planViewModel,
                     subscriptionBalanceViewModel = subscriptionBalanceViewModel,
                     surface = Sdk.OfferSurfaceAccount,
-                    createSolanaPaymentIntent = createSolanaPaymentIntent,
-                    onSolanaUriOpened = { reference ->
-                        setPendingSolanaSubscriptionReference(reference)
-                    },
                     onStripePaymentSuccess = onStripePaymentSuccess,
-                    isCheckingSolanaTransaction = isCheckingSolanaTransaction
                 )
                 Spacer(modifier = Modifier.height(16.dp))
             }

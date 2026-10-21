@@ -27,6 +27,7 @@ import com.bringyour.sdk.Sdk
 import com.bringyour.sdk.Api
 import com.bringyour.sdk.PurchaseConfirmationListener
 import com.bringyour.sdk.SubscriptionBalanceCallback
+import com.bringyour.sdk.SubscriptionBalanceResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -66,6 +67,16 @@ class SubscriptionBalanceViewModel @Inject constructor(
 
     private val _experiments = MutableStateFlow<ExperimentAssignmentList?>(null)
     val experiments: StateFlow<ExperimentAssignmentList?> = _experiments.asStateFlow()
+
+    /**
+     * The last balance the server answered, for flavor code that reads fields
+     * this shared view model does not (the non-Play flavors' crypto payment
+     * methods and crypto term, src/cryptoPay). One [BalanceAnswer] per answer:
+     * the sdk's generated equals compares no list contents, so a state holding
+     * the result itself would drop an answer whose lists alone changed.
+     */
+    private val _balanceAnswer = MutableStateFlow<BalanceAnswer?>(null)
+    val balanceAnswer: StateFlow<BalanceAnswer?> = _balanceAnswer.asStateFlow()
 
     /**
      * The store's storefront country (Play's billing country on the play
@@ -491,6 +502,7 @@ class SubscriptionBalanceViewModel @Inject constructor(
                             result.priceTier?.let { _priceTier.value = it }
                             _onboardingOffer.value = result.onboardingOffer
                             result.experiments?.let { _experiments.value = it }
+                            _balanceAnswer.value = BalanceAnswer(result)
 
                             _availableBalanceByteCount.value = result.balanceByteCount
                             pendingBalanceByteCount = result.openTransferByteCount
@@ -731,6 +743,13 @@ class SubscriptionBalanceViewModel @Inject constructor(
     }
 
 }
+
+/**
+ * One balance answer (SubscriptionBalanceViewModel.balanceAnswer). Deliberately
+ * not a data class: each answer is a new value, whatever the generated equals
+ * of the result says.
+ */
+class BalanceAnswer(val result: SubscriptionBalanceResult)
 
 /** PurchaseConfirmation.Source over the SDK's SubscriptionBalanceViewController. */
 private class SdkPurchaseConfirmationSource(

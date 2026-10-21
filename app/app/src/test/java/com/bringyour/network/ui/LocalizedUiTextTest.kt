@@ -44,7 +44,7 @@ class LocalizedUiTextTest {
     private val ui = "main/java/com/bringyour/network/ui"
 
     // never shipped: unit tests, device tests and the fixtures they share
-    private val testSourceSets = setOf("test", "testPlay", "androidTest", "acceptanceShared")
+    private val testSourceSets = setOf("test", "testPlay", "testCryptoPay", "androidTest", "acceptanceShared")
 
     // content description literals that are never spoken, as "<path under src>: <literal>"
     // with the reason; none so far, and an entry that matches nothing fails

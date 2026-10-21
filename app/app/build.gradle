@@ -443,10 +443,14 @@ android {
         github {
             java {
                 // the F-Droid build sells through the ur.io pay page in a web
-                // view and Solana Pay: the Stripe SDK depends on Google Play
-                // Services (wallet, maps, identity), which F-Droid rejects.
-                // The dapp flavors add src/stripeSheet/java (the inline sheet).
-                srcDirs += ['src/ungoogle/java', 'src/webPay/java']
+                // view: the Stripe SDK depends on Google Play Services (wallet,
+                // maps, identity), which F-Droid rejects. The dapp flavors add
+                // src/stripeSheet/java (the inline sheet). Every flavor but
+                // play adds src/cryptoPay/java: the Card · USDC · Zcash ·
+                // Monero method row and the crypto invoice (crypto-pay
+                // mmm/ZCASH-CONTRACT.md §6). Play sells through Play Billing only and
+                // compiles none of it (src/google/java has the empty hooks).
+                srcDirs += ['src/ungoogle/java', 'src/webPay/java', 'src/cryptoPay/java']
             }
         }
         play {
@@ -456,12 +460,28 @@ android {
         }
         solana_dapp {
             java {
-                srcDirs += ['src/solana_dapp/java', 'src/stripeSheet/java']
+                srcDirs += ['src/solana_dapp/java', 'src/stripeSheet/java', 'src/cryptoPay/java']
             }
         }
         ethos_dapp {
             java {
-                srcDirs += ['src/ethos_dapp/java', 'src/stripeSheet/java']
+                srcDirs += ['src/ethos_dapp/java', 'src/stripeSheet/java', 'src/cryptoPay/java']
+            }
+        }
+        // the crypto payment tests run with the flavors that compile src/cryptoPay
+        testGithub {
+            java {
+                srcDirs += ['src/testCryptoPay/java']
+            }
+        }
+        testSolana_dapp {
+            java {
+                srcDirs += ['src/testCryptoPay/java']
+            }
+        }
+        testEthos_dapp {
+            java {
+                srcDirs += ['src/testCryptoPay/java']
             }
         }
     }

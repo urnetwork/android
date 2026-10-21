@@ -11,6 +11,9 @@ import com.bringyour.network.ui.introduction.IntroductionOffer
 import com.bringyour.network.ui.introduction.IntroStepTimer
 import com.bringyour.network.ui.shared.enums.PlanType
 import com.bringyour.network.ui.upgrade.rememberPlanPresentation
+import com.bringyour.network.ui.upgrade.CryptoInvoiceHost
+import com.bringyour.network.ui.upgrade.PaymentMethodsScope
+import com.bringyour.network.ui.upgrade.rememberPlanMethodSlot
 import com.bringyour.network.ui.upgrade.rememberPlanPurchaser
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -209,6 +212,9 @@ fun MainNavHost(
         LocalReferralTerms provides referralTerms,
         LocalReferralCountLoad provides referralCountLoad,
     ) {
+        // the flavors that sell outside a store share one crypto invoice in the
+        // activity (src/cryptoPay); on Play this is the content as it is
+        PaymentMethodsScope {
         MainNavHostContent(
         earningsViewModel = earningsViewModel,
         settingsViewModel = settingsViewModel,
@@ -228,6 +234,7 @@ fun MainNavHost(
         networkReliabilityViewModel = networkReliabilityViewModel,
         solanaPaymentViewModel = solanaPaymentViewModel
         )
+        }
     }
 }
 
@@ -261,7 +268,6 @@ private fun MainNavHostContent(
     val referralCodeLoad by referralCodeViewModel.codeLoad.collectAsState()
     val pendingReferralCelebration by referralCodeViewModel.pendingCelebration.collectAsState()
     val pendingSolanaSubReference by solanaPaymentViewModel.pendingSolanaSubscriptionReference.collectAsState()
-    val isCheckingSolanaTransaction by subscriptionBalanceViewModel.isCheckingSolanaTransaction.collectAsState()
     val displayIntroFunnel by mainNavViewModel.displayIntroFunnel.collectAsState()
     val allowPromptIntroFunnel by mainNavViewModel.allowDisplayIntroFunnel.collectAsState()
     val hasActiveSubscription by subscriptionBalanceViewModel.hasActiveSubscription.collectAsState()
@@ -761,7 +767,9 @@ private fun MainNavHostContent(
      * This is for listening to Solana Wallet subscriptions
      * If there is a pending sub reference + the app regains focus, we start polling the subscription balance.
      * The reference is persisted (it survives the app being killed while the wallet is
-     * in front) and is only dropped once the check is confirmed or timed out.
+     * in front) and is only dropped once the check is confirmed or timed out. Only an
+     * earlier version of the app records one now: USDC is sold through the crypto
+     * invoice (CryptoInvoiceHost), which follows its own payment.
      */
     DisposableEffect(lifecycleOwner, pendingSolanaSubReference) {
 
@@ -778,7 +786,7 @@ private fun MainNavHostContent(
                         // poll subscription balance until it's updated
                         subscriptionBalanceViewModel.pollSolanaTransaction(
                             onFinished = {
-                                solanaPaymentViewModel.setPendingSolanaSubscriptionReference(null)
+                                solanaPaymentViewModel.clearPendingSolanaPayment()
                             }
                         )
                     }
@@ -856,8 +864,6 @@ private fun MainNavHostContent(
                 allowProvideCell = settingsViewModel.allowProvideOnCell.collectAsState().value,
                 toggleProvideCell = settingsViewModel.toggleAllowProvideOnCell,
                 planViewModel = planViewModel,
-                solanaPaymentViewModel = solanaPaymentViewModel,
-                isCheckingSolanaTransaction = isCheckingSolanaTransaction,
                 overlayViewModel = overlayViewModel
             )
         } else {
@@ -944,8 +950,6 @@ private fun MainNavHostContent(
                                         bundleStore = bundleStore,
                                         reliabilityWindow = reliabilityWindow,
                                         totalReferralCount = totalReferralCount,
-                                        solanaPaymentViewModel = solanaPaymentViewModel,
-                                        isCheckingSolanaTransaction = isCheckingSolanaTransaction,
                                         isPro = isPro,
                                         connectActionsSheetState = connectActionsSheetState
                                     )
@@ -980,8 +984,6 @@ private fun MainNavHostContent(
                                     bundleStore = bundleStore,
                                     reliabilityWindow = reliabilityWindow,
                                     totalReferralCount = totalReferralCount,
-                                    solanaPaymentViewModel = solanaPaymentViewModel,
-                                    isCheckingSolanaTransaction = isCheckingSolanaTransaction,
                                     isPro = isPro,
                                     connectActionsSheetState = connectActionsSheetState
                                 )
@@ -1018,6 +1020,27 @@ private fun MainNavHostContent(
 
     // the Pro celebration flight, above every overlay, sharp
     ProSunglassesFlight(clock = proFlightClock)
+
+    /**
+     * The crypto invoice of the flavors that sell outside a store, above the
+     * screen that opened it, so leaving that screen doesn't end a payment
+     * (src/cryptoPay; nothing on Play). A paid invoice does what a card
+     * purchase does once it is done: the server confirms and the overlay
+     * celebrates (purchaseConfirmedSequence), and the surface that sold it
+     * closes -- the intro funnel, or Get Pro if it is still the screen shown.
+     */
+    CryptoInvoiceHost(
+        subscriptionBalanceViewModel = subscriptionBalanceViewModel,
+        planViewModel = planViewModel,
+        onPaid = {
+            subscriptionBalanceViewModel.confirmPurchase()
+            if (mainNavViewModel.displayIntroFunnel.value) {
+                mainNavViewModel.setDisplayIntroFunnel(false)
+            } else if (navController.currentDestination?.hasRoute<Route.Upgrade>() == true) {
+                navController.popBackStack()
+            }
+        },
+    )
 
     /**
      * Referral celebrations: the first referral gets the full-screen crowning
@@ -1078,8 +1101,6 @@ fun IntroNavHost(
     toggleProvideCell: () -> Unit,
     subscriptionBalanceViewModel: SubscriptionBalanceViewModel,
     planViewModel: PlanViewModel,
-    isCheckingSolanaTransaction: Boolean,
-    solanaPaymentViewModel: SolanaPaymentViewModel,
     overlayViewModel: OverlayViewModel
 ) {
 
@@ -1135,8 +1156,6 @@ fun IntroNavHost(
                 dismiss = skipToOffer,
                 planViewModel = planViewModel,
                 subscriptionBalanceViewModel = subscriptionBalanceViewModel,
-                createSolanaPaymentIntent = solanaPaymentViewModel.createSolanaPaymentIntent,
-                setPendingSolanaSubscriptionReference = solanaPaymentViewModel.setPendingSolanaSubscriptionReference,
                 onStripePaymentSuccess = {
                     subscriptionBalanceViewModel.confirmPurchase()
                     dismiss()
@@ -1149,7 +1168,6 @@ fun IntroNavHost(
                     subscriptionBalanceViewModel.fetchSubscriptionBalance()
                     dismiss()
                 },
-                isCheckingSolanaTransaction = isCheckingSolanaTransaction
             )
         }
 
@@ -1221,7 +1239,14 @@ fun IntroNavHost(
                     purchaser.purchase(PlanType.YEARLY, presentation)
                 },
                 dismiss = dismiss,
-                onBack = { introNavController.popBackStack() }
+                onBack = { introNavController.popBackStack() },
+                // the yearly (offer) card alone: a coin buys it too
+                methodSlot = rememberPlanMethodSlot(
+                    presentation = presentation,
+                    subscriptionBalanceViewModel = subscriptionBalanceViewModel,
+                    selectedPlan = PlanType.YEARLY,
+                    setSelectedPlan = {},
+                ),
             )
         }
 
@@ -1250,8 +1275,6 @@ fun MainNavContent(
     bundleStore: BundleStore?,
     reliabilityWindow: ReliabilityWindow?,
     totalReferralCount: Long,
-    solanaPaymentViewModel: SolanaPaymentViewModel,
-    isCheckingSolanaTransaction: Boolean,
     isPro: Boolean,
     connectActionsSheetState: ConnectDrawerState,
     accountViewModel: AccountViewModel = hiltViewModel<AccountViewModel>(),
@@ -1487,14 +1510,11 @@ fun MainNavContent(
                     navController = navController,
                     planViewModel = planViewModel,
                     subscriptionBalanceViewModel = subscriptionBalanceViewModel,
-                    setPendingSolanaSubscriptionReference = solanaPaymentViewModel.setPendingSolanaSubscriptionReference,
-                    createSolanaPaymentIntent = solanaPaymentViewModel.createSolanaPaymentIntent,
                     onStripePaymentSuccess = {
                         // the overlay follows the server's confirmation (purchaseConfirmedSequence)
                         subscriptionBalanceViewModel.confirmPurchase()
                         navController.popBackStack()
                     },
-                    isCheckingSolanaTransaction = isCheckingSolanaTransaction
                 )
             }
         }
@@ -1552,7 +1572,8 @@ fun MainNavContent(
                 overlayViewModel,
                 activityResultSender,
                 earningsViewModel,
-                isPro = isPro
+                isPro = isPro,
+                currentStore = subscriptionBalanceViewModel.currentStore.collectAsState().value,
             ) }
 
             composable<Route.Vless>(
