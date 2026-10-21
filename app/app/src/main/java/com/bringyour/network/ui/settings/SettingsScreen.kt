@@ -115,6 +115,7 @@ import com.bringyour.network.ui.shared.viewmodels.PlanViewModel
 import com.bringyour.network.ui.shared.viewmodels.SubscriptionBalanceViewModel
 import com.bringyour.network.ui.theme.BlueMedium
 import com.bringyour.network.ui.theme.Green
+import com.bringyour.network.ui.upgrade.SubscriptionManageLine
 import com.bringyour.network.ui.wallet.EarningsViewModel
 import com.bringyour.network.ui.wallet.SeekerSignOutcome
 import com.bringyour.network.ui.wallet.SeekerVerifyNotice
@@ -154,6 +155,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
  * @param activityResultSender Sender for Mobile Wallet Adapter (MWA) activity results.
  * @param earningsViewModel ViewModel managing earnings, rewards, and Seeker token holder status.
  * @param isPro True if the current account holds an active supporter subscription tier.
+ * @param currentStore The store of the current subscription, null when there is none.
  * @param mockLocationViewModel ViewModel managing mock location simulation preferences and status.
  */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -167,6 +169,7 @@ fun SettingsScreen(
     activityResultSender: ActivityResultSender?,
     earningsViewModel: EarningsViewModel,
     isPro: Boolean,
+    currentStore: String? = null,
     mockLocationViewModel: MockLocationViewModel = hiltViewModel(),
 ) {
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -348,6 +351,7 @@ fun SettingsScreen(
         provideIndicatorColor = settingsViewModel.provideIndicatorColor,
         provideIndicatorRingColor = settingsViewModel.provideIndicatorRingColor,
         stripePortalUrl = settingsViewModel.stripePortalUrl.collectAsState().value,
+        currentStore = currentStore,
         authMethods = authMethods,
         onRemoveAuthMethod = { method -> pendingRemoveMethod = method },
         onAddAuthMethodClick = { presentAddAuthSheet = true },
@@ -606,6 +610,7 @@ private fun SettingsScreen(
     provideIndicatorColor: Color,
     provideIndicatorRingColor: Color? = null,
     stripePortalUrl: String?,
+    currentStore: String? = null,
     authMethods: List<String>,
     onRemoveAuthMethod: (String) -> Unit,
     onAddAuthMethodClick: () -> Unit,
@@ -1466,7 +1471,9 @@ private fun SettingsScreen(
 
                 if (currentPlan == Plan.Supporter) {
 
-                    ManageSubscriptionButton(stripePortalUrl)
+                    // a one-time crypto payment does not renew and has nothing to manage
+                    // (src/cryptoPay); otherwise the flavor's manage button
+                    SubscriptionManageLine(currentStore = currentStore, stripePortalUrl = stripePortalUrl)
 
                 }
             }

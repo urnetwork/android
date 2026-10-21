@@ -147,7 +147,8 @@ class GuestAccountTest {
     /**
      * Every purchase the server can refuse this way carries the refusal to the
      * guest state instead of the error line: the inline payment sheet (the dapp
-     * flavors), the pay page (F-Droid) and Solana Pay. The sdk results are
+     * flavors), the pay page (F-Droid) and the crypto invoice (USDC, Zcash and
+     * Monero on the flavors that sell outside a store). The sdk results are
      * native gomobile classes, so the sources are read as text.
      */
     @Test
@@ -156,8 +157,13 @@ class GuestAccountTest {
 
         val sheetRequest = read("main/java/com/bringyour/network/ui/upgrade/StripeSheetRequest.kt")
         assertTrue(sheetRequest.contains("GuestAccount.purchaseRefusal(result.error.code)"))
-        val solanaIntent = read("main/java/com/bringyour/network/ui/shared/viewmodels/SolanaPaymentViewModel.kt")
-        assertTrue(solanaIntent.contains("onError(GuestAccount.purchaseRefusal(result.error.code))"))
+        // the invoice start's refusal code, mapped the same way (CryptoPaymentTest checks the rule)
+        val cryptoStart = read("cryptoPay/java/com/bringyour/network/ui/upgrade/CryptoPayment.kt")
+        assertTrue(
+            cryptoStart.contains("GuestAccount.purchaseRefusal(code) == PurchaseRefusal.AddSignInMethod -> CryptoStartRefusal.AddSignInMethod")
+        )
+        val cryptoInvoice = read("cryptoPay/java/com/bringyour/network/ui/upgrade/CryptoPayViewModel.kt")
+        assertTrue(cryptoInvoice.contains("CryptoPayment.startRefusal(next.errorCode, next.errorMessage)"))
 
         for (path in listOf(
             "stripeSheet/java/com/bringyour/network/ui/upgrade/PlanPurchasers.kt",
@@ -171,9 +177,10 @@ class GuestAccountTest {
             assertTrue("$path does not open the sign-in sheet", refused < signIn)
             assertTrue("$path shows the error for a guest", signIn < error)
         }
-        val surface = read("main/java/com/bringyour/network/ui/upgrade/NonPlayPlanSurface.kt")
+        // the invoice's host opens the add-sign-in sheet for it, above whatever surface started it
+        val invoiceHost = read("cryptoPay/java/com/bringyour/network/ui/upgrade/PaymentMethodHooks.kt")
         assertTrue(
-            surface.contains("PurchaseRefusal.AddSignInMethod -> subscriptionBalanceViewModel.guestSignInRequired()")
+            invoiceHost.contains("CryptoStartRefusal.AddSignInMethod -> subscriptionBalanceViewModel.guestSignInRequired()")
         )
     }
 

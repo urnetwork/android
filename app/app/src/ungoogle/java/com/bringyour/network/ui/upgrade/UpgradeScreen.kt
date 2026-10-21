@@ -21,13 +21,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.bringyour.network.R
-import com.bringyour.network.ui.account.PurchaseRefusal
 import com.bringyour.network.ui.components.UpgradeScreenHeader
 import com.bringyour.network.ui.components.tabletReadableColumn
 import com.bringyour.network.ui.shared.viewmodels.PlanViewModel
 import com.bringyour.network.ui.shared.viewmodels.SubscriptionBalanceViewModel
 import com.bringyour.network.ui.theme.Black
-import com.bringyour.network.utils.SolanaPaymentQuote
 import com.bringyour.sdk.Sdk
 
 /**
@@ -41,15 +39,7 @@ fun UpgradeScreen(
     navController: NavHostController,
     planViewModel: PlanViewModel,
     subscriptionBalanceViewModel: SubscriptionBalanceViewModel,
-    setPendingSolanaSubscriptionReference: (String) -> Unit,
-    createSolanaPaymentIntent: (
-        reference: String,
-        plan: String,
-        onSuccess: (quote: SolanaPaymentQuote) -> Unit,
-        onError: (PurchaseRefusal) -> Unit
-    ) -> Unit,
     onStripePaymentSuccess: () -> Unit,
-    isCheckingSolanaTransaction: Boolean
 ) {
     Scaffold(
         topBar = {
@@ -76,17 +66,13 @@ fun UpgradeScreen(
             Column(modifier = Modifier.padding(horizontal = 16.dp)) {
                 UpgradeScreenHeader()
                 Spacer(modifier = Modifier.height(32.dp))
+                // a coin's invoice opens above this screen (CryptoInvoiceHost), and
+                // the screen stays under it until the invoice is paid or closed
                 SubscriptionOptions(
                     planViewModel = planViewModel,
                     subscriptionBalanceViewModel = subscriptionBalanceViewModel,
                     surface = Sdk.OfferSurfaceAccount,
-                    createSolanaPaymentIntent = createSolanaPaymentIntent,
-                    onSolanaUriOpened = { reference ->
-                        setPendingSolanaSubscriptionReference(reference)
-                        navController.popBackStack()
-                    },
                     onStripePaymentSuccess = onStripePaymentSuccess,
-                    isCheckingSolanaTransaction = isCheckingSolanaTransaction
                 )
                 Spacer(modifier = Modifier.height(16.dp))
             }

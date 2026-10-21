@@ -37,6 +37,16 @@ import java.util.Date
  * $39.99/year", the trial line, and the static deadline. Monthly prints
  * "$4.99/month" and "Billed monthly · cancel anytime". The two cards are
  * always the same height.
+ *
+ * With a [monthlyNote] the chosen payment method does not sell monthly
+ * ("Monthly is card only", PlanAlternative): the monthly card is greyed, can't
+ * be selected, and prints the note under its price.
+ *
+ * With [oneTimeYear] the chosen payment method buys one year once, with no
+ * trial and no renewal (mmm/ZCASH-CONTRACT.md §6.1): the yearly card shows
+ * no trial line and no "then …/year", only what that year costs. The card
+ * keeps its height, its lines centered in it as the monthly card's are, so
+ * the cards, and the button under them, stay put when the method changes.
  */
 @Composable
 fun PlanCards(
@@ -48,6 +58,8 @@ fun PlanCards(
     countryName: String? = null,
     // the final offer page shows the yearly (offer) card alone
     showMonthly: Boolean = true,
+    monthlyNote: String? = null,
+    oneTimeYear: Boolean = false,
 ) {
     val yearlySelected = selectedPlan == PlanType.YEARLY
     val trialOffered = 0 < freeTrialDays
@@ -58,7 +70,20 @@ fun PlanCards(
             isSelected = yearlySelected,
             select = { setSelectedPlan(PlanType.YEARLY) },
             content = {
-                YearlyCardLines(presentation, offer, trialOffered, freeTrialDays, countryName)
+                if (oneTimeYear) {
+                    Box(contentAlignment = Alignment.CenterStart) {
+                        Column(
+                            modifier = Modifier
+                                .alpha(0f)
+                                .clearAndSetSemantics {}
+                        ) {
+                            YearlyCardLines(presentation, offer, trialOffered, freeTrialDays, countryName, oneTimeYear = false)
+                        }
+                        YearlyCardLines(presentation, offer, trialOffered, freeTrialDays, countryName, oneTimeYear = true)
+                    }
+                } else {
+                    YearlyCardLines(presentation, offer, trialOffered, freeTrialDays, countryName, oneTimeYear = false)
+                }
             },
             badge = {
                 BestValuePill()
@@ -75,6 +100,7 @@ fun PlanCards(
         PlanOptionContainer(
             isSelected = !yearlySelected,
             select = { setSelectedPlan(PlanType.MONTHLY) },
+            enabled = monthlyNote == null,
             content = {
                 // size the monthly card like the yearly card (an invisible copy of
                 // its lines, not read aloud) so both are equal height at any font
@@ -85,7 +111,7 @@ fun PlanCards(
                             .alpha(0f)
                             .clearAndSetSemantics {}
                     ) {
-                        YearlyCardLines(presentation, offer, trialOffered, freeTrialDays, countryName)
+                        YearlyCardLines(presentation, offer, trialOffered, freeTrialDays, countryName, oneTimeYear = false)
                     }
                     Column {
                         Text(
@@ -93,7 +119,7 @@ fun PlanCards(
                             style = TopBarTitleTextStyle
                         )
                         Text(
-                            stringResource(id = R.string.plan_billed_monthly_cancel_anytime),
+                            monthlyNote ?: stringResource(id = R.string.plan_billed_monthly_cancel_anytime),
                             style = MaterialTheme.typography.bodyMedium,
                             color = TextMuted
                         )
@@ -111,6 +137,8 @@ private fun YearlyCardLines(
     trialOffered: Boolean,
     freeTrialDays: Int,
     countryName: String?,
+    // one year once, with no trial and no renewal: no trial line and no "then …/year"
+    oneTimeYear: Boolean,
 ) {
     Column {
         if (offer != null) {
@@ -118,11 +146,13 @@ private fun YearlyCardLines(
                 stringResource(id = R.string.offer_first_year_price, offer.firstYearPrice),
                 style = TopBarTitleTextStyle
             )
-            Text(
-                stringResource(id = R.string.offer_then_regular_price, offer.regularYearPrice),
-                style = MaterialTheme.typography.bodyMedium,
-                color = TextMuted
-            )
+            if (!oneTimeYear) {
+                Text(
+                    stringResource(id = R.string.offer_then_regular_price, offer.regularYearPrice),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = TextMuted
+                )
+            }
         } else {
             Text(
                 stringResource(id = R.string.plan_price_per_year, presentation.yearlyPrice),
@@ -143,7 +173,7 @@ private fun YearlyCardLines(
                 )
             }
         }
-        if (trialOffered) {
+        if (trialOffered && !oneTimeYear) {
             Text(
                 stringResource(id = R.string.includes_free_trial_days, freeTrialDays),
                 style = MaterialTheme.typography.bodyMedium,
@@ -190,6 +220,12 @@ fun PlanTermsLine(
         else ->
             pluralStringResource(id = R.plurals.plan_terms_yearly, count = freeTrialDays, freeTrialDays, presentation.yearlyPrice)
     }
+    PlanFinePrintLine(text)
+}
+
+/** The small print under a plan surface's primary button: the terms line, or a payment method's own. */
+@Composable
+fun PlanFinePrintLine(text: String) {
     Text(
         text,
         style = MaterialTheme.typography.bodySmall,

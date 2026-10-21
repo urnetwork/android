@@ -65,6 +65,24 @@ class CheckoutRefusalTest {
         assertEquals(screenLine, shown(StripeSheetFailure.Refused("refusal_from_a_newer_server", "")))
     }
 
+    // the crypto invoice start (src/cryptoPay) words its refusals with the same rule
+    @Test
+    fun aRefusalWithoutASheetReadsTheSameLines() {
+        fun refused(code: String, words: String) = CheckoutRefusal.refusedMessage(code, words, screenLine, text)
+
+        assertEquals("string resource ${R.string.site_payment_error_plan_unavailable}", refused("plan_unavailable", "That plan is not available."))
+        assertEquals(screenLine, refused("start_failed", "Could not start the payment. Please try again."))
+        assertEquals(screenLine, refused("invalid_request", "Exactly one of plan and item_id."))
+        assertEquals("$screenLine\nToo many invoices. Try again in a minute.", refused("rate_limited", "Too many invoices. Try again in a minute."))
+        assertEquals("$screenLine\nThe welcome offer is no longer available.", refused("offer_unavailable", "The welcome offer is no longer available."))
+        // a transport failure: no code, the transport's words
+        assertEquals("$screenLine\ni/o timeout", refused("", "i/o timeout"))
+        assertEquals(screenLine, refused("", ""))
+        for (failure in listOf(alreadySubscribed, planUnavailable, StripeSheetFailure.Refused("rate_limited", "words"))) {
+            assertEquals(shown(failure), refused(failure.code, failure.words))
+        }
+    }
+
     @Test
     fun noAnswerReadsAsBefore() {
         assertEquals("$screenLine\nnetwork", shown(StripeSheetFailure.NoAnswer("network")))

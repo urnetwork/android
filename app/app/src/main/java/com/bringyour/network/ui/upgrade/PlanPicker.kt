@@ -25,6 +25,13 @@ import com.bringyour.sdk.Sdk
  * reads "Start free trial with 3 months free"; the offer events are emitted
  * here (`offer.screen.shown` once per appearance with the surface,
  * `offer.card.tapped`, `offer.cta.tapped`).
+ *
+ * On the flavors that sell outside a store, [methodSlot] puts the payment
+ * method row between the cards and the button. While a method other than the
+ * card is chosen, its [PlanAlternative] replaces the button and the terms
+ * line, the cards print no trial or renewal line, and the monthly card is
+ * greyed with its note (the method moves the selection to yearly). Its own
+ * events are its own. Play passes none.
  */
 @Composable
 fun PlanPicker(
@@ -38,8 +45,10 @@ fun PlanPicker(
     experiment: Pair<String, String>,
     freeTrialDays: Int = FREE_TRIAL_DAYS,
     countryName: String? = null,
+    methodSlot: PlanMethodSlot? = null,
 ) {
     val offer = presentation.offer
+    val alternative = methodSlot?.alternative
     val yearlySelected = selectedPlan == PlanType.YEARLY
     val trialOffered = 0 < freeTrialDays
 
@@ -69,13 +78,21 @@ fun PlanPicker(
             },
             freeTrialDays = freeTrialDays,
             countryName = countryName,
+            monthlyNote = alternative?.monthlyNote,
+            oneTimeYear = alternative != null,
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
+        if (methodSlot != null) {
+            methodSlot.row()
+            Spacer(modifier = Modifier.height(16.dp))
+        }
+
         Row(modifier = Modifier.fillMaxWidth()) {
             URButton(
-                onClick = {
+                // a method other than the card starts its own purchase, with its own events
+                onClick = alternative?.start ?: {
                     val plan = if (yearlySelected) Sdk.PlanYearly else Sdk.PlanMonthly
                     if (offer != null) {
                         ClientEvents.offerCtaTapped(plan, purchaser.store)
@@ -83,10 +100,12 @@ fun PlanPicker(
                     purchaser.purchase(selectedPlan, presentation)
                 },
                 enabled = !upgradeInProgress,
-                isProcessing = upgradeInProgress
+                isProcessing = alternative?.inProgress ?: upgradeInProgress
             ) { buttonTextStyle ->
                 Text(
                     when {
+                        alternative != null ->
+                            alternative.label
                         yearlySelected && offer != null && trialOffered ->
                             pluralStringResource(id = R.plurals.offer_cta_start_trial_months_free, count = offer.monthsFree, offer.monthsFree)
                         yearlySelected && trialOffered ->
@@ -101,6 +120,10 @@ fun PlanPicker(
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        PlanTermsLine(presentation = presentation, selectedPlan = selectedPlan, freeTrialDays = freeTrialDays)
+        if (alternative != null) {
+            PlanFinePrintLine(alternative.finePrint)
+        } else {
+            PlanTermsLine(presentation = presentation, selectedPlan = selectedPlan, freeTrialDays = freeTrialDays)
+        }
     }
 }

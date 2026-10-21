@@ -76,6 +76,7 @@ import com.bringyour.network.ui.theme.TextFaint
 import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.wallet.EarningsFormat
 import com.bringyour.network.ui.theme.URNetworkTheme
+import com.bringyour.network.ui.upgrade.AccountPaymentNotices
 import com.bringyour.network.utils.formatDecimalString
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
@@ -168,7 +169,14 @@ fun AccountScreen(
                         launchRedeemTransferBalanceCodeSheet = {
                             isPresentingRedeemTransferBalanceSheet = true
                         },
-                        postQuantumIdentityViewModel = postQuantumIdentityViewModel
+                        postQuantumIdentityViewModel = postQuantumIdentityViewModel,
+                        // a crypto payment in progress, a one-time term (src/cryptoPay; nothing on Play)
+                        planNotices = {
+                            AccountPaymentNotices(
+                                subscriptionBalanceViewModel = subscriptionBalanceViewModel,
+                                openUpgrade = { navController.navigate(Route.Upgrade) },
+                            )
+                        },
                     )
                 }
             }
@@ -222,6 +230,8 @@ fun AccountScreenContent(
     launchRedeemTransferBalanceCodeSheet: () -> Unit,
     // null in previews, rendering the panel's empty (no key) state
     postQuantumIdentityViewModel: PostQuantumIdentityViewModel? = null,
+    // the flavor's lines under the plan (AccountPaymentNotices)
+    planNotices: @Composable () -> Unit = {},
 ) {
 
     val context = LocalContext.current
@@ -281,6 +291,8 @@ fun AccountScreenContent(
                     isCheckingSolanaTransaction = isCheckingSolanaTransaction,
                     navController = navController
                 )
+
+                planNotices()
 
                 if (currentPlan == Plan.Basic && accountOffer != null) {
                     AccountOfferLine(

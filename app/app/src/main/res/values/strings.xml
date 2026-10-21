@@ -204,6 +204,35 @@
     <string name="create_account_2">Create Account</string>
     <string name="create_instant_account">Create Instant Account</string>
     <string name="create_network_error">Something went wrong. Try again.</string>
+    <string name="crypto_does_not_renew">Does not renew. Pay again when it ends.</string>
+    <string name="crypto_fine_print_data">A one-time payment. The data stays valid for a year.</string>
+    <string name="crypto_fine_print_yearly">A one-time payment for a year of Pro. It doesn\'t renew, and there\'s no free trial.</string>
+    <string name="crypto_invoice_copied">Copied</string>
+    <string name="crypto_invoice_copy">Copy</string>
+    <string name="crypto_invoice_expires_in">Quote expires in %1$s</string>
+    <string name="crypto_invoice_memo">Memo, if you send by hand</string>
+    <string name="crypto_invoice_open_wallet">Open in wallet</string>
+    <string name="crypto_invoice_pay_another_way">Pay another way</string>
+    <string name="crypto_invoice_quote_expired">This quote expired. Refresh it for a new amount.</string>
+    <string name="crypto_invoice_refresh_quote">Refresh quote</string>
+    <string name="crypto_invoice_remaining">%1$s more to send</string>
+    <string name="crypto_invoice_send_exactly">Send exactly</string>
+    <string name="crypto_invoice_to_address">To this address</string>
+    <string name="crypto_invoice_unavailable">Paying with %1$s is temporarily unavailable. Try again later, or pay another way.</string>
+    <string name="crypto_invoice_wallets">Wallets that work: %1$s</string>
+    <string name="crypto_invoice_zcash_exchange_note">Exchanges such as Coinbase and Robinhood can\'t send to this shielded address. Send from a shielded wallet.</string>
+    <string name="crypto_network_monero" translatable="false">Monero</string>
+    <string name="crypto_network_usdc">USDC on Solana</string>
+    <string name="crypto_network_zcash">Zcash, shielded</string>
+    <string name="crypto_pay_button">Pay with %1$s</string>
+    <string name="crypto_payment_in_progress">Payment in progress</string>
+    <string name="crypto_status_confirming">Confirming: %1$d of %2$d</string>
+    <string name="crypto_status_paid">Paid. Thank you!</string>
+    <string name="crypto_status_review">We received a payment that needs a manual check. Contact support and we\'ll sort it out.</string>
+    <string name="crypto_status_seen">Payment seen</string>
+    <string name="crypto_status_waiting">Waiting for your payment</string>
+    <string name="crypto_term_ended_notice">Your paid year of Pro has ended. Renew by %1$s to keep Pro.</string>
+    <string name="crypto_term_renew">Renew</string>
     <string name="current_network_referral">Current network referral</string>
     <string name="current_ranking">Current Ranking</string>
     <string name="custom_dns">Custom DNS</string>
@@ -697,6 +726,13 @@
     <string name="password_label">Password</string>
     <string name="password_support_txt">Password must be at least 12 characters</string>
     <string name="paste_share_text">Paste share text</string>
+    <string name="pay_method_card">Card</string>
+    <string name="pay_method_card_only_monthly">Monthly is card only</string>
+    <string name="pay_method_label">Pay with</string>
+    <string name="pay_method_monero" translatable="false">Monero</string>
+    <string name="pay_method_unavailable">Temporarily unavailable</string>
+    <string name="pay_method_usdc" translatable="false">USDC</string>
+    <string name="pay_method_zcash" translatable="false">Zcash</string>
     <string name="pay_with_solana_wallet">Pay with Solana Wallet</string>
     <string name="pay_with_stripe">Join with Stripe</string>
     <string name="payment_confirmation_delayed">Confirmation is taking longer than expected. Your plan will update automatically once it\'s confirmed — there\'s no need to buy again.</string>

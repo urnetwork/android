@@ -29,7 +29,7 @@ class SampleSolanaAddressTest {
 
     // every source set an app build compiles: all but the test source sets
     private fun appSourceSets(): List<File> {
-        val testSourceSets = setOf("test", "androidTest", "testPlay")
+        val testSourceSets = setOf("test", "androidTest", "testPlay", "testCryptoPay")
         return File("src").listFiles().orEmpty().filter { it.isDirectory && it.name !in testSourceSets }
     }
 
