@@ -91,7 +91,9 @@ function fixture(t, prefix = "native-source-contract-") {
   const f = { hostOS: "darwin", hostArch: "arm64", hostMain, hostDependency, ndk, androidSdk, versionHome,
     root, cwd, privateDir, paths, modules, commands: [], now: 1000, workspace: "", dirty: true,
     options: { root, phase: "before", "build-owner": "fixture-owner", "build-id": "fixture-build", "profile-rate": "65536" } };
-  f.dependencies = { now: () => f.now++, env: { PATH: tools, HOME: root, ANDROID_HOME: androidSdk, ANDROID_SDK_ROOT: androidSdk,
+  // Synthetic metadata reports empty GOFLAGS; its CLI children must use that same
+  // fixture policy, independently of compiler flags inherited by the test runner.
+  f.dependencies = { now: () => f.now++, env: { GOFLAGS: "", PATH: tools, HOME: root, ANDROID_HOME: androidSdk, ANDROID_SDK_ROOT: androidSdk,
       ANDROID_NDK_HOME: ndk, ANDROID_NDK_ROOT: ndk, WARP_VERSION_HOME: versionHome }, toolPath: name => join(tools, name),
     invoke(command, args, settings) {
       f.commands.push({ command, args, cwd: settings.cwd, env: settings.env });
@@ -407,7 +409,7 @@ test("real prepare-consumer CLI refuses a source-valid before manifest outside t
   assert.equal(existsSync(f.paths.after), false); assert.equal(existsSync(f.paths.output), false);
 });
 
-function prepareCommandFixture(f) {
+function prepareCommandFixture(f, inheritedEnv = process.env) {
   write(join(f.cwd, "sdk-android-output-lock.sh"), readFileSync(new URL("../../../sdk/build/sdk-android-output-lock.sh", import.meta.url), "utf8"));
   const table = new Map();
   const invoke = f.dependencies.invoke;
@@ -430,7 +432,7 @@ function prepareCommandFixture(f) {
   chmodSync(pinnedGo, 0o700);
   for (const command of ["gomobile", "gobind", "checksec"]) chmodSync(join(f.root, "tools", command), 0o700);
   json(f.paths.before, f.capture("before")); json(tablePath, Object.fromEntries(table));
-  const env = { ...process.env, ...f.dependencies.env, PATH: `${join(f.root, "tools")}:${process.env.PATH}` };
+  const env = { ...inheritedEnv, ...f.dependencies.env, PATH: `${join(f.root, "tools")}:${inheritedEnv.PATH}` };
   for (const key of Object.keys(env)) if (key.startsWith("URNETWORK_ANDROID_SDK_OUTPUT_LOCK_")) delete env[key];
   return env;
 }
@@ -1321,4 +1323,46 @@ test("retained native proof preserves actual credential and instrumentation read
     stdout: join(first.directory, "refused.stdout"), stderr: join(first.directory, "refused.stderr") }, dependencies),
     /retained-native-artifact-changed-no-spawn/);
   assert.equal(spawnCount, 1);
+});
+
+test("synthetic native CLI fixture isolates poisoned ambient GOFLAGS without changing its before capture", t => {
+  const inheritedEnv = { ...process.env, GOFLAGS: "-mod=readonly -p=1" };
+  const f = fixture(t); const env = prepareCommandFixture(f, inheritedEnv); f.writerReceipt();
+  const before = JSON.parse(readFileSync(f.paths.before));
+  const marker = join(f.privateDir, "consumer-started");
+  const result = spawnSync("bash", [new URL("./physical_native_consumer.sh", import.meta.url).pathname,
+    "--root", f.root, "--before", f.paths.before, "--after", f.paths.after, "--proof", f.paths.output,
+    "--writer-receipt", f.paths["writer-receipt"], "--", process.execPath, "-e",
+    "require('node:fs').writeFileSync(process.argv[1],'consumed',{mode:0o600})", marker],
+  { cwd: f.root, env, encoding: "utf8", timeout: 20000 });
+  assert.equal(result.status, 0, result.stderr);
+  assert.equal(readFileSync(marker, "utf8"), "consumed");
+  assert.equal(f.dependencies.env.GOFLAGS, "");
+  assert.equal(env.GOFLAGS, "");
+  assert.equal(inheritedEnv.GOFLAGS, "-mod=readonly -p=1", "fixture isolation must not mutate its caller");
+  const after = JSON.parse(readFileSync(f.paths.after));
+  assert.equal(before.inputs.goEnvironment.GOFLAGS, "");
+  assert.equal(after.inputs.goEnvironment.GOFLAGS, "");
+  assert.equal(after.inputHash, before.inputHash);
+  assert.equal(requireVerifiedNativeInputs(f.paths.output, "fixture-build", f.dependencies).inputHash, before.inputHash);
+});
+
+test("real native writer rejects explicit unsupported GOFLAGS before Gradle spawn", t => {
+  for (const flags of ["-mod=readonly -p=1", "-overlay=fixture-overlay.json"]) {
+    const f = writerFixture(t);
+    const marker = join(f.privateDir, "gradle-started");
+    write(join(f.root, "fake-gradle.mjs"),
+      "import fs from 'node:fs';fs.writeFileSync(" + JSON.stringify(marker) + ",'started',{mode:0o600});\n");
+    const result = spawnSync("bash", f.args, {
+      cwd: f.root, env: { ...f.env, GOFLAGS: flags }, encoding: "utf8", timeout: 15000,
+    });
+    assert.equal(result.error, undefined, flags); assert.equal(result.signal, null, flags);
+    assert.equal(result.status, 2, flags);
+    assert.equal(result.stdout, "", flags);
+    assert.equal(result.stderr, "native writer failed: unsupported-native-goflags\n", flags);
+    assert.equal(existsSync(marker), false, flags);
+    assert.equal(existsSync(f.paths["writer-receipt"]), false, flags);
+    assert.equal(existsSync(join(f.privateDir, "writer.stdout")), false, flags);
+    assert.equal(existsSync(join(f.privateDir, "writer.stderr")), false, flags);
+  }
 });
