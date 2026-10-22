@@ -568,3 +568,50 @@ test("hosted admission preserves ordinary and diagnostic runner memory replay", 
     assert.equal(result.eligible, true, JSON.stringify(result));
   }
 });
+
+function scopedHostedMemoryEvidence(profile) {
+  const input = hostedMemoryEvidence(profile);
+  for (const row of [input.owner, input.ready, input.finish, input.terminal]) Object.assign(row, {
+    hostedTransportPolicy: "hosted-h1-api-alt-off-scoped-v2", qualificationScope: "hosted-h1-dual-memory-v1",
+    scopedQualificationEligible: true, qualificationEligible: false,
+  });
+  return input;
+}
+
+test("scoped hosted memory replay keeps both exact caps and all actual retained event counts", () => {
+  for (const profile of ["ios-memory-audit-v2", "android"]) {
+    const input = scopedHostedMemoryEvidence(profile);
+    const result = evaluateMemoryTeardown(input);
+    assert.equal(result.eligible, true, JSON.stringify(result));
+    assert.equal(result.requiredGoRuntimeLimitBytes, (profile === "android" ? 64 : 32) * 1024 * 1024);
+    assert.equal(result.combinedRetainedRuntimeEventCount, 8);
+    assert.equal(input.owner.qualificationEligible, false);
+  }
+});
+
+test("scoped memory replay rejects legacy relabel native loss unjoined owner and late byte highs", () => {
+  for (const profile of ["ios-memory-audit-v2", "android"]) {
+    for (const [name, mutate] of [
+      ["missing-ready-scope", input => { delete input.ready.qualificationScope; }],
+      ["foreign-finish-scope", input => { input.finish.qualificationScope = "synthetic-other-scope"; }],
+      ["full-promotion", input => { input.owner.qualificationEligible = true; }],
+      ["diagnostic", input => { input.owner.ioLoopDiagnostic = true; input.terminal.ioLoopDiagnostic = true; }],
+      ["native-proof", input => { input.nativeProof.eligible = false; }],
+      ["join", input => { input.terminal.exitCode = 1; }],
+      ["live-proof", input => { input.liveGate.eligible = false; }],
+      ["late-high", input => { input.teardown.native.samples[1].goRuntimeBytes =
+        (profile === "android" ? 64 : 32) * 1024 * 1024 + 1; }],
+    ]) {
+      const input = scopedHostedMemoryEvidence(profile);
+      mutate(input);
+      assert.equal(evaluateMemoryTeardown(input).eligible, false, profile + ":" + name);
+    }
+    const legacy = hostedMemoryEvidence(profile);
+    for (const row of [legacy.owner, legacy.ready, legacy.finish, legacy.terminal]) Object.assign(row, {
+      qualificationScope: "hosted-h1-dual-memory-v1", scopedQualificationEligible: true,
+    });
+    const result = evaluateMemoryTeardown(legacy);
+    assert.equal(result.eligible, false);
+    assert.equal(result.reasons.includes("instrumentation-scoped-hosted-policy-mismatch"), true);
+  }
+});

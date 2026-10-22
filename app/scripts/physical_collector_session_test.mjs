@@ -85,7 +85,7 @@ function instrumentationFixture(t) {
       if (pid === process.pid) return psRow(pid, "/node /fixture/retained-supervisor.mjs");
       assert.equal(pid, f.child.pid);
       return psRow(pid, adbCommand.replace("com.bringyour.network.test/androidx.test.runner.AndroidJUnitRunner",
-        `${options["hosted-transport-policy"] === undefined ? "" : `-e hostedTransportPolicy ${options["hosted-transport-policy"]} `}${options.component ?? "com.bringyour.network.test/androidx.test.runner.AndroidJUnitRunner"}`));
+        `${options["hosted-transport-policy"] === undefined ? "" : `-e hostedTransportPolicy ${options["hosted-transport-policy"]} `}${options["qualification-scope"] === undefined ? "" : `-e qualificationScope ${options["qualification-scope"]} `}${options.component ?? "com.bringyour.network.test/androidx.test.runner.AndroidJUnitRunner"}`));
     },
     async start(dependencies = {}) {
       f.result = runInstrumentationSession(options, { foreground: () => foreground, signals, hostProcess: f.hostProcess, ...dependencies,
@@ -96,6 +96,7 @@ function instrumentationFixture(t) {
             ...(options["launch-id"] === undefined ? [] : ["-e", "acceptanceLaunchId", options["launch-id"]]),
             ...(options["io-loop-diagnostic"] === "1" ? ["-e", "ioLoopDiagnostic", "1"] : []),
             ...(options["hosted-transport-policy"] === undefined ? [] : ["-e", "hostedTransportPolicy", options["hosted-transport-policy"]]),
+            ...(options["qualification-scope"] === undefined ? [] : ["-e", "qualificationScope", options["qualification-scope"]]),
             options.component ?? "com.bringyour.network.test/androidx.test.runner.AndroidJUnitRunner"]);
           f.child = spawn(process.execPath, ["-e", fakeInstrumentation, join(directory, "stop")], settings);
           assert.equal(existsSync(options.owner), false, "no running receipt before live child verification");
@@ -1706,3 +1707,94 @@ test("hosted H1 process and ready records cannot relabel a default or different 
   f.stop(); assert.equal(await f.result, 0);
 });
 
+
+const scopedH1Policy = "hosted-h1-api-alt-off-scoped-v2";
+const scopedH1Scope = "hosted-h1-dual-memory-v1";
+
+test("scoped hosted parser rejects relabelled legacy and diagnostics before any owner can spawn", () => {
+  const base = ["run-instrumentation", "--owner", "/fixture/owner.json", "--stdout", "/fixture/stdout",
+    "--stderr", "/fixture/stderr", "--serial", "fake-device", "--label", "fixture", "--build-id", "fixture",
+    "--native-inputs", "/fixture/native.json", "--launch-id", "abcdef0123456789abcdef0123456789",
+    "--component", hostedH1Runner, "--hosted-transport-policy"];
+  const valid = [...base, scopedH1Policy, "--qualification-scope", scopedH1Scope];
+  assert.equal(parseArgs(valid)["qualification-scope"], scopedH1Scope);
+  for (const args of [
+    [...base, scopedH1Policy],
+    [...base, scopedH1Policy, "--qualification-scope", "synthetic-other-scope"],
+    [...base, hostedH1Policy, "--qualification-scope", scopedH1Scope],
+    [...valid, "--io-loop-diagnostic", "1"],
+    [...valid, "--qualification-scope", scopedH1Scope],
+  ]) assert.throws(() => parseArgs(args), /invalid-(hosted-h1-policy|scoped-hosted-h1-diagnostic|session-arguments)/);
+});
+
+test("scoped process identity binds exact policy and scope not merely a receipt label", () => {
+  const valid = adbCommand.replace("com.bringyour.network.test/androidx.test.runner.AndroidJUnitRunner",
+    `-e hostedTransportPolicy ${scopedH1Policy} -e qualificationScope ${scopedH1Scope} ${hostedH1Runner}`);
+  assert.match(instrumentationProcessIdentity(psRow(4321, valid), "fake-device", 4321), /^[a-f0-9]{64}$/);
+  for (const command of [
+    valid.replace(`-e qualificationScope ${scopedH1Scope} `, ""),
+    valid.replace(scopedH1Scope, "synthetic-other-scope"),
+    valid.replace(scopedH1Policy, hostedH1Policy),
+    valid.replace(hostedH1Runner, `-e qualificationScope ${scopedH1Scope} ${hostedH1Runner}`),
+    valid.replace(hostedH1Runner, `-e ioLoopDiagnostic 1 ${hostedH1Runner}`),
+  ]) assert.throws(() => instrumentationProcessIdentity(psRow(4321, command), "fake-device", 4321),
+    /retained-adb-hosted-h1-policy-required/);
+});
+
+test("scoped invalid launch cannot inspect foreground native inputs credentials or spawn", async (t) => {
+  for (const change of [
+    { "qualification-scope": undefined },
+    { "qualification-scope": "synthetic-other-scope" },
+    { "hosted-transport-policy": hostedH1Policy },
+    { "io-loop-diagnostic": "1" },
+  ]) {
+    const f = boundInstrumentationFixture(t);
+    Object.assign(f.options, { component: hostedH1Runner, "hosted-transport-policy": scopedH1Policy,
+      "qualification-scope": scopedH1Scope }, change);
+    await assert.rejects(runInstrumentationSession(f.options, {
+      foreground: () => assert.fail("invalid scope cannot inspect processes"),
+      verifyNativeInputs: () => assert.fail("invalid scope cannot acquire native custody"),
+      spawn: () => assert.fail("invalid scope cannot acquire instrumentation custody"),
+    }), /invalid-hosted-h1-policy-no-spawn|invalid-scoped-hosted-h1-diagnostic-no-spawn/);
+    assert.equal(existsSync(f.options.owner), false);
+  }
+});
+
+test("scoped real owner waits for actual app scope and retains nonfull eligibility through join", async (t) => {
+  const f = boundInstrumentationFixture(t);
+  Object.assign(f.options, { component: hostedH1Runner, "hosted-transport-policy": scopedH1Policy,
+    "qualification-scope": scopedH1Scope });
+  await f.start();
+  const owner = JSON.parse(readFileSync(f.options.owner, "utf8"));
+  assert.equal(owner.qualificationScope, scopedH1Scope);
+  assert.equal(owner.scopedQualificationEligible, true);
+  assert.equal(owner.qualificationEligible, false);
+  const valid = { ...disconnectedStatus, hostedTransportPolicy: scopedH1Policy, apiAltEnabled: false,
+    qualificationScope: scopedH1Scope, scopedQualificationEligible: true, qualificationEligible: false };
+  for (const change of [
+    { qualificationScope: undefined }, { qualificationScope: "synthetic-other-scope" },
+    { scopedQualificationEligible: false }, { qualificationEligible: true }, { apiAltEnabled: true },
+  ]) {
+    await assert.rejects(f.boundBind({ adb: roleAdb([{ ...valid, ...change }]) }),
+      /scoped-hosted-h1-evidence-mismatch|hosted-h1-policy-not-observed/);
+    assert.equal(existsSync(`${f.options.owner}.ready.json`), false);
+  }
+  await f.boundBind({ adb: roleAdb([valid]) });
+  const path = `${f.options.owner}.ready.json`;
+  const original = readFileSync(path, "utf8");
+  const ready = JSON.parse(original);
+  assert.equal(ready.qualificationScope, scopedH1Scope);
+  assert.equal(ready.scopedQualificationEligible, true);
+  assert.equal(ready.qualificationEligible, false);
+  writeFileSync(path, JSON.stringify({ ...ready, qualificationScope: "synthetic-other-scope" }));
+  assert.throws(() => checkInstrumentationCommandSession({ owner: f.options.owner, serial: "fake-device" }, {
+    hostProcess: f.hostProcess, adb: () => assert.fail("bad scoped owner must fail before device reads"),
+  }), /scoped-hosted-h1-evidence-mismatch/);
+  writeFileSync(path, original);
+  f.stop(); assert.equal(await f.result, 0);
+  const terminal = JSON.parse(readFileSync(`${f.options.owner}.terminal.json`, "utf8"));
+  assert.equal(terminal.ownerId, owner.ownerId);
+  assert.equal(terminal.qualificationScope, scopedH1Scope);
+  assert.equal(terminal.scopedQualificationEligible, true);
+  assert.equal(terminal.qualificationEligible, false);
+});

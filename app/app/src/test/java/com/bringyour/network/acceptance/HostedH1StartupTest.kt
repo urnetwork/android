@@ -110,4 +110,80 @@ class HostedH1StartupTest {
             // Retry construction is allowed; changing its choice is not.
         }
     }
+
+    @Test
+    fun scopedHostedBindingIsExactAndPrecedesFirstManagerConstruction() {
+        val inputs = arguments() + mapOf(
+            HOSTED_H1_POLICY_ARGUMENT to HOSTED_H1_SCOPED_POLICY,
+            HOSTED_H1_SCOPE_ARGUMENT to HOSTED_H1_QUALIFICATION_SCOPE,
+        )
+        requireHostedH1Startup(inputs::get)
+        val startup = NetworkSpaceApiAltStartup()
+        var createCount = 0
+        startHostedH1Application(startup) {
+            startup.construct { enabled ->
+                assertFalse(enabled)
+                createCount += 1
+            }
+        }
+        assertEquals(1, createCount)
+    }
+
+    @Test
+    fun scopedLaunchRejectsMissingForeignOrDiagnosticScopeBeforeConstruction() {
+        for (change in listOf(
+            mapOf(HOSTED_H1_SCOPE_ARGUMENT to null),
+            mapOf(HOSTED_H1_SCOPE_ARGUMENT to "synthetic-other-scope"),
+            mapOf("ioLoopDiagnostic" to "1"),
+        )) {
+            val inputs = (arguments() + mapOf(
+                HOSTED_H1_POLICY_ARGUMENT to HOSTED_H1_SCOPED_POLICY,
+                HOSTED_H1_SCOPE_ARGUMENT to HOSTED_H1_QUALIFICATION_SCOPE,
+            )).toMutableMap()
+            for ((name, value) in change) {
+                if (value == null) inputs.remove(name) else inputs[name] = value
+            }
+            var createCount = 0
+            try {
+                requireHostedH1Startup(inputs::get)
+                startHostedH1Application(NetworkSpaceApiAltStartup()) { createCount += 1 }
+                fail("accepted unproven scoped launch")
+            } catch (_: IllegalArgumentException) {
+                assertEquals(0, createCount)
+            }
+        }
+        for (policy in listOf("", HOSTED_H1_POLICY)) {
+            try {
+                requireHostedH1Scope(policy, HOSTED_H1_QUALIFICATION_SCOPE)
+                fail("historical or ordinary policy acquired scoped eligibility")
+            } catch (_: IllegalArgumentException) {
+                // A version label on an old launch cannot supply new proof.
+            }
+        }
+    }
+
+    @Test
+    fun scopedCommandsRefuseProvidersAlternateCarriersAndForcedMaintenance() {
+        for ((verb, argument) in listOf(
+            "phase" to "quiet-fixture", "connect" to "h1", "disconnect" to "",
+            "snapshot" to "", "finish" to "",
+        )) {
+            requireScopedHostedH1Command(HOSTED_H1_SCOPED_POLICY, HOSTED_H1_QUALIFICATION_SCOPE, verb, argument)
+        }
+        for ((verb, argument) in listOf(
+            "connect" to "auto", "connect" to "h3", "connect" to "direct",
+            "provide" to "", "peer-connect" to "auto", "peer-platform-connect" to "h1",
+            "free-memory" to "", "trim-memory" to "", "ioloop-clock" to "",
+            "heap-profile" to "", "snapshot" to "h3",
+        )) {
+            try {
+                requireScopedHostedH1Command(HOSTED_H1_SCOPED_POLICY, HOSTED_H1_QUALIFICATION_SCOPE, verb, argument)
+                fail("scoped command reached effects: $verb/$argument")
+            } catch (_: IllegalArgumentException) {
+                // The real command dispatcher calls this before any command effect.
+            }
+        }
+        requireScopedHostedH1Command(HOSTED_H1_POLICY, null, "provide", "")
+        requireScopedHostedH1Command("", null, "connect", "auto")
+    }
 }

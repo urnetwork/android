@@ -51,15 +51,33 @@ const digest = (value) => createHash("sha256").update(value).digest("hex");
 const hexDigest = (value) => typeof value === "string" && /^[a-f0-9]{64}$/.test(value);
 const physicalClass = `${packageName}.acceptance.PhysicalLowbarSessionTest`;
 const hostedH1Policy = "hosted-h1-api-alt-off-v1";
+const scopedHostedH1Policy = "hosted-h1-api-alt-off-scoped-v2";
+const scopedHostedH1Scope = "hosted-h1-dual-memory-v1";
 const hostedH1Runner = `${packageName}.test/${packageName}.acceptance.HostedH1PhysicalRunner`;
 const runnerComponents = [`${packageName}.test/androidx.test.runner.AndroidJUnitRunner`,
   `${packageName}.test/${packageName}.acceptance.PhysicalCredentialDiagnosticRunner`, hostedH1Runner];
 
 // The dedicated runner and the exact launch-only policy must travel together.
-function requireHostedH1Policy(component, policy) {
-  if (component === hostedH1Runner ? policy !== hostedH1Policy : policy !== undefined) {
-    fail("invalid-hosted-h1-policy-no-spawn");
-  }
+function requireHostedH1Policy(component, policy, scope) {
+  const valid = component === hostedH1Runner
+    ? policy === hostedH1Policy && scope === undefined || policy === scopedHostedH1Policy && scope === scopedHostedH1Scope
+    : policy === undefined && scope === undefined;
+  if (!valid) fail("invalid-hosted-h1-policy-no-spawn");
+}
+
+// Eligibility belongs to this exact scope only; legacy/full qualification is
+// still false, and a v1/ordinary owner cannot acquire scope through extra fields.
+function requireHostedH1ScopeEvidence(value, policy) {
+  const valid = policy === scopedHostedH1Policy
+    ? value.qualificationScope === scopedHostedH1Scope && value.scopedQualificationEligible === true &&
+      value.qualificationEligible === false
+    : value.qualificationScope === undefined && value.scopedQualificationEligible === undefined;
+  if (!valid) fail("scoped-hosted-h1-evidence-mismatch");
+}
+
+function scopedHostedH1Fields(policy) {
+  return policy === scopedHostedH1Policy
+    ? { qualificationScope: scopedHostedH1Scope, scopedQualificationEligible: true } : {};
 }
 
 function hostProcessDetails(result, pid) {
@@ -85,9 +103,14 @@ export function instrumentationProcessIdentity(result, serial, pid) {
   }
   const policies = args.flatMap((arg, index) => arg === "-e" && args[index + 1] === "hostedTransportPolicy"
     ? [args[index + 2]] : []);
-  if (policies.length > 1 || (args.at(-1) === hostedH1Runner ? policies[0] !== hostedH1Policy : policies.length !== 0)) {
+  const scopes = args.flatMap((arg, index) => arg === "-e" && args[index + 1] === "qualificationScope"
+    ? [args[index + 2]] : []);
+  if (policies.length > 1 || scopes.length > 1 ||
+      policies[0] === scopedHostedH1Policy && args.some((arg, index) => arg === "-e" && args[index + 1] === "ioLoopDiagnostic")) {
     fail("retained-adb-hosted-h1-policy-required");
   }
+  try { requireHostedH1Policy(args.at(-1), policies[0], scopes[0]); }
+  catch { fail("retained-adb-hosted-h1-policy-required"); }
   return details.identity;
 }
 
@@ -162,6 +185,7 @@ function readTargetStatus(adb, expectedPid, minimumElapsedMs = 0) {
 // A launch nonce distinguishes a fresh app session from same-build files left
 // by an earlier run. Legacy owners without the optional binding stay unchanged.
 function requireTargetGeneration(status, owner) {
+  requireHostedH1ScopeEvidence(status, owner.hostedTransportPolicy);
   if (owner.hostedTransportPolicy !== undefined &&
       (status.hostedTransportPolicy !== owner.hostedTransportPolicy || status.apiAltEnabled !== false)) {
     fail("hosted-h1-policy-not-observed");
@@ -193,10 +217,16 @@ function readInstrumentationOwner(path, serial, requireReady = true) {
       !Number.isFinite(owner.startedHostTimeUnixMs) || owner.startedHostTimeUnixMs < 0 ||
       (owner.ioLoopDiagnostic !== undefined && (owner.ioLoopDiagnostic !== true || owner.qualificationEligible !== false || owner.launchId === undefined)) ||
       (owner.component === hostedH1Runner
-        ? owner.hostedTransportPolicy !== hostedH1Policy || owner.qualificationEligible !== false || owner.launchId === undefined
+        ? ![hostedH1Policy, scopedHostedH1Policy].includes(owner.hostedTransportPolicy) ||
+          owner.qualificationEligible !== false || owner.launchId === undefined
         : owner.hostedTransportPolicy !== undefined) ||
       (owner.launchId !== undefined && (typeof owner.launchId !== "string" ||
         !/^[a-f0-9]{32}$/.test(owner.launchId) || !commandIdValid(owner.buildId)))) {
+    fail("invalid-instrumentation-owner-receipt");
+  }
+  requireHostedH1Policy(owner.component, owner.hostedTransportPolicy, owner.qualificationScope);
+  requireHostedH1ScopeEvidence(owner, owner.hostedTransportPolicy);
+  if (owner.hostedTransportPolicy === scopedHostedH1Policy && owner.ioLoopDiagnostic !== undefined) {
     fail("invalid-instrumentation-owner-receipt");
   }
   requireRetainedForeground(owner.foreground ?? {});
@@ -209,6 +239,7 @@ function readInstrumentationOwner(path, serial, requireReady = true) {
       fail("private-instrumentation-ready-receipt-required");
     }
     const ready = JSON.parse(readFileSync(readyPath, "utf8"));
+    requireHostedH1ScopeEvidence(ready, owner.hostedTransportPolicy);
     if (ready.schema !== 1 || ready.type !== "instrumentation-session-ready" || ready.ownerId !== owner.ownerId ||
         ready.serialHash !== owner.serialHash || !pidValid(ready.targetPid) ||
         ready.ioLoopDiagnostic !== owner.ioLoopDiagnostic ||
@@ -279,7 +310,8 @@ function bindPublishedInstrumentationReady(options, dependencies, binding) {
     serialHash: owner.serialHash, targetPid: status.pid, elapsedMs: status.elapsedMs, hostTimeUnixMs: Date.now(),
     ...(owner.ioLoopDiagnostic === true ? { ioLoopDiagnostic: true, qualificationEligible: false } : {}),
     ...(owner.hostedTransportPolicy === undefined ? {} : {
-      hostedTransportPolicy: owner.hostedTransportPolicy, apiAltEnabled: false, qualificationEligible: false }),
+      hostedTransportPolicy: owner.hostedTransportPolicy, apiAltEnabled: false, qualificationEligible: false,
+      ...scopedHostedH1Fields(owner.hostedTransportPolicy) }),
     ...(owner.launchId === undefined ? {} : { launchId: owner.launchId, buildId: owner.buildId, targetSessionId: status.sessionId }) });
   return { retainedOwnerLive: true, adbChildLive: true, targetProcessMatchesStatus: true, readyStatusReadable: true };
 }
@@ -475,7 +507,10 @@ export async function runInstrumentationSession(options, dependencies = {}) {
 
 async function runInstrumentationSessionOwned(options, dependencies = {}) {
   const component = options.component ?? runnerComponents[0];
-  requireHostedH1Policy(component, options["hosted-transport-policy"]);
+  requireHostedH1Policy(component, options["hosted-transport-policy"], options["qualification-scope"]);
+  if (options["hosted-transport-policy"] === scopedHostedH1Policy && options["io-loop-diagnostic"] !== undefined) {
+    fail("invalid-scoped-hosted-h1-diagnostic-no-spawn");
+  }
   if (options["io-loop-diagnostic"] !== undefined && options["io-loop-diagnostic"] !== "1") {
     fail("invalid-native-loop-diagnostic-option-no-spawn");
   }
@@ -549,7 +584,8 @@ async function runInstrumentationSessionOwned(options, dependencies = {}) {
       "-e", "class", physicalClass, "-e", "acceptanceBuildId", options["build-id"],
       ...(launchId === undefined ? [] : ["-e", "acceptanceLaunchId", launchId]),
       ...(options["io-loop-diagnostic"] === "1" ? ["-e", "ioLoopDiagnostic", "1"] : []),
-      ...(options["hosted-transport-policy"] === undefined ? [] : ["-e", "hostedTransportPolicy", options["hosted-transport-policy"]]), component],
+      ...(options["hosted-transport-policy"] === undefined ? [] : ["-e", "hostedTransportPolicy", options["hosted-transport-policy"]]),
+      ...(options["qualification-scope"] === undefined ? [] : ["-e", "qualificationScope", options["qualification-scope"]]), component],
     { stdio: ["ignore", output, errors] });
     for (const [signal, handler] of handlers) signals.on(signal, handler);
     closed = new Promise((finish) => {
@@ -568,7 +604,8 @@ async function runInstrumentationSessionOwned(options, dependencies = {}) {
       adbIdentity: liveHostOwner(child.pid, options.serial, dependencies), foreground, startedHostTimeUnixMs: Date.now(),
       ...(options["io-loop-diagnostic"] === "1" ? { ioLoopDiagnostic: true, qualificationEligible: false } : {}),
       ...(options["hosted-transport-policy"] === undefined ? {} : {
-        hostedTransportPolicy: options["hosted-transport-policy"], qualificationEligible: false }),
+        hostedTransportPolicy: options["hosted-transport-policy"], qualificationEligible: false,
+        ...scopedHostedH1Fields(options["hosted-transport-policy"]) }),
       ...(launchId === undefined ? {} : { launchId, buildId: options["build-id"] }) };
     requireLiveInstrumentation(owner, options.serial, dependencies);
     publish(options.owner, owner);
@@ -705,7 +742,7 @@ export function parseArgs(argv) {
   const roleArguments = ["session-mode", "connect-command-id", "instrumentation-owner"];
   const allowed = mode === "run" ? ["owner", "stdout", "stderr", "launch-id", ...roleArguments] :
     mode === "check" ? ["owner", "timeout-ms", "launch-id", "launcher-pid"] : mode === "check-role" ? ["serial", ...roleArguments] :
-      mode === "run-instrumentation" ? ["owner", "stdout", "stderr", "serial", "label", "build-id", "component", "artifact-dir", "native-inputs", "credential-ownership", "launch-id", "io-loop-diagnostic", "hosted-transport-policy"] :
+      mode === "run-instrumentation" ? ["owner", "stdout", "stderr", "serial", "label", "build-id", "component", "artifact-dir", "native-inputs", "credential-ownership", "launch-id", "io-loop-diagnostic", "hosted-transport-policy", "qualification-scope"] :
         mode === "bind-instrumentation-ready" ? ["owner", "serial", "launch-id", "launcher-pid", "timeout-ms"] : [];
   if (!allowed.length) fail("run-check-or-check-role-required");
   const options = { mode, captureArgs: separator < 0 ? [] : rest.slice(separator + 1) };
@@ -716,7 +753,12 @@ export function parseArgs(argv) {
     options[key] = pairs[i + 1];
   }
   if (["run-instrumentation", "bind-instrumentation-ready"].includes(mode)) {
-    if (mode === "run-instrumentation") requireHostedH1Policy(options.component ?? runnerComponents[0], options["hosted-transport-policy"]);
+    if (mode === "run-instrumentation") {
+      requireHostedH1Policy(options.component ?? runnerComponents[0], options["hosted-transport-policy"], options["qualification-scope"]);
+      if (options["hosted-transport-policy"] === scopedHostedH1Policy && options["io-loop-diagnostic"] !== undefined) {
+        fail("invalid-scoped-hosted-h1-diagnostic-no-spawn");
+      }
+    }
     if (options["io-loop-diagnostic"] !== undefined && options["io-loop-diagnostic"] !== "1") {
       fail("invalid-native-loop-diagnostic-option-no-spawn");
     }

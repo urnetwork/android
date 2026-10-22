@@ -73,8 +73,9 @@ class PhysicalLowbarSessionTest {
     private val teardownMemoryFile = File(acceptanceDir, "physical-memory-teardown.json")
     private val teardownFallbackFile = File(acceptanceDir, "physical-memory-teardown-incomplete.json")
     private val memorySessionId = UUID.randomUUID().toString()
+    private val qualificationScope = InstrumentationRegistry.getArguments().getString(HOSTED_H1_SCOPE_ARGUMENT)
     private val hostedTransportPolicy = InstrumentationRegistry.getArguments().getString(HOSTED_H1_POLICY_ARGUMENT).orEmpty().also {
-        require(it.isEmpty() || it == HOSTED_H1_POLICY) { "invalid hosted physical transport policy" }
+        requireHostedH1Scope(it, qualificationScope)
     }
     private val acceptanceLaunchId = InstrumentationRegistry.getArguments().getString("acceptanceLaunchId")?.also {
         require(Regex("^[a-f0-9]{32}$").matches(it)) { "invalid acceptanceLaunchId" }
@@ -814,6 +815,13 @@ class PhysicalLowbarSessionTest {
             .put("sessionId", memorySessionId)
             .put("buildId", BuildConfig.URNETWORK_ACCEPTANCE_BUILD_ID)
             .put("hostedTransportPolicy", hostedTransportPolicy)
+            .apply {
+                if (hostedTransportPolicy == HOSTED_H1_SCOPED_POLICY) {
+                    put("qualificationScope", qualificationScope)
+                    put("scopedQualificationEligible", true)
+                    put("qualificationEligible", false)
+                }
+            }
             .apply { application.device?.networkSpace?.let { put("apiAltEnabled", it.apiAltEnabled) } }
             .put("commandId", id)
             .put("commandSequence", peerTimingEvidence.commandSequence)
@@ -1064,8 +1072,6 @@ class PhysicalLowbarSessionTest {
         peerVc: PeerViewController,
         startElapsedMs: Long,
     ): Boolean {
-        peerTimingEvidence.beginCommand()
-        commandStartedAtMillis = SystemClock.elapsedRealtime()
         val parts = command.trim().split('|', limit = 3)
         require(parts.size >= 2) { "invalid physical command" }
         val id = parts[0]
@@ -1073,6 +1079,9 @@ class PhysicalLowbarSessionTest {
         val argument = parts.getOrElse(2) { "" }
         require(id.matches(Regex("[A-Za-z0-9._-]+"))) { "invalid physical command ID" }
         require(argument.matches(Regex("[A-Za-z0-9._-]*"))) { "invalid physical command argument" }
+        requireScopedHostedH1Command(hostedTransportPolicy, qualificationScope, verb, argument)
+        peerTimingEvidence.beginCommand()
+        commandStartedAtMillis = SystemClock.elapsedRealtime()
         if (verb == "peer-connect" || verb == "peer-platform-connect") {
             peerTimingEvidence.beginPeerConnect()
         }

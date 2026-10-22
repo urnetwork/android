@@ -168,7 +168,8 @@ export function evaluateJoinedMemoryOwner(owner, ready, terminal, nativeProof, i
   // Keep the dedicated hosted runner bound to the original opt-in and actual
   // disabled-API ready/finish evidence; memory and join rules stay unchanged.
   if (component === hostedComponent) {
-    const policy = "hosted-h1-api-alt-off-v1";
+    const scoped = owner.hostedTransportPolicy === "hosted-h1-api-alt-off-scoped-v2";
+    const policy = scoped ? "hosted-h1-api-alt-off-scoped-v2" : "hosted-h1-api-alt-off-v1";
     if (owner.hostedTransportPolicy !== policy || owner.qualificationEligible !== false ||
         typeof owner.launchId !== "string" || !/^[a-f0-9]{32}$/.test(owner.launchId) ||
         !label(owner.buildId) || owner.buildId !== identity?.buildId ||
@@ -177,9 +178,21 @@ export function evaluateJoinedMemoryOwner(owner, ready, terminal, nativeProof, i
         finish?.hostedTransportPolicy !== policy || finish.apiAltEnabled !== false || finish.launchId !== owner.launchId) {
       reasons.add("instrumentation-hosted-policy-mismatch");
     }
-  } else if (owner?.hostedTransportPolicy !== undefined || ready?.hostedTransportPolicy !== undefined ||
-      finish?.hostedTransportPolicy !== undefined && finish.hostedTransportPolicy !== "") {
-    reasons.add("instrumentation-hosted-policy-mismatch");
+    for (const row of [owner, ready, finish, terminal]) {
+      const valid = scoped
+        ? row?.qualificationScope === "hosted-h1-dual-memory-v1" && row.scopedQualificationEligible === true &&
+          row.qualificationEligible === false
+        : row?.qualificationScope === undefined && row?.scopedQualificationEligible === undefined;
+      if (!valid) reasons.add("instrumentation-scoped-hosted-policy-mismatch");
+    }
+    if (scoped && owner.ioLoopDiagnostic !== undefined) reasons.add("instrumentation-scoped-hosted-policy-mismatch");
+  } else {
+    if (owner?.hostedTransportPolicy !== undefined || ready?.hostedTransportPolicy !== undefined ||
+        finish?.hostedTransportPolicy !== undefined && finish.hostedTransportPolicy !== "") {
+      reasons.add("instrumentation-hosted-policy-mismatch");
+    }
+    if ([owner, ready, finish, terminal].some(row => row?.qualificationScope !== undefined ||
+        row?.scopedQualificationEligible !== undefined)) reasons.add("instrumentation-scoped-hosted-policy-mismatch");
   }
   try { requireRetainedForeground(owner?.foreground ?? {}); } catch { reasons.add("instrumentation-owner-not-retained"); }
   if (nativeProof?.type !== "physical-native-input-verification" || nativeProof.schemaVersion !== 1 || nativeProof.eligible !== true ||
