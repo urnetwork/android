@@ -46,16 +46,22 @@ const contextHash = value => hash(JSON.stringify([value.serialHash, value.label,
 
 export function prepareCredentialOwnership(options, dependencies = {}) {
   const keys = ["ownership", "native-inputs", "label", "build-id"];
-  if (!keys.some(key => options[key] !== undefined)) return undefined;
+  if (!keys.some(key => options[key] !== undefined) && options["native-input-dir"] === undefined) return undefined;
   if (keys.some(key => !options[key]) || !options.serial || !validLabel(options.label) ||
       !validLabel(options["build-id"])) fail("explicit-credential-ownership-context-required");
   const binding = prepareArtifactDirectory(options["artifact-dir"] ?? dirname(options.output));
-  requireArtifactPaths(binding, [options.output, options.ownership, options["native-inputs"]]);
+  requireArtifactPaths(binding, [options.output, options.ownership]);
+  // Retained proof inputs bind independently; every mutable sidecar remains
+  // inside the session owner. Absent an explicit input root, keep containment.
+  const nativeBinding = options["native-input-dir"] === undefined ? binding :
+    prepareArtifactDirectory(options["native-input-dir"]);
+  requireArtifactPaths(nativeBinding, [options["native-inputs"]]);
   if (resolve(options.ownership) === resolve(options.output) ||
       ["", ".handoff.json", ".rollback.json", ".finish.json", ".failed-finish.json", ".operation"].some(suffix => existsSync(`${options.ownership}${suffix}`))) {
     fail("fresh-credential-ownership-required");
   }
   const native = (dependencies.verifyNativeInputs ?? requireVerifiedNativeInputs)(options["native-inputs"], options["build-id"]);
+  requireArtifactPaths(nativeBinding, [options["native-inputs"]]);
   if (native.buildId !== options["build-id"] || !validHash(native.inputHash) || !validLabel(native.buildOwner)) {
     fail("credential-native-context-invalid");
   }

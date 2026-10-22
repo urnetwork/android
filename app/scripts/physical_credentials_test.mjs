@@ -11,6 +11,7 @@ import { credentialLineStructure, credentialPayload, credentialScripts, credenti
 import { finishCredentialSession, finishFailedCredentialSession, handoffCredentialOwnership, rollbackCredentialSetup,
   parseArgs as parseOwnershipArgs, requireCredentialInstrumentationStopped } from "./physical_credential_ownership.mjs";
 import { runInstrumentationSession } from "./physical_collector_session.mjs";
+import { parseArgs as parseAttemptCollectorArgs } from "./physical_collector_session.mjs";
 import { prepareArtifactDirectory } from "./physical_artifact_directory.mjs";
 import { armContext } from "./physical_h1_arm.mjs";
 
@@ -1874,4 +1875,80 @@ if (lines.length !== 2 || lines[0] !== ${JSON.stringify(USER)} || lines[1] !== $
   assertPrivateOutcomesOnly(sentinelReport);
   assert.deepEqual(readdirSync(join(f.app, "files/acceptance")), []);
   }
+});
+
+
+// These shell/ownership controls use synthetic native metadata. The companion
+// native-reader tests independently exercise the actual unchanged proof chain.
+function attemptCredentialOptions(f,name,token) {
+  const directory=join(f.directory,name); mkdirSync(directory,{mode:0o700});
+  const nativeDirectory=join(f.directory,"retained-native");
+  if(!existsSync(nativeDirectory)) {
+    mkdirSync(nativeDirectory,{mode:0o700});
+    writeFileSync(join(nativeDirectory,"retained-proof.json"),"synthetic native input",{mode:0o600});
+  }
+  Object.assign(f.options,{"artifact-dir":directory,"native-input-dir":nativeDirectory,
+    "native-inputs":join(nativeDirectory,"retained-proof.json"),output:join(directory,"staging.json"),
+    ownership:join(directory,"credential-owner.json"),"instrumentation-owner":join(directory,"am-owner.json")});
+  f.deps.verifyNativeInputs=(path,buildId)=>{
+    assert.equal(path,join(nativeDirectory,"retained-proof.json")); assert.equal(buildId,f.native.buildId); return f.native;
+  };
+  f.deps.ownershipToken=()=>token; f.marker=join(f.app,"files/acceptance/.credential-owner-"+token);
+  return directory;
+}
+
+test("attempt owner: credential handoff finish and stale cleanup stay inside their prospective session", t=>{
+  const f=ownershipFixture(t), firstDirectory=attemptCredentialOptions(f,"attempt-a","a".repeat(32));
+  const nativeBytes=readFileSync(f.options["native-inputs"]);
+  f.stage(); f.completed();
+  const firstOptions={...f.options};
+  assert.equal(finishCredentialSession(firstOptions,f.deps).eligible,true);
+  const preserved=[firstOptions.ownership,firstOptions.ownership+".handoff.json",firstOptions.ownership+".finish.json",
+    firstOptions["instrumentation-owner"],firstOptions["instrumentation-owner"]+".terminal.json"]
+    .map(path=>[path,readFileSync(path)]);
+  assert.equal(existsSync(f.destination),false);
+  const secondDirectory=attemptCredentialOptions(f,"attempt-b","b".repeat(32));
+  assert.notEqual(secondDirectory,firstDirectory); assert.equal(f.options.label,firstOptions.label);
+  f.stage();
+  const refused=finishCredentialSession(firstOptions,f.deps);
+  assert.equal(refused.eligible,false); assert.equal(refused.destinationRemoved,false);
+  assert.deepEqual(readFileSync(f.destination),credentialPayload(f.values),"stale cleanup removed new attempt credentials");
+  f.completed();
+  const finished=finishCredentialSession(f.options,f.deps);
+  assert.equal(finished.eligible,true,JSON.stringify(finished)); assert.equal(existsSync(f.destination),false);
+  for(const [path,bytes] of preserved) assert.deepEqual(readFileSync(path),bytes,"new attempt rewrote earlier custody");
+  assert.deepEqual(readFileSync(f.options["native-inputs"]),nativeBytes);
+});
+
+test("attempt owner: same attempt staging cannot overwrite evidence or reread credentials", t=>{
+  const f=ownershipFixture(t); attemptCredentialOptions(f,"attempt","a".repeat(32)); f.stage();
+  const reads=f.keys.length,calls=f.calls.length,original=readFileSync(f.options.output),owner=readFileSync(f.options.ownership);
+  assert.throws(()=>stagePhysicalCredentials(f.options,f.deps));
+  assert.equal(f.keys.length,reads); assert.equal(f.calls.length,calls);
+  assert.deepEqual(readFileSync(f.options.output),original); assert.deepEqual(readFileSync(f.options.ownership),owner);
+  assert.equal(rollbackCredentialSetup(f.options,f.deps).eligible,true);
+  assert.equal(existsSync(f.destination),false);
+});
+
+test("attempt owner: changed native identity cannot acquire AM custody of staged credentials", t=>{
+  const f=ownershipFixture(t); attemptCredentialOptions(f,"attempt","a".repeat(32)); f.stage();
+  assert.throws(()=>handoffCredentialOwnership(f.options,{...f.native,inputHash:"c".repeat(64)},f.deps),/native-context-mismatch/);
+  assert.equal(existsSync(f.options.ownership+".handoff.json"),false);
+  assert.deepEqual(readFileSync(f.destination),credentialPayload(f.values));
+  assert.equal(rollbackCredentialSetup(f.options,f.deps).eligible,true);
+});
+
+test("attempt owner: explicit native input directory CLI requires complete ownership and preserves diagnostic exclusion", ()=>{
+  const base=["--serial","synthetic-device","--config","synthetic.yml","--schema","user-pass","--output","staging.json"];
+  const context=["--ownership","owner.json","--native-inputs","retained-proof.json","--label","cell","--build-id","build"];
+  assert.equal(parseArgs([...base,...context,"--native-input-dir","/synthetic/retained"])["native-input-dir"],"/synthetic/retained");
+  for(const args of [
+    [...base,"--native-input-dir","/synthetic/retained"],
+    [...base,...context,"--native-input-dir","/synthetic/retained","--native-input-dir","/synthetic/other"],
+    ["--serial","synthetic-device","--output","staging.json","--inspect-only","--native-input-dir","/synthetic/retained"]
+  ]) assert.throws(()=>parseArgs(args));
+  const am=["run-instrumentation","--serial","synthetic-device","--label","cell","--build-id","build",
+    "--owner","owner.json","--stdout","out","--stderr","err","--native-inputs","retained-proof.json"];
+  assert.equal(parseAttemptCollectorArgs([...am,"--native-input-dir","/synthetic/retained"])["native-input-dir"],"/synthetic/retained");
+  assert.throws(()=>parseAttemptCollectorArgs([...am,"--native-input-dir","/synthetic/retained","--native-input-dir","/synthetic/other"]));
 });

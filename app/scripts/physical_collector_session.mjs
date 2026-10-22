@@ -535,8 +535,12 @@ async function runInstrumentationSessionOwned(options, dependencies = {}) {
     catch (error) { fail(`${artifactDirectoryReason(error)}-no-spawn`); }
   }
   if (!options["native-inputs"]) fail("verified-native-input-proof-required-no-spawn");
-  try { requireArtifactPaths(directoryBinding, [options["native-inputs"]], dependencies.directory); }
-  catch (error) { fail(`${artifactDirectoryReason(error)}-no-spawn`); }
+  let nativeBinding;
+  try {
+    nativeBinding = options["native-input-dir"] === undefined ? directoryBinding :
+      prepareArtifactDirectory(options["native-input-dir"], false, dependencies.directory);
+    requireArtifactPaths(nativeBinding, [options["native-inputs"]], dependencies.directory);
+  } catch (error) { fail(`${artifactDirectoryReason(error)}-no-spawn`); }
   if (new Set(paths).size !== paths.length || paths.some(existsSync)) fail("fresh-instrumentation-artifacts-required");
   const foreground = (dependencies.foreground ?? foregroundState)();
   requireRetainedForeground(foreground);
@@ -552,6 +556,8 @@ async function runInstrumentationSessionOwned(options, dependencies = {}) {
   let nativeInputs;
   try { nativeInputs = (dependencies.verifyNativeInputs ?? requireVerifiedNativeInputs)(options["native-inputs"], options["build-id"]); }
   catch (error) { fail(`${nativeProvenanceReason(error)}-no-spawn`); }
+  try { requireArtifactPaths(nativeBinding, [options["native-inputs"]], dependencies.directory); }
+  catch (error) { fail(`${artifactDirectoryReason(error)}-no-spawn`); }
   let output;
   let errors;
   let child;
@@ -742,7 +748,7 @@ export function parseArgs(argv) {
   const roleArguments = ["session-mode", "connect-command-id", "instrumentation-owner"];
   const allowed = mode === "run" ? ["owner", "stdout", "stderr", "launch-id", ...roleArguments] :
     mode === "check" ? ["owner", "timeout-ms", "launch-id", "launcher-pid"] : mode === "check-role" ? ["serial", ...roleArguments] :
-      mode === "run-instrumentation" ? ["owner", "stdout", "stderr", "serial", "label", "build-id", "component", "artifact-dir", "native-inputs", "credential-ownership", "launch-id", "io-loop-diagnostic", "hosted-transport-policy", "qualification-scope"] :
+      mode === "run-instrumentation" ? ["owner", "stdout", "stderr", "serial", "label", "build-id", "component", "artifact-dir", "native-inputs", "native-input-dir", "credential-ownership", "launch-id", "io-loop-diagnostic", "hosted-transport-policy", "qualification-scope"] :
         mode === "bind-instrumentation-ready" ? ["owner", "serial", "launch-id", "launcher-pid", "timeout-ms"] : [];
   if (!allowed.length) fail("run-check-or-check-role-required");
   const options = { mode, captureArgs: separator < 0 ? [] : rest.slice(separator + 1) };

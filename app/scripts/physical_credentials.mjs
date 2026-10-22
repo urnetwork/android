@@ -41,19 +41,19 @@ export function parseArgs(argv) {
     }
     const key = argv[i]?.slice(2);
     if (!argv[i]?.startsWith("--") || !["serial", "config", "schema", "output", "preflight", "artifact-dir",
-      "ownership", "native-inputs", "label", "build-id"].includes(key) ||
+      "ownership", "native-inputs", "native-input-dir", "label", "build-id"].includes(key) ||
         !argv[i + 1] || argv[i + 1].startsWith("--") || options[key] !== undefined) fail("invalid-arguments");
     options[key] = argv[i + 1];
     i += 1;
   }
   if (!options.serial || !options.output || (options.inspectOnly || options.sentinelOnly
     ? options.config !== undefined || options.schema !== undefined || options.preflight !== undefined ||
-      options["artifact-dir"] !== undefined || ["ownership", "native-inputs", "label", "build-id"].some(key => options[key] !== undefined) : !options.config)) {
+      options["artifact-dir"] !== undefined || ["ownership", "native-inputs", "native-input-dir", "label", "build-id"].some(key => options[key] !== undefined) : !options.config)) {
     fail("serial-config-output-required-or-diagnostic-mode");
   }
   if (!options.inspectOnly && !options.sentinelOnly) selectedKeys(options.schema);
   const ownershipKeys = ["ownership", "native-inputs", "label", "build-id"];
-  if (ownershipKeys.some(key => options[key] !== undefined) && ownershipKeys.some(key => !options[key])) {
+  if ((ownershipKeys.some(key => options[key] !== undefined) || options["native-input-dir"] !== undefined) && ownershipKeys.some(key => !options[key])) {
     fail("explicit-credential-ownership-context-required");
   }
   return options;

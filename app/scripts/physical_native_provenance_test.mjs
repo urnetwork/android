@@ -1366,3 +1366,118 @@ test("real native writer rejects explicit unsupported GOFLAGS before Gradle spaw
     assert.equal(existsSync(join(f.privateDir, "writer.stderr")), false, flags);
   }
 });
+
+
+// New attempt scope tests use actual retained proof readers and synthetic
+// Go/Git metadata. No ADB, real credentials, source builds or network executes.
+function attemptRetainedReaderOptions(f, generation, name) {
+  const directory = join(f.root, name);
+  mkdirSync(directory, { mode: 0o700 });
+  return { serial: "synthetic-device", label: "synthetic-same-cell", "build-id": generation.buildId,
+    "native-inputs": generation.options.output, "native-input-dir": generation.directory,
+    "artifact-dir": directory, ownership: join(directory, "credential-owner.json"), output: join(directory, "staging.json"),
+    owner: join(directory, "am-owner.json"), stdout: join(directory, "am.stdout"), stderr: join(directory, "am.stderr") };
+}
+
+function attemptRetainedReaderDependencies(f) {
+  const child = new EventEmitter();
+  child.pid = process.pid + 1; child.kill = () => assert.fail("synthetic successful child must join");
+  let commandLine = "", spawnCount = 0;
+  return { verifyNativeInputs: (path, buildId) => requireVerifiedNativeInputs(path, buildId, f.dependencies),
+    signals: new EventEmitter(), foreground: () => ({ inputTTY: true, outputTTY: true, processGroup: 100, foregroundGroup: 100 }),
+    hostProcess: pid => ({ status: 0, stdout: pid + " S Mon Sep 21 10:11:12 2026 " +
+      (pid === process.pid ? "/node /synthetic/supervisor.mjs" : commandLine) + "\n" }),
+    spawn: (command, args) => {
+      assert.equal(command, "adb"); spawnCount++; commandLine = "/synthetic/adb " + args.join(" ");
+      queueMicrotask(() => { child.emit("spawn"); queueMicrotask(() => child.emit("close", 0, null)); });
+      return child;
+    }, get spawnCount() { return spawnCount; } };
+}
+
+test("attempt owner: actual retained native proof feeds distinct credential and AM output owners", async t => {
+  const f = fixture(t), generation = retainedGeneration(f);
+  retainedGeneration(f, "android", "second");
+  const retainedPaths = [generation.options.output, generation.paths.output, generation.paths.before, generation.paths.after,
+    generation.paths["writer-receipt"], join(generation.directory,"app.apk"), join(generation.directory,"test.apk")];
+  const original = new Map(retainedPaths.map(path => [path,readFileSync(path)]));
+  const earlier = [];
+  for (const name of ["synthetic-run-a","synthetic-run-b"]) {
+    const options = attemptRetainedReaderOptions(f,generation,name), dependencies = attemptRetainedReaderDependencies(f);
+    const context = prepareCredentialOwnership(options,{ verifyNativeInputs:dependencies.verifyNativeInputs,
+      ownershipToken:() => "a".repeat(32) });
+    assert.equal(context.label,"synthetic-same-cell");
+    assert.equal(context.nativeInputHash,generation.inputHash); assert.equal(context.nativeBuildOwner,generation.buildOwner);
+    assert.equal(await runInstrumentationSession(options,dependencies),0);
+    assert.equal(dependencies.spawnCount,1);
+    const owner=JSON.parse(readFileSync(options.owner)), terminal=JSON.parse(readFileSync(options.owner+".terminal.json"));
+    assert.equal(owner.nativeInputHash,context.nativeInputHash); assert.equal(owner.nativeBuildOwner,context.nativeBuildOwner);
+    assert.equal(terminal.state,"complete");
+    earlier.push([options.owner,readFileSync(options.owner)]);
+  }
+  for(const [path,bytes] of [...original,...earlier]) assert.deepEqual(readFileSync(path),bytes,"immutable source or earlier evidence changed");
+});
+
+test("attempt owner: separate retained input root preserves actual source writer APK and proof rejection", async t => {
+  for(const kind of ["app.apk","writer","source","relocated-proof"]) {
+    const f=fixture(t), generation=retainedGeneration(f), options=attemptRetainedReaderOptions(f,generation,"attempt");
+    const dependencies=attemptRetainedReaderDependencies(f);
+    if(kind==="app.apk") write(join(generation.directory,"app.apk"),"changed retained bytes");
+    if(kind==="writer") {
+      const row=JSON.parse(readFileSync(generation.paths["writer-receipt"])); row.childExitCode=7; json(generation.paths["writer-receipt"],row);
+    }
+    if(kind==="source") write(join(f.root,"connect/connect.go"),"package changed\n");
+    if(kind==="relocated-proof") {
+      const foreign=join(f.root,"foreign-proof"); mkdirSync(foreign,{mode:0o700});
+      options["native-input-dir"]=foreign; options["native-inputs"]=join(foreign,"retained-proof.json");
+      write(options["native-inputs"],readFileSync(generation.options.output));
+    }
+    const reason=kind==="app.apk"?/retained-native-artifact-changed/:kind==="writer"?/successful-native-writer-receipt-required/:
+      kind==="source"?/native-inputs-changed-after-build/:/artifact-path-outside-directory/;
+    assert.throws(()=>prepareCredentialOwnership(options,{verifyNativeInputs:dependencies.verifyNativeInputs}),reason,kind);
+    await assert.rejects(runInstrumentationSession(options,dependencies),reason,kind);
+    assert.equal(dependencies.spawnCount,0); assert.equal(existsSync(options.owner),false); assert.equal(existsSync(options.stdout),false);
+  }
+});
+
+test("attempt owner: explicit input directory cannot broaden mutable output or foreign directory custody", async t => {
+  for(const kind of ["missing-explicit-root","wrong-root","symlink-root","foreign-owner","output-escape"]) {
+    const f=fixture(t), generation=retainedGeneration(f), options=attemptRetainedReaderOptions(f,generation,"attempt");
+    const dependencies=attemptRetainedReaderDependencies(f);
+    if(kind==="missing-explicit-root") delete options["native-input-dir"];
+    if(kind==="wrong-root") options["native-input-dir"]=f.privateDir;
+    if(kind==="symlink-root") {
+      const alias=join(f.root,"native-alias"); symlinkSync(generation.directory,alias); options["native-input-dir"]=alias;
+    }
+    if(kind==="foreign-owner") dependencies.directory={lstat:path=>{
+      const stat=statSync(path);
+      return path===generation.directory?Object.create(stat,{uid:{value:process.getuid()+1}}):stat;
+    }};
+    if(kind==="output-escape") {
+      options.stderr=join(generation.directory,"escaped.stderr");
+      options.ownership=join(generation.directory,"escaped-credential-owner.json");
+    }
+    const reason=kind==="symlink-root"?/artifact-directory-untrusted-type/:
+      kind==="foreign-owner"?/artifact-directory-owner-mismatch/:/artifact-path-outside-directory/;
+    if(kind!=="foreign-owner") {
+      assert.throws(()=>prepareCredentialOwnership(options,{verifyNativeInputs:dependencies.verifyNativeInputs}),reason,kind);
+    }
+    await assert.rejects(runInstrumentationSession(options,dependencies),reason,kind);
+    assert.equal(dependencies.spawnCount,0); assert.equal(existsSync(options.owner),false);
+  }
+});
+
+test("attempt owner: replacing the separate native directory during verification cannot authorize spawn", async t => {
+  for(const reader of ["credentials","instrumentation"]) {
+    const f=fixture(t), generation=retainedGeneration(f), options=attemptRetainedReaderOptions(f,generation,"attempt");
+    const dependencies=attemptRetainedReaderDependencies(f);
+    dependencies.verifyNativeInputs=(path,buildId)=>{
+      const native=requireVerifiedNativeInputs(path,buildId,f.dependencies);
+      renameSync(generation.directory,generation.directory+"-retained");
+      mkdirSync(generation.directory,{mode:0o700});
+      return native;
+    };
+    if(reader==="credentials") assert.throws(()=>prepareCredentialOwnership(options,dependencies),/artifact-directory-replaced/);
+    else await assert.rejects(runInstrumentationSession(options,dependencies),/artifact-directory-replaced-no-spawn/);
+    assert.equal(dependencies.spawnCount,0); assert.equal(existsSync(options.stdout),false);
+  }
+});
