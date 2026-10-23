@@ -191,6 +191,7 @@
     <string name="copied">Zkopírováno!</string>
     <string name="copy">Kopírovat</string>
     <string name="copy_auth_code">Kopírovat ověřovací kód</string>
+    <string name="copy_extender_address">Kopírovat adresu extenderu</string>
     <string name="copy_share_text">Kopírovat text ke sdílení</string>
     <string name="could_not_get_google_id_token">Nepodařilo se získat token Google ID</string>
     <string name="countries">Země</string>
@@ -487,6 +488,8 @@
     <string name="expanded">Rozbaleno</string>
     <string name="expires">Vyprší</string>
     <string name="expiry_time">Čas vypršení</string>
+    <string name="extender_address_copied">Adresa extenderu zkopírována</string>
+    <string name="extender_address_label">Extender %1$s</string>
     <string name="extender_default_value">Výchozí: %1$s</string>
     <string name="extender_dns_name">DNS název extenderu</string>
     <string name="extender_hosts">Hostitelé extenderů</string>

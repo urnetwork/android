@@ -21,6 +21,7 @@ import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bringyour.network.R
@@ -230,12 +231,15 @@ fun ExtenderPanel(
     }
 }
 
-/** One hollow ring in an extender's own color (K3). */
+/**
+ * One hollow ring in an extender's own color (K3), [diameter] across: the
+ * panel's reading size, or smaller beside an address on a provider row (K9).
+ */
 @Composable
-private fun ExtenderRing(colorHex: String) {
+fun ExtenderRing(colorHex: String, diameter: Dp = RING_SIZE) {
     val argb = extenderColorArgb(colorHex)
     val color = if (argb != null) Color(argb) else TextMuted
-    Canvas(modifier = Modifier.size(RING_SIZE)) {
+    Canvas(modifier = Modifier.size(diameter)) {
         val stroke = EXTENDER_RING_STROKE_DP.dp.toPx()
         drawCircle(
             color = color,

@@ -9,6 +9,12 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.text.font.FontWeight
+import com.bringyour.network.ui.connect.EXTENDER_RING_GAP_DP
+import com.bringyour.network.ui.connect.EXTENDER_RING_STROKE_DP
+import com.bringyour.network.ui.connect.ExtenderRingGeometry
+import com.bringyour.network.ui.connect.drawExtenderDot
+import com.bringyour.network.ui.connect.extenderRingGeometry
+import com.bringyour.network.ui.stats.ExtenderRing
 import com.bringyour.network.ui.stats.IpFamilyColumn
 import com.bringyour.network.ui.stats.tagResId
 import com.bringyour.network.ui.theme.MainBorderBase
@@ -45,6 +51,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -56,6 +63,8 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.AnnotatedString
@@ -313,7 +322,7 @@ private fun ProviderLocationRowItem(
     ) {
         // fixed-size column so rows stay aligned whether or not the provider
         // is selected — the selection ring is drawn inside this same box
-        ProviderDot(color = color, selected = selected)
+        ProviderDot(row = row, color = color, selected = selected)
 
         // The same padding on both sides of the dot, so it reads as centered
         // in its column: the sheet edge and the detail text are each
@@ -392,6 +401,24 @@ private fun ProviderLocationRowItem(
                 maxLines = 1,
             )
 
+            // the extenders carrying the connection to this provider, one line
+            // each with its ring color (EXTENDER.md K9): usually none, one
+            // through an extender, briefly two across a transport migration
+            row.extenders.forEach { extender ->
+                key(extender.ip) {
+                    Spacer(modifier = Modifier.height(2.dp))
+                    ProviderExtenderLine(
+                        extender = extender,
+                        selected = selected,
+                        onCopy = {
+                            clipboardManager.setText(AnnotatedString(extender.ip))
+                            Toast.makeText(context, R.string.extender_address_copied, Toast.LENGTH_SHORT)
+                                .show()
+                        },
+                    )
+                }
+            }
+
             when (stayState) {
                 StayOnExitState.OFFER -> {
                     Spacer(modifier = Modifier.height(6.dp))
@@ -449,12 +476,35 @@ private val PROVIDER_DOT_RING_GAP = 4.dp
 private val PROVIDER_DOT_RING_STROKE = 1.5.dp
 private val PROVIDER_DOT_BOX =
     PROVIDER_DOT_DIAMETER + (PROVIDER_DOT_RING_GAP + PROVIDER_DOT_RING_STROKE) * 2f
+// the ring before an extender's address, drawn with K2's stroke
+private val PROVIDER_EXTENDER_RING_SIZE = 10.dp
+
+/**
+ * A row's dot and its extender rings in px at [density]: the connect grid's
+ * geometry (EXTENDER.md K2) at the dot's own size, which holds all three rings
+ * at full stroke (K9).
+ */
+fun providerRowDotGeometry(row: ProviderLocationRow, density: Float): ExtenderRingGeometry =
+    extenderRingGeometry(
+        cellSizePx = PROVIDER_DOT_DIAMETER.value * density,
+        extenderCount = row.extenderRingArgb.size,
+        strokePx = EXTENDER_RING_STROKE_DP * density,
+        gapPx = EXTENDER_RING_GAP_DP * density,
+    )
 
 @Composable
-private fun ProviderDot(color: Color, selected: Boolean) {
+private fun ProviderDot(row: ProviderLocationRow, color: Color, selected: Boolean) {
     Canvas(modifier = Modifier.size(PROVIDER_DOT_BOX)) {
         val dotRadius = PROVIDER_DOT_DIAMETER.toPx() / 2f
-        drawCircle(color = color, radius = dotRadius, center = center)
+        // a provider reached through extenders carries their rings, the
+        // connect grid's glyph: they grow inward from the dot's edge, so a
+        // ringed dot keeps its footprint and the selection ring stays put
+        drawExtenderDot(
+            center = center,
+            geometry = providerRowDotGeometry(row, density),
+            color = color,
+            ringArgb = row.extenderRingArgb,
+        )
         if (selected) {
             val stroke = PROVIDER_DOT_RING_STROKE.toPx()
             drawCircle(
@@ -464,6 +514,44 @@ private fun ProviderDot(color: Color, selected: Boolean) {
                 style = Stroke(width = stroke),
             )
         }
+    }
+}
+
+/**
+ * One extender on a provider row (EXTENDER.md K9): a small ring in the
+ * extender's color, then its address, which is the extender's id, in the
+ * client id's monospaced style. Tapping it copies the address.
+ */
+@Composable
+private fun ProviderExtenderLine(
+    extender: ProviderExtender,
+    selected: Boolean,
+    onCopy: () -> Unit,
+) {
+    val label = stringResource(R.string.extender_address_label, extender.ip)
+    Row(
+        modifier = Modifier
+            // the row has no context menu, so the copy action's name is the
+            // tap's label: "double tap to copy extender address"
+            .clickable(
+                role = Role.Button,
+                onClickLabel = stringResource(R.string.copy_extender_address),
+                onClick = onCopy,
+            )
+            // one element for assistive tech, read as "Extender <address>";
+            // the click before this is outside what it clears, so it stays
+            .clearAndSetSemantics { contentDescription = label },
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        ExtenderRing(colorHex = extender.colorHex, diameter = PROVIDER_EXTENDER_RING_SIZE)
+        Spacer(modifier = Modifier.width(6.dp))
+        Text(
+            extender.ip,
+            style = TextStyle(fontSize = 11.sp, fontFamily = FontFamily.Monospace),
+            color = if (selected) Color.White else TextFaint,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+        )
     }
 }
 

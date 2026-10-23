@@ -3,6 +3,8 @@ package com.bringyour.network.ui.connect.providerlocations
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bringyour.network.DeviceManager
+import com.bringyour.network.ui.connect.extenderColorArgb
+import com.bringyour.network.ui.connect.extenderCommaSeparatedValues
 import com.bringyour.sdk.ConnectLocation
 import com.bringyour.sdk.ConnectLocationId
 import com.bringyour.sdk.DeviceLocal
@@ -38,9 +40,38 @@ data class ProviderLocationRow(
     // and its short label ("both", "v4", "v6"); legacy reads as v4-only
     val ipFamily: String = "",
     val ipFamilyLabel: String = "",
+    // the extenders carrying this client's connection to the provider right
+    // now (connect/EXTENDER.md K1), in the sdk's order: none over a direct or
+    // p2p route, one through an extender, briefly two across a transport
+    // migration. Part of the row's value, so a migration, which changes
+    // nothing else, still republishes the row
+    val extenders: List<ProviderExtender> = listOf(),
 ) {
     val plottable: Boolean get() = lat != null && lon != null
+
+    // the extenders' ring colors as the dots draw them (K3), parsed once per
+    // row; a color that does not parse gets no ring, as on the connect grid
+    val extenderRingArgb: List<Int> = extenders.mapNotNull { extenderColorArgb(it.colorHex) }
 }
+
+/**
+ * One extender on a provider's route: its address, which is the extender's id
+ * on the provider rows (EXTENDER.md K9), and the sdk's color for it (K3).
+ */
+data class ProviderExtender(
+    val ip: String,
+    val colorHex: String,
+)
+
+/**
+ * Pairs the sdk's comma separated extender addresses and colors by index (K1,
+ * K3). The sdk keeps the two lists the same length; if they ever differ, the
+ * unpaired tail is dropped rather than drawn in a made-up color.
+ */
+fun providerExtenders(ips: String?, colorHexes: String?): List<ProviderExtender> =
+    extenderCommaSeparatedValues(ips).zip(extenderCommaSeparatedValues(colorHexes)) { ip, colorHex ->
+        ProviderExtender(ip = ip, colorHex = colorHex)
+    }
 
 @HiltViewModel
 class ProviderLocationsViewModel @Inject constructor(
@@ -137,6 +168,10 @@ class ProviderLocationsViewModel @Inject constructor(
                         connectedSinceMillis = location.connectedSinceMillis,
                         ipFamily = location.ipFamily,
                         ipFamilyLabel = location.ipFamilyLabel,
+                        extenders = providerExtenders(
+                            ips = location.extenderIps,
+                            colorHexes = location.extenderColorHexes,
+                        ),
                     )
                 )
             }

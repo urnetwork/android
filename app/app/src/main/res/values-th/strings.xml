@@ -191,6 +191,7 @@
     <string name="copied">คัดลอกแล้ว!</string>
     <string name="copy">คัดลอก</string>
     <string name="copy_auth_code">คัดลอกรหัสยืนยัน</string>
+    <string name="copy_extender_address">คัดลอกที่อยู่ของตัวขยาย</string>
     <string name="copy_share_text">คัดลอกข้อความแชร์</string>
     <string name="could_not_get_google_id_token">ไม่สามารถรับโทเค็น ID ของ Google ได้</string>
     <string name="countries">ประเทศ</string>
@@ -487,6 +488,8 @@
     <string name="expanded">ขยายแล้ว</string>
     <string name="expires">หมดอายุ</string>
     <string name="expiry_time">เวลาหมดอายุ</string>
+    <string name="extender_address_copied">คัดลอกที่อยู่ของตัวขยายแล้ว</string>
+    <string name="extender_address_label">ตัวขยาย %1$s</string>
     <string name="extender_default_value">ค่าเริ่มต้น: %1$s</string>
     <string name="extender_dns_name">ชื่อ DNS ของตัวขยาย</string>
     <string name="extender_hosts">โฮสต์ของตัวขยาย</string>

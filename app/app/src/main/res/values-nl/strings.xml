@@ -191,6 +191,7 @@
     <string name="copied">Gekopieerd!</string>
     <string name="copy">Kopiëren</string>
     <string name="copy_auth_code">Auth-code kopiëren</string>
+    <string name="copy_extender_address">Extender-adres kopiëren</string>
     <string name="copy_share_text">Deeltekst kopiëren</string>
     <string name="could_not_get_google_id_token">Kan Google ID-token niet ophalen</string>
     <string name="countries">Landen</string>
@@ -487,6 +488,8 @@
     <string name="expanded">Uitgevouwen</string>
     <string name="expires">Vervalt</string>
     <string name="expiry_time">Vervaltijd</string>
+    <string name="extender_address_copied">Extender-adres gekopieerd</string>
+    <string name="extender_address_label">Extender %1$s</string>
     <string name="extender_default_value">Standaard: %1$s</string>
     <string name="extender_dns_name">DNS-naam van extender</string>
     <string name="extender_hosts">Extender-hosts</string>
