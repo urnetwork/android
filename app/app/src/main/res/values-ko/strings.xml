@@ -191,6 +191,7 @@
     <string name="copied">복사되었습니다!</string>
     <string name="copy">복사</string>
     <string name="copy_auth_code">인증 코드 복사</string>
+    <string name="copy_extender_address">익스텐더 주소 복사</string>
     <string name="copy_share_text">공유 텍스트 복사</string>
     <string name="could_not_get_google_id_token">Google ID 토큰을 가져올 수 없습니다</string>
     <string name="countries">국가</string>
@@ -487,6 +488,8 @@
     <string name="expanded">펼쳐짐</string>
     <string name="expires">만료</string>
     <string name="expiry_time">만료 시간</string>
+    <string name="extender_address_copied">익스텐더 주소가 복사되었습니다</string>
+    <string name="extender_address_label">익스텐더 %1$s</string>
     <string name="extender_default_value">기본값: %1$s</string>
     <string name="extender_dns_name">익스텐더 DNS 이름</string>
     <string name="extender_hosts">익스텐더 호스트</string>

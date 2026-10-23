@@ -28,6 +28,11 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.bringyour.network.ui.connect.EXTENDER_RING_GAP_DP
+import com.bringyour.network.ui.connect.EXTENDER_RING_STROKE_DP
+import com.bringyour.network.ui.connect.ExtenderRingGeometry
+import com.bringyour.network.ui.connect.drawExtenderDot
+import com.bringyour.network.ui.connect.extenderRingGeometry
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.OffWhite
 import kotlinx.coroutines.Dispatchers
@@ -343,8 +348,12 @@ fun ProviderGlobe(
         // Provider dots. The selected one is held back and drawn last so it is
         // never covered by a dot that happens to sit on top of it — providers
         // in one city land on the same pixel.
+        //
+        // A provider reached through extenders carries their rings
+        // (EXTENDER.md K9), laid out at the dot's size in the 600-unit space
+        // and scaled with everything else; see providerGlobeDotGeometry.
+        var selectedRow: ProviderLocationRow? = null
         var selectedCenter: Offset? = null
-        var selectedColor: Color? = null
         plottable.forEach { row ->
             val point = GlobeGeometry.project(
                 row.lon!!.toFloat(),
@@ -353,21 +362,32 @@ fun ProviderGlobe(
                 phi,
                 currentScale,
             ) ?: return@forEach
-            val color = providerColor(row, getLocationColor)
             val center = canvas(point)
             if (row.clientId == selectedClientId) {
+                selectedRow = row
                 selectedCenter = center
-                selectedColor = color
             } else {
-                drawCircle(color = color, radius = DOT_RADIUS * unit, center = center)
+                drawExtenderDot(
+                    center = center,
+                    geometry = providerGlobeDotGeometry(row, unit),
+                    color = providerColor(row, getLocationColor),
+                    ringArgb = row.extenderRingArgb,
+                )
             }
         }
+        val row = selectedRow
         val center = selectedCenter
-        val color = selectedColor
-        if (center != null && color != null) {
+        if (row != null && center != null) {
+            val color = providerColor(row, getLocationColor)
             // a darker core inside its own full-strength ring: the selection
-            // reads at a glance without changing which country color it is
-            drawCircle(color = color.darkenForSelection(), radius = DOT_RADIUS * unit, center = center)
+            // reads at a glance without changing which country color it is.
+            // The extender rings keep their own colors.
+            drawExtenderDot(
+                center = center,
+                geometry = providerGlobeDotGeometry(row, unit),
+                color = color.darkenForSelection(),
+                ringArgb = row.extenderRingArgb,
+            )
             drawCircle(
                 color = color,
                 radius = SELECTED_RING_RADIUS * unit,
@@ -377,6 +397,23 @@ fun ProviderGlobe(
         }
     }
 }
+
+/**
+ * A provider's globe dot and its extender rings in canvas px: the connect
+ * grid's geometry (EXTENDER.md K2) at the dot's size in the 600-unit space,
+ * with K2's stroke and gap taken as globe units, and every length times [unit]
+ * as the rest of the globe is, so the rings shrink with the globe instead of
+ * crowding out a small dot. A dot this size holds one ring at full stroke, so
+ * a second extender dashes it rather than thinning both (K9).
+ */
+fun providerGlobeDotGeometry(row: ProviderLocationRow, unit: Float): ExtenderRingGeometry =
+    extenderRingGeometry(
+        cellSizePx = 2f * DOT_RADIUS * unit,
+        extenderCount = row.extenderRingArgb.size,
+        strokePx = EXTENDER_RING_STROKE_DP * unit,
+        gapPx = EXTENDER_RING_GAP_DP * unit,
+        dropToFit = true,
+    )
 
 /**
  * Draws one lon/lat polyline, breaking it wherever it crosses the horizon so

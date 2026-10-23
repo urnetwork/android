@@ -5,6 +5,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
+import kotlin.math.floor
 
 /**
  * The extender rings of a provider dot (EXTENDER.md K2).
@@ -16,7 +17,8 @@ import androidx.compose.ui.graphics.drawscope.Stroke
  * neighbor — the filled dot shrinks inward by 4 dp per ring instead. At most
  * three rings are drawn; four or more collapse into a dashed third ring.
  *
- * The connect widget draws through here at its own dot size.
+ * The connect widget, the provider rows and the provider globe draw through
+ * here, each at its own dot size (K9).
  */
 
 // K2's stroke and gap. A ring therefore costs 4 dp of dot radius.
@@ -33,6 +35,8 @@ const val EXTENDER_RING_MAX_COUNT = 3
 // extenders carry the provider) or grow the dot (which K2 forbids), the stroke
 // and the gap scale down together until the rings fit around a dot of this
 // fraction. At the common counts — zero, one, briefly two — nothing scales.
+// A dot that drops rings instead (`dropToFit`) keeps the same fraction, at
+// full stroke.
 private const val MIN_DOT_RADIUS_FRACTION = 0.25f
 
 /**
@@ -53,16 +57,30 @@ data class ExtenderRingGeometry(
  * extenders. `cellSizePx` is the dot's whole footprint — on the connect widget
  * the animating dot's current diameter, which is how the rings animate in and
  * out with the dot.
+ *
+ * With `dropToFit` a cell too small for its rings keeps the full stroke and
+ * gap rather than scaling them: the rings that do not fit around the smallest
+ * fill are dropped, and the outermost one drawn is dashed as a four-or-more
+ * count is. The provider globe draws this way (K9), since its dots are a few
+ * points across, where one full ring reads and two thinned ones do not.
  */
 fun extenderRingGeometry(
     cellSizePx: Float,
     extenderCount: Int,
     strokePx: Float,
     gapPx: Float,
+    dropToFit: Boolean = false,
 ): ExtenderRingGeometry {
     val radius = (cellSizePx / 2f).coerceAtLeast(0f)
-    val ringCount = extenderCount.coerceAtMost(EXTENDER_RING_MAX_COUNT)
-    val dashed = EXTENDER_RING_MAX_COUNT < extenderCount
+    // each ring costs its own stroke plus the gap that precedes it
+    val pitch = strokePx + gapPx
+    val minDotRadius = radius * MIN_DOT_RADIUS_FRACTION
+    val fitCount = if (dropToFit) {
+        floor((radius - minDotRadius) / pitch).toInt()
+    } else {
+        EXTENDER_RING_MAX_COUNT
+    }
+    val ringCount = minOf(extenderCount, EXTENDER_RING_MAX_COUNT, fitCount)
     if (radius <= 0f || ringCount <= 0 || strokePx <= 0f) {
         return ExtenderRingGeometry(
             dotRadiusPx = radius,
@@ -71,12 +89,13 @@ fun extenderRingGeometry(
             dashedOutermost = false,
         )
     }
+    // the outermost ring stands for every extender that did not get one
+    val dashed = ringCount < extenderCount
 
-    // each ring costs its own stroke plus the gap that precedes it
-    val pitch = strokePx + gapPx
+    // the stroke and the gap scale down only to keep the count; rings dropped
+    // to fit already fit at full stroke
     val wanted = ringCount * pitch
-    val minDotRadius = radius * MIN_DOT_RADIUS_FRACTION
-    val scale = if (radius - wanted < minDotRadius) {
+    val scale = if (!dropToFit && radius - wanted < minDotRadius) {
         ((radius - minDotRadius) / wanted).coerceIn(0f, 1f)
     } else {
         1f
@@ -99,16 +118,21 @@ fun extenderRingGeometry(
 }
 
 /**
- * The per-extender color hexes of a grid point, in the sdk's order. The sdk
- * carries them as one comma separated string (`ProviderGridPoint`), empty for
- * a provider reached directly.
+ * The sdk's per-provider extender ips or color hexes, in its order. gomobile
+ * binds no string slice, so the sdk carries each list as one comma separated
+ * string (`ProviderGridPoint`, `ConnectedProviderLocation`), empty for a
+ * provider reached directly.
  */
-fun extenderColorHexList(colorHexes: String?): List<String> {
-    val hexes = colorHexes ?: return listOf()
-    return hexes.split(',')
+fun extenderCommaSeparatedValues(value: String?): List<String> {
+    val values = value ?: return listOf()
+    return values.split(',')
         .map { it.trim() }
         .filter { it.isNotEmpty() }
 }
+
+/** The per-extender color hexes of a grid point, in the sdk's order. */
+fun extenderColorHexList(colorHexes: String?): List<String> =
+    extenderCommaSeparatedValues(colorHexes)
 
 /**
  * One sdk color hex ("3cdd67", six hex digits with no leading `#`) as an
@@ -140,12 +164,30 @@ fun DrawScope.drawExtenderDot(
     strokePx: Float,
     gapPx: Float,
 ) {
-    val geometry = extenderRingGeometry(
-        cellSizePx = cellSizePx,
-        extenderCount = ringArgb.size,
-        strokePx = strokePx,
-        gapPx = gapPx,
+    drawExtenderDot(
+        center = center,
+        geometry = extenderRingGeometry(
+            cellSizePx = cellSizePx,
+            extenderCount = ringArgb.size,
+            strokePx = strokePx,
+            gapPx = gapPx,
+        ),
+        color = color,
+        ringArgb = ringArgb,
     )
+}
+
+/**
+ * Draws one provider dot with rings already laid out, for a dot that lays out
+ * its own (the provider rows and globe, K9). `ringArgb` colors the rings from
+ * the innermost out, as on the connect widget.
+ */
+fun DrawScope.drawExtenderDot(
+    center: Offset,
+    geometry: ExtenderRingGeometry,
+    color: Color,
+    ringArgb: List<Int>,
+) {
     if (0f < geometry.dotRadiusPx) {
         drawCircle(
             color = color,
@@ -156,8 +198,9 @@ fun DrawScope.drawExtenderDot(
     if (geometry.ringRadiiPx.isEmpty()) {
         return
     }
-    // the dashed ring stands for every extender past the third, so it takes
-    // the color of the third one it draws
+    // the dashed ring stands for every extender past the rings drawn, so it
+    // takes the color of the last one it draws: the third, or on the globe the
+    // first
     val dashEffect = if (geometry.dashedOutermost) {
         PathEffect.dashPathEffect(
             floatArrayOf(geometry.strokePx * 2f, geometry.strokePx * 2f),

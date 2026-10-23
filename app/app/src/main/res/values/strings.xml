@@ -194,6 +194,7 @@
     <string name="copied">Copied!</string>
     <string name="copy">Copy</string>
     <string name="copy_auth_code">Copy Auth Code</string>
+    <string name="copy_extender_address">Copy extender address</string>
     <string name="copy_share_text">Copy share text</string>
     <string name="could_not_get_google_id_token">Could not get Google ID token</string>
     <string name="countries">Countries</string>
@@ -494,6 +495,8 @@
     <string name="expanded">Expanded</string>
     <string name="expires">Expires</string>
     <string name="expiry_time">Expiry time</string>
+    <string name="extender_address_copied">Extender address copied</string>
+    <string name="extender_address_label">Extender %1$s</string>
     <string name="extender_default_value">Default: %1$s</string>
     <string name="extender_dns_name">Extender DNS name</string>
     <string name="extender_hosts">Extender hosts</string>

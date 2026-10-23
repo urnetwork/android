@@ -191,6 +191,7 @@
     <string name="copied">コピーしました！</string>
     <string name="copy">コピー</string>
     <string name="copy_auth_code">認証コードをコピー</string>
+    <string name="copy_extender_address">エクステンダーのアドレスをコピー</string>
     <string name="copy_share_text">共有テキストをコピー</string>
     <string name="could_not_get_google_id_token">Google ID トークンを取得できませんでした</string>
     <string name="countries">国</string>
@@ -487,6 +488,8 @@
     <string name="expanded">展開</string>
     <string name="expires">有効期限</string>
     <string name="expiry_time">有効期限</string>
+    <string name="extender_address_copied">エクステンダーのアドレスをコピーしました</string>
+    <string name="extender_address_label">エクステンダー %1$s</string>
     <string name="extender_default_value">デフォルト：%1$s</string>
     <string name="extender_dns_name">エクステンダーの DNS 名</string>
     <string name="extender_hosts">エクステンダーのホスト</string>

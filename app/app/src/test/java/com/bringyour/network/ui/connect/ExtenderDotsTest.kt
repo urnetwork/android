@@ -19,12 +19,13 @@ class ExtenderDotsTest {
     private val stroke = 2f
     private val gap = 2f
 
-    private fun geometry(extenderCount: Int, cellSizePx: Float = cell) =
+    private fun geometry(extenderCount: Int, cellSizePx: Float = cell, dropToFit: Boolean = false) =
         extenderRingGeometry(
             cellSizePx = cellSizePx,
             extenderCount = extenderCount,
             strokePx = stroke,
             gapPx = gap,
+            dropToFit = dropToFit,
         )
 
     @Test
@@ -94,6 +95,39 @@ class ExtenderDotsTest {
     }
 
     @Test
+    fun aCellThatDropsToFitKeepsTheStrokeAndDashesTheLastRingDrawn() {
+        // 14 across holds one full ring around a quarter-radius fill, not two
+        val small = 14f
+        val geometry = geometry(2, cellSizePx = small, dropToFit = true)
+
+        assertEquals(1, geometry.ringRadiiPx.size)
+        assertTrue(geometry.dashedOutermost)
+        assertEquals(stroke, geometry.strokePx, 0f)
+        assertEquals(small / 2f - 4f, geometry.dotRadiusPx, 0.001f)
+        assertEquals(small / 2f, geometry.ringRadiiPx.last() + geometry.strokePx / 2f, 0.001f)
+        // a lone extender's ring is solid
+        assertFalse(geometry(1, cellSizePx = small, dropToFit = true).dashedOutermost)
+    }
+
+    @Test
+    fun aCellWithRoomForTheRingsDrawsTheSameEitherWay() {
+        for (extenderCount in 0..5) {
+            assertEquals(geometry(extenderCount), geometry(extenderCount, dropToFit = true))
+        }
+    }
+
+    @Test
+    fun aCellTooSmallForOneFullRingDropsThemAll() {
+        // 8 across: one full ring would leave a fill under a quarter of the
+        // radius, and dropping never thins the stroke
+        val geometry = geometry(1, cellSizePx = 8f, dropToFit = true)
+
+        assertEquals(4f, geometry.dotRadiusPx, 0f)
+        assertEquals(listOf<Float>(), geometry.ringRadiiPx)
+        assertFalse(geometry.dashedOutermost)
+    }
+
+    @Test
     fun aCollapsedDotDrawsNothing() {
         // the widget animates the radius to zero as a provider is removed
         val geometry = geometry(2, cellSizePx = 0f)
@@ -112,6 +146,16 @@ class ExtenderDotsTest {
         assertEquals(listOf<String>(), extenderColorHexList(null))
         // a trailing separator is not an extender
         assertEquals(listOf("3cdd67"), extenderColorHexList("3cdd67,"))
+    }
+
+    @Test
+    fun extenderIpsSplitInTheSdkOrder() {
+        assertEquals(
+            listOf("192.0.2.1", "2001:db8::1"),
+            extenderCommaSeparatedValues("192.0.2.1, 2001:db8::1"),
+        )
+        assertEquals(listOf<String>(), extenderCommaSeparatedValues(""))
+        assertEquals(listOf<String>(), extenderCommaSeparatedValues(null))
     }
 
     @Test

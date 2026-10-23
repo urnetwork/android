@@ -191,6 +191,7 @@
     <string name="copied">कॉपी हो गया!</string>
     <string name="copy">कॉपी करें</string>
     <string name="copy_auth_code">ऑथ कोड कॉपी करें</string>
+    <string name="copy_extender_address">एक्सटेंडर का पता कॉपी करें</string>
     <string name="copy_share_text">शेयर टेक्स्ट कॉपी करें</string>
     <string name="could_not_get_google_id_token">Google ID टोकन प्राप्त नहीं हो सका</string>
     <string name="countries">देश</string>
@@ -487,6 +488,8 @@
     <string name="expanded">विस्तृत</string>
     <string name="expires">समाप्त होता है</string>
     <string name="expiry_time">समाप्ति समय</string>
+    <string name="extender_address_copied">एक्सटेंडर का पता कॉपी किया गया</string>
+    <string name="extender_address_label">एक्सटेंडर %1$s</string>
     <string name="extender_default_value">डिफ़ॉल्ट: %1$s</string>
     <string name="extender_dns_name">एक्सटेंडर DNS नाम</string>
     <string name="extender_hosts">एक्सटेंडर होस्ट</string>

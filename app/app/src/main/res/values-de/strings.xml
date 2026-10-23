@@ -191,6 +191,7 @@
     <string name="copied">Kopiert!</string>
     <string name="copy">Kopieren</string>
     <string name="copy_auth_code">Authentifizierungscode kopieren</string>
+    <string name="copy_extender_address">Extender-Adresse kopieren</string>
     <string name="copy_share_text">Freigabetext kopieren</string>
     <string name="could_not_get_google_id_token">Google-ID-Token konnte nicht abgerufen werden</string>
     <string name="countries">Länder</string>
@@ -487,6 +488,8 @@
     <string name="expanded">Ausgeklappt</string>
     <string name="expires">Läuft ab</string>
     <string name="expiry_time">Ablaufzeit</string>
+    <string name="extender_address_copied">Extender-Adresse kopiert</string>
+    <string name="extender_address_label">Extender %1$s</string>
     <string name="extender_default_value">Standard: %1$s</string>
     <string name="extender_dns_name">Extender-DNS-Name</string>
     <string name="extender_hosts">Extender-Hosts</string>
