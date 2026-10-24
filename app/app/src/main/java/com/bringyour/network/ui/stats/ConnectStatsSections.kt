@@ -83,7 +83,7 @@ fun ConnectStatsSections(
 
     /**
      * Client statistics: remote and blocked traffic.
-     * Tap to open the client contract details.
+     * Tap to open the client contract details (not on the blocked plot).
      */
     StatsCard(
         title = stringResource(id = R.string.client_statistics),
@@ -143,14 +143,20 @@ fun ConnectStatsSections(
             Spacer(modifier = Modifier.height(12.dp))
         }
 
-        TransferChart(
-            points = throughputViewModel.clientPoints,
-            route = ThroughputRoute.BLOCK,
-            title = stringResource(id = R.string.blocked),
-            windowSeconds = throughputViewModel.windowSeconds,
-            byteColor = Red,
-            packetColor = MutedCoral,
-        )
+        /**
+         * Tapping the blocked plot does nothing: it is not part of the
+         * client contracts.
+         */
+        Box(modifier = Modifier.blocksCardTap()) {
+            TransferChart(
+                points = throughputViewModel.clientPoints,
+                route = ThroughputRoute.BLOCK,
+                title = stringResource(id = R.string.blocked),
+                windowSeconds = throughputViewModel.windowSeconds,
+                byteColor = Red,
+                packetColor = MutedCoral,
+            )
+        }
 
     }
 

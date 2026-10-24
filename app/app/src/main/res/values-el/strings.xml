@@ -191,6 +191,7 @@
     <string name="copied">Αντιγράφηκε!</string>
     <string name="copy">Αντιγραφή</string>
     <string name="copy_auth_code">Αντιγραφή κωδικού ταυτοποίησης</string>
+    <string name="copy_extender_address">Αντιγραφή διεύθυνσης επεκτατή</string>
     <string name="copy_share_text">Αντιγραφή κειμένου κοινοποίησης</string>
     <string name="could_not_get_google_id_token">Δεν ήταν δυνατή η λήψη του διακριτικού Google ID</string>
     <string name="countries">Χώρες</string>
@@ -487,6 +488,8 @@
     <string name="expanded">Αναπτυγμένο</string>
     <string name="expires">Λήγει</string>
     <string name="expiry_time">Χρόνος λήξης</string>
+    <string name="extender_address_copied">Η διεύθυνση του επεκτατή αντιγράφηκε</string>
+    <string name="extender_address_label">Επεκτατής %1$s</string>
     <string name="extender_default_value">Προεπιλογή: %1$s</string>
     <string name="extender_dns_name">Όνομα DNS επεκτατή</string>
     <string name="extender_hosts">Κεντρικοί υπολογιστές επεκτατών</string>

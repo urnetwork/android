@@ -191,6 +191,7 @@
     <string name="copied">Imenakiliwa!</string>
     <string name="copy">Nakili</string>
     <string name="copy_auth_code">Nakili nambari ya uthibitishaji</string>
+    <string name="copy_extender_address">Nakili anwani ya kipanuzi</string>
     <string name="copy_share_text">Nakili maandishi ya kushiriki</string>
     <string name="could_not_get_google_id_token">Imeshindwa kupata tokeni ya kitambulisho cha Google</string>
     <string name="countries">Nchi</string>
@@ -487,6 +488,8 @@
     <string name="expanded">Imepanuliwa</string>
     <string name="expires">Inaisha</string>
     <string name="expiry_time">Muda wa kumalizika</string>
+    <string name="extender_address_copied">Anwani ya kipanuzi imenakiliwa</string>
+    <string name="extender_address_label">Kipanuzi %1$s</string>
     <string name="extender_default_value">Chaguomsingi: %1$s</string>
     <string name="extender_dns_name">Jina la DNS la kipanuzi</string>
     <string name="extender_hosts">Seva za vipanuzi</string>

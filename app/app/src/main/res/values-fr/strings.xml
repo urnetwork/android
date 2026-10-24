@@ -191,6 +191,7 @@
     <string name="copied">Copié !</string>
     <string name="copy">Copier</string>
     <string name="copy_auth_code">Copier le code d’authentification</string>
+    <string name="copy_extender_address">Copier l’adresse de l’extendeur</string>
     <string name="copy_share_text">Copier le texte de partage</string>
     <string name="could_not_get_google_id_token">Impossible d\'obtenir le jeton d\'identification Google</string>
     <string name="countries">Pays</string>
@@ -487,6 +488,8 @@
     <string name="expanded">Développé</string>
     <string name="expires">Expire</string>
     <string name="expiry_time">Heure d’expiration</string>
+    <string name="extender_address_copied">Adresse de l’extendeur copiée</string>
+    <string name="extender_address_label">Extendeur %1$s</string>
     <string name="extender_default_value">Par défaut : %1$s</string>
     <string name="extender_dns_name">Nom DNS de l’extendeur</string>
     <string name="extender_hosts">Hôtes de l’extendeur</string>

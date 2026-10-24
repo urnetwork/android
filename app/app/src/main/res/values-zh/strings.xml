@@ -191,6 +191,7 @@
     <string name="copied">已复制！</string>
     <string name="copy">复制</string>
     <string name="copy_auth_code">复制验证码</string>
+    <string name="copy_extender_address">复制扩展器地址</string>
     <string name="copy_share_text">复制分享文本</string>
     <string name="could_not_get_google_id_token">无法获取 Google ID 令牌</string>
     <string name="countries">国家</string>
@@ -487,6 +488,8 @@
     <string name="expanded">已展开</string>
     <string name="expires">到期</string>
     <string name="expiry_time">到期时间</string>
+    <string name="extender_address_copied">扩展器地址已复制</string>
+    <string name="extender_address_label">扩展器 %1$s</string>
     <string name="extender_default_value">默认：%1$s</string>
     <string name="extender_dns_name">扩展器 DNS 名称</string>
     <string name="extender_hosts">扩展器主机</string>
