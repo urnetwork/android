@@ -1403,6 +1403,16 @@ test("instrumentation launch reaches AM and every app status path", async (t) =>
   f.stop(); assert.equal(await f.result, 0);
 });
 
+test("acceptance flushes native logs after UI cleanup and before instrumentation termination", () => {
+  for (const name of ["PhysicalLowbarSessionTest", "MainAcceptanceTest", "InsufficientBalanceSessionTest"]) {
+    const source = readFileSync(new URL(`../app/src/androidTest/java/com/bringyour/network/acceptance/${name}.kt`, import.meta.url), "utf8");
+    assert.match(source, /@get:Rule\(order = 0\)\s+val logFlush = AcceptanceLogFlushRule\(Sdk::flushGlog\)/,
+      `${name} must flush the existing SDK sink before JUnit can complete`);
+    assert.match(source, /@get:Rule\(order = 1\)\s+val compose = createEmptyComposeRule\(\)/,
+      `${name} must finish Compose cleanup inside the log flush rule`);
+  }
+});
+
 test("physical failure attribution is captured before owned teardown and published without rereading login state", () => {
   const source = readFileSync(new URL("../app/src/androidTest/java/com/bringyour/network/acceptance/PhysicalLowbarSessionTest.kt", import.meta.url), "utf8");
   const owned = source.slice(source.indexOf("    private fun runOwnedDeviceSession("),

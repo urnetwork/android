@@ -19,7 +19,7 @@ import { requireCredentialParserPreflight } from "./physical_credentials_preflig
 import { requireCompletedWorkloads } from "./physical_workload_receipt.mjs";
 import { GO_RUNTIME_LIMIT_BYTES, MEMORY_AUDIT_PROFILE } from "./physical_memory_profile.mjs";
 import { evaluateRuntimeReads, evaluateDiagnosticRuntimeReads, evaluateAuxiliaryRuntimeValues, selectMemoryTeardownReceipt,
-  evaluateProducerMemorySummaries } from "./physical_memory_teardown.mjs";
+  evaluateProducerMemorySummaries, evaluatePostJoinOwnership } from "./physical_memory_teardown.mjs";
 
 const SELF = fileURLToPath(import.meta.url);
 const SCRIPTS = dirname(SELF);
@@ -374,6 +374,7 @@ export function evaluateDiagnosticMemory(records, { teardown, fallback, producer
       teardown.failureCount !== 0 || teardown.exporterFailed !== false || teardown.devicePrimitiveCount !== samples.length ||
       teardown.statusRuntimeReadCount !== statusRuntime.length || teardown.diagnosticBatchesProduced !== diagnostic.samples.length ||
       teardown.diagnosticBatchesFlushed !== diagnostic.samples.length)) reject("diagnostic-memory-teardown-incomplete");
+  if (teardown) evaluatePostJoinOwnership(teardown, finish, PROFILE).forEach(reject);
   const result = { type: "diagnostic-memory-observation", schemaVersion: 3, measurementMode: "diagnostic", memoryProfile: PROFILE,
     sampleScope: teardown ? "retained-runtime-events-not-all-internal-reads-or-continuous-peak" : "legacy-device-primitive-samples",
     counts: runtime.counts, combinedRuntimeReadCount: runtime.combinedRuntimeReadCount,

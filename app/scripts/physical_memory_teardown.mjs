@@ -362,6 +362,7 @@ export function evaluateMemoryTeardown({ teardown, fallback, producerSummary, me
   if (!integer(teardown?.referencesReleasedTimeUnixMs) || nativeSamples.at(-1)?.timeUnixMs < teardown.referencesReleasedTimeUnixMs ||
       nativeSamples[0]?.timeUnixMs < finish?.teardownBeginTimeUnixMs ||
       !integer(finish?.teardownBeginTimeUnixMs)) fail("native-terminal-not-fresh");
+  evaluatePostJoinOwnership(teardown, finish, profile).forEach(fail);
   evaluateJoinedMemoryOwner(owner, ready, terminal, nativeProof, teardown, finish).forEach(fail);
   const prefix = liveGate?.memoryPrefix;
   const bytes = Buffer.from(memoryContents ?? "", "utf8");
@@ -395,4 +396,46 @@ export function evaluateMemoryTeardown({ teardown, fallback, producerSummary, me
     fallbackState: selection.fallbackState,
     teardownPeakGoRuntimeBytes: [...processSamples, ...selection.conflictingPrimaryRows].reduce((peak, row) => Number.isSafeInteger(row?.goRuntimeBytes) ? Math.max(peak, row.goRuntimeBytes) : peak, 0),
     reasons: [...reasons] };
+}
+
+// The Android publisher copies one real getter result only after the native
+// wait succeeds and before releasing the device wrapper. It is not a runtime
+// sample and cannot be synthesized from the last active primitive row.
+export function evaluatePostJoinOwnership(teardown, finish, profile = MEMORY_AUDIT_PROFILE) {
+  const reasons = new Set();
+  const fail = reason => reasons.add(reason);
+  const ownership = teardown?.postJoinOwnership;
+  if (!ownership || typeof ownership !== "object" || Array.isArray(ownership)) return ["post-join-ownership-missing"];
+  const number = (row, name) => {
+    if (!integer(row?.[name])) { fail("post-join-ownership-integer-invalid:" + name); return -1; }
+    return row[name];
+  };
+  const policy = memoryAuditPolicy(profile);
+  if (!policy) fail("post-join-ownership-profile-invalid");
+  if (ownership.type !== "device-memory-ownership-after-join" || number(ownership, "schemaVersion") !== 1 ||
+      ownership.source !== "DeviceLocal.MemoryUsed" || ownership.stage !== "after-device-join-before-reference-release" ||
+      teardown?.deviceJoined !== true || teardown?.referencesReleased !== true) fail("post-join-ownership-authority-invalid");
+  for (const name of ["sessionId", "buildId", "observerId", "finishCommandId"]) {
+    if (typeof ownership[name] !== "string" || !ownership[name] || ownership[name] !== teardown?.[name]) fail("post-join-ownership-identity-mismatch:" + name);
+  }
+  if (number(ownership, "pid") <= 0 || number(ownership, "pid") !== number(teardown, "pid") ||
+      ownership.memoryProfile !== profile || teardown?.memoryProfile !== profile ||
+      number(ownership, "deviceTargetBytes") !== policy?.deviceTargetBytes) fail("post-join-ownership-profile-or-process-mismatch");
+  if (ownership.observerId !== teardown?.native?.observerId || ownership.finishCommandId !== finish?.commandId ||
+      ownership.observerId !== finish?.teardownObserverId || teardown?.native?.state !== "complete" ||
+      teardown?.native?.observerJoined !== true) fail("post-join-ownership-lifecycle-mismatch");
+  const joined = number(ownership, "deviceJoinReturnedTimeUnixMs"), started = number(ownership, "readStartTimeUnixMs"),
+    ended = number(ownership, "readEndTimeUnixMs"), begin = number(finish, "teardownBeginTimeUnixMs"),
+    released = number(teardown, "referencesReleasedTimeUnixMs");
+  if (!(begin > 0 && joined >= begin && started >= joined && ended >= started && released >= ended)) fail("post-join-ownership-order-invalid");
+  if (number(ownership, "rootCapacityBytes") <= 0 || number(ownership, "rootCapacityBytes") > policy?.deviceTargetBytes) fail("post-join-ownership-root-unconfigured");
+  if (number(ownership, "rootUsedBytes") !== 0) fail("post-join-ownership-remained:rootUsedBytes");
+  for (const name of ["receiveAndPackUsedBytes","packUsedBytes","clientTransferUsedBytes","providerTransferUsedBytes","natUsedBytes","peerPinUsedBytes","platformUsedBytes","platformUsedCount","platformPendingH1Count","platformPendingH1Bytes","platformPendingHandoffCount","platformActiveHandoffCount"]) {
+    if (number(ownership, name) !== 0) fail("post-join-ownership-remained:" + name);
+  }
+  for (const [reserved, released] of [["rootReservedBytes","rootReleasedBytes"],["natReservedBytes","natReleasedBytes"],["peerPinReservedBytes","peerPinReleasedBytes"],["platformReservedBytes","platformReleasedBytes"]]) {
+    if (number(ownership, reserved) < 0 || number(ownership, released) < 0 ||
+        number(ownership, reserved) !== number(ownership, released)) fail("post-join-ownership-credit-unbalanced:" + reserved);
+  }
+  return [...reasons];
 }

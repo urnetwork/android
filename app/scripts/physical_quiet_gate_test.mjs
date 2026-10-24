@@ -592,7 +592,9 @@ function exerciseQuietCli(profile) {
       deviceDrainerJoined: true, deviceRingDrained: true, deviceJoined: true, referencesReleased: true,
       referencesReleasedTimeUnixMs: beginTime + 2, filesFlushed: true, statusRuntimeReadCount: 3, failureCount: 0,
       devicePrimitiveCount: input.memory.length, diagnosticBatchesProduced: 1, diagnosticBatchesFlushed: 1,
-      exporterFailed: false, diagnosticCommandCount: 0, producerSummary }));
+      exporterFailed: false, diagnosticCommandCount: 0, producerSummary,
+      postJoinOwnership: postJoinOwnershipFixture({ ...identity, observerId: native.observerId, finishCommandId: finish.commandId },
+        profile, runtimeLimitBytes, beginTime + 1) }));
     const finishPath = join(directory, "finish.json");
     writeFileSync(finishPath, JSON.stringify(finish));
     const nativeProofPath = join(directory, "native-proof.json");
@@ -732,3 +734,36 @@ function exerciseQuietCli(profile) {
 test("CLI requires profile-bound live evidence and fresh native teardown without adb for both policies", () => {
   for (const profile of ["ios-memory-audit-v2", "android"]) exerciseQuietCli(profile);
 });
+
+// Synthetic scalars only; production always fills these from one actual getter.
+function postJoinOwnershipFixture(teardown, profile, targetBytes, stamp) {
+  return { type: "device-memory-ownership-after-join", schemaVersion: 1,
+    source: "DeviceLocal.MemoryUsed", stage: "after-device-join-before-reference-release",
+    sessionId: teardown.sessionId, buildId: teardown.buildId, pid: teardown.pid,
+    observerId: teardown.observerId, finishCommandId: teardown.finishCommandId,
+    memoryProfile: profile, deviceTargetBytes: targetBytes,
+    deviceJoinReturnedTimeUnixMs: stamp, readStartTimeUnixMs: stamp, readEndTimeUnixMs: stamp,
+    rootCapacityBytes: Math.floor(targetBytes / 2),
+    rootUsedBytes: 0,
+    receiveAndPackUsedBytes: 0,
+    packUsedBytes: 0,
+    clientTransferUsedBytes: 0,
+    providerTransferUsedBytes: 0,
+    natUsedBytes: 0,
+    peerPinUsedBytes: 0,
+    platformUsedBytes: 0,
+    platformUsedCount: 0,
+    platformPendingH1Count: 0,
+    platformPendingH1Bytes: 0,
+    platformPendingHandoffCount: 0,
+    platformActiveHandoffCount: 0,
+    rootReservedBytes: 0,
+    rootReleasedBytes: 0,
+    natReservedBytes: 0,
+    natReleasedBytes: 0,
+    peerPinReservedBytes: 0,
+    peerPinReleasedBytes: 0,
+    platformReservedBytes: 0,
+    platformReleasedBytes: 0,
+  };
+}

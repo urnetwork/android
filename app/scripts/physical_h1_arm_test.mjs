@@ -892,14 +892,16 @@ test("diagnostic all-read counts retain native and status peaks without qualifyi
     goMemoryProfileRateBytes: 65536, goRuntimeBytes: 20000000, goMemStatsRuntimeBytes: 20000000,
     idleMemoryTrimCount: 0, lastIdleMemoryTrimBeforeBytes: 0, lastIdleMemoryTrimAfterBytes: 0 };
   const records = [{ ...policy, type: "sample", elapsedMs: 0, samplerDropped: 0 }];
-  const samples = ["begin", "cancelled", "joined", "terminal"].map((stage, i) => ({ ...policy, stage, sequence: i + 1 }));
+  const samples = ["begin", "cancelled", "joined", "terminal"].map((stage, i) => ({ ...policy, stage, sequence: i + 1, timeUnixMs: 1000 + i }));
   samples[1].goRuntimeBytes = 33554433;
   const identity = { pid: 42, sessionId: "fixture-session", buildId: "fixture-build" };
-  const teardown = { ...identity, memoryProfile: policy.memoryProfile, native: { state: "complete", observerJoined: true,
+  const teardown = { ...identity, memoryProfile: policy.memoryProfile, native: { state: "complete", observerJoined: true, observerId: "fixture-observer",
     dropped: 0, samples, joinSequence: 3, terminalSequence: 4 }, deviceDrainerJoined: true,
     deviceRingDrained: true, deviceJoined: true, referencesReleased: true, failureCount: 0, statusRuntimeReadCount: 1,
     devicePrimitiveCount: 1, diagnosticBatchesProduced: 1, diagnosticBatchesFlushed: 1, exporterFailed: false,
-    observerId: "fixture-observer", finishCommandId: "fixture-finish" };
+    observerId: "fixture-observer", finishCommandId: "fixture-finish", referencesReleasedTimeUnixMs: 1002 };
+  teardown.postJoinOwnership = postJoinOwnershipFixture(teardown, policy.memoryProfile, 33554432, 1001);
+  const finish = { commandId: "fixture-finish", teardownObserverId: "fixture-observer", teardownBeginTimeUnixMs: 1000 };
   const producerSummary = { ...identity, type: "physical-memory-producer-summary", schemaVersion: 1, memoryProfile: policy.memoryProfile,
     finishCommandId: teardown.finishCommandId, observerId: teardown.observerId, peakGoRuntimeBytes: 33554434,
     devicePrimitiveCount: 1, teardownPrimitiveCount: 4, statusRuntimeReadCount: 1, diagnosticRuntimeReadCount: 1,
@@ -910,14 +912,14 @@ test("diagnostic all-read counts retain native and status peaks without qualifyi
   const diagnostics = ["state", "memory", "memory_device_transport", "memory_device_transfer"].map(part => ({ ...identity,
     memoryProfile: policy.memoryProfile, part, diagnosticBatchSequence: 1, unix_millis: 1, go_total_bytes: 20000000,
     go_limit_bytes: 33554432, memory_profile_rate_bytes: 65536, device_memory_target_bytes: 33554432 }));
-  const result = evaluateDiagnosticMemory(records, { teardown, producerSummary, statusRuntime, diagnostics });
+  const result = evaluateDiagnosticMemory(records, { teardown, finish, producerSummary, statusRuntime, diagnostics });
   assert.equal(result.qualificationEligible, false);
   assert.equal(result.combinedRuntimeReadCount, 7);
   assert.equal(result.goRuntimeBreachSampleCount, 2);
   assert.equal(result.peakGoRuntimeBytes, 33554434);
   const ownerCensus = census();
   ownerCensus.before.runtime_bytes = 33554435;
-  const withCensus = evaluateDiagnosticMemory(records, { teardown, producerSummary, statusRuntime, diagnostics, ownerCensuses: [ownerCensus] });
+  const withCensus = evaluateDiagnosticMemory(records, { teardown, finish, producerSummary, statusRuntime, diagnostics, ownerCensuses: [ownerCensus] });
   assert.equal(withCensus.qualificationEligible, false);
   assert.equal(withCensus.peakGoRuntimeBytes, 33554435);
   assert.equal(withCensus.auxiliary.auxiliaryCensusValueCount, 2);
@@ -929,7 +931,7 @@ test("diagnostic all-read counts retain native and status peaks without qualifyi
   const high = { ...samples[1], goRuntimeBytes: 33554436 };
   foreign.native.samples = [high, structuredClone(high), null, {}, { sequence: 99, goRuntimeBytes: "invalid" }];
   let failed;
-  try { evaluateDiagnosticMemory(records, { teardown, fallback: foreign, producerSummary, statusRuntime, diagnostics }); }
+  try { evaluateDiagnosticMemory(records, { teardown, finish, fallback: foreign, producerSummary, statusRuntime, diagnostics }); }
   catch (error) { failed = error.diagnosticMemory; }
   assert.equal(failed.eligible, false);
   assert.equal(failed.qualificationEligible, false);
@@ -1037,3 +1039,36 @@ test("diagnostic invalid evidence publishes its known high before propagating fa
   assert.equal(result.completedSteps.includes("memory-final"), false);
   assert.equal(result.diagnosticMemory.peakGoRuntimeBytes, 33554433);
 });
+
+// Synthetic scalars only; production always fills these from one actual getter.
+function postJoinOwnershipFixture(teardown, profile, targetBytes, stamp) {
+  return { type: "device-memory-ownership-after-join", schemaVersion: 1,
+    source: "DeviceLocal.MemoryUsed", stage: "after-device-join-before-reference-release",
+    sessionId: teardown.sessionId, buildId: teardown.buildId, pid: teardown.pid,
+    observerId: teardown.observerId, finishCommandId: teardown.finishCommandId,
+    memoryProfile: profile, deviceTargetBytes: targetBytes,
+    deviceJoinReturnedTimeUnixMs: stamp, readStartTimeUnixMs: stamp, readEndTimeUnixMs: stamp,
+    rootCapacityBytes: Math.floor(targetBytes / 2),
+    rootUsedBytes: 0,
+    receiveAndPackUsedBytes: 0,
+    packUsedBytes: 0,
+    clientTransferUsedBytes: 0,
+    providerTransferUsedBytes: 0,
+    natUsedBytes: 0,
+    peerPinUsedBytes: 0,
+    platformUsedBytes: 0,
+    platformUsedCount: 0,
+    platformPendingH1Count: 0,
+    platformPendingH1Bytes: 0,
+    platformPendingHandoffCount: 0,
+    platformActiveHandoffCount: 0,
+    rootReservedBytes: 0,
+    rootReleasedBytes: 0,
+    natReservedBytes: 0,
+    natReleasedBytes: 0,
+    peerPinReservedBytes: 0,
+    peerPinReleasedBytes: 0,
+    platformReservedBytes: 0,
+    platformReleasedBytes: 0,
+  };
+}

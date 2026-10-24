@@ -51,7 +51,10 @@ import org.junit.runner.RunWith
  */
 @RunWith(AndroidJUnit4::class)
 class PhysicalLowbarSessionTest {
-    @get:Rule
+    @get:Rule(order = 0)
+    val logFlush = AcceptanceLogFlushRule(Sdk::flushGlog)
+
+    @get:Rule(order = 1)
     val compose = createEmptyComposeRule()
 
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
@@ -1407,6 +1410,8 @@ class PhysicalLowbarSessionTest {
         var deviceDrainerJoined = false
         var deviceRingDrained = false
         var deviceJoined = false
+        var postJoinOwnership: JSONObject? = null
+        val postJoinOwnershipReadAttempted = AtomicBoolean(false)
         var referencesReleased = false
         var referencesReleasedTimeUnixMs = 0L
         val failures = mutableListOf<String>()
@@ -1451,8 +1456,14 @@ class PhysicalLowbarSessionTest {
             logout = { instrumentation.runOnMainSync { application.logout() } },
             joinDevice = {
                 if (ioLoopDiagnostics != null) nativeLoopJoinDeadlineElapsedMs = SystemClock.elapsedRealtime() + 120_000L
-                check(memoryTeardown.observer?.waitForDeviceClose(120_000) == true) { "physical-device-unjoined" }
-                memoryTeardown.deviceJoined = true
+                observePhysicalJoinedMemoryOwnership(
+                    attempted = memoryTeardown.postJoinOwnershipReadAttempted,
+                    waitForDeviceClose = { memoryTeardown.observer?.waitForDeviceClose(120_000) == true },
+                    readOwnership = { joinedAt ->
+                        memoryTeardown.deviceJoined = true
+                        capturePostJoinOwnership(checkNotNull(device), joinedAt)
+                    },
+                )
             },
             drainDeviceRing = {
                 val joinedDevice = checkNotNull(device)
@@ -1505,6 +1516,48 @@ class PhysicalLowbarSessionTest {
             )
             ioLoopDiagnostics = null
         }
+    }
+
+    /** Copy one getter read after the actual join, not the old primitive ring.
+     * No DeviceLocalMemoryUsage wrapper or other SDK graph escapes this call.
+     */
+    private fun capturePostJoinOwnership(device: DeviceLocal, joinedAt: Long) {
+        check(memoryTeardown.postJoinOwnership == null) { "physical-post-join-ownership-already-read" }
+        val readStartedAt = System.currentTimeMillis()
+        val usage = device.memoryUsed()
+        val snapshot = JSONObject()
+            .put("type", "device-memory-ownership-after-join").put("schemaVersion", 1)
+            .put("source", "DeviceLocal.MemoryUsed").put("stage", "after-device-join-before-reference-release")
+            .put("sessionId", memorySessionId).put("buildId", BuildConfig.URNETWORK_ACCEPTANCE_BUILD_ID)
+            .put("pid", Process.myPid()).put("memoryProfile", MainApplication.MEMORY_PROFILE_NAME)
+            .put("observerId", checkNotNull(memoryTeardown.observer).observerId)
+            .put("finishCommandId", memoryTeardown.finishCommandId)
+            .put("deviceTargetBytes", usage.targetByteCount)
+            .put("deviceJoinReturnedTimeUnixMs", joinedAt).put("readStartTimeUnixMs", readStartedAt)
+            .put("rootCapacityBytes", usage.transferRootBudgetByteCount)
+            .put("rootUsedBytes", usage.transferRootUsedByteCount)
+            .put("rootReservedBytes", usage.transferRootReservedByteCount)
+            .put("rootReleasedBytes", usage.transferRootReleasedByteCount)
+            .put("receiveAndPackUsedBytes", usage.clientReceiveByteCount)
+            .put("packUsedBytes", usage.packQueueUsedByteCount)
+            .put("clientTransferUsedBytes", usage.clientTransferUsedByteCount)
+            .put("providerTransferUsedBytes", usage.providerTransferUsedByteCount)
+            .put("natUsedBytes", usage.natUsedByteCount)
+            .put("natReservedBytes", usage.natReservedByteCount)
+            .put("natReleasedBytes", usage.natReleasedByteCount)
+            .put("peerPinUsedBytes", usage.peerKeyPinUsedByteCount)
+            .put("peerPinReservedBytes", usage.peerKeyPinReservedByteCount)
+            .put("peerPinReleasedBytes", usage.peerKeyPinReleasedByteCount)
+            .put("platformUsedBytes", usage.platformTransportUsedByteCount)
+            .put("platformUsedCount", usage.platformTransportUsedCount)
+            .put("platformPendingH1Count", usage.platformTransportPendingH1Count)
+            .put("platformPendingH1Bytes", usage.platformTransportPendingH1Bytes)
+            .put("platformPendingHandoffCount", usage.platformTransportPendingHandoffCount)
+            .put("platformActiveHandoffCount", usage.platformTransportActiveHandoffCount)
+            .put("platformReservedBytes", usage.platformTransportReservedBytes)
+            .put("platformReleasedBytes", usage.platformTransportReleasedBytes)
+            .put("readEndTimeUnixMs", System.currentTimeMillis())
+        memoryTeardown.postJoinOwnership = snapshot
     }
 
     private fun takePrimitiveSamples(device: DeviceLocal, startUnixMs: Long): List<JSONObject> {
@@ -1617,6 +1670,7 @@ class PhysicalLowbarSessionTest {
             .put("diagnosticBatchesFlushed", diagnosticBatchesFlushed.get()).put("diagnosticCommandCount", diagnosticCommandCount.get())
             .put("exporterFailed", exporterFailed.get()).put("filesFlushed", summaryFlushed && !exporterFailed.get())
             .put("producerSummary", summaryJson).put("native", native)
+            .put("postJoinOwnership", memoryTeardown.postJoinOwnership ?: JSONObject.NULL)
             .apply { ioLoopDiagnosticReceiptName?.let { put("ioLoopDiagnosticReceiptName", it) } }
         writePhysicalMemoryEvidence(
             summary = { writePrivate(summaryFile, summaryJson.toString() + "\n") },

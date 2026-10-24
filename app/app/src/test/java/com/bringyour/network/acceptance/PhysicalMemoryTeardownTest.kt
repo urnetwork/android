@@ -137,4 +137,87 @@ class PhysicalMemoryTeardownTest {
         }
         requirePhysicalMemoryDrainerJoined(worker)
     }
+    @Test
+    fun `ownership read waits for actual join and finishes before holder release`() {
+        val attempted = AtomicBoolean(false)
+        val waiting = CountDownLatch(1)
+        val release = CountDownLatch(1)
+        val readerReturned = CountDownLatch(1)
+        val read = AtomicBoolean(false)
+        val holderAlive = AtomicBoolean(true)
+        val events = java.util.Collections.synchronizedList(mutableListOf<String>())
+        val failure = java.util.concurrent.atomic.AtomicReference<Throwable?>()
+        val worker = thread {
+            try {
+                observePhysicalJoinedMemoryOwnership(
+                    attempted = attempted,
+                    waitForDeviceClose = {
+                        events.add("wait-enter")
+                        waiting.countDown()
+                        release.await()
+                        events.add("wait-return")
+                        true
+                    },
+                    nowMillis = { 1000L },
+                    readOwnership = { joinedAt ->
+                        check(holderAlive.get())
+                        assertEquals(1000L, joinedAt)
+                        events.add("actual-getter")
+                        read.set(true)
+                    },
+                )
+            } catch (error: Throwable) { failure.set(error) }
+            finally { readerReturned.countDown() }
+        }
+        try {
+            waiting.await()
+            assertEquals(false, read.get())
+        } finally {
+            release.countDown()
+            readerReturned.await()
+            worker.join()
+        }
+        failure.get()?.let { throw it }
+        holderAlive.set(false)
+        events.add("holder-released")
+        assertEquals(listOf("wait-enter", "wait-return", "actual-getter", "holder-released"), events)
+        assertEquals(true, read.get())
+    }
+
+    @Test
+    fun `failed actual join never reads ownership or retries the same attempt`() {
+        val attempted = AtomicBoolean(false)
+        var reads = 0
+        assertThrows(IllegalStateException::class.java) {
+            observePhysicalJoinedMemoryOwnership(attempted, waitForDeviceClose = { false },
+                readOwnership = { reads++ })
+        }
+        assertThrows(IllegalStateException::class.java) {
+            observePhysicalJoinedMemoryOwnership(attempted, waitForDeviceClose = { true },
+                readOwnership = { reads++ })
+        }
+        assertEquals(0, reads)
+    }
+
+    @Test
+    fun `getter or exporter failure cannot reread ownership on that attempt`() {
+        for (getterFails in listOf(false, true)) {
+            val attempted = AtomicBoolean(false)
+            var reads = 0
+            val capture = {
+                observePhysicalJoinedMemoryOwnership(attempted, waitForDeviceClose = { true },
+                    readOwnership = {
+                        reads++
+                        if (getterFails) error("synthetic getter failure")
+                    })
+            }
+            if (getterFails) assertThrows(IllegalStateException::class.java) { capture() } else capture()
+            // The native/fallback writer may fail after capture, but the owner
+            // must retain that first result or absence rather than sample again.
+            writePhysicalMemoryEvidence(summary = { error("synthetic exporter failure") },
+                native = { error("synthetic native writer failure") }, fallback = {}, failed = {})
+            assertThrows(IllegalStateException::class.java) { capture() }
+            assertEquals(1, reads)
+        }
+    }
 }

@@ -32,6 +32,7 @@ import com.bringyour.network.ui.POST_LOGIN_WELCOME_ENTER_TAG
 import com.bringyour.network.ui.PostLoginUiAction
 import com.bringyour.network.ui.nextPostLoginUiAction
 import com.bringyour.network.ui.performTransientUiActionIfPresent
+import com.bringyour.sdk.Sdk
 import java.io.File
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicReference
@@ -64,7 +65,10 @@ import org.junit.runner.RunWith
  */
 @RunWith(AndroidJUnit4::class)
 class InsufficientBalanceSessionTest {
-    @get:Rule
+    @get:Rule(order = 0)
+    val logFlush = AcceptanceLogFlushRule(Sdk::flushGlog)
+
+    @get:Rule(order = 1)
     val compose = createEmptyComposeRule()
 
     private val instrumentation = InstrumentationRegistry.getInstrumentation()

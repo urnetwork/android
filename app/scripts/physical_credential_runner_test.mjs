@@ -19,6 +19,7 @@ test("the diagnostic component is registered separately without replacing the de
     { name: defaultRunner, target: "com.bringyour.network" },
     { name: "androidx.test.runner.AndroidJUnitRunner", target: "com.bringyour.network" },
     { name: runner, target: "com.bringyour.network" },
+    { name: "com.bringyour.network.acceptance.HostedH1PhysicalRunner", target: "com.bringyour.network" },
   ]);
   assert.match(source("build.gradle"), /testInstrumentationRunner\s+'com\.bringyour\.network\.ExtenderNetworkClientOffRunner'/);
 });

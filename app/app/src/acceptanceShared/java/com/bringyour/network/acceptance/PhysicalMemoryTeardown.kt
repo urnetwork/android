@@ -67,3 +67,17 @@ internal fun closePhysicalMemoryOwner(
     val deviceJoined = attempt("device-join", joinDevice)
     if (drainerJoined && deviceJoined) attempt("device-ring-drain", drainDeviceRing)
 }
+
+/** A close request or timed-out wait cannot authorize reading joined ownership.
+ * The callback runs while the caller's device holder is still in scope.
+ */
+internal fun observePhysicalJoinedMemoryOwnership(
+    attempted: AtomicBoolean,
+    waitForDeviceClose: () -> Boolean,
+    nowMillis: () -> Long = System::currentTimeMillis,
+    readOwnership: (Long) -> Unit,
+) {
+    check(attempted.compareAndSet(false, true)) { "physical-post-join-ownership-already-read" }
+    check(waitForDeviceClose()) { "physical-device-unjoined" }
+    readOwnership(nowMillis())
+}

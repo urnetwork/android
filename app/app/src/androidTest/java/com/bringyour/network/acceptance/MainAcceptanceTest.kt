@@ -53,7 +53,10 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class MainAcceptanceTest {
-    @get:Rule
+    @get:Rule(order = 0)
+    val logFlush = AcceptanceLogFlushRule(Sdk::flushGlog)
+
+    @get:Rule(order = 1)
     val compose = createEmptyComposeRule()
 
     private val instrumentation = InstrumentationRegistry.getInstrumentation()

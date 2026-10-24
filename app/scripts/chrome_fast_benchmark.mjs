@@ -436,9 +436,12 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     .then(code => process.exit(code)).catch(error => {
       const phases = new Set(["browser-discovery", "browser-open", "target-create", "target-discovery", "page-open",
         "page-enable", "cache-disable", "cache-clear", "navigation", "display-poll", "display-evaluate", "target-cleanup"]);
-      process.stderr.write(`${JSON.stringify({ type: "fast-error", ...cdpFailureDetails(error),
-        ...(error instanceof NavigationError && error.category
-          ? { reason: "navigation-failed", navigationFailureCategory: error.category } : {}),
+      const details = cdpFailureDetails(error);
+      const diagnostic = error instanceof NavigationError
+        ? (error.category ? { reason: "navigation-failed", navigationFailureCategory: error.category }
+          : { failureKind: "unknown-navigation" })
+        : (details.reason === "benchmark-operation-failed" ? { failureKind: "non-cdp-exception" } : {});
+      process.stderr.write(`${JSON.stringify({ type: "fast-error", ...details, ...diagnostic,
         ...(phases.has(error?.phase) ? { phase: error.phase } : {}) })}\n`, () => process.exit(1));
     });
 }

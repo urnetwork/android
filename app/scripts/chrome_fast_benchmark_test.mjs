@@ -566,6 +566,14 @@ test(`actual CLI preserves sanitized ${mode} websocket failure without inventing
 function navigationCli({ errorText, failure = "navigation", cleanup = "reply" }) {
   const preload = `
     const config = ${JSON.stringify({ errorText, failure, cleanup })};
+    const parse = JSON.parse;
+    JSON.parse = data => {
+      const value = parse(data);
+      if (config.failure === "exception" && value?.result?.frameId === "synthetic-private-frame") {
+        Object.defineProperty(value.result, "errorText", { get() { throw new Error("synthetic-private-value-read"); } });
+      }
+      return value;
+    };
     let now = 0, created = 0, navigated = 0;
     const closed = [];
     const realTimeout = globalThis.setTimeout;
@@ -662,11 +670,25 @@ test("actual CLI keeps unknown and private navigation text generic without subst
     assert.equal(child.status, 1);
     assert.equal(child.stdout, "");
     assert.deepEqual(JSON.parse(child.stderr), {
-      type: "fast-error", reason: "benchmark-operation-failed", phase: "navigation",
+      type: "fast-error", reason: "benchmark-operation-failed", failureKind: "unknown-navigation", phase: "navigation",
     });
-    assert.ok(child.stderr.length < 100);
+    assert.ok(child.stderr.length < 160);
     assert.doesNotMatch(child.stderr, /net::|ERR_|synthetic|private|download|frameId|loaderId|token|https|stack/);
   }
+});
+
+test("actual CLI distinguishes an unknown navigation reply from another non-CDP exception", () => {
+  const reply = navigationCli({ errorText: "synthetic-private-navigation" });
+  const exception = navigationCli({ errorText: "synthetic-private-navigation", failure: "exception" });
+  for (const child of [reply, exception]) {
+    assert.equal(child.status, 1);
+    assert.equal(child.stdout, "");
+    assert.equal(JSON.parse(child.stderr).phase, "navigation");
+    assert.ok(child.stderr.length < 160);
+    assert.doesNotMatch(child.stderr, /private|synthetic|net::|errorText|stack|frameId|loaderId|url|token/);
+  }
+  assert.equal(JSON.parse(reply.stderr).failureKind, "unknown-navigation", "NAVIGATION_KIND_LOST: reply kind missing");
+  assert.equal(JSON.parse(exception.stderr).failureKind, "non-cdp-exception", "NAVIGATION_KIND_LOST: exception kind missing");
 });
 
 test("actual CLI keeps navigation failure primary through bounded cleanup failure", () => {

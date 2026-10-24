@@ -24,6 +24,7 @@ function evidence(profile = "ios-memory-audit-v2") {
     deviceRingDrained: true, deviceJoined: true, referencesReleased: true, referencesReleasedTimeUnixMs: 1002,
     filesFlushed: true, statusRuntimeReadCount: 2, failureCount: 0, devicePrimitiveCount: 1, diagnosticBatchesProduced: 1,
     diagnosticBatchesFlushed: 1, exporterFailed: false, diagnosticCommandCount: 0 };
+  teardown.postJoinOwnership = postJoinOwnershipFixture(teardown, profile, targetBytes, 1001);
   const finish = { ...policy, ...identity, type: "status", state: "complete", phase: "finish", commandId: "fixture-finish",
     runtimeReadSequence: 2, teardownObserverId: native.observerId, teardownBeginTimeUnixMs: 1000 };
   const owner = { schema: 1, type: "instrumentation-session", state: "running", ownerId: "00000000-0000-0000-0000-000000000001", startedHostTimeUnixMs: 1,
@@ -292,6 +293,8 @@ test("existing diagnostic before and after status reads are never filtered out",
 test("cancel/join samples in one millisecond still require a newer terminal sequence", () => {
   const input = evidence();
   input.teardown.referencesReleasedTimeUnixMs = 1000;
+  Object.assign(input.teardown.postJoinOwnership, { deviceJoinReturnedTimeUnixMs: 1000,
+    readStartTimeUnixMs: 1000, readEndTimeUnixMs: 1000 });
   input.teardown.native.samples.forEach(row => { row.timeUnixMs = 1000; row.elapsedNanos = 0; });
   assert.equal(evaluateMemoryTeardown(input).eligible, true);
 });
@@ -613,5 +616,120 @@ test("scoped memory replay rejects legacy relabel native loss unjoined owner and
     const result = evaluateMemoryTeardown(legacy);
     assert.equal(result.eligible, false);
     assert.equal(result.reasons.includes("instrumentation-scoped-hosted-policy-mismatch"), true);
+  }
+});
+
+// Synthetic scalars only; production always fills these from one actual getter.
+function postJoinOwnershipFixture(teardown, profile, targetBytes, stamp) {
+  return { type: "device-memory-ownership-after-join", schemaVersion: 1,
+    source: "DeviceLocal.MemoryUsed", stage: "after-device-join-before-reference-release",
+    sessionId: teardown.sessionId, buildId: teardown.buildId, pid: teardown.pid,
+    observerId: teardown.observerId, finishCommandId: teardown.finishCommandId,
+    memoryProfile: profile, deviceTargetBytes: targetBytes,
+    deviceJoinReturnedTimeUnixMs: stamp, readStartTimeUnixMs: stamp, readEndTimeUnixMs: stamp,
+    rootCapacityBytes: Math.floor(targetBytes / 2),
+    rootUsedBytes: 0,
+    receiveAndPackUsedBytes: 0,
+    packUsedBytes: 0,
+    clientTransferUsedBytes: 0,
+    providerTransferUsedBytes: 0,
+    natUsedBytes: 0,
+    peerPinUsedBytes: 0,
+    platformUsedBytes: 0,
+    platformUsedCount: 0,
+    platformPendingH1Count: 0,
+    platformPendingH1Bytes: 0,
+    platformPendingHandoffCount: 0,
+    platformActiveHandoffCount: 0,
+    rootReservedBytes: 0,
+    rootReleasedBytes: 0,
+    natReservedBytes: 0,
+    natReleasedBytes: 0,
+    peerPinReservedBytes: 0,
+    peerPinReleasedBytes: 0,
+    platformReservedBytes: 0,
+    platformReleasedBytes: 0,
+  };
+}
+
+test("active queue occupancy cannot substitute for post-join getter authority", () => {
+  const input = evidence();
+  input.memory[0].receiveQueueUsedBytes = 2048;
+  input.memoryContents = input.memory.map(JSON.stringify).join("\n") + "\n";
+  input.liveGate.memoryPrefix = { ...memoryEvidencePrefix(input.memoryContents), eventCount: input.memory.length };
+  const result = evaluateMemoryTeardown(input);
+  assert.equal(result.eligible, true, JSON.stringify(result.reasons));
+  assert.equal(result.combinedRuntimeReadCount, 8);
+});
+
+test("zero active counters without an actual post-join read are incomplete, not a pass", () => {
+  const input = evidence();
+  delete input.teardown.postJoinOwnership;
+  const result = evaluateMemoryTeardown(input);
+  assert.equal(result.eligible, false);
+  assert.equal(result.classification, "INCOMPLETE_TEARDOWN");
+  assert.ok(result.reasons.includes("post-join-ownership-missing"));
+});
+
+test("both profile readers reject retained credits or unbalanced lifetime releases", () => {
+  for (const profile of ["ios-memory-audit-v2", "android"]) {
+    for (const field of ["rootUsedBytes","receiveAndPackUsedBytes","packUsedBytes","clientTransferUsedBytes","providerTransferUsedBytes","natUsedBytes","peerPinUsedBytes","platformUsedBytes","platformUsedCount","platformPendingH1Count","platformPendingH1Bytes","platformPendingHandoffCount","platformActiveHandoffCount","rootReservedBytes","rootReleasedBytes","natReservedBytes","natReleasedBytes","peerPinReservedBytes","peerPinReleasedBytes","platformReservedBytes","platformReleasedBytes"]) {
+      const input = evidence(profile);
+      input.teardown.postJoinOwnership[field] = 1;
+      const result = evaluateMemoryTeardown(input);
+      assert.equal(result.eligible, false, profile + ":" + field);
+      assert.equal(result.classification, "INCOMPLETE_TEARDOWN");
+    }
+  }
+});
+
+test("post-join readers require every integer without null or string zero coercion", () => {
+  for (const field of ["schemaVersion","pid","deviceTargetBytes","deviceJoinReturnedTimeUnixMs","readStartTimeUnixMs","readEndTimeUnixMs","rootCapacityBytes","rootUsedBytes","receiveAndPackUsedBytes","packUsedBytes","clientTransferUsedBytes","providerTransferUsedBytes","natUsedBytes","peerPinUsedBytes","platformUsedBytes","platformUsedCount","platformPendingH1Count","platformPendingH1Bytes","platformPendingHandoffCount","platformActiveHandoffCount","rootReservedBytes","rootReleasedBytes","natReservedBytes","natReleasedBytes","peerPinReservedBytes","peerPinReleasedBytes","platformReservedBytes","platformReleasedBytes"]) {
+    for (const value of [undefined, null, false, "0", 0.25, -1, Number.MAX_SAFE_INTEGER + 1]) {
+      const input = evidence();
+      input.teardown.postJoinOwnership[field] = value;
+      const result = evaluateMemoryTeardown(input);
+      assert.equal(result.eligible, false, field + ":" + typeof value);
+      assert.equal(result.classification, "INCOMPLETE_TEARDOWN");
+    }
+  }
+});
+
+test("post-join identity and wait/read/holder-release order cannot be relabeled", () => {
+  for (const change of [{ type: "sample" }, { source: "primitive-ring" }, { stage: "active" },
+      { sessionId: "foreign-session" }, { buildId: "foreign-build" }, { observerId: "foreign-observer" },
+      { finishCommandId: "foreign-finish" }, { pid: 43 }, { memoryProfile: "android" },
+      { deviceTargetBytes: 64 * 1024 * 1024 }, { deviceJoinReturnedTimeUnixMs: 999 },
+      { readStartTimeUnixMs: 1000 }, { readEndTimeUnixMs: 1003 }, { rootCapacityBytes: 0 },
+      { rootCapacityBytes: 64 * 1024 * 1024 }]) {
+    const input = evidence();
+    Object.assign(input.teardown.postJoinOwnership, change);
+    assert.equal(evaluateMemoryTeardown(input).eligible, false, JSON.stringify(change));
+  }
+});
+
+test("post-join balanced history stays separate from runtime counts in both profiles", () => {
+  for (const profile of ["ios-memory-audit-v2", "android"]) {
+    const input = evidence(profile);
+    for (const [reserved, released] of [["rootReservedBytes","rootReleasedBytes"],["natReservedBytes","natReleasedBytes"],["peerPinReservedBytes","peerPinReleasedBytes"],["platformReservedBytes","platformReleasedBytes"]]) {
+      input.teardown.postJoinOwnership[reserved] = input.teardown.postJoinOwnership[released] = 4096;
+    }
+    const result = evaluateMemoryTeardown(input);
+    assert.equal(result.eligible, true, JSON.stringify(result.reasons));
+    assert.equal(result.combinedRuntimeReadCount, 8);
+  }
+});
+
+test("missing post-join authority preserves known runtime breaches and all denominators", () => {
+  for (const profile of ["ios-memory-audit-v2", "android"]) {
+    const input = evidence(profile);
+    delete input.teardown.postJoinOwnership;
+    input.teardown.native.samples[3].goRuntimeBytes = (profile === "android" ? 64 : 32) * 1024 * 1024 + 1;
+    const result = evaluateMemoryTeardown(input);
+    assert.equal(result.classification, "FAILED_MEMORY_LIMIT");
+    assert.equal(result.eligible, false);
+    assert.equal(result.goRuntimeBreachSampleCount, 1);
+    assert.equal(result.combinedRuntimeReadCount, 8);
+    assert.ok(result.reasons.includes("post-join-ownership-missing"));
   }
 });
