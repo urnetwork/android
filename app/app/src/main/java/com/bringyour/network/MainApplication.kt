@@ -2690,7 +2690,12 @@ class MainApplication : Application() {
         // is connected, providing (any mode — including Network, which relays
         // for same-network peers), or routing remotely
         val provideEnabled = device.provideEnabled
-        val connectEnabled = device.connectEnabled
+        // a disconnect queued and not yet run counts (ConnectCommands), so a
+        // reconcile between the system's revoke and its disconnect does not
+        // start the tunnel again
+        val connectEnabled = connectCommands.connectRequested(
+            com.bringyour.network.ui.connect.SdkConnectDevice(device),
+        )
         val routeLocal = device.routeLocal
 
         if (systemAlwaysOnVpn || vpnServiceRequired(provideEnabled, connectEnabled, routeLocal)) {
@@ -2938,6 +2943,29 @@ class MainApplication : Application() {
         // on the connect command queue, after the commands made before it;
         // a failure is logged there (connectCommands)
         Log.i(TAG, "Disconnecting VPN connection from $source")
+        connectCommands.runOnDevice(connectDevice, connect = false)
+        updateVpnService()
+    }
+
+    /**
+     * Android revoked the VPN (MainService.onRevoke): the user disconnected it
+     * in the system settings, or another VPN took its place. The connection is
+     * disconnected as the user's disconnect, so the service stop does not
+     * restart the tunnel (support inbox 8018). Unlike [disconnectVpnConnection]
+     * this also runs while system Always-on is active: the system stopped the
+     * VPN itself. Provide is not changed.
+     */
+    fun vpnServiceRevoked() {
+        if (android.os.Looper.myLooper() != mainLooper) {
+            mainHandler.post { vpnServiceRevoked() }
+            return
+        }
+        val current = device ?: return
+        val connectDevice = com.bringyour.network.ui.connect.SdkConnectDevice(current)
+        if (!connectCommands.connectRequested(connectDevice)) return
+        clearBalanceRecovery()
+
+        Log.i(TAG, "Disconnecting VPN connection after the system revoked the VPN")
         connectCommands.runOnDevice(connectDevice, connect = false)
         updateVpnService()
     }
