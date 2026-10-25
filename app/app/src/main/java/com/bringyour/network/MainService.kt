@@ -1179,6 +1179,10 @@ import kotlin.concurrent.thread
     }
 
     override fun onRevoke() {
+        // The user disconnected the VPN in the system settings, or another VPN
+        // took its place: the connection is disconnected first, so the service
+        // stop below does not restart it (support inbox 8018)
+        (application as MainApplication).vpnServiceRevoked()
         // The framework does not guarantee this callback on our main-looper
         // state owner. Serialize teardown with listener and TUN callbacks.
         if (Looper.myLooper() == mainLooper) {
