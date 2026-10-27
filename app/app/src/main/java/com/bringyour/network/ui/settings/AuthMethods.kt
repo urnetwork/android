@@ -48,15 +48,49 @@ fun methodDisplayName(method: String): String {
 }
 
 /**
+ * An email or phone password sign-in of the account: the sdk's NetworkUserUserAuth, kept
+ * sdk-free so it can be tested on the JVM.
+ */
+data class PasswordSignIn(
+    val userAuth: String,
+    // "email" or "phone"
+    val authType: String,
+)
+
+/** The account's password sign-ins, the server's `user_auths`. */
+fun passwordSignIns(networkUser: NetworkUser): List<PasswordSignIn> {
+    val list = networkUser.userAuths ?: return emptyList()
+    val signIns = mutableListOf<PasswordSignIn>()
+    for (i in 0 until list.len()) {
+        val userAuth = list.get(i) ?: continue
+        signIns.add(PasswordSignIn(userAuth = userAuth.userAuth, authType = userAuth.authType))
+    }
+    return signIns
+}
+
+/**
  * The address the profile's Change password sends a reset link to, or null when the account
  * has no password sign-in to change.
  *
- * `userAuth` is the email or phone the account was created with. A Google or Apple account
- * has one too but no password: its reset link arrived and the new password changed nothing.
- * Only an email or phone sign-in has a password. An old server sends no `authTypes`; its
- * password accounts have the `password` auth type.
+ * A reset rewrites the account's email and phone password sign-ins, `userAuths`, so the link
+ * goes to one of them, an email before a phone. `userAuth` is only the identity the account was
+ * created with: an account created with a wallet, a seed phrase or as a guest that added an
+ * email and password later has none, so it was never offered the reset, and a Google or Apple
+ * account has the provider's email, which has no password. It is read only when there are no
+ * `userAuths` (an older sdk or server): then it has a password when `authTypes` holds an email
+ * or phone, or, from an old server with no `authTypes`, when the auth type is `password`.
  */
-fun passwordResetUserAuth(authTypes: List<String>, authType: String, userAuth: String?): String? {
+fun passwordResetUserAuth(
+    authTypes: List<String>,
+    authType: String,
+    userAuth: String?,
+    userAuths: List<PasswordSignIn>,
+): String? {
+    for (passwordAuthType in listOf("email", "phone")) {
+        userAuths.firstOrNull { it.authType == passwordAuthType && it.userAuth.isNotEmpty() }?.let {
+            return it.userAuth
+        }
+    }
     if (userAuth.isNullOrEmpty()) {
         return null
     }
