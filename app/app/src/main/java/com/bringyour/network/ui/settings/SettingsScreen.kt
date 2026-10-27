@@ -156,6 +156,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
  * @param earningsViewModel ViewModel managing earnings, rewards, and Seeker token holder status.
  * @param isPro True if the current account holds an active supporter subscription tier.
  * @param currentStore The store of the current subscription, null when there is none.
+ * @param planNotices The lines under the plan row (the past-due notice, PaymentPastDueNotice).
  * @param mockLocationViewModel ViewModel managing mock location simulation preferences and status.
  */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -170,6 +171,7 @@ fun SettingsScreen(
     earningsViewModel: EarningsViewModel,
     isPro: Boolean,
     currentStore: String? = null,
+    planNotices: @Composable () -> Unit = {},
     mockLocationViewModel: MockLocationViewModel = hiltViewModel(),
 ) {
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -352,6 +354,7 @@ fun SettingsScreen(
         provideIndicatorRingColor = settingsViewModel.provideIndicatorRingColor,
         stripePortalUrl = settingsViewModel.stripePortalUrl.collectAsState().value,
         currentStore = currentStore,
+        planNotices = planNotices,
         authMethods = authMethods,
         onRemoveAuthMethod = { method -> pendingRemoveMethod = method },
         onAddAuthMethodClick = { presentAddAuthSheet = true },
@@ -611,6 +614,8 @@ private fun SettingsScreen(
     provideIndicatorRingColor: Color? = null,
     stripePortalUrl: String?,
     currentStore: String? = null,
+    // the lines under the plan row (PaymentPastDueNotice)
+    planNotices: @Composable () -> Unit = {},
     authMethods: List<String>,
     onRemoveAuthMethod: (String) -> Unit,
     onAddAuthMethodClick: () -> Unit,
@@ -1477,6 +1482,9 @@ private fun SettingsScreen(
 
                 }
             }
+
+            // a renewal whose payment did not go through, under the manage line
+            planNotices()
 
             Spacer(modifier = Modifier.height(32.dp))
 

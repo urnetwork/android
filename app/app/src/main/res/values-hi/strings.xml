@@ -730,6 +730,8 @@
     <string name="payment_confirmation_delayed">पुष्टि में उम्मीद से ज़्यादा समय लग रहा है। पुष्टि होते ही आपका प्लान अपने-आप अपडेट हो जाएगा — दोबारा खरीदने की ज़रूरत नहीं है।</string>
     <string name="payment_confirmation_processing">हम अभी आपके भुगतान की पुष्टि कर रहे हैं। आपका प्लान अपने-आप अपडेट हो जाएगा — आपको कुछ करने की ज़रूरत नहीं है।</string>
     <string name="payment_not_completed">आपका भुगतान पूरा नहीं हो सका।</string>
+    <string name="payment_past_due_notice">आपका UR Pro भुगतान पूरा नहीं हो सका। Pro बनाए रखने के लिए अपना भुगतान का तरीका अपडेट करें।</string>
+    <string name="payment_past_due_update_payment">भुगतान का तरीका अपडेट करें</string>
     <string name="payment_problem">भुगतान में समस्या</string>
     <string name="payment_received_title">भुगतान मिल गया</string>
     <string name="payout_wallet_updated">पेआउट वॉलेट अपडेट किया गया</string>

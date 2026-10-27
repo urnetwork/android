@@ -730,6 +730,8 @@
     <string name="payment_confirmation_delayed">يستغرق التأكيد وقتًا أطول من المتوقع. سيتم تحديث خطتك تلقائيًا بمجرد تأكيد الدفع — لا داعي للشراء مرة أخرى.</string>
     <string name="payment_confirmation_processing">نحن نؤكد دفعتك الآن. سيتم تحديث خطتك تلقائيًا — لا تحتاج إلى فعل أي شيء.</string>
     <string name="payment_not_completed">تعذّر إتمام دفعتك.</string>
+    <string name="payment_past_due_notice">لم تنجح عملية الدفع لاشتراك UR Pro. حدّث طريقة الدفع للاحتفاظ بـ Pro.</string>
+    <string name="payment_past_due_update_payment">تحديث طريقة الدفع</string>
     <string name="payment_problem">مشكلة في الدفع</string>
     <string name="payment_received_title">تم استلام الدفعة</string>
     <string name="payout_wallet_updated">تم تحديث محفظة الدفع</string>

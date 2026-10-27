@@ -730,6 +730,8 @@
     <string name="payment_confirmation_delayed">La confirmation prend plus de temps que prévu. Votre forfait se mettra à jour automatiquement dès sa confirmation — inutile de racheter.</string>
     <string name="payment_confirmation_processing">Nous confirmons votre paiement. Votre forfait se mettra à jour automatiquement — vous n’avez rien à faire.</string>
     <string name="payment_not_completed">Votre paiement n’a pas pu aboutir.</string>
+    <string name="payment_past_due_notice">Votre paiement pour UR Pro n’a pas abouti. Mettez à jour votre moyen de paiement pour conserver Pro.</string>
+    <string name="payment_past_due_update_payment">Mettre à jour le moyen de paiement</string>
     <string name="payment_problem">Problème de paiement</string>
     <string name="payment_received_title">Paiement reçu</string>
     <string name="payout_wallet_updated">Portefeuille de paiement mis à jour</string>

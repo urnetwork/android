@@ -730,6 +730,8 @@
     <string name="payment_confirmation_delayed">De bevestiging duurt langer dan verwacht. Je abonnement wordt automatisch bijgewerkt zodra het is bevestigd — je hoeft niet opnieuw te kopen.</string>
     <string name="payment_confirmation_processing">We bevestigen nu je betaling. Je abonnement wordt automatisch bijgewerkt — je hoeft niets te doen.</string>
     <string name="payment_not_completed">Je betaling kon niet worden voltooid.</string>
+    <string name="payment_past_due_notice">Je betaling voor UR Pro is niet gelukt. Werk je betaalmethode bij om Pro te houden.</string>
+    <string name="payment_past_due_update_payment">Betaalmethode bijwerken</string>
     <string name="payment_problem">Betalingsprobleem</string>
     <string name="payment_received_title">Betaling ontvangen</string>
     <string name="payout_wallet_updated">Uitbetalingswallet bijgewerkt</string>

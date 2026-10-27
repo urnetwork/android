@@ -730,6 +730,8 @@
     <string name="payment_confirmation_delayed">A confirmação está a demorar mais do que o esperado. O seu plano é atualizado automaticamente assim que for confirmado — não é preciso comprar de novo.</string>
     <string name="payment_confirmation_processing">Estamos a confirmar o seu pagamento. O seu plano é atualizado automaticamente — não precisa de fazer nada.</string>
     <string name="payment_not_completed">Não foi possível concluir o seu pagamento.</string>
+    <string name="payment_past_due_notice">O pagamento do UR Pro não foi concluído. Atualize o seu método de pagamento para manter o Pro.</string>
+    <string name="payment_past_due_update_payment">Atualizar método de pagamento</string>
     <string name="payment_problem">Problema no pagamento</string>
     <string name="payment_received_title">Pagamento recebido</string>
     <string name="payout_wallet_updated">Carteira de pagamento atualizada</string>

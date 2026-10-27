@@ -730,6 +730,8 @@
     <string name="payment_confirmation_delayed">확인이 예상보다 오래 걸리고 있습니다. 확인되는 즉시 요금제가 자동으로 업데이트됩니다. 다시 구매할 필요는 없습니다.</string>
     <string name="payment_confirmation_processing">지금 결제를 확인하고 있습니다. 요금제가 자동으로 업데이트되니 아무것도 하지 않으셔도 됩니다.</string>
     <string name="payment_not_completed">결제를 완료할 수 없습니다.</string>
+    <string name="payment_past_due_notice">UR Pro 결제가 처리되지 않았습니다. Pro를 계속 이용하려면 결제 수단을 업데이트하세요.</string>
+    <string name="payment_past_due_update_payment">결제 수단 업데이트</string>
     <string name="payment_problem">결제 문제</string>
     <string name="payment_received_title">결제 완료</string>
     <string name="payout_wallet_updated">지급 지갑이 업데이트되었습니다</string>

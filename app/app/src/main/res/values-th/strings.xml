@@ -730,6 +730,8 @@
     <string name="payment_confirmation_delayed">การยืนยันใช้เวลานานกว่าที่คาดไว้ แพ็กเกจของคุณจะอัปเดตโดยอัตโนมัติเมื่อได้รับการยืนยัน — ไม่ต้องซื้อซ้ำ</string>
     <string name="payment_confirmation_processing">เรากำลังยืนยันการชำระเงินของคุณ แพ็กเกจของคุณจะอัปเดตโดยอัตโนมัติ — คุณไม่ต้องทำอะไร</string>
     <string name="payment_not_completed">การชำระเงินของคุณไม่สำเร็จ</string>
+    <string name="payment_past_due_notice">การชำระเงินสำหรับ UR Pro ของคุณไม่สำเร็จ อัปเดตวิธีการชำระเงินเพื่อใช้ Pro ต่อ</string>
+    <string name="payment_past_due_update_payment">อัปเดตวิธีการชำระเงิน</string>
     <string name="payment_problem">ปัญหาการชำระเงิน</string>
     <string name="payment_received_title">ได้รับการชำระเงินแล้ว</string>
     <string name="payout_wallet_updated">อัปเดตกระเป๋ารับยอดจ่ายแล้ว</string>

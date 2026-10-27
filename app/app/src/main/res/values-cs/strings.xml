@@ -730,6 +730,8 @@
     <string name="payment_confirmation_delayed">Potvrzení trvá déle, než se čekalo. Váš tarif se aktualizuje automaticky, jakmile bude potvrzen — není třeba kupovat znovu.</string>
     <string name="payment_confirmation_processing">Právě potvrzujeme vaši platbu. Váš tarif se aktualizuje automaticky — nemusíte nic dělat.</string>
     <string name="payment_not_completed">Platbu se nepodařilo dokončit.</string>
+    <string name="payment_past_due_notice">Platba za UR Pro neproběhla. Aktualizujte způsob platby, abyste si Pro ponechali.</string>
+    <string name="payment_past_due_update_payment">Aktualizovat způsob platby</string>
     <string name="payment_problem">Problém s platbou</string>
     <string name="payment_received_title">Platba přijata</string>
     <string name="payout_wallet_updated">Výplatní peněženka byla aktualizována</string>

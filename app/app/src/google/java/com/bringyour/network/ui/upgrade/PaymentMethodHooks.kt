@@ -9,7 +9,8 @@ import com.bringyour.network.ui.shared.viewmodels.SubscriptionBalanceViewModel
 /*
  * The payment method hooks on the play flavor, which sells through Play
  * Billing only (mmm/ZCASH-CONTRACT.md §6.3, "Play is unchanged"): no method
- * row, no crypto invoice, no crypto copy. Shared code calls these by name; the
+ * row, no crypto invoice, no crypto copy, and no link to billing outside
+ * Play Billing (PastDueRenewal). Shared code calls these by name; the
  * other flavors define them in src/cryptoPay/java. Nothing here reaches the
  * crypto payment code, which this flavor does not compile.
  */
@@ -51,3 +52,11 @@ fun AccountPaymentNotices(
 fun SubscriptionManageLine(currentStore: String?, stripePortalUrl: String?) {
     ManageSubscriptionButton(stripePortalUrl)
 }
+
+/**
+ * No "Update payment method": this flavor links to no billing outside Play
+ * Billing (its Manage subscription opens nothing either), so the past-due
+ * notice (PaymentPastDueNotice) is the text alone.
+ */
+@Composable
+fun rememberUpdatePaymentAction(subscriptionBalanceViewModel: SubscriptionBalanceViewModel): (() -> Unit)? = null

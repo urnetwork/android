@@ -730,6 +730,8 @@
     <string name="payment_confirmation_delayed">Η επιβεβαίωση αργεί περισσότερο από το αναμενόμενο. Το πρόγραμμά σας θα ενημερωθεί αυτόματα μόλις επιβεβαιωθεί — δεν χρειάζεται να αγοράσετε ξανά.</string>
     <string name="payment_confirmation_processing">Επιβεβαιώνουμε τώρα την πληρωμή σας. Το πρόγραμμά σας θα ενημερωθεί αυτόματα — δεν χρειάζεται να κάνετε τίποτα.</string>
     <string name="payment_not_completed">Η πληρωμή σας δεν ήταν δυνατό να ολοκληρωθεί.</string>
+    <string name="payment_past_due_notice">Η πληρωμή για το UR Pro δεν ολοκληρώθηκε. Ενημερώστε τον τρόπο πληρωμής σας για να διατηρήσετε το Pro.</string>
+    <string name="payment_past_due_update_payment">Ενημέρωση τρόπου πληρωμής</string>
     <string name="payment_problem">Πρόβλημα πληρωμής</string>
     <string name="payment_received_title">Η πληρωμή ελήφθη</string>
     <string name="payout_wallet_updated">Το πορτοφόλι πληρωμής ενημερώθηκε</string>
