@@ -1,5 +1,6 @@
 package com.bringyour.network.ui.wallet
 
+import com.bringyour.network.utils.SolanaAddress
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -19,8 +20,19 @@ class SampleLegacyWalletSourceTest {
     fun `the usdc mint is refused`() = runBlocking<Unit> {
         val source = source()
 
-        assertEquals(false, source.validateAddress(SampleLegacyWalletSource.USDC_MINT).getOrNull())
-        assertTrue(source.addSolanaWallet(SampleLegacyWalletSource.USDC_MINT).isFailure)
+        assertEquals(false, source.validateAddress(SolanaAddress.USDC_MINT).getOrNull())
+        assertTrue(source.addSolanaWallet(SolanaAddress.USDC_MINT).isFailure)
+        assertTrue(source.wallets().getOrThrow().isEmpty())
+    }
+
+    @Test
+    fun `the all-zero key is refused`() = runBlocking<Unit> {
+        val source = source()
+        // 32 zero bytes
+        val allZeroKey = "1".repeat(32)
+
+        assertEquals(false, source.validateAddress(allZeroKey).getOrNull())
+        assertTrue(source.addSolanaWallet(allZeroKey).isFailure)
         assertTrue(source.wallets().getOrThrow().isEmpty())
     }
 
