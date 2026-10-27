@@ -12,7 +12,7 @@ class SolanaAddressTest {
 
     @Test
     fun `a base58 32 byte public key is valid syntax`() {
-        // the USDC mint is well formed; only the server refuses it as a payout address
+        // the USDC mint is well formed, as a Solana Pay quote names it; it is only not a wallet
         assertTrue(SolanaAddress.isValidSyntax("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"))
         assertTrue(SolanaAddress.isValidSyntax(key))
     }
@@ -56,6 +56,34 @@ class SolanaAddressTest {
     @Test
     fun `a 33 byte value is invalid`() {
         assertFalse(SolanaAddress.isValidSyntax("JNArUumxYJcSQpbuxuroRZtcSMVLcy5WbYGt14SRm1Fv"))
+    }
+
+    @Test
+    fun `the usdc mint and the all-zero key are not wallet addresses`() {
+        assertEquals(List(32) { 0.toByte() }, Ss58.decodeBase58("1".repeat(32))?.toList())
+        // both are well formed; the server refuses them as a wallet
+        for (address in listOf("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v", "1".repeat(32))) {
+            assertTrue(address, SolanaAddress.isValidSyntax(address))
+            assertFalse(address, SolanaAddress.isValidWalletAddress(address))
+            assertFalse(address, SolanaAddress.isValidWalletAddress(" $address\n"))
+        }
+    }
+
+    @Test
+    fun `a value in the length range that is not 32 bytes is not a wallet address`() {
+        // 44 characters of 33 bytes, and 32 characters of 23 bytes
+        assertEquals(33, Ss58.decodeBase58("z".repeat(44))?.size)
+        assertEquals(23, Ss58.decodeBase58("2".repeat(32))?.size)
+        assertFalse(SolanaAddress.isValidWalletAddress("z".repeat(44)))
+        assertFalse(SolanaAddress.isValidWalletAddress("2".repeat(32)))
+    }
+
+    @Test
+    fun `a public key is a wallet address`() {
+        assertTrue(SolanaAddress.isValidWalletAddress(key))
+        assertTrue(SolanaAddress.isValidWalletAddress("  $key\n"))
+        // 31 zero bytes and a one: leading zero bytes alone are not the all-zero key
+        assertTrue(SolanaAddress.isValidWalletAddress("1".repeat(31) + "2"))
     }
 
     @Test

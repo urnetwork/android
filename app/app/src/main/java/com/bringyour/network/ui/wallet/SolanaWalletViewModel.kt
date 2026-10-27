@@ -219,7 +219,7 @@ class SolanaWalletViewModel @Inject constructor(
 
     // ---- manual address entry
 
-    /** local syntax first, then the server check after a pause in typing */
+    /** the server's rule locally first, then the server check after a pause in typing */
     fun updateManualAddress(value: TextFieldValue) {
         val textChanged = value.text != manualAddress.text
         manualAddress = value

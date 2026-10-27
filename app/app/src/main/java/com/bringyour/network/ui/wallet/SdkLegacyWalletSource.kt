@@ -114,7 +114,7 @@ class SdkLegacyWalletSource(
         }
     }
 
-    override fun validateSolanaSyntax(address: String): Boolean = SolanaAddress.isValidSyntax(address)
+    override fun validateSolanaSyntax(address: String): Boolean = SolanaAddress.isValidWalletAddress(address)
 
     override suspend fun validateAddress(address: String): Result<Boolean> = call { api, done ->
         val args = WalletValidateAddressArgs()
