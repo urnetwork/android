@@ -63,6 +63,7 @@ import com.bringyour.network.ui.login.VerifySendNotice
 import com.bringyour.network.ui.login.passwordResetNoticeText
 import com.bringyour.network.ui.login.passwordResetNotice
 import com.bringyour.network.ui.settings.passwordResetUserAuth
+import com.bringyour.network.ui.settings.passwordSignIns
 import com.bringyour.network.ui.shared.viewmodels.ResetPasswordFunction
 import com.bringyour.network.utils.sdkStringListToList
 import com.bringyour.network.ui.shared.viewmodels.ResetPasswordViewModel
@@ -104,7 +105,12 @@ fun ProfileScreen(
         networkNameTextFieldValue = profileViewModel.networkNameTextFieldValue,
         setNetworkName = profileViewModel.setNetworkNameTextFieldValue,
         userAuth = networkUser?.let {
-            passwordResetUserAuth(sdkStringListToList(it.authTypes), it.authType, it.userAuth)
+            passwordResetUserAuth(
+                sdkStringListToList(it.authTypes),
+                it.authType,
+                it.userAuth,
+                passwordSignIns(it),
+            )
         },
         isEditingProfile = profileViewModel.isEditingProfile,
         setIsEditingProfile = profileViewModel.setIsEditingProfile,
