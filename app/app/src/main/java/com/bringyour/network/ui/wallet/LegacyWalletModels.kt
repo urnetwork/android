@@ -158,7 +158,7 @@ interface LegacyWalletSource {
     /** `GET /account/payments` */
     suspend fun payments(): Result<List<LegacyPayment>>
 
-    /** local syntax check; never touches the network */
+    /** the server's address rule for chain SOL, checked locally; never touches the network */
     fun validateSolanaSyntax(address: String): Boolean
 
     /** `POST /wallet/validate-address` for chain SOL */
@@ -198,7 +198,7 @@ object NoLegacyWalletSource : LegacyWalletSource {
     override suspend fun wallets(): Result<List<LegacyWallet>> = Result.success(emptyList())
     override suspend fun payoutWalletId(): Result<String?> = Result.success(null)
     override suspend fun payments(): Result<List<LegacyPayment>> = Result.success(emptyList())
-    override fun validateSolanaSyntax(address: String): Boolean = SolanaAddress.isValidSyntax(address)
+    override fun validateSolanaSyntax(address: String): Boolean = SolanaAddress.isValidWalletAddress(address)
     override suspend fun validateAddress(address: String): Result<Boolean> =
         Result.failure(LegacyWalletUnavailableException())
     override suspend fun addSolanaWallet(address: String): Result<String> =
@@ -212,8 +212,9 @@ object NoLegacyWalletSource : LegacyWalletSource {
 /**
  * Debug-only in-memory legacy wallets (Developer screen switches), so the connect,
  * manual entry, card and remove states can be exercised without a wallet app or a
- * USDC balance. Behaves like the server: the USDC mint is not a valid payout address,
- * an address is stored once, and create sets the payout wallet only when there is none.
+ * USDC balance. Behaves like the server: an address must pass the server's rule for
+ * chain SOL ([SolanaAddress.isValidWalletAddress]), an address is stored once, and
+ * create sets the payout wallet only when there is none.
  */
 class SampleLegacyWalletSource(
     startConnected: Boolean,
@@ -262,7 +263,7 @@ class SampleLegacyWalletSource(
         return Result.success(synchronized(lock) { paymentList.toList() })
     }
 
-    override fun validateSolanaSyntax(address: String): Boolean = SolanaAddress.isValidSyntax(address)
+    override fun validateSolanaSyntax(address: String): Boolean = SolanaAddress.isValidWalletAddress(address)
 
     override suspend fun validateAddress(address: String): Result<Boolean> {
         delay(delayMillis)
@@ -314,17 +315,13 @@ class SampleLegacyWalletSource(
         }
     }
 
-    private fun isServerValid(address: String): Boolean =
-        SolanaAddress.isValidSyntax(address) && address != USDC_MINT
+    private fun isServerValid(address: String): Boolean = SolanaAddress.isValidWalletAddress(address)
 
     companion object {
         const val SAMPLE_WALLET_ID = "sample-wallet-0"
         // a fixture key (sha256 of "urnetwork sample solana wallet" as a public key),
         // not a wallet: only previews and this sample source show it
         const val SAMPLE_SOLANA_ADDRESS = "8zvBKDZvQDy2Ld3yARxGZRzLnqceWQLcULJ5vNDk3QoR"
-
-        // the server refuses the USDC mint as a payout address
-        const val USDC_MINT = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
 
         // the "3.87 USDC waiting" email
         const val SAMPLE_USDC_WAITING = 3.87
