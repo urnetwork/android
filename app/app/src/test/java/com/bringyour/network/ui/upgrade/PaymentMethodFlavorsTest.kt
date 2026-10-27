@@ -24,6 +24,8 @@ class PaymentMethodFlavorsTest {
         "rememberPlanMethodSlot",
         "AccountPaymentNotices",
         "SubscriptionManageLine",
+        // the past-due notice's Update payment method (PastDueRenewal): none on Play
+        "rememberUpdatePaymentAction",
     )
 
     // what only the crypto source set may name: its copy, its sdk calls and its own types

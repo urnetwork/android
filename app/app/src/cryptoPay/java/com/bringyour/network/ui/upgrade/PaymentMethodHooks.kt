@@ -1,5 +1,6 @@
 package com.bringyour.network.ui.upgrade
 
+import android.content.Intent
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -32,6 +33,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.core.net.toUri
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import com.bringyour.network.R
@@ -48,7 +50,8 @@ import java.util.Date
 
 /*
  * The crypto payment hooks of the flavors that sell outside a store
- * (mmm/ZCASH-CONTRACT.md §6.3: github/F-Droid, solana_dapp, ethos_dapp).
+ * (mmm/ZCASH-CONTRACT.md §6.3: github/F-Droid, solana_dapp, ethos_dapp),
+ * and the past-due notice's link to ur.io's billing (PastDueRenewal).
  * Shared code calls them by name; the play flavor's src/google/java defines
  * the same functions empty, so Play compiles none of this and its surfaces
  * render as they always have.
@@ -269,6 +272,26 @@ fun SubscriptionManageLine(currentStore: String?, stripePortalUrl: String?) {
         )
     } else {
         ManageSubscriptionButton(stripePortalUrl)
+    }
+}
+
+/**
+ * The past-due notice's "Update payment method" (PaymentPastDueNotice): ur.io's
+ * Manage Subscription in the system browser, signed in with a one-time auth
+ * code, which the flavors that sell outside a store may link to, as their
+ * Manage subscription does.
+ */
+@Composable
+fun rememberUpdatePaymentAction(subscriptionBalanceViewModel: SubscriptionBalanceViewModel): (() -> Unit)? {
+    val context = LocalContext.current
+    return remember(subscriptionBalanceViewModel, context) {
+        {
+            subscriptionBalanceViewModel.openUpdatePayment { url ->
+                runCatching {
+                    context.startActivity(Intent(Intent.ACTION_VIEW, url.toUri()))
+                }
+            }
+        }
     }
 }
 

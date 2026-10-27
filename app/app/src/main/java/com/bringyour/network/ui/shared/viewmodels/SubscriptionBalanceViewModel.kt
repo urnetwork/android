@@ -18,7 +18,9 @@ import com.bringyour.network.ForegroundPollingResume
 import com.bringyour.network.ForegroundPollingSession
 import com.bringyour.network.JwtManager
 import com.bringyour.network.ui.account.GuestAccount
+import com.bringyour.network.ui.upgrade.PastDueRenewal
 import com.bringyour.network.TAG
+import com.bringyour.sdk.AuthCodeCreateArgs
 import com.bringyour.sdk.ExperimentAssignmentList
 import com.bringyour.sdk.OnboardingOffer
 import com.bringyour.sdk.OnboardingOfferIssueArgs
@@ -77,6 +79,63 @@ class SubscriptionBalanceViewModel @Inject constructor(
      */
     private val _balanceAnswer = MutableStateFlow<BalanceAnswer?>(null)
     val balanceAnswer: StateFlow<BalanceAnswer?> = _balanceAnswer.asStateFlow()
+
+    /**
+     * Whether the past-due notice shows (PastDueRenewal): exactly while the
+     * latest balance answer carries payment_past_due, a renewal the store is
+     * still retrying. Absent from an older server, which hides it.
+     */
+    val isPaymentPastDue: StateFlow<Boolean> = _balanceAnswer
+        .map { answer -> PastDueRenewal.noticeShows(answer?.result?.paymentPastDue) }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, false)
+
+    private val _isOpeningUpdatePayment = MutableStateFlow(false)
+
+    /** An "Update payment method" tap is waiting for its one-time auth code. */
+    val isOpeningUpdatePayment: StateFlow<Boolean> = _isOpeningUpdatePayment.asStateFlow()
+
+    /**
+     * "Update payment method" (PastDueRenewal): creates a one-time auth code
+     * (one use, five minutes, as Settings' auth code) and hands [open] ur.io's
+     * Manage Subscription signed in with it, on the main thread. When no code
+     * can be created (an error, a blank code, or no api yet) [open] gets the
+     * page without one, where ur.io asks the user to sign in. A tap while a
+     * code is being created does nothing.
+     */
+    fun openUpdatePayment(open: (url: String) -> Unit) {
+        if (_isOpeningUpdatePayment.value) {
+            return
+        }
+        _isOpeningUpdatePayment.value = true
+
+        val opened: (String?) -> Unit = { authCode ->
+            viewModelScope.launch {
+                _isOpeningUpdatePayment.value = false
+                open(PastDueRenewal.manageSubscriptionUrl(authCode))
+            }
+        }
+
+        val api = deviceManager.device?.api
+        if (api == null) {
+            opened(null)
+            return
+        }
+        val args = AuthCodeCreateArgs()
+        args.durationMinutes = 5.0
+        args.uses = 1
+        api.authCodeCreate(args) { result, err ->
+            val authCode = if (err != null) {
+                Log.i(TAG, "update payment auth code error: ${err.message}")
+                null
+            } else if (result?.error != null) {
+                Log.i(TAG, "update payment auth code refused: ${result.error.message}")
+                null
+            } else {
+                result?.authCode
+            }
+            opened(authCode)
+        }
+    }
 
     /**
      * The store's storefront country (Play's billing country on the play

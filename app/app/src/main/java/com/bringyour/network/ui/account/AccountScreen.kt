@@ -77,6 +77,7 @@ import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.wallet.EarningsFormat
 import com.bringyour.network.ui.theme.URNetworkTheme
 import com.bringyour.network.ui.upgrade.AccountPaymentNotices
+import com.bringyour.network.ui.upgrade.PaymentPastDueNotice
 import com.bringyour.network.utils.formatDecimalString
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
@@ -170,8 +171,10 @@ fun AccountScreen(
                             isPresentingRedeemTransferBalanceSheet = true
                         },
                         postQuantumIdentityViewModel = postQuantumIdentityViewModel,
+                        // a renewal whose payment did not go through (every flavor), then
                         // a crypto payment in progress, a one-time term (src/cryptoPay; nothing on Play)
                         planNotices = {
+                            PaymentPastDueNotice(subscriptionBalanceViewModel = subscriptionBalanceViewModel)
                             AccountPaymentNotices(
                                 subscriptionBalanceViewModel = subscriptionBalanceViewModel,
                                 openUpgrade = { navController.navigate(Route.Upgrade) },

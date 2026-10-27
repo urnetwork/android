@@ -13,6 +13,7 @@ import com.bringyour.network.ui.shared.enums.PlanType
 import com.bringyour.network.ui.upgrade.rememberPlanPresentation
 import com.bringyour.network.ui.upgrade.CryptoInvoiceHost
 import com.bringyour.network.ui.upgrade.PaymentMethodsScope
+import com.bringyour.network.ui.upgrade.PaymentPastDueNotice
 import com.bringyour.network.ui.upgrade.rememberPlanMethodSlot
 import com.bringyour.network.ui.upgrade.rememberPlanPurchaser
 import androidx.compose.material3.Text
@@ -1574,6 +1575,9 @@ fun MainNavContent(
                 earningsViewModel,
                 isPro = isPro,
                 currentStore = subscriptionBalanceViewModel.currentStore.collectAsState().value,
+                planNotices = {
+                    PaymentPastDueNotice(subscriptionBalanceViewModel = subscriptionBalanceViewModel)
+                },
             ) }
 
             composable<Route.Vless>(

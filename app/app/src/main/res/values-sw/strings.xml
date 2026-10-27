@@ -730,6 +730,8 @@
     <string name="payment_confirmation_delayed">Uthibitishaji unachukua muda mrefu kuliko ilivyotarajiwa. Mpango wako utasasishwa kiotomatiki mara utakapothibitishwa — hakuna haja ya kununua tena.</string>
     <string name="payment_confirmation_processing">Tunathibitisha malipo yako sasa. Mpango wako utasasishwa kiotomatiki — huhitaji kufanya chochote.</string>
     <string name="payment_not_completed">Malipo yako hayakuweza kukamilishwa.</string>
+    <string name="payment_past_due_notice">Malipo yako ya UR Pro hayakufanikiwa. Sasisha njia yako ya malipo ili kuendelea na Pro.</string>
+    <string name="payment_past_due_update_payment">Sasisha njia ya malipo</string>
     <string name="payment_problem">Tatizo la malipo</string>
     <string name="payment_received_title">Malipo yamepokelewa</string>
     <string name="payout_wallet_updated">Pochi ya malipo imesasishwa</string>

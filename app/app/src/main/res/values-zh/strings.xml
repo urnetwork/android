@@ -730,6 +730,8 @@
     <string name="payment_confirmation_delayed">确认时间比预期要长。确认后，您的方案会自动更新，无需再次购买。</string>
     <string name="payment_confirmation_processing">我们正在确认您的付款。您的方案会自动更新，您无需进行任何操作。</string>
     <string name="payment_not_completed">无法完成您的付款。</string>
+    <string name="payment_past_due_notice">您的 UR Pro 付款未成功。请更新支付方式以保留 Pro。</string>
+    <string name="payment_past_due_update_payment">更新支付方式</string>
     <string name="payment_problem">付款问题</string>
     <string name="payment_received_title">已收到付款</string>
     <string name="payout_wallet_updated">支付钱包已更新</string>

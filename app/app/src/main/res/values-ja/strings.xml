@@ -730,6 +730,8 @@
     <string name="payment_confirmation_delayed">確認に予想以上の時間がかかっています。確認され次第、プランは自動的に更新されます。もう一度購入する必要はありません。</string>
     <string name="payment_confirmation_processing">お支払いを確認しています。プランは自動的に更新されます。何もする必要はありません。</string>
     <string name="payment_not_completed">お支払いを完了できませんでした。</string>
+    <string name="payment_past_due_notice">UR Pro のお支払いが完了しませんでした。Pro を継続するには、お支払い方法を更新してください。</string>
+    <string name="payment_past_due_update_payment">お支払い方法を更新</string>
     <string name="payment_problem">支払いの問題</string>
     <string name="payment_received_title">お支払いを受け付けました</string>
     <string name="payout_wallet_updated">支払いウォレットを更新しました</string>
