@@ -28,10 +28,42 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.lifecycle.compose.LifecycleStartEffect
-import com.bringyour.network.ui.components.isTabletWidth
-import com.bringyour.network.ui.components.tabletDrawerWidth
-import com.bringyour.network.ui.components.TabletLayout
 import com.bringyour.network.ui.components.TapSequenceGate
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.only
+import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.movableContentOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.layout.boundsInWindow
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionOnScreen
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.toSize
+import com.bringyour.network.ui.components.CONNECT_GRAPHIC_FULL_DP
+import com.bringyour.network.ui.components.CONNECT_GRAPHIC_MIN_DP
+import com.bringyour.network.ui.components.CONNECT_GRAPHIC_PANE_MAX_DP
+import com.bringyour.network.ui.components.ConnectArrangement
+import com.bringyour.network.ui.components.DataInfoSheet
+import com.bringyour.network.ui.components.LocalWindowLayout
+import com.bringyour.network.ui.components.connectArrangementFor
+import com.bringyour.network.ui.components.connectDrawerExpandedHeight
+import com.bringyour.network.ui.components.dataInfoShowsFreeRefresh
+import com.bringyour.network.ui.components.mainPaneWidth
+import com.bringyour.network.ui.components.sideBySideSplit
+import com.bringyour.network.ui.components.stackedSplit
+import com.bringyour.network.ui.stats.AppSplitRulesPanel
+import com.bringyour.network.ui.stats.ConnectStatsTiles
+import com.bringyour.network.ui.theme.MainTintedBackgroundBase
+import com.bringyour.network.ui.theme.Pink
+import com.bringyour.network.ui.theme.TopBarTitleTextStyle
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -117,6 +149,12 @@ fun ConnectScreen(
     // the referral toast draws over the top of the screen (MainNavHost): the
     // slow internet pill makes way for it
     referralToastVisible: Boolean = false,
+    // the location picker open as a dialog in the pane arrangements, and the
+    // list's scroll position; kept above the screen (MainNavHost), so a fold
+    // turns the dialog into the picker's screen and back without losing them
+    locationPickerOpen: Boolean = false,
+    setLocationPickerOpen: (Boolean) -> Unit = {},
+    locationListPosition: LocationListPosition = rememberLocationListPosition(),
     accountViewModel: AccountViewModel = hiltViewModel<AccountViewModel>(),
     throughputViewModel: com.bringyour.network.ui.stats.ThroughputViewModel = hiltViewModel(),
     blockActionsViewModel: com.bringyour.network.ui.stats.BlockActionsViewModel = hiltViewModel(),
@@ -166,7 +204,7 @@ fun ConnectScreen(
         connectRequested = displayConnectStatus != ConnectStatus.DISCONNECTED,
     ) && !isPro
 
-    var promptSolanaReview by remember { mutableStateOf(false) }
+    var promptSolanaReview by rememberSaveable { mutableStateOf(false) }
 
     val setPromptSolanaReview: (Boolean) -> Unit = {
         promptSolanaReview = it
@@ -256,110 +294,526 @@ fun ConnectScreen(
         ).flatMap { it.asSequence() }.map { it.connectLocationId.toString() to it.providerCount },
     )
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        ConnectActionsSheetScaffold(
-            drawerState = connectActionsSheetState,
-            sheetContent = { minSheetHeight, belowFoldGap, onFoldMarkerPositioned ->
-                ConnectActions(
-                    navController = navController,
-                    onFoldMarkerPositioned = onFoldMarkerPositioned,
-                    belowFoldGap = belowFoldGap,
-                    selectedLocation = connectViewModel.selectedLocation,
-                    peerCount = networkPeersViewModel.connectedCount,
-                    providerDiscoverable = networkPeersViewModel.providerDiscoverable,
-                    deviceName = networkPeersViewModel.deviceName,
-                    selectedPeerName = selectedPeerName,
-                    selectedProviderCount = selectedProviderCount,
-                    presentSelectProvider = {
-                        navController.navigate(Route.BrowseLocations)
-                    },
-                    getLocationColor = locationsViewModel.getLocationColor,
-                    minHeight = minSheetHeight,
-                    currentPlan = if (isPro) Plan.Supporter else Plan.Basic,
-                    connect = { connectViewModel.connect(connectViewModel.selectedLocation) },
-                    disconnect = connectViewModel.disconnect,
-                    reconnectTunnel = {
-                        application?.startVpnService()
-                    },
-                    connectStatus = displayConnectStatus,
-                    isPollingSubscriptionBalance = subscriptionBalanceViewModel.isPollingSubscriptionBalance,
-                    displayReconnectTunnel = connectViewModel.displayReconnectTunnel,
-                    privateDnsStrictHost = privateDnsStrictHost,
-                    insufficientBalance = displayInsufficientBalance,
-                    outOfBalanceKind = outOfBalanceKind(accountBalance),
-                    reservedBytes = accountBalance?.openTransferByteCount ?: 0L,
-                    balanceRecovery = balanceRecoveryState,
-                    cancelBalanceRecovery = { application?.clearBalanceRecovery() },
-                    usedBytes = subscriptionBalanceViewModel.usedBalanceByteCount,
-                    pendingBytes = subscriptionBalanceViewModel.pendingBalanceByteCount,
-                    availableBytes = availableBytes,
-                    meanReliabilityWeight = meanReliabilityWeight,
-                    totalReferrals = totalReferrals,
-                    dailyByteCount = dailyByteCount,
-                    fixedIpSize = connectViewModel.fixedIpSize,
-                    toggleFixedIpSize = connectViewModel.toggleFixedIp,
-                    selectedWindowType = connectViewModel.selectedWindowType,
-                    setSelectedWindowType = connectViewModel.setSelectedWindowType,
-                    allowDirect = connectViewModel.allowDirect,
-                    toggleAllowDirect = connectViewModel.toggleAllowDirect,
-                    postQuantumEncryption = connectViewModel.postQuantumEncryption,
-                    togglePostQuantumEncryption = connectViewModel.togglePostQuantumEncryption,
-                    throughputViewModel = throughputViewModel,
-                    blockActionsViewModel = blockActionsViewModel,
-                    dnsSettingsViewModel = dnsSettingsViewModel,
-                    blockerViewModel = blockerViewModel,
-                    ipFamilyPoints = connectViewModel.ipFamilyPoints,
-                    onReferralClick = {
-                        navController.navigate(Route.Referrals)
-                    },
-                )
-            },
-            mainContent = {
-                ConnectMainContent(
-                    connectStatus = displayConnectStatus,
-                    selectedLocation = connectViewModel.selectedLocation,
-                    networkName = networkUser?.networkName,
-                    connect = connectViewModel.connect,
-                    disconnect = connectViewModel.disconnect,
-                    providerGridPoints = connectViewModel.providerGridPoints,
-                    windowCurrentSize = connectViewModel.windowCurrentSize,
-                    grid = connectViewModel.grid,
-                    loginMode = accountViewModel.loginMode,
-                    animatedSuccessPoints = connectViewModel.shuffledSuccessPoints,
-                    shuffleSuccessPoints = connectViewModel.shuffleSuccessPoints,
-                    getStateColor = connectViewModel.getStateColor,
-                    launchOverlay = overlayViewModel.launch,
-                    locationsViewModel = locationsViewModel,
-                    navController = navController,
-                    displayReconnectTunnel = connectViewModel.displayReconnectTunnel,
-                    contractStatus = contractStatus,
-                    currentPlan = if (isPro) Plan.Supporter else Plan.Basic,
-                    displayInsufficientBalance = displayInsufficientBalance,
-                    isPollingSubscriptionBalance = subscriptionBalanceViewModel.isPollingSubscriptionBalance,
-                    device = connectViewModel.device,
-                    launchProCelebration = { overlayViewModel.launchSunglassesFlight() },
-                    showProviderLocations = { navController.navigate(Route.ProviderLocations) },
-                    promptReview = {
-                        if (bundleStore == BundleStore.SOLANA_DAPP) {
-                            setPromptSolanaReview(true)
-                        } else {
-                            promptReview()
+    // the connect screen's arrangement for the window (AdaptiveLayout.kt):
+    // the phone layout at compact width; from medium width up the drawer
+    // becomes a pane, always open, beside or below the connect graphic
+    val windowLayout = LocalWindowLayout.current
+    val arrangement = connectArrangementFor(windowLayout.widthDp, windowLayout.heightDp, windowLayout.fold)
+    val currentPlan = if (isPro) Plan.Supporter else Plan.Basic
+
+    // Above the arrangements, so a fold, an unfold or a resize keeps them: the
+    // "About your data" sheet (Why? under the out-of-balance notice), the
+    // panes' scroll, and the taps of the connected easter egg.
+    var dataInfoPresented by rememberSaveable { mutableStateOf(false) }
+    val paneScrollState = rememberScrollState()
+    // silent: no ripple change, no counter, no announcement; a 2 s gap or
+    // leaving the connected state starts the count over
+    val connectedTapGate = remember { TapSequenceGate(count = 5, windowMillis = 2_000L) }
+    LaunchedEffect(displayConnectStatus) {
+        if (displayConnectStatus != ConnectStatus.CONNECTED) {
+            connectedTapGate.reset()
+        }
+    }
+
+    // The connect graphic is movable content: it moves between the
+    // arrangements with its provider grid, success dots and animations, so a
+    // fold neither re-centers nor restarts it.
+    val movableGraphic = remember {
+        movableContentOf { button: @Composable () -> Unit -> button() }
+    }
+    val connectGraphic: @Composable () -> Unit = {
+        movableGraphic {
+            ConnectButton(
+                onClick = {
+                    if (displayConnectStatus == ConnectStatus.DISCONNECTED) {
+                        connectViewModel.connect(connectViewModel.selectedLocation)
+                    } else if (displayConnectStatus == ConnectStatus.CONNECTED) {
+                        // the easter egg: five quick taps on the connected
+                        // connector replay the Pro celebration
+                        if (connectedTapGate.tap(System.currentTimeMillis())) {
+                            overlayViewModel.launchSunglassesFlight()
                         }
+                    }
+                },
+                updatedStatus = displayConnectStatus,
+                providerGridPoints = connectViewModel.providerGridPoints,
+                grid = connectViewModel.grid,
+                animatedSuccessPoints = connectViewModel.shuffledSuccessPoints,
+                shuffleSuccessPoints = connectViewModel.shuffleSuccessPoints,
+                getStateColor = connectViewModel.getStateColor,
+                displayReconnectTunnel = connectViewModel.displayReconnectTunnel,
+                insufficientBalance = displayInsufficientBalance,
+                isPollingSubscriptionBalance = subscriptionBalanceViewModel.isPollingSubscriptionBalance
+            )
+        }
+    }
+
+    val connectStatusIndicator: @Composable () -> Unit = {
+        ConnectStatusIndicator(
+            status = displayConnectStatus,
+            windowCurrentSize = connectViewModel.windowCurrentSize,
+            networkName = networkUser?.networkName,
+            guestMode = accountViewModel.loginMode == LoginMode.Guest,
+            displayReconnectTunnel = connectViewModel.displayReconnectTunnel,
+            contractStatus = contractStatus,
+            currentPlan = currentPlan,
+            isPollingSubscriptionBalance = subscriptionBalanceViewModel.isPollingSubscriptionBalance,
+            onShowProviderLocations = { navController.navigate(Route.ProviderLocations) }
+        )
+    }
+
+    // the location picker: its own screen in the phone layout, a dialog over
+    // the location row's pane in the pane arrangements
+    val presentSelectProvider: (Boolean) -> Unit = {
+        if (arrangement == ConnectArrangement.Drawer) {
+            navController.navigate(Route.BrowseLocations)
+        } else {
+            setLocationPickerOpen(true)
+        }
+    }
+    // compact again with the dialog open (folded, or the window narrowed):
+    // the picker continues as its screen, with its search and scroll
+    if (arrangement == ConnectArrangement.Drawer && locationPickerOpen) {
+        LaunchedEffect(Unit) {
+            setLocationPickerOpen(false)
+            navController.navigate(Route.BrowseLocations)
+        }
+    }
+
+    val connect = { connectViewModel.connect(connectViewModel.selectedLocation) }
+    val reconnectTunnel = { application?.startVpnService(); Unit }
+    val actionButtons = connectActionButtons(
+        insufficientBalance = displayInsufficientBalance,
+        currentPlan = currentPlan,
+        isPollingSubscriptionBalance = subscriptionBalanceViewModel.isPollingSubscriptionBalance,
+        connectStatus = displayConnectStatus,
+        displayReconnectTunnel = connectViewModel.displayReconnectTunnel,
+    )
+    // the connect buttons with their notices, at the foot of a pane
+    val paneActions: @Composable () -> Unit = {
+        Column(modifier = Modifier.fillMaxWidth()) {
+            ConnectActionNotices(
+                actionButtons = actionButtons,
+                outOfBalanceKind = outOfBalanceKind(accountBalance),
+                reservedBytes = accountBalance?.openTransferByteCount ?: 0L,
+                balanceRecovery = balanceRecoveryState,
+                cancelBalanceRecovery = { application?.clearBalanceRecovery() },
+                privateDnsStrictHost = privateDnsStrictHost,
+                showDataInfo = { dataInfoPresented = true },
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+            ConnectActionButtonRow(
+                actionButtons = actionButtons,
+                navController = navController,
+                connect = connect,
+                disconnect = connectViewModel.disconnect,
+                reconnectTunnel = reconnectTunnel,
+            )
+        }
+    }
+
+    // the location row's pane and the row itself, on screen: where the
+    // location dialog opens
+    var locationPaneOnScreen by remember { mutableStateOf(Rect.Zero) }
+    var locationRowOnScreen by remember { mutableStateOf(Rect.Zero) }
+    val locationRowModifier = Modifier.onGloballyPositioned {
+        locationRowOnScreen = Rect(it.positionOnScreen(), it.size.toSize())
+    }
+
+    val drawerContent: @Composable (Dp, Boolean, Dp, (Int) -> Unit) -> Unit =
+        { minHeight, showActions, belowFoldGap, onFoldMarkerPositioned ->
+            ConnectActions(
+                navController = navController,
+                onFoldMarkerPositioned = onFoldMarkerPositioned,
+                belowFoldGap = belowFoldGap,
+                showActions = showActions,
+                locationRowModifier = if (showActions) Modifier else locationRowModifier,
+                selectedLocation = connectViewModel.selectedLocation,
+                peerCount = networkPeersViewModel.connectedCount,
+                providerDiscoverable = networkPeersViewModel.providerDiscoverable,
+                deviceName = networkPeersViewModel.deviceName,
+                selectedPeerName = selectedPeerName,
+                selectedProviderCount = selectedProviderCount,
+                presentSelectProvider = presentSelectProvider,
+                getLocationColor = locationsViewModel.getLocationColor,
+                minHeight = minHeight,
+                currentPlan = currentPlan,
+                connect = connect,
+                disconnect = connectViewModel.disconnect,
+                reconnectTunnel = reconnectTunnel,
+                connectStatus = displayConnectStatus,
+                isPollingSubscriptionBalance = subscriptionBalanceViewModel.isPollingSubscriptionBalance,
+                displayReconnectTunnel = connectViewModel.displayReconnectTunnel,
+                privateDnsStrictHost = privateDnsStrictHost,
+                insufficientBalance = displayInsufficientBalance,
+                outOfBalanceKind = outOfBalanceKind(accountBalance),
+                reservedBytes = accountBalance?.openTransferByteCount ?: 0L,
+                balanceRecovery = balanceRecoveryState,
+                cancelBalanceRecovery = { application?.clearBalanceRecovery() },
+                showDataInfo = { dataInfoPresented = true },
+                usedBytes = subscriptionBalanceViewModel.usedBalanceByteCount,
+                pendingBytes = subscriptionBalanceViewModel.pendingBalanceByteCount,
+                availableBytes = availableBytes,
+                meanReliabilityWeight = meanReliabilityWeight,
+                totalReferrals = totalReferrals,
+                dailyByteCount = dailyByteCount,
+                fixedIpSize = connectViewModel.fixedIpSize,
+                toggleFixedIpSize = connectViewModel.toggleFixedIp,
+                selectedWindowType = connectViewModel.selectedWindowType,
+                setSelectedWindowType = connectViewModel.setSelectedWindowType,
+                allowDirect = connectViewModel.allowDirect,
+                toggleAllowDirect = connectViewModel.toggleAllowDirect,
+                postQuantumEncryption = connectViewModel.postQuantumEncryption,
+                togglePostQuantumEncryption = connectViewModel.togglePostQuantumEncryption,
+                throughputViewModel = throughputViewModel,
+                blockActionsViewModel = blockActionsViewModel,
+                dnsSettingsViewModel = dnsSettingsViewModel,
+                blockerViewModel = blockerViewModel,
+                ipFamilyPoints = connectViewModel.ipFamilyPoints,
+                onReferralClick = {
+                    navController.navigate(Route.Referrals)
+                },
+            )
+        }
+
+    // where this screen sits in the window, to place a fold in it
+    var screenInWindow by remember { mutableStateOf(Rect.Zero) }
+    val density = LocalDensity.current
+    val sidePaneOnLeft = LocalLayoutDirection.current == LayoutDirection.Ltr
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .onGloballyPositioned { screenInWindow = it.boundsInWindow() }
+    ) {
+        when (arrangement) {
+            ConnectArrangement.Drawer -> {
+                // in tabletop the open drawer stops at the fold
+                val tabletopFold = windowLayout.fold?.takeIf { !it.vertical }
+                ConnectActionsSheetScaffold(
+                    drawerState = connectActionsSheetState,
+                    foldBottom = tabletopFold?.let { (it.end - screenInWindow.top / density.density).dp },
+                    sheetContent = { minSheetHeight, belowFoldGap, onFoldMarkerPositioned ->
+                        drawerContent(minSheetHeight, true, belowFoldGap, onFoldMarkerPositioned)
                     },
+                    mainContent = {
+                        ConnectMainContent(
+                            graphic = connectGraphic,
+                            status = connectStatusIndicator,
+                        )
+                    }
                 )
             }
-        )
+
+            ConnectArrangement.SideBySide -> ConnectPanes(
+                sideBySide = true,
+                splitFor = { width, _ ->
+                    sideBySideSplit(
+                        containerStart = screenInWindow.left / this.density,
+                        width = width / this.density,
+                        fold = windowLayout.fold,
+                        sidePaneOnLeft = sidePaneOnLeft,
+                    )
+                },
+                // the drawer, always open, beside the connect pane: the
+                // location row, the peers, the options, every statistics card
+                // and the plan
+                statsPane = {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(SheetBlack)
+                            .onGloballyPositioned {
+                                locationPaneOnScreen = Rect(it.positionOnScreen(), it.size.toSize())
+                            }
+                            .verticalScroll(paneScrollState)
+                            .windowInsetsPadding(
+                                WindowInsets.safeDrawing.only(WindowInsetsSides.Vertical + WindowInsetsSides.Start)
+                            )
+                            .padding(16.dp)
+                    ) {
+                        drawerContent(0.dp, false, 0.dp) {}
+                    }
+                },
+                // the connect graphic and its status, the connect buttons at the foot
+                connectPane = {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .windowInsetsPadding(
+                                WindowInsets.safeDrawing.only(WindowInsetsSides.Vertical + WindowInsetsSides.End)
+                            )
+                            .padding(horizontal = 16.dp)
+                            .padding(top = SlowInternetPillRoom, bottom = 16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+                        ConnectGraphicLayout(
+                            minSize = CONNECT_GRAPHIC_MIN_DP.dp,
+                            maxSize = CONNECT_GRAPHIC_PANE_MAX_DP.dp,
+                            topSpacing = 0.dp,
+                            gap = 32.dp,
+                            graphic = connectGraphic,
+                            below = connectStatusIndicator,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .weight(1f),
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Box(modifier = Modifier.widthIn(max = PaneActionsMaxWidth)) {
+                            paneActions()
+                        }
+                    }
+                },
+            )
+
+            ConnectArrangement.Stacked -> ConnectPanes(
+                sideBySide = false,
+                splitFor = { _, height ->
+                    stackedSplit(
+                        containerTop = screenInWindow.top / this.density,
+                        height = height / this.density,
+                        fold = windowLayout.fold,
+                    )
+                },
+                // below (in tabletop, under the hands): the location row, the
+                // statistics in two columns, the rest of the drawer as it
+                // scrolls, and the connect buttons at the foot
+                statsPane = {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(SheetBlack)
+                            .onGloballyPositioned {
+                                locationPaneOnScreen = Rect(it.positionOnScreen(), it.size.toSize())
+                            }
+                            .windowInsetsPadding(
+                                WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom)
+                            )
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .weight(1f)
+                                .fillMaxWidth()
+                                .verticalScroll(paneScrollState)
+                                .padding(horizontal = 16.dp)
+                                .padding(top = 16.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .background(MainTintedBackgroundBase, RoundedCornerShape(12.dp))
+                                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                            ) {
+                                OpenProviderListButton(
+                                    selectedLocation = connectViewModel.selectedLocation,
+                                    selectedPeerName = selectedPeerName,
+                                    providerCount = selectedProviderCount,
+                                    getLocationColor = locationsViewModel.getLocationColor,
+                                    onClick = { presentSelectProvider(true) },
+                                    modifier = locationRowModifier,
+                                )
+                            }
+
+                            ConnectStatsTiles(
+                                navController = navController,
+                                throughputViewModel = throughputViewModel,
+                                blockActionsViewModel = blockActionsViewModel,
+                                dnsSettingsViewModel = dnsSettingsViewModel,
+                                blockerViewModel = blockerViewModel,
+                            )
+
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .background(MainTintedBackgroundBase, RoundedCornerShape(12.dp))
+                                    .padding(16.dp)
+                            ) {
+                                DeviceDiscoverableLine(
+                                    providerDiscoverable = networkPeersViewModel.providerDiscoverable,
+                                    deviceName = networkPeersViewModel.deviceName,
+                                )
+                                Spacer(modifier = Modifier.height(16.dp))
+                                ConnectOptions(
+                                    fixedIpSize = connectViewModel.fixedIpSize,
+                                    toggleFixedIpSize = connectViewModel.toggleFixedIp,
+                                    selectedWindowType = connectViewModel.selectedWindowType,
+                                    setSelectedWindowType = connectViewModel.setSelectedWindowType,
+                                    allowDirect = connectViewModel.allowDirect,
+                                    toggleAllowDirect = connectViewModel.toggleAllowDirect,
+                                    postQuantumEncryption = connectViewModel.postQuantumEncryption,
+                                    togglePostQuantumEncryption = connectViewModel.togglePostQuantumEncryption,
+                                )
+                            }
+
+                            AppSplitRulesPanel(
+                                includedCount = blockActionsViewModel.tunnelIncludedAppIds.size,
+                                excludedCount = blockActionsViewModel.tunnelExcludedAppIds.size,
+                                activeAppIds = blockActionsViewModel.tunnelIncludedAppIds.ifEmpty {
+                                    blockActionsViewModel.tunnelExcludedAppIds
+                                },
+                                onClick = { navController.navigate(Route.AppSplitRules) },
+                            )
+
+                            ConnectPlanCard(
+                                navController = navController,
+                                currentPlan = currentPlan,
+                                isPollingSubscriptionBalance = subscriptionBalanceViewModel.isPollingSubscriptionBalance,
+                                usedBytes = subscriptionBalanceViewModel.usedBalanceByteCount,
+                                availableBytes = availableBytes,
+                                pendingBytes = subscriptionBalanceViewModel.pendingBalanceByteCount,
+                                meanReliabilityWeight = meanReliabilityWeight,
+                                totalReferrals = totalReferrals,
+                                dailyByteCount = dailyByteCount,
+                                onReferralClick = { navController.navigate(Route.Referrals) },
+                            )
+
+                            Spacer(modifier = Modifier.height(8.dp))
+                        }
+
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp)
+                        ) {
+                            paneActions()
+                        }
+                    }
+                },
+                // above (in tabletop, on the raised half): the connect graphic,
+                // its status and the peers online
+                connectPane = {
+                    ConnectGraphicLayout(
+                        minSize = CONNECT_GRAPHIC_MIN_DP.dp,
+                        maxSize = CONNECT_GRAPHIC_PANE_MAX_DP.dp,
+                        topSpacing = 0.dp,
+                        gap = 24.dp,
+                        graphic = connectGraphic,
+                        below = {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                connectStatusIndicator()
+                                Spacer(modifier = Modifier.height(12.dp))
+                                NetworkPeersStatusLine(
+                                    peerCount = networkPeersViewModel.connectedCount,
+                                    onClick = { presentSelectProvider(true) },
+                                    horizontalArrangement = Arrangement.Center,
+                                )
+                            }
+                        },
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .windowInsetsPadding(
+                                WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal)
+                            )
+                            .padding(horizontal = 16.dp)
+                            .padding(top = SlowInternetPillRoom, bottom = 16.dp),
+                    )
+                },
+            )
+        }
 
         // slow internet (apple/DELAY.md §7.1): follows the sdk's level directly,
-        // while a connection is requested
+        // while a connection is requested. At the top end of the screen, which
+        // is the top of the connect pane in every arrangement; beside the
+        // statistics it keeps to that pane's width
+        val connectPaneWidth = if (arrangement == ConnectArrangement.SideBySide) {
+            val screenWidth = screenInWindow.width / density.density
+            mainPaneWidth(
+                split = sideBySideSplit(
+                    containerStart = screenInWindow.left / density.density,
+                    width = screenWidth,
+                    fold = windowLayout.fold,
+                    sidePaneOnLeft = sidePaneOnLeft,
+                ),
+                width = screenWidth,
+                sidePaneOnLeft = sidePaneOnLeft,
+            ).coerceAtLeast(0f).dp
+        } else {
+            Dp.Unspecified
+        }
         SlowInternetPill(
             transportDelay = transportDelay,
             available = displayConnectStatus != ConnectStatus.DISCONNECTED,
             hidden = referralToastVisible,
             setPillVisible = connectViewModel.setSlowInternetPillVisible,
-            modifier = Modifier.align(Alignment.TopEnd),
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .widthIn(max = connectPaneWidth),
         )
     }
+
+    // the location picker over its pane, in the pane arrangements: anchored
+    // under the location row, or over the whole pane when the room under the
+    // row is short
+    if (locationPickerOpen && arrangement != ConnectArrangement.Drawer) {
+        val pane = locationPaneOnScreen
+        val row = locationRowOnScreen
+        val minRoomPx = with(density) { LocationDialogMinHeight.toPx() }
+        val top = if (row.bottom in pane.top..(pane.bottom - minRoomPx)) row.bottom else pane.top
+        LocationPickerDialog(
+            regionOnScreen = Rect(pane.left, top, pane.right, pane.bottom),
+            onDismiss = { setLocationPickerOpen(false) },
+        ) {
+            val keyboardController = LocalSoftwareKeyboardController.current
+            val fetchLocationsState by remember { locationsViewModel.filterLocationsState }.collectAsState()
+            val dialogListState = rememberLocationListState(locationListPosition)
+            Column(modifier = Modifier.fillMaxSize()) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 16.dp, end = 4.dp, top = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        stringResource(id = R.string.browse_locations),
+                        style = TopBarTitleTextStyle,
+                        modifier = Modifier.weight(1f),
+                    )
+                    TextButton(onClick = { setLocationPickerOpen(false) }) {
+                        Text(stringResource(id = R.string.close), color = Pink)
+                    }
+                }
+                BrowseLocations(
+                    connectCountries = locationsViewModel.connectCountries,
+                    cities = locationsViewModel.cities,
+                    regions = locationsViewModel.regions,
+                    devices = locationsViewModel.devices,
+                    bestSearchMatches = locationsViewModel.bestSearchMatches,
+                    selectedLocation = connectViewModel.selectedLocation,
+                    keyboardController = keyboardController,
+                    currentSearchQuery = locationsViewModel.currentSearchQuery,
+                    setSearchQueryTextFieldValue = locationsViewModel.setSearchQueryTextFieldValue,
+                    searchQueryTextFieldValue = locationsViewModel.searchQueryTextFieldValue,
+                    fetchLocationsState = fetchLocationsState,
+                    // a pick updates the connect target in place
+                    connect = {
+                        connectViewModel.connect(it)
+                        setLocationPickerOpen(false)
+                    },
+                    getLocationColor = locationsViewModel.getLocationColor,
+                    filterLocations = locationsViewModel.filterLocations,
+                    lazyListState = dialogListState,
+                    refreshLocations = locationsViewModel.refreshLocations,
+                    networkPeers = networkPeersViewModel.connectedProvidePeers,
+                    onConnectPeer = { peer ->
+                        networkPeersViewModel.connectLocationForPeer(peer)?.let { location ->
+                            connectViewModel.connect(location)
+                            setLocationPickerOpen(false)
+                        }
+                    },
+                )
+            }
+        }
+    }
+
+    DataInfoSheet(
+        presented = dataInfoPresented,
+        onDismiss = { dataInfoPresented = false },
+        startBalanceByteCount = dailyByteCount,
+        availableByteCount = availableBytes,
+        pendingByteCount = subscriptionBalanceViewModel.pendingBalanceByteCount,
+        showFreeRefresh = dataInfoShowsFreeRefresh(currentPlan),
+    )
 
     if (promptSolanaReview) {
         PromptSolanaDAppStoreReview(
@@ -381,6 +835,9 @@ fun ConnectActionsSheetScaffold(
     sheetContent: @Composable (peekHeight: Dp, belowFoldGap: Dp, onFoldMarkerPositioned: (Int) -> Unit) -> Unit,
     mainContent: @Composable () -> Unit,
     baseSheetPeekHeight: Dp = dimensionResource(id = R.dimen.connect_actions_sheet_peek_height),
+    // in tabletop, the bottom edge of the fold measured from the top of the
+    // scaffold: the open drawer stops there instead of crossing it
+    foldBottom: Dp? = null,
 ) {
 
     val scrollState = rememberScrollState()
@@ -508,49 +965,18 @@ fun ConnectActionsSheetScaffold(
         positionalThreshold = { positionalThresholdPx },
     )
 
-    // tablet convention (mmm/DESIGNSTYLE.md "Tablet layouts"): the drawer wraps its
-    // content in a centered panel of the readable width, rounded on every corner and
-    // floating above the bar below it, instead of a full-width shelf; phones keep
-    // the edge-to-edge sheet
-    val floatingDrawer = isTabletWidth()
-    BoxWithConstraints(
+    // the drawer is the phone layout's: the pane arrangements (AdaptiveLayout.kt)
+    // take over from medium width up, so it is always the edge-to-edge sheet
+    Box(
         // reports the insets ancestors already consumed (the tab bar scaffold),
         // so the sheet geometry above only adds the unconsumed remainder
         modifier = Modifier
             .onConsumedWindowInsetsChanged { consumedWindowInsets = it }
-            .then(
-                if (floatingDrawer) Modifier.padding(bottom = TabletLayout.drawerFloatGap) else Modifier
-            )
     ) {
-        val layoutHeightPx = constraints.maxHeight
-        val peekPx = with(density) { sheetPeekHeight.roundToPx() }
-        // The expanded drawer stops part-way up the screen, leaving the
-        // connect graphic behind it partially exposed, instead of running to
-        // the status bar with the drag handle under it (iOS caps its sheet
-        // the same way). The scrolling content is capped to the expanded
-        // height less the drag handle; the content scrolls within it.
-        val sheetContentMaxHeight = with(density) {
-            (maxHeight * ConnectSheetExpandedFraction - dragHandleHeightPx.toDp())
-                .coerceAtLeast(baseSheetPeekHeight)
-        }
 
-        // the drawer's two positions follow from the layout height, the peek
-        // and the measured sheet; the state snaps to its current target
-        // whenever they change
-        var sheetHeightPx by remember { mutableIntStateOf(0) }
-        if (sheetHeightPx > 0 && layoutHeightPx > 0) {
-            val anchors = remember(layoutHeightPx, sheetHeightPx, peekPx) {
-                DraggableAnchors {
-                    ConnectDrawerValue.Collapsed at (layoutHeightPx - peekPx).toFloat()
-                    ConnectDrawerValue.Expanded at (layoutHeightPx - sheetHeightPx).toFloat()
-                }
-            }
-            SideEffect {
-                drawerState.draggable.updateAnchors(anchors, drawerState.targetValue)
-            }
-        }
-        val restingOffsetPx = (layoutHeightPx - peekPx).toFloat()
-
+        // The main content stays outside the drawer's BoxWithConstraints: the
+        // connect graphic in it is movable content (ConnectScreen), and a
+        // subcomposition between it and the arrangements would drop its state.
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -566,205 +992,155 @@ fun ConnectActionsSheetScaffold(
             }
         }
 
-        Surface(
-            modifier = Modifier
-                .align(Alignment.TopCenter)
-                .then(if (floatingDrawer) Modifier.width(tabletDrawerWidth()) else Modifier.fillMaxWidth())
-                .offset {
-                    val offset = drawerState.draggable.offset
-                    IntOffset(0, (if (offset.isNaN()) restingOffsetPx else offset).roundToInt())
-                }
-                .onSizeChanged { sheetHeightPx = it.height }
-                .nestedScroll(separateSheetAndContentGestures),
-            shape = if (floatingDrawer) {
-                RoundedCornerShape(TabletLayout.drawerCornerRadius)
-            } else {
-                BottomSheetDefaults.ExpandedShape
-            },
-            color = SheetBlack,
-            shadowElevation = 1.dp,
-        ) {
-            Column(modifier = Modifier.fillMaxWidth()) {
-                // the drag handle: the drawer's own drag target, grabbing the
-                // drawer even mid-animation, with the expand/collapse actions
-                // for assistive tech. Measure only its local size: moving the
-                // sheet does not change it.
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .onSizeChanged { dragHandleHeightPx = it.height }
-                        .anchoredDraggable(
-                            state = drawerState.draggable,
-                            orientation = Orientation.Vertical,
-                            flingBehavior = handleFlingBehavior,
-                        )
-                        .semantics(mergeDescendants = true) {
-                            if (drawerState.currentValue == ConnectDrawerValue.Collapsed) {
-                                expand {
-                                    scope.launch { drawerState.expand() }
-                                    true
-                                }
-                            } else {
-                                collapse {
-                                    scope.launch { drawerState.partialExpand() }
-                                    true
-                                }
-                            }
-                        },
-                    contentAlignment = Alignment.TopCenter,
-                ) {
-                    BottomSheetDefaults.DragHandle()
-                }
+        BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+            val layoutHeightPx = constraints.maxHeight
+            val peekPx = with(density) { sheetPeekHeight.roundToPx() }
+            // The expanded drawer stops part-way up the screen, leaving the
+            // connect graphic behind it partially exposed, instead of running to
+            // the status bar with the drag handle under it (iOS caps its sheet
+            // the same way). It never runs past the top of a short window, and in
+            // tabletop it stops at the fold (connectDrawerExpandedHeight). The
+            // scrolling content is capped to the expanded height less the drag
+            // handle; the content scrolls within it.
+            val sheetContentMaxHeight = with(density) {
+                (connectDrawerExpandedHeight(
+                    layoutHeight = maxHeight.value,
+                    peekHeight = sheetPeekHeight.value,
+                    fraction = ConnectSheetExpandedFraction,
+                    foldBottom = foldBottom?.value,
+                ).dp - dragHandleHeightPx.toDp()).coerceAtLeast(0.dp)
+            }
 
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .heightIn(max = sheetContentMaxHeight)
-                        // classifies each touch before anything else sees it:
-                        // a touch on the open (or opening) drawer waits for
-                        // its first movement, any other touch is a drawer
-                        // gesture, which takes over from a running animation
-                        .pointerInput(sheetGesture, drawerState) {
-                            awaitEachGesture {
-                                awaitFirstDown(requireUnconsumed = false, pass = PointerEventPass.Initial)
-                                sheetGesture.onDown(
-                                    sheetSettledOpen = drawerState.targetValue == ConnectDrawerValue.Expanded
-                                )
-                                if (sheetGesture.kind == ConnectSheetGesture.Kind.Sheet) {
-                                    scope.launch { drawerState.interruptAnimation() }
+            // the drawer's two positions follow from the layout height, the peek
+            // and the measured sheet; the state snaps to its current target
+            // whenever they change
+            var sheetHeightPx by remember { mutableIntStateOf(0) }
+            if (sheetHeightPx > 0 && layoutHeightPx > 0) {
+                val anchors = remember(layoutHeightPx, sheetHeightPx, peekPx) {
+                    DraggableAnchors {
+                        ConnectDrawerValue.Collapsed at (layoutHeightPx - peekPx).toFloat()
+                        ConnectDrawerValue.Expanded at (layoutHeightPx - sheetHeightPx).toFloat()
+                    }
+                }
+                SideEffect {
+                    drawerState.draggable.updateAnchors(anchors, drawerState.targetValue)
+                }
+            }
+            val restingOffsetPx = (layoutHeightPx - peekPx).toFloat()
+
+            Surface(
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .fillMaxWidth()
+                    .offset {
+                        val offset = drawerState.draggable.offset
+                        IntOffset(0, (if (offset.isNaN()) restingOffsetPx else offset).roundToInt())
+                    }
+                    .onSizeChanged { sheetHeightPx = it.height }
+                    .nestedScroll(separateSheetAndContentGestures),
+                shape = BottomSheetDefaults.ExpandedShape,
+                color = SheetBlack,
+                shadowElevation = 1.dp,
+            ) {
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    // the drag handle: the drawer's own drag target, grabbing the
+                    // drawer even mid-animation, with the expand/collapse actions
+                    // for assistive tech. Measure only its local size: moving the
+                    // sheet does not change it.
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .onSizeChanged { dragHandleHeightPx = it.height }
+                            .anchoredDraggable(
+                                state = drawerState.draggable,
+                                orientation = Orientation.Vertical,
+                                flingBehavior = handleFlingBehavior,
+                            )
+                            .semantics(mergeDescendants = true) {
+                                if (drawerState.currentValue == ConnectDrawerValue.Collapsed) {
+                                    expand {
+                                        scope.launch { drawerState.expand() }
+                                        true
+                                    }
+                                } else {
+                                    collapse {
+                                        scope.launch { drawerState.partialExpand() }
+                                        true
+                                    }
+                                }
+                            },
+                        contentAlignment = Alignment.TopCenter,
+                    ) {
+                        BottomSheetDefaults.DragHandle()
+                    }
+
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(max = sheetContentMaxHeight)
+                            // classifies each touch before anything else sees it:
+                            // a touch on the open (or opening) drawer waits for
+                            // its first movement, any other touch is a drawer
+                            // gesture, which takes over from a running animation
+                            .pointerInput(sheetGesture, drawerState) {
+                                awaitEachGesture {
+                                    awaitFirstDown(requireUnconsumed = false, pass = PointerEventPass.Initial)
+                                    sheetGesture.onDown(
+                                        sheetSettledOpen = drawerState.targetValue == ConnectDrawerValue.Expanded
+                                    )
+                                    if (sheetGesture.kind == ConnectSheetGesture.Kind.Sheet) {
+                                        scope.launch { drawerState.interruptAnimation() }
+                                    }
                                 }
                             }
-                        }
-                        .nestedScroll(separateSheetAndContentGestures)
-                        .verticalScroll(scrollState)
-                        .padding(horizontal = 16.dp)
-                        // the same standard gap above the sheet's bottom edge
-                        // (the tab bar on phones, the screen edge past the
-                        // unconsumed inset next to a rail), so the expanded
-                        // content's last card ends with the padding the
-                        // collapsed connect button gets
-                        .padding(bottom = foldGap + unconsumedBottomInset)
-                ) {
-                    sheetContent(
-                        baseSheetPeekHeight,
-                        belowFoldGap,
-                        { foldMarkerOffsetPx = it },
-                    )
+                            .nestedScroll(separateSheetAndContentGestures)
+                            .verticalScroll(scrollState)
+                            .padding(horizontal = 16.dp)
+                            // the same standard gap above the sheet's bottom edge
+                            // (the tab bar on phones, the screen edge past the
+                            // unconsumed inset next to a rail), so the expanded
+                            // content's last card ends with the padding the
+                            // collapsed connect button gets
+                            .padding(bottom = foldGap + unconsumedBottomInset)
+                    ) {
+                        sheetContent(
+                            baseSheetPeekHeight,
+                            belowFoldGap,
+                            { foldMarkerOffsetPx = it },
+                        )
+                    }
                 }
             }
         }
     }
 }
 
+/**
+ * The phone layout's main content above the drawer: the connect graphic and
+ * its status, centered in the room the collapsed drawer leaves. A short
+ * window (a landscape split screen, a flip cover, a bubble) shrinks the
+ * graphic and its spacing so the status stays above the drawer; a phone in
+ * portrait keeps the full 256dp graphic.
+ */
 @Composable
 fun ConnectMainContent(
-    connectStatus: ConnectStatus,
-    selectedLocation: ConnectLocation?,
-    networkName: String?,
-    grid: ConnectGrid?,
-    providerGridPoints: Map<Id, ProviderGridPoint>,
-    windowCurrentSize: Int,
-    connect: (ConnectLocation?) -> Unit,
-    disconnect: () -> Unit,
-    loginMode: LoginMode,
-    animatedSuccessPoints: List<AnimatedSuccessPoint>,
-    shuffleSuccessPoints: () -> Unit,
-    getStateColor: (ProviderPointState?) -> Color,
-    launchOverlay: (OverlayMode) -> Unit,
-    locationsViewModel: LocationsListViewModel,
-    navController: NavController,
-    displayReconnectTunnel: Boolean,
-    displayInsufficientBalance: Boolean,
-    contractStatus: ContractStatus?,
-    currentPlan: Plan,
-    isPollingSubscriptionBalance: Boolean,
-    device: DeviceLocal?, // fixme, we don't need to pass the entire device
-    promptReview: () -> Unit,
-    showProviderLocations: () -> Unit,
-    // the easter egg: five quick taps on the connected connector replay the
-    // Pro celebration
-    launchProCelebration: () -> Unit = {},
+    graphic: @Composable () -> Unit,
+    status: @Composable () -> Unit,
 ) {
-
-    // silent: no ripple change, no counter, no announcement; a 2 s gap or
-    // leaving the connected state starts the count over
-    val connectedTapGate = remember { TapSequenceGate(count = 5, windowMillis = 2_000L) }
-    LaunchedEffect(connectStatus) {
-        if (connectStatus != ConnectStatus.CONNECTED) {
-            connectedTapGate.reset()
-        }
-    }
-
-    Column(
+    ConnectGraphicLayout(
+        minSize = CONNECT_GRAPHIC_MIN_DP.dp,
+        maxSize = CONNECT_GRAPHIC_FULL_DP.dp,
+        topSpacing = 16.dp,
+        gap = 32.dp,
+        graphic = graphic,
+        below = status,
         modifier = Modifier
             .fillMaxSize()
             .animateContentSize()
             .padding(horizontal = 16.dp)
             .padding(bottom = 16.dp),
-        verticalArrangement = Arrangement.SpaceBetween,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-
-        Column(
-            modifier = Modifier
-                .weight(1f),
-            verticalArrangement = Arrangement.Center
-        ) {
-
-            Column {
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center
-
-                ) {
-                    ConnectButton(
-                        onClick = {
-                            if (connectStatus == ConnectStatus.DISCONNECTED) {
-                                connect(selectedLocation)
-//                            checkTriggerPromptReview()
-                            } else if (connectStatus == ConnectStatus.CONNECTED) {
-                                if (connectedTapGate.tap(System.currentTimeMillis())) {
-                                    launchProCelebration()
-                                }
-                            }
-                        },
-                        updatedStatus = connectStatus,
-                        providerGridPoints = providerGridPoints,
-                        grid = grid,
-                        animatedSuccessPoints = animatedSuccessPoints,
-                        shuffleSuccessPoints = shuffleSuccessPoints,
-                        getStateColor = getStateColor,
-                        displayReconnectTunnel = displayReconnectTunnel,
-                        insufficientBalance = displayInsufficientBalance,
-                        isPollingSubscriptionBalance = isPollingSubscriptionBalance
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(32.dp))
-
-                ConnectStatusIndicator(
-                    status = connectStatus,
-                    windowCurrentSize = windowCurrentSize,
-                    networkName = networkName,
-                    guestMode = loginMode == LoginMode.Guest,
-                    displayReconnectTunnel = displayReconnectTunnel,
-                    contractStatus = contractStatus,
-                    currentPlan = currentPlan,
-                    isPollingSubscriptionBalance = isPollingSubscriptionBalance,
-                    onShowProviderLocations = showProviderLocations
-                )
-
-
-            }
-        }
-
-    }
-
+    )
 }
-
 
 //@Preview
 //@Composable
@@ -822,3 +1198,12 @@ private val SheetFlingVelocityThreshold = 125.dp
  * threshold.
  */
 private val SheetPullThreshold = 56.dp
+
+/** Room at the top of a connect pane for the slow internet pill above the graphic. */
+private val SlowInternetPillRoom = 48.dp
+
+/** The connect buttons at the foot of a connect pane keep to a readable width. */
+private val PaneActionsMaxWidth = 400.dp
+
+/** Under this much room below the location row, the location dialog covers the whole pane. */
+private val LocationDialogMinHeight = 320.dp

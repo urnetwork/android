@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Overview widget on the lock screen and Samsung's cover screen (Flex Window). The four
+     attributes Samsung's guide sets for the Flex Window (developer.samsung.com/galaxy-z/
+     flex_window.html, "Add your Widgets to the Flex Window"): the window's 352 x 339 dp,
+     resizable both ways, and the keyguard category alone. widget_cover_samsung (Samsung's
+     com.samsung.android.appwidget.provider meta-data) puts it on the cover. The home screen
+     gets the same widget from OverviewWidgetReceiver (widget_overview_info). -->
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:minWidth="352dp"
+    android:minHeight="339dp"
+    android:resizeMode="horizontal|vertical"
+    android:widgetCategory="keyguard"
+    android:updatePeriodMillis="0"
+    android:previewLayout="@layout/widget_preview_overview"
+    android:description="@string/widget_overview_description" />

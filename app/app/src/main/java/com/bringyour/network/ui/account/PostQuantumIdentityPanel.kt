@@ -20,6 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -69,7 +70,7 @@ fun PostQuantumIdentityPanel(
     val context = LocalContext.current
     val clipboardManager = LocalClipboardManager.current
 
-    var isPresentingShareDialog by remember { mutableStateOf(false) }
+    var isPresentingShareDialog by rememberSaveable { mutableStateOf(false) }
 
     val ownIdentity = viewModel?.ownIdentity
     val peers = viewModel?.providerIdentities ?: listOf()

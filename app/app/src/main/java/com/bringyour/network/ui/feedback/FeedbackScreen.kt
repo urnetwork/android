@@ -1,7 +1,6 @@
 package com.bringyour.network.ui.feedback
 
 import android.app.Activity
-import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -10,7 +9,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -44,7 +42,6 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.SoftwareKeyboardController
@@ -82,7 +79,7 @@ import com.bringyour.network.ui.shared.viewmodels.OverlayViewModel
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.Pink
 import com.bringyour.network.ui.theme.URNetworkTheme
-import com.bringyour.network.utils.isTablet
+import com.bringyour.network.ui.components.tabletReadableColumn
 import com.bringyour.sdk.Sdk
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -129,8 +126,6 @@ fun FeedbackScreen(
     toggleIncludeLogs: () -> Unit
 ) {
 
-    val configuration = LocalConfiguration.current
-    val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
     val reviewManagerRequest = rememberReviewManager()
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -183,6 +178,7 @@ fun FeedbackScreen(
                 modifier = Modifier
                     .background(Black)
                     .imePadding()
+                    .tabletReadableColumn()
                     .padding(16.dp)
             ) {
 
@@ -221,98 +217,32 @@ fun FeedbackScreen(
         }
     ) { innerPadding ->
 
-        if (isTablet() && !isLandscape) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScroll(rememberScrollState())
-                    .padding(innerPadding)
-                    .padding(16.dp)
-                    .pointerInput(Unit) {
-                        detectTapGestures(onTap = {
-                            keyboardController?.hide()
-                        })
-                    },
-            ) {
+        // one form for every window: the full width of a phone, and centered in
+        // the readable column of a wider window (it was pinned to the left at 512dp)
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+                .tabletReadableColumn()
+                .verticalScroll(rememberScrollState())
+                .padding(16.dp)
+                .pointerInput(Unit) {
+                    detectTapGestures(onTap = {
+                        keyboardController?.hide()
+                    })
+                },
+        ) {
 
-                FeedbackForm(
-                    feedbackMsg = feedbackMsg,
-                    setFeedbackMsg = setFeedbackMsg,
-                    sendFeedback = {
-                        if (feedbackMsg.text.isNotEmpty()) {
-                            submitFeedback()
-                        }
-                    },
-                    starCount = starCount,
-                    setStarCount = setStarCount,
-                    includeLogs = includeLogs,
-                    toggleIncludeLogs = toggleIncludeLogs,
-                    keyboardController = keyboardController
-                )
-
-            }
-        } else if (isTablet() && isLandscape) {
-            Column(
-                modifier = Modifier
-                    .pointerInput(Unit) {
-                        detectTapGestures(onTap = {
-                            keyboardController?.hide()
-                        })
-                    }
-                    .width(512.dp)
-                    .verticalScroll(rememberScrollState())
-                    .padding(innerPadding)
-                    .padding(16.dp),
-            ) {
-
-                FeedbackForm(
-                    feedbackMsg = feedbackMsg,
-                    setFeedbackMsg = setFeedbackMsg,
-                    sendFeedback = {
-                        if (feedbackMsg.text.isNotEmpty()) {
-                            submitFeedback()
-                        }
-                    },
-                    starCount = starCount,
-                    setStarCount = setStarCount,
-                    includeLogs = includeLogs,
-                    toggleIncludeLogs = toggleIncludeLogs,
-                    keyboardController = keyboardController
-                )
-
-            }
-        } else {
-            /**
-             * phone
-             */
-
-            Column(
-                modifier = Modifier
-                    .width(512.dp)
-                    .fillMaxHeight()
-                    .verticalScroll(rememberScrollState())
-                    .padding(16.dp)
-                    .padding(innerPadding)
-                    .pointerInput(Unit) {
-                        detectTapGestures(onTap = {
-                            keyboardController?.hide()
-                        })
-                    }
-                ,
-                verticalArrangement = Arrangement.SpaceBetween
-            ) {
-
-                FeedbackForm(
-                    feedbackMsg = feedbackMsg,
-                    setFeedbackMsg = setFeedbackMsg,
-                    sendFeedback = { submitFeedback() },
-                    starCount = starCount,
-                    setStarCount = setStarCount,
-                    includeLogs = includeLogs,
-                    toggleIncludeLogs = toggleIncludeLogs,
-                    keyboardController = keyboardController
-                )
-            }
+            FeedbackForm(
+                feedbackMsg = feedbackMsg,
+                setFeedbackMsg = setFeedbackMsg,
+                sendFeedback = { submitFeedback() },
+                starCount = starCount,
+                setStarCount = setStarCount,
+                includeLogs = includeLogs,
+                toggleIncludeLogs = toggleIncludeLogs,
+                keyboardController = keyboardController
+            )
         }
 
     }

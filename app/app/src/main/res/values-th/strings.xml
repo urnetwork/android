@@ -1271,12 +1271,14 @@
     <string name="widget_not_signed_in">ยังไม่ได้ลงชื่อเข้าใช้</string>
     <string name="widget_open">เปิด</string>
     <string name="widget_open_to_set_up">เปิด URnetwork เพื่อตั้งค่า</string>
+    <string name="widget_overview_description">การเชื่อมต่อ ผู้ให้บริการบนลูกโลก ยอดคงเหลือ ทราฟฟิกวันนี้ และสัญญา ในวิดเจ็ตเดียว พร้อมการเชื่อมต่อด่วน</string>
     <string name="widget_peak_rate">สูงสุด %1$s</string>
     <string name="widget_provider">ผู้ให้บริการ</string>
     <string name="widget_provider_mode_title">ผู้ให้บริการ · %1$s</string>
     <string name="widget_provider_stats_when_enabled">สถิติผู้ให้บริการจะแสดงเมื่อเปิดใช้ผู้ให้บริการ</string>
     <string name="widget_quick_tile_added">เพิ่มไทล์เชื่อมต่อด่วนแล้ว</string>
     <string name="widget_toggle_intent_title">เปิด/ปิด VPN ของ URnetwork</string>
+    <string name="widget_traffic_today">ทราฟฟิกวันนี้</string>
     <string name="widget_updated_ago">อัปเดต %1$s</string>
     <string name="widget_updated_just_now">เพิ่งอัปเดต</string>
     <string name="widgets">วิดเจ็ต</string>
@@ -1290,6 +1292,7 @@
     <string name="you_re_premium">คุณเป็นระดับพรีเมียม</string>
     <string name="your_bandwidth">แบนด์วิดท์ของคุณ</string>
     <string name="your_email_com">name@email.com</string>
+    <string name="your_network">เครือข่ายของคุณ</string>
     <string name="your_referral_code">รหัสแนะนำของคุณ</string>
     <string name="your_seedphrase">วลีกู้คืนของคุณ</string>
     <plurals name="apps_excluded_count">

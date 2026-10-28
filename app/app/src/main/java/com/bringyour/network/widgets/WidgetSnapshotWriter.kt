@@ -5,6 +5,7 @@ import android.os.Handler
 import android.os.HandlerThread
 import android.util.Log
 import com.bringyour.network.DeviceManager
+import com.bringyour.network.TransportDelayUi
 import com.bringyour.sdk.ConnectLocation
 import com.bringyour.sdk.ConnectedProviderLocationList
 import com.bringyour.sdk.ContractDetailsViewController
@@ -85,7 +86,7 @@ class WidgetSnapshotWriter(
     private var contractsVc: ContractDetailsViewController? = null
     private var contractRowsSub: Sub? = null
 
-    private var accumulator = WidgetThroughputAccumulator(WidgetSnapshotStore.loadTunnel(context)?.throughput)
+    private var accumulator = WidgetSnapshotStore.loadTunnel(context).let { WidgetThroughputAccumulator(it?.throughput, it?.today) }
     private var location: WidgetLocationSnapshot? = null
     private var providers: List<WidgetProviderSnapshot> = emptyList()
     private var contracts: List<WidgetContractPeerSnapshot> = emptyList()
@@ -143,6 +144,21 @@ class WidgetSnapshotWriter(
     fun publishBalance(snapshot: WidgetBalanceSnapshot) {
         handler.post {
             if (WidgetSnapshotStore.save(context, snapshot)) refresh.reloadDashboard()
+        }
+    }
+
+    /**
+     * The VPN notification's slow internet dwell (MainService) shows
+     * [reading], or no slow content (null): publish it for the dashboard's
+     * pill. It re-renders only when the pill comes or goes, or its tunnel or
+     * label changes (dashboardSlowInternetChanged); new numbers ride along
+     * with the next re-render.
+     */
+    fun publishSlowInternet(reading: TransportDelayUi?) {
+        handler.post {
+            val previous = WidgetSnapshotStore.slowInternet
+            WidgetSnapshotStore.slowInternet = reading
+            if (dashboardSlowInternetChanged(previous, reading)) refresh.reloadDashboard()
         }
     }
 
@@ -320,7 +336,10 @@ class WidgetSnapshotWriter(
             closeProviderController()
         }
 
-        val wantContracts = previewVisible || refresh.hasWidgets(WidgetKinds.CONTRACTS)
+        // the overview draws the contract circles too; its globe needs only
+        // the providers' places, which the device's own list carries
+        val wantContracts = previewVisible || refresh.hasWidgets(WidgetKinds.CONTRACTS) ||
+            refresh.hasWidgets(WidgetKinds.OVERVIEW)
         if (wantContracts && contractsVc == null) {
             contractsVc = device.openClientContractDetailsViewController()?.also { vc ->
                 contractRowsSub = vc.addContractRowsListener {
@@ -410,6 +429,7 @@ class WidgetSnapshotWriter(
             providers = providers,
             throughput = accumulator.snapshot,
             contracts = contracts,
+            today = accumulator.today,
         )
         val changed = lastWritten?.copy(updatedAtMillis = snapshot.updatedAtMillis) != snapshot
         if (WidgetSnapshotStore.save(context, snapshot)) {

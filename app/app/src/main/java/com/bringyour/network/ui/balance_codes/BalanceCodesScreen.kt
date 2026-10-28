@@ -1,5 +1,6 @@
 package com.bringyour.network.ui.balance_codes
 
+import com.bringyour.network.ui.components.rememberFoldSafeSheetState
 import com.bringyour.network.ui.components.tabletReadableColumn
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
@@ -23,7 +24,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -52,9 +52,7 @@ fun BalanceCodesScreen(
     viewModel: BalanceCodesViewModel = hiltViewModel<BalanceCodesViewModel>()
 ) {
 
-    val sheetState = rememberModalBottomSheetState(
-        skipPartiallyExpanded = true
-    )
+    val sheetState = rememberFoldSafeSheetState()
 
     val balanceCodes by viewModel.balanceCodes.collectAsState()
     val isFetchingBalanceCodes by viewModel.isFetchingBalanceCodes.collectAsState()

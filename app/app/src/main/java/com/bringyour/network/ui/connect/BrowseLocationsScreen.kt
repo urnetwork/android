@@ -3,7 +3,6 @@ package com.bringyour.network.ui.connect
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -36,10 +35,13 @@ fun BrowseLocationsScreen(
     connectViewModel: ConnectViewModel,
     navController: NavController,
     connectActionsSheetState: ConnectDrawerState,
+    // the list's scroll position, shared with the location dialog of the pane
+    // arrangements so a fold keeps it
+    listPosition: LocationListPosition,
     networkPeersViewModel: NetworkPeersViewModel = hiltViewModel(),
 ) {
     val fetchLocationsState by remember { locationsListViewModel.filterLocationsState }.collectAsState()
-    val lazyListState = rememberLazyListState()
+    val lazyListState = rememberLocationListState(listPosition)
     val keyboardController = LocalSoftwareKeyboardController.current
     val scope = rememberCoroutineScope()
 

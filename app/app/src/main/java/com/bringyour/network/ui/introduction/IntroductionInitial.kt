@@ -1,5 +1,6 @@
 package com.bringyour.network.ui.introduction
 
+import com.bringyour.network.ui.components.rememberFoldSafeSheetState
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,11 +17,11 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -52,7 +53,7 @@ fun IntroductionInitial(
     onRedeemTransferBalanceCodeSuccess: () -> Unit,
 ) {
 
-    var isPresentingRedeemTransferBalanceSheet by remember { mutableStateOf(false) }
+    var isPresentingRedeemTransferBalanceSheet by rememberSaveable { mutableStateOf(false) }
 
     // the welcome offer is issued the moment this plan step renders (idempotent
     // on the server; never for the in-app holdout), so the card can show it
@@ -62,7 +63,7 @@ fun IntroductionInitial(
             subscriptionBalanceViewModel.issueOnboardingOffer(Sdk.OfferSurfaceIntroStep)
         }
     }
-    val redeemTransferBalanceSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val redeemTransferBalanceSheetState = rememberFoldSafeSheetState()
 
     Scaffold(
         topBar = {

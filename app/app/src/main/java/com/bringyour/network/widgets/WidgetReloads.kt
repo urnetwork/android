@@ -27,6 +27,7 @@ internal object WidgetReloads {
         WidgetKinds.DASHBOARD to MutableStateFlow(0L),
         WidgetKinds.PROVIDER_GLOBE to MutableStateFlow(0L),
         WidgetKinds.CONTRACTS to MutableStateFlow(0L),
+        WidgetKinds.OVERVIEW to MutableStateFlow(0L),
     )
 
     fun tick(kind: String): StateFlow<Long> = ticks.getValue(kind)

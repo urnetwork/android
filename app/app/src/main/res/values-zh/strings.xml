@@ -1271,12 +1271,14 @@
     <string name="widget_not_signed_in">未登录</string>
     <string name="widget_open">打开</string>
     <string name="widget_open_to_set_up">打开 URnetwork 进行设置</string>
+    <string name="widget_overview_description">在一个小组件中显示连接、地球上的提供商、余额、今日流量和合约，并支持快速连接。</string>
     <string name="widget_peak_rate">峰值 %1$s</string>
     <string name="widget_provider">提供商</string>
     <string name="widget_provider_mode_title">提供商 · %1$s</string>
     <string name="widget_provider_stats_when_enabled">启用提供商后，将显示提供商统计信息。</string>
     <string name="widget_quick_tile_added">已添加快速连接图块</string>
     <string name="widget_toggle_intent_title">切换 URnetwork VPN</string>
+    <string name="widget_traffic_today">今日流量</string>
     <string name="widget_updated_ago">更新于 %1$s</string>
     <string name="widget_updated_just_now">刚刚更新</string>
     <string name="widgets">小组件</string>
@@ -1290,6 +1292,7 @@
     <string name="you_re_premium">您已是高级会员。</string>
     <string name="your_bandwidth">您的带宽</string>
     <string name="your_email_com">name@email.com</string>
+    <string name="your_network">您的网络</string>
     <string name="your_referral_code">你的推荐码</string>
     <string name="your_seedphrase">你的助记词</string>
     <plurals name="apps_excluded_count">

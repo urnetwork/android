@@ -36,6 +36,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -75,7 +76,7 @@ fun LoginPasswordReset(
 ) {
     val context = LocalContext.current
     val app = context.applicationContext as? MainApplication
-    var user by remember { mutableStateOf(TextFieldValue(userAuth)) }
+    var user by rememberSaveable(stateSaver = TextFieldValue.Saver) { mutableStateOf(TextFieldValue(userAuth)) }
     // the address the link goes to, and the after-send screen gets, is the field as edited
     val address = remember { PasswordResetAddress(userAuth) }
     var inProgress by remember { mutableStateOf(false) }

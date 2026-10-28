@@ -1271,12 +1271,14 @@
     <string name="widget_not_signed_in">Nepřihlášeno</string>
     <string name="widget_open">Otevřít</string>
     <string name="widget_open_to_set_up">Otevřete URnetwork a nastavte ji</string>
+    <string name="widget_overview_description">Připojení, poskytovatelé na glóbu, zůstatek, dnešní provoz a kontrakty v jednom widgetu, s rychlým připojením.</string>
     <string name="widget_peak_rate">Špička %1$s</string>
     <string name="widget_provider">Poskytovatel</string>
     <string name="widget_provider_mode_title">Poskytovatel · %1$s</string>
     <string name="widget_provider_stats_when_enabled">Statistiky poskytovatele se zobrazí, jakmile bude poskytovatel zapnutý.</string>
     <string name="widget_quick_tile_added">Dlaždice rychlého připojení přidána</string>
     <string name="widget_toggle_intent_title">Zapnout/vypnout VPN URnetwork</string>
+    <string name="widget_traffic_today">Provoz dnes</string>
     <string name="widget_updated_ago">Aktualizováno %1$s</string>
     <string name="widget_updated_just_now">Aktualizováno právě teď</string>
     <string name="widgets">Widgety</string>
@@ -1290,6 +1292,7 @@
     <string name="you_re_premium">Jste prémium.</string>
     <string name="your_bandwidth">Vaše šířka pásma</string>
     <string name="your_email_com">vas@email.com</string>
+    <string name="your_network">Vaše síť</string>
     <string name="your_referral_code">Váš doporučující kód</string>
     <string name="your_seedphrase">Vaše seed fráze</string>
     <plurals name="apps_excluded_count">

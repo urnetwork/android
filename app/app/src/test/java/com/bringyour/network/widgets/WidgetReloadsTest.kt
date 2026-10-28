@@ -11,7 +11,7 @@ import org.junit.Test
  */
 class WidgetReloadsTest {
 
-    private val kinds = listOf(WidgetKinds.DASHBOARD, WidgetKinds.PROVIDER_GLOBE, WidgetKinds.CONTRACTS)
+    private val kinds = listOf(WidgetKinds.DASHBOARD, WidgetKinds.PROVIDER_GLOBE, WidgetKinds.CONTRACTS, WidgetKinds.OVERVIEW)
 
     private fun ticks(): Map<String, Long> = kinds.associateWith { WidgetReloads.tick(it).value }
 

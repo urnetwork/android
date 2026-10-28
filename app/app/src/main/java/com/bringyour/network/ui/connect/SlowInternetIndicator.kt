@@ -249,8 +249,8 @@ fun SlowInternetPill(
     }
 }
 
-/** The label's copy: "Poor signal", or "Fallback" on the fallback connection. */
-private val SlowInternetPillContent.Label.textId: Int
+/** The label's copy: "Poor signal", or "Fallback" on the fallback connection. Also the dashboard widget's. */
+internal val SlowInternetPillContent.Label.textId: Int
     get() = when (this) {
         SlowInternetPillContent.Label.POOR_SIGNAL -> R.string.slow_internet_poor_signal
         SlowInternetPillContent.Label.FALLBACK -> R.string.slow_internet_fallback_short

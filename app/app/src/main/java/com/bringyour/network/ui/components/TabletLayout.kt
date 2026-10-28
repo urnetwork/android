@@ -8,17 +8,16 @@ import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 /**
- * Tablet layout convention (mmm/DESIGNSTYLE.md "Tablet layouts"): on a tablet a
- * full-screen view lays its content in one readable centered column the width of
- * one of the app's sheets, an auth screen in a narrower form column, and the
- * connect drawer wraps its content in a centered panel. Both clamps are no-ops on
- * phone widths, so one view serves phones, tablets and tablet minis in both
- * orientations.
+ * Tablet layout convention (mmm/DESIGNSTYLE.md "Tablet layouts"): in a window
+ * of medium width and up a full-screen view lays its content in one readable
+ * centered column the width of one of the app's sheets, and an auth screen in a
+ * narrower form column. Both clamps are no-ops in compact windows, so one view
+ * serves phones, foldables, tablets and resizable windows in every posture. The
+ * connect screen puts its drawer in a pane instead (AdaptiveLayout.kt).
  */
 object TabletLayout {
 
@@ -32,25 +31,17 @@ object TabletLayout {
 
     /** The auth form column (sign in, create network, instant account, seed phrase). */
     val formWidth: Dp = 400.dp
-
-    /** Windows at least this wide (dp) get the tablet clamps; phones never do. */
-    const val minTabletWidthDp: Int = 600
-
-    /** Gap between a floating tablet drawer's bottom edge and the bar below it. */
-    val drawerFloatGap: Dp = 12.dp
-
-    /** Corner radius of the floating tablet drawer (rounded on every corner). */
-    val drawerCornerRadius: Dp = 20.dp
-
-    /** Side inset that keeps the floating drawer off the screen edges on a tablet mini. */
-    val drawerSideInset: Dp = 16.dp
 }
 
-/** True when the current window is tablet-wide (portrait tablet mini and up). */
+/**
+ * True when the current window is of medium width or wider: the window size
+ * class, not the device, so an unfolded phone, a tablet and a wide split-screen
+ * window all count, and a folded phone or a narrow window never does.
+ */
 @Composable
 @ReadOnlyComposable
 fun isTabletWidth(): Boolean =
-    LocalConfiguration.current.screenWidthDp >= TabletLayout.minTabletWidthDp
+    LocalWindowLayout.current.isMediumWidthOrWider
 
 /**
  * Centers the content in a column of [TabletLayout.contentWidth] on tablet
@@ -74,17 +65,4 @@ private fun Modifier.tabletColumn(maxWidth: Dp): Modifier = composed {
     } else {
         this
     }
-}
-
-/**
- * Width of the floating connect drawer panel on tablet widths: the readable
- * column, or narrower so a tablet mini in portrait (600dp) still shows a side
- * margin on both sides instead of an edge-to-edge sheet.
- */
-@Composable
-@ReadOnlyComposable
-fun tabletDrawerWidth(): Dp {
-    val screenWidth = LocalConfiguration.current.screenWidthDp.dp
-    val inset = screenWidth - TabletLayout.drawerSideInset * 2
-    return if (inset < TabletLayout.contentWidth) inset else TabletLayout.contentWidth
 }

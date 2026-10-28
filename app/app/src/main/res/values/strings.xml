@@ -1294,12 +1294,14 @@
     <string name="widget_not_signed_in">Not signed in</string>
     <string name="widget_open">Open</string>
     <string name="widget_open_to_set_up">Open URnetwork to set up</string>
+    <string name="widget_overview_description">Connection, providers on the globe, balance, today\'s traffic and contracts in one widget, with quick connect.</string>
     <string name="widget_peak_rate">%1$s peak</string>
     <string name="widget_provider">Provider</string>
     <string name="widget_provider_mode_title">Provider · %1$s</string>
     <string name="widget_provider_stats_when_enabled">Provider stats will appear when the provider is enabled.</string>
     <string name="widget_quick_tile_added">Quick connect tile added</string>
     <string name="widget_toggle_intent_title">Toggle URnetwork VPN</string>
+    <string name="widget_traffic_today">Traffic today</string>
     <string name="widget_updated_ago">Updated %1$s</string>
     <string name="widget_updated_just_now">Updated just now</string>
     <string name="widgets">Widgets</string>
@@ -1313,6 +1315,7 @@
     <string name="you_re_premium">You\'re premium.</string>
     <string name="your_bandwidth">Your bandwidth</string>
     <string name="your_email_com">your@email.com</string>
+    <string name="your_network">Your network</string>
     <string name="your_referral_code">Your referral code</string>
     <string name="your_seedphrase">Your Seedphrase</string>
     <plurals name="apps_excluded_count">

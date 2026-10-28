@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Samsung's AppWidgetProviderInfo for the cover screen widget (CoverWidgetReceiver):
+     display="sub_screen" shows it on the Flex Window, as Samsung's guide and its "Develop a
+     widget for Flex Window" codelab set it. Other devices ignore it. -->
+<samsung-appwidget-provider
+    display="sub_screen">
+</samsung-appwidget-provider>

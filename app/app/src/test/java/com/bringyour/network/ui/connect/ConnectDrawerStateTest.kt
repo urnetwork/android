@@ -1,5 +1,6 @@
 package com.bringyour.network.ui.connect
 
+import androidx.compose.runtime.saveable.SaverScope
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -47,5 +48,21 @@ class ConnectDrawerStateTest {
     fun aSlowReleaseBackTowardsRestStaysAtRest() {
         assertEquals(ConnectDrawerValue.Collapsed, target(2200f, 100f, ConnectDrawerValue.Collapsed))
         assertEquals(ConnectDrawerValue.Expanded, target(800f, -100f, ConnectDrawerValue.Expanded))
+    }
+
+    @Test
+    fun aRecreatedScreenReopensTheDrawerWhereItWas() {
+        // a fold the activity does not handle, or the process coming back,
+        // restores the drawer's position instead of collapsing it
+        val scope = SaverScope { true }
+        for (value in ConnectDrawerValue.entries) {
+            val saved = with(ConnectDrawerState.Saver) { scope.save(ConnectDrawerState(value)) }
+            assertEquals(value, ConnectDrawerState.Saver.restore(saved!!)!!.targetValue)
+        }
+    }
+
+    @Test
+    fun anUnknownSavedPositionReopensCollapsed() {
+        assertEquals(ConnectDrawerValue.Collapsed, ConnectDrawerState.Saver.restore("Gone")!!.targetValue)
     }
 }

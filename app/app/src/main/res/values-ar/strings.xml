@@ -1271,12 +1271,14 @@
     <string name="widget_not_signed_in">لم يتم تسجيل الدخول</string>
     <string name="widget_open">فتح</string>
     <string name="widget_open_to_set_up">افتح URnetwork للإعداد</string>
+    <string name="widget_overview_description">الاتصال والمزودون على الكرة الأرضية والرصيد وحركة البيانات اليوم والعقود في أداة واحدة، مع الاتصال السريع.</string>
     <string name="widget_peak_rate">الذروة %1$s</string>
     <string name="widget_provider">المزود</string>
     <string name="widget_provider_mode_title">المزود · %1$s</string>
     <string name="widget_provider_stats_when_enabled">ستظهر إحصاءات المزود عند تفعيل المزود.</string>
     <string name="widget_quick_tile_added">تمت إضافة مربع الاتصال السريع</string>
     <string name="widget_toggle_intent_title">تبديل URnetwork VPN</string>
+    <string name="widget_traffic_today">حركة البيانات اليوم</string>
     <string name="widget_updated_ago">آخر تحديث %1$s</string>
     <string name="widget_updated_just_now">تم التحديث للتو</string>
     <string name="widgets">الأدوات</string>
@@ -1290,6 +1292,7 @@
     <string name="you_re_premium">أنت مشترك مميز.</string>
     <string name="your_bandwidth">عرض النطاق الترددي لديك</string>
     <string name="your_email_com">name@email.com</string>
+    <string name="your_network">شبكتك</string>
     <string name="your_referral_code">رمز الإحالة الخاص بك</string>
     <string name="your_seedphrase">عبارة الاسترداد الخاصة بك</string>
     <plurals name="apps_excluded_count">

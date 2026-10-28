@@ -1271,12 +1271,14 @@
     <string name="widget_not_signed_in">Sin iniciar sesión</string>
     <string name="widget_open">Abrir</string>
     <string name="widget_open_to_set_up">Abre URnetwork para configurarlo</string>
+    <string name="widget_overview_description">Conexión, proveedores en el globo, saldo, tráfico de hoy y contratos en un solo widget, con conexión rápida.</string>
     <string name="widget_peak_rate">Pico de %1$s</string>
     <string name="widget_provider">Proveedor</string>
     <string name="widget_provider_mode_title">Proveedor · %1$s</string>
     <string name="widget_provider_stats_when_enabled">Las estadísticas del proveedor aparecerán cuando se active el proveedor.</string>
     <string name="widget_quick_tile_added">Icono de conexión rápida añadido</string>
     <string name="widget_toggle_intent_title">Activar o desactivar la VPN de URnetwork</string>
+    <string name="widget_traffic_today">Tráfico de hoy</string>
     <string name="widget_updated_ago">Actualizado %1$s</string>
     <string name="widget_updated_just_now">Actualizado hace un momento</string>
     <string name="widgets">Widgets</string>
@@ -1290,6 +1292,7 @@
     <string name="you_re_premium">Eres premium.</string>
     <string name="your_bandwidth">Tu ancho de banda</string>
     <string name="your_email_com">tu@email.com</string>
+    <string name="your_network">Tu red</string>
     <string name="your_referral_code">Tu código de referido</string>
     <string name="your_seedphrase">Tu frase semilla</string>
     <plurals name="apps_excluded_count">

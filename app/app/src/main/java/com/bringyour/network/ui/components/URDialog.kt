@@ -19,7 +19,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
 import com.bringyour.network.ui.theme.URNetworkTheme
 
 @Composable
@@ -30,7 +29,8 @@ fun URDialog(
 ) {
 
     if (visible) {
-        Dialog(onDismissRequest = { onDismiss() }) {
+        // centered, or with a fold dividing the window, on one side of it
+        FoldSafeDialog(onDismissRequest = { onDismiss() }) {
             Card(
                 modifier = Modifier
                     .fillMaxWidth()

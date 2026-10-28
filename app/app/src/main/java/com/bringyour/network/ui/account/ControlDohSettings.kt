@@ -24,6 +24,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -80,7 +81,7 @@ fun ControlDohSettingsBlock(
 
     // the field keeps the cursor while typing; text replaced from outside --
     // a load, the preset, the list a save read back -- puts it at the end
-    var field by remember { mutableStateOf(TextFieldValue(text, TextRange(text.length))) }
+    var field by rememberSaveable(stateSaver = TextFieldValue.Saver) { mutableStateOf(TextFieldValue(text, TextRange(text.length))) }
     val shown = if (field.text == text) {
         field
     } else {

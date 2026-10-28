@@ -84,9 +84,24 @@ object GlobeBitmapRenderer {
         density: Float,
     ): Bitmap {
         val bitmap = Bitmap.createBitmap(max(1, widthPx), max(1, heightPx), Bitmap.Config.ARGB_8888)
-        val canvas = Canvas(bitmap)
-        val width = bitmap.width.toFloat()
-        val height = bitmap.height.toFloat()
+        draw(Canvas(bitmap), context, bitmap.width.toFloat(), bitmap.height.toFloat(), providers, density)
+        return bitmap
+    }
+
+    /**
+     * Draws the globe fitted to a [width] x [height] box at the canvas's
+     * origin: translate the canvas to place it, past the bitmap's edges too.
+     * [dotColor] draws every provider in one color instead of its country's.
+     */
+    fun draw(
+        canvas: Canvas,
+        context: Context,
+        width: Float,
+        height: Float,
+        providers: List<WidgetProviderSnapshot>,
+        density: Float,
+        dotColor: Int? = null,
+    ) {
         val unit = GlobeGeometry.unitFor(width, height)
         val (lambda, phi) = rotation(providers)
 
@@ -166,11 +181,10 @@ object GlobeBitmapRenderer {
             val point = GlobeGeometry.project(lon.toFloat(), lat.toFloat(), lambda, phi, GLOBE_SCALE)
                 ?: return@forEach
             val (px, py) = canvasPoint(point)
-            fill.color = WidgetColors.parseHex(provider.colorHex, UNKNOWN_COUNTRY_COLOR)
+            fill.color = dotColor ?: WidgetColors.parseHex(provider.colorHex, UNKNOWN_COUNTRY_COLOR)
             canvas.drawCircle(px, py, radius, fill)
             canvas.drawCircle(px, py, radius, stroke)
         }
-        return bitmap
     }
 }
 

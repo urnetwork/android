@@ -1271,12 +1271,14 @@
     <string name="widget_not_signed_in">Niet ingelogd</string>
     <string name="widget_open">Openen</string>
     <string name="widget_open_to_set_up">Open URnetwork om in te stellen</string>
+    <string name="widget_overview_description">Verbinding, providers op de wereldbol, tegoed, verkeer van vandaag en contracten in één widget, met snelverbinding.</string>
     <string name="widget_peak_rate">%1$s piek</string>
     <string name="widget_provider">Provider</string>
     <string name="widget_provider_mode_title">Provider · %1$s</string>
     <string name="widget_provider_stats_when_enabled">Providerstatistieken verschijnen zodra de provider is ingeschakeld.</string>
     <string name="widget_quick_tile_added">Snelverbindingstegel toegevoegd</string>
     <string name="widget_toggle_intent_title">URnetwork-VPN aan/uit</string>
+    <string name="widget_traffic_today">Verkeer vandaag</string>
     <string name="widget_updated_ago">Bijgewerkt %1$s</string>
     <string name="widget_updated_just_now">Zojuist bijgewerkt</string>
     <string name="widgets">Widgets</string>
@@ -1290,6 +1292,7 @@
     <string name="you_re_premium">Je bent premium</string>
     <string name="your_bandwidth">Je bandbreedte</string>
     <string name="your_email_com">jouw@email.com</string>
+    <string name="your_network">Je netwerk</string>
     <string name="your_referral_code">Je verwijzingscode</string>
     <string name="your_seedphrase">Jouw seedphrase</string>
     <plurals name="apps_excluded_count">

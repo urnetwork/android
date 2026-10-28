@@ -19,6 +19,7 @@ class DebugWidgetReceiver : BroadcastReceiver() {
                 val receiver = when (intent.getStringExtra("kind")) {
                     WidgetKinds.PROVIDER_GLOBE -> ProviderGlobeWidgetReceiver::class.java
                     WidgetKinds.CONTRACTS -> ContractsWidgetReceiver::class.java
+                    WidgetKinds.OVERVIEW -> OverviewWidgetReceiver::class.java
                     else -> DashboardWidgetReceiver::class.java
                 }
                 Log.i("DebugWidgetReceiver", "pin ${receiver.simpleName}: ${requestPinWidget(context, receiver)}")

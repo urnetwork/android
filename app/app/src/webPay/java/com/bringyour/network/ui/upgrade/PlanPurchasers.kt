@@ -19,6 +19,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.listSaver
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -53,7 +55,9 @@ fun rememberPlanPurchaser(
     val context = LocalContext.current
     val notCompleted = stringResource(id = R.string.payment_not_completed)
     val accountNotReady = stringResource(id = R.string.account_isn_t_ready_for_purchases)
-    var payPage by remember { mutableStateOf<PayPage?>(null) }
+    // saved, so a recreated activity (a fold the activity does not handle, or the
+    // process coming back) reopens the checkout instead of dropping it mid-payment
+    var payPage by rememberSaveable(stateSaver = PayPageSaver) { mutableStateOf<PayPage?>(null) }
 
     payPage?.let { page ->
         PayPageDialog(
@@ -142,6 +146,14 @@ private const val PAY_SHEET_URL = "https://ur.io/app/pay-sheet"
 private const val PAY_RETURN_URL = "urnetwork://pay/done"
 
 private class PayPage(val url: String, val plan: String, val trial: Boolean, val price: Double, val currency: String)
+
+private val PayPageSaver = listSaver<PayPage?, Any>(
+    save = { page -> page?.let { listOf(it.url, it.plan, it.trial, it.price, it.currency) } ?: emptyList() },
+    restore = { values ->
+        if (values.size < 5) null
+        else PayPage(values[0] as String, values[1] as String, values[2] as Boolean, values[3] as Double, values[4] as String)
+    },
+)
 
 @SuppressLint("SetJavaScriptEnabled")
 @Composable

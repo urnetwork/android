@@ -5,10 +5,13 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import android.content.Context
+import com.bringyour.network.TransportDelayUi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.io.File
+import java.time.Instant
+import java.time.ZoneId
 
 /**
  * What the Home Screen widgets render, and where it comes from. The Apple
@@ -28,6 +31,8 @@ object WidgetKinds {
     const val DASHBOARD = "dashboard"
     const val PROVIDER_GLOBE = "globe"
     const val CONTRACTS = "contracts"
+    /** The three together, on the home screen, the lock screen and Samsung's cover screen (OverviewWidget). */
+    const val OVERVIEW = "overview"
 }
 
 @Serializable
@@ -95,6 +100,29 @@ data class WidgetThroughputSnapshot(
 }
 
 /**
+ * This device's own traffic today, the client route both ways, by hour of
+ * the local day: the overview widget's traffic tile. A new day starts it
+ * over, and one written on an earlier day says nothing of today ([asOf]).
+ */
+@Serializable
+data class WidgetTodaySnapshot(
+    /** The local day's first moment, unix millis; 0 before anything was counted. */
+    val dayStartMillis: Long = 0,
+    /** Bytes in each hour of the day so far, the day's first hour first. */
+    val hourlyByteCounts: List<Long> = emptyList(),
+) {
+    val byteCount: Long get() = hourlyByteCounts.sum()
+
+    /** What it says of the local day of [nowMillis]: itself, or nothing when it is an earlier day's. */
+    fun asOf(nowMillis: Long, zone: ZoneId = ZoneId.systemDefault()): WidgetTodaySnapshot =
+        if (dayStartMillis == localDayStartMillis(nowMillis, zone)) this else WidgetTodaySnapshot()
+}
+
+/** The first moment of the local day of [millis] in [zone], unix millis. */
+internal fun localDayStartMillis(millis: Long, zone: ZoneId): Long =
+    Instant.ofEpochMilli(millis).atZone(zone).toLocalDate().atStartOfDay(zone).toInstant().toEpochMilli()
+
+/**
  * One open contract, un-aggregated: contracts are never paired (a peer's
  * send and receive contracts are many-to-many), as in the contract stacks
  * design.
@@ -140,6 +168,7 @@ data class WidgetTunnelSnapshot(
     val throughput: WidgetThroughputSnapshot = WidgetThroughputSnapshot.EMPTY,
     /** Open client contracts by peer, most relevant first (the SDK's row order). */
     val contracts: List<WidgetContractPeerSnapshot> = emptyList(),
+    val today: WidgetTodaySnapshot = WidgetTodaySnapshot(),
 ) {
     companion object {
         fun inactive(nowMillis: Long = System.currentTimeMillis()) = WidgetTunnelSnapshot(
@@ -165,10 +194,16 @@ data class WidgetBalanceSnapshot(
 }
 
 /**
- * Folds cumulative packet counters into fixed one-minute buckets. Resumed
- * from the persisted snapshot so a tunnel restart does not flatten the chart.
+ * Folds cumulative packet counters into fixed one-minute buckets, and the
+ * client side's bytes into today's hours. Resumed from the persisted
+ * snapshot so a tunnel restart does not flatten the chart or the day; the
+ * day is the [zone]'s, read on each count so a time zone change follows.
  */
-class WidgetThroughputAccumulator(resuming: WidgetThroughputSnapshot? = null) {
+class WidgetThroughputAccumulator(
+    resuming: WidgetThroughputSnapshot? = null,
+    resumingToday: WidgetTodaySnapshot? = null,
+    private val zone: () -> ZoneId = { ZoneId.systemDefault() },
+) {
 
     companion object {
         const val BUCKET_SECONDS = 60L
@@ -186,6 +221,8 @@ class WidgetThroughputAccumulator(resuming: WidgetThroughputSnapshot? = null) {
     private var lastProviderEgressPackets: Long? = null
     private var lastProviderIngressPackets: Long? = null
 
+    private var day: WidgetTodaySnapshot = resumingToday ?: WidgetTodaySnapshot()
+
     init {
         if (resuming != null && resuming.bucketSeconds == BUCKET_SECONDS) {
             buckets.addAll(resuming.buckets.takeLast(BUCKET_COUNT))
@@ -194,6 +231,9 @@ class WidgetThroughputAccumulator(resuming: WidgetThroughputSnapshot? = null) {
 
     val snapshot: WidgetThroughputSnapshot
         get() = WidgetThroughputSnapshot(BUCKET_SECONDS, buckets.toList())
+
+    val today: WidgetTodaySnapshot
+        @Synchronized get() = day
 
     @Synchronized
     fun recordClient(
@@ -220,6 +260,22 @@ class WidgetThroughputAccumulator(resuming: WidgetThroughputSnapshot? = null) {
             clientEgressPackets = bucket.clientEgressPackets + dEgressPackets,
             clientIngressPackets = bucket.clientIngressPackets + dIngressPackets,
         )
+        countToday(dEgress + dIngress, nowMillis)
+    }
+
+    /** Adds client bytes to the hour of [nowMillis] in its local day, a new day starting over. */
+    private fun countToday(byteCount: Long, nowMillis: Long) {
+        if (byteCount <= 0) return
+        val zone = zone()
+        val dayStartMillis = localDayStartMillis(nowMillis, zone)
+        // a day that skips an hour or repeats one (daylight saving) keeps 24 slots
+        val hour = Instant.ofEpochMilli(nowMillis).atZone(zone).hour
+        val hours = if (day.dayStartMillis == dayStartMillis) day.hourlyByteCounts.toMutableList() else ArrayList()
+        while (hours.size <= hour) {
+            hours.add(0L)
+        }
+        hours[hour] += byteCount
+        day = WidgetTodaySnapshot(dayStartMillis, hours)
     }
 
     @Synchronized
@@ -294,6 +350,17 @@ object WidgetSnapshotStore {
     private val changeCount = MutableStateFlow(0L)
     val changes: StateFlow<Long> = changeCount.asStateFlow()
 
+    /**
+     * The reading the VPN notification's slow content shows, null while it
+     * shows none (SlowInternetNotice.slowReading): the dashboard's pill.
+     * Held in memory, not written: it comes from the service's dwell in this
+     * process, which starts over with the process, so a slow spell must not
+     * outlive it on the Home Screen. Apple's is a file (transport-delay.json)
+     * because its dwell runs in another process, the extension.
+     */
+    @Volatile
+    var slowInternet: TransportDelayUi? = null
+
     /** Whether a tunnel snapshot has been written since install or the last logout. */
     fun hasTunnelSnapshot(context: Context): Boolean = File(directory(context), TUNNEL_FILE).exists()
 
@@ -309,10 +376,11 @@ object WidgetSnapshotStore {
     fun save(context: Context, snapshot: WidgetBalanceSnapshot): Boolean =
         save(context, BALANCE_FILE, json.encodeToString(snapshot))
 
-    /** Removes both snapshots (logout). */
+    /** Removes both snapshots and the slow reading (logout). */
     fun clear(context: Context) {
         File(directory(context), TUNNEL_FILE).delete()
         File(directory(context), BALANCE_FILE).delete()
+        slowInternet = null
         changeCount.update { it + 1 }
     }
 

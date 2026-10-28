@@ -56,6 +56,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.compose.LifecycleResumeEffect
@@ -258,7 +259,7 @@ fun LoginInitial(
     }
 
     // the seed sign-in is a slide-up sheet, like the auth code sign-in
-    var seedphraseLoginSheetVisible by remember { mutableStateOf(false) }
+    var seedphraseLoginSheetVisible by rememberSaveable { mutableStateOf(false) }
     val onSeedphraseLogin: () -> Unit = {
         seedphraseLoginSheetVisible = true
     }
@@ -390,7 +391,7 @@ fun LoginInitial(
     val application = context.applicationContext as? MainApplication
     val scope = rememberCoroutineScope()
 
-    var authCodeLoginSheetVisible by remember { mutableStateOf(false) }
+    var authCodeLoginSheetVisible by rememberSaveable { mutableStateOf(false) }
 
     val setAuthCodeLoginSheetVisible: (Boolean) -> Unit = { isVisible ->
         authCodeLoginSheetVisible = isVisible

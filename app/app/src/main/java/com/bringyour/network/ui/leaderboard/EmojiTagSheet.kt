@@ -1,5 +1,6 @@
 package com.bringyour.network.ui.leaderboard
 
+import com.bringyour.network.ui.components.rememberFoldSafeSheetState
 import android.content.Context
 import android.content.res.Configuration
 import android.view.MotionEvent
@@ -27,7 +28,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -72,7 +72,7 @@ fun EmojiTagSheet(
     onClear: () -> Unit,
     onDismiss: () -> Unit,
 ) {
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val sheetState = rememberFoldSafeSheetState()
     val maxCount = Sdk.EmojiTagMaxCount.toInt()
 
     var draft by rememberSaveable {

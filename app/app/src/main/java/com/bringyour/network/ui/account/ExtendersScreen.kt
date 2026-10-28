@@ -38,6 +38,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -90,13 +91,13 @@ fun ExtendersScreen(
         controlDohViewModel.load()
     }
 
-    var dnsName by remember { mutableStateOf(TextFieldValue()) }
-    var gossipUrl by remember { mutableStateOf(TextFieldValue()) }
-    var hosts by remember { mutableStateOf(TextFieldValue()) }
-    var advancedExpanded by remember { mutableStateOf(false) }
-    var privateIp by remember { mutableStateOf(TextFieldValue()) }
+    var dnsName by rememberSaveable(stateSaver = TextFieldValue.Saver) { mutableStateOf(TextFieldValue()) }
+    var gossipUrl by rememberSaveable(stateSaver = TextFieldValue.Saver) { mutableStateOf(TextFieldValue()) }
+    var hosts by rememberSaveable(stateSaver = TextFieldValue.Saver) { mutableStateOf(TextFieldValue()) }
+    var advancedExpanded by rememberSaveable { mutableStateOf(false) }
+    var privateIp by rememberSaveable(stateSaver = TextFieldValue.Saver) { mutableStateOf(TextFieldValue()) }
     var privateSecret by remember { mutableStateOf(TextFieldValue()) }
-    var showResetDialog by remember { mutableStateOf(false) }
+    var showResetDialog by rememberSaveable { mutableStateOf(false) }
 
     // the boxes as the space holds them
     val fillSettings = { next: ExtenderSettingsUi ->
