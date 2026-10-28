@@ -1325,6 +1325,9 @@ fun MainNavContent(
             exitTransition = { ExitTransition.None }
         ) {
             composable<Route.Connect> {
+                // the referral toast (MainNavHostContent) shows for every
+                // celebration but the first
+                val pendingReferralCelebration by referralCodeViewModel.pendingCelebration.collectAsState()
                 ConnectScreen(
                     connectViewModel,
                     overlayViewModel,
@@ -1336,7 +1339,8 @@ fun MainNavContent(
                     meanReliabilityWeight = reliabilityWindow?.meanReliabilityWeight ?: 0.0,
                     totalReferrals = totalReferralCount,
                     isPro = isPro,
-                    connectActionsSheetState = connectActionsSheetState
+                    connectActionsSheetState = connectActionsSheetState,
+                    referralToastVisible = pendingReferralCelebration?.isFirst == false,
                 )
             }
 

@@ -10,6 +10,7 @@ import androidx.lifecycle.ViewModelStore
 import com.bringyour.network.DeviceManager
 import com.bringyour.network.JwtManager
 import com.bringyour.network.NetworkSpaceManagerProvider
+import com.bringyour.network.TransportDelayUi
 import com.bringyour.network.ui.shared.models.ConnectStatus
 import com.bringyour.sdk.ConnectGrid
 import com.bringyour.sdk.ConnectLocation
@@ -46,9 +47,12 @@ import org.junit.Test
 @OptIn(ExperimentalCoroutinesApi::class)
 class ConnectViewModelTest {
 
+    // virtual time: only the tests that advance it see a delay end
+    private val mainDispatcher = UnconfinedTestDispatcher()
+
     @Before
     fun setMainDispatcher() {
-        Dispatchers.setMain(UnconfinedTestDispatcher())
+        Dispatchers.setMain(mainDispatcher)
     }
 
     @After
@@ -155,7 +159,10 @@ class ConnectViewModelTest {
         }
     }
 
-    /** The sdk's device: every controller it opened, in order. */
+    /**
+     * The sdk's device: every controller it opened, in order, and its
+     * transport delay, which its listener reports only when the test does.
+     */
     private class FakeDevice : ConnectDevice {
         val controllers = mutableListOf<FakeController>()
 
@@ -165,9 +172,23 @@ class ConnectViewModelTest {
         override val tunnelStarted = false
         override val contractStatus: ContractStatus? = null
         override val connectLocation: ConnectLocation? = null
+        override var transportDelay = TransportDelayUi.None
+
+        private var transportDelayListener: ((TransportDelayUi) -> Unit)? = null
+        val transportDelayListened: Boolean get() = transportDelayListener != null
 
         override fun addTunnelChangeListener(listener: (tunnelStarted: Boolean) -> Unit): Sub = FakeSub()
         override fun addContractStatusChangeListener(listener: () -> Unit): Sub = FakeSub()
+        override fun addTransportDelayChangeListener(listener: (TransportDelayUi) -> Unit): Sub {
+            transportDelayListener = listener
+            return FakeSub { transportDelayListener = null }
+        }
+
+        /** The sdk's listener reports `delay`, on its own thread in the app. */
+        fun reportTransportDelay(delay: TransportDelayUi) {
+            transportDelay = delay
+            transportDelayListener?.invoke(delay)
+        }
 
         override fun openConnectViewController(): ConnectController =
             FakeController().also { controllers.add(it) }
@@ -601,5 +622,113 @@ class ConnectViewModelTest {
         assertEquals(listOf("connectBestAvailable"), previousController.commands)
         assertEquals(emptyList<String>(), next.controllers.single().commands)
         assertEquals(ConnectStatus.DISCONNECTED, harness.displayed)
+    }
+
+    private val slow = TransportDelayUi(downQuality = 0.5, downQueueDelayMillis = 640, downBitsPerSecond = 48_000)
+    private val slower = TransportDelayUi(downQuality = 1.0, downQueueDelayMillis = 2_400)
+
+    @Test
+    fun theSlowInternetReadingIsReadWhenTheScreenOpens() {
+        // the listener reports changes only: a connection already slow when
+        // the screen opens shows at once
+        val harness = Harness()
+        val device = FakeDevice()
+        device.transportDelay = slow
+        harness.foreground()
+        harness.publish(device)
+
+        assertTrue(device.transportDelayListened)
+        assertEquals(slow, harness.viewModel.transportDelay.value)
+    }
+
+    @Test
+    fun theSlowInternetReadingFollowsTheListener() {
+        val (harness, device, _) = presenting()
+        assertEquals(TransportDelayUi.None, harness.viewModel.transportDelay.value)
+
+        device.reportTransportDelay(slow)
+        assertEquals(slow, harness.viewModel.transportDelay.value)
+        device.reportTransportDelay(TransportDelayUi.None)
+        assertEquals(TransportDelayUi.None, harness.viewModel.transportDelay.value)
+    }
+
+    @Test
+    fun theSlowInternetListenerClosesInTheBackgroundAndTheReadingIsReadAgainOnReturn() {
+        val (harness, device, _) = presenting()
+        device.reportTransportDelay(slow)
+
+        harness.background()
+        harness.queue.runAll()
+        assertFalse(device.transportDelayListened)
+        // nothing listens: no stale reading
+        assertEquals(TransportDelayUi.None, harness.viewModel.transportDelay.value)
+
+        // it changed while the app was away, and no report reached the screen
+        device.transportDelay = slower
+        harness.foreground()
+        assertTrue(device.transportDelayListened)
+        assertEquals(slower, harness.viewModel.transportDelay.value)
+    }
+
+    @Test
+    fun aDeviceChangeDropsTheSlowInternetReading() {
+        val (harness, previous, _) = presenting()
+        previous.reportTransportDelay(slow)
+
+        val next = FakeDevice()
+        harness.publish(next)
+        assertEquals(TransportDelayUi.None, harness.viewModel.transportDelay.value)
+        // the previous device's listener closes on the queue: a report it
+        // makes until then is not the current device's
+        previous.reportTransportDelay(slower)
+        assertEquals(TransportDelayUi.None, harness.viewModel.transportDelay.value)
+
+        harness.queue.runAll()
+        assertFalse(previous.transportDelayListened)
+        assertTrue(next.transportDelayListened)
+    }
+
+    private fun advance(millis: Long) {
+        mainDispatcher.scheduler.advanceTimeBy(millis)
+        mainDispatcher.scheduler.runCurrent()
+    }
+
+    @Test
+    fun thePillsNumbersAreReadAgainWhileItShowsThem() {
+        // the numbers change without a report: the pill reads them as it
+        // shows, then every 10 s
+        assertEquals(10_000L, SLOW_INTERNET_PILL_REFRESH_MILLIS)
+        val (harness, device, _) = presenting()
+        device.reportTransportDelay(slow)
+        device.transportDelay = slow.copy(downQueueDelayMillis = 900)
+
+        harness.viewModel.setSlowInternetPillVisible(true)
+        assertEquals(900L, harness.viewModel.transportDelay.value.downQueueDelayMillis)
+
+        device.transportDelay = slow.copy(downQueueDelayMillis = 1_100)
+        advance(SLOW_INTERNET_PILL_REFRESH_MILLIS - 1)
+        assertEquals(900L, harness.viewModel.transportDelay.value.downQueueDelayMillis)
+        advance(1)
+        assertEquals(1_100L, harness.viewModel.transportDelay.value.downQueueDelayMillis)
+        device.transportDelay = slow.copy(downQueueDelayMillis = 1_300)
+        advance(SLOW_INTERNET_PILL_REFRESH_MILLIS)
+        assertEquals(1_300L, harness.viewModel.transportDelay.value.downQueueDelayMillis)
+    }
+
+    @Test
+    fun thePillsNumbersAreNotReadWhileItIsHidden() {
+        // recovered, gone, or the screen stopped: only a report moves them
+        val (harness, device, _) = presenting()
+        device.reportTransportDelay(slow)
+        harness.viewModel.setSlowInternetPillVisible(true)
+        harness.viewModel.setSlowInternetPillVisible(false)
+
+        device.transportDelay = slow.copy(downQueueDelayMillis = 900)
+        advance(10 * SLOW_INTERNET_PILL_REFRESH_MILLIS)
+        assertEquals(slow, harness.viewModel.transportDelay.value)
+
+        // shown again: read at once
+        harness.viewModel.setSlowInternetPillVisible(true)
+        assertEquals(900L, harness.viewModel.transportDelay.value.downQueueDelayMillis)
     }
 }

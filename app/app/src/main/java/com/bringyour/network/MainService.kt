@@ -7,6 +7,7 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Intent
 import android.content.pm.ServiceInfo
+import android.graphics.Bitmap
 import android.net.IpPrefix
 import android.net.ConnectivityManager
 import android.net.VpnService
@@ -14,11 +15,16 @@ import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.os.ParcelFileDescriptor
+import android.os.SystemClock
 import android.system.OsConstants.AF_INET
 import android.system.OsConstants.AF_INET6
 import android.util.Log
+import androidx.compose.ui.graphics.toArgb
 import androidx.core.app.NotificationCompat
 import androidx.core.app.ServiceCompat
+import com.bringyour.network.ui.components.tunnelLevelDepths
+import com.bringyour.network.ui.connect.transportDelayUi
+import com.bringyour.network.ui.theme.Amber
 import com.bringyour.network.utils.sdkStringListToList
 import com.bringyour.sdk.DeviceLocal
 import com.bringyour.sdk.Sdk
@@ -26,6 +32,7 @@ import com.bringyour.sdk.Sub
 import com.bringyour.sdk.WindowStatus
 import java.net.InetAddress
 import kotlin.concurrent.thread
+import kotlin.math.roundToInt
 
     // see https://developer.android.com/develop/connectivity/vpn
     @SuppressLint("VpnServicePolicy")
@@ -148,6 +155,15 @@ import kotlin.concurrent.thread
     private var windowFailed: Boolean = false
     /** Refreshes the notification when the tunnel starts or stops. */
     private var tunnelChangeSub: Sub? = null
+    /** Says in the notification when the connection is slow (apple/DELAY.md §7.2). */
+    private var transportDelaySub: Sub? = null
+    // the slow internet dwell (SlowInternetNoticePolicy), main thread only
+    private var slowInternetNotice = SlowInternetNotice()
+    // observes the dwell again when it can change with no new report, or its
+    // numbers are due a refresh
+    private val slowInternetCheck = Runnable { updateSlowInternetNotice() }
+    // the slow content's large icons by level, 0 for back to normal, made once
+    private val tunnelLargeIcons = arrayOfNulls<Bitmap>(tunnelLevelDepths.size + 1)
 
     // Committed only after Builder.establish() succeeds. A failed seamless
     // handover must remain visibly unapplied so the next listener/recovery
@@ -413,6 +429,8 @@ import kotlin.concurrent.thread
         connectChangeSub = currentDevice.addConnectChangeListener {
             Handler(mainLooper).post {
                 if (boundDevice !== currentDevice) return@post
+                // a connection that ends starts the slow internet dwell over
+                updateSlowInternetNotice(notify = false)
                 updateForegroundNotification()
                 reconcilePfd()
             }
@@ -428,6 +446,15 @@ import kotlin.concurrent.thread
                 if (boundDevice === currentDevice) updateForegroundNotification()
             }
         }
+        // say when the connection is slow. The listener reports each level
+        // change on the sdk's thread, and nothing else throttles the
+        // notification, so its reports fold into one main thread read. It
+        // does not report the current value: read it once registered
+        val transportDelayUpdate = CoalescedPost(post = { mainHandler.post(it) }) {
+            if (boundDevice === currentDevice) updateSlowInternetNotice()
+        }
+        transportDelaySub = currentDevice.addTransportDelayChangeListener { transportDelayUpdate.request() }
+        updateSlowInternetNotice(notify = false)
         updateForegroundNotification()
         reconcilePfd()
     }
@@ -957,6 +984,10 @@ import kotlin.concurrent.thread
         connectLocationSub = null
         tunnelChangeSub?.close()
         tunnelChangeSub = null
+        transportDelaySub?.close()
+        transportDelaySub = null
+        mainHandler.removeCallbacks(slowInternetCheck)
+        slowInternetNotice = SlowInternetNotice()
         boundDevice = null
         providerCount = 0
         windowMinSatisfied = false
@@ -1268,6 +1299,30 @@ import kotlin.concurrent.thread
         }
     }
 
+    /**
+     * Observes the slow internet dwell with the bound device's transport delay
+     * now, schedules its next check, and, with [notify], updates the
+     * notification when what it says changed. Main thread.
+     */
+    private fun updateSlowInternetNotice(notify: Boolean = true) {
+        val device = boundDevice
+        val nowMillis = SystemClock.elapsedRealtime()
+        val previous = slowInternetNotice
+        val next = previous.observe(
+            delay = transportDelayUi(device?.transportDelay),
+            active = device?.connectEnabled == true,
+            nowMillis = nowMillis,
+        )
+        slowInternetNotice = next
+        mainHandler.removeCallbacks(slowInternetCheck)
+        next.nextCheckAtMillis(nowMillis)?.let { atMillis ->
+            mainHandler.postDelayed(slowInternetCheck, atMillis - nowMillis)
+        }
+        if (notify && slowInternetNoticeChanged(previous, next)) {
+            updateForegroundNotification()
+        }
+    }
+
     private fun buildForegroundNotification(messageOverride: String? = null): Notification {
         val contentPendingIntent: PendingIntent =
             Intent(this, MainActivity::class.java).let { notificationIntent ->
@@ -1295,13 +1350,15 @@ import kotlin.concurrent.thread
                 region = location?.region,
                 country = location?.country,
                 bestAvailableLabel = getString(R.string.best_available_provider),
+                slowInternetPhase = slowInternetNotice.phase,
+                transportDelay = slowInternetNotice.delay,
             )
         } else {
             null
         }
 
-        val contentTitle: String
-        val contentText: String
+        var contentTitle: String
+        var contentText: String
         if (messageOverride != null) {
             contentTitle = getString(R.string.app_name)
             contentText = messageOverride
@@ -1340,6 +1397,42 @@ import kotlin.concurrent.thread
             }
         }
 
+        // a slow connection swaps the connected content in place: the same
+        // notification and channel, and the Disconnect action stays
+        var smallIcon = R.drawable.ic_status
+        var bigText = contentText
+        var largeIcon: Bitmap? = null
+        var accentColor: Int? = null
+        when (val slowInternet = presentation?.slowInternet) {
+            is SlowInternetPresentation.Slow -> {
+                // static per level: the status bar cannot animate it
+                smallIcon = when (slowInternet.level) {
+                    1 -> R.drawable.ic_tunnel_1
+                    2 -> R.drawable.ic_tunnel_2
+                    3 -> R.drawable.ic_tunnel_3
+                    else -> R.drawable.ic_tunnel_4
+                }
+                contentTitle = getString(
+                    if (slowInternet.fallback) R.string.slow_internet_fallback_title else R.string.slow_internet
+                )
+                contentText = getString(R.string.slow_internet_still_connected)
+                bigText = transportDelayLines(
+                    slowInternet.delay,
+                    uploadLabel = getString(R.string.slow_internet_upload_delay),
+                    downloadLabel = getString(R.string.slow_internet_download_delay),
+                ).joinToString("\n").ifEmpty { contentText }
+                largeIcon = tunnelLargeIcon(slowInternet.level)
+                accentColor = Amber.toArgb()
+            }
+            SlowInternetPresentation.Recovered -> {
+                contentTitle = getString(R.string.slow_internet_recovered)
+                contentText = getString(R.string.slow_internet_recovered_detail)
+                bigText = contentText
+                largeIcon = tunnelLargeIcon(0)
+            }
+            null -> Unit
+        }
+
         val builder = NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
             .setOngoing(true)
             .setOnlyAlertOnce(true)
@@ -1347,12 +1440,14 @@ import kotlin.concurrent.thread
             .setCategory(NotificationCompat.CATEGORY_SERVICE)
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
-            .setSmallIcon(R.drawable.ic_status)
+            .setSmallIcon(smallIcon)
             .setBadgeIconType(NotificationCompat.BADGE_ICON_NONE)
             .setContentText(contentText)
             .setContentTitle(contentTitle)
             .setContentIntent(contentPendingIntent)
-            .setStyle(NotificationCompat.BigTextStyle().bigText(contentText))
+            .setStyle(NotificationCompat.BigTextStyle().bigText(bigText))
+        largeIcon?.let { builder.setLargeIcon(it) }
+        accentColor?.let { builder.setColor(it) }
 
         if (messageOverride == null && presentation?.showDisconnect == true) {
             val disconnectIntent = Intent(
@@ -1373,6 +1468,15 @@ import kotlin.concurrent.thread
         }
 
         return builder.build()
+    }
+
+    /** The slow content's large icon at [level], 0 for back to normal, made once per level. Main thread. */
+    private fun tunnelLargeIcon(level: Int): Bitmap {
+        val index = level.coerceIn(0, tunnelLevelDepths.size)
+        return tunnelLargeIcons[index] ?: tunnelLargeIconBitmap(
+            sizePx = (TUNNEL_LARGE_ICON_DP * resources.displayMetrics.density).roundToInt(),
+            depth = if (index == 0) TUNNEL_RECOVERED_LARGE_ICON_DEPTH else tunnelLevelDepths[index - 1].toFloat(),
+        ).also { tunnelLargeIcons[index] = it }
     }
 
 
