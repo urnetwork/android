@@ -1047,6 +1047,18 @@
     <string name="site_payment_error_plan_unavailable">This plan is not available right now. Try again later.</string>
     <string name="site_save_your_seedphrase">Save Your Seedphrase</string>
     <string name="skip">Skip</string>
+    <string name="slow_internet">Slow internet</string>
+    <string name="slow_internet_body">Your network is delaying traffic. URnetwork is still connected.</string>
+    <string name="slow_internet_download_delay">Download delay</string>
+    <string name="slow_internet_fallback">Fallback connection</string>
+    <string name="slow_internet_fallback_body">URnetwork is using a slower fallback connection because its usual connection isn\'t available on this network.</string>
+    <string name="slow_internet_fallback_short">Fallback</string>
+    <string name="slow_internet_fallback_title">Using a slower fallback connection</string>
+    <string name="slow_internet_poor_signal">Poor signal</string>
+    <string name="slow_internet_recovered">Internet back to normal</string>
+    <string name="slow_internet_recovered_detail">Delays cleared</string>
+    <string name="slow_internet_still_connected">URnetwork is still connected</string>
+    <string name="slow_internet_upload_delay">Upload delay</string>
     <string name="sn_alpha_symbol" translatable="false">SN25α</string>
     <string name="sn_consent_active">Earnings are paid to %1$s</string>
     <string name="sn_consent_body">Sign once with your Bittensor wallet so this network\'s earnings are paid to it.</string>

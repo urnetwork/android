@@ -114,6 +114,9 @@ fun ConnectScreen(
     totalReferrals: Long,
     isPro: Boolean,
     connectActionsSheetState: ConnectDrawerState,
+    // the referral toast draws over the top of the screen (MainNavHost): the
+    // slow internet pill makes way for it
+    referralToastVisible: Boolean = false,
     accountViewModel: AccountViewModel = hiltViewModel<AccountViewModel>(),
     throughputViewModel: com.bringyour.network.ui.stats.ThroughputViewModel = hiltViewModel(),
     blockActionsViewModel: com.bringyour.network.ui.stats.BlockActionsViewModel = hiltViewModel(),
@@ -127,6 +130,7 @@ fun ConnectScreen(
     // start waits on its balance (StartConnectAdmission)
     val displayConnectStatus by connectViewModel.displayConnectStatus.collectAsState()
     val contractStatus by connectViewModel.contractStatus.collectAsState()
+    val transportDelay by connectViewModel.transportDelay.collectAsState()
 
     val networkUser by accountViewModel.networkUser.collectAsState()
 
@@ -252,98 +256,110 @@ fun ConnectScreen(
         ).flatMap { it.asSequence() }.map { it.connectLocationId.toString() to it.providerCount },
     )
 
-    ConnectActionsSheetScaffold(
-        drawerState = connectActionsSheetState,
-        sheetContent = { minSheetHeight, belowFoldGap, onFoldMarkerPositioned ->
-            ConnectActions(
-                navController = navController,
-                onFoldMarkerPositioned = onFoldMarkerPositioned,
-                belowFoldGap = belowFoldGap,
-                selectedLocation = connectViewModel.selectedLocation,
-                peerCount = networkPeersViewModel.connectedCount,
-                providerDiscoverable = networkPeersViewModel.providerDiscoverable,
-                deviceName = networkPeersViewModel.deviceName,
-                selectedPeerName = selectedPeerName,
-                selectedProviderCount = selectedProviderCount,
-                presentSelectProvider = {
-                    navController.navigate(Route.BrowseLocations)
-                },
-                getLocationColor = locationsViewModel.getLocationColor,
-                minHeight = minSheetHeight,
-                currentPlan = if (isPro) Plan.Supporter else Plan.Basic,
-                connect = { connectViewModel.connect(connectViewModel.selectedLocation) },
-                disconnect = connectViewModel.disconnect,
-                reconnectTunnel = {
-                    application?.startVpnService()
-                },
-                connectStatus = displayConnectStatus,
-                isPollingSubscriptionBalance = subscriptionBalanceViewModel.isPollingSubscriptionBalance,
-                displayReconnectTunnel = connectViewModel.displayReconnectTunnel,
-                privateDnsStrictHost = privateDnsStrictHost,
-                insufficientBalance = displayInsufficientBalance,
-                outOfBalanceKind = outOfBalanceKind(accountBalance),
-                reservedBytes = accountBalance?.openTransferByteCount ?: 0L,
-                balanceRecovery = balanceRecoveryState,
-                cancelBalanceRecovery = { application?.clearBalanceRecovery() },
-                usedBytes = subscriptionBalanceViewModel.usedBalanceByteCount,
-                pendingBytes = subscriptionBalanceViewModel.pendingBalanceByteCount,
-                availableBytes = availableBytes,
-                meanReliabilityWeight = meanReliabilityWeight,
-                totalReferrals = totalReferrals,
-                dailyByteCount = dailyByteCount,
-                fixedIpSize = connectViewModel.fixedIpSize,
-                toggleFixedIpSize = connectViewModel.toggleFixedIp,
-                selectedWindowType = connectViewModel.selectedWindowType,
-                setSelectedWindowType = connectViewModel.setSelectedWindowType,
-                allowDirect = connectViewModel.allowDirect,
-                toggleAllowDirect = connectViewModel.toggleAllowDirect,
-                postQuantumEncryption = connectViewModel.postQuantumEncryption,
-                togglePostQuantumEncryption = connectViewModel.togglePostQuantumEncryption,
-                throughputViewModel = throughputViewModel,
-                blockActionsViewModel = blockActionsViewModel,
-                dnsSettingsViewModel = dnsSettingsViewModel,
-                blockerViewModel = blockerViewModel,
-                ipFamilyPoints = connectViewModel.ipFamilyPoints,
-                onReferralClick = {
-                    navController.navigate(Route.Referrals)
-                },
-            )
-        },
-        mainContent = {
-            ConnectMainContent(
-                connectStatus = displayConnectStatus,
-                selectedLocation = connectViewModel.selectedLocation,
-                networkName = networkUser?.networkName,
-                connect = connectViewModel.connect,
-                disconnect = connectViewModel.disconnect,
-                providerGridPoints = connectViewModel.providerGridPoints,
-                windowCurrentSize = connectViewModel.windowCurrentSize,
-                grid = connectViewModel.grid,
-                loginMode = accountViewModel.loginMode,
-                animatedSuccessPoints = connectViewModel.shuffledSuccessPoints,
-                shuffleSuccessPoints = connectViewModel.shuffleSuccessPoints,
-                getStateColor = connectViewModel.getStateColor,
-                launchOverlay = overlayViewModel.launch,
-                locationsViewModel = locationsViewModel,
-                navController = navController,
-                displayReconnectTunnel = connectViewModel.displayReconnectTunnel,
-                contractStatus = contractStatus,
-                currentPlan = if (isPro) Plan.Supporter else Plan.Basic,
-                displayInsufficientBalance = displayInsufficientBalance,
-                isPollingSubscriptionBalance = subscriptionBalanceViewModel.isPollingSubscriptionBalance,
-                device = connectViewModel.device,
-                launchProCelebration = { overlayViewModel.launchSunglassesFlight() },
-                showProviderLocations = { navController.navigate(Route.ProviderLocations) },
-                promptReview = {
-                    if (bundleStore == BundleStore.SOLANA_DAPP) {
-                        setPromptSolanaReview(true)
-                    } else {
-                        promptReview()
-                    }
-                },
-            )
-        }
-    )
+    Box(modifier = Modifier.fillMaxSize()) {
+        ConnectActionsSheetScaffold(
+            drawerState = connectActionsSheetState,
+            sheetContent = { minSheetHeight, belowFoldGap, onFoldMarkerPositioned ->
+                ConnectActions(
+                    navController = navController,
+                    onFoldMarkerPositioned = onFoldMarkerPositioned,
+                    belowFoldGap = belowFoldGap,
+                    selectedLocation = connectViewModel.selectedLocation,
+                    peerCount = networkPeersViewModel.connectedCount,
+                    providerDiscoverable = networkPeersViewModel.providerDiscoverable,
+                    deviceName = networkPeersViewModel.deviceName,
+                    selectedPeerName = selectedPeerName,
+                    selectedProviderCount = selectedProviderCount,
+                    presentSelectProvider = {
+                        navController.navigate(Route.BrowseLocations)
+                    },
+                    getLocationColor = locationsViewModel.getLocationColor,
+                    minHeight = minSheetHeight,
+                    currentPlan = if (isPro) Plan.Supporter else Plan.Basic,
+                    connect = { connectViewModel.connect(connectViewModel.selectedLocation) },
+                    disconnect = connectViewModel.disconnect,
+                    reconnectTunnel = {
+                        application?.startVpnService()
+                    },
+                    connectStatus = displayConnectStatus,
+                    isPollingSubscriptionBalance = subscriptionBalanceViewModel.isPollingSubscriptionBalance,
+                    displayReconnectTunnel = connectViewModel.displayReconnectTunnel,
+                    privateDnsStrictHost = privateDnsStrictHost,
+                    insufficientBalance = displayInsufficientBalance,
+                    outOfBalanceKind = outOfBalanceKind(accountBalance),
+                    reservedBytes = accountBalance?.openTransferByteCount ?: 0L,
+                    balanceRecovery = balanceRecoveryState,
+                    cancelBalanceRecovery = { application?.clearBalanceRecovery() },
+                    usedBytes = subscriptionBalanceViewModel.usedBalanceByteCount,
+                    pendingBytes = subscriptionBalanceViewModel.pendingBalanceByteCount,
+                    availableBytes = availableBytes,
+                    meanReliabilityWeight = meanReliabilityWeight,
+                    totalReferrals = totalReferrals,
+                    dailyByteCount = dailyByteCount,
+                    fixedIpSize = connectViewModel.fixedIpSize,
+                    toggleFixedIpSize = connectViewModel.toggleFixedIp,
+                    selectedWindowType = connectViewModel.selectedWindowType,
+                    setSelectedWindowType = connectViewModel.setSelectedWindowType,
+                    allowDirect = connectViewModel.allowDirect,
+                    toggleAllowDirect = connectViewModel.toggleAllowDirect,
+                    postQuantumEncryption = connectViewModel.postQuantumEncryption,
+                    togglePostQuantumEncryption = connectViewModel.togglePostQuantumEncryption,
+                    throughputViewModel = throughputViewModel,
+                    blockActionsViewModel = blockActionsViewModel,
+                    dnsSettingsViewModel = dnsSettingsViewModel,
+                    blockerViewModel = blockerViewModel,
+                    ipFamilyPoints = connectViewModel.ipFamilyPoints,
+                    onReferralClick = {
+                        navController.navigate(Route.Referrals)
+                    },
+                )
+            },
+            mainContent = {
+                ConnectMainContent(
+                    connectStatus = displayConnectStatus,
+                    selectedLocation = connectViewModel.selectedLocation,
+                    networkName = networkUser?.networkName,
+                    connect = connectViewModel.connect,
+                    disconnect = connectViewModel.disconnect,
+                    providerGridPoints = connectViewModel.providerGridPoints,
+                    windowCurrentSize = connectViewModel.windowCurrentSize,
+                    grid = connectViewModel.grid,
+                    loginMode = accountViewModel.loginMode,
+                    animatedSuccessPoints = connectViewModel.shuffledSuccessPoints,
+                    shuffleSuccessPoints = connectViewModel.shuffleSuccessPoints,
+                    getStateColor = connectViewModel.getStateColor,
+                    launchOverlay = overlayViewModel.launch,
+                    locationsViewModel = locationsViewModel,
+                    navController = navController,
+                    displayReconnectTunnel = connectViewModel.displayReconnectTunnel,
+                    contractStatus = contractStatus,
+                    currentPlan = if (isPro) Plan.Supporter else Plan.Basic,
+                    displayInsufficientBalance = displayInsufficientBalance,
+                    isPollingSubscriptionBalance = subscriptionBalanceViewModel.isPollingSubscriptionBalance,
+                    device = connectViewModel.device,
+                    launchProCelebration = { overlayViewModel.launchSunglassesFlight() },
+                    showProviderLocations = { navController.navigate(Route.ProviderLocations) },
+                    promptReview = {
+                        if (bundleStore == BundleStore.SOLANA_DAPP) {
+                            setPromptSolanaReview(true)
+                        } else {
+                            promptReview()
+                        }
+                    },
+                )
+            }
+        )
+
+        // slow internet (apple/DELAY.md §7.1): follows the sdk's level directly,
+        // while a connection is requested
+        SlowInternetPill(
+            transportDelay = transportDelay,
+            available = displayConnectStatus != ConnectStatus.DISCONNECTED,
+            hidden = referralToastVisible,
+            setPillVisible = connectViewModel.setSlowInternetPillVisible,
+            modifier = Modifier.align(Alignment.TopEnd),
+        )
+    }
 
     if (promptSolanaReview) {
         PromptSolanaDAppStoreReview(

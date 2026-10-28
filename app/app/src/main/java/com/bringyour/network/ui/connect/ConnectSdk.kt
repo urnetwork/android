@@ -1,11 +1,13 @@
 package com.bringyour.network.ui.connect
 
+import com.bringyour.network.TransportDelayUi
 import com.bringyour.sdk.ConnectGrid
 import com.bringyour.sdk.ConnectLocation
 import com.bringyour.sdk.ConnectViewController
 import com.bringyour.sdk.ContractStatus
 import com.bringyour.sdk.DeviceLocal
 import com.bringyour.sdk.Sub
+import com.bringyour.sdk.TransportDelay
 
 /**
  * What the connect screen's view model uses of the sdk device and its connect
@@ -27,9 +29,16 @@ internal interface ConnectDevice {
     val contractStatus: ContractStatus?
     /** The saved connection's location, null for none. */
     val connectLocation: ConnectLocation?
+    /** The transport delay the device measures, as plain data ([transportDelayUi]). */
+    val transportDelay: TransportDelayUi
 
     fun addTunnelChangeListener(listener: (tunnelStarted: Boolean) -> Unit): Sub
     fun addContractStatusChangeListener(listener: () -> Unit): Sub
+    /**
+     * Reports each change of a direction's quality level, or of the fallback
+     * flag; the numbers ride along. It does not report the current value.
+     */
+    fun addTransportDelayChangeListener(listener: (TransportDelayUi) -> Unit): Sub
 
     fun openConnectViewController(): ConnectController
 
@@ -62,12 +71,16 @@ internal class SdkConnectDevice(val device: DeviceLocal) : ConnectDevice {
     override val tunnelStarted: Boolean get() = device.tunnelStarted
     override val contractStatus: ContractStatus? get() = device.contractStatus
     override val connectLocation: ConnectLocation? get() = device.connectLocation
+    override val transportDelay: TransportDelayUi get() = transportDelayUi(device.transportDelay)
 
     override fun addTunnelChangeListener(listener: (tunnelStarted: Boolean) -> Unit): Sub =
         device.addTunnelChangeListener { listener(it) }
 
     override fun addContractStatusChangeListener(listener: () -> Unit): Sub =
         device.addContractStatusChangeListener { listener() }
+
+    override fun addTransportDelayChangeListener(listener: (TransportDelayUi) -> Unit): Sub =
+        device.addTransportDelayChangeListener { listener(transportDelayUi(it)) }
 
     override fun openConnectViewController(): ConnectController =
         SdkConnectController(device.openConnectViewController())
@@ -76,6 +89,26 @@ internal class SdkConnectDevice(val device: DeviceLocal) : ConnectDevice {
         // a controller this device opened is always the sdk's
         device.closeViewController((controller as SdkConnectController).controller)
     }
+}
+
+/**
+ * The sdk's transport delay reading (connect/DELAY.md §10.4) as plain data, for
+ * the connect screen and the VPN notification; none reads as
+ * [TransportDelayUi.None].
+ */
+internal fun transportDelayUi(delay: TransportDelay?): TransportDelayUi {
+    if (delay == null) {
+        return TransportDelayUi.None
+    }
+    return TransportDelayUi(
+        upQuality = delay.upQuality,
+        downQuality = delay.downQuality,
+        upBitsPerSecond = delay.upBitsPerSecond,
+        downBitsPerSecond = delay.downBitsPerSecond,
+        upQueueDelayMillis = delay.upQueueDelayMillis,
+        downQueueDelayMillis = delay.downQueueDelayMillis,
+        fallback = delay.fallback,
+    )
 }
 
 /** A connect view controller an [SdkConnectDevice] opened. */

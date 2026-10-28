@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  The slow internet status icon, level 3 of 4: the tunnel's outer 4 squares
+  (apple/DELAY.md §2.1), from tunnelSquares(24) in ui/components/TunnelGeometry.kt,
+  which TunnelGeometryTest checks this against. Square corners with mitered
+  joins. White like ic_status: the status bar keeps only the alpha.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:pathData="M1.128,1.128H22.872V22.872H1.128Z"
+        android:strokeWidth="2.256"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeAlpha="1"
+        android:strokeLineJoin="miter"
+        android:strokeMiterLimit="4" />
+    <path
+        android:pathData="M4.7496,4.7496H19.9704V19.9704H4.7496Z"
+        android:strokeWidth="1.3536"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeAlpha="0.92"
+        android:strokeLineJoin="miter"
+        android:strokeMiterLimit="4" />
+    <path
+        android:pathData="M7.2847,7.2847H17.9393V17.9393H7.2847Z"
+        android:strokeWidth="0.8122"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeAlpha="0.84"
+        android:strokeLineJoin="miter"
+        android:strokeMiterLimit="4" />
+    <path
+        android:pathData="M9.0593,9.0593H16.5175V16.5175H9.0593Z"
+        android:strokeWidth="0.4873"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeAlpha="0.76"
+        android:strokeLineJoin="miter"
+        android:strokeMiterLimit="4" />
+</vector>

@@ -1,5 +1,6 @@
 package com.bringyour.network.ui.connect
 
+import com.bringyour.network.TransportDelayUi
 import com.bringyour.sdk.ConnectGrid
 import com.bringyour.sdk.ConnectLocation
 import com.bringyour.sdk.ContractStatus
@@ -54,8 +55,11 @@ class DeviceConnectCommandTest {
                 return null
             }
 
+        override val transportDelay = TransportDelayUi.None
+
         override fun addTunnelChangeListener(listener: (tunnelStarted: Boolean) -> Unit): Sub = FakeSub()
         override fun addContractStatusChangeListener(listener: () -> Unit): Sub = FakeSub()
+        override fun addTransportDelayChangeListener(listener: (TransportDelayUi) -> Unit): Sub = FakeSub()
 
         override fun openConnectViewController(): ConnectController {
             log.add("open")

@@ -21,6 +21,7 @@ import com.bringyour.network.DeviceManager
 import com.bringyour.network.ForegroundDeviceControllerOwner
 import com.bringyour.network.MainApplication
 import com.bringyour.network.TAG
+import com.bringyour.network.TransportDelayUi
 import com.bringyour.network.ui.shared.models.ConnectStatus
 import com.bringyour.network.ui.theme.BlueLight
 import com.bringyour.network.ui.stats.IpFamilyPoint
@@ -218,6 +219,16 @@ internal constructor(
     private val _contractStatus = MutableStateFlow<ContractStatus?>(null)
     val contractStatus: StateFlow<ContractStatus?> = _contractStatus
 
+    private val _transportDelay = MutableStateFlow(TransportDelayUi.None)
+
+    /**
+     * The device's transport delay while the screen presents a controller
+     * (apple/DELAY.md §7.1): the slow internet pill shows while its quality
+     * is above 0. Its listener closes with the controller in the background,
+     * so it is read again when the controller opens; none without one.
+     */
+    val transportDelay: StateFlow<TransportDelayUi> = _transportDelay
+
     private val successPoints = mutableListOf<AnimatedSuccessPoint>()
 
     val canvasSize = 248.dp
@@ -391,6 +402,46 @@ internal constructor(
             }
         }
         sub?.let { subs.add(it) }
+    }
+
+    private val addTransportDelayListener = {
+        val device = viewControllerDevice
+        val sub = device?.addTransportDelayChangeListener { delay ->
+            viewModelScope.launch {
+                if (viewControllerDevice === device) {
+                    _transportDelay.value = delay
+                }
+            }
+        }
+        sub?.let { subs.add(it) }
+        // the listener reports changes only: read the current value once it
+        // is registered, so a change in between is not missed
+        refreshTransportDelay()
+    }
+
+    /** Reads the device's transport delay again: the numbers change without a report. */
+    private val refreshTransportDelay: () -> Unit = {
+        _transportDelay.value = viewControllerDevice?.transportDelay ?: TransportDelayUi.None
+    }
+
+    // the locations' ticker, run while the pill shows its numbers
+    private val transportDelayRefreshTicker = LocationsRefreshTicker(
+        scope = viewModelScope,
+        intervalMillis = SLOW_INTERNET_PILL_REFRESH_MILLIS,
+        isFetching = { false },
+        refresh = { refreshTransportDelay() },
+    )
+
+    /**
+     * The slow internet pill shows its slow content on the visible screen
+     * (`true`) or not (apple/DELAY.md §5.2): while it does, its numbers are
+     * read at once and then every [SLOW_INTERNET_PILL_REFRESH_MILLIS].
+     */
+    val setSlowInternetPillVisible: (Boolean) -> Unit = { visible ->
+        if (visible) {
+            refreshTransportDelay()
+        }
+        transportDelayRefreshTicker.setVisible(visible)
     }
 
     private fun updateGrid() {
@@ -694,6 +745,7 @@ internal constructor(
         tunnelConnected = false
         displayReconnectTunnel = false
         _contractStatus.value = null
+        _transportDelay.value = TransportDelayUi.None
         resetConnectFailureMonitor()
         // a start waiting on its balance belonged to the previous device
         if (currentDevice != null && currentDevice?.identity !== device?.identity) {
@@ -720,6 +772,7 @@ internal constructor(
         addGridListener()
         addConnectionStatusListener()
         addContractStatusListener()
+        addTransportDelayListener()
         vc.start()
         update()
         return vc
@@ -746,6 +799,9 @@ internal constructor(
             providerGridPoints = mapOf()
             windowCurrentSize = 0
             lastGridSignature = ""
+            // its listener is closing: never show a stale reading, it is read
+            // again when a controller opens
+            _transportDelay.value = TransportDelayUi.None
             resetConnectFailureMonitor()
         }
     }
@@ -772,6 +828,10 @@ internal constructor(
         super.onCleared()
     }
 }
+
+// the slow internet pill's numbers move without a report: read again this
+// often while it shows them (the notification's own refresh is 30 s)
+const val SLOW_INTERNET_PILL_REFRESH_MILLIS = 10_000L
 
 enum class ProviderPointState {
     IN_EVALUATION,
