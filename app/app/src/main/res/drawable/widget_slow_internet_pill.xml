@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  The dashboard widget's slow internet pill (apple/DELAY.md §5.7): black, with
+  square corners like the tunnel's, in a 1 dp outline of 35% amber (#F5C242),
+  as the in-app pill draws it. A drawable because Glance draws no borders.
+-->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <solid android:color="#FF000000" />
+    <stroke
+        android:width="1dp"
+        android:color="#59F5C242" />
+</shape>

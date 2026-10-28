@@ -1,7 +1,10 @@
 package com.bringyour.network
 
 import android.app.Activity
+import android.app.KeyguardManager
+import android.os.Build
 import android.os.Bundle
+import android.view.WindowManager
 
 /**
  * A no-UI trampoline behind the launcher shortcuts ("Connect", "Disconnect"):
@@ -19,6 +22,13 @@ class QuickConnectActivity : Activity() {
         const val ACTION_CONNECT = "com.bringyour.network.action.QUICK_CONNECT"
         const val ACTION_DISCONNECT = "com.bringyour.network.action.QUICK_DISCONNECT"
         const val ACTION_TOGGLE = "com.bringyour.network.action.QUICK_TOGGLE"
+
+        /**
+         * The overview widget's toggle, which also sits on the lock screen
+         * and Samsung's cover screen: while the device is locked it has the
+         * user unlock first, then toggles without opening the app.
+         */
+        const val ACTION_UNLOCK_TOGGLE = "com.bringyour.network.action.QUICK_UNLOCK_TOGGLE"
 
         /** Open the app on a screen (a widget tap): extra [EXTRA_ROUTE] names it. */
         const val ACTION_OPEN = "com.bringyour.network.action.OPEN"
@@ -54,6 +64,33 @@ class QuickConnectActivity : Activity() {
                 QuickConnect.launchAppIntent(this)?.let { startActivity(it) }
             }
             finish()
+        }
+        val keyguard = getSystemService(KeyguardManager::class.java)
+        if (action == ACTION_UNLOCK_TOGGLE && keyguard?.isKeyguardLocked == true) {
+            // the system asks for the unlock only for an activity shown over
+            // the keyguard (else onDismissError); one it hides is stopped,
+            // and with no history finished, before the user could unlock.
+            // Nothing toggles unless the unlock succeeds
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
+                setShowWhenLocked(true)
+            } else {
+                @Suppress("DEPRECATION")
+                window.addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED)
+            }
+            keyguard.requestDismissKeyguard(this, object : KeyguardManager.KeyguardDismissCallback() {
+                override fun onDismissSucceeded() {
+                    QuickConnect.toggle(app, source = "shortcut", onResult = onResult)
+                }
+
+                override fun onDismissCancelled() {
+                    finish()
+                }
+
+                override fun onDismissError() {
+                    finish()
+                }
+            })
+            return
         }
         when (action) {
             ACTION_CONNECT -> QuickConnect.setConnected(app, connect = true, source = "shortcut", onResult = onResult)

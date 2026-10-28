@@ -80,8 +80,14 @@
 
     <!--    android:logo="@drawable/logo_by"-->
     <!-- see https://developer.android.com/privacy-and-security/security-config -->
+    <!-- resizeableActivity: every window shape is supported, foldables and
+         multi-window included (apple/DUO.md). Never restrict orientation or
+         aspect ratio, and never opt out with
+         PROPERTY_COMPAT_ALLOW_RESTRICTED_RESIZABILITY: the layouts follow the
+         window size class and the fold. -->
     <application
         android:name=".MainApplication"
+        android:resizeableActivity="true"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -110,9 +116,14 @@
             android:resource="@string/asset_statements" />
         <property android:name="android.net.PROPERTY_SELF_CERTIFIED_NETWORK_CAPABILITIES" android:resource="@xml/self_certified_network_capabilities"/>
 
+        <!-- configChanges: a fold, unfold, rotation or resize recomposes the
+             Compose screen instead of recreating the activity, so open sheets,
+             typed text and the keyboard stay (apple/DUO.md item 1). State is
+             still saved for the recreations that remain. -->
         <activity
             android:name=".LoginActivity"
             android:exported="true"
+            android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation|density"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -155,6 +166,7 @@
 
         <activity
             android:name=".MainActivity"
+            android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation|density"
             android:windowSoftInputMode="adjustResize"
             android:exported="false">
         </activity>
@@ -208,6 +220,34 @@
             <meta-data
                 android:name="android.appwidget.provider"
                 android:resource="@xml/widget_contracts_info" />
+        </receiver>
+        <!-- the overview: the three in one "super large" widget, on the home screen ... -->
+        <receiver
+            android:name=".widgets.OverviewWidgetReceiver"
+            android:exported="true"
+            android:label="@string/app_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_overview_info" />
+        </receiver>
+        <!-- ... and on the lock screen and Samsung's cover screen (Flex Window), keyguard only
+             with Samsung's sub_screen meta-data, as Samsung documents the cover's widgets -->
+        <receiver
+            android:name=".widgets.CoverWidgetReceiver"
+            android:exported="true"
+            android:label="@string/app_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_cover_info" />
+            <meta-data
+                android:name="com.samsung.android.appwidget.provider"
+                android:resource="@xml/widget_cover_samsung" />
         </receiver>
 
         <service

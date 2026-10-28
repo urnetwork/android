@@ -1,5 +1,6 @@
 package com.bringyour.network.ui.wallet
 
+import com.bringyour.network.ui.components.rememberFoldSafeSheetState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -19,7 +20,6 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.ModalBottomSheetProperties
 import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
@@ -75,10 +75,7 @@ fun ConnectSolanaWalletSheet(
     val confirmValueChange = remember(busy) {
         { value: SheetValue -> value != SheetValue.Hidden || !busy.value }
     }
-    val sheetState = rememberModalBottomSheetState(
-        skipPartiallyExpanded = true,
-        confirmValueChange = confirmValueChange,
-    )
+    val sheetState = rememberFoldSafeSheetState(confirmValueChange = confirmValueChange)
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,

@@ -54,7 +54,7 @@ class Top200SignWiringTest {
     fun `the nav host routes the screen and the app link`() {
         val nav = source("main/java/com/bringyour/network/ui/MainNavHost.kt")
         assertTrue(nav.contains("composable<Route.Top200Sign>("))
-        assertTrue(nav.contains("Top200SignScreen(\n                    navController = navController,"))
+        assertTrue(nav.contains("Top200SignScreen(\n                        navController = navController,"))
         assertTrue(nav.contains("Top200SignLinks.navigation.collectAsState()"))
         assertTrue(source("main/java/com/bringyour/network/ui/MainNavViewModel.kt").contains("@Serializable object Top200Sign : Route()"))
     }

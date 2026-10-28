@@ -49,7 +49,7 @@ class WidgetQuickConnectButtonTest {
             .firstOrNull { it.isFile }
         assertNotNull(path)
         val source = path!!.readText()
-        val from = source.indexOf("private fun QuickConnectButton(entry: WidgetEntry) {")
+        val from = source.indexOf("private fun QuickConnectButton(entry: WidgetEntry, unlockFirst: Boolean) {")
         assertTrue(0 <= from)
         val button = source.substring(from, source.indexOf("\n}\n", from))
         assertTrue(button.contains(".background(if (entry.quickConnectOn) WidgetTheme.tint else WidgetTheme.card)"))

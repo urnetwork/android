@@ -1271,12 +1271,14 @@
     <string name="widget_not_signed_in">साइन इन नहीं है</string>
     <string name="widget_open">खोलें</string>
     <string name="widget_open_to_set_up">सेट अप करने के लिए URnetwork खोलें</string>
+    <string name="widget_overview_description">कनेक्शन, ग्लोब पर प्रदाता, बैलेंस, आज का ट्रैफ़िक और कॉन्ट्रैक्ट एक ही विजेट में, क्विक कनेक्ट के साथ।</string>
     <string name="widget_peak_rate">%1$s पीक</string>
     <string name="widget_provider">प्रदाता</string>
     <string name="widget_provider_mode_title">प्रदाता · %1$s</string>
     <string name="widget_provider_stats_when_enabled">प्रदाता चालू होने पर प्रदाता के आँकड़े दिखेंगे।</string>
     <string name="widget_quick_tile_added">क्विक कनेक्ट टाइल जोड़ी गई</string>
     <string name="widget_toggle_intent_title">URnetwork VPN चालू/बंद करें</string>
+    <string name="widget_traffic_today">आज का ट्रैफ़िक</string>
     <string name="widget_updated_ago">%1$s अपडेट किया गया</string>
     <string name="widget_updated_just_now">अभी-अभी अपडेट किया गया</string>
     <string name="widgets">विजेट</string>
@@ -1290,6 +1292,7 @@
     <string name="you_re_premium">आप प्रीमियम हैं।</string>
     <string name="your_bandwidth">आपकी बैंडविड्थ</string>
     <string name="your_email_com">name@email.com</string>
+    <string name="your_network">आपका नेटवर्क</string>
     <string name="your_referral_code">आपका रेफ़रल कोड</string>
     <string name="your_seedphrase">आपका सीड फ़्रेज़</string>
     <plurals name="apps_excluded_count">

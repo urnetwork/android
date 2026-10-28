@@ -24,6 +24,8 @@ class GlanceWidgetRefresh(private val context: Context) : WidgetRefresh {
             WidgetKinds.DASHBOARD -> DashboardWidget::class.java
             WidgetKinds.PROVIDER_GLOBE -> ProviderGlobeWidget::class.java
             WidgetKinds.CONTRACTS -> ContractsWidget::class.java
+            // both its receivers: the home screen's and the cover screen's
+            WidgetKinds.OVERVIEW -> OverviewWidget::class.java
             else -> return false
         }
         return runCatching {
@@ -31,9 +33,30 @@ class GlanceWidgetRefresh(private val context: Context) : WidgetRefresh {
         }.getOrDefault(false)
     }
 
-    override fun reloadDashboard() = reload(WidgetKinds.DASHBOARD, DashboardWidget())
-    override fun reloadProviderGlobe() = reload(WidgetKinds.PROVIDER_GLOBE, ProviderGlobeWidget())
-    override fun reloadContracts() = reload(WidgetKinds.CONTRACTS, ContractsWidget())
+    // the overview shows what each of the three does, so it re-renders with any of them
+    override fun reloadDashboard() {
+        reload(WidgetKinds.DASHBOARD, DashboardWidget())
+        reloadOverview()
+    }
+
+    override fun reloadProviderGlobe() {
+        reload(WidgetKinds.PROVIDER_GLOBE, ProviderGlobeWidget())
+        reloadOverview()
+    }
+
+    override fun reloadContracts() {
+        reload(WidgetKinds.CONTRACTS, ContractsWidget())
+        reloadOverview()
+    }
+
+    override fun reloadAll() {
+        reload(WidgetKinds.DASHBOARD, DashboardWidget())
+        reload(WidgetKinds.PROVIDER_GLOBE, ProviderGlobeWidget())
+        reload(WidgetKinds.CONTRACTS, ContractsWidget())
+        reloadOverview()
+    }
+
+    private fun reloadOverview() = reload(WidgetKinds.OVERVIEW, OverviewWidget())
 
     /**
      * A running composition reads its entry again on the kind's tick
@@ -64,6 +87,24 @@ class ProviderGlobeWidgetReceiver : GlanceAppWidgetReceiver() {
 class ContractsWidgetReceiver : GlanceAppWidgetReceiver() {
     override val glanceAppWidget: GlanceAppWidget = ContractsWidget()
     override fun onEnabled(context: Context) { super.onEnabled(context); ClientEvents.widgetAdded(ClientEvents.WIDGET_CONTRACTS); widgetsChanged(context) }
+    override fun onDisabled(context: Context) { super.onDisabled(context); widgetsChanged(context) }
+}
+
+/** The overview on the home screen (widget_overview_info). */
+class OverviewWidgetReceiver : GlanceAppWidgetReceiver() {
+    override val glanceAppWidget: GlanceAppWidget = OverviewWidget()
+    override fun onEnabled(context: Context) { super.onEnabled(context); ClientEvents.widgetAdded(ClientEvents.WIDGET_OVERVIEW); widgetsChanged(context) }
+    override fun onDisabled(context: Context) { super.onDisabled(context); widgetsChanged(context) }
+}
+
+/**
+ * The same overview on the lock screen and Samsung's cover screen
+ * (widget_cover_info, widget_cover_samsung): Samsung documents the cover's
+ * widget as keyguard only, so it is a receiver of its own.
+ */
+class CoverWidgetReceiver : GlanceAppWidgetReceiver() {
+    override val glanceAppWidget: GlanceAppWidget = OverviewWidget()
+    override fun onEnabled(context: Context) { super.onEnabled(context); ClientEvents.widgetAdded(ClientEvents.WIDGET_COVER); widgetsChanged(context) }
     override fun onDisabled(context: Context) { super.onDisabled(context); widgetsChanged(context) }
 }
 

@@ -195,6 +195,24 @@ class SlowInternetNoticePolicyTest {
     }
 
     @Test
+    fun theWidgetFollowsTheSlowContentOnly() {
+        // a slow reading too brief to show, then the slow content
+        val brief = observed(0 to slow)
+        assertNull(brief.slowReading)
+        val shown = brief.at(30, slow)
+        assertEquals(slow, shown.slowReading)
+        // the minimum stay keeps the numbers it was slow with
+        val staying = shown.at(40, normal)
+        assertEquals(SlowInternetNoticePhase.SLOW, staying.phase)
+        assertEquals(slow, staying.slowReading)
+        // a widget has no recovered state, and a connection that ends shows none
+        val recovered = staying.at(90, normal)
+        assertEquals(SlowInternetNoticePhase.RECOVERED, recovered.phase)
+        assertNull(recovered.slowReading)
+        assertNull(shown.at(31, slow, active = false).slowReading)
+    }
+
+    @Test
     fun theDwellUsesTheContractsDefaults() {
         assertEquals(60_000L, SLOW_INTERNET_NOTICE_WINDOW_MILLIS)
         assertEquals(30_000L, SLOW_INTERNET_NOTICE_ENTER_MILLIS)

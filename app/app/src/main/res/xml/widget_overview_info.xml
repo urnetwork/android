@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Overview widget on the home screen: the dashboard, the provider globe and the contracts
+     in one "super large" widget. At least 352 x 339 dp (about 4x4), so a launcher that cannot
+     fit it does not list it; resizable, growing on tablets and unfolded phones. The lock screen
+     and Samsung's cover screen get the same widget from CoverWidgetReceiver (widget_cover_info).
+     Updates are pushed by the app (WidgetSnapshotWriter); no periodic update. -->
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:minWidth="352dp"
+    android:minHeight="339dp"
+    android:targetCellWidth="4"
+    android:targetCellHeight="4"
+    android:resizeMode="horizontal|vertical"
+    android:widgetCategory="home_screen"
+    android:updatePeriodMillis="0"
+    android:previewLayout="@layout/widget_preview_overview"
+    android:description="@string/widget_overview_description" />

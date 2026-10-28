@@ -107,6 +107,13 @@ import kotlin.math.roundToLong
 fun PointsLeaderboardTab(
     snackbarHostState: SnackbarHostState,
     resetToTop: Int = 0,
+    // false where the own-stats card sits beside the list (the leaderboard's
+    // list-detail layout); its list item stays, empty, so the rows keep their place
+    showHeader: Boolean = true,
+    // the emoji tag editor, kept by the leaderboard so the card beside the
+    // list can open it too
+    showEmojiSheet: Boolean,
+    setShowEmojiSheet: (Boolean) -> Unit,
     viewModel: PointsLeaderboardViewModel = hiltViewModel(),
 ) {
     val rows by viewModel.rows.collectAsState()
@@ -130,8 +137,13 @@ fun PointsLeaderboardTab(
     }
     val refreshState = rememberPullToRefreshState()
     var refreshing by remember { mutableStateOf(false) }
-    var showEmojiSheet by remember { mutableStateOf(false) }
     var emojiSaveError by remember { mutableStateOf<String?>(null) }
+    // each opening of the editor starts without the last save's error
+    LaunchedEffect(showEmojiSheet) {
+        if (showEmojiSheet) {
+            emojiSaveError = null
+        }
+    }
 
     val ownNetworkId = viewModel.me?.row?.networkId
     // the own-stats card always shows the caller's own name: the me row's, or
@@ -248,7 +260,7 @@ fun PointsLeaderboardTab(
                 emojiSaveError = null
                 viewModel.saveEmojiTag(tag) { error ->
                     if (error == null) {
-                        showEmojiSheet = false
+                        setShowEmojiSheet(false)
                     } else {
                         emojiSaveError = error
                     }
@@ -258,7 +270,7 @@ fun PointsLeaderboardTab(
                 emojiSaveError = null
                 viewModel.saveEmojiTag("") { error ->
                     if (error == null) {
-                        showEmojiSheet = false
+                        setShowEmojiSheet(false)
                     } else {
                         emojiSaveError = error
                     }
@@ -266,7 +278,7 @@ fun PointsLeaderboardTab(
             },
             onDismiss = {
                 emojiSaveError = null
-                showEmojiSheet = false
+                setShowEmojiSheet(false)
             },
         )
     }
@@ -287,14 +299,16 @@ fun PointsLeaderboardTab(
                 modifier = Modifier.fillMaxSize()
             ) {
                 item(key = "points-header") {
-                    PointsHeader(
-                        viewModel = viewModel,
-                        ownName = ownName,
-                        onEditEmoji = {
-                            emojiSaveError = null
-                            showEmojiSheet = true
-                        },
-                    )
+                    if (showHeader) {
+                        PointsHeader(
+                            viewModel = viewModel,
+                            ownName = ownName,
+                            onEditEmoji = {
+                                emojiSaveError = null
+                                setShowEmojiSheet(true)
+                            },
+                        )
+                    }
                 }
 
                 item(key = "points-sort") {
@@ -558,7 +572,7 @@ private fun PointsPositionIndicator(
 private const val POINTS_LIST_ROWS_OFFSET = 2
 
 @Composable
-private fun PointsHeader(
+internal fun PointsHeader(
     viewModel: PointsLeaderboardViewModel,
     ownName: String,
     onEditEmoji: () -> Unit,

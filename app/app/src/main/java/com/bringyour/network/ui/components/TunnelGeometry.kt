@@ -1,5 +1,6 @@
 package com.bringyour.network.ui.components
 
+import com.bringyour.network.R
 import kotlin.math.pow
 import kotlin.math.roundToInt
 
@@ -108,6 +109,14 @@ internal val tunnelLevelDepths = listOf(1, 2, 4, 6)
 internal fun tunnelLevel(quality: Double): Int {
     val depth = tunnelDepth(quality)
     return tunnelLevelDepths.count { it <= depth }
+}
+
+/** The status icon for a level, 1 to 4: the notification's small icon and the dashboard widget's tunnel. */
+internal fun tunnelLevelIcon(level: Int): Int = when (level) {
+    1 -> R.drawable.ic_tunnel_1
+    2 -> R.drawable.ic_tunnel_2
+    3 -> R.drawable.ic_tunnel_3
+    else -> R.drawable.ic_tunnel_4
 }
 
 /** A square fades in over this long as the tunnel deepens. */

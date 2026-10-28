@@ -1,5 +1,6 @@
 package com.bringyour.network.ui.upgrade
 
+import com.bringyour.network.ui.components.rememberFoldSafeSheetState
 import android.graphics.Bitmap
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -24,7 +25,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -84,7 +84,7 @@ fun CryptoInvoiceSheet(
     close: () -> Unit,
 ) {
     val view = remember(invoice, uriPasses) { CryptoPayment.view(invoice, uriPasses) }
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val sheetState = rememberFoldSafeSheetState()
 
     LifecycleResumeEffect(Unit) {
         setActive(true)

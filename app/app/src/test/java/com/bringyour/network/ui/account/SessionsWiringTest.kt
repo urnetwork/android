@@ -58,9 +58,12 @@ class SessionsWiringTest {
         val rows = between(screen, "iconResourceId = R.drawable.nav_list_item_user,", "iconResourceId = R.drawable.nav_list_item_settings,")
         val sessionsRow = between(rows, "iconResourceId = R.drawable.nav_list_item_sessions,", "HorizontalDivider()")
         assertTrue(sessionsRow.contains("text = stringResource(id = R.string.sessions_title),"))
-        assertTrue(sessionsRow.contains("navController.navigate(Route.Sessions)"))
+        // the account list's rows go through navigate, which beside a detail
+        // pane replaces the chosen screen instead of stacking on it
+        assertTrue(sessionsRow.contains("navigate(Route.Sessions)"))
         // a guest adds a sign-in method first, as for Profile
-        assertTrue(sessionsRow.contains("navController.navigate(Route.GuestConversion)"))
+        assertTrue(sessionsRow.contains("navigate(Route.GuestConversion)"))
+        assertTrue(sessionsRow.contains("selected = chosenRoute == Route.Sessions"))
 
         val icon = moduleFile("src/main/res/drawable/nav_list_item_sessions.xml").readText()
         assertTrue(icon.contains("android:width=\"24dp\""))

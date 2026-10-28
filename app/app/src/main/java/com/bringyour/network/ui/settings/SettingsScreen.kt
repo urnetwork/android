@@ -56,6 +56,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -201,7 +202,7 @@ fun SettingsScreen(
     val isAddingAuth = settingsViewModel.isAddingAuth.collectAsState().value
     val isRemovingAuth = settingsViewModel.isRemovingAuth.collectAsState().value
 
-    var presentAddAuthSheet by remember { mutableStateOf(false) }
+    var presentAddAuthSheet by rememberSaveable { mutableStateOf(false) }
     var pendingRemoveMethod by remember { mutableStateOf<String?>(null) }
     var removeAuthError by remember { mutableStateOf<String?>(null) }
 
@@ -234,8 +235,8 @@ fun SettingsScreen(
     val clipboardManager = LocalClipboardManager.current
 
 
-    var isPresentingRenameDevice by remember { mutableStateOf(false) }
-    var editingDeviceName by remember { mutableStateOf(TextFieldValue("")) }
+    var isPresentingRenameDevice by rememberSaveable { mutableStateOf(false) }
+    var editingDeviceName by rememberSaveable(stateSaver = TextFieldValue.Saver) { mutableStateOf(TextFieldValue("")) }
 
     LaunchedEffect(Unit) {
         settingsViewModel.fetchDeviceInfo()
@@ -1674,7 +1675,7 @@ private fun SettingsScreen(
         if (showDeleteAccountDialog) {
             // scoped to the dialog: closing it discards the entry, so the
             // next open starts empty rather than pre-confirmed
-            var deleteConfirmText by remember { mutableStateOf(TextFieldValue("")) }
+            var deleteConfirmText by rememberSaveable(stateSaver = TextFieldValue.Saver) { mutableStateOf(TextFieldValue("")) }
             val requiresTypedName = DeleteAccountConfirmation.requiresTypedName(networkName)
             val deleteConfirmed = DeleteAccountConfirmation.confirms(networkName, deleteConfirmText.text)
             val deleteAccountFailedText = stringResource(id = R.string.error_deleting_account)

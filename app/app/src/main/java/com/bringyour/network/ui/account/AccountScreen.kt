@@ -1,5 +1,6 @@
 package com.bringyour.network.ui.account
 
+import com.bringyour.network.ui.components.rememberFoldSafeSheetState
 import com.bringyour.network.ui.components.tabletReadableColumn
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -15,6 +16,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.draw.clip
@@ -34,7 +36,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -98,6 +99,16 @@ fun AccountScreen(
     retryAccountPoints: () -> Unit = {},
     meanReliabilityWeight: Double,
     isPro: Boolean,
+    // where a row of the account list goes; beside a detail pane (medium width
+    // and up) it replaces the chosen screen instead of stacking on it
+    navigate: (Route) -> Unit = { navController.navigate(it) },
+    // the screen open beside the list, highlighted in it; null with no detail pane
+    chosenRoute: Route? = null,
+    // kept by the caller, so moving between the list pane and the full screen
+    // on a resize keeps the scroll and an open redeem sheet
+    scrollState: ScrollState = rememberScrollState(),
+    isPresentingRedeemTransferBalanceSheet: Boolean,
+    setPresentingRedeemTransferBalanceSheet: (Boolean) -> Unit,
     postQuantumIdentityViewModel: PostQuantumIdentityViewModel = hiltViewModel(),
 ) {
 
@@ -115,8 +126,7 @@ fun AccountScreen(
 
     val refreshState = rememberPullToRefreshState()
 
-    var isPresentingRedeemTransferBalanceSheet by remember { mutableStateOf(false) }
-    val redeemTransferBalanceSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val redeemTransferBalanceSheetState = rememberFoldSafeSheetState()
 
     LaunchedEffect(Unit) {
         subscriptionBalanceViewModel.fetchSubscriptionBalance()
@@ -139,7 +149,7 @@ fun AccountScreen(
                     modifier = Modifier
                         .tabletReadableColumn()
                         .fillMaxSize()
-                        .verticalScroll(rememberScrollState())
+                        .verticalScroll(scrollState)
                         .background(Black)
                         // .padding(16.dp),
                 ) {
@@ -147,6 +157,8 @@ fun AccountScreen(
                     AccountScreenContent(
                         loginMode = accountViewModel.loginMode,
                         navController = navController,
+                        navigate = navigate,
+                        chosenRoute = chosenRoute,
                         scope = scope,
                         networkName = networkUser?.networkName,
                         totalAccountPoints = totalAccountPoints,
@@ -168,7 +180,7 @@ fun AccountScreen(
                         meanReliabilityWeight = meanReliabilityWeight,
                         dailyBalanceBytes = dailyBalanceBytes,
                         launchRedeemTransferBalanceCodeSheet = {
-                            isPresentingRedeemTransferBalanceSheet = true
+                            setPresentingRedeemTransferBalanceSheet(true)
                         },
                         postQuantumIdentityViewModel = postQuantumIdentityViewModel,
                         // a renewal whose payment did not go through (every flavor), then
@@ -188,9 +200,7 @@ fun AccountScreen(
         if (isPresentingRedeemTransferBalanceSheet) {
             RedeemTransferBalanceCodeSheet(
                 sheetState = redeemTransferBalanceSheetState,
-                setIsPresenting = {
-                    isPresentingRedeemTransferBalanceSheet = it
-                },
+                setIsPresenting = setPresentingRedeemTransferBalanceSheet,
                 onSuccess = {
                     // a balance code is data only: the sheet confirmed the data it
                     // added; read the balance once. The Pro overlay and the Pro
@@ -209,6 +219,10 @@ fun AccountScreenContent(
     loginMode: LoginMode,
     navController: NavHostController,
     scope: CoroutineScope,
+    // where the account list's rows go (AccountScreen)
+    navigate: (Route) -> Unit = { navController.navigate(it) },
+    // the screen open beside the list, highlighted in it
+    chosenRoute: Route? = null,
     networkName: String?,
     totalAccountPoints: Double,
     accountPointsLoaded: Boolean,
@@ -367,9 +381,9 @@ fun AccountScreenContent(
                         .fillMaxWidth()
                         .clickable {
                             if (loginMode == LoginMode.Guest) {
-                                navController.navigate(Route.GuestConversion)
+                                navigate(Route.GuestConversion)
                             } else {
-                                navController.navigate(Route.Earnings)
+                                navigate(Route.Earnings)
                             }
                         }
                 ) {
@@ -444,11 +458,12 @@ fun AccountScreenContent(
             text = stringResource(id = R.string.profile),
             onClick = {
                 if (loginMode == LoginMode.Authenticated) {
-                    navController.navigate(Route.Profile)
+                    navigate(Route.Profile)
                 } else {
-                    navController.navigate(Route.GuestConversion)
+                    navigate(Route.GuestConversion)
                 }
-            }
+            },
+            selected = chosenRoute == Route.Profile
         )
         HorizontalDivider()
         // the account's sign-ins, with sign out; always listed, and the
@@ -460,11 +475,12 @@ fun AccountScreenContent(
             text = stringResource(id = R.string.sessions_title),
             onClick = {
                 if (loginMode == LoginMode.Authenticated) {
-                    navController.navigate(Route.Sessions)
+                    navigate(Route.Sessions)
                 } else {
-                    navController.navigate(Route.GuestConversion)
+                    navigate(Route.GuestConversion)
                 }
-            }
+            },
+            selected = chosenRoute == Route.Sessions
         )
         HorizontalDivider()
         URNavListItem(
@@ -472,11 +488,12 @@ fun AccountScreenContent(
             text = stringResource(id = R.string.settings),
             onClick = {
                 if (loginMode == LoginMode.Authenticated) {
-                    navController.navigate(Route.Settings)
+                    navigate(Route.Settings)
                 } else {
-                    navController.navigate(Route.GuestConversion)
+                    navigate(Route.GuestConversion)
                 }
-            }
+            },
+            selected = chosenRoute == Route.Settings
         )
         HorizontalDivider()
         URNavListItem(
@@ -484,11 +501,12 @@ fun AccountScreenContent(
             text = stringResource(id = R.string.earnings),
             onClick = {
                 if (loginMode == LoginMode.Authenticated) {
-                    navController.navigate(Route.Earnings)
+                    navigate(Route.Earnings)
                 } else {
-                    navController.navigate(Route.GuestConversion)
+                    navigate(Route.GuestConversion)
                 }
-            }
+            },
+            selected = chosenRoute == Route.Earnings
         )
         HorizontalDivider()
         URNavListItem(
@@ -496,11 +514,12 @@ fun AccountScreenContent(
             text = stringResource(id = R.string.referrals),
             onClick = {
                 if (loginMode == LoginMode.Authenticated) {
-                    navController.navigate(Route.Referrals)
+                    navigate(Route.Referrals)
                 } else {
-                    navController.navigate(Route.GuestConversion)
+                    navigate(Route.GuestConversion)
                 }
-            }
+            },
+            selected = chosenRoute == Route.Referrals
         )
         HorizontalDivider()
         // the quick connect tile and the home screen widgets need no account,
@@ -509,8 +528,9 @@ fun AccountScreenContent(
             iconResourceId = R.drawable.nav_list_item_widgets,
             text = stringResource(id = R.string.widgets),
             onClick = {
-                navController.navigate(Route.Widgets)
-            }
+                navigate(Route.Widgets)
+            },
+            selected = chosenRoute == Route.Widgets
         )
         HorizontalDivider()
         // the extender settings of this network space, and the share and
@@ -520,11 +540,12 @@ fun AccountScreenContent(
             text = stringResource(id = R.string.extenders),
             onClick = {
                 if (loginMode == LoginMode.Authenticated) {
-                    navController.navigate(Route.Extenders)
+                    navigate(Route.Extenders)
                 } else {
-                    navController.navigate(Route.GuestConversion)
+                    navigate(Route.GuestConversion)
                 }
-            }
+            },
+            selected = chosenRoute == Route.Extenders
         )
         HorizontalDivider()
 
@@ -571,7 +592,7 @@ fun AccountScreenContent(
         PostQuantumIdentityPanel(
             viewModel = postQuantumIdentityViewModel,
             navigateToProviderIdentities = {
-                navController.navigate(Route.ProviderIdentities)
+                navigate(Route.ProviderIdentities)
             }
         )
 

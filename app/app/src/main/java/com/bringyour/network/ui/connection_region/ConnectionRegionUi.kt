@@ -27,6 +27,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -103,7 +104,7 @@ fun ConnectionRegionLoginControl(
     modifier: Modifier = Modifier,
     viewModel: ConnectionRegionViewModel = hiltViewModel(),
 ) {
-    var showPicker by remember { mutableStateOf(false) }
+    var showPicker by rememberSaveable { mutableStateOf(false) }
     val model = viewModel.model
 
     Row(
@@ -140,7 +141,7 @@ fun ConnectionRegionLoginControl(
 fun ConnectionRegionSettingsRow(
     viewModel: ConnectionRegionViewModel = hiltViewModel(),
 ) {
-    var showPicker by remember { mutableStateOf(false) }
+    var showPicker by rememberSaveable { mutableStateOf(false) }
     val model = viewModel.model
 
     Column(modifier = Modifier.fillMaxWidth()) {
@@ -191,7 +192,7 @@ fun CantReachRegionPrompt(
     viewModel: ConnectionRegionViewModel = hiltViewModel(),
 ) {
     val visible by prompt.visible.collectAsState()
-    var showPicker by remember { mutableStateOf(false) }
+    var showPicker by rememberSaveable { mutableStateOf(false) }
 
     if (visible && !showPicker) {
         AlertDialog(

@@ -3,6 +3,7 @@ package com.bringyour.network.widgets
 import android.content.Context
 import com.bringyour.network.MainApplication
 import com.bringyour.network.QuickConnect
+import com.bringyour.network.TransportDelayUi
 import kotlin.math.exp
 import kotlin.math.roundToLong
 
@@ -33,6 +34,12 @@ class WidgetEntry(
         isOn -> com.bringyour.network.ui.connect.QuickConnectStatus.CONNECTED
         else -> com.bringyour.network.ui.connect.QuickConnectStatus.DISCONNECTED
     },
+    /**
+     * The reading the VPN notification's slow content shows, null while it
+     * shows none (WidgetSnapshotStore.slowInternet): the dashboard's pill
+     * (dashboardSlowInternet). The sample shows none.
+     */
+    val slowInternet: TransportDelayUi? = null,
 ) {
     /** The tunnel snapshot is meaningful only while the tunnel that wrote it is up. */
     val showsTunnelData: Boolean get() = isOn && tunnel.tunnelActive
@@ -66,6 +73,7 @@ class WidgetEntry(
                 } ?: false,
                 status = app?.let { QuickConnect.status(it) }
                     ?: com.bringyour.network.ui.connect.QuickConnectStatus.NOT_SIGNED_IN,
+                slowInternet = WidgetSnapshotStore.slowInternet,
             )
         }
 

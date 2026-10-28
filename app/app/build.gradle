@@ -628,7 +628,10 @@ dependencies {
     // Material Design 3
     implementation 'androidx.compose.material3:material3:1.4.0'
     implementation 'androidx.compose.material3:material3-adaptive-navigation-suite-android:1.4.0'
-    implementation 'androidx.compose.material3:material3-window-size-class-android:1.4.0'
+    // window size class and fold posture (ui/components/WindowLayout.kt). Held at
+    // 1.2.0, the version the navigation suite resolves: 1.3.0's AARs require AGP
+    // 9.1.0 and compileSdk 37, and AGP stays on 8.11.1 for F-Droid
+    implementation 'androidx.compose.material3.adaptive:adaptive-android:1.2.0'
     implementation "androidx.compose.material:material-icons-extended:1.7.8"
 
     // UI Tests

@@ -1,6 +1,21 @@
 package com.bringyour.network.ui.leaderboard
 
 import com.bringyour.network.ui.components.tabletReadableColumn
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.VerticalDivider
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.layout.boundsInWindow
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
+import com.bringyour.network.ui.components.LocalWindowLayout
+import com.bringyour.network.ui.components.sideBySideSplit
+import com.bringyour.network.ui.components.sidePaneWidth
+import com.bringyour.network.ui.theme.MainBorderBase
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -84,7 +99,29 @@ fun LeaderboardScreen(
     // taps and resets itself (it also reloads after a seek)
     val dataListState = rememberLazyListState()
     var pointsTabTaps by remember { mutableIntStateOf(0) }
+    // the Points tab's emoji tag editor, opened from its own-stats header,
+    // which sits beside the list at medium width and up
+    var showEmojiSheet by rememberSaveable { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
+
+    // medium width and up is a list-detail layout: the ranking with its tabs
+    // at the start, "Your network" beside it instead of above the list
+    val windowLayout = LocalWindowLayout.current
+    val listDetail = windowLayout.isMediumWidthOrWider
+    var paneRowInWindow by remember { mutableStateOf(Rect.Zero) }
+    val density = LocalDensity.current
+    val listOnLeft = LocalLayoutDirection.current == LayoutDirection.Ltr
+    val paneRowWidth = paneRowInWindow.width / density.density
+    val listWidth = sidePaneWidth(
+        split = sideBySideSplit(
+            containerStart = paneRowInWindow.left / density.density,
+            width = paneRowWidth,
+            fold = windowLayout.fold,
+            sidePaneOnLeft = listOnLeft,
+        ),
+        width = paneRowWidth,
+        sidePaneOnLeft = listOnLeft,
+    ).dp
 
     val genericErrorMessage = stringResource(id = R.string.something_went_wrong)
     LaunchedEffect(leaderboardViewModel.displayErrorMsg) {
@@ -103,116 +140,207 @@ fun LeaderboardScreen(
         },
     ) { innerPadding ->
 
-        Column(
+        Row(
             modifier = Modifier
                 .padding(innerPadding)
-                .tabletReadableColumn()
                 .fillMaxSize()
+                .onGloballyPositioned { paneRowInWindow = it.boundsInWindow() }
         ) {
 
-            LeaderboardTabs(
-                selectedTab = selectedTab,
-                onTabTap = { tab ->
-                    val changed = tab != selectedTab
-                    selectedTab = tab
-                    when (tab) {
-                        LEADERBOARD_TAB_POINTS -> pointsTabTaps += 1
-                        else -> scope.launch {
-                            // the list is not composed yet right after a
-                            // switch, so it is placed rather than animated
-                            if (changed) {
-                                dataListState.scrollToItem(0)
-                            } else {
-                                dataListState.animateScrollToItem(0)
+            Column(
+                modifier = if (listDetail) {
+                    Modifier
+                        .width(listWidth.coerceAtLeast(0.dp))
+                        .fillMaxHeight()
+                } else {
+                    Modifier
+                        .tabletReadableColumn()
+                        .fillMaxSize()
+                }
+            ) {
+
+                LeaderboardTabs(
+                    selectedTab = selectedTab,
+                    onTabTap = { tab ->
+                        val changed = tab != selectedTab
+                        selectedTab = tab
+                        when (tab) {
+                            LEADERBOARD_TAB_POINTS -> pointsTabTaps += 1
+                            else -> scope.launch {
+                                // the list is not composed yet right after a
+                                // switch, so it is placed rather than animated
+                                if (changed) {
+                                    dataListState.scrollToItem(0)
+                                } else {
+                                    dataListState.animateScrollToItem(0)
+                                }
                             }
                         }
+                    },
+                )
+
+                when (selectedTab) {
+                    LEADERBOARD_TAB_POINTS -> {
+                        PointsLeaderboardTab(
+                            snackbarHostState = snackbarHostState,
+                            resetToTop = pointsTabTaps,
+                            showHeader = !listDetail,
+                            showEmojiSheet = showEmojiSheet,
+                            setShowEmojiSheet = { showEmojiSheet = it },
+                        )
                     }
-                },
-            )
+                    else -> {
+                        if (leaderboardViewModel.isInitializing) {
 
-            when (selectedTab) {
-                LEADERBOARD_TAB_POINTS -> {
-                    PointsLeaderboardTab(
-                        snackbarHostState = snackbarHostState,
-                        resetToTop = pointsTabTaps,
-                    )
-                }
-                else -> {
-                    if (leaderboardViewModel.isInitializing) {
-
-                        Column(
-                            modifier = Modifier
-                                .fillMaxSize(),
-                            verticalArrangement = Arrangement.Center,
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            CircularProgressIndicator()
-                        }
-
-                    } else {
-                        /**
-                         * Data initialized
-                         */
-
-                        PullToRefreshBox(
-                            isRefreshing = leaderboardViewModel.isLoading,
-                            state = refreshState,
-                            onRefresh = {
-                                leaderboardViewModel.fetchLeaderboardData()
-                            },
-                        ) {
-
-                            LazyColumn(
-                                state = dataListState,
+                            Column(
                                 modifier = Modifier
-                                    .tabletReadableColumn()
-                                    .fillMaxSize()
+                                    .fillMaxSize(),
+                                verticalArrangement = Arrangement.Center,
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                CircularProgressIndicator()
+                            }
+
+                        } else {
+                            /**
+                             * Data initialized
+                             */
+
+                            PullToRefreshBox(
+                                isRefreshing = leaderboardViewModel.isLoading,
+                                state = refreshState,
+                                onRefresh = {
+                                    leaderboardViewModel.fetchLeaderboardData()
+                                },
                             ) {
 
-                                item {
-                                    LeaderboardHeader(
-                                        networkRank = leaderboardViewModel.networkRank,
-                                        netProvidedFormatted = leaderboardViewModel.netProvidedFormatted,
-                                        networkRankingPublic = leaderboardViewModel.isNetworkRankingPublic,
-                                        toggleNetworkRankingPublic = leaderboardViewModel::toggleNetworkRankingVisibility
-                                    )
-                                }
+                                LazyColumn(
+                                    state = dataListState,
+                                    modifier = Modifier
+                                        .tabletReadableColumn()
+                                        .fillMaxSize()
+                                ) {
 
-                                itemsIndexed(
-                                    leaderboardEntries.value,
-                                    // the server blanks out network_id for networks that opted out
-                                    // of the public leaderboard, so private rows all share the
-                                    // same empty id; the indexed key keeps every row unique
-                                    key = { index, entry ->
-                                        indexedLazyListKey("leaderboard", index, entry.networkId)
-                                    },
-                                ) { index, entry ->
-                                    Column {
-                                        HorizontalDivider()
-                                        LeaderboardEntry(
-                                            entry,
-                                            rank = index + 1,
-                                            netProvidedFormatted = remember(entry.netMiBCount) {
-                                                leaderboardViewModel.formatDataProvided(entry.netMiBCount)
-                                            },
-                                            isNetworkRow = leaderboardViewModel.networkId == entry.networkId.toString()
-                                        )
+                                    item {
+                                        // beside the list in the list-detail layout
+                                        if (!listDetail) {
+                                            LeaderboardHeader(
+                                                networkRank = leaderboardViewModel.networkRank,
+                                                netProvidedFormatted = leaderboardViewModel.netProvidedFormatted,
+                                                networkRankingPublic = leaderboardViewModel.isNetworkRankingPublic,
+                                                toggleNetworkRankingPublic = leaderboardViewModel::toggleNetworkRankingVisibility
+                                            )
+                                        }
                                     }
-                                }
-                                item {
-                                    HorizontalDivider()
-                                }
 
+                                    itemsIndexed(
+                                        leaderboardEntries.value,
+                                        // the server blanks out network_id for networks that opted out
+                                        // of the public leaderboard, so private rows all share the
+                                        // same empty id; the indexed key keeps every row unique
+                                        key = { index, entry ->
+                                            indexedLazyListKey("leaderboard", index, entry.networkId)
+                                        },
+                                    ) { index, entry ->
+                                        Column {
+                                            HorizontalDivider()
+                                            LeaderboardEntry(
+                                                entry,
+                                                rank = index + 1,
+                                                netProvidedFormatted = remember(entry.netMiBCount) {
+                                                    leaderboardViewModel.formatDataProvided(entry.netMiBCount)
+                                                },
+                                                isNetworkRow = leaderboardViewModel.networkId == entry.networkId.toString()
+                                            )
+                                        }
+                                    }
+                                    item {
+                                        HorizontalDivider()
+                                    }
+
+                                }
                             }
-                        }
 
+                        }
                     }
                 }
             }
+
+            if (listDetail) {
+                VerticalDivider(
+                    modifier = Modifier
+                        .width(1.dp)
+                        .fillMaxHeight(),
+                    color = MainBorderBase
+                )
+
+                YourNetworkPane(
+                    leaderboardViewModel = leaderboardViewModel,
+                    selectedTab = selectedTab,
+                    onEditEmoji = { showEmojiSheet = true },
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxHeight(),
+                )
+            }
+
         }
 
     }
 
+}
+
+/**
+ * "Your network" beside the ranking in the list-detail layout: the network's
+ * standing and its leaderboard settings, which sit above the list on a phone.
+ * With Data chosen it is the current ranking, data provided, points, the
+ * longest streak and the visibility toggle; with Points chosen, the Points
+ * tab's own card with its sort ranks, emoji tag and opt-in.
+ */
+@Composable
+private fun YourNetworkPane(
+    leaderboardViewModel: LeaderboardViewModel,
+    selectedTab: Int,
+    onEditEmoji: () -> Unit,
+    modifier: Modifier = Modifier,
+    pointsViewModel: PointsLeaderboardViewModel = hiltViewModel(),
+) {
+    Column(
+        modifier = modifier
+            .verticalScroll(rememberScrollState())
+            .padding(top = 16.dp)
+    ) {
+        Text(
+            stringResource(id = R.string.your_network),
+            style = MaterialTheme.typography.labelLarge,
+            color = TextMuted,
+            modifier = Modifier.padding(horizontal = 16.dp),
+        )
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        when (selectedTab) {
+            LEADERBOARD_TAB_POINTS -> {
+                val jwtNetworkName by pointsViewModel.ownNetworkName.collectAsState()
+                PointsHeader(
+                    viewModel = pointsViewModel,
+                    ownName = pointsViewModel.me?.row?.displayName?.takeIf { it.isNotEmpty() } ?: jwtNetworkName,
+                    onEditEmoji = onEditEmoji,
+                )
+            }
+            else -> {
+                val ownRow = pointsViewModel.me?.row
+                LeaderboardHeader(
+                    networkRank = leaderboardViewModel.networkRank,
+                    netProvidedFormatted = leaderboardViewModel.netProvidedFormatted,
+                    networkRankingPublic = leaderboardViewModel.isNetworkRankingPublic,
+                    toggleNetworkRankingPublic = leaderboardViewModel::toggleNetworkRankingVisibility,
+                    pointsFormatted = ownRow?.totalPointsText ?: "-",
+                    longestStreakFormatted = ownRow?.longestStreakText ?: "-",
+                )
+            }
+        }
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -265,7 +393,11 @@ private fun LeaderboardHeader(
     networkRank: Int,
     netProvidedFormatted: String,
     networkRankingPublic: Boolean,
-    toggleNetworkRankingPublic: suspend () -> Unit
+    toggleNetworkRankingPublic: suspend () -> Unit,
+    // "Your network" beside the list adds the network's points and longest
+    // streak (the Points tab's); above the list on a phone they are left out
+    pointsFormatted: String? = null,
+    longestStreakFormatted: String? = null,
 ) {
     val scope = rememberCoroutineScope()
 
@@ -323,6 +455,26 @@ private fun LeaderboardHeader(
                 }
 
                 HorizontalDivider()
+
+                listOfNotNull(
+                    pointsFormatted?.let { R.string.points to it },
+                    longestStreakFormatted?.let { R.string.longest_streak to it },
+                ).forEach { (labelId, value) ->
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Text(
+                        stringResource(id = labelId),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = TextMuted
+                    )
+
+                    Text(
+                        value,
+                        style = HeadingLargeCondensed,
+                    )
+
+                    HorizontalDivider()
+                }
 
                 Spacer(modifier = Modifier.height(16.dp))
 

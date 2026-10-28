@@ -135,6 +135,15 @@ internal fun slowInternetNoticeChanged(previous: SlowInternetNotice, next: SlowI
         (next.phase == SlowInternetNoticePhase.SLOW && previous.delay != next.delay)
 
 /**
+ * The reading the slow content shows, null while the notification says
+ * anything else: what the dashboard widget's pill follows
+ * (WidgetSnapshotWriter.publishSlowInternet). A widget has no recovered
+ * state, so "back to normal" is none.
+ */
+internal val SlowInternetNotice.slowReading: TransportDelayUi?
+    get() = if (phase == SlowInternetNoticePhase.SLOW) delay else null
+
+/**
  * When the notice should be observed again with no new reading: the next
  * time its phase can change on its own (the slow time reaching the threshold,
  * the minimum stay or "back to normal" running out) or, while it shows a slow

@@ -11,6 +11,7 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -33,6 +34,8 @@ import com.bringyour.network.LoginClientCompletion
 import com.bringyour.network.LoginRequest
 import com.bringyour.network.MainApplication
 import com.bringyour.network.R
+import com.bringyour.network.ui.components.LocalWindowLayout
+import com.bringyour.network.ui.components.rememberWindowLayout
 import com.bringyour.network.ui.components.overlays.FullScreenOverlay
 import com.bringyour.network.ui.components.overlays.WelcomeAnimatedOverlayLogin
 import com.bringyour.network.ui.login.AuthCodeLoadingScreen
@@ -104,117 +107,72 @@ fun LoginNavHost(
         }
     }
 
-    Box(
-       modifier = Modifier.fillMaxSize()
-    ) {
+    // the window's size class and fold, for the sign-in screens, their sheets
+    // and dialogs (ui/components/AdaptiveLayout.kt)
+    CompositionLocalProvider(LocalWindowLayout provides rememberWindowLayout()) {
+        Box(
+           modifier = Modifier.fillMaxSize()
+        ) {
 
-        if (isLoadingAuthCode) {
-            AuthCodeLoadingScreen()
-        } else {
-
-            if (switchAccount && !currentNetworkName.isNullOrEmpty()) {
-                SwitchAccountScreen(
-                    currentNetworkName = currentNetworkName,
-                    targetJwt = targetJwt,
-                    request = targetLoginRequest,
-                    setSwitchAccount = { switchAccount = it }
-                )
+            if (isLoadingAuthCode) {
+                AuthCodeLoadingScreen()
             } else {
-                NavHost(
-                    navController = navController,
-                    startDestination = "login-initial",
-                    enterTransition = { slideInHorizontally(
-                        initialOffsetX = { fullWidth -> fullWidth },
-                        animationSpec = tween(durationMillis = 300)
-                    ) + fadeIn(animationSpec = tween(300)
-                    ) },
-                    exitTransition = {
-                        ExitTransition.None
-                    },
-                    popEnterTransition = {
-                        fadeIn(animationSpec = tween(300))
-                    },
-                    popExitTransition = {
-                        slideOutHorizontally(
-                            targetOffsetX = { fullWidth -> fullWidth },
+
+                if (switchAccount && !currentNetworkName.isNullOrEmpty()) {
+                    SwitchAccountScreen(
+                        currentNetworkName = currentNetworkName,
+                        targetJwt = targetJwt,
+                        request = targetLoginRequest,
+                        setSwitchAccount = { switchAccount = it }
+                    )
+                } else {
+                    NavHost(
+                        navController = navController,
+                        startDestination = "login-initial",
+                        enterTransition = { slideInHorizontally(
+                            initialOffsetX = { fullWidth -> fullWidth },
                             animationSpec = tween(durationMillis = 300)
-                        )
-                    }
-                ) {
+                        ) + fadeIn(animationSpec = tween(300)
+                        ) },
+                        exitTransition = {
+                            ExitTransition.None
+                        },
+                        popEnterTransition = {
+                            fadeIn(animationSpec = tween(300))
+                        },
+                        popExitTransition = {
+                            slideOutHorizontally(
+                                targetOffsetX = { fullWidth -> fullWidth },
+                                animationSpec = tween(durationMillis = 300)
+                            )
+                        }
+                    ) {
 
-                    composable("login-initial") {
-                        LoginInitial(
-                            navController,
-                            loginViewModel,
-                            activityResultSender
-                        )
-                    }
+                        composable("login-initial") {
+                            LoginInitial(
+                                navController,
+                                loginViewModel,
+                                activityResultSender
+                            )
+                        }
 
-                    composable("login-password/{userAuth}") { backStackEntry ->
+                        composable("login-password/{userAuth}") { backStackEntry ->
 
-                        val userAuth = backStackEntry.arguments?.getString("userAuth") ?: ""
+                            val userAuth = backStackEntry.arguments?.getString("userAuth") ?: ""
 
-                        LoginPassword(
-                            userAuth,
-                            navController
-                        )
-                    }
+                            LoginPassword(
+                                userAuth,
+                                navController
+                            )
+                        }
 
-                    composable("create-network/{userAuth}") { backStackEntry ->
+                        composable("create-network/{userAuth}") { backStackEntry ->
 
-                        val userAuth = backStackEntry.arguments?.getString("userAuth") ?: ""
+                            val userAuth = backStackEntry.arguments?.getString("userAuth") ?: ""
 
-                        val createNetworkParams = LoginCreateNetworkParams.LoginCreateUserAuthParams(
-                            userAuth = userAuth,
-                            referralCode = referralCode
-                        )
-
-                        LoginCreateNetwork(
-                            createNetworkParams,
-                            navController
-                        )
-                    }
-
-                    composable("create-network/{blockchain}/{walletAddress}/{signedMessage}/{signature}") { backStackEntry ->
-
-                        val blockchain = backStackEntry.arguments?.getString("blockchain") ?: ""
-                        val walletAddress = backStackEntry.arguments?.getString("walletAddress") ?: ""
-                        val signedMessage = backStackEntry.arguments?.getString("signedMessage") ?: ""
-                        val signature = backStackEntry.arguments?.getString("signature") ?: ""
-
-                        val createNetworkParams = LoginCreateNetworkParams.LoginCreateWalletParams(
-                            blockchain = blockchain,
-                            publicKey = walletAddress,
-                            signedMessage = signedMessage,
-                            signature = signature,
-                            referralCode = referralCode
-                        )
-
-                        LoginCreateNetwork(
-                            createNetworkParams,
-                            navController
-                        )
-                    }
-
-                    composable("create-network-wallet/{bundle}") { backStackEntry ->
-
-                        val bundleArg = backStackEntry.arguments?.getString("bundle") ?: ""
-                        val walletBundle = bundleArg.toWalletCreateBundle()
-
-                        if (walletBundle == null) {
-                            // invalid/corrupted bundle - don't strand the user on a
-                            // create-network screen with blank, unusable wallet params
-                            LaunchedEffect(Unit) {
-                                navController.popBackStack()
-                            }
-                        } else {
-                            val createNetworkParams = LoginCreateNetworkParams.LoginCreateWalletParams(
-                                blockchain = walletBundle.blockchain,
-                                publicKey = walletBundle.publicKey,
-                                signedMessage = walletBundle.signedMessage,
-                                signature = walletBundle.signature,
-                                referralCode = referralCode,
-                                manualWalletId = walletBundle.manualWalletId,
+                            val createNetworkParams = LoginCreateNetworkParams.LoginCreateUserAuthParams(
+                                userAuth = userAuth,
+                                referralCode = referralCode
                             )
 
                             LoginCreateNetwork(
@@ -222,252 +180,301 @@ fun LoginNavHost(
                                 navController
                             )
                         }
-                    }
 
-                    composable("create-network-jwt/{authJwtType}/{userAuth}/{authJwt}/{userName}") { backStackEntry ->
+                        composable("create-network/{blockchain}/{walletAddress}/{signedMessage}/{signature}") { backStackEntry ->
 
-                        val userAuth = backStackEntry.arguments?.getString("userAuth") ?: ""
-                        val authJwt = backStackEntry.arguments?.getString("authJwt") ?: ""
-                        val userName = backStackEntry.arguments?.getString("userName") ?: ""
-                        // "google" from the native button, "apple" (or "google") from the ur.io sso bridge
-                        val authJwtType = backStackEntry.arguments?.getString("authJwtType")?.ifEmpty { null } ?: "google"
+                            val blockchain = backStackEntry.arguments?.getString("blockchain") ?: ""
+                            val walletAddress = backStackEntry.arguments?.getString("walletAddress") ?: ""
+                            val signedMessage = backStackEntry.arguments?.getString("signedMessage") ?: ""
+                            val signature = backStackEntry.arguments?.getString("signature") ?: ""
 
-                        val createNetworkParams = LoginCreateNetworkParams.LoginCreateAuthJwtParams(
-                            userAuth = userAuth,
-                            authJwtType = authJwtType,
-                            authJwt = authJwt,
-                            userName = userName,
-                            referralCode = referralCode
-                        )
+                            val createNetworkParams = LoginCreateNetworkParams.LoginCreateWalletParams(
+                                blockchain = blockchain,
+                                publicKey = walletAddress,
+                                signedMessage = signedMessage,
+                                signature = signature,
+                                referralCode = referralCode
+                            )
 
-                        LoginCreateNetwork(
-                            createNetworkParams,
-                            navController
-                        )
-                    }
-
-                    composable(
-                        "verify/{userAuth}?sendErrorCode={sendErrorCode}" +
-                            "&sendErrorMessage={sendErrorMessage}" +
-                            "&sendErrorRetryAfterSeconds={sendErrorRetryAfterSeconds}",
-                        arguments = listOf(
-                            navArgument("sendErrorCode") {
-                                nullable = true
-                                defaultValue = null
-                            },
-                            navArgument("sendErrorMessage") {
-                                nullable = true
-                                defaultValue = null
-                            },
-                            navArgument("sendErrorRetryAfterSeconds") {
-                                nullable = true
-                                defaultValue = null
-                            },
-                        ),
-                    ) { backStackEntry ->
-
-                        val arguments = backStackEntry.arguments
-                        val userAuth = arguments?.getString("userAuth") ?: ""
-                        // set by verifyRoute when the login or sign-up did not send a code
-                        val sendError = arguments?.getString("sendErrorCode")?.let { code ->
-                            VerifySendError(
-                                code = code,
-                                message = arguments.getString("sendErrorMessage") ?: "",
-                                retryAfterSeconds = arguments.getString("sendErrorRetryAfterSeconds")
-                                    ?.toLongOrNull() ?: 0L,
+                            LoginCreateNetwork(
+                                createNetworkParams,
+                                navController
                             )
                         }
 
-                        LoginVerify(
-                            userAuth,
-                            navController,
-                            sendError = sendError,
-                        )
-                    }
+                        composable("create-network-wallet/{bundle}") { backStackEntry ->
 
-                    composable("reset-password/{userAuth}") { backStackEntry ->
+                            val bundleArg = backStackEntry.arguments?.getString("bundle") ?: ""
+                            val walletBundle = bundleArg.toWalletCreateBundle()
 
-                        val userAuth = backStackEntry.arguments?.getString("userAuth") ?: ""
-
-                        LoginPasswordReset(
-                            userAuth,
-                            navController
-                        )
-                    }
-
-                    composable("reset-password-after-send/{userAuth}") { backStackEntry ->
-
-                        val userAuth = backStackEntry.arguments?.getString("userAuth") ?: ""
-
-                        LoginPasswordResetAfterSend(
-                            userAuth,
-                            navController
-                        )
-                    }
-
-                    composable("create-network-instant") {
-                        val context = LocalContext.current
-                        val application = context.applicationContext as? com.bringyour.network.MainApplication
-                        val loginActivity = context as? com.bringyour.network.LoginActivity
-                        val createNetworkInstantViewModel: CreateNetworkInstantViewModel = hiltViewModel()
-                        val seedphrase by createNetworkInstantViewModel.seedphrase.collectAsState()
-
-                        // the referral link's (or Play install referrer's) code
-                        // applies to an instant account too, as on the
-                        // create-network routes above
-                        LaunchedEffect(referralCode) {
-                            createNetworkInstantViewModel.seedReferralCode(referralCode)
-                        }
-
-                        val scope = rememberCoroutineScope()
-                        var contentVisible by remember { mutableStateOf(true) }
-                        var welcomeVisible by remember { mutableStateOf(false) }
-                        var finishInProgress by remember { mutableStateOf(false) }
-
-                        // the account exists server side and its jwt is persisted
-                        // before the phrase is shown, so there is no way back out of
-                        // this screen -- both exits go forward into the app, and a
-                        // failed finish leaves the phrase up to retry instead of
-                        // stranding an account whose seedphrase was never seen.
-                        // Entering plays the welcome animation every other sign-in
-                        // plays before the main activity opens on its Enter card
-                        val continueIntoApp: () -> Unit = continueIntoApp@{
-                            if (!finishInProgress) {
-                                val app = application
-                                val activity = loginActivity
-                                if (app == null || activity == null) {
-                                    return@continueIntoApp
-                                }
-                                val request = createNetworkInstantViewModel.loginRequest ?: return@continueIntoApp
-                                if (!app.isCurrentLoginRequest(request)) return@continueIntoApp
-                                finishInProgress = true
-                                app.authenticateLoginClient(request) { completion ->
-                                    if (completion is LoginClientCompletion.Ready) {
-                                        activity.finishAuthenticatedLoginAfterWelcome(request)
-                                    }
-                                    scope.launch {
-                                        if (!app.ownsLoginRequest(request)) return@launch
-                                        if (completion is LoginClientCompletion.Failed) {
-                                            finishInProgress = false
-                                            android.util.Log.e(
-                                                "LoginNavHost",
-                                                "auth client finish err: ${completion.message}",
-                                            )
-                                            android.widget.Toast.makeText(
-                                                context,
-                                                context.getString(R.string.error_logging_in_please_try_again),
-                                                android.widget.Toast.LENGTH_LONG,
-                                            ).show()
-                                            welcomeVisible = false
-                                            contentVisible = true
-                                            return@launch
-                                        }
-                                        contentVisible = false
-                                        delay(500)
-                                        if (app.isCurrentLoginRequest(request)) welcomeVisible = true
-                                    }
-                                }
-                            }
-                        }
-
-                        val createdSeedphrase = seedphrase
-                        if (createdSeedphrase == null) {
-                            CreateNetworkInstant(
-                                beginLoginRequest = { application?.beginLoginRequest() },
-                                appLogin = { request, jwt, newNetwork, completion ->
-                                    application?.persistNetworkSession(
-                                        request,
-                                        jwt,
-                                        newNetwork,
-                                        completion,
-                                    ) ?: completion(false)
-                                },
-                                onBack = {
+                            if (walletBundle == null) {
+                                // invalid/corrupted bundle - don't strand the user on a
+                                // create-network screen with blank, unusable wallet params
+                                LaunchedEffect(Unit) {
                                     navController.popBackStack()
-                                },
-                                createNetworkInstantViewModel = createNetworkInstantViewModel
-                            )
-                        } else {
-                            AnimatedVisibility(
-                                visible = contentVisible,
-                                exit = fadeOut(),
-                            ) {
-                                SeedphraseDisplayScreen(
-                                    seedphrase = createdSeedphrase,
-                                    onConfirmed = continueIntoApp,
-                                    onBack = continueIntoApp
+                                }
+                            } else {
+                                val createNetworkParams = LoginCreateNetworkParams.LoginCreateWalletParams(
+                                    blockchain = walletBundle.blockchain,
+                                    publicKey = walletBundle.publicKey,
+                                    signedMessage = walletBundle.signedMessage,
+                                    signature = walletBundle.signature,
+                                    referralCode = referralCode,
+                                    manualWalletId = walletBundle.manualWalletId,
+                                )
+
+                                LoginCreateNetwork(
+                                    createNetworkParams,
+                                    navController
                                 )
                             }
-                            if (welcomeVisible) {
-                                WelcomeAnimatedOverlayLogin()
+                        }
+
+                        composable("create-network-jwt/{authJwtType}/{userAuth}/{authJwt}/{userName}") { backStackEntry ->
+
+                            val userAuth = backStackEntry.arguments?.getString("userAuth") ?: ""
+                            val authJwt = backStackEntry.arguments?.getString("authJwt") ?: ""
+                            val userName = backStackEntry.arguments?.getString("userName") ?: ""
+                            // "google" from the native button, "apple" (or "google") from the ur.io sso bridge
+                            val authJwtType = backStackEntry.arguments?.getString("authJwtType")?.ifEmpty { null } ?: "google"
+
+                            val createNetworkParams = LoginCreateNetworkParams.LoginCreateAuthJwtParams(
+                                userAuth = userAuth,
+                                authJwtType = authJwtType,
+                                authJwt = authJwt,
+                                userName = userName,
+                                referralCode = referralCode
+                            )
+
+                            LoginCreateNetwork(
+                                createNetworkParams,
+                                navController
+                            )
+                        }
+
+                        composable(
+                            "verify/{userAuth}?sendErrorCode={sendErrorCode}" +
+                                "&sendErrorMessage={sendErrorMessage}" +
+                                "&sendErrorRetryAfterSeconds={sendErrorRetryAfterSeconds}",
+                            arguments = listOf(
+                                navArgument("sendErrorCode") {
+                                    nullable = true
+                                    defaultValue = null
+                                },
+                                navArgument("sendErrorMessage") {
+                                    nullable = true
+                                    defaultValue = null
+                                },
+                                navArgument("sendErrorRetryAfterSeconds") {
+                                    nullable = true
+                                    defaultValue = null
+                                },
+                            ),
+                        ) { backStackEntry ->
+
+                            val arguments = backStackEntry.arguments
+                            val userAuth = arguments?.getString("userAuth") ?: ""
+                            // set by verifyRoute when the login or sign-up did not send a code
+                            val sendError = arguments?.getString("sendErrorCode")?.let { code ->
+                                VerifySendError(
+                                    code = code,
+                                    message = arguments.getString("sendErrorMessage") ?: "",
+                                    retryAfterSeconds = arguments.getString("sendErrorRetryAfterSeconds")
+                                        ?.toLongOrNull() ?: 0L,
+                                )
+                            }
+
+                            LoginVerify(
+                                userAuth,
+                                navController,
+                                sendError = sendError,
+                            )
+                        }
+
+                        composable("reset-password/{userAuth}") { backStackEntry ->
+
+                            val userAuth = backStackEntry.arguments?.getString("userAuth") ?: ""
+
+                            LoginPasswordReset(
+                                userAuth,
+                                navController
+                            )
+                        }
+
+                        composable("reset-password-after-send/{userAuth}") { backStackEntry ->
+
+                            val userAuth = backStackEntry.arguments?.getString("userAuth") ?: ""
+
+                            LoginPasswordResetAfterSend(
+                                userAuth,
+                                navController
+                            )
+                        }
+
+                        composable("create-network-instant") {
+                            val context = LocalContext.current
+                            val application = context.applicationContext as? com.bringyour.network.MainApplication
+                            val loginActivity = context as? com.bringyour.network.LoginActivity
+                            val createNetworkInstantViewModel: CreateNetworkInstantViewModel = hiltViewModel()
+                            val seedphrase by createNetworkInstantViewModel.seedphrase.collectAsState()
+
+                            // the referral link's (or Play install referrer's) code
+                            // applies to an instant account too, as on the
+                            // create-network routes above
+                            LaunchedEffect(referralCode) {
+                                createNetworkInstantViewModel.seedReferralCode(referralCode)
+                            }
+
+                            val scope = rememberCoroutineScope()
+                            var contentVisible by remember { mutableStateOf(true) }
+                            var welcomeVisible by remember { mutableStateOf(false) }
+                            var finishInProgress by remember { mutableStateOf(false) }
+
+                            // the account exists server side and its jwt is persisted
+                            // before the phrase is shown, so there is no way back out of
+                            // this screen -- both exits go forward into the app, and a
+                            // failed finish leaves the phrase up to retry instead of
+                            // stranding an account whose seedphrase was never seen.
+                            // Entering plays the welcome animation every other sign-in
+                            // plays before the main activity opens on its Enter card
+                            val continueIntoApp: () -> Unit = continueIntoApp@{
+                                if (!finishInProgress) {
+                                    val app = application
+                                    val activity = loginActivity
+                                    if (app == null || activity == null) {
+                                        return@continueIntoApp
+                                    }
+                                    val request = createNetworkInstantViewModel.loginRequest ?: return@continueIntoApp
+                                    if (!app.isCurrentLoginRequest(request)) return@continueIntoApp
+                                    finishInProgress = true
+                                    app.authenticateLoginClient(request) { completion ->
+                                        if (completion is LoginClientCompletion.Ready) {
+                                            activity.finishAuthenticatedLoginAfterWelcome(request)
+                                        }
+                                        scope.launch {
+                                            if (!app.ownsLoginRequest(request)) return@launch
+                                            if (completion is LoginClientCompletion.Failed) {
+                                                finishInProgress = false
+                                                android.util.Log.e(
+                                                    "LoginNavHost",
+                                                    "auth client finish err: ${completion.message}",
+                                                )
+                                                android.widget.Toast.makeText(
+                                                    context,
+                                                    context.getString(R.string.error_logging_in_please_try_again),
+                                                    android.widget.Toast.LENGTH_LONG,
+                                                ).show()
+                                                welcomeVisible = false
+                                                contentVisible = true
+                                                return@launch
+                                            }
+                                            contentVisible = false
+                                            delay(500)
+                                            if (app.isCurrentLoginRequest(request)) welcomeVisible = true
+                                        }
+                                    }
+                                }
+                            }
+
+                            val createdSeedphrase = seedphrase
+                            if (createdSeedphrase == null) {
+                                CreateNetworkInstant(
+                                    beginLoginRequest = { application?.beginLoginRequest() },
+                                    appLogin = { request, jwt, newNetwork, completion ->
+                                        application?.persistNetworkSession(
+                                            request,
+                                            jwt,
+                                            newNetwork,
+                                            completion,
+                                        ) ?: completion(false)
+                                    },
+                                    onBack = {
+                                        navController.popBackStack()
+                                    },
+                                    createNetworkInstantViewModel = createNetworkInstantViewModel
+                                )
+                            } else {
+                                AnimatedVisibility(
+                                    visible = contentVisible,
+                                    exit = fadeOut(),
+                                ) {
+                                    SeedphraseDisplayScreen(
+                                        seedphrase = createdSeedphrase,
+                                        onConfirmed = continueIntoApp,
+                                        onBack = continueIntoApp
+                                    )
+                                }
+                                if (welcomeVisible) {
+                                    WelcomeAnimatedOverlayLogin()
+                                }
                             }
                         }
                     }
-                }
 
-                // a "?guest" deep link: guest accounts are gone, so offer the
-                // instant (seedphrase-backed) account instead of silently creating
-                // one whose generated seedphrase the user never sees
-                LaunchedEffect(startInstantCreate) {
-                    if (startInstantCreate) {
-                        // singleTop: this effect re-runs after an activity
-                        // recreate, when the nav controller has already restored
-                        // this destination
-                        navController.navigate("create-network-instant") {
-                            launchSingleTop = true
+                    // a "?guest" deep link: guest accounts are gone, so offer the
+                    // instant (seedphrase-backed) account instead of silently creating
+                    // one whose generated seedphrase the user never sees
+                    LaunchedEffect(startInstantCreate) {
+                        if (startInstantCreate) {
+                            // singleTop: this effect re-runs after an activity
+                            // recreate, when the nav controller has already restored
+                            // this destination
+                            navController.navigate("create-network-instant") {
+                                launchSingleTop = true
+                            }
                         }
                     }
-                }
 
-                // an unlinked wallet auth was received by the activity (eg the bittensor
-                // sign message deep link) -> route into the create network flow
-                // an sso identity (apple / google through the ur.io bridge) for a user
-                // with no network yet -> route into the create network flow
-                LaunchedEffect(jwtCreateNetworkParams) {
-                    jwtCreateNetworkParams?.let { params ->
-                        val encodedType = Uri.encode(params.authJwtType)
-                        val encodedUserAuth = Uri.encode(params.userAuth.ifEmpty { "-" })
-                        val encodedAuthJwt = Uri.encode(params.authJwt)
-                        val encodedUserName = Uri.encode(params.userName.ifEmpty { "-" })
-                        navController.navigate("create-network-jwt/${encodedType}/${encodedUserAuth}/${encodedAuthJwt}/${encodedUserName}")
+                    // an unlinked wallet auth was received by the activity (eg the bittensor
+                    // sign message deep link) -> route into the create network flow
+                    // an sso identity (apple / google through the ur.io bridge) for a user
+                    // with no network yet -> route into the create network flow
+                    LaunchedEffect(jwtCreateNetworkParams) {
+                        jwtCreateNetworkParams?.let { params ->
+                            val encodedType = Uri.encode(params.authJwtType)
+                            val encodedUserAuth = Uri.encode(params.userAuth.ifEmpty { "-" })
+                            val encodedAuthJwt = Uri.encode(params.authJwt)
+                            val encodedUserName = Uri.encode(params.userName.ifEmpty { "-" })
+                            navController.navigate("create-network-jwt/${encodedType}/${encodedUserAuth}/${encodedAuthJwt}/${encodedUserName}")
+                        }
                     }
-                }
 
-                LaunchedEffect(walletCreateNetworkParams) {
-                    walletCreateNetworkParams?.let { params ->
+                    LaunchedEffect(walletCreateNetworkParams) {
+                        walletCreateNetworkParams?.let { params ->
 
-                        val encodedBlockchain = Uri.encode(params.blockchain)
-                        val encodedPublicKey = Uri.encode(params.publicKey)
-                        val encodedSignedMessage = Uri.encode(params.signedMessage)
-                        val encodedSignature = Uri.encode(params.signature)
+                            val encodedBlockchain = Uri.encode(params.blockchain)
+                            val encodedPublicKey = Uri.encode(params.publicKey)
+                            val encodedSignedMessage = Uri.encode(params.signedMessage)
+                            val encodedSignature = Uri.encode(params.signature)
 
-                        navController.navigate("create-network/${encodedBlockchain}/${encodedPublicKey}/${encodedSignedMessage}/${encodedSignature}")
+                            navController.navigate("create-network/${encodedBlockchain}/${encodedPublicKey}/${encodedSignedMessage}/${encodedSignature}")
+                        }
                     }
+
+                    FullScreenOverlay(
+                        referralCode = null,
+                        overlayViewModel = overlayViewModel
+                    )
                 }
 
-                FullScreenOverlay(
-                    referralCode = null,
-                    overlayViewModel = overlayViewModel
+            }
+
+            if (welcomeOverlayVisible) {
+                WelcomeAnimatedOverlayLogin()
+            }
+
+            signInNotice?.let { notice ->
+                SignInNoticeAlert(
+                    notice = notice,
+                    onDismiss = { signInNotice = null },
                 )
             }
 
+            // a network-level failure reaching URnetwork offers the connection
+            // region picker; it never changes the region by itself
+            CantReachRegionPrompt()
+
         }
-
-        if (welcomeOverlayVisible) {
-            WelcomeAnimatedOverlayLogin()
-        }
-
-        signInNotice?.let { notice ->
-            SignInNoticeAlert(
-                notice = notice,
-                onDismiss = { signInNotice = null },
-            )
-        }
-
-        // a network-level failure reaching URnetwork offers the connection
-        // region picker; it never changes the region by itself
-        CantReachRegionPrompt()
-
     }
 
 }

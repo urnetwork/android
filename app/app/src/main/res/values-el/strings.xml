@@ -1271,12 +1271,14 @@
     <string name="widget_not_signed_in">Δεν έχετε συνδεθεί</string>
     <string name="widget_open">Άνοιγμα</string>
     <string name="widget_open_to_set_up">Ανοίξτε το URnetwork για ρύθμιση</string>
+    <string name="widget_overview_description">Σύνδεση, πάροχοι στην υδρόγειο, υπόλοιπο, σημερινή κίνηση και συμβόλαια σε ένα γραφικό στοιχείο, με γρήγορη σύνδεση.</string>
     <string name="widget_peak_rate">Μέγιστο %1$s</string>
     <string name="widget_provider">Πάροχος</string>
     <string name="widget_provider_mode_title">Πάροχος · %1$s</string>
     <string name="widget_provider_stats_when_enabled">Τα στατιστικά παρόχου θα εμφανιστούν όταν ενεργοποιηθεί ο πάροχος.</string>
     <string name="widget_quick_tile_added">Προστέθηκε το πλακίδιο γρήγορης σύνδεσης</string>
     <string name="widget_toggle_intent_title">Εναλλαγή VPN του URnetwork</string>
+    <string name="widget_traffic_today">Κίνηση σήμερα</string>
     <string name="widget_updated_ago">Ενημερώθηκε %1$s</string>
     <string name="widget_updated_just_now">Ενημερώθηκε μόλις τώρα</string>
     <string name="widgets">Γραφικά στοιχεία</string>
@@ -1290,6 +1292,7 @@
     <string name="you_re_premium">Είστε premium.</string>
     <string name="your_bandwidth">Το εύρος ζώνης σας</string>
     <string name="your_email_com">name@email.com</string>
+    <string name="your_network">Το δίκτυό σας</string>
     <string name="your_referral_code">Ο κωδικός παραπομπής σας</string>
     <string name="your_seedphrase">Η φράση ανάκτησής σας</string>
     <plurals name="apps_excluded_count">

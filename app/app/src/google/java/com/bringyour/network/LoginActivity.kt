@@ -120,7 +120,9 @@ class LoginActivity : AppCompatActivity() {
 
         if (Intent.ACTION_VIEW == action) {
             Log.i(TAG, "Intent.ACTION_VIEW == action")
-            intent?.data?.let { u ->
+            // a recreated activity already handled its link: running it again
+            // would repeat the sign-in (an ur://…?auth_code= hand-off twice)
+            intent?.data?.takeIf { savedInstanceState == null }?.let { u ->
                 if (isAppleOAuthReturn(u)) {
                     if (app.device != null && ssoOAuthReturnRoute(
                             AppleOAuthSession.attempts(this),

@@ -1,5 +1,6 @@
 package com.bringyour.network.ui.stats
 
+import com.bringyour.network.ui.components.rememberFoldSafeSheetState
 import com.bringyour.network.ui.components.tabletReadableColumn
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -37,12 +38,12 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
@@ -127,7 +128,7 @@ fun SplitRulesScreen(
     val scope = rememberCoroutineScope()
 
     var editorTarget by remember { mutableStateOf<RuleEditorTarget?>(null) }
-    val editorSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val editorSheetState = rememberFoldSafeSheetState()
 
     val actions = blockActionsViewModel.blockActions
     val rules = blockActionsViewModel.splitRules
@@ -703,7 +704,7 @@ private fun SplitRuleEditor(
 
     var selected by remember { mutableStateOf(target.selected) }
     var addedHosts by remember { mutableStateOf<List<String>>(emptyList()) }
-    var newHost by remember { mutableStateOf(TextFieldValue("")) }
+    var newHost by rememberSaveable(stateSaver = TextFieldValue.Saver) { mutableStateOf(TextFieldValue("")) }
     val isEditing = target.ruleId != null
 
     val editableCandidates = remember(addedHosts, target.candidates) {

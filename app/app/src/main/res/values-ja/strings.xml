@@ -1271,12 +1271,14 @@
     <string name="widget_not_signed_in">未サインイン</string>
     <string name="widget_open">開く</string>
     <string name="widget_open_to_set_up">URnetwork を開いて設定</string>
+    <string name="widget_overview_description">接続、地球儀上のプロバイダー、残高、今日のトラフィック、契約を1つのウィジェットに。クイック接続付き。</string>
     <string name="widget_peak_rate">ピーク %1$s</string>
     <string name="widget_provider">プロバイダー</string>
     <string name="widget_provider_mode_title">プロバイダー · %1$s</string>
     <string name="widget_provider_stats_when_enabled">プロバイダーを有効にすると、プロバイダーの統計が表示されます。</string>
     <string name="widget_quick_tile_added">クイック接続タイルを追加しました</string>
     <string name="widget_toggle_intent_title">URnetwork VPN のオン/オフ</string>
+    <string name="widget_traffic_today">今日のトラフィック</string>
     <string name="widget_updated_ago">%1$sに更新</string>
     <string name="widget_updated_just_now">たった今更新</string>
     <string name="widgets">ウィジェット</string>
@@ -1290,6 +1292,7 @@
     <string name="you_re_premium">あなたはプレミアムです。</string>
     <string name="your_bandwidth">あなたの帯域幅</string>
     <string name="your_email_com">name@email.com</string>
+    <string name="your_network">あなたのネットワーク</string>
     <string name="your_referral_code">あなたの紹介コード</string>
     <string name="your_seedphrase">あなたのシードフレーズ</string>
     <plurals name="apps_excluded_count">

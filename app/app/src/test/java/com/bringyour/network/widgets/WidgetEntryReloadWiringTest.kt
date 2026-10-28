@@ -77,6 +77,11 @@ class WidgetEntryReloadWiringTest {
     }
 
     @Test
+    fun theOverviewReadsItsEntryOnEachReload() {
+        assertReadsItsEntryInTheComposition("OverviewWidget.kt", "OVERVIEW")
+    }
+
+    @Test
     fun theEntryIsReadAgainOnItsKindsTick() {
         val remembered = between(
             source("WidgetReloads.kt"),
@@ -92,9 +97,19 @@ class WidgetEntryReloadWiringTest {
         // a running composition re-reads its entry on the tick, and one that
         // is not running reads it when the update starts it
         val refresh = source("GlanceWidgetRefresh.kt")
-        assertTrue(refresh.contains("override fun reloadDashboard() = reload(WidgetKinds.DASHBOARD, DashboardWidget())"))
-        assertTrue(refresh.contains("override fun reloadProviderGlobe() = reload(WidgetKinds.PROVIDER_GLOBE, ProviderGlobeWidget())"))
-        assertTrue(refresh.contains("override fun reloadContracts() = reload(WidgetKinds.CONTRACTS, ContractsWidget())"))
+        // the overview shows what each of the three does: it re-renders with any of them
+        for ((name, call) in listOf(
+            "reloadDashboard" to "reload(WidgetKinds.DASHBOARD, DashboardWidget())",
+            "reloadProviderGlobe" to "reload(WidgetKinds.PROVIDER_GLOBE, ProviderGlobeWidget())",
+            "reloadContracts" to "reload(WidgetKinds.CONTRACTS, ContractsWidget())",
+        )) {
+            val body = between(refresh, "override fun $name() {", "\n    }\n")
+            assertTrue(body, body.contains(call))
+            assertTrue(body, body.contains("reloadOverview()"))
+        }
+        val all = between(refresh, "override fun reloadAll() {", "\n    }\n")
+        assertTrue(all, all.contains("reloadOverview()"))
+        assertTrue(refresh.contains("private fun reloadOverview() = reload(WidgetKinds.OVERVIEW, OverviewWidget())"))
         val reload = between(refresh, "private fun reload(kind: String, widget: GlanceAppWidget) {", "\n    }\n")
         val bump = reload.indexOf("WidgetReloads.bump(kind)")
         val update = reload.indexOf("widget.updateAll(context)")

@@ -1271,12 +1271,14 @@
     <string name="widget_not_signed_in">Hujaingia</string>
     <string name="widget_open">Fungua</string>
     <string name="widget_open_to_set_up">Fungua URnetwork ili kuweka mipangilio</string>
+    <string name="widget_overview_description">Muunganisho, watoa huduma kwenye tufe, salio, trafiki ya leo na mikataba katika wijeti moja, pamoja na kuunganisha haraka.</string>
     <string name="widget_peak_rate">Kilele %1$s</string>
     <string name="widget_provider">Mtoa huduma</string>
     <string name="widget_provider_mode_title">Mtoa huduma · %1$s</string>
     <string name="widget_provider_stats_when_enabled">Takwimu za mtoa huduma zitaonekana mtoa huduma atakapowashwa.</string>
     <string name="widget_quick_tile_added">Kigae cha kuunganisha haraka kimeongezwa</string>
     <string name="widget_toggle_intent_title">Washa au zima VPN ya URnetwork</string>
+    <string name="widget_traffic_today">Trafiki ya leo</string>
     <string name="widget_updated_ago">Imesasishwa %1$s</string>
     <string name="widget_updated_just_now">Imesasishwa sasa hivi</string>
     <string name="widgets">Wijeti</string>
@@ -1290,6 +1292,7 @@
     <string name="you_re_premium">Wewe ni premium.</string>
     <string name="your_bandwidth">Kipimo data chako</string>
     <string name="your_email_com">yako@email.com</string>
+    <string name="your_network">Mtandao wako</string>
     <string name="your_referral_code">Msimbo wako wa rufaa</string>
     <string name="your_seedphrase">Kifungu chako cha seed</string>
     <plurals name="apps_excluded_count">

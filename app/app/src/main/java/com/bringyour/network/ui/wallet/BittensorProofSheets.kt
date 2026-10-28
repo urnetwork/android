@@ -1,5 +1,6 @@
 package com.bringyour.network.ui.wallet
 
+import com.bringyour.network.ui.components.rememberFoldSafeSheetState
 import android.content.Context
 import android.util.Log
 import androidx.compose.foundation.layout.Column
@@ -15,7 +16,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -230,7 +230,7 @@ fun BittensorProofSheets(
     when (val s = stage) {
         BittensorProofStage.Hidden -> {}
         is BittensorProofStage.Choosing, is BittensorProofStage.Loading -> {
-            val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+            val sheetState = rememberFoldSafeSheetState()
             ModalBottomSheet(
                 onDismissRequest = { flow.dismiss() },
                 sheetState = sheetState,
@@ -278,7 +278,7 @@ fun BittensorProofSheets(
             }
         }
         is BittensorProofStage.AwaitingBrowser -> {
-            val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+            val sheetState = rememberFoldSafeSheetState()
             ModalBottomSheet(
                 onDismissRequest = { flow.dismiss() },
                 sheetState = sheetState,
@@ -307,7 +307,7 @@ fun BittensorProofSheets(
             }
         }
         is BittensorProofStage.Signing -> {
-            val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+            val sheetState = rememberFoldSafeSheetState()
             val clipboardManager = LocalClipboardManager.current
             ModalBottomSheet(
                 onDismissRequest = { flow.dismiss() },

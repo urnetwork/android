@@ -7,7 +7,8 @@ import androidx.compose.foundation.gestures.animateTo
 import androidx.compose.foundation.gestures.animateToWithDecay
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.Saver
+import androidx.compose.runtime.saveable.rememberSaveable
 import kotlin.math.abs
 
 /** The connect drawer's two resting positions. */
@@ -82,6 +83,17 @@ class ConnectDrawerState(initialValue: ConnectDrawerValue = ConnectDrawerValue.C
 
     companion object {
 
+        /**
+         * Saves where the drawer rests (or is heading), so a recreated screen
+         * reopens it there instead of collapsing it.
+         */
+        val Saver: Saver<ConnectDrawerState, String> = Saver(
+            save = { it.targetValue.name },
+            restore = { name ->
+                ConnectDrawerState(ConnectDrawerValue.entries.firstOrNull { it.name == name } ?: ConnectDrawerValue.Collapsed)
+            },
+        )
+
         /** The resting position a release lands on. Pure, for tests. */
         fun releaseTarget(
             offset: Float,
@@ -109,5 +121,5 @@ class ConnectDrawerState(initialValue: ConnectDrawerValue = ConnectDrawerValue.C
 
 @Composable
 fun rememberConnectDrawerState(): ConnectDrawerState {
-    return remember { ConnectDrawerState() }
+    return rememberSaveable(saver = ConnectDrawerState.Saver) { ConnectDrawerState() }
 }

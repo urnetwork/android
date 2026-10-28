@@ -1271,12 +1271,14 @@
     <string name="widget_not_signed_in">Вход не выполнен</string>
     <string name="widget_open">Открыть</string>
     <string name="widget_open_to_set_up">Откройте URnetwork для настройки</string>
+    <string name="widget_overview_description">Подключение, провайдеры на глобусе, баланс, трафик за сегодня и контракты в одном виджете, с быстрым подключением.</string>
     <string name="widget_peak_rate">Пик %1$s</string>
     <string name="widget_provider">Провайдер</string>
     <string name="widget_provider_mode_title">Провайдер · %1$s</string>
     <string name="widget_provider_stats_when_enabled">Статистика провайдера появится, когда провайдер будет включён.</string>
     <string name="widget_quick_tile_added">Плитка быстрого подключения добавлена</string>
     <string name="widget_toggle_intent_title">Переключить VPN URnetwork</string>
+    <string name="widget_traffic_today">Трафик за сегодня</string>
     <string name="widget_updated_ago">Обновлено %1$s</string>
     <string name="widget_updated_just_now">Обновлено только что</string>
     <string name="widgets">Виджеты</string>
@@ -1290,6 +1292,7 @@
     <string name="you_re_premium">У вас премиум.</string>
     <string name="your_bandwidth">Ваша пропускная способность</string>
     <string name="your_email_com">name@email.com</string>
+    <string name="your_network">Ваша сеть</string>
     <string name="your_referral_code">Ваш реферальный код</string>
     <string name="your_seedphrase">Ваша сид-фраза</string>
     <plurals name="apps_excluded_count">

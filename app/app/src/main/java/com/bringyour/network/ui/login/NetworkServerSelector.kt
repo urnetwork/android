@@ -23,6 +23,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -160,9 +161,9 @@ fun NetworkServerSelector(
     val configuredApiUrl = active?.configuredApiUrl ?: ""
     val configuredConnectUrl = active?.configuredPlatformUrl ?: ""
 
-    var isPresenting by remember { mutableStateOf(false) }
-    var isPresentingVless by remember { mutableStateOf(false) }
-    var isPresentingControlDoh by remember { mutableStateOf(false) }
+    var isPresenting by rememberSaveable { mutableStateOf(false) }
+    var isPresentingVless by rememberSaveable { mutableStateOf(false) }
+    var isPresentingControlDoh by rememberSaveable { mutableStateOf(false) }
     var isFocused by remember { mutableStateOf(false) }
     val textColor = when {
         !enabled -> TextFaint

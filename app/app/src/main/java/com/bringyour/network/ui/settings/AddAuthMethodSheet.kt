@@ -1,5 +1,6 @@
 package com.bringyour.network.ui.settings
 
+import com.bringyour.network.ui.components.rememberFoldSafeSheetState
 import android.util.Log
 import android.util.Patterns
 import android.widget.Toast
@@ -14,7 +15,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -23,6 +23,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -98,7 +99,7 @@ fun AddAuthMethodSheet(
 
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val sheetState = rememberFoldSafeSheetState()
     val verifyErrMsg = stringResource(id = R.string.verify_error)
 
     // bumped on every flow change so the sheet recomposes
@@ -175,7 +176,7 @@ fun AddAuthMethodSheet(
     val methods = remember(showSsoOptions) { addAuthMethods(showSsoOptions) }
     var selectedMethod by remember(methods) { mutableStateOf(methods.first()) }
 
-    var email by remember { mutableStateOf(TextFieldValue("")) }
+    var email by rememberSaveable(stateSaver = TextFieldValue.Saver) { mutableStateOf(TextFieldValue("")) }
     var password by remember { mutableStateOf(TextFieldValue("")) }
     var addError by remember { mutableStateOf<String?>(null) }
 

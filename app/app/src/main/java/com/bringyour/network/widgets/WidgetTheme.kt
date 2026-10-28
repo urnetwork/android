@@ -8,6 +8,7 @@ import androidx.glance.text.FontFamily
 import androidx.glance.text.FontWeight
 import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider
+import com.bringyour.network.ui.theme.Amber
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.BlueMedium
 import com.bringyour.network.ui.theme.Green
@@ -35,6 +36,8 @@ object WidgetTheme {
     val tint: ColorProvider = ColorProvider(Pink)
     /** The connected mark next to the location (the connect screen's green). */
     val connected: ColorProvider = ColorProvider(Green)
+    /** The dashboard's slow internet pill: its tunnel, label and worse number (the in-app pill's amber). */
+    val slowInternet: ColorProvider = ColorProvider(Amber)
 
     /** Usage bar segments, as the app's UsageBar draws them. */
     val balanceUsed: ColorProvider = ColorProvider(BlueMedium)
@@ -57,6 +60,10 @@ object WidgetTheme {
     val label = TextStyle(color = textMuted, fontSize = 11.sp, fontWeight = FontWeight.Medium)
     val faint = TextStyle(color = textFaint, fontSize = 11.sp)
     val mono = TextStyle(color = text, fontSize = 11.sp, fontFamily = FontFamily.Monospace)
+
+    /** The overview's tiles: the card, a touch see-through over the globe, and each tile's figure. */
+    val tile: ColorProvider = ColorProvider(OffBlack.copy(alpha = 0.92f))
+    val figure = TextStyle(color = text, fontSize = 16.sp, fontWeight = FontWeight.Medium)
 
     fun withAlpha(color: Color, alpha: Float): ColorProvider = ColorProvider(color.copy(alpha = alpha))
 }

@@ -116,7 +116,9 @@ fun OverlayBackground(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(16.dp),
+                    // below the close button, so a tall card in a short
+                    // window scrolls under it rather than covering it
+                    .padding(start = 16.dp, top = OverlayCloseRowHeight, end = 16.dp, bottom = 16.dp),
                 contentAlignment = Alignment.BottomCenter,
             ) {
                 content()
@@ -130,6 +132,9 @@ fun OverlayBackground(
         }
     }
 }
+
+/** The close button's row: the 48dp button and its 16dp padding. */
+private val OverlayCloseRowHeight = 80.dp
 
 @Preview(showBackground = true)
 @Composable

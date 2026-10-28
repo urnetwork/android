@@ -31,6 +31,9 @@ object ClientEvents {
     const val WIDGET_DASHBOARD = "dashboard"
     const val WIDGET_GLOBE = "globe"
     const val WIDGET_CONTRACTS = "contracts"
+    /** The overview on the home screen, and the same widget on the lock screen or Samsung's cover screen. */
+    const val WIDGET_OVERVIEW = "overview"
+    const val WIDGET_COVER = "cover"
     const val WIDGET_QUICK_SETTINGS = "quick_settings"
 
     // the Play product id (the store's product on a purchase event)

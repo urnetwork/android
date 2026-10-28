@@ -8,12 +8,19 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.Saver
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -24,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import com.bringyour.sdk.ConnectLocation
 import com.bringyour.network.R
 import com.bringyour.network.ui.components.URSearchInput
+import com.bringyour.network.ui.components.tabletReadableColumn
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -55,6 +63,8 @@ fun BrowseLocations(
 
     Column(
         Modifier
+            // a wide window centers the search and the list in the readable column
+            .tabletReadableColumn()
             .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -127,4 +137,40 @@ fun BrowseLocations(
             )
         }
     }
+}
+
+/**
+ * The location list's scroll position, kept above the screen and the dialog
+ * that show the list, so a fold or a resize that turns one into the other
+ * carries the position across (apple/DUO.md). Saved with the screen.
+ */
+@Stable
+class LocationListPosition(index: Int = 0, offset: Int = 0) {
+    var index by mutableIntStateOf(index)
+    var offset by mutableIntStateOf(offset)
+
+    companion object {
+        val Saver: Saver<LocationListPosition, List<Int>> = Saver(
+            save = { listOf(it.index, it.offset) },
+            restore = { LocationListPosition(it.getOrElse(0) { 0 }, it.getOrElse(1) { 0 }) },
+        )
+    }
+}
+
+@Composable
+fun rememberLocationListPosition(): LocationListPosition =
+    rememberSaveable(saver = LocationListPosition.Saver) { LocationListPosition() }
+
+/** A list state that starts at [position] and keeps it up to date as the list scrolls. */
+@Composable
+fun rememberLocationListState(position: LocationListPosition): LazyListState {
+    val state = rememberLazyListState(position.index, position.offset)
+    LaunchedEffect(state, position) {
+        snapshotFlow { state.firstVisibleItemIndex to state.firstVisibleItemScrollOffset }
+            .collect { (index, offset) ->
+                position.index = index
+                position.offset = offset
+            }
+    }
+    return state
 }

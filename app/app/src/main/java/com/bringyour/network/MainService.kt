@@ -23,6 +23,7 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.core.app.NotificationCompat
 import androidx.core.app.ServiceCompat
 import com.bringyour.network.ui.components.tunnelLevelDepths
+import com.bringyour.network.ui.components.tunnelLevelIcon
 import com.bringyour.network.ui.connect.transportDelayUi
 import com.bringyour.network.ui.theme.Amber
 import com.bringyour.network.utils.sdkStringListToList
@@ -988,6 +989,7 @@ import kotlin.math.roundToInt
         transportDelaySub = null
         mainHandler.removeCallbacks(slowInternetCheck)
         slowInternetNotice = SlowInternetNotice()
+        (application as MainApplication).widgetSnapshotWriter?.publishSlowInternet(null)
         boundDevice = null
         providerCount = 0
         windowMinSatisfied = false
@@ -1314,6 +1316,9 @@ import kotlin.math.roundToInt
             nowMillis = nowMillis,
         )
         slowInternetNotice = next
+        // the dashboard widget's pill follows the slow content; the writer
+        // re-renders it only when it comes or goes, or its tunnel or label changes
+        (application as MainApplication).widgetSnapshotWriter?.publishSlowInternet(next.slowReading)
         mainHandler.removeCallbacks(slowInternetCheck)
         next.nextCheckAtMillis(nowMillis)?.let { atMillis ->
             mainHandler.postDelayed(slowInternetCheck, atMillis - nowMillis)
@@ -1406,12 +1411,7 @@ import kotlin.math.roundToInt
         when (val slowInternet = presentation?.slowInternet) {
             is SlowInternetPresentation.Slow -> {
                 // static per level: the status bar cannot animate it
-                smallIcon = when (slowInternet.level) {
-                    1 -> R.drawable.ic_tunnel_1
-                    2 -> R.drawable.ic_tunnel_2
-                    3 -> R.drawable.ic_tunnel_3
-                    else -> R.drawable.ic_tunnel_4
-                }
+                smallIcon = tunnelLevelIcon(slowInternet.level)
                 contentTitle = getString(
                     if (slowInternet.fallback) R.string.slow_internet_fallback_title else R.string.slow_internet
                 )
