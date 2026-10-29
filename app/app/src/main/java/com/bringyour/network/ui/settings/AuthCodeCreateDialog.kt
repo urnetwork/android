@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AutoAwesome
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -17,6 +16,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.bringyour.network.R
+import com.bringyour.network.ui.components.FoldSafeAlertDialog
 import com.bringyour.network.ui.theme.TextFaint
 
 @Composable
@@ -26,7 +26,7 @@ fun AuthCodeCreateDialog(
     authCode: String?
 ) {
 
-    AlertDialog(
+    FoldSafeAlertDialog(
         icon = {
             Icon(Icons.Filled.AutoAwesome, contentDescription = null)
         },

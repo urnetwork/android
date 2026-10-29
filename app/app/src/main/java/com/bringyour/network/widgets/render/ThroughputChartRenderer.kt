@@ -6,6 +6,7 @@ import android.graphics.Paint
 import android.graphics.Path
 import android.graphics.PointF
 import android.graphics.RectF
+import com.bringyour.network.widgets.drawnAt
 import kotlin.math.max
 import kotlin.math.min
 
@@ -47,7 +48,7 @@ object ThroughputChartRenderer {
         packetColor: Int,
         density: Float,
     ): Bitmap {
-        val bitmap = Bitmap.createBitmap(max(1, widthPx), max(1, heightPx), Bitmap.Config.ARGB_8888)
+        val bitmap = Bitmap.createBitmap(max(1, widthPx), max(1, heightPx), Bitmap.Config.ARGB_8888).drawnAt(density)
         val canvas = Canvas(bitmap)
         val width = bitmap.width.toFloat()
         val height = bitmap.height.toFloat()

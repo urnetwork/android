@@ -511,7 +511,7 @@ fun ConnectScreen(
                     sideBySideSplit(
                         containerStart = screenInWindow.left / this.density,
                         width = width / this.density,
-                        fold = windowLayout.fold,
+                        fold = windowLayout.hinge,
                         sidePaneOnLeft = sidePaneOnLeft,
                     )
                 },
@@ -722,7 +722,7 @@ fun ConnectScreen(
                 split = sideBySideSplit(
                     containerStart = screenInWindow.left / density.density,
                     width = screenWidth,
-                    fold = windowLayout.fold,
+                    fold = windowLayout.hinge,
                     sidePaneOnLeft = sidePaneOnLeft,
                 ),
                 width = screenWidth,

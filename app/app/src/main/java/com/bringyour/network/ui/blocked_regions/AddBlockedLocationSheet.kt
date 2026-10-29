@@ -18,7 +18,6 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -35,6 +34,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.bringyour.network.R
+import com.bringyour.network.ui.components.FoldSafeModalBottomSheet
 import com.bringyour.network.ui.indexedLazyListKey
 import com.bringyour.network.ui.components.CircleImage
 import com.bringyour.network.ui.components.URSearchInput
@@ -61,7 +61,7 @@ fun AddBlockedLocationSheet(
         viewModel.initCountries(countries)
     }
 
-    ModalBottomSheet(
+    FoldSafeModalBottomSheet(
         onDismissRequest = {
             dismiss()
             viewModel.updateSearchQuery(TextFieldValue(""))

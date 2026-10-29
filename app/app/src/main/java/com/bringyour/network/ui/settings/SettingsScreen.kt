@@ -1,5 +1,6 @@
 package com.bringyour.network.ui.settings
 
+import com.bringyour.network.ui.components.FoldSafeBasicAlertDialog
 import com.bringyour.network.ui.components.tabletReadableColumn
 import com.bringyour.network.BuildConfig
 import android.app.Activity
@@ -34,7 +35,6 @@ import androidx.compose.material.icons.automirrored.outlined.Outbound
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.AlertDialogDefaults
-import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -1680,7 +1680,7 @@ private fun SettingsScreen(
             val deleteConfirmed = DeleteAccountConfirmation.confirms(networkName, deleteConfirmText.text)
             val deleteAccountFailedText = stringResource(id = R.string.error_deleting_account)
 
-            BasicAlertDialog(
+            FoldSafeBasicAlertDialog(
                 onDismissRequest = {
                     setShowDeleteAccountDialog(false)
                 },

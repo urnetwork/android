@@ -1,5 +1,6 @@
 package com.bringyour.network.ui.stats
 
+import com.bringyour.network.ui.components.FoldSafeModalBottomSheet
 import com.bringyour.network.ui.components.rememberFoldSafeSheetState
 import com.bringyour.network.ui.components.tabletReadableColumn
 import androidx.compose.foundation.background
@@ -33,7 +34,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -381,7 +381,7 @@ fun SplitRulesScreen(
      * create / edit rule sheet
      */
     editorTarget?.let { target ->
-        ModalBottomSheet(
+        FoldSafeModalBottomSheet(
             onDismissRequest = { editorTarget = null },
             sheetState = editorSheetState,
             containerColor = SheetBlack

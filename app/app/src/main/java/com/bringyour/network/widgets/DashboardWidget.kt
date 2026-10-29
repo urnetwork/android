@@ -129,7 +129,7 @@ internal fun DashboardContent(entry: WidgetEntry) {
                     // the slow internet pill's taller header comes out of the
                     // charts, so the footer keeps its place
                     val headerGrowth = if (slowInternet != null) PILL_HEADER_GROWTH_DP else 0f
-                    val chartHeight = ((size.height.value - 130f - headerGrowth) / 2f).coerceIn(40f, 90f).dp
+                    val chartHeight = dashboardChartHeightDp(size.width.value, size.height.value, headerGrowth).dp
                     ThroughputChart(
                         title = context.getString(R.string.widget_client),
                         entry = entry,
@@ -215,9 +215,10 @@ internal fun DashboardHeader(
         // all (off, not configured) so the title keeps its place. A bitmap, so it
         // is round on every Android version (Glance corner radii only apply on 12+).
         val markSize = LOCATION_MARK_SIZE_DP.dp
+        val markDensity = widgetBitmapDensity()
         Image(
             provider = ImageProvider(
-                locationMarkBitmap((markSize.value * context.resources.displayMetrics.density).toInt(), locationMarkColor(entry)),
+                locationMarkBitmap((markSize.value * markDensity).roundToInt(), locationMarkColor(entry), markDensity),
             ),
             contentDescription = null,
             modifier = GlanceModifier.size(markSize),
@@ -307,7 +308,7 @@ private fun QuickConnectButton(entry: WidgetEntry, unlockFirst: Boolean) {
 internal fun BalanceBar(balance: WidgetBalanceSnapshot?, label: Boolean = true) {
     val context = LocalContext.current
     val size = LocalSize.current
-    val density = context.resources.displayMetrics.density
+    val density = widgetBitmapDensity()
     val amounts = if (balance == null) "—" else
         "${formatByteCountCompact(balance.balanceByteCount)} / ${formatByteCountCompact(balance.startBalanceByteCount)}"
     Column(modifier = GlanceModifier.fillMaxWidth()) {
@@ -342,7 +343,7 @@ internal fun BalanceBar(balance: WidgetBalanceSnapshot?, label: Boolean = true) 
 private fun ThroughputChart(title: String, entry: WidgetEntry, provider: Boolean, height: androidx.compose.ui.unit.Dp) {
     val context = LocalContext.current
     val size = LocalSize.current
-    val density = context.resources.displayMetrics.density
+    val density = widgetBitmapDensity()
     val throughput = entry.tunnel.throughput
     val points = throughputPoints(entry, provider)
     val peakLabel = throughputPeakLabel(points, throughput.bucketSeconds)
@@ -392,6 +393,25 @@ private fun ThroughputChart(title: String, entry: WidgetEntry, provider: Boolean
         }
     }
 }
+
+/**
+ * The tall layout's chart height: the two charts share what the header, the
+ * balance bar, the spaces and the footer leave ([headerGrowthDp] more for the
+ * slow internet pill's taller header), at least 40dp, and at most half the
+ * chart's width, or 90dp where that is less, so a tall narrow widget keeps
+ * charts rather than columns. A tablet or an unfolded phone grows them; at
+ * 310dp tall and under they are the 90dp or less they always were.
+ */
+internal fun dashboardChartHeightDp(widthDp: Float, heightDp: Float, headerGrowthDp: Float): Float =
+    ((heightDp - DASHBOARD_TALL_FIXED_DP - headerGrowthDp) / 2f)
+        .coerceIn(DASHBOARD_CHART_MIN_DP, maxOf(DASHBOARD_CHART_CAP_DP, (widthDp - 2 * WIDGET_PADDING_DP) / 2f))
+
+/** The tall layout's rows other than the charts, with the surface's padding. */
+private const val DASHBOARD_TALL_FIXED_DP = 130f
+private const val DASHBOARD_CHART_MIN_DP = 40f
+private const val DASHBOARD_CHART_CAP_DP = 90f
+/** The widget surface's padding on each side (WidgetSurface). */
+private const val WIDGET_PADDING_DP = 14f
 
 /** The chart's points for one side: the client's remote traffic or the provider's local + blocked traffic. */
 internal fun throughputPoints(entry: WidgetEntry, provider: Boolean): List<ThroughputChartRenderer.Point> =
@@ -444,10 +464,10 @@ internal fun locationMarkArgb(hasLocation: Boolean, colorHex: String?): Int {
     return WidgetColors.parseHex(colorHex ?: "", LOCATION_MARK_UNKNOWN)
 }
 
-/** A filled circle of [color], [sizePx] wide, for a Glance image. */
-internal fun locationMarkBitmap(sizePx: Int, color: Int): Bitmap {
+/** A filled circle of [color], [sizePx] wide at [density] pixels per dp, for a Glance image. */
+internal fun locationMarkBitmap(sizePx: Int, color: Int, density: Float): Bitmap {
     val size = sizePx.coerceAtLeast(2)
-    val bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
+    val bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888).drawnAt(density)
     val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply { this.color = color; style = Paint.Style.FILL }
     Canvas(bitmap).drawCircle(size / 2f, size / 2f, size / 2f, paint)
     return bitmap
