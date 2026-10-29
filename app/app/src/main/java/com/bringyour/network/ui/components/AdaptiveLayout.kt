@@ -31,17 +31,16 @@ data class WindowFold(
 enum class NavigationLayout { BottomBar, Rail }
 
 /**
- * Material's navigation suite rule, with the bar kept through medium width:
- * the rail once the window is expanded wide and not short, the bottom bar
- * otherwise, and always in tabletop, where a full-height rail would cross the
- * fold. Material's own default (NavigationSuiteScaffoldDefaults) already
- * keeps the bar for compact width or height and tabletop; at medium width the
- * agreed design keeps it too, under the stacked connect split.
+ * Material's navigation suite rule (NavigationSuiteScaffoldDefaults): the
+ * rail once the window is medium wide and not short, a tablet held upright
+ * included, as in the large screen quality guidelines' example; the bottom
+ * bar otherwise, and always in tabletop, where a full-height rail would cross
+ * the fold.
  */
 fun navigationLayoutFor(widthDp: Float, heightDp: Float, tabletop: Boolean): NavigationLayout =
     if (
         !tabletop &&
-        widthDp >= WindowSizeClass.WIDTH_DP_EXPANDED_LOWER_BOUND &&
+        widthDp >= WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND &&
         heightDp >= WindowSizeClass.HEIGHT_DP_MEDIUM_LOWER_BOUND
     ) {
         NavigationLayout.Rail

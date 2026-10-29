@@ -64,7 +64,12 @@ import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.MainBorderBase
 import com.bringyour.network.ui.theme.Pink
 import com.bringyour.network.ui.theme.URNetworkTheme
+import com.github.takahirom.roborazzi.ExperimentalRoborazziApi
+import com.github.takahirom.roborazzi.RoborazziATFAccessibilityCheckOptions
+import com.github.takahirom.roborazzi.RoborazziATFAccessibilityChecker
 import com.github.takahirom.roborazzi.captureRoboImage
+import com.github.takahirom.roborazzi.checkRoboAccessibility
+import com.google.android.apps.common.testing.accessibility.framework.checks.TouchTargetSizeCheck
 import org.junit.Assert.assertEquals
 import kotlin.math.roundToInt
 
@@ -211,7 +216,8 @@ private const val BASELINE_DIRECTORY = "src/testPlayDebug/screenshots"
  * Captures the window once the screen has settled, as the baseline `name`.png:
  * recorded, compared or verified by the run's mode (app/build.gradle,
  * -Pscreenshots). First it checks that the test's qualifiers took, so a
- * recording never keeps a screen drawn in the wrong window.
+ * recording never keeps a screen drawn in the wrong window; then it checks
+ * the screen's touch targets (checkTouchTargets).
  */
 internal fun ComposeContentTestRule.captureWindow(name: String) {
     waitForIdle()
@@ -221,4 +227,25 @@ internal fun ComposeContentTestRule.captureWindow(name: String) {
     assertEquals("window width in dp", configuration.screenWidthDp, (size.width / density.density).roundToInt())
     assertEquals("window height in dp", configuration.screenHeightDp, (size.height / density.density).roundToInt())
     root.captureRoboImage(filePath = "$BASELINE_DIRECTORY/$name.png")
+    checkTouchTargets()
+}
+
+/**
+ * Fails on every control the Accessibility Scanner would call too small to
+ * touch: the Accessibility Test Framework's TouchTargetSizeCheck, the
+ * scanner's own check, at the 48 × 48 dp of the adaptive app quality
+ * guidelines (Touch_Targets). It reads the bounds Compose reports to
+ * accessibility services, which grow a small clickable to 48 dp but give up
+ * whatever a neighbor already covers. Only this check runs; contrast and
+ * labels are not part of it.
+ */
+@OptIn(ExperimentalRoborazziApi::class)
+internal fun ComposeContentTestRule.checkTouchTargets() {
+    waitForIdle()
+    onRoot().checkRoboAccessibility(
+        roborazziATFAccessibilityCheckOptions = RoborazziATFAccessibilityCheckOptions(
+            checker = RoborazziATFAccessibilityChecker(checks = setOf(TouchTargetSizeCheck())),
+            failureLevel = RoborazziATFAccessibilityChecker.CheckLevel.Error,
+        ),
+    )
 }

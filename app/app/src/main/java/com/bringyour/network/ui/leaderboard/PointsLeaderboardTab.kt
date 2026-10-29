@@ -732,7 +732,8 @@ internal fun PointsHeader(
 
                 HorizontalDivider(color = MainBorderBase)
 
-                Spacer(modifier = Modifier.height(16.dp))
+                // the switch's 48 dp touch target fills the rest
+                Spacer(modifier = Modifier.height(4.dp))
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -746,7 +747,8 @@ internal fun PointsHeader(
                         modifier = Modifier.weight(1f)
                     )
 
-                    Spacer(modifier = Modifier.width(12.dp))
+                    // the switch's touch target adds 6 dp of its own
+                    Spacer(modifier = Modifier.width(6.dp))
 
                     URSwitch(
                         checked = viewModel.isPointsPublic,
@@ -756,7 +758,6 @@ internal fun PointsHeader(
                 }
 
                 if (!viewModel.isPointsPublic) {
-                    Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         stringResource(id = R.string.points_leaderboard_private_hint),
                         style = MaterialTheme.typography.bodySmall,

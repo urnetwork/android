@@ -254,7 +254,8 @@ fun ImportExtendersScreen(
 
                 if (extenderUseSettingsOffered(decodedShare)) {
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                    // the switch's 48 dp touch target fills the rest
+                    Spacer(modifier = Modifier.height(4.dp))
 
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -262,7 +263,8 @@ fun ImportExtendersScreen(
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Text(stringResource(id = R.string.use_extender_settings))
-                        Spacer(modifier = Modifier.width(16.dp))
+                        // the switch's touch target adds 6 dp of its own
+                        Spacer(modifier = Modifier.width(10.dp))
                         URSwitch(
                             checked = useSettings,
                             toggle = { useSettings = !useSettings },
@@ -272,8 +274,6 @@ fun ImportExtendersScreen(
                     // the settings would also set bootstrap DoH servers, which
                     // see this space's lookups: name them before they are taken
                     extenderImportControlDohServers(decodedShare)?.let { servers ->
-
-                        Spacer(modifier = Modifier.height(8.dp))
 
                         Text(
                             stringResource(id = R.string.import_extenders_control_doh_urls, servers),

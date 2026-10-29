@@ -151,7 +151,7 @@ internal fun ConnectActions(
     belowFoldGap: Dp = 24.dp,
 ) {
 
-    // The card's uniform content padding. The fold marker below measures its
+    // The card's content padding. The fold marker below measures its
     // position in the card's content area, which excludes this padding, so the
     // card's top padding is added back to anchor the reported fold offset at
     // the top of the sheet content. The card is the first child of
@@ -173,7 +173,13 @@ internal fun ConnectActions(
                     MainTintedBackgroundBase,
                     shape = RoundedCornerShape(12.dp)
                 )
-                .padding(cardPadding)
+                .padding(
+                    start = cardPadding,
+                    top = cardPadding,
+                    end = cardPadding,
+                    // the last option switch's 48 dp touch target fills the rest
+                    bottom = 2.dp,
+                )
         ) {
 
             // The above-the-fold block — the location row and the connect/
@@ -673,7 +679,8 @@ internal fun ConnectOptions(
             Column(
                 modifier = Modifier
                     .weight(1f)
-                    .padding(end = 12.dp)
+                    // the switch's touch target adds 6 dp of its own
+                    .padding(end = 6.dp)
             ) {
                 Text(
                     stringResource(id = R.string.fixed_ip),
@@ -702,7 +709,8 @@ internal fun ConnectOptions(
             )
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        // the next switch's 48 dp touch target fills the rest
+        Spacer(modifier = Modifier.height(2.dp))
 
         Row(
             modifier = Modifier
@@ -729,7 +737,7 @@ internal fun ConnectOptions(
             )
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        // no spacer: the two switches' 48 dp touch targets space these rows
 
         Row(
             modifier = Modifier

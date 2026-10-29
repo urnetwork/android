@@ -634,7 +634,9 @@ fun ConnectScreen(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .background(MainTintedBackgroundBase, RoundedCornerShape(12.dp))
-                                    .padding(16.dp)
+                                    // the last option switch's 48 dp touch target
+                                    // fills the rest of the bottom
+                                    .padding(start = 16.dp, top = 16.dp, end = 16.dp, bottom = 2.dp)
                             ) {
                                 DeviceDiscoverableLine(
                                     providerDiscoverable = networkPeersViewModel.providerDiscoverable,

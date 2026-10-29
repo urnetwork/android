@@ -258,34 +258,32 @@ fun DnsSettingsScreen(
                  * Resolver toggles
                  */
                 SettingsGroup(title = stringResource(id = R.string.resolvers)) {
+                    // no spacers: the switches' 48 dp touch targets space the
+                    // rows and the description
                     DnsToggleRow(
                         label = stringResource(id = R.string.dns_over_https),
                         detail = stringResource(id = R.string.remote_lowercase),
                         checked = currentDraft.enableRemoteDoh,
                         toggle = { draft = currentDraft.copy(enableRemoteDoh = !currentDraft.enableRemoteDoh) }
                     )
-                    Spacer(modifier = Modifier.height(12.dp))
                     DnsToggleRow(
                         label = stringResource(id = R.string.dns_over_https),
                         detail = stringResource(id = R.string.local_lowercase),
                         checked = currentDraft.enableLocalDoh,
                         toggle = { draft = currentDraft.copy(enableLocalDoh = !currentDraft.enableLocalDoh) }
                     )
-                    Spacer(modifier = Modifier.height(12.dp))
                     DnsToggleRow(
                         label = stringResource(id = R.string.unencrypted_dns),
                         detail = stringResource(id = R.string.remote_lowercase),
                         checked = currentDraft.enableRemoteDns,
                         toggle = { draft = currentDraft.copy(enableRemoteDns = !currentDraft.enableRemoteDns) }
                     )
-                    Spacer(modifier = Modifier.height(12.dp))
                     DnsToggleRow(
                         label = stringResource(id = R.string.unencrypted_dns),
                         detail = stringResource(id = R.string.local_lowercase),
                         checked = currentDraft.enableLocalDns,
                         toggle = { draft = currentDraft.copy(enableLocalDns = !currentDraft.enableLocalDns) }
                     )
-                    Spacer(modifier = Modifier.height(12.dp))
                     // opt-in, off by default: answers dns over the host network while
                     // the tunnel's dns starts
                     DnsToggleRow(
@@ -294,7 +292,6 @@ fun DnsSettingsScreen(
                         checked = FastDnsOnConnectToggle.isOn(currentDraft),
                         toggle = { draft = FastDnsOnConnectToggle.toggled(currentDraft) }
                     )
-                    Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         stringResource(id = FastDnsOnConnectToggle.descriptionRes),
                         style = MaterialTheme.typography.bodySmall,
@@ -320,10 +317,8 @@ fun DnsSettingsScreen(
 
                     SettingsGroup(title = stringResource(id = R.string.suggested_remote_dns_servers)) {
 
-                        sortedServers.forEachIndexed { index, server ->
-                            if (0 < index) {
-                                Spacer(modifier = Modifier.height(12.dp))
-                            }
+                        // no spacers: the switches' 48 dp touch targets space the rows
+                        sortedServers.forEach { server ->
                             RegionalServerRow(
                                 server = server,
                                 isConnectedCountry = server.countryCode == connectedCountryCode,
@@ -344,7 +339,8 @@ fun DnsSettingsScreen(
                             )
                         }
 
-                        Spacer(modifier = Modifier.height(8.dp))
+                        // the switch's 48 dp touch target fills the rest
+                        Spacer(modifier = Modifier.height(2.dp))
 
                         Text(
                             stringResource(id = R.string.suggested_remote_dns_servers_description),

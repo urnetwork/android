@@ -247,10 +247,9 @@ fun TransportSettingsScreen(
                         Spacer(modifier = Modifier.height(16.dp))
                     }
                     SettingsGroup(title = stringResource(id = R.string.enabled_under_auto)) {
-                        selectable.forEachIndexed { index, transport ->
-                            if (0 < index) {
-                                Spacer(modifier = Modifier.height(12.dp))
-                            }
+                        // no spacers: the switches' 48 dp touch targets space the
+                        // rows and the footer
+                        selectable.forEach { transport ->
                             val enabled = currentDraft.isAutoEnabled(transport)
                             AutoToggleRow(
                                 transport = transport,
@@ -269,7 +268,6 @@ fun TransportSettingsScreen(
                                 }
                             )
                         }
-                        Spacer(modifier = Modifier.height(8.dp))
                         Text(
                             stringResource(id = R.string.enabled_under_auto_footer),
                             style = MaterialTheme.typography.bodySmall,
@@ -405,7 +403,9 @@ private fun AutoToggleRow(
         Box(modifier = Modifier.weight(1f)) {
             TransportLabel(transport, showsDetail = false)
         }
-        Spacer(modifier = Modifier.width(12.dp))
+        // the gap next to the switch is 6 dp less: its touch target adds 6 dp
+        // of its own
+        Spacer(modifier = Modifier.width(if (constrained) 12.dp else 6.dp))
         if (constrained) {
             // a runtime warning, not an editing restriction: the toggle stays
             // editable
@@ -415,7 +415,7 @@ private fun AutoToggleRow(
                 tint = Amber,
                 modifier = Modifier.size(18.dp),
             )
-            Spacer(modifier = Modifier.width(8.dp))
+            Spacer(modifier = Modifier.width(2.dp))
         }
         URSwitch(
             checked = checked,

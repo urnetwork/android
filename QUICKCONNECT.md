@@ -29,7 +29,9 @@ launcher picks the largest layout that fits as the user resizes.
   Settings; every open-source VPN app wraps its toggle in `unlockAndRun` as
   a design choice, not a platform requirement. With the product decision
   from iOS (no authentication on the lock screen, like the system's VPN
-  control), the tile toggles directly. [T1][T2]
+  control), the tile toggles directly. [T1][T2] Confirmed again on
+  2026-10-29: no unlock, even though the cover screen widget asks for one
+  (apple/DUO.md).
 - An active tile is bound only when the app asks or on a tap, never when the
   shade opens, and it stops listening right after the update that answers a
   request (SystemUI `TileServiceManager.setLastUpdate`). So the app asks

@@ -199,7 +199,8 @@ fun AppSplitRulesScreen(
                             Box(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                                    // the search field keeps 6 dp of its own above and below
+                                    .padding(horizontal = 16.dp, vertical = 2.dp)
                             ) {
                                 URSearchInput(
                                     value = searchQuery,

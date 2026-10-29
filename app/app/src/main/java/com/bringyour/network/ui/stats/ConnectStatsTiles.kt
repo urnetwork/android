@@ -5,10 +5,12 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -124,9 +126,14 @@ fun ConnectStatsTiles(
                 )
             }
 
+            // two 48 dp rows to touch (Touch_Targets), the switch's and the
+            // dns row's, whose own room above and below their text stands in
+            // for the tile's vertical padding, so the text lines up with the
+            // tiles beside it
             StatsTile(
                 onClick = null,
                 modifier = Modifier.weight(1f),
+                contentPadding = PaddingValues(horizontal = TilePadding),
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -139,7 +146,7 @@ fun ConnectStatsTiles(
                         modifier = Modifier.weight(1f)
                     )
 
-                    Spacer(modifier = Modifier.width(8.dp))
+                    Spacer(modifier = Modifier.width(2.dp))
 
                     URSwitch(
                         checked = blockerViewModel.blockerEnabled,
@@ -149,8 +156,6 @@ fun ConnectStatsTiles(
                     )
                 }
 
-                Spacer(modifier = Modifier.height(8.dp))
-
                 // the first of the custom dns card's rows; the row opens the dns
                 // settings, as the card does
                 val dohEnabled = dnsSettingsViewModel.settings?.dohEnabled
@@ -159,7 +164,7 @@ fun ConnectStatsTiles(
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(8.dp))
                         .clickable { navController.navigate(Route.DnsSettings) }
-                        .padding(vertical = 4.dp),
+                        .heightIn(min = 48.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
@@ -186,6 +191,7 @@ fun ConnectStatsTiles(
 private fun StatsTile(
     onClick: (() -> Unit)?,
     modifier: Modifier = Modifier,
+    contentPadding: PaddingValues = PaddingValues(TilePadding),
     content: @Composable ColumnScope.() -> Unit,
 ) {
     Column(
@@ -193,10 +199,12 @@ private fun StatsTile(
             .clip(RoundedCornerShape(12.dp))
             .background(MainTintedBackgroundBase)
             .then(if (onClick != null) Modifier.clickable { onClick() } else Modifier)
-            .padding(12.dp),
+            .padding(contentPadding),
         content = content,
     )
 }
+
+private val TilePadding = 12.dp
 
 private val TileSpacing = 8.dp
 

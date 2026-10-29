@@ -80,9 +80,14 @@ fun URSearchInput(
         }, label = ""
     )
 
-    // the field is the one focus stop: Tab lands where typing goes
+    // the field is the one focus stop: Tab lands where typing goes. 6 dp clear
+    // above and below the 36 dp pill make it 48 dp to touch: Compose grows
+    // the field and the clear button to 48 dp, and this keeps a neighbor, a
+    // sheet's drag handle or a dialog's Close, from cutting into that
+    // (Touch_Targets)
     Box(
         modifier = Modifier
+            .padding(vertical = 6.dp)
             .fillMaxWidth()
             .clip(RoundedCornerShape(28.dp))
             .background(bgColor.value)

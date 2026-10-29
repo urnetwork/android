@@ -48,6 +48,13 @@ import com.bringyour.network.ui.theme.BlueLight
 import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.URNetworkTheme
 
+/**
+ * An info icon that opens a popup explaining something. The 16 dp glyph sits
+ * in a standard 48 dp icon button (Touch_Targets): Compose would grow a
+ * 16 dp button's touch area to 48 dp anyway, but a neighbor's could cut into
+ * it, so the button keeps the room in the layout, and its own margin around
+ * the glyph is the space between it and its label.
+ */
 @Composable
 fun InfoIconWithOverlay(
     // what the popup explains; a generic "Learn more" when the caller does not say
@@ -62,12 +69,12 @@ fun InfoIconWithOverlay(
             onClick = {
                 showOverlay = true
             },
-            modifier = Modifier.size(16.dp)
         ) {
             Icon(
                 painter = painterResource(R.drawable.icon_info),
                 contentDescription = contentDescription,
                 tint = TextMuted,
+                modifier = Modifier.size(16.dp),
             )
 
             if (showOverlay) {

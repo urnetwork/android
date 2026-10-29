@@ -186,7 +186,8 @@ internal fun CreateNetworkInstantContent(
                     enabled = !inProgress,
                 )
 
-                Spacer(modifier = Modifier.height(24.dp))
+                // the switch's 48 dp touch target fills the rest
+                Spacer(modifier = Modifier.height(10.dp))
 
                 ReferralCodeInput(
                     referralCode = referralCode,

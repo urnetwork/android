@@ -162,7 +162,8 @@ fun ShareExtendersScreen(
                 color = TextMuted,
             )
 
-            Spacer(modifier = Modifier.height(24.dp))
+            // the switch's 48 dp touch target fills the rest, above and below
+            Spacer(modifier = Modifier.height(12.dp))
 
             /**
              * The operator settings ride along only when asked for. An
@@ -175,14 +176,15 @@ fun ShareExtendersScreen(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(stringResource(id = R.string.include_extender_settings))
-                Spacer(modifier = Modifier.width(16.dp))
+                // the switch's touch target adds 6 dp of its own
+                Spacer(modifier = Modifier.width(10.dp))
                 URSwitch(
                     checked = includeSettings,
                     toggle = { includeSettings = !includeSettings },
                 )
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
             // the payload as text, for a channel that cannot carry a code
             Text(

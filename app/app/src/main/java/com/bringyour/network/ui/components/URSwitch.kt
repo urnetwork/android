@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -38,6 +39,12 @@ import com.bringyour.network.ui.theme.URNetworkTheme
  * and assistive tech reads it as a switch and its state. The keyboard's focus
  * shows as a ring around it, and a pointer over it lightens the thumb and
  * the track (adaptive app quality, Drawable_Focus and Hover_States).
+ *
+ * It takes a 48 dp square in the layout, the track drawn in its middle, as
+ * Material's own switch does (Touch_Targets). Compose would grow its touch
+ * area to 48 dp anyway, but a neighbor's grown area could cut into it: two
+ * switch rows 16 dp apart left the upper switch 36 dp tall to the
+ * Accessibility Scanner. The reserved square keeps every neighbor out.
  */
 @Composable
 fun URSwitch(
@@ -82,6 +89,7 @@ fun URSwitch(
 
     Box(
         modifier = Modifier
+            .minimumInteractiveComponentSize()
             .focusRing(shape = RoundedCornerShape(50), outset = 4.dp)
             .size(width = width, height = height)
             .then(if (enabled) Modifier.pointerHoverIcon(PointerIcon.Hand) else Modifier)

@@ -878,7 +878,8 @@ private fun SettingsScreen(
              * Battery optimization
              */
 
-            Spacer(modifier = Modifier.height(18.dp))
+            // the switch's 48 dp touch target fills the rest
+            Spacer(modifier = Modifier.height(4.dp))
 
             Row(
                 modifier = Modifier
@@ -983,7 +984,8 @@ private fun SettingsScreen(
                 provideIndicatorRingColor
             )
 
-            Spacer(modifier = Modifier.height(18.dp))
+            // the switch's 48 dp touch target fills the rest
+            Spacer(modifier = Modifier.height(4.dp))
 
             /**
              * Allow providing on cell networks
@@ -993,7 +995,8 @@ private fun SettingsScreen(
                 toggleProvideCell = toggleProvideCell
             )
 
-            Spacer(modifier = Modifier.height(18.dp))
+            // the switch's 48 dp touch target fills the rest
+            Spacer(modifier = Modifier.height(4.dp))
 
             /**
              * Providing on battery: keep providing, pause in Battery Saver
@@ -1004,7 +1007,8 @@ private fun SettingsScreen(
                 setProvidePowerMode = setProvidePowerMode
             )
 
-            Spacer(modifier = Modifier.height(18.dp))
+            // the switch's 48 dp touch target fills the rest
+            Spacer(modifier = Modifier.height(4.dp))
 
             /**
              * Kill switch
@@ -1021,8 +1025,6 @@ private fun SettingsScreen(
                         style = MaterialTheme.typography.bodyMedium,
                         color = Color.White
                     )
-
-                    Spacer(modifier = Modifier.width(6.dp))
 
                     InfoIconWithOverlay(
                         contentDescription = stringResource(
@@ -1062,7 +1064,7 @@ private fun SettingsScreen(
                 )
             }
 
-            Spacer(modifier = Modifier.height(18.dp))
+            // no spacer: the two switches' 48 dp touch targets space these rows
 
             /**
              * Device location sync (the mock location provider setup guide)
@@ -1129,7 +1131,6 @@ private fun SettingsScreen(
                     // the chain is progress, not a problem
                     val statusIsError = mockLocationStatus == MockLocationStatus.ORPHANED ||
                             mockLocationStatus == MockLocationStatus.ERROR_TRANSIENT
-                    Spacer(modifier = Modifier.height(2.dp))
                     Text(
                         statusSubtitle,
                         style = MaterialTheme.typography.bodySmall,
@@ -1141,7 +1142,8 @@ private fun SettingsScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(18.dp))
+            // the switch's 48 dp touch target fills the rest
+            Spacer(modifier = Modifier.height(12.dp))
 
             Row(
                 modifier = Modifier
@@ -1288,7 +1290,9 @@ private fun SettingsScreen(
                 )
             }
 
-            Spacer(modifier = Modifier.height(18.dp))
+            // the switch's 48 dp touch target fills the rest; 14 dp stays clear
+            // for the touch area of the 20 dp link button below
+            Spacer(modifier = Modifier.height(14.dp))
 
             // one row per support contact; the email comes first since Discord is unreachable in some regions
             SupportContact.settingsLinks.forEachIndexed { index, link ->
@@ -1422,8 +1426,6 @@ private fun SettingsScreen(
 
 
                     if (currentPlan == Plan.Basic) {
-                        Spacer(modifier = Modifier.width(2.dp))
-
                         InfoIconWithOverlay() {
                             Column() {
 
@@ -1487,7 +1489,9 @@ private fun SettingsScreen(
             // a renewal whose payment did not go through, under the manage line
             planNotices()
 
-            Spacer(modifier = Modifier.height(32.dp))
+            // the free plan's info icon makes its row 48 dp tall, 14 dp of it
+            // below the text
+            Spacer(modifier = Modifier.height(if (currentPlan == Plan.Basic) 18.dp else 32.dp))
 
             /**
             * Version
