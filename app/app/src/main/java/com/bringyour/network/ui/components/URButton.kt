@@ -88,7 +88,10 @@ fun URButton(
         colors = buttonColors,
         modifier = modifier.then(baseModifier).then(
             Modifier.defaultMinSize(minHeight = 48.dp)
-        ),
+        )
+            // the keyboard's ring, just outside the button, where it shows on
+            // every style (Drawable_Focus): Enter and Space press it
+            .focusRing(shape = RoundedCornerShape(15.dp), outset = 3.dp),
         enabled = enabled && !isProcessing,
         shape = RoundedCornerShape(12.dp)
 

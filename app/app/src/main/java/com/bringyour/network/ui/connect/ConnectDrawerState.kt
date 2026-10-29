@@ -94,6 +94,16 @@ class ConnectDrawerState(initialValue: ConnectDrawerValue = ConnectDrawerValue.C
             },
         )
 
+        /**
+         * Whether keyboard focus on an element whose bottom edge sits at
+         * [focusedBottom] opens the drawer: when it rests collapsed and the
+         * element is below the screen's [visibleBottom], where the collapsed
+         * drawer hides it. The open drawer scrolls its content to the focus
+         * instead. Pure, for tests.
+         */
+        fun opensForFocus(collapsed: Boolean, focusedBottom: Float, visibleBottom: Float): Boolean =
+            collapsed && focusedBottom > visibleBottom
+
         /** The resting position a release lands on. Pure, for tests. */
         fun releaseTarget(
             offset: Float,

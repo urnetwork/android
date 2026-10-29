@@ -52,11 +52,18 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.focus.focusTarget
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.isShiftPressed
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
@@ -73,6 +80,9 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.bringyour.network.R
 import com.bringyour.network.ui.components.URSwitch
+import com.bringyour.network.ui.components.focusRing
+import com.bringyour.network.ui.components.keyboardScrollFor
+import com.bringyour.network.ui.components.keyboardScrollable
 import com.bringyour.network.ui.indexedLazyListKey
 import com.bringyour.network.ui.theme.Green500
 import com.bringyour.network.ui.theme.HeadingLargeCondensed
@@ -118,6 +128,7 @@ fun PointsLeaderboardTab(
 ) {
     val rows by viewModel.rows.collectAsState()
     val listState = rememberLazyListState()
+    val keyboardScope = rememberCoroutineScope()
 
     // a tab tap scrolls up; after a seek the window is reloaded from the top
     // first so the top of the list is rank 1 again
@@ -296,7 +307,15 @@ fun PointsLeaderboardTab(
         ) {
             LazyColumn(
                 state = listState,
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier
+                    .fillMaxSize()
+                    // its rows take no focus: the keyboard scrolls the list
+                    // itself, as the indicator beside it does by drag
+                    .keyboardScrollable(
+                        state = listState,
+                        scope = keyboardScope,
+                        linePx = with(LocalDensity.current) { LeaderboardKeyboardLine.toPx() },
+                    )
             ) {
                 item(key = "points-header") {
                     if (showHeader) {
@@ -476,6 +495,38 @@ private fun PointsPositionIndicator(
                 .offset { IntOffset(0, thumbTopPx.roundToLong().toInt()) }
                 .width(24.dp)
                 .height(thumbHeightDp)
+                // the keyboard moves it as a drag does (Drawable_Focus): the
+                // arrows and page keys move the thumb and its label, Home and
+                // End go to the ends, and letting go of the key seeks, as
+                // letting go of the thumb does
+                .focusRing(shape = RoundedCornerShape(12.dp))
+                .focusTarget()
+                .onKeyEvent { event ->
+                    val scroll = keyboardScrollFor(event.key, event.isShiftPressed) ?: return@onKeyEvent false
+                    when (event.type) {
+                        KeyEventType.KeyDown -> {
+                            val rank = PointsLeaderboardIndicator.keyRank(
+                                scroll = scroll,
+                                rank = if (dragging) dragRank else restingPosition,
+                                total = total,
+                            )
+                            dragging = true
+                            dragRank = rank
+                            dragTopPx = PointsLeaderboardIndicator.fractionOf(rank, total) *
+                                (trackPx - thumb.heightPx).coerceAtLeast(0f)
+                            true
+                        }
+                        KeyEventType.KeyUp -> {
+                            if (dragging) {
+                                dragging = false
+                                droppedRank = dragRank
+                                onSeek(dragRank)
+                            }
+                            true
+                        }
+                        else -> false
+                    }
+                }
                 .progressSemantics(
                     value = labelRank.toFloat(),
                     valueRange = 1f..maxOf(1L, total).toFloat(),

@@ -1,5 +1,7 @@
 package com.bringyour.network.ui.leaderboard
 
+import com.bringyour.network.ui.components.KeyboardScroll
+
 /**
  * Pure rules behind the points leaderboard screen, kept free of Compose and of
  * the sdk (whose class init loads the native library) so they unit test on the
@@ -174,6 +176,28 @@ object PointsLeaderboardIndicator {
             return 0f
         }
         return ((rank.coerceIn(1L, total) - 1).toFloat() / (total - 1).toFloat()).coerceIn(0f, 1f)
+    }
+
+    /**
+     * The rank the keyboard moves the focused thumb to from `rank`: an arrow
+     * by a hundredth of the ranking, a page key by a tenth, never by less than
+     * one rank, and Home and End to the first and last.
+     */
+    fun keyRank(scroll: KeyboardScroll, rank: Long, total: Long): Long {
+        if (total <= 0L) {
+            return 1L
+        }
+        val line = maxOf(1L, total / 100L)
+        val page = maxOf(1L, total / 10L)
+        val to = when (scroll) {
+            KeyboardScroll.LineUp -> rank - line
+            KeyboardScroll.LineDown -> rank + line
+            KeyboardScroll.PageUp -> rank - page
+            KeyboardScroll.PageDown -> rank + page
+            KeyboardScroll.Top -> 1L
+            KeyboardScroll.Bottom -> total
+        }
+        return to.coerceIn(1L, total)
     }
 
     /** The fraction of travel for a thumb top at `topPx` given its `thumb`. */

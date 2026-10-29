@@ -119,11 +119,15 @@
         <!-- configChanges: a fold, unfold, rotation or resize recomposes the
              Compose screen instead of recreating the activity, so open sheets,
              typed text and the keyboard stay (apple/DUO.md item 1). State is
-             still saved for the recreations that remain. -->
+             still saved for the recreations that remain. keyboard,
+             keyboardHidden and navigation do the same when a physical keyboard
+             is connected or disconnected, so typing moves between it and the
+             on-screen keyboard without a relaunch (adaptive app quality,
+             Keyboard_Input). -->
         <activity
             android:name=".LoginActivity"
             android:exported="true"
-            android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation|density"
+            android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation|density|keyboard|keyboardHidden|navigation"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -166,7 +170,7 @@
 
         <activity
             android:name=".MainActivity"
-            android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation|density"
+            android:configChanges="screenSize|smallestScreenSize|screenLayout|orientation|density|keyboard|keyboardHidden|navigation"
             android:windowSoftInputMode="adjustResize"
             android:exported="false">
         </activity>

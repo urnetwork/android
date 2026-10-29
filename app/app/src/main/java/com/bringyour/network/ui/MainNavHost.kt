@@ -66,6 +66,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.StackedLineChart
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.NavigationDrawerItemDefaults
 import androidx.compose.material3.NavigationRailItemDefaults
@@ -910,7 +911,10 @@ private fun MainNavHostContent(
                             introDisplayed = mainNavViewModel.displayIntroFunnel.value,
                         )) Modifier.testTag(POST_LOGIN_MAIN_READY_TAG) else Modifier,
                         containerColor = Black,
-                        contentColor = Black,
+                        // the content's color on the black container, as a
+                        // Scaffold gives every other screen: the connect
+                        // screen's ripples, hover and focus layers draw in it
+                        contentColor = MaterialTheme.colorScheme.onBackground,
                         navigationSuiteColors = customColors,
                         layoutType = navSuiteLayoutType,
 
