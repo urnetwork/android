@@ -61,9 +61,47 @@ class QuickConnectStatusWiringTest {
         assertTrue(build, build.contains("minSatisfied = windowMinSatisfied"))
         assertTrue(build, build.contains("failed = windowFailed"))
         assertTrue(build, build.contains("tunnelStarted = currentDevice?.tunnelStarted == true"))
-        assertTrue(build, build.contains("VpnNotificationStatus.CONNECT_FAILED ->"))
-        assertTrue(build, build.contains("VpnNotificationStatus.TUNNEL_DISCONNECTED ->"))
+        // the words for each status are vpnNotificationText's (VpnNotificationTextTest)
+        assertTrue(build, build.contains("vpnNotificationText(presentation, notificationStrings)"))
+        val words = between(source("VpnNotificationText.kt"), "internal fun vpnNotificationText(", "\n}\n")
+        assertTrue(words, words.contains("VpnNotificationStatus.CONNECT_FAILED ->"))
+        assertTrue(words, words.contains("VpnNotificationStatus.TUNNEL_DISCONNECTED ->"))
         val attach = between(service, "    private fun attachToCurrentDevice() {", "\n    }\n")
         assertTrue(attach, attach.contains("tunnelChangeSub = currentDevice.addTunnelChangeListener"))
+    }
+
+    @Test
+    fun theAppKeepsTheActiveTileSayingTheStatus() {
+        // an active tile is bound only when the app asks, and stops listening
+        // once it answers (QuickConnectTileRefresh): for the life of the
+        // process the app follows the device, its window and its tunnel
+        val tile = source("QuickConnectTileService.kt")
+        val follow = between(tile, "        fun follow(app: MainApplication) {", "\n        }\n")
+        assertTrue(follow, follow.contains("app.deviceManager.addDeviceChangeListener"))
+        assertTrue(follow, follow.contains("addWindowStatusChangeListener { refresh.changed() }"))
+        assertTrue(follow, follow.contains("addTunnelChangeListener { refresh.changed() }"))
+        assertTrue(follow, follow.contains("refresh.deviceChanged()"))
+        assertTrue(follow, follow.contains("rendered = { renderedStatus }"))
+        val render = between(tile, "    private fun render() {", "\n    }\n")
+        assertTrue(render, render.contains("renderedStatus = status"))
+        val initialize = between(source("MainApplication.kt"), "    private fun initializeApplicationState() {", "\n    }\n")
+        assertTrue(initialize, initialize.contains("QuickConnectTileService.follow(this)"))
+    }
+
+    @Test
+    fun aLockedTapTogglesTheTileButTheCoverWidgetUnlocksFirst() {
+        // the tile toggles from the lock screen without unlocking (product
+        // decision, 2026-09-01); the overview widget's toggle, on the lock
+        // screen and Samsung's cover screen, toggles only after the user
+        // unlocks, and a cancelled unlock toggles nothing
+        val click = between(source("QuickConnectTileService.kt"), "    override fun onClick() {", "\n    }\n")
+        assertFalse(click, click.contains("unlockAndRun"))
+        assertTrue(click, click.contains("toggle()"))
+        assertFalse(click, click.contains("QuickConnect.toggle("))
+        val trampoline = source("QuickConnectActivity.kt")
+        val unlock = between(trampoline, "keyguard.requestDismissKeyguard(", "override fun onDismissError()")
+        val succeeded = unlock.substringAfter("override fun onDismissSucceeded()").substringBefore("override fun onDismissCancelled()")
+        assertTrue(succeeded, succeeded.contains("QuickConnect.toggle("))
+        assertFalse(unlock, unlock.substringAfter("override fun onDismissCancelled()").contains("QuickConnect.toggle("))
     }
 }

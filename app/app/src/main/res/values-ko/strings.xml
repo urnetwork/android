@@ -1245,6 +1245,7 @@
     <string name="vless_settings_saved">VLESS 설정이 저장되었습니다</string>
     <string name="vless_short_id">짧은 ID</string>
     <string name="vless_user_id">사용자 ID(UUID)</string>
+    <string name="vpn_notification_protected">보호됨 · %1$s</string>
     <string name="wait_for_refresh">갱신 기다리기</string>
     <string name="wallet">지갑</string>
     <string name="wallet_blocked">이 지갑은 URnetwork에서 사용할 수 없습니다.</string>

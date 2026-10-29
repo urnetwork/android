@@ -1245,6 +1245,7 @@
     <string name="vless_settings_saved">บันทึกการตั้งค่า VLESS แล้ว</string>
     <string name="vless_short_id">รหัสแบบสั้น</string>
     <string name="vless_user_id">รหัสผู้ใช้ (UUID)</string>
+    <string name="vpn_notification_protected">ได้รับการป้องกัน · %1$s</string>
     <string name="wait_for_refresh">รอการรีเฟรช</string>
     <string name="wallet">กระเป๋า</string>
     <string name="wallet_blocked">ใช้กระเป๋าเงินนี้กับ URnetwork ไม่ได้</string>

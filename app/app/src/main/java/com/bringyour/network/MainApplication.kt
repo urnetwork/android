@@ -1055,8 +1055,10 @@ class MainApplication : Application() {
                 com.bringyour.network.widgets.GlanceWidgetRefresh(this),
             ).also { it.start() }
         }
-        // the Quick Settings tile is active: render it once per process start
-        QuickConnectTileService.requestUpdate(this)
+        // the Quick Settings tile is active: the system shows it again only
+        // when the app asks, so ask from this process start on, and whenever
+        // a sign in or out, the window or the tunnel changes what it says
+        QuickConnectTileService.follow(this)
 
         if (0 < BuildConfig.URNETWORK_MEMORY_PROFILE_RATE_BYTES) {
             // Diagnostic profile AARs are linked with this same startup rate;

@@ -1245,6 +1245,7 @@
     <string name="vless_settings_saved">Nastavení VLESS bylo uloženo</string>
     <string name="vless_short_id">Krátké ID</string>
     <string name="vless_user_id">ID uživatele (UUID)</string>
+    <string name="vpn_notification_protected">Chráněno · %1$s</string>
     <string name="wait_for_refresh">Počkat na obnovení</string>
     <string name="wallet">Peněženka</string>
     <string name="wallet_blocked">Tuto peněženku nelze s URnetwork používat.</string>

@@ -1268,6 +1268,7 @@
     <string name="vless_settings_saved">VLESS settings saved</string>
     <string name="vless_short_id">Short ID</string>
     <string name="vless_user_id">User ID (UUID)</string>
+    <string name="vpn_notification_protected">Protected · %1$s</string>
     <string name="wait_for_refresh">Wait for refresh</string>
     <string name="wallet">Wallet</string>
     <string name="wallet_blocked">This wallet can\'t be used with URnetwork.</string>

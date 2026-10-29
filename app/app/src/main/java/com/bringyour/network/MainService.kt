@@ -1328,6 +1328,28 @@ import kotlin.math.roundToInt
         }
     }
 
+    /**
+     * The words the notification is made of (vpnNotificationText), read from
+     * the resources at each build, so a locale change shows at the next update.
+     */
+    private val notificationStrings = object : VpnNotificationStrings {
+        override val appName: String get() = getString(R.string.app_name)
+        override val on: String get() = getString(R.string.on)
+        override fun protectedAt(location: String): String = getString(R.string.vpn_notification_protected, location)
+        override fun providerCount(count: Int): String =
+            resources.getQuantityString(R.plurals.provider_count, count, count)
+        override val connecting: String get() = getString(R.string.connecting_status_indicator)
+        override val connectFailed: String get() = getString(R.string.conn_failed)
+        override val tunnelDisconnected: String get() = getString(R.string.reconnect_tunnel_status_indicator)
+        override val slowInternet: String get() = getString(R.string.slow_internet)
+        override val slowInternetFallback: String get() = getString(R.string.slow_internet_fallback_title)
+        override val slowInternetStillConnected: String get() = getString(R.string.slow_internet_still_connected)
+        override val uploadDelay: String get() = getString(R.string.slow_internet_upload_delay)
+        override val downloadDelay: String get() = getString(R.string.slow_internet_download_delay)
+        override val recovered: String get() = getString(R.string.slow_internet_recovered)
+        override val recoveredDetail: String get() = getString(R.string.slow_internet_recovered_detail)
+    }
+
     private fun buildForegroundNotification(messageOverride: String? = null): Notification {
         val contentPendingIntent: PendingIntent =
             Intent(this, MainActivity::class.java).let { notificationIntent ->
@@ -1339,10 +1361,20 @@ import kotlin.math.roundToInt
                 )
             }
 
-        val presentation = if (messageOverride == null) {
+        val presentation: VpnNotificationPresentation?
+        val content: VpnNotificationText
+        if (messageOverride != null) {
+            // before the service reads the device: the app's name and the message
+            presentation = null
+            content = VpnNotificationText(
+                title = getString(R.string.app_name),
+                text = messageOverride,
+                bigText = messageOverride,
+            )
+        } else {
             val currentDevice = boundDevice
             val location = currentDevice?.connectLocation
-            vpnNotificationPresentation(
+            presentation = vpnNotificationPresentation(
                 connectRequested = currentDevice?.connectEnabled == true,
                 systemAlwaysOn = (application as MainApplication).isSystemAlwaysOnVpnActive(),
                 providerCount = providerCount,
@@ -1358,76 +1390,24 @@ import kotlin.math.roundToInt
                 slowInternetPhase = slowInternetNotice.phase,
                 transportDelay = slowInternetNotice.delay,
             )
-        } else {
-            null
-        }
-
-        var contentTitle: String
-        var contentText: String
-        if (messageOverride != null) {
-            contentTitle = getString(R.string.app_name)
-            contentText = messageOverride
-        } else {
-            when (presentation!!.status) {
-                VpnNotificationStatus.CONNECTED -> {
-                    contentTitle = presentation.locationLabel ?: getString(R.string.app_name)
-                    contentText = resources.getQuantityString(
-                        R.plurals.connected_provider_count,
-                        presentation.providerCount,
-                        presentation.providerCount,
-                    )
-                }
-                VpnNotificationStatus.CONNECTING -> {
-                    contentTitle = presentation.locationLabel ?: getString(R.string.app_name)
-                    val providers = resources.getQuantityString(
-                        R.plurals.provider_count,
-                        presentation.providerCount,
-                        presentation.providerCount,
-                    )
-                    contentText = "${getString(R.string.connecting_status_indicator)} • $providers"
-                }
-                VpnNotificationStatus.CONNECT_FAILED -> {
-                    contentTitle = presentation.locationLabel ?: getString(R.string.app_name)
-                    // the connect screen's words; the connection keeps trying
-                    contentText = getString(R.string.conn_failed)
-                }
-                VpnNotificationStatus.TUNNEL_DISCONNECTED -> {
-                    contentTitle = presentation.locationLabel ?: getString(R.string.app_name)
-                    contentText = getString(R.string.reconnect_tunnel_status_indicator)
-                }
-                VpnNotificationStatus.ACTIVE -> {
-                    contentTitle = getString(R.string.app_name)
-                    contentText = getString(R.string.on)
-                }
-            }
+            // short for a Flip's cover screen and the lock screen: the status
+            // first, then the place; the slow content swapped in while slow
+            content = vpnNotificationText(presentation, notificationStrings)
         }
 
         // a slow connection swaps the connected content in place: the same
         // notification and channel, and the Disconnect action stays
         var smallIcon = R.drawable.ic_status
-        var bigText = contentText
         var largeIcon: Bitmap? = null
         var accentColor: Int? = null
         when (val slowInternet = presentation?.slowInternet) {
             is SlowInternetPresentation.Slow -> {
                 // static per level: the status bar cannot animate it
                 smallIcon = tunnelLevelIcon(slowInternet.level)
-                contentTitle = getString(
-                    if (slowInternet.fallback) R.string.slow_internet_fallback_title else R.string.slow_internet
-                )
-                contentText = getString(R.string.slow_internet_still_connected)
-                bigText = transportDelayLines(
-                    slowInternet.delay,
-                    uploadLabel = getString(R.string.slow_internet_upload_delay),
-                    downloadLabel = getString(R.string.slow_internet_download_delay),
-                ).joinToString("\n").ifEmpty { contentText }
                 largeIcon = tunnelLargeIcon(slowInternet.level)
                 accentColor = Amber.toArgb()
             }
             SlowInternetPresentation.Recovered -> {
-                contentTitle = getString(R.string.slow_internet_recovered)
-                contentText = getString(R.string.slow_internet_recovered_detail)
-                bigText = contentText
                 largeIcon = tunnelLargeIcon(0)
             }
             null -> Unit
@@ -1442,10 +1422,10 @@ import kotlin.math.roundToInt
             .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
             .setSmallIcon(smallIcon)
             .setBadgeIconType(NotificationCompat.BADGE_ICON_NONE)
-            .setContentText(contentText)
-            .setContentTitle(contentTitle)
+            .setContentText(content.text)
+            .setContentTitle(content.title)
             .setContentIntent(contentPendingIntent)
-            .setStyle(NotificationCompat.BigTextStyle().bigText(bigText))
+            .setStyle(NotificationCompat.BigTextStyle().bigText(content.bigText))
         largeIcon?.let { builder.setLargeIcon(it) }
         accentColor?.let { builder.setColor(it) }
 
