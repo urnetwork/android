@@ -1245,6 +1245,7 @@
     <string name="vless_settings_saved">已保存 VLESS 设置</string>
     <string name="vless_short_id">短 ID</string>
     <string name="vless_user_id">用户 ID（UUID）</string>
+    <string name="vpn_notification_protected">受保护 · %1$s</string>
     <string name="wait_for_refresh">等待更新</string>
     <string name="wallet">钱包</string>
     <string name="wallet_blocked">此钱包无法用于 URnetwork。</string>

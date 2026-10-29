@@ -30,6 +30,12 @@ launcher picks the largest layout that fits as the user resizes.
   a design choice, not a platform requirement. With the product decision
   from iOS (no authentication on the lock screen, like the system's VPN
   control), the tile toggles directly. [T1][T2]
+- An active tile is bound only when the app asks or on a tap, never when the
+  shade opens, and it stops listening right after the update that answers a
+  request (SystemUI `TileServiceManager.setLastUpdate`). So the app asks
+  again whenever what the tile says may have changed: the device (sign in,
+  sign out), its window and its tunnel (`QuickConnectTileRefresh`, since
+  2026-10-28), besides the connect changes and quick connect commands.
 - `META_DATA_ACTIVE_TILE` makes the tile *active*: the shade no longer binds
   it on every open, and the app pushes state with
   `TileService.requestListeningState`. `META_DATA_TOGGLEABLE_TILE` exposes it

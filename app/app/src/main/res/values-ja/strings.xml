@@ -1245,6 +1245,7 @@
     <string name="vless_settings_saved">VLESS 設定を保存しました</string>
     <string name="vless_short_id">ショート ID</string>
     <string name="vless_user_id">ユーザー ID（UUID）</string>
+    <string name="vpn_notification_protected">保護中 · %1$s</string>
     <string name="wait_for_refresh">更新を待つ</string>
     <string name="wallet">ウォレット</string>
     <string name="wallet_blocked">このウォレットは URnetwork では使用できません。</string>
