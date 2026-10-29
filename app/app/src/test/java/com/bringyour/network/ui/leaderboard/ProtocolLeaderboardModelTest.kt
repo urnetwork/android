@@ -28,6 +28,7 @@ class ProtocolLeaderboardModelTest {
         seekPageSize = 200,
         listRange = 400,
         loadMoreThreshold = 10,
+        closeMargin = 0.20,
     )
 
     /** One client: an account's device api, named for the events. */
