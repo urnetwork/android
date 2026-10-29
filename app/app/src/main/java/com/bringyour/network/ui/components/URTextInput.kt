@@ -30,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
@@ -65,10 +66,14 @@ fun URTextInput(
     supportingText: String? = null,
     enabled: Boolean = true,
     modifier: Modifier = Modifier,
-    maxLines: Int = 1
+    maxLines: Int = 1,
+    // what Esc does in the field (Keyboard_Exit): by default it leaves the
+    // field; an edit that Esc should abandon, such as a rename, passes its cancel
+    escapeAction: (() -> Unit)? = null,
 ) {
 
     var isFocused by remember { mutableStateOf(false) }
+    val focusManager = LocalFocusManager.current
 
     val underlineColor = when {
         !enabled -> Color.Transparent
@@ -98,7 +103,11 @@ fun URTextInput(
                         modifier = modifier
                             .fillMaxWidth()
                             .background(Color.Transparent)
-                            .onFocusChanged { isFocused = it.isFocused },
+                            .onFocusChanged { isFocused = it.isFocused }
+                            .onEscape {
+                                if (escapeAction != null) escapeAction() else focusManager.clearFocus()
+                                true
+                            },
                         decorationBox = { innerTextField ->
                             if (value.text.isEmpty()) {
                                 Text(

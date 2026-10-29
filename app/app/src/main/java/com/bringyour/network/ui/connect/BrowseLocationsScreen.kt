@@ -23,6 +23,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.bringyour.network.R
+import com.bringyour.network.ui.shared.models.ConnectStatus
 import com.bringyour.network.ui.stats.NetworkPeersViewModel
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.TopBarTitleTextStyle
@@ -41,6 +42,7 @@ fun BrowseLocationsScreen(
     networkPeersViewModel: NetworkPeersViewModel = hiltViewModel(),
 ) {
     val fetchLocationsState by remember { locationsListViewModel.filterLocationsState }.collectAsState()
+    val displayConnectStatus by connectViewModel.displayConnectStatus.collectAsState()
     val lazyListState = rememberLocationListState(listPosition)
     val keyboardController = LocalSoftwareKeyboardController.current
     val scope = rememberCoroutineScope()
@@ -105,6 +107,12 @@ fun BrowseLocationsScreen(
                         }
                         navController.popBackStack()
                     }
+                },
+                connectRequested = displayConnectStatus != ConnectStatus.DISCONNECTED,
+                // back to the connect screen, as after a connect
+                disconnect = {
+                    connectViewModel.disconnect()
+                    navController.popBackStack()
                 },
             )
         }

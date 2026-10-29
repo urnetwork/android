@@ -39,9 +39,13 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.foundation.onFocusedBoundsChanged
+import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.boundsInWindow
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.layout.positionOnScreen
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
@@ -53,6 +57,7 @@ import com.bringyour.network.ui.components.CONNECT_GRAPHIC_PANE_MAX_DP
 import com.bringyour.network.ui.components.ConnectArrangement
 import com.bringyour.network.ui.components.DataInfoSheet
 import com.bringyour.network.ui.components.LocalWindowLayout
+import com.bringyour.network.ui.components.onEscape
 import com.bringyour.network.ui.components.connectArrangementFor
 import com.bringyour.network.ui.components.connectDrawerExpandedHeight
 import com.bringyour.network.ui.components.dataInfoShowsFreeRefresh
@@ -86,6 +91,8 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.PointerEventType
+import androidx.compose.ui.input.pointer.PointerType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onSizeChanged
@@ -801,6 +808,11 @@ fun ConnectScreen(
                             setLocationPickerOpen(false)
                         }
                     },
+                    connectRequested = displayConnectStatus != ConnectStatus.DISCONNECTED,
+                    disconnect = {
+                        connectViewModel.disconnect()
+                        setLocationPickerOpen(false)
+                    },
                 )
             }
         }
@@ -843,6 +855,10 @@ fun ConnectActionsSheetScaffold(
     val scrollState = rememberScrollState()
     val density = LocalDensity.current
     val scope = rememberCoroutineScope()
+    val focusManager = LocalFocusManager.current
+    // the drawer's container, the visible screen a focused element in the
+    // drawer is measured against; read in callbacks only, never composed
+    val container = remember { object { var coordinates: LayoutCoordinates? = null } }
 
     // Only the part of the system bottom inset that nothing below the sheet
     // absorbs may be added to the sheet geometry. Above the bottom tab bar
@@ -923,7 +939,9 @@ fun ConnectActionsSheetScaffold(
     // deltas and settles it on release, and never scrolls the content; a
     // content gesture scrolls the content, stops at its top, and never moves
     // the drawer. Only user input counts: the content's own flings and
-    // animations pass through untouched.
+    // animations pass through untouched. A mouse wheel or a trackpad scroll
+    // is neither: it opens or closes the drawer whole and otherwise scrolls
+    // the content (ConnectSheetGesture.wheelMove).
     val velocityThresholdPx = with(density) { SheetFlingVelocityThreshold.toPx() }
     val positionalThresholdPx = with(density) { SheetPullThreshold.toPx() }
     val sheetGesture = remember { ConnectSheetGesture() }
@@ -932,6 +950,28 @@ fun ConnectActionsSheetScaffold(
             override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
                 if (source != NestedScrollSource.UserInput) {
                     return Offset.Zero
+                }
+                if (sheetGesture.kind == ConnectSheetGesture.Kind.Wheel) {
+                    // while the drawer opens or closes, the wheel moves nothing else
+                    if (drawerState.isAnimationRunning) {
+                        return Offset(0f, available.y)
+                    }
+                    val move = ConnectSheetGesture.wheelMove(
+                        deltaY = available.y,
+                        drawerOpen = drawerState.targetValue == ConnectDrawerValue.Expanded,
+                        contentAtTop = !scrollState.canScrollBackward,
+                    )
+                    return when (move) {
+                        ConnectSheetGesture.WheelMove.Open -> {
+                            scope.launch { drawerState.expand() }
+                            Offset(0f, available.y)
+                        }
+                        ConnectSheetGesture.WheelMove.Close -> {
+                            scope.launch { drawerState.partialExpand() }
+                            Offset(0f, available.y)
+                        }
+                        ConnectSheetGesture.WheelMove.ScrollContent -> Offset.Zero
+                    }
                 }
                 val wasUndecided = sheetGesture.kind == ConnectSheetGesture.Kind.Undecided
                 sheetGesture.onFirstMovement(available.y, contentAtTop = !scrollState.canScrollBackward)
@@ -992,7 +1032,11 @@ fun ConnectActionsSheetScaffold(
             }
         }
 
-        BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+        BoxWithConstraints(
+            modifier = Modifier
+                .fillMaxSize()
+                .onPlaced { container.coordinates = it }
+        ) {
             val layoutHeightPx = constraints.maxHeight
             val peekPx = with(density) { sheetPeekHeight.roundToPx() }
             // The expanded drawer stops part-way up the screen, leaving the
@@ -1037,7 +1081,38 @@ fun ConnectActionsSheetScaffold(
                         IntOffset(0, (if (offset.isNaN()) restingOffsetPx else offset).roundToInt())
                     }
                     .onSizeChanged { sheetHeightPx = it.height }
-                    .nestedScroll(separateSheetAndContentGestures),
+                    .nestedScroll(separateSheetAndContentGestures)
+                    // keyboard focus on what the collapsed drawer hides below
+                    // the screen opens it, so the focus is always in view
+                    // (Keyboard_Navigation); a tap never focuses the drawer's
+                    // controls, so touch never opens it this way
+                    .onFocusedBoundsChanged { focused ->
+                        val screen = container.coordinates
+                        if (focused == null || screen == null || !focused.isAttached || !screen.isAttached) {
+                            return@onFocusedBoundsChanged
+                        }
+                        val bounds = screen.localBoundingBoxOf(focused, clipBounds = false)
+                        if (
+                            ConnectDrawerState.opensForFocus(
+                                collapsed = drawerState.targetValue == ConnectDrawerValue.Collapsed,
+                                focusedBottom = bounds.bottom,
+                                visibleBottom = screen.size.height.toFloat(),
+                            )
+                        ) {
+                            scope.launch { drawerState.expand() }
+                        }
+                    }
+                    // Esc closes the open drawer and lets go of the focus in it,
+                    // which would otherwise open it again (Keyboard_Exit)
+                    .onEscape {
+                        if (drawerState.targetValue == ConnectDrawerValue.Expanded) {
+                            focusManager.clearFocus()
+                            scope.launch { drawerState.partialExpand() }
+                            true
+                        } else {
+                            false
+                        }
+                    },
                 shape = BottomSheetDefaults.ExpandedShape,
                 color = SheetBlack,
                 shadowElevation = 1.dp,
@@ -1084,12 +1159,27 @@ fun ConnectActionsSheetScaffold(
                             // gesture, which takes over from a running animation
                             .pointerInput(sheetGesture, drawerState) {
                                 awaitEachGesture {
-                                    awaitFirstDown(requireUnconsumed = false, pass = PointerEventPass.Initial)
+                                    val down = awaitFirstDown(requireUnconsumed = false, pass = PointerEventPass.Initial)
                                     sheetGesture.onDown(
-                                        sheetSettledOpen = drawerState.targetValue == ConnectDrawerValue.Expanded
+                                        sheetSettledOpen = drawerState.targetValue == ConnectDrawerValue.Expanded,
+                                        // a mouse drag never scrolls the content, so a
+                                        // click arms no drawer gesture for the wheel
+                                        touch = down.type != PointerType.Mouse,
                                     )
                                     if (sheetGesture.kind == ConnectSheetGesture.Kind.Sheet) {
                                         scope.launch { drawerState.interruptAnimation() }
+                                    }
+                                }
+                            }
+                            // a mouse wheel turn or a trackpad's two-finger scroll
+                            // over the drawer, seen before the content scrolls
+                            .pointerInput(sheetGesture) {
+                                awaitPointerEventScope {
+                                    while (true) {
+                                        val event = awaitPointerEvent(PointerEventPass.Initial)
+                                        if (event.type == PointerEventType.Scroll || event.type == PointerEventType.PanStart) {
+                                            sheetGesture.onWheel()
+                                        }
                                     }
                                 }
                             }

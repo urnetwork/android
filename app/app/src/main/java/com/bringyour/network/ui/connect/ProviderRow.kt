@@ -2,7 +2,6 @@ package com.bringyour.network.ui.connect
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,6 +26,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.PointerIcon
+import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -37,6 +38,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.bringyour.network.R
 import com.bringyour.network.ui.components.CircleImage
+import com.bringyour.network.ui.components.ContextMenuBox
+import com.bringyour.network.ui.components.ContextMenuItem
+import com.bringyour.network.ui.components.focusRing
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.BlueDark
 import com.bringyour.network.ui.theme.BlueMedium
@@ -57,118 +61,125 @@ fun ProviderRow(
     onFocusChanged: () -> Unit = {},
     isStable: Boolean,
     isStrongPrivacy: Boolean,
-    displayIcons: Boolean = true
+    displayIcons: Boolean = true,
+    // what a right click or the context menu key offers on the row
+    contextMenuItems: List<ContextMenuItem> = listOf(),
 ) {
 
     var isFocused by remember { mutableStateOf(false) }
 
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(64.dp)
-            .onFocusChanged {
-                isFocused = it.isFocused
-                onFocusChanged()
-            }
-            .focusable()
-            .clickable {
-                onClick(1)
-            }
-            // the check mark at the end shows the selected row; screen readers hear it
-            .semantics { if (isSelected) selected = true }
-            .background(if (isFocused) BlueDark else Color.Transparent)
-            .padding(horizontal = 16.dp)
-        ,
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
+    ContextMenuBox(items = contextMenuItems) {
         Row(
             modifier = Modifier
-                .weight(1f)
-                .height(40.dp)
+                .fillMaxWidth()
+                .height(64.dp)
+                .focusRing()
+                // the click is the row's one focus stop, so Tab and the arrows
+                // land where Enter and Space choose the location
+                .onFocusChanged {
+                    isFocused = it.isFocused
+                    onFocusChanged()
+                }
+                .pointerHoverIcon(PointerIcon.Hand)
+                .clickable {
+                    onClick(1)
+                }
+                // the check mark at the end shows the selected row; screen readers hear it
+                .semantics { if (isSelected) selected = true }
+                .background(if (isFocused) BlueDark else Color.Transparent)
+                .padding(horizontal = 16.dp)
+            ,
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Box(
+            Row(
                 modifier = Modifier
-                    .size(40.dp),
+                    .weight(1f)
+                    .height(40.dp)
             ) {
-                CircleImage(
-                    size = 40.dp,
-                    imageResourceId = imageResourceId,
-                    backgroundColor = color,
+                Box(
+                    modifier = Modifier
+                        .size(40.dp),
+                ) {
+                    CircleImage(
+                        size = 40.dp,
+                        imageResourceId = imageResourceId,
+                        backgroundColor = color,
+                    )
+
+                }
+
+                Spacer(modifier = Modifier.width(16.dp))
+                Column (
+                    modifier = Modifier.height(40.dp),
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Row {
+                        Text(
+                            location,
+                            style = MaterialTheme.typography.bodyLarge,
+                            overflow = TextOverflow.Ellipsis,
+                            maxLines = 1,
+                            modifier = Modifier
+                                .padding(end = 12.dp)
+                                .weight(1f)
+                        )
+                    }
+                    if (providerCount != null && providerCount > 0) {
+                        Row {
+                            Text(
+                                pluralStringResource(
+                                    id = R.plurals.provider_count,
+                                    count = providerCount,
+                                    providerCount,
+                                ),
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = TextMuted
+                            )
+                        }
+                    }
+                }
+            }
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+
+                if (displayIcons) {
+
+                    if (!isStable) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.unstable),
+                            contentDescription = stringResource(id = R.string.unstable_connection),
+                            tint = Yellow,
+                            modifier = Modifier.size(24.dp)
+                        )
+
+                        Spacer(modifier = Modifier.width(8.dp))
+                    }
+
+                    if (isStrongPrivacy) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.privacy_glasses),
+                            contentDescription = stringResource(id = R.string.strong_privacy_laws),
+                            tint = Green,
+                            modifier = Modifier.size(24.dp)
+                        )
+
+                        Spacer(modifier = Modifier.width(8.dp))
+                    }
+
+                }
+
+                Icon(
+                    imageVector = Icons.Filled.Check,
+                    contentDescription = null,
+                    tint = if (isSelected) BlueMedium else Black
                 )
 
             }
 
-            Spacer(modifier = Modifier.width(16.dp))
-            Column (
-                modifier = Modifier.height(40.dp),
-                verticalArrangement = Arrangement.Center
-            ) {
-                Row {
-                    Text(
-                        location,
-                        style = MaterialTheme.typography.bodyLarge,
-                        overflow = TextOverflow.Ellipsis,
-                        maxLines = 1,
-                        modifier = Modifier
-                            .padding(end = 12.dp)
-                            .weight(1f)
-                    )
-                }
-                if (providerCount != null && providerCount > 0) {
-                    Row {
-                        Text(
-                            pluralStringResource(
-                                id = R.plurals.provider_count,
-                                count = providerCount,
-                                providerCount,
-                            ),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = TextMuted
-                        )
-                    }
-                }
-            }
         }
-
-        Row(
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-
-            if (displayIcons) {
-
-                if (!isStable) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.unstable),
-                        contentDescription = stringResource(id = R.string.unstable_connection),
-                        tint = Yellow,
-                        modifier = Modifier.size(24.dp)
-                    )
-
-                    Spacer(modifier = Modifier.width(8.dp))
-                }
-
-                if (isStrongPrivacy) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.privacy_glasses),
-                        contentDescription = stringResource(id = R.string.strong_privacy_laws),
-                        tint = Green,
-                        modifier = Modifier.size(24.dp)
-                    )
-
-                    Spacer(modifier = Modifier.width(8.dp))
-                }
-
-            }
-
-            Icon(
-                imageVector = Icons.Filled.Check,
-                contentDescription = null,
-                tint = if (isSelected) BlueMedium else Black
-            )
-
-        }
-
     }
 }
 

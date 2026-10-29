@@ -21,10 +21,27 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.bringyour.network.R
+import com.bringyour.network.ui.components.ContextMenuItem
 import com.bringyour.network.ui.indexedLazyListKey
 import com.bringyour.network.ui.stats.NetworkPeerUi
 import com.bringyour.network.ui.stats.networkPeersSection
 import com.bringyour.network.ui.theme.Red400
+
+/** What a location row's context menu offers (adaptive app quality, Context_Menus). */
+enum class LocationMenuAction { Connect, Disconnect }
+
+/**
+ * A location row's context menu, only the connect screen's own actions:
+ * Disconnect on the location the connection is on while one is requested,
+ * and Connect on every other row, which is what a click on the row does.
+ * Pure, for tests.
+ */
+fun locationMenuActions(selected: Boolean, connectRequested: Boolean): List<LocationMenuAction> =
+    if (selected && connectRequested) {
+        listOf(LocationMenuAction.Disconnect)
+    } else {
+        listOf(LocationMenuAction.Connect)
+    }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -44,7 +61,24 @@ fun LocationsList(
     isRefreshing: Boolean,
     networkPeers: List<NetworkPeerUi> = listOf(),
     onConnectPeer: (NetworkPeerUi) -> Unit = {},
+    // whether a connection is requested (connecting or connected), and the
+    // connect screen's Disconnect: the menu of the row it is on offers it
+    connectRequested: Boolean = false,
+    onDisconnect: () -> Unit = {},
 ) {
+
+    // a row's context menu (Context_Menus): Connect, as its click, or
+    // Disconnect on the location the connection is on
+    val connectLabel = stringResource(id = R.string.connect)
+    val disconnectLabel = stringResource(id = R.string.disconnect)
+    val locationMenu: (Boolean, () -> Unit) -> List<ContextMenuItem> = { selected, connect ->
+        locationMenuActions(selected = selected, connectRequested = connectRequested).map { action ->
+            when (action) {
+                LocationMenuAction.Connect -> ContextMenuItem(label = connectLabel, onClick = connect)
+                LocationMenuAction.Disconnect -> ContextMenuItem(label = disconnectLabel, onClick = onDisconnect)
+            }
+        }
+    }
 
     if (
         connectCountries.isEmpty() &&
@@ -94,6 +128,7 @@ fun LocationsList(
                     selectedLocation = selectedLocation,
                     getLocationColor = getLocationColor,
                     onConnectPeer = onConnectPeer,
+                    peerMenu = locationMenu,
                 )
 
                 if (bestSearchMatches.isNotEmpty()) {
@@ -115,13 +150,15 @@ fun LocationsList(
                             indexedLazyListKey("best", index, location.connectLocationId)
                         }
                     ) { _, location ->
+                        val selected = selectedLocation?.connectLocationId == location.connectLocationId
                         ProviderRow(
                             location = location.name,
                             providerCount = location.providerCount,
                             onClick = {
                                 onLocationSelect(location)
                             },
-                            isSelected = selectedLocation?.connectLocationId == location.connectLocationId,
+                            isSelected = selected,
+                            contextMenuItems = locationMenu(selected) { onLocationSelect(location) },
                             color = getLocationColor(location.connectLocationId.toString()),
                             onFocusChanged = onFocusChanged,
                             isStable = location.stable,
@@ -144,6 +181,7 @@ fun LocationsList(
                     }
 
                     item {
+                        val selected = selectedLocation?.connectLocationId?.bestAvailable == true
                         ProviderRow(
                             location = stringResource(id = R.string.best_available_provider),
                             onClick = {
@@ -151,7 +189,8 @@ fun LocationsList(
                                 onLocationSelect(null)
                             },
                             color = Red400,
-                            isSelected = selectedLocation?.connectLocationId?.bestAvailable == true,
+                            isSelected = selected,
+                            contextMenuItems = locationMenu(selected) { onLocationSelect(null) },
                             onFocusChanged = onFocusChanged,
                             isStable = true,
                             isStrongPrivacy = false,
@@ -180,13 +219,15 @@ fun LocationsList(
                             indexedLazyListKey("country", index, location.connectLocationId)
                         }
                     ) { _, location ->
+                        val selected = selectedLocation?.connectLocationId == location.connectLocationId
                         ProviderRow(
                             location = location.name,
                             providerCount = location.providerCount,
                             onClick = {
                                 onLocationSelect(location)
                             },
-                            isSelected = selectedLocation?.connectLocationId == location.connectLocationId,
+                            isSelected = selected,
+                            contextMenuItems = locationMenu(selected) { onLocationSelect(location) },
                             color = getLocationColor(location.countryCode),
                             onFocusChanged = onFocusChanged,
                             isStable = location.stable,
@@ -213,13 +254,15 @@ fun LocationsList(
                             indexedLazyListKey("region", index, location.connectLocationId)
                         }
                     ) { _, location ->
+                        val selected = selectedLocation?.connectLocationId == location.connectLocationId
                         ProviderRow(
                             location = location.name,
                             providerCount = location.providerCount,
                             onClick = {
                                 onLocationSelect(location)
                             },
-                            isSelected = selectedLocation?.connectLocationId == location.connectLocationId,
+                            isSelected = selected,
+                            contextMenuItems = locationMenu(selected) { onLocationSelect(location) },
                             color = getLocationColor(location.connectLocationId.toString()),
                             onFocusChanged = onFocusChanged,
                             isStable = location.stable,
@@ -246,13 +289,15 @@ fun LocationsList(
                             indexedLazyListKey("city", index, location.connectLocationId)
                         }
                     ) { _, location ->
+                        val selected = selectedLocation?.connectLocationId == location.connectLocationId
                         ProviderRow(
                             location = location.name,
                             providerCount = location.providerCount,
                             onClick = {
                                 onLocationSelect(location)
                             },
-                            isSelected = selectedLocation?.connectLocationId == location.connectLocationId,
+                            isSelected = selected,
+                            contextMenuItems = locationMenu(selected) { onLocationSelect(location) },
                             color = getLocationColor(location.connectLocationId.toString()),
                             onFocusChanged = onFocusChanged,
                             isStable = location.stable,
@@ -280,13 +325,15 @@ fun LocationsList(
                             indexedLazyListKey("device", index, location.connectLocationId)
                         }
                     ) { _, location ->
+                        val selected = selectedLocation?.connectLocationId == location.connectLocationId
                         ProviderRow(
                             location = location.name,
                             providerCount = location.providerCount,
                             onClick = {
                                 onLocationSelect(location)
                             },
-                            isSelected = selectedLocation?.connectLocationId == location.connectLocationId,
+                            isSelected = selected,
+                            contextMenuItems = locationMenu(selected) { onLocationSelect(location) },
                             color = getLocationColor(location.connectLocationId.toString()),
                             onFocusChanged = onFocusChanged,
                             isStable = location.stable,

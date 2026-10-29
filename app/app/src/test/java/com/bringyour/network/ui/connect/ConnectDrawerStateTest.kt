@@ -2,6 +2,8 @@ package com.bringyour.network.ui.connect
 
 import androidx.compose.runtime.saveable.SaverScope
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class ConnectDrawerStateTest {
@@ -64,5 +66,15 @@ class ConnectDrawerStateTest {
     @Test
     fun anUnknownSavedPositionReopensCollapsed() {
         assertEquals(ConnectDrawerValue.Collapsed, ConnectDrawerState.Saver.restore("Gone")!!.targetValue)
+    }
+
+    @Test
+    fun keyboardFocusBelowTheScreenOpensTheCollapsedDrawer() {
+        assertTrue(ConnectDrawerState.opensForFocus(collapsed = true, focusedBottom = 2300f, visibleBottom = 2200f))
+        // in view, as the location row and the connect button in the peek are
+        assertFalse(ConnectDrawerState.opensForFocus(collapsed = true, focusedBottom = 2100f, visibleBottom = 2200f))
+        assertFalse(ConnectDrawerState.opensForFocus(collapsed = true, focusedBottom = 2200f, visibleBottom = 2200f))
+        // the open drawer scrolls its content to the focus instead
+        assertFalse(ConnectDrawerState.opensForFocus(collapsed = false, focusedBottom = 2300f, visibleBottom = 2200f))
     }
 }

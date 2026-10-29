@@ -50,7 +50,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.isCtrlPressed
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalConfiguration
@@ -71,10 +78,12 @@ import androidx.navigation.NavController
 import com.bringyour.network.R
 import com.bringyour.network.ui.components.ButtonStyle
 import com.bringyour.network.ui.components.CircleImage
+import com.bringyour.network.ui.components.ContextMenuItem
 import com.bringyour.network.ui.components.FoldSafeBasicAlertDialog
 import com.bringyour.network.ui.components.SwipeToRevealRow
 import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.components.URInlineErrorText
+import com.bringyour.network.ui.components.focusRing
 import com.bringyour.network.ui.components.tabletReadableColumn
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.BlueMedium
@@ -376,10 +385,25 @@ private fun SessionRow(
         accessibilityLabel = rowText.signOutAction,
         enabled = !row.signingOut,
         mergeDescendants = true,
+        // a right click offers the touch and hold's copy beside the sign out
+        contextMenuItems = listOf(ContextMenuItem(label = copyLabel, onClick = copySessionId)),
+        openMenuOnEnter = true,
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
+                // the keyboard reaches a session too: Enter or the context menu
+                // key opens its menu, and Ctrl+C copies its id (Keyboard_Shortcuts)
+                .focusRing()
+                .focusTarget()
+                .onKeyEvent { event ->
+                    if (event.type == KeyEventType.KeyDown && event.isCtrlPressed && event.key == Key.C) {
+                        copySessionId()
+                        true
+                    } else {
+                        false
+                    }
+                }
                 .clearAndSetSemantics {
                     contentDescription = spokenRow
                     onLongClick(label = copyLabel) {

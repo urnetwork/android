@@ -7,7 +7,6 @@ import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -38,8 +37,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.input.pointer.PointerIcon
+import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.platform.LocalContext
@@ -182,8 +184,11 @@ fun AccountSwitcherPopup(
             properties = PopupProperties(focusable = true),
             offset = IntOffset(x = 0, y = 96),
         ) {
+            // the two clicks below only catch the pointer, so they never take
+            // keyboard focus; Esc closes the menu for the keyboard
             Box(
                 modifier = Modifier
+                    .focusProperties { canFocus = false }
                     .clickable(onClick = onDismiss)
                     .clip(RoundedCornerShape(6.dp))
                     .shadow(6.dp)
@@ -191,6 +196,7 @@ fun AccountSwitcherPopup(
                 Surface(
                     modifier = Modifier
                         .width(256.dp)
+                        .focusProperties { canFocus = false }
                         .clickable { /* Do nothing to prevent dismiss */ }
                 ) {
                     Column {
@@ -319,11 +325,12 @@ fun PopupActionRow(
             .then(focusModifier)
             .fillMaxWidth()
             .background(bgColor.value)
+            // the click is the row's one focus stop, and its focus lightens the row
+            .onFocusChanged { isFocused = it.isFocused }
+            .pointerHoverIcon(PointerIcon.Hand)
             .clickable { onClick() }
             // the check mark shows the current network or guest mode; screen readers hear it
             .semantics { if (isSelected) selected = true }
-            .onFocusChanged { isFocused = it.isFocused }
-            .focusable()
             .padding(16.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
     ) {

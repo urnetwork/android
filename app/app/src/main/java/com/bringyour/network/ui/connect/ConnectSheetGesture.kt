@@ -11,18 +11,38 @@ package com.bringyour.network.ui.connect
  * drawer is undecided until its first movement: pulling down with the content
  * at its top closes the drawer, anything else scrolls the content.
  *
+ * A mouse wheel turn or a trackpad's two-finger scroll is a third kind: it
+ * opens the closed drawer, closes the open one from the top of its content,
+ * and otherwise scrolls the content ([wheelMove]). A mouse press decides
+ * nothing for the drawer, since a mouse drag never scrolls the content.
+ *
  * Deltas and velocities follow Compose's nested-scroll convention: negative
  * when the finger moves up.
  */
 class ConnectSheetGesture {
 
-    enum class Kind { Undecided, Sheet, Content }
+    enum class Kind { Undecided, Sheet, Content, Wheel }
+
+    /** What a wheel scroll does to the drawer. */
+    enum class WheelMove { Open, Close, ScrollContent }
 
     var kind: Kind = Kind.Content
 
-    /** A new touch: decided at once unless the drawer is settled open. */
-    fun onDown(sheetSettledOpen: Boolean) {
-        kind = if (sheetSettledOpen) Kind.Undecided else Kind.Sheet
+    /**
+     * A new touch: decided at once unless the drawer is settled open. A
+     * mouse press ([touch] false) leaves what scrolls next to the content.
+     */
+    fun onDown(sheetSettledOpen: Boolean, touch: Boolean = true) {
+        kind = when {
+            !touch -> Kind.Content
+            sheetSettledOpen -> Kind.Undecided
+            else -> Kind.Sheet
+        }
+    }
+
+    /** A mouse wheel or trackpad scroll over the drawer, until the next touch. */
+    fun onWheel() {
+        kind = Kind.Wheel
     }
 
     /** The first movement of an undecided touch. */
@@ -33,6 +53,18 @@ class ConnectSheetGesture {
     }
 
     companion object {
+
+        /**
+         * A wheel scroll of [deltaY] over the drawer: scrolling on toward more
+         * content opens the closed drawer whole, and scrolling back at the top
+         * of the open drawer's content closes it; anything else scrolls the
+         * content. The drawer never stops part way, as it may under a finger.
+         */
+        fun wheelMove(deltaY: Float, drawerOpen: Boolean, contentAtTop: Boolean): WheelMove = when {
+            !drawerOpen && deltaY < 0f -> WheelMove.Open
+            drawerOpen && contentAtTop && deltaY > 0f -> WheelMove.Close
+            else -> WheelMove.ScrollContent
+        }
 
         /**
          * What the connection consumes before the content scrolls, out of

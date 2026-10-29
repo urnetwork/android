@@ -3,7 +3,6 @@ package com.bringyour.network.ui.login
 import android.util.Log
 import androidx.compose.foundation.clickable
 import java.util.Locale
-import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -28,6 +27,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.input.pointer.PointerIcon
+import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -180,13 +181,14 @@ fun NetworkServerSelector(
             style = MaterialTheme.typography.bodySmall,
             color = textColor,
             modifier = Modifier
-                .clickable(enabled = enabled) {
-                    isPresenting = true
-                }
+                // the click is the link's one focus stop, and its focus colors the link
                 .onFocusChanged {
                     isFocused = it.isFocused
                 }
-                .focusable(enabled = enabled)
+                .then(if (enabled) Modifier.pointerHoverIcon(PointerIcon.Hand) else Modifier)
+                .clickable(enabled = enabled) {
+                    isPresenting = true
+                }
                 .padding(8.dp)
         )
     }

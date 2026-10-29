@@ -1,6 +1,7 @@
 package com.bringyour.network.ui.components.overlays
 
 import android.util.Log
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusGroup
@@ -52,6 +53,11 @@ fun OverlayBackground(
 ) {
 
     val focusRequester = remember { FocusRequester() }
+
+    // Back closes the overlay, and so does Esc with nothing focused, which the
+    // system reads as Back (adaptive app quality, Keyboard_Exit); Esc inside it
+    // is handled below
+    BackHandler { onDismiss() }
 
     Box(
         modifier = Modifier
