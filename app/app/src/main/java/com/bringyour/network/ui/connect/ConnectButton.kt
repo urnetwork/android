@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -35,6 +36,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.PointerIcon
+import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
@@ -52,6 +55,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
 import com.bringyour.network.R
+import com.bringyour.network.ui.components.focusRing
 import com.bringyour.network.ui.shared.models.ConnectStatus
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.BlueMedium
@@ -113,12 +117,17 @@ fun ConnectButton(
             .size(if (isTv()) 128.dp else 256.dp)
 //            .widthIn(max = 256.dp)
 //            .heightIn(max = 256.dp)
+            // the keyboard's focus: a ring around the graphic's round face,
+            // outside its square, so the clip below leaves it whole
+            .focusRing(shape = CircleShape, outset = 6.dp)
             .clipToBounds()
             .background(color = Color(0x0AFFFFFF))
     ) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
+                // Enter and Space press it as a tap does
+                .pointerHoverIcon(PointerIcon.Hand)
                 .clickable(onClick = onClick)
                 .semantics { if (description != null) contentDescription = description }
                 .zIndex(0f)

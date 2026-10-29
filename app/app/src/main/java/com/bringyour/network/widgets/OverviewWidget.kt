@@ -212,7 +212,7 @@ internal fun OverviewContent(entry: WidgetEntry) {
 private fun OverviewGlobe(overview: Overview, layout: OverviewLayout) {
     val context = LocalContext.current
     val size = LocalSize.current
-    val density = context.resources.displayMetrics.density
+    val density = widgetBitmapDensity()
     val visibleTopDp = maxOf(0f, layout.globeTopDp)
     val widthDp = minOf(size.width.value, layout.globeLeftDp + layout.globeDp)
     val heightDp = size.height.value - visibleTopDp
@@ -221,7 +221,7 @@ private fun OverviewGlobe(overview: Overview, layout: OverviewLayout) {
         (widthDp * density).roundToInt().coerceAtLeast(1),
         (heightDp * density).roundToInt().coerceAtLeast(1),
         Bitmap.Config.ARGB_8888,
-    )
+    ).drawnAt(density)
     val canvas = Canvas(bitmap)
     canvas.translate(layout.globeLeftDp * density, (layout.globeTopDp - visibleTopDp) * density)
     val globePx = layout.globeDp * density
@@ -243,7 +243,7 @@ private fun OverviewGlobe(overview: Overview, layout: OverviewLayout) {
 @Composable
 private fun OverviewTiles(entry: WidgetEntry, overview: Overview, widthDp: Float) {
     val context = LocalContext.current
-    val density = context.resources.displayMetrics.density
+    val density = widgetBitmapDensity()
     val innerWidthPx = ((widthDp - 2 * TILE_PADDING_HORIZONTAL_DP) * density).roundToInt()
     Column(modifier = GlanceModifier.width(widthDp.dp).fillMaxHeight()) {
         Tile(context.getString(R.string.balance), overview.balance) {

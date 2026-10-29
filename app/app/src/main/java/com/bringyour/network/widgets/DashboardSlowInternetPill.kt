@@ -327,6 +327,12 @@ private fun pillTextPaint(context: Context): Paint = Paint(Paint.ANTI_ALIAS_FLAG
  * One line of [text] at [sizeSp] as the launcher sets it, in dp: the font's
  * bounds, which Glance's text pads to, and from Android 10 a fallback
  * font's (CJK) where they reach further.
+ *
+ * The pill measures in dp, so the [metrics] are only for the user's font
+ * size: TypedValue applies Android 14's non-linear font scaling from them,
+ * and nothing public does it without them (FontScaleConverterFactory is
+ * hidden). The display they describe divides back out, so it does not
+ * matter which one it is, unlike the widgets' bitmaps (WidgetPixels.kt).
  */
 private fun Paint.lineDp(text: String, sizeSp: Float, metrics: DisplayMetrics): Float {
     textSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, sizeSp, metrics)

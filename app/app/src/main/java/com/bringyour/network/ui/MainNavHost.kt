@@ -1,5 +1,6 @@
 package com.bringyour.network.ui
 
+import com.bringyour.network.ui.components.FoldSafeAlertDialog
 import com.bringyour.network.ui.connection_region.CantReachRegionPrompt
 import com.bringyour.network.ui.introduction.LocalIntroConnector
 import com.bringyour.network.ui.introduction.IntroConnectorState
@@ -15,10 +16,13 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.navigation.NavDestination.Companion.hierarchy
 import com.bringyour.network.ui.account.AccountDetailPlaceholder
 import com.bringyour.network.ui.components.ConnectArrangement
+import com.bringyour.network.ui.components.DialogAnchor
+import com.bringyour.network.ui.components.LocalDialogAnchor
 import com.bringyour.network.ui.components.LocalWindowLayout
 import com.bringyour.network.ui.components.NavigationLayout
 import com.bringyour.network.ui.components.connectArrangementFor
 import com.bringyour.network.ui.components.navigationLayoutFor
+import com.bringyour.network.ui.components.recordDialogAnchor
 import com.bringyour.network.ui.components.rememberWindowLayout
 import com.bringyour.network.ui.components.sideBySideSplit
 import com.bringyour.network.ui.components.sidePaneWidth
@@ -36,7 +40,6 @@ import com.bringyour.network.ui.upgrade.rememberPlanMethodSlot
 import com.bringyour.network.ui.upgrade.rememberPlanPurchaser
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.AlertDialog
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.animation.AnimatedContent
@@ -66,6 +69,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.StackedLineChart
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.NavigationDrawerItemDefaults
 import androidx.compose.material3.NavigationRailItemDefaults
@@ -223,12 +227,22 @@ fun MainNavHost(
     // the window's size class and fold, for every layout below, its dialogs
     // and sheets included (ui/components/AdaptiveLayout.kt)
     val windowLayout = rememberWindowLayout()
+    // the touch each dialog and sheet is opened from, so beside a fold it
+    // opens on that touch's side (ui/components/FoldSafeDialogs.kt)
+    val dialogAnchor = remember { DialogAnchor() }
 
     CompositionLocalProvider(
         LocalReferralTerms provides referralTerms,
         LocalReferralCountLoad provides referralCountLoad,
         LocalWindowLayout provides windowLayout,
+        LocalDialogAnchor provides dialogAnchor,
     ) {
+        // over every screen, to see where each touch goes down; its children
+        // measure as they did directly in the window
+        Box(
+            modifier = Modifier.fillMaxSize().recordDialogAnchor(dialogAnchor),
+            propagateMinConstraints = true,
+        ) {
         // the flavors that sell outside a store share one crypto invoice in the
         // activity (src/cryptoPay); on Play this is the content as it is
         PaymentMethodsScope {
@@ -251,6 +265,7 @@ fun MainNavHost(
         networkReliabilityViewModel = networkReliabilityViewModel,
         solanaPaymentViewModel = solanaPaymentViewModel
         )
+        }
         }
     }
 }
@@ -594,7 +609,7 @@ private fun MainNavHostContent(
     CantReachRegionPrompt()
 
     planViewModel.changePlanError?.let { changePlanError ->
-        AlertDialog(
+        FoldSafeAlertDialog(
             onDismissRequest = { planViewModel.setChangePlanError(null) },
             title = { Text(stringResource(id = R.string.payment_problem)) },
             text = { Text(changePlanError) },
@@ -689,7 +704,7 @@ private fun MainNavHostContent(
     }
 
     if (showSolanaCheckDelayedDialog) {
-        AlertDialog(
+        FoldSafeAlertDialog(
             onDismissRequest = { showSolanaCheckDelayedDialog = false },
             text = { Text(stringResource(id = R.string.payment_confirmation_delayed)) },
             confirmButton = {
@@ -701,7 +716,7 @@ private fun MainNavHostContent(
     }
 
     if (showConfirmationDelayedDialog) {
-        AlertDialog(
+        FoldSafeAlertDialog(
             onDismissRequest = { showConfirmationDelayedDialog = false },
             title = { Text(stringResource(id = R.string.payment_received_title)) },
             text = { Text(stringResource(id = R.string.payment_confirmation_delayed)) },
@@ -733,7 +748,7 @@ private fun MainNavHostContent(
     }
 
     if (showPurchaseWrongNetworkDialog) {
-        AlertDialog(
+        FoldSafeAlertDialog(
             onDismissRequest = { showPurchaseWrongNetworkDialog = false },
             text = { Text(stringResource(id = R.string.subscription_purchased_under_different_account)) },
             confirmButton = {
@@ -910,7 +925,10 @@ private fun MainNavHostContent(
                             introDisplayed = mainNavViewModel.displayIntroFunnel.value,
                         )) Modifier.testTag(POST_LOGIN_MAIN_READY_TAG) else Modifier,
                         containerColor = Black,
-                        contentColor = Black,
+                        // the content's color on the black container, as a
+                        // Scaffold gives every other screen: the connect
+                        // screen's ripples, hover and focus layers draw in it
+                        contentColor = MaterialTheme.colorScheme.onBackground,
                         navigationSuiteColors = customColors,
                         layoutType = navSuiteLayoutType,
 
@@ -1338,7 +1356,7 @@ fun MainNavContent(
         split = sideBySideSplit(
             containerStart = paneRowInWindow.left / density.density,
             width = paneRowWidth,
-            fold = windowLayout.fold,
+            fold = windowLayout.hinge,
             sidePaneOnLeft = listOnLeft,
         ),
         width = paneRowWidth,

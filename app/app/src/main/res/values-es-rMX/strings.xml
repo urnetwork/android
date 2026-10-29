@@ -1245,6 +1245,7 @@
     <string name="vless_settings_saved">Configuración de VLESS guardada</string>
     <string name="vless_short_id">ID corto</string>
     <string name="vless_user_id">ID de usuario (UUID)</string>
+    <string name="vpn_notification_protected">Protegido · %1$s</string>
     <string name="wait_for_refresh">Esperar la renovación</string>
     <string name="wallet">Cartera</string>
     <string name="wallet_blocked">Esta cartera no se puede usar con URnetwork.</string>

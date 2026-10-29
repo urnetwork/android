@@ -63,7 +63,8 @@ fun IntroductionTopBar(
     totalSteps: Int = INTRO_STEP_COUNT,
 ) {
     // on tablets the bar spans the readable column, so back, the step bubbles and
-    // Skip align with the content below (mmm/DESIGNSTYLE.md "Tablet layouts")
+    // Skip align with the content below (mmm/DESIGNSTYLE.md "Layout follows the
+    // window, not the device")
     Box(modifier = Modifier.tabletReadableColumn().fillMaxWidth()) {
     CenterAlignedTopAppBar(
         title = {

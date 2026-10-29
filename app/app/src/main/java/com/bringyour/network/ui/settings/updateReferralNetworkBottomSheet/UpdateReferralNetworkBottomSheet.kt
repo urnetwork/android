@@ -9,11 +9,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LinkOff
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -35,6 +33,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.bringyour.network.R
+import com.bringyour.network.ui.components.FoldSafeAlertDialog
+import com.bringyour.network.ui.components.FoldSafeModalBottomSheet
 import com.bringyour.network.ui.components.URTextInput
 import com.bringyour.network.ui.components.referral.RoyalWelcomeContent
 import com.bringyour.network.ui.theme.ppNeueBitBold
@@ -83,7 +83,7 @@ fun UpdateReferralNetworkBottomSheet(
     }
 
     if (viewModel.displayUnlinkAlert) {
-        AlertDialog(
+        FoldSafeAlertDialog(
             icon = {
                 Icon(Icons.Filled.LinkOff, contentDescription = null)
             },
@@ -129,7 +129,7 @@ fun UpdateReferralNetworkBottomSheet(
         )
     }
 
-    ModalBottomSheet(
+    FoldSafeModalBottomSheet(
         onDismissRequest = { setIsPresenting(false) },
         sheetState = sheetState,
     ) {
@@ -141,7 +141,7 @@ fun UpdateReferralNetworkBottomSheet(
             ) {
                 RoyalWelcomeContent()
             }
-            return@ModalBottomSheet
+            return@FoldSafeModalBottomSheet
         }
 
         Column(

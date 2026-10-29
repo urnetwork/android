@@ -1,5 +1,6 @@
 package com.bringyour.network.ui.login
 
+import com.bringyour.network.ui.components.FoldSafeAlertDialog
 import com.bringyour.network.ui.components.tabletForm
 import android.content.ClipData
 import android.content.ClipDescription
@@ -27,7 +28,6 @@ import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -78,7 +78,7 @@ fun SeedphraseDisplayScreen(
     }
 
     if (showBackConfirmDialog) {
-        AlertDialog(
+        FoldSafeAlertDialog(
             onDismissRequest = { showBackConfirmDialog = false },
             title = { Text(stringResource(id = R.string.site_save_your_seedphrase)) },
             text = { Text(stringResource(id = R.string.seedphrase_leave_confirm_body)) },

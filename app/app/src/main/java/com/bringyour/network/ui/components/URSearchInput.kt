@@ -3,7 +3,6 @@ package com.bringyour.network.ui.components
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -28,13 +27,20 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
-import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.type
+import androidx.compose.ui.input.pointer.PointerIcon
+import androidx.compose.ui.input.pointer.pointerHoverIcon
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
@@ -59,9 +65,12 @@ fun URSearchInput(
     keyboardController: SoftwareKeyboardController?,
     onSearch: () -> Unit = {},
     onClear: () -> Unit,
+    // focuses the field from outside, for a search opened from the keyboard
+    focusRequester: FocusRequester? = null,
 ) {
 
     var isFocused by remember { mutableStateOf(false) }
+    val focusManager = LocalFocusManager.current
     val isFocusedBgColor = MainTintedBackgroundBase.copy(alpha = 0.6f)
     val bgColor = animateColorAsState(
         targetValue = if (isFocused) {
@@ -71,15 +80,12 @@ fun URSearchInput(
         }, label = ""
     )
 
+    // the field is the one focus stop: Tab lands where typing goes
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(28.dp))
             .background(bgColor.value)
-            .onFocusChanged {
-                isFocused = it.isFocused
-            }
-            .focusable()
             .padding(horizontal = 12.dp, vertical = 6.dp)
     ) {
         Row(
@@ -102,14 +108,24 @@ fun URSearchInput(
                 cursorBrush = SolidColor(Blue500),
                 modifier = Modifier
                     .weight(1f)
-                    .onKeyEvent {
-
-                        if (it.key == Key.Enter) {
-                            onSearch()
-                            keyboardController?.hide()
+                    .then(if (focusRequester != null) Modifier.focusRequester(focusRequester) else Modifier)
+                    .onFocusChanged {
+                        isFocused = it.isFocused
+                    }
+                    // Esc clears the search, then leaves the field (Keyboard_Exit)
+                    .onEscape {
+                        when (searchEscape(value.text)) {
+                            SearchEscape.ClearSearch -> onClear()
+                            SearchEscape.LeaveField -> focusManager.clearFocus()
                         }
-
-                        false
+                        true
+                    }
+                    // the field has one line, so Down moves on to the results
+                    // below it (Keyboard_Navigation)
+                    .onPreviewKeyEvent { event ->
+                        event.type == KeyEventType.KeyDown &&
+                            event.key == Key.DirectionDown &&
+                            focusManager.moveFocus(FocusDirection.Down)
                     },
                 textStyle = TextStyle(color = Color.LightGray),
                 decorationBox = { innerTextField ->
@@ -125,6 +141,7 @@ fun URSearchInput(
                     keyboardType = KeyboardType.Text,
                     imeAction = ImeAction.Search
                 ),
+                // a hardware Enter runs the Search action too, once
                 keyboardActions = KeyboardActions(
                     onSearch = {
                         onSearch()
@@ -133,12 +150,13 @@ fun URSearchInput(
                 ),
                 maxLines = 1
             )
-            
+
             if (value.text.isNotEmpty()) {
                 Icon(
                     imageVector = Icons.Default.Clear,
                     contentDescription = stringResource(id = R.string.clear),
                     modifier = Modifier
+                        .pointerHoverIcon(PointerIcon.Hand)
                         .clickable {
                             onClear()
                             keyboardController?.hide()

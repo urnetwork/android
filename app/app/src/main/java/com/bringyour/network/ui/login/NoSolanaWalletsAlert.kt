@@ -2,13 +2,13 @@ package com.bringyour.network.ui.login
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Warning
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import com.bringyour.network.R
+import com.bringyour.network.ui.components.FoldSafeAlertDialog
 
 /**
  * No Solana wallet app on the device answered the Mobile Wallet Adapter request: none is
@@ -22,7 +22,7 @@ fun NoSolanaWalletsAlert(
     onDismiss: () -> Unit,
     onEnterManually: (() -> Unit)? = null,
 ) {
-    AlertDialog(
+    FoldSafeAlertDialog(
         icon = {
             Icon(Icons.Default.Warning, contentDescription = null)
         },

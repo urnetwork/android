@@ -1245,6 +1245,7 @@
     <string name="vless_settings_saved">VLESS सेटिंग्स सेव हो गईं</string>
     <string name="vless_short_id">शॉर्ट आईडी</string>
     <string name="vless_user_id">यूज़र आईडी (UUID)</string>
+    <string name="vpn_notification_protected">सुरक्षित · %1$s</string>
     <string name="wait_for_refresh">रीफ़्रेश की प्रतीक्षा करें</string>
     <string name="wallet">वॉलेट</string>
     <string name="wallet_blocked">इस वॉलेट का इस्तेमाल URnetwork के साथ नहीं किया जा सकता।</string>

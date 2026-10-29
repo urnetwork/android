@@ -11,17 +11,20 @@ import androidx.window.core.layout.WindowSizeClass
  */
 
 /**
- * A fold that divides the window in two (FoldingFeature.isSeparating: half
- * opened, or a hinge between two screens), in window dp. A vertical fold puts
- * the halves side by side (book posture); a horizontal one stacks them
- * (tabletop). [start] and [end] are the fold's edges along the axis it
- * divides, left and right or top and bottom; they are equal for a fold that
- * hides nothing.
+ * A fold across the window, in window dp: the crease of a foldable or the
+ * hinge between two screens. A vertical fold runs top to bottom, its halves
+ * side by side (book posture when half open); a horizontal one runs across,
+ * its halves stacked (tabletop). [start] and [end] are the fold's edges along
+ * the axis it divides, left and right or top and bottom; they are equal for a
+ * fold that hides nothing. [separating] is FoldingFeature.isSeparating: the
+ * fold divides the window in two (half open, or a hinge between two
+ * screens), rather than lying flat across one screen.
  */
-data class SeparatingFold(
+data class WindowFold(
     val vertical: Boolean,
     val start: Float,
     val end: Float,
+    val separating: Boolean = true,
 )
 
 /** The top-level navigation: the bottom bar or the side rail. */
@@ -66,19 +69,22 @@ enum class ConnectArrangement {
  * The connect screen's arrangement for the window. Compact width keeps the
  * phone layout. A separating fold decides next: the split lands on it, side
  * by side across a vertical fold (book posture) and stacked across a
- * horizontal one (tabletop). Otherwise expanded width puts the panes side by
- * side and medium width stacks them, unless the window is too short to
- * stack (a landscape phone, a short split-screen window).
+ * horizontal one (tabletop). A flat fold does not decide it, as on iOS: it
+ * only sets where a side-by-side split lands. Otherwise expanded width puts
+ * the panes side by side and medium width stacks them, unless the window is
+ * too short to stack (a landscape phone, a short split-screen window).
  */
-fun connectArrangementFor(widthDp: Float, heightDp: Float, fold: SeparatingFold?): ConnectArrangement =
-    when {
+fun connectArrangementFor(widthDp: Float, heightDp: Float, fold: WindowFold?): ConnectArrangement {
+    val dividing = fold?.takeIf { it.separating }
+    return when {
         widthDp < WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND -> ConnectArrangement.Drawer
-        fold != null && fold.vertical -> ConnectArrangement.SideBySide
-        fold != null -> ConnectArrangement.Stacked
+        dividing != null && dividing.vertical -> ConnectArrangement.SideBySide
+        dividing != null -> ConnectArrangement.Stacked
         widthDp >= WindowSizeClass.WIDTH_DP_EXPANDED_LOWER_BOUND -> ConnectArrangement.SideBySide
         heightDp < WindowSizeClass.HEIGHT_DP_MEDIUM_LOWER_BOUND -> ConnectArrangement.SideBySide
         else -> ConnectArrangement.Stacked
     }
+}
 
 /**
  * Where two panes meet, in dp from the start of their container along the
@@ -105,19 +111,27 @@ const val FOLD_PANE_MIN_DP = 200f
 
 /**
  * Splits a side-by-side container [width] dp wide whose left edge is at
- * [containerStart] in window dp. A separating vertical [fold] inside it, with
- * room on both sides, takes the split: no row, control or dialog straddles
- * it. Otherwise the side pane (the statistics or a list) gets 40% of the
- * width, between its minimum and maximum, on the left when [sidePaneOnLeft]
- * (left to right layouts) and on the right otherwise.
+ * [containerStart] in window dp. A vertical [fold] inside it, flat or half
+ * open, with room on both sides, takes the split, so no row or control lies
+ * across the crease or the hinge; its place wins over the side pane's
+ * bounds, as iOS splits (SplitLayout.swift). A flat fold that would leave
+ * the main pane under its minimum is not split at; a separating one always
+ * is, since a pane across a half-open fold is bent in two. Otherwise the
+ * side pane (the statistics or a list) gets 40% of the width, between its
+ * minimum and maximum, on the left when [sidePaneOnLeft] (left to right
+ * layouts) and on the right otherwise.
  */
 fun sideBySideSplit(
     containerStart: Float,
     width: Float,
-    fold: SeparatingFold?,
+    fold: WindowFold?,
     sidePaneOnLeft: Boolean,
 ): PaneSplit {
-    foldSplit(containerStart, width, fold?.takeIf { it.vertical })?.let { return it }
+    fold?.takeIf { it.vertical }?.let { hinge ->
+        foldSplit(containerStart, width, hinge)
+            ?.takeIf { hinge.separating || MAIN_PANE_MIN_WIDTH_DP <= mainPaneWidth(it, width, sidePaneOnLeft) }
+            ?.let { return it }
+    }
     val side = (width * SIDE_PANE_FRACTION)
         .coerceIn(SIDE_PANE_MIN_WIDTH_DP, SIDE_PANE_MAX_WIDTH_DP)
         .coerceAtMost(width - MAIN_PANE_MIN_WIDTH_DP)
@@ -139,13 +153,13 @@ fun mainPaneWidth(split: PaneSplit, width: Float, sidePaneOnLeft: Boolean): Floa
  * [containerTop] in window dp: at a separating horizontal [fold] inside it
  * with room on both sides (tabletop), else in half.
  */
-fun stackedSplit(containerTop: Float, height: Float, fold: SeparatingFold?): PaneSplit {
-    foldSplit(containerTop, height, fold?.takeIf { !it.vertical })?.let { return it }
+fun stackedSplit(containerTop: Float, height: Float, fold: WindowFold?): PaneSplit {
+    foldSplit(containerTop, height, fold?.takeIf { !it.vertical && it.separating })?.let { return it }
     val half = height / 2f
     return PaneSplit(half, half)
 }
 
-private fun foldSplit(containerStart: Float, length: Float, fold: SeparatingFold?): PaneSplit? {
+private fun foldSplit(containerStart: Float, length: Float, fold: WindowFold?): PaneSplit? {
     fold ?: return null
     val firstEnd = fold.start - containerStart
     val secondStart = fold.end - containerStart
@@ -165,24 +179,71 @@ data class WindowRegion(val left: Float, val top: Float, val right: Float, val b
 const val FOLD_DIALOG_MIN_DP = 240f
 
 /**
- * Where a dialog opens in a [width] × [height] dp window: all of it, or with
- * a separating [fold] one side of it, so no dialog sits on the fold. In
- * tabletop that is the half below the fold, under the hands; beside a
- * vertical fold it is the start side, on the left when [startOnLeft]. A side
- * too small to hold a dialog falls back to the other one.
+ * Where a dialog opens in a [width] × [height] dp window: on one side of a
+ * separating [fold], never across it ("Position dialog boxes and pop-up
+ * menus so they don't overlay the fold", Google's Learn about foldables).
+ * [usable] is the part of the window clear of the system bars, the cutout
+ * and the keyboard, by default all of it; the region is a side within it.
+ *
+ * - Tabletop (a horizontal fold): the half below the fold. Google places a
+ *   half-open device's interactive elements there: "the controls on the
+ *   bottom half" (Make your app fold aware), "interactive elements ... on
+ *   the bottom half" (the tabletop posture cookbook), and a dialog is
+ *   controls. With the keyboard up over that half, the half above it.
+ * - Book (a vertical fold): the side the dialog was opened from, the one
+ *   [anchorX] (the touch that opened it, window dp) is on, else the start
+ *   side, on the left when [startOnLeft]: the rule of Google's hinge-aware
+ *   dialogs in Flutter (DisplayFeatureSubScreen: the sub-screen closest to
+ *   the anchor point, without one the top-left in a left-to-right layout and
+ *   the top-right in a right-to-left one). Google's Android guidance names
+ *   no side for book posture.
+ *
+ * A side too small to hold a dialog falls back to the other one, and with
+ * neither the dialog opens over the whole usable window. Without a
+ * separating fold it is the usable window too: a flat fold changes nothing.
  */
-fun foldSafeDialogRegion(width: Float, height: Float, fold: SeparatingFold?, startOnLeft: Boolean): WindowRegion {
-    val window = WindowRegion(0f, 0f, width, height)
-    fold ?: return window
-    if (fold.vertical) {
-        val left = WindowRegion(0f, 0f, fold.start, height)
-        val right = WindowRegion(fold.end, 0f, width, height)
-        val (preferred, other) = if (startOnLeft) left to right else right to left
-        return listOf(preferred, other).firstOrNull { FOLD_DIALOG_MIN_DP <= it.width } ?: window
+fun foldSafeDialogRegion(
+    width: Float,
+    height: Float,
+    fold: WindowFold?,
+    startOnLeft: Boolean,
+    anchorX: Float? = null,
+    usable: WindowRegion = WindowRegion(0f, 0f, width, height),
+): WindowRegion {
+    if (fold == null || !fold.separating) {
+        return usable
     }
-    val below = WindowRegion(0f, fold.end, width, height)
-    val above = WindowRegion(0f, 0f, width, fold.start)
-    return listOf(below, above).firstOrNull { FOLD_DIALOG_MIN_DP <= it.height } ?: window
+    if (fold.vertical) {
+        val left = WindowRegion(usable.left, usable.top, minOf(fold.start, usable.right), usable.bottom)
+        val right = WindowRegion(maxOf(fold.end, usable.left), usable.top, usable.right, usable.bottom)
+        val leftFirst = if (anchorX != null) anchorX < (fold.start + fold.end) / 2f else startOnLeft
+        val (preferred, other) = if (leftFirst) left to right else right to left
+        return listOf(preferred, other).firstOrNull { FOLD_DIALOG_MIN_DP <= it.width } ?: usable
+    }
+    val below = WindowRegion(usable.left, maxOf(fold.end, usable.top), usable.right, usable.bottom)
+    val above = WindowRegion(usable.left, usable.top, usable.right, minOf(fold.start, usable.bottom))
+    return listOf(below, above).firstOrNull { FOLD_DIALOG_MIN_DP <= it.height } ?: usable
+}
+
+/**
+ * Where a modal bottom sheet opens across a [width] × [height] dp window
+ * that a separating vertical [fold] divides (book posture): the side a
+ * dialog would open on ([foldSafeDialogRegion]), its full height. Null keeps
+ * the sheet as it is: no separating fold; a tabletop fold, where the sheet
+ * keeps its width and opens to the half below the fold
+ * (rememberFoldSafeSheetState); or no side with room for it.
+ */
+fun foldSafeSheetRegion(
+    width: Float,
+    height: Float,
+    fold: WindowFold?,
+    startOnLeft: Boolean,
+    anchorX: Float? = null,
+): WindowRegion? {
+    if (fold == null || !fold.separating || !fold.vertical) {
+        return null
+    }
+    return foldSafeDialogRegion(width, height, fold, startOnLeft, anchorX).takeIf { it.width < width }
 }
 
 /** The connect graphic at full size: the phone layout's 256dp square. */

@@ -64,6 +64,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.bringyour.network.R
 import com.bringyour.network.ui.indexedLazyListKey
 import com.bringyour.network.ui.components.URSwitch
+import com.bringyour.network.ui.components.keyboardScrollable
 import com.bringyour.network.ui.theme.Green500
 import com.bringyour.network.ui.theme.HeadingLargeCondensed
 import com.bringyour.network.ui.theme.MainTintedBackgroundBase
@@ -116,7 +117,7 @@ fun LeaderboardScreen(
         split = sideBySideSplit(
             containerStart = paneRowInWindow.left / density.density,
             width = paneRowWidth,
-            fold = windowLayout.fold,
+            fold = windowLayout.hinge,
             sidePaneOnLeft = listOnLeft,
         ),
         width = paneRowWidth,
@@ -219,6 +220,13 @@ fun LeaderboardScreen(
                                     modifier = Modifier
                                         .tabletReadableColumn()
                                         .fillMaxSize()
+                                        // its rows take no focus: the keyboard
+                                        // scrolls the list itself
+                                        .keyboardScrollable(
+                                            state = dataListState,
+                                            scope = scope,
+                                            linePx = with(density) { LeaderboardKeyboardLine.toPx() },
+                                        )
                                 ) {
 
                                     item {
@@ -596,3 +604,6 @@ private fun LeaderboardEntry(
     }
 
 }
+
+/** One arrow press over a leaderboard: about one of its rows. */
+internal val LeaderboardKeyboardLine = 56.dp

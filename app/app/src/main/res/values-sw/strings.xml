@@ -1245,6 +1245,7 @@
     <string name="vless_settings_saved">Mipangilio ya VLESS imehifadhiwa</string>
     <string name="vless_short_id">Kitambulisho kifupi</string>
     <string name="vless_user_id">Kitambulisho cha mtumiaji (UUID)</string>
+    <string name="vpn_notification_protected">Imelindwa · %1$s</string>
     <string name="wait_for_refresh">Subiri usasishaji</string>
     <string name="wallet">Pochi</string>
     <string name="wallet_blocked">Pochi hii haiwezi kutumika na URnetwork.</string>

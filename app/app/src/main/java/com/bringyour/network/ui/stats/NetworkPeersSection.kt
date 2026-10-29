@@ -20,11 +20,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.PointerIcon
+import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.bringyour.network.R
 import com.bringyour.network.ui.indexedLazyListKey
 import com.bringyour.network.ui.components.CircleImage
+import com.bringyour.network.ui.components.ContextMenuBox
+import com.bringyour.network.ui.components.ContextMenuItem
+import com.bringyour.network.ui.components.focusRing
 import com.bringyour.network.ui.theme.Green
 import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.sdk.ConnectLocation
@@ -40,6 +45,9 @@ fun LazyListScope.networkPeersSection(
     selectedLocation: ConnectLocation?,
     getLocationColor: (String) -> Color,
     onConnectPeer: (NetworkPeerUi) -> Unit,
+    // a peer row's context menu from whether it is the selected location and
+    // its connect, as the location rows below have (LocationsList)
+    peerMenu: (Boolean, () -> Unit) -> List<ContextMenuItem> = { _, _ -> listOf() },
 ) {
     if (peers.isEmpty()) {
         return
@@ -62,11 +70,13 @@ fun LazyListScope.networkPeersSection(
             indexedLazyListKey("peer", index, peer.clientId)
         }
     ) { _, peer ->
+        val selected = selectedLocation?.connectLocationId?.clientId?.idStr == peer.clientId
         NetworkPeerRow(
             peer = peer,
-            isSelected = selectedLocation?.connectLocationId?.clientId?.idStr == peer.clientId,
+            isSelected = selected,
             color = getLocationColor(peer.clientId),
-            onClick = { onConnectPeer(peer) }
+            onClick = { onConnectPeer(peer) },
+            contextMenuItems = peerMenu(selected) { onConnectPeer(peer) },
         )
     }
 }
@@ -77,50 +87,55 @@ private fun NetworkPeerRow(
     isSelected: Boolean,
     color: Color,
     onClick: () -> Unit,
+    contextMenuItems: List<ContextMenuItem>,
 ) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onClick() }
-            .padding(horizontal = 16.dp, vertical = 8.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-
-        CircleImage(
-            size = 40.dp,
-            backgroundColor = color,
-        )
-
-        Spacer(modifier = Modifier.width(16.dp))
-
-        Column(
-            modifier = Modifier.weight(1f)
+    ContextMenuBox(items = contextMenuItems) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .focusRing()
+                .pointerHoverIcon(PointerIcon.Hand)
+                .clickable { onClick() }
+                .padding(horizontal = 16.dp, vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                peer.displayName,
-                style = MaterialTheme.typography.bodyLarge,
-                color = Color.White
+
+            CircleImage(
+                size = 40.dp,
+                backgroundColor = color,
             )
-            if (peer.deviceName.isNotEmpty() && peer.deviceSpec.isNotEmpty()) {
+
+            Spacer(modifier = Modifier.width(16.dp))
+
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
                 Text(
-                    peer.deviceSpec,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = TextMuted
+                    peer.displayName,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = Color.White
                 )
+                if (peer.deviceName.isNotEmpty() && peer.deviceSpec.isNotEmpty()) {
+                    Text(
+                        peer.deviceSpec,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = TextMuted
+                    )
+                }
             }
+
+            Spacer(modifier = Modifier.width(8.dp))
+
+            // providing indicator. The radio-signal antenna matches the ios peer
+            // rows (`antenna.radiowaves.left.and.right`) — "calling the other
+            // device" reads better than the globe used for public locations
+            Icon(
+                imageVector = Icons.Filled.SettingsInputAntenna,
+                contentDescription = null,
+                tint = Green,
+                modifier = Modifier.size(16.dp)
+            )
+
         }
-
-        Spacer(modifier = Modifier.width(8.dp))
-
-        // providing indicator. The radio-signal antenna matches the ios peer
-        // rows (`antenna.radiowaves.left.and.right`) — "calling the other
-        // device" reads better than the globe used for public locations
-        Icon(
-            imageVector = Icons.Filled.SettingsInputAntenna,
-            contentDescription = null,
-            tint = Green,
-            modifier = Modifier.size(16.dp)
-        )
-
     }
 }

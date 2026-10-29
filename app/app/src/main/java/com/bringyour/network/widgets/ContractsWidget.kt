@@ -86,7 +86,7 @@ internal fun ContractsContent(entry: WidgetEntry) {
     val context = LocalContext.current
     val compact = size.width < ContractsWidget.MEDIUM.width
     val peers = if (entry.showsTunnelData) entry.tunnel.contracts else emptyList()
-    val style = ContractStackRenderer.Style(context.resources.displayMetrics.density, compact)
+    val style = ContractStackRenderer.Style(widgetBitmapDensity(), compact)
     WidgetSurface(entry, com.bringyour.network.QuickConnectActivity.ROUTE_CONTRACT_STATS) {
         Column(modifier = GlanceModifier.fillMaxSize()) {
             Row(modifier = GlanceModifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
@@ -120,13 +120,21 @@ internal fun ContractsContent(entry: WidgetEntry) {
                 val cards = peers.map { layout(it, style, compact) }
                 val availableWidth = size.width.value - 28f
                 val availableHeight = size.height.value - 28f - 14f - 6f
-                val rows = packRows(cards, availableWidth, availableHeight)
-                rows.forEachIndexed { index, row ->
-                    if (0 < index) Spacer(GlanceModifier.height(CARD_SPACING_DP.dp))
-                    Row(modifier = GlanceModifier.fillMaxWidth()) {
-                        row.forEachIndexed { cardIndex, card ->
-                            if (0 < cardIndex) Spacer(GlanceModifier.width(CARD_SPACING_DP.dp))
-                            PeerCard(card, style)
+                val rows = packRows(cards, { it.widthDp }, { it.heightDp }, availableWidth, availableHeight)
+                // a child per row and per card, the spacing as padding:
+                // Glance drops a row's or a column's children past ten
+                Column(modifier = GlanceModifier.fillMaxWidth()) {
+                    rows.forEachIndexed { index, row ->
+                        Row(
+                            modifier = GlanceModifier
+                                .fillMaxWidth()
+                                .padding(top = if (0 < index) CARD_SPACING_DP.dp else 0.dp),
+                        ) {
+                            row.forEachIndexed { cardIndex, card ->
+                                Box(modifier = GlanceModifier.padding(start = if (0 < cardIndex) CARD_SPACING_DP.dp else 0.dp)) {
+                                    PeerCard(card, style)
+                                }
+                            }
                         }
                     }
                 }
@@ -135,8 +143,9 @@ internal fun ContractsContent(entry: WidgetEntry) {
     }
 }
 
-private val idPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { typeface = Typeface.MONOSPACE }
-private val ratePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { typeface = Typeface.DEFAULT }
+// lazy, so loading this file's functions (packRows, in a JVM test) makes no Paint
+private val idPaint by lazy { Paint(Paint.ANTI_ALIAS_FLAG).apply { typeface = Typeface.MONOSPACE } }
+private val ratePaint by lazy { Paint(Paint.ANTI_ALIAS_FLAG).apply { typeface = Typeface.DEFAULT } }
 
 private fun layout(peer: WidgetContractPeerSnapshot, style: ContractStackRenderer.Style, compact: Boolean): CardLayout {
     val density = style.density
@@ -155,28 +164,42 @@ private fun layout(peer: WidgetContractPeerSnapshot, style: ContractStackRendere
     )
 }
 
-/** Left to right, wrapping, stopping at the bottom edge: cards that would start below it are left out. */
-private fun packRows(cards: List<CardLayout>, availableWidth: Float, availableHeight: Float): List<List<CardLayout>> {
-    val rows = ArrayList<List<CardLayout>>()
-    var row = ArrayList<CardLayout>()
+/** Glance keeps at most this many children in a row or a column, and drops the rest. */
+internal const val GLANCE_MAX_CHILDREN = 10
+
+/**
+ * Left to right, wrapping, stopping at the bottom edge: cards that would
+ * start below it are left out. A row wraps at [GLANCE_MAX_CHILDREN] cards
+ * and the rows stop at as many, so a large widget never loses cards to
+ * Glance's limit in the middle of a row.
+ */
+internal fun <T> packRows(
+    cards: List<T>,
+    widthDp: (T) -> Float,
+    heightDp: (T) -> Float,
+    availableWidth: Float,
+    availableHeight: Float,
+): List<List<T>> {
+    val rows = ArrayList<List<T>>()
+    var row = ArrayList<T>()
     var x = 0f
     var y = 0f
     var rowHeight = 0f
     for (card in cards) {
-        if (row.isNotEmpty() && availableWidth < x + card.widthDp) {
+        val width = widthDp(card)
+        val height = heightDp(card)
+        if (row.isNotEmpty() && (availableWidth < x + width || row.size == GLANCE_MAX_CHILDREN)) {
             rows.add(row)
             row = ArrayList()
             y += rowHeight + CARD_SPACING_DP
             x = 0f
             rowHeight = 0f
         }
-        if (availableHeight < y + card.heightDp) break
-        if (row.isEmpty() && availableWidth < card.widthDp) {
-            // a card wider than the widget still gets a row; it clips at the edge
-        }
+        // a card wider than the widget still gets a row; it clips at the edge
+        if (availableHeight < y + height || rows.size == GLANCE_MAX_CHILDREN) break
         row.add(card)
-        x += card.widthDp + CARD_SPACING_DP
-        rowHeight = maxOf(rowHeight, card.heightDp)
+        x += width + CARD_SPACING_DP
+        rowHeight = maxOf(rowHeight, height)
     }
     if (row.isNotEmpty()) rows.add(row)
     return rows

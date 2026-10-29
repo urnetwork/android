@@ -1245,6 +1245,7 @@
     <string name="vless_settings_saved">Настройки VLESS сохранены</string>
     <string name="vless_short_id">Короткий ID</string>
     <string name="vless_user_id">ID пользователя (UUID)</string>
+    <string name="vpn_notification_protected">Защищено · %1$s</string>
     <string name="wait_for_refresh">Дождаться обновления</string>
     <string name="wallet">Кошелек</string>
     <string name="wallet_blocked">Этот кошелек нельзя использовать с URnetwork.</string>

@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
 import androidx.compose.material3.MaterialTheme
@@ -16,6 +15,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import com.bringyour.network.ui.components.FoldSafeModalBottomSheet
 import com.bringyour.network.ui.theme.TextMuted
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
@@ -51,7 +51,7 @@ fun RedeemTransferBalanceCodeSheet(
     val codeIsValid by viewModel.codeIsValid.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
 
-    ModalBottomSheet(
+    FoldSafeModalBottomSheet(
         onDismissRequest = { setIsPresenting(false) },
         sheetState = sheetState,
     ) {

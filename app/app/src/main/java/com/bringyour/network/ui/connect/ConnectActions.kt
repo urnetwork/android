@@ -27,7 +27,10 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.PointerIcon
+import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.platform.LocalContext
@@ -50,6 +53,7 @@ import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.components.URSwitch
 import com.bringyour.network.ui.components.UsageBar
 import com.bringyour.network.ui.components.dataInfoShowsFreeRefresh
+import com.bringyour.network.ui.components.focusRing
 import com.bringyour.network.ui.components.rememberFreeRefreshCountdown
 import com.bringyour.network.ui.navigateToUpgradeForBalanceBlock
 import com.bringyour.network.ui.shared.models.ConnectStatus
@@ -918,6 +922,8 @@ fun OpenProviderListButton(
         modifier = modifier
             .padding(vertical = 4.dp)
             .fillMaxWidth()
+            .focusRing(shape = RoundedCornerShape(8.dp))
+            .pointerHoverIcon(PointerIcon.Hand)
             .clickable {
                 onClick()
             },
@@ -973,7 +979,12 @@ fun OpenProviderListButton(
 
         }
 
-        TextButton(onClick = onClick) {
+        // the row's own click does the same, so the keyboard stops on the
+        // row once rather than twice
+        TextButton(
+            onClick = onClick,
+            modifier = Modifier.focusProperties { canFocus = false },
+        ) {
             Text(
                 stringResource(id = R.string.change),
                 color = Pink
@@ -992,6 +1003,7 @@ fun NetworkPeersStatusLine(
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .pointerHoverIcon(PointerIcon.Hand)
             .clickable(onClick = onClick),
         horizontalArrangement = horizontalArrangement,
         verticalAlignment = Alignment.CenterVertically,

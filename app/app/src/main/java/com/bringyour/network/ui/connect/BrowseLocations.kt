@@ -23,7 +23,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.InputMode
+import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
@@ -56,10 +59,25 @@ fun BrowseLocations(
     refreshLocations: () -> Unit,
     networkPeers: List<com.bringyour.network.ui.stats.NetworkPeerUi> = listOf(),
     onConnectPeer: (com.bringyour.network.ui.stats.NetworkPeerUi) -> Unit = {},
+    // a connection requested, and Disconnect, for the context menu of the row
+    // it is on (LocationsList)
+    connectRequested: Boolean = false,
+    disconnect: () -> Unit = {},
 ) {
 
     val scope = rememberCoroutineScope()
     var debounceJob by remember { mutableStateOf<Job?>(null) }
+
+    // opened from the keyboard, typing goes straight to the search, and Down
+    // from there reaches the locations (Keyboard_Navigation); a tap opens it
+    // without raising the on-screen keyboard, as before
+    val searchFocus = remember { FocusRequester() }
+    val inputModeManager = LocalInputModeManager.current
+    LaunchedEffect(Unit) {
+        if (inputModeManager.inputMode == InputMode.Keyboard) {
+            runCatching { searchFocus.requestFocus() }
+        }
+    }
 
     Column(
         Modifier
@@ -98,6 +116,7 @@ fun BrowseLocations(
                     filterLocations("")
                     keyboardController?.hide()
                 },
+                focusRequester = searchFocus,
             )
         }
 
@@ -134,6 +153,8 @@ fun BrowseLocations(
                 isRefreshing = fetchLocationsState == FilterLocationsState.Loading,
                 networkPeers = networkPeers,
                 onConnectPeer = onConnectPeer,
+                connectRequested = connectRequested,
+                onDisconnect = disconnect,
             )
         }
     }

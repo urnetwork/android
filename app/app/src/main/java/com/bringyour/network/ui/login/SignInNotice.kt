@@ -1,12 +1,12 @@
 package com.bringyour.network.ui.login
 
 import androidx.annotation.StringRes
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import com.bringyour.network.R
+import com.bringyour.network.ui.components.FoldSafeAlertDialog
 import com.bringyour.sdk.Sdk
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -71,7 +71,7 @@ fun SignInNoticeAlert(
     notice: SignInNotice,
     onDismiss: () -> Unit,
 ) {
-    AlertDialog(
+    FoldSafeAlertDialog(
         onDismissRequest = onDismiss,
         text = {
             Text(text = stringResource(id = notice.messageRes))

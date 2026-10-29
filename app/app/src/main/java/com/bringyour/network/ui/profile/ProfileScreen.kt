@@ -246,6 +246,15 @@ fun ProfileScreen(
             Spacer(modifier = Modifier.height(64.dp))
 
             if (isEditingProfile) {
+                // the rename's Save, for Enter in the field as for the button
+                val saveName = {
+                    if (needsNameClaim) {
+                        claimNetworkName(onSaved) { }
+                    } else {
+                        saveNetworkName(onSaved) { }
+                    }
+                }
+                val canSaveName = !isSavingNetworkName && networkNameTextFieldValue.text.isNotBlank()
                 URTextInput(
                     value = networkNameTextFieldValue,
                     onValueChange = {
@@ -266,6 +275,14 @@ fun ProfileScreen(
                         keyboardType = KeyboardType.Text,
                         imeAction = ImeAction.Done
                     ),
+                    // Enter saves as the button does (Keyboard_Send), and Esc
+                    // abandons the rename as Cancel does (Keyboard_Exit)
+                    onDone = {
+                        if (canSaveName) {
+                            saveName()
+                        }
+                    },
+                    escapeAction = cancelEdits,
                 )
 
                 if (networkNameError != null) {
@@ -281,14 +298,8 @@ fun ProfileScreen(
                 ) {
                     Box(modifier = Modifier.weight(1f)) {
                         URButton(
-                            onClick = {
-                                if (needsNameClaim) {
-                                    claimNetworkName(onSaved) { }
-                                } else {
-                                    saveNetworkName(onSaved) { }
-                                }
-                            },
-                            enabled = !isSavingNetworkName && networkNameTextFieldValue.text.isNotBlank(),
+                            onClick = { saveName() },
+                            enabled = canSaveName,
                             isProcessing = isSavingNetworkName
                         ) { buttonTextStyle ->
                             Text(stringResource(id = R.string.save), style = buttonTextStyle)

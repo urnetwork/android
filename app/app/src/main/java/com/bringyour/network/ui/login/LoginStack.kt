@@ -20,6 +20,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -27,6 +28,8 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.input.pointer.PointerIcon
+import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -37,6 +40,7 @@ import androidx.compose.ui.unit.sp
 import com.bringyour.network.R
 import com.bringyour.network.ui.components.ButtonStyle
 import com.bringyour.network.ui.components.URButton
+import com.bringyour.network.ui.components.focusRing
 
 // The login stack rule, shared by every flavor (and every app): up to three
 // full-width buttons, then the remaining sign-in methods as square icon tiles,
@@ -114,10 +118,19 @@ private fun LoginTile(method: LoginMethod, enabled: Boolean, modifier: Modifier)
     Box(
         modifier = modifier
             .height(64.dp)
+            // the keyboard's ring sits outside the white tile, where it shows
+            .focusRing(shape = RoundedCornerShape(15.dp), outset = 3.dp)
             .clip(RoundedCornerShape(12.dp))
             .background(Color.White)
             .alpha(if (active || method.processing) 1f else 0.5f)
-            .clickable(enabled = active) { method.onClick() }
+            .then(if (active) Modifier.pointerHoverIcon(PointerIcon.Hand) else Modifier)
+            // a dark state layer: the content color's light one would vanish on
+            // the white tile, for a press, a pointer over it and the focus alike
+            .clickable(
+                interactionSource = null,
+                indication = ripple(color = Color.Black),
+                enabled = active,
+            ) { method.onClick() }
             .then(method.testTag?.let { Modifier.testTag(it) } ?: Modifier),
         contentAlignment = Alignment.Center
     ) {

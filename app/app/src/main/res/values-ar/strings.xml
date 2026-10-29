@@ -1245,6 +1245,7 @@
     <string name="vless_settings_saved">تم حفظ إعدادات VLESS</string>
     <string name="vless_short_id">المعرّف القصير</string>
     <string name="vless_user_id">معرّف المستخدم (UUID)</string>
+    <string name="vpn_notification_protected">محمي · %1$s</string>
     <string name="wait_for_refresh">انتظر التجديد</string>
     <string name="wallet">المحفظة</string>
     <string name="wallet_blocked">لا يمكن استخدام هذه المحفظة مع URnetwork.</string>

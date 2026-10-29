@@ -1245,6 +1245,7 @@
     <string name="vless_settings_saved">Οι ρυθμίσεις VLESS αποθηκεύτηκαν</string>
     <string name="vless_short_id">Σύντομο αναγνωριστικό</string>
     <string name="vless_user_id">Αναγνωριστικό χρήστη (UUID)</string>
+    <string name="vpn_notification_protected">Προστατευμένο · %1$s</string>
     <string name="wait_for_refresh">Αναμονή για ανανέωση</string>
     <string name="wallet">Πορτοφόλι</string>
     <string name="wallet_blocked">Αυτό το πορτοφόλι δεν μπορεί να χρησιμοποιηθεί με το URnetwork.</string>

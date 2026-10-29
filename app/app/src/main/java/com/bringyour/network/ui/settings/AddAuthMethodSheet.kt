@@ -1,5 +1,6 @@
 package com.bringyour.network.ui.settings
 
+import com.bringyour.network.ui.components.FoldSafeModalBottomSheet
 import com.bringyour.network.ui.components.rememberFoldSafeSheetState
 import android.util.Log
 import android.util.Patterns
@@ -13,7 +14,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -337,7 +337,7 @@ fun AddAuthMethodSheet(
         }
     }
 
-    ModalBottomSheet(
+    FoldSafeModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
     ) {

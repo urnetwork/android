@@ -3,6 +3,7 @@ package com.bringyour.network.widgets.render
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Paint
+import com.bringyour.network.widgets.drawnAt
 import kotlin.math.max
 
 /**
@@ -26,7 +27,7 @@ object SparklineRenderer {
     }
 
     fun render(widthPx: Int, heightPx: Int, values: List<Long>, slots: Int, color: Int, density: Float): Bitmap {
-        val bitmap = Bitmap.createBitmap(max(1, widthPx), max(1, heightPx), Bitmap.Config.ARGB_8888)
+        val bitmap = Bitmap.createBitmap(max(1, widthPx), max(1, heightPx), Bitmap.Config.ARGB_8888).drawnAt(density)
         val canvas = Canvas(bitmap)
         val width = bitmap.width.toFloat()
         val height = bitmap.height.toFloat()

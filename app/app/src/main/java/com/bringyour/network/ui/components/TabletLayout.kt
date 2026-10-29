@@ -12,10 +12,10 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 /**
- * Tablet layout convention (mmm/DESIGNSTYLE.md "Tablet layouts"): in a window
- * of medium width and up a full-screen view lays its content in one readable
- * centered column the width of one of the app's sheets, and an auth screen in a
- * narrower form column. Both clamps are no-ops in compact windows, so one view
+ * Tablet layout convention (mmm/DESIGNSTYLE.md "Layout follows the window, not
+ * the device"): in a window of medium width and up a full-screen view lays its
+ * content in one readable centered column the width of one of the app's
+ * sheets, and an auth screen in a narrower form column. Both clamps are no-ops in compact windows, so one view
  * serves phones, foldables, tablets and resizable windows in every posture. The
  * connect screen puts its drawer in a pane instead (AdaptiveLayout.kt).
  */
