@@ -50,6 +50,7 @@ import com.bringyour.network.ui.connect.ConnectViewModel
 import com.bringyour.network.ui.connect.LocationsListViewModel
 import com.bringyour.network.ui.leaderboard.LeaderboardViewModel
 import com.bringyour.network.ui.leaderboard.PointsLeaderboardViewModel
+import com.bringyour.network.ui.leaderboard.ProtocolLeaderboardViewModel
 import com.bringyour.network.ui.shared.viewmodels.OverlayViewModel
 import com.bringyour.network.ui.shared.viewmodels.PlanViewModel
 import com.bringyour.network.ui.shared.viewmodels.PostQuantumIdentityViewModel
@@ -106,6 +107,8 @@ internal class ScreenshotViewModels(context: Context) : ViewModelStoreOwner {
     val postQuantumIdentity = keep(PostQuantumIdentityViewModel(deviceManager))
     val leaderboard = keep(LeaderboardViewModel(deviceManager, networkSpaceManagerProvider))
     val pointsLeaderboard = keep(PointsLeaderboardViewModel(deviceManager))
+    // the default leaderboard tab; with no device it has no board until a test gives it one
+    val protocolLeaderboard = keep(ProtocolLeaderboardViewModel(deviceManager))
 
     private fun <T : ViewModel> keep(viewModel: T): T {
         val factory = object : ViewModelProvider.Factory {

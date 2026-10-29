@@ -78,28 +78,49 @@ private const val LEADERBOARD_TAB_DATA = 0
 /** the Points tab: the all-time points leaderboard */
 private const val LEADERBOARD_TAB_POINTS = 1
 
+/** the Protocol tab: the SN25-aligned Top 200 board (apple/LEADERTOP.md) */
+private const val LEADERBOARD_TAB_PROTOCOL = 2
+
 /**
- * The leaderboard: one title, a Data | Points tab row, and the tab's content.
- * Data is the existing last-4-payments leaderboard; Points is the all-time
- * points leaderboard (android/POINTSLEADERBOARD.md). The points view model
- * (and its sdk view controller) is only created once that tab is opened.
+ * The leaderboard: one title, a Protocol | Points | Data tab row, and the
+ * tab's content (Q14). Protocol, the first tab and the default, is the board
+ * of apple/LEADERTOP.md; Points is the all-time points leaderboard
+ * (android/POINTSLEADERBOARD.md); Data is the last-4-payments leaderboard,
+ * frozen since the 2026-10-06 cutoff. The points view model (and its sdk
+ * view controller) is only created once that tab is opened.
+ *
+ * `onOpenEarnings` opens Earnings at its Top 200 tile: the Protocol card's
+ * "Claim on Earnings". `protocolTabRequested` (Earnings' "See the Protocol
+ * leaderboard") shows the Protocol tab at its top, once: `onProtocolTabShown`
+ * consumes the request.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LeaderboardScreen(
     leaderboardViewModel: LeaderboardViewModel = hiltViewModel(),
+    onOpenEarnings: () -> Unit = {},
+    protocolTabRequested: Boolean = false,
+    onProtocolTabShown: () -> Unit = {},
 ) {
 
     val refreshState = rememberPullToRefreshState()
     val snackbarHostState = remember { SnackbarHostState() }
     val leaderboardEntries = leaderboardViewModel.leaderboardEntries.collectAsState()
-    var selectedTab by rememberSaveable { mutableIntStateOf(LEADERBOARD_TAB_DATA) }
+    var selectedTab by rememberSaveable { mutableIntStateOf(LEADERBOARD_TAB_PROTOCOL) }
     // a tab tap, including a re-tap of the selected tab, scrolls that tab's
     // list to the top (mmm/DESIGNSTYLE.md "Long ranked lists"). The Data list
     // keeps its state here so the tap can reach it; the Points tab counts the
     // taps and resets itself (it also reloads after a seek)
     val dataListState = rememberLazyListState()
     var pointsTabTaps by remember { mutableIntStateOf(0) }
+    var protocolTabTaps by remember { mutableIntStateOf(0) }
+    LaunchedEffect(protocolTabRequested) {
+        if (protocolTabRequested) {
+            selectedTab = LEADERBOARD_TAB_PROTOCOL
+            protocolTabTaps += 1
+            onProtocolTabShown()
+        }
+    }
     // the Points tab's emoji tag editor, opened from its own-stats header,
     // which sits beside the list at medium width and up
     var showEmojiSheet by rememberSaveable { mutableStateOf(false) }
@@ -125,8 +146,10 @@ fun LeaderboardScreen(
     ).dp
 
     val genericErrorMessage = stringResource(id = R.string.something_went_wrong)
-    LaunchedEffect(leaderboardViewModel.displayErrorMsg) {
-        if (leaderboardViewModel.displayErrorMsg) {
+    // the Data tab loads with the screen, behind the default Protocol tab: its
+    // failure shows once the Data tab does, never over another tab
+    LaunchedEffect(leaderboardViewModel.displayErrorMsg, selectedTab) {
+        if (leaderboardViewModel.displayErrorMsg && selectedTab == LEADERBOARD_TAB_DATA) {
             snackbarHostState.showSnackbar(
                 message = genericErrorMessage,
                 withDismissAction = true,
@@ -167,6 +190,7 @@ fun LeaderboardScreen(
                         selectedTab = tab
                         when (tab) {
                             LEADERBOARD_TAB_POINTS -> pointsTabTaps += 1
+                            LEADERBOARD_TAB_PROTOCOL -> protocolTabTaps += 1
                             else -> scope.launch {
                                 // the list is not composed yet right after a
                                 // switch, so it is placed rather than animated
@@ -181,6 +205,14 @@ fun LeaderboardScreen(
                 )
 
                 when (selectedTab) {
+                    LEADERBOARD_TAB_PROTOCOL -> {
+                        ProtocolLeaderboardTab(
+                            snackbarHostState = snackbarHostState,
+                            onOpenEarnings = onOpenEarnings,
+                            resetToTop = protocolTabTaps,
+                            showHeader = !listDetail,
+                        )
+                    }
                     LEADERBOARD_TAB_POINTS -> {
                         PointsLeaderboardTab(
                             snackbarHostState = snackbarHostState,
@@ -286,6 +318,7 @@ fun LeaderboardScreen(
                     leaderboardViewModel = leaderboardViewModel,
                     selectedTab = selectedTab,
                     onEditEmoji = { showEmojiSheet = true },
+                    onOpenEarnings = onOpenEarnings,
                     modifier = Modifier
                         .weight(1f)
                         .fillMaxHeight(),
@@ -301,18 +334,33 @@ fun LeaderboardScreen(
 /**
  * "Your network" beside the ranking in the list-detail layout: the network's
  * standing and its leaderboard settings, which sit above the list on a phone.
- * With Data chosen it is the current ranking, data provided, points, the
- * longest streak and the visibility toggle; with Points chosen, the Points
- * tab's own card with its sort ranks, emoji tag and opt-in.
+ * With Protocol chosen it is the Protocol tab's banners, own-status card and
+ * explainer (LEADERTOP §3); with Data, the current ranking, data provided,
+ * points, the longest streak and the visibility toggle; with Points, the
+ * Points tab's own card with its sort ranks, emoji tag and opt-in.
  */
 @Composable
 private fun YourNetworkPane(
     leaderboardViewModel: LeaderboardViewModel,
     selectedTab: Int,
     onEditEmoji: () -> Unit,
+    onOpenEarnings: () -> Unit,
     modifier: Modifier = Modifier,
-    pointsViewModel: PointsLeaderboardViewModel = hiltViewModel(),
 ) {
+    if (selectedTab == LEADERBOARD_TAB_PROTOCOL) {
+        Column(
+            modifier = modifier
+                .verticalScroll(rememberScrollState())
+                .padding(top = 16.dp)
+        ) {
+            ProtocolHeader(
+                viewModel = hiltViewModel(),
+                onOpenEarnings = onOpenEarnings,
+            )
+        }
+        return
+    }
+    val pointsViewModel: PointsLeaderboardViewModel = hiltViewModel()
     Column(
         modifier = modifier
             .verticalScroll(rememberScrollState())
@@ -358,8 +406,9 @@ private fun LeaderboardTabs(
     onTabTap: (Int) -> Unit,
 ) {
     val tabs = listOf(
-        LEADERBOARD_TAB_DATA to stringResource(id = R.string.data),
+        LEADERBOARD_TAB_PROTOCOL to stringResource(id = R.string.leaderboard_tab_protocol),
         LEADERBOARD_TAB_POINTS to stringResource(id = R.string.points),
+        LEADERBOARD_TAB_DATA to stringResource(id = R.string.data),
     )
 
     Column(

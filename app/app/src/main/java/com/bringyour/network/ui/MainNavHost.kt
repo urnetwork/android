@@ -995,7 +995,24 @@ private fun MainNavHostContent(
                                 reliabilityWindow = reliabilityWindow,
                                 totalReferralCount = totalReferralCount,
                                 isPro = isPro,
-                                connectActionsSheetState = connectActionsSheetState
+                                connectActionsSheetState = connectActionsSheetState,
+                                // the Protocol card's "Claim on Earnings": Earnings at its Top 200 tile
+                                openEarningsTop200 = {
+                                    earningsViewModel.requestTop200Focus()
+                                    selectTopLevelRoute(TopLevelScaffoldRoutes.ACCOUNT_CONTAINER)
+                                    // the account stack it restores may already end on Earnings:
+                                    // that one shows the tile, rather than a second on top of it
+                                    navController.navigate(Route.Earnings) {
+                                        launchSingleTop = true
+                                    }
+                                },
+                                // the Top 200 tile's "See the Protocol leaderboard"
+                                openProtocolLeaderboard = {
+                                    mainNavViewModel.requestProtocolTab()
+                                    selectTopLevelRoute(TopLevelScaffoldRoutes.LEADERBOARD)
+                                },
+                                protocolTabRequested = mainNavViewModel.protocolTabRequested.collectAsState().value,
+                                consumeProtocolTabRequest = mainNavViewModel.consumeProtocolTabRequest,
                             )
                         }
                     }
@@ -1279,6 +1296,10 @@ fun MainNavContent(
     totalReferralCount: Long,
     isPro: Boolean,
     connectActionsSheetState: ConnectDrawerState,
+    openEarningsTop200: () -> Unit = {},
+    openProtocolLeaderboard: () -> Unit = {},
+    protocolTabRequested: Boolean = false,
+    consumeProtocolTabRequest: () -> Unit = {},
     accountViewModel: AccountViewModel = hiltViewModel<AccountViewModel>(),
     profileViewModel: ProfileViewModel = hiltViewModel<ProfileViewModel>(),
     accountPointsViewModel: AccountPointsViewModel = hiltViewModel<AccountPointsViewModel>(),
@@ -1553,7 +1574,11 @@ fun MainNavContent(
                 enterTransition = { EnterTransition.None },
                 exitTransition = { ExitTransition.None }
             ) {
-                LeaderboardScreen()
+                LeaderboardScreen(
+                    onOpenEarnings = openEarningsTop200,
+                    protocolTabRequested = protocolTabRequested,
+                    onProtocolTabShown = consumeProtocolTabRequest,
+                )
             }
 
             composable<Route.GuestConversion> {
@@ -1796,6 +1821,7 @@ fun MainNavContent(
                         reliabilityWindow = reliabilityWindow,
                         activityResultSender = activityResultSender,
                         accountPointsFailed = accountPointsViewModel.pointsLoad.collectAsState().value == SectionLoad.Failed,
+                        onSeeProtocolBoard = openProtocolLeaderboard,
                     )
                 }
 

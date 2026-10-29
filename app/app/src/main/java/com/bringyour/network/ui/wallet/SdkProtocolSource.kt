@@ -1,5 +1,8 @@
 package com.bringyour.network.ui.wallet
 
+import com.bringyour.network.ui.leaderboard.ProtocolTopMe
+import com.bringyour.network.ui.leaderboard.protocolTopMeOf
+
 import com.bringyour.sdk.DeviceLocal
 import com.bringyour.sdk.Sdk
 import com.bringyour.sdk.SnClaimCallback
@@ -352,38 +355,24 @@ class SdkProtocolSource private constructor(
             }
         }
 
-    override suspend fun head(): Result<SnHeadState?> =
+    override suspend fun topMe(): Result<ProtocolTopMe?> =
         suspendCancellableCoroutine { continuation ->
             val api = device.api
             if (api == null) {
                 continuation.resume(Result.failure(IllegalStateException("no api")))
                 return@suspendCancellableCoroutine
             }
-            api.snHead { result, err ->
-                if (!continuation.isActive) {
-                    return@snHead
+            api.snTopMe { result, err ->
+                // copied off the gomobile objects here: an exception thrown out of
+                // the callback cannot cross JNI and aborts the process
+                val answer: Result<ProtocolTopMe?> = runCatching {
+                    if (err != null) {
+                        throw err
+                    }
+                    result?.let(::protocolTopMeOf)
                 }
-                when {
-                    err != null -> continuation.resume(Result.failure(err))
-                    result == null -> continuation.resume(Result.success(null))
-                    result.error != null -> continuation.resume(Result.failure(result.error.toException()!!))
-                    else -> continuation.resume(
-                        Result.success(
-                            SnHeadState(
-                                eligible = result.eligible,
-                                score = result.score,
-                                floor = result.floor,
-                                rankEstimate = result.rankEstimate,
-                                cutoff = result.cutoff,
-                                bound = result.bound,
-                                hotkey = result.hotkey.ifBlank { null },
-                                uid = result.uid,
-                                rank = result.rank,
-                                epoch = result.epoch,
-                                source = result.source,
-                            )
-                        )
-                    )
+                if (continuation.isActive) {
+                    continuation.resume(answer)
                 }
             }
         }

@@ -1,6 +1,11 @@
 package com.bringyour.network.ui.wallet
 
 import com.bringyour.network.ui.components.tabletReadableColumn
+import androidx.compose.foundation.relocation.BringIntoViewRequester
+import com.bringyour.network.ui.leaderboard.ProtocolLabel
+import androidx.compose.foundation.relocation.bringIntoViewRequester
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -36,6 +41,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -110,6 +116,8 @@ fun EarningsScreen(
     reliabilityWindow: ReliabilityWindow?,
     activityResultSender: ActivityResultSender?,
     accountPointsFailed: Boolean = false,
+    // the Top 200 tile's "See the Protocol leaderboard"
+    onSeeProtocolBoard: () -> Unit = {},
 ) {
 
     val wallet by earningsViewModel.wallet.collectAsState()
@@ -122,7 +130,12 @@ fun EarningsScreen(
     val schedule by earningsViewModel.schedule.collectAsState()
     val epochs by earningsViewModel.epochs.collectAsState()
     val epochsLoaded by earningsViewModel.epochsLoaded.collectAsState()
-    val head by earningsViewModel.head.collectAsState()
+    val top by earningsViewModel.top.collectAsState()
+    val top200FocusRequested by earningsViewModel.top200FocusRequested.collectAsState()
+    // a request to show the tile ends with the screen, shown or not
+    DisposableEffect(earningsViewModel) {
+        onDispose { earningsViewModel.consumeTop200Focus() }
+    }
     val isSeekerHolder by earningsViewModel.isSeekerHolder.collectAsState()
     val claimDialog by earningsViewModel.claimDialog.collectAsState()
     val manualValidation by earningsViewModel.manualValidation.collectAsState()
@@ -234,7 +247,10 @@ fun EarningsScreen(
         onOpenClaim = { earningsViewModel.openClaimDialog() },
         epochs = epochs,
         epochsLoaded = epochsLoaded,
-        head = head,
+        top200 = top200TileState(top),
+        focusTop200 = top200FocusRequested,
+        onTop200Focused = earningsViewModel::consumeTop200Focus,
+        onSeeProtocolBoard = onSeeProtocolBoard,
         reliabilityWindow = reliabilityWindow,
         formatAlpha = earningsViewModel::formatAlpha,
         formatShareBps = earningsViewModel::formatShareBps,
@@ -378,7 +394,7 @@ fun EarningsScreenContent(
     onOpenClaim: () -> Unit,
     epochs: List<AccountEpoch>,
     epochsLoaded: Boolean,
-    head: SnHeadState?,
+    top200: Top200TileState,
     reliabilityWindow: ReliabilityWindow?,
     formatAlpha: (Long) -> String,
     formatShareBps: (Long) -> String,
@@ -394,8 +410,21 @@ fun EarningsScreenContent(
     consentTile: SnConsentTile? = null,
     onSignConsent: () -> Unit = {},
     onRetryConsent: () -> Unit = {},
+    // the leaderboard's "Claim on Earnings" asked for the Top 200 tile
+    focusTop200: Boolean = false,
+    onTop200Focused: () -> Unit = {},
+    onSeeProtocolBoard: () -> Unit = {},
 ) {
     val refreshState = rememberPullToRefreshState()
+    val top200BringIntoView = remember { BringIntoViewRequester() }
+    LaunchedEffect(focusTop200, top200 is Top200TileState.Hidden) {
+        if (focusTop200 && top200 !is Top200TileState.Hidden) {
+            // once the tile is laid out
+            withFrameNanos { }
+            top200BringIntoView.bringIntoView()
+            onTop200Focused()
+        }
+    }
     val claimsByEpoch = claims.associateBy { it.epoch }
 
     Scaffold(
@@ -509,15 +538,28 @@ fun EarningsScreenContent(
                     )
                 }
 
-                head?.let { h ->
-                    val onSignFleetBinding = { navController.navigate(Route.Top200Sign) }
-                    if (h.bound) {
+                // the network's standing on the Protocol leaderboard (/sn/top/me)
+                val onSignFleetBinding = { navController.navigate(Route.Top200Sign) }
+                when (top200) {
+                    is Top200TileState.Claimed -> {
                         Spacer(modifier = Modifier.height(16.dp))
-                        Top200BoundRow(head = h, onSignFleetBinding = onSignFleetBinding)
-                    } else if (h.eligible) {
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Top200Tile(head = h, onSignFleetBinding = onSignFleetBinding)
+                        Top200BoundRow(
+                            state = top200,
+                            onSignFleetBinding = onSignFleetBinding,
+                            onSeeBoard = onSeeProtocolBoard,
+                            modifier = Modifier.bringIntoViewRequester(top200BringIntoView),
+                        )
                     }
+                    is Top200TileState.Projected -> {
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Top200Tile(
+                            state = top200,
+                            onSignFleetBinding = onSignFleetBinding,
+                            onSeeBoard = onSeeProtocolBoard,
+                            modifier = Modifier.bringIntoViewRequester(top200BringIntoView),
+                        )
+                    }
+                    Top200TileState.Hidden -> {}
                 }
 
                 Spacer(modifier = Modifier.height(24.dp))
@@ -1036,7 +1078,7 @@ private fun EarningsScreenNoWalletPreview() {
             onOpenClaim = {},
             epochs = emptyList(),
             epochsLoaded = true,
-            head = null,
+            top200 = Top200TileState.Hidden,
             reliabilityWindow = null,
             formatAlpha = { EarningsFormat.alpha(it) },
             formatShareBps = { EarningsFormat.shareBps(it) },
@@ -1083,7 +1125,13 @@ private fun EarningsScreenWalletPreview() {
                 AccountEpoch(1218, 0, 0, 2_210.0, 71),
             ),
             epochsLoaded = true,
-            head = SnHeadState(true, 812.0, 640.0, 143, 200, false, null, 0, 0, 1219, "server"),
+            top200 = Top200TileState.Projected(
+                position = 143,
+                margin = 0.27,
+                label = ProtocolLabel.ESTIMATE,
+                bindingOpen = false,
+                borderline = false,
+            ),
             reliabilityWindow = null,
             formatAlpha = { EarningsFormat.alpha(it) },
             formatShareBps = { EarningsFormat.shareBps(it) },
@@ -1138,7 +1186,7 @@ private fun EarningsScreenSolanaWalletPreview() {
             onOpenClaim = {},
             epochs = emptyList(),
             epochsLoaded = true,
-            head = null,
+            top200 = Top200TileState.Hidden,
             reliabilityWindow = null,
             formatAlpha = { EarningsFormat.alpha(it) },
             formatShareBps = { EarningsFormat.shareBps(it) },

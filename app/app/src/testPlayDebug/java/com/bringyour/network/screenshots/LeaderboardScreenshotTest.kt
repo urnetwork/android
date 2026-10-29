@@ -8,10 +8,11 @@ import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 
 /**
- * The Leaderboard tab at each window size, on its Data tab: one column with
- * "Your network" above the ranking at compact width, and from medium width
- * the list-detail layout, the ranking with its tabs in the side pane and
- * "Your network" beside it.
+ * The Leaderboard tab at each window size, on its default Protocol tab over
+ * the synthetic board of SampleProtocolTopClient: one column with the
+ * banner, the own-status card and the explainer above the ranking at compact
+ * width, and from medium width the list-detail layout, the ranking with its
+ * tabs in the side pane and the banner, card and explainer beside it.
  */
 class LeaderboardScreenshotTest : ScreenshotTest() {
 
@@ -37,6 +38,7 @@ class LeaderboardScreenshotTest : ScreenshotTest() {
         // screen is drawn as it stands once the notice is gone.
         shadowOf(Looper.getMainLooper()).idle()
         viewModels.leaderboard.setDisplayErrorMsg(false)
+        viewModels.protocolLeaderboard.useClient(SampleProtocolTopClient())
         compose.setContent {
             AppWindow(viewModels, TopLevelScaffoldRoutes.LEADERBOARD) {
                 LeaderboardScreen(leaderboardViewModel = viewModels.leaderboard)
