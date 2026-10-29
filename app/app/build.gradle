@@ -516,6 +516,81 @@ android {
         kotlinCompilerExtensionVersion = "1.5.15"
     }
 
+    // Window size tests (apple/DUO.md item 7). Nothing here changes an app
+    // build: unitTests configures only the JVM test tasks, and the managed
+    // device and emulator control only the androidTest tasks.
+    testOptions {
+        unitTests {
+            // the screenshot tests render on Robolectric, which reads the
+            // merged resources and manifest
+            includeAndroidResources = true
+            all { test ->
+                // JVM screenshot tests (src/testPlayDebug/.../screenshots, run
+                // by testPlayDebugUnitTest). -Pscreenshots=verify (the default)
+                // compares each screen with its baseline in
+                // src/testPlayDebug/screenshots, record rewrites the baselines,
+                // compare writes the differences without failing. Differences
+                // land in build/outputs/roborazzi
+                if (test.name == 'testPlayDebugUnitTest') {
+                    def screenshotMode = (project.findProperty('screenshots') ?: 'verify').toString()
+                    if (!(screenshotMode in ['verify', 'record', 'compare'])) {
+                        throw new GradleException('screenshots must be verify, record or compare')
+                    }
+                    test.systemProperty 'roborazzi.test.verify', screenshotMode == 'verify'
+                    test.systemProperty 'roborazzi.test.record', screenshotMode == 'record'
+                    test.systemProperty 'roborazzi.test.compare', screenshotMode == 'compare'
+                    // shadows and elevation drawn as on a device
+                    test.systemProperty 'robolectric.pixelCopyRenderMode', 'hardware'
+                    // Robolectric reaches into the JDK, which Java 17 and up
+                    // must open to it (robolectric.org/getting-started)
+                    test.jvmArgs(
+                            '--add-opens=java.base/java.io=ALL-UNNAMED',
+                            '--add-opens=java.base/java.lang=ALL-UNNAMED',
+                            '--add-opens=java.base/java.net=ALL-UNNAMED',
+                            '--add-opens=java.base/java.security=ALL-UNNAMED',
+                            '--add-opens=java.base/java.text=ALL-UNNAMED',
+                            '--add-opens=java.base/java.util=ALL-UNNAMED',
+                            '--add-opens=java.base/jdk.internal.access=ALL-UNNAMED',
+                            '--add-opens=java.desktop/java.awt.font=ALL-UNNAMED',
+                            '--add-opens=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED'
+                    )
+                    def baselines = fileTree('src/testPlayDebug/screenshots')
+                    if (screenshotMode == 'record') {
+                        test.outputs.upToDateWhen { false }
+                    } else {
+                        test.inputs.files(baselines)
+                                .withPropertyName('screenshotBaselines')
+                                .withPathSensitivity(PathSensitivity.RELATIVE)
+                    }
+                }
+            }
+        }
+
+        // The tabletop job (androidTest ConnectTabletopTest, android/test-main.sh):
+        // a Pixel Fold that Gradle creates, boots and shuts down. Run with
+        //   ./gradlew :app:pixelFoldApi36GithubDebugAndroidTest \
+        //       -Pandroid.experimental.androidTest.enableEmulatorControl=true \
+        //       -Pandroid.experimental.testOptions.managedDevices.setupTimeoutMinutes=30 \
+        //       -Pandroid.testInstrumentationRunnerArguments.class=com.bringyour.network.ui.connect.ConnectTabletopTest
+        // API 36 with Google APIs is the system image the urnetwork AVDs use
+        managedDevices {
+            localDevices {
+                create('pixelFoldApi36') {
+                    device = 'Pixel Fold'
+                    apiLevel = 36
+                    systemImageSource = 'google'
+                }
+            }
+        }
+
+        // Espresso Device folds the emulator through its console (gRPC).
+        // AGP grants it only with the experimental property above, passed on
+        // the command line so that no other build sees it
+        emulatorControl {
+            enable = true
+        }
+    }
+
     tasks.register('buildSdk', Exec) {
         workingDir "${bringyourHomeDir}/sdk/build"
         commandLine 'make', 'init', 'build_android'
@@ -557,6 +632,11 @@ android {
         }
 
     }
+}
+
+// a flavor and build type's own configuration exists only once declared
+configurations {
+    testPlayDebugImplementation
 }
 
 // local URnetwork SDK
@@ -640,7 +720,19 @@ dependencies {
     androidTestImplementation 'androidx.test:runner:1.7.0'
     androidTestImplementation 'androidx.test:rules:1.7.0'
     androidTestImplementation 'androidx.test.uiautomator:uiautomator:2.3.0'
+    // folds the emulator into tabletop (ConnectTabletopTest)
+    androidTestImplementation 'androidx.test.espresso:espresso-device:1.1.0'
     debugImplementation 'androidx.compose.ui:ui-test-manifest:1.11.2'
+
+    // JVM screenshot tests at each window size (src/testPlayDebug): Robolectric
+    // renders the screens, Roborazzi records and compares them. Only the
+    // playDebug unit tests see these; no app build, the F-Droid (github)
+    // build included, resolves them
+    testPlayDebugImplementation composeBom
+    testPlayDebugImplementation 'androidx.compose.ui:ui-test-junit4:1.11.2'
+    testPlayDebugImplementation 'org.robolectric:robolectric:4.17'
+    testPlayDebugImplementation 'io.github.takahirom.roborazzi:roborazzi:1.77.0'
+    testPlayDebugImplementation 'io.github.takahirom.roborazzi:roborazzi-compose:1.77.0'
 
     // Android Studio Preview support
     implementation 'androidx.compose.ui:ui-tooling-preview:1.11.2'
