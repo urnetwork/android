@@ -202,11 +202,19 @@ class ProtocolLeaderboardPresentationTest {
     }
 
     @Test
-    fun aNetworkThatClaimedOrSitsOutsideTheSeatsIsNotAskedToClaim() {
-        assertNull(protocolClaimPrompt(row(150, fleets = listOf(fleet(81))), snapshot()))
-        // the server's flag alone does not put a row inside the head seats
-        assertNull(protocolClaimPrompt(row(230, claimPrompt = true, margin = -0.1), snapshot()))
-        assertNull(protocolClaimPrompt(row(0, claimPrompt = true), snapshot()))
+    fun whetherToPromptIsTheServersClaimPromptAlone() {
+        // a network that claimed: the server leaves the flag false (CONTRACT, amended 2026-10-29)
+        assertNull(protocolClaimPrompt(row(150, fleets = listOf(fleet(81)), claimPrompt = false), snapshot()))
+        assertNull(protocolClaimPrompt(row(150, claimPrompt = false), snapshot()))
+        // the app never recomputes it from the position, the label or the fleets
+        assertEquals(
+            ProtocolClaimPrompt(bindingOpen = false, borderline = false),
+            protocolClaimPrompt(row(230, claimPrompt = true, margin = 0.3), snapshot()),
+        )
+        assertEquals(
+            ProtocolClaimPrompt(bindingOpen = true, borderline = false),
+            protocolClaimPrompt(row(150, fleets = listOf(fleet(81)), claimPrompt = true, margin = 0.3), snapshot(bindingOpen = true)),
+        )
     }
 
     @Test
@@ -218,11 +226,11 @@ class ProtocolLeaderboardPresentationTest {
 
     @Test
     fun aNetworkTheValidatorCantMeasureGetsItsReasonAndNoPrompt() {
-        // the server's flag alone is not enough: an unmeasurable row is never prompted
+        // the server never prompts an unmeasurable network (claim_prompt false)
         val cohort = standing(
             signedIn(
                 me(
-                    row(120, measurable = false, label = ProtocolLabel.NOT_MEASURABLE, claimPrompt = true),
+                    row(120, measurable = false, label = ProtocolLabel.NOT_MEASURABLE, claimPrompt = false),
                     reason = ProtocolNotMeasurableReason.NOT_IN_COHORT,
                 )
             )
@@ -230,10 +238,11 @@ class ProtocolLeaderboardPresentationTest {
         assertNull(cohort.prompt)
         assertEquals(ProtocolNotMeasurableReason.NOT_IN_COHORT, cohort.notMeasurable)
 
+        // labeled not measurable is as good as the flag
         val shared = standing(
             signedIn(
                 me(
-                    row(120, measurable = true, label = ProtocolLabel.NOT_MEASURABLE),
+                    row(120, measurable = true, label = ProtocolLabel.NOT_MEASURABLE, claimPrompt = false),
                     reason = ProtocolNotMeasurableReason.SHARED_EGRESS,
                 )
             )

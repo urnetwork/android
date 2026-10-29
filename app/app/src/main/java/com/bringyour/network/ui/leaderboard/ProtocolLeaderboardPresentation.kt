@@ -128,7 +128,8 @@ data class ProtocolRow(
     // null for a label this app does not know
     val label: ProtocolLabel?,
     val measurable: Boolean,
-    // measurable and projected inside the head seats (the server's rule)
+    // ask the network to claim: measurable, inside the head seats and not
+    // claimed (the server's rule, which the app never recomputes)
     val claimPrompt: Boolean,
     // the authenticated caller's own row
     val isMe: Boolean,
@@ -335,20 +336,18 @@ data class ProtocolLeaderboardUi(
 
 /**
  * The claim prompt for a row (Q5, Q13, Q16), the same on the card and on the
- * Earnings tile: only a measurable network projected inside the head seats
- * that has not claimed is asked to claim. It is close to the line when its
- * label says borderline, or, while it still reads "estimate" (Q17), when its
- * margin is within `closeMargin` of the line.
+ * Earnings tile. Whether a network is asked to claim is the server's
+ * claim_prompt alone (CONTRACT, amended 2026-10-29: measurable, inside the
+ * head seats, and no claimed fleet); the app never decides it. The prompt is
+ * close to the line when the label says borderline, or, while it still reads
+ * "estimate" (Q17), when the margin is within `closeMargin` of the line.
  */
 fun protocolClaimPrompt(
     row: ProtocolRow,
     snapshot: ProtocolSnapshot?,
     closeMargin: Double = defaultProtocolLeaderboardSettings().closeMargin,
 ): ProtocolClaimPrompt? {
-    val measurable = row.measurable && row.label != ProtocolLabel.NOT_MEASURABLE
-    val headSeats = snapshot?.headSeats ?: 0L
-    val inside = 1L <= row.position && (headSeats <= 0L || row.position <= headSeats)
-    if (!measurable || !row.claimPrompt || !inside || row.fleets.isNotEmpty()) {
+    if (!row.claimPrompt) {
         return null
     }
     val close = when (row.label) {

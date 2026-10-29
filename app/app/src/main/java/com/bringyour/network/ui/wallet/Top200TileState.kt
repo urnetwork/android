@@ -18,7 +18,8 @@ sealed interface Top200TileState {
     data object Hidden : Top200TileState
 
     /**
-     * Projected inside the head seats and measurable, not claimed. With
+     * Asked to claim (the server's claim_prompt: measurable, inside the head
+     * seats, not claimed). With
      * binding open the existing claim flow (Claim your spot, Sign fleet
      * binding); while it is closed the "Claiming opens soon" note instead,
      * and Sign fleet binding stays hidden (Q16).
@@ -64,7 +65,7 @@ fun top200TileState(answer: ProtocolTopMe?): Top200TileState {
             nearLine = row.label == ProtocolLabel.BORDERLINE,
         )
     }
-    // the Protocol card's own prompt rule: no tile where the card prompts nothing
+    // the server's claim_prompt, as on the Protocol card: no tile where the card prompts nothing
     val prompt = protocolClaimPrompt(row, answer.snapshot) ?: return Top200TileState.Hidden
     return Top200TileState.Projected(
         position = row.position,

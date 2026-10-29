@@ -149,6 +149,15 @@ class ProtocolLeaderboardWiringTest {
         assertFalse(models.contains("SnHeadState"))
         val earnings = source("ui/wallet/EarningsScreen.kt")
         assertTrue(earnings.contains("top200 = top200TileState(top),"))
+        // a 404 or a failure of /sn/top/me only logs: the tile stays as it was
+        // (none before a first answer), never a broken one
+        val viewModel = source("ui/wallet/EarningsViewModel.kt")
+        val refreshTop = between(viewModel, "private suspend fun refreshTop() {", "\n    }")
+        assertTrue(refreshTop.contains(".onSuccess { _top.value = it }"))
+        assertTrue(refreshTop.contains(".onFailure { Log.i("))
+        assertFalse(refreshTop.contains("_top.value = null"))
+        val topMe = between(sdkSource, "override suspend fun topMe()", "override fun formatAlpha(")
+        assertTrue(topMe.contains("runCatching {"))
         // the leaderboard's "Claim on Earnings" scrolls Earnings to the tile
         assertTrue(earnings.contains("top200BringIntoView.bringIntoView()"))
         assertEquals(2, Regex("modifier = Modifier\\.bringIntoViewRequester\\(top200BringIntoView\\)").findAll(earnings).count())

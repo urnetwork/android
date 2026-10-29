@@ -49,6 +49,8 @@ class Top200TileStateTest {
         label: ProtocolLabel? = ProtocolLabel.ESTIMATE,
         measurable: Boolean = true,
         fleets: List<ProtocolFleet> = listOf(),
+        // the server's rule: measurable, inside the head seats, not claimed
+        claimPrompt: Boolean = measurable && position <= 200 && fleets.isEmpty(),
     ) = ProtocolTopMe(
         snapshot = snapshot(bindingOpen),
         me = ProtocolMe(
@@ -61,7 +63,7 @@ class Top200TileStateTest {
                 trend = 0,
                 label = label,
                 measurable = measurable,
-                claimPrompt = measurable && position <= 200,
+                claimPrompt = claimPrompt,
                 isMe = true,
                 fleets = fleets,
             ),
@@ -107,8 +109,21 @@ class Top200TileStateTest {
     fun outsideTheHeadSeatsOrNotMeasurableShowsNoTile() {
         assertEquals(Top200TileState.Hidden, top200TileState(answer(201)))
         assertEquals(Top200TileState.Hidden, top200TileState(answer(120, measurable = false, label = ProtocolLabel.NOT_MEASURABLE)))
-        // measurable by the flag but labeled not measurable: no claim call
-        assertEquals(Top200TileState.Hidden, top200TileState(answer(120, label = ProtocolLabel.NOT_MEASURABLE)))
+    }
+
+    @Test
+    fun theTileFollowsTheServersClaimPromptAlone() {
+        // CONTRACT, amended 2026-10-29: the app never recomputes the prompt
+        assertEquals(Top200TileState.Hidden, top200TileState(answer(120, claimPrompt = false)))
+        val asked = top200TileState(answer(230, claimPrompt = true))
+        assertEquals(230L, (asked as Top200TileState.Projected).position)
+    }
+
+    @Test
+    fun aFailedOrMissingStandingShowsNoTileRatherThanABrokenOne() {
+        // /sn/top/me answering 404 or failing leaves the standing unread
+        assertEquals(Top200TileState.Hidden, top200TileState(null))
+        assertEquals(Top200TileState.Hidden, top200TileState(ProtocolTopMe(snapshot = null, me = null)))
     }
 
     @Test
