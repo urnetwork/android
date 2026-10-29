@@ -26,6 +26,26 @@
     <string name="amount">Monto</string>
     <string name="anonymous">Anónimo</string>
     <string name="api_error_contact">Si el problema persiste, contáctanos en %1$s o únete a nuestro %2$s para soporte directo.</string>
+    <string name="api_keys_copied">Copiado</string>
+    <string name="api_keys_copy">Copiar clave</string>
+    <string name="api_keys_create">Crear clave de API</string>
+    <string name="api_keys_create_failed">No se pudo crear la clave de API. Inténtalo de nuevo.</string>
+    <string name="api_keys_created_at">Creada: %1$s</string>
+    <string name="api_keys_created_title">Tu nueva clave de API</string>
+    <string name="api_keys_created_warning">Copia esta clave ahora. No se volverá a mostrar y cualquiera que la tenga puede usar tu cuenta.</string>
+    <string name="api_keys_delete">Eliminar</string>
+    <string name="api_keys_delete_confirm_body">“%1$s” dejará de funcionar de inmediato y todo lo que la use perderá el acceso.</string>
+    <string name="api_keys_delete_confirm_title">¿Eliminar esta clave de API?</string>
+    <string name="api_keys_delete_failed">No se pudo eliminar la clave de API. Inténtalo de nuevo.</string>
+    <string name="api_keys_docs_link">Cómo usar las claves de API</string>
+    <string name="api_keys_empty">No tienes ninguna clave de API.</string>
+    <string name="api_keys_id">ID %1$s</string>
+    <string name="api_keys_intro">Las claves de API permiten que tus propias herramientas y scripts usen tu cuenta de URnetwork a través de la API. Cualquiera que tenga una clave tiene acceso completo a tu cuenta hasta que la elimines.</string>
+    <string name="api_keys_load_failed">No se pudieron cargar tus claves de API. Inténtalo de nuevo.</string>
+    <string name="api_keys_name_label">Nombre de la clave</string>
+    <string name="api_keys_name_placeholder">Por ejemplo, servidor de casa</string>
+    <string name="api_keys_title">Claves de API</string>
+    <string name="api_keys_unnamed">Clave sin nombre</string>
     <string name="app_excluded_toast">%1$s evitará la VPN</string>
     <string name="app_included_toast">%1$s se enrutará por la VPN</string>
     <string name="app_pinned_toast">%1$s usará un solo proveedor</string>
@@ -439,6 +459,7 @@
     <string name="dns_settings_unavailable">Configuración de DNS no disponible</string>
     <string name="dns_using_recommended">Usando la configuración regional recomendada</string>
     <string name="dns_using_secure">Usando la configuración predeterminada más segura</string>
+    <string name="done">Listo</string>
     <string name="dont_see_it">¿No lo ves?</string>
     <string name="earn_more_bullet_stay_connected">Mantente conectado diariamente = Gana hasta %1$s GiB/día</string>
     <string name="earning_multipliers">Multiplicadores de ganancias</string>

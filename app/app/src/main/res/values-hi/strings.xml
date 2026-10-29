@@ -26,6 +26,26 @@
     <string name="amount">राशि</string>
     <string name="anonymous">अनाम</string>
     <string name="api_error_contact">यदि समस्या बनी रहती है, तो %1$s पर हमसे संपर्क करें या सीधे समर्थन के लिए हमारे %2$s से जुड़ें।</string>
+    <string name="api_keys_copied">कॉपी हो गया</string>
+    <string name="api_keys_copy">कुंजी कॉपी करें</string>
+    <string name="api_keys_create">API कुंजी बनाएँ</string>
+    <string name="api_keys_create_failed">API कुंजी नहीं बनाई जा सकी। पुनः प्रयास करें।</string>
+    <string name="api_keys_created_at">बनाई गई: %1$s</string>
+    <string name="api_keys_created_title">आपकी नई API कुंजी</string>
+    <string name="api_keys_created_warning">यह कुंजी अभी कॉपी करें। यह दोबारा नहीं दिखाई जाएगी, और जिसके पास भी यह हो, वह आपके खाते का उपयोग कर सकता है।</string>
+    <string name="api_keys_delete">डिलीट करें</string>
+    <string name="api_keys_delete_confirm_body">“%1$s” तुरंत काम करना बंद कर देगी, और इसका उपयोग करने वाली हर चीज़ की पहुँच खत्म हो जाएगी।</string>
+    <string name="api_keys_delete_confirm_title">यह API कुंजी डिलीट करें?</string>
+    <string name="api_keys_delete_failed">API कुंजी डिलीट नहीं की जा सकी। पुनः प्रयास करें।</string>
+    <string name="api_keys_docs_link">API कुंजियों का उपयोग कैसे करें</string>
+    <string name="api_keys_empty">आपके पास कोई API कुंजी नहीं है।</string>
+    <string name="api_keys_id">ID %1$s</string>
+    <string name="api_keys_intro">API कुंजियों की मदद से आपके अपने टूल और स्क्रिप्ट API के ज़रिए आपके URnetwork खाते का उपयोग कर सकते हैं। जिसके पास भी कुंजी हो, उसे आपके खाते की पूरी पहुँच मिलती है, जब तक आप उसे डिलीट नहीं कर देते।</string>
+    <string name="api_keys_load_failed">आपकी API कुंजियाँ लोड नहीं हो सकीं। पुनः प्रयास करें।</string>
+    <string name="api_keys_name_label">कुंजी का नाम</string>
+    <string name="api_keys_name_placeholder">उदाहरण के लिए, होम सर्वर</string>
+    <string name="api_keys_title">API कुंजियाँ</string>
+    <string name="api_keys_unnamed">बिना नाम की कुंजी</string>
     <string name="app_excluded_toast">%1$s VPN को बायपास करेगा</string>
     <string name="app_included_toast">%1$s VPN से रूट होगा</string>
     <string name="app_pinned_toast">%1$s एक ही प्रदाता का उपयोग करेगा</string>
@@ -439,6 +459,7 @@
     <string name="dns_settings_unavailable">DNS सेटिंग्स उपलब्ध नहीं</string>
     <string name="dns_using_recommended">अनुशंसित क्षेत्रीय सेटिंग्स का उपयोग हो रहा है</string>
     <string name="dns_using_secure">सबसे सुरक्षित डिफ़ॉल्ट सेटिंग्स का उपयोग हो रहा है</string>
+    <string name="done">हो गया</string>
     <string name="dont_see_it">आपको यह दिखाई नहीं दे रहा है?</string>
     <string name="earn_more_bullet_stay_connected">रोज़ाना जुड़े रहें = प्रतिदिन %1$s GiB तक कमाएँ</string>
     <string name="earning_multipliers">कमाई गुणक</string>

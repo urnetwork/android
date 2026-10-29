@@ -26,6 +26,26 @@
     <string name="amount">ยอด</string>
     <string name="anonymous">ไม่ระบุชื่อ</string>
     <string name="api_error_contact">หากปัญหายังคงอยู่ กรุณาติดต่อเราที่ %1$s หรือเข้าร่วม %2$s ของเราเพื่อรับการสนับสนุนโดยตรง</string>
+    <string name="api_keys_copied">คัดลอกแล้ว</string>
+    <string name="api_keys_copy">คัดลอกคีย์</string>
+    <string name="api_keys_create">สร้างคีย์ API</string>
+    <string name="api_keys_create_failed">สร้างคีย์ API ไม่ได้ ลองอีกครั้ง</string>
+    <string name="api_keys_created_at">สร้างเมื่อ %1$s</string>
+    <string name="api_keys_created_title">คีย์ API ใหม่ของคุณ</string>
+    <string name="api_keys_created_warning">คัดลอกคีย์นี้ตอนนี้ คีย์จะไม่แสดงอีก และใครก็ตามที่มีคีย์นี้จะใช้บัญชีของคุณได้</string>
+    <string name="api_keys_delete">ลบ</string>
+    <string name="api_keys_delete_confirm_body">“%1$s” จะหยุดทำงานทันที และทุกอย่างที่ใช้คีย์นี้จะเสียสิทธิ์การเข้าถึง</string>
+    <string name="api_keys_delete_confirm_title">ลบคีย์ API นี้ใช่ไหม</string>
+    <string name="api_keys_delete_failed">ลบคีย์ API ไม่ได้ ลองอีกครั้ง</string>
+    <string name="api_keys_docs_link">วิธีใช้คีย์ API</string>
+    <string name="api_keys_empty">คุณยังไม่มีคีย์ API</string>
+    <string name="api_keys_id">ID %1$s</string>
+    <string name="api_keys_intro">คีย์ API ช่วยให้เครื่องมือและสคริปต์ของคุณเองใช้บัญชี URnetwork ของคุณผ่าน API ได้ ทุกคนที่มีคีย์จะเข้าถึงบัญชีของคุณได้อย่างเต็มที่จนกว่าคุณจะลบคีย์นั้น</string>
+    <string name="api_keys_load_failed">โหลดคีย์ API ของคุณไม่ได้ ลองอีกครั้ง</string>
+    <string name="api_keys_name_label">ชื่อคีย์</string>
+    <string name="api_keys_name_placeholder">เช่น เซิร์ฟเวอร์ที่บ้าน</string>
+    <string name="api_keys_title">คีย์ API</string>
+    <string name="api_keys_unnamed">คีย์ที่ไม่มีชื่อ</string>
     <string name="app_excluded_toast">%1$s จะไม่ใช้ VPN</string>
     <string name="app_included_toast">%1$s จะใช้งานผ่าน VPN</string>
     <string name="app_pinned_toast">%1$s จะใช้ผู้ให้บริการรายเดียว</string>
@@ -439,6 +459,7 @@
     <string name="dns_settings_unavailable">ไม่สามารถตั้งค่า DNS ได้</string>
     <string name="dns_using_recommended">กำลังใช้การตั้งค่าที่แนะนำสำหรับภูมิภาค</string>
     <string name="dns_using_secure">กำลังใช้การตั้งค่าเริ่มต้นที่ปลอดภัยที่สุด</string>
+    <string name="done">เสร็จสิ้น</string>
     <string name="dont_see_it">ไม่เห็นใช่ไหม?</string>
     <string name="earn_more_bullet_stay_connected">เชื่อมต่อทุกวัน = รับสูงสุด %1$s GiB/วัน</string>
     <string name="earning_multipliers">ตัวคูณรายได้</string>

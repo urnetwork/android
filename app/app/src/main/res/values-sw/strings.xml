@@ -26,6 +26,26 @@
     <string name="amount">Kiasi</string>
     <string name="anonymous">Bila jina</string>
     <string name="api_error_contact">Ikiwa tatizo litaendelea, wasiliana nasi kupitia %1$s au jiunge na %2$s yetu kwa msaada wa moja kwa moja.</string>
+    <string name="api_keys_copied">Imenakiliwa</string>
+    <string name="api_keys_copy">Nakili ufunguo</string>
+    <string name="api_keys_create">Tengeneza ufunguo wa API</string>
+    <string name="api_keys_create_failed">Imeshindwa kutengeneza ufunguo wa API. Jaribu tena.</string>
+    <string name="api_keys_created_at">Uliundwa %1$s</string>
+    <string name="api_keys_created_title">Ufunguo wako mpya wa API</string>
+    <string name="api_keys_created_warning">Nakili ufunguo huu sasa. Hautaonyeshwa tena, na mtu yeyote aliye nao anaweza kutumia akaunti yako.</string>
+    <string name="api_keys_delete">Futa</string>
+    <string name="api_keys_delete_confirm_body">“%1$s” utaacha kufanya kazi mara moja, na chochote kinachoutumia kitapoteza ufikiaji.</string>
+    <string name="api_keys_delete_confirm_title">Ungependa kufuta ufunguo huu wa API?</string>
+    <string name="api_keys_delete_failed">Imeshindwa kufuta ufunguo wa API. Jaribu tena.</string>
+    <string name="api_keys_docs_link">Jinsi ya kutumia funguo za API</string>
+    <string name="api_keys_empty">Huna funguo zozote za API.</string>
+    <string name="api_keys_id">Kitambulisho %1$s</string>
+    <string name="api_keys_intro">Funguo za API huruhusu zana na skripti zako mwenyewe kutumia akaunti yako ya URnetwork kupitia API. Mtu yeyote aliye na ufunguo ana ufikiaji kamili wa akaunti yako hadi utakapoufuta.</string>
+    <string name="api_keys_load_failed">Imeshindwa kupakia funguo zako za API. Jaribu tena.</string>
+    <string name="api_keys_name_label">Jina la ufunguo</string>
+    <string name="api_keys_name_placeholder">Kwa mfano, seva ya nyumbani</string>
+    <string name="api_keys_title">Funguo za API</string>
+    <string name="api_keys_unnamed">Ufunguo usio na jina</string>
     <string name="app_excluded_toast">%1$s itaepuka VPN</string>
     <string name="app_included_toast">%1$s itapitia VPN</string>
     <string name="app_pinned_toast">%1$s itatumia mtoa huduma mmoja</string>
@@ -439,6 +459,7 @@
     <string name="dns_settings_unavailable">Mipangilio ya DNS haipatikani</string>
     <string name="dns_using_recommended">Inatumia mipangilio ya eneo inayopendekezwa</string>
     <string name="dns_using_secure">Inatumia mipangilio chaguo-msingi salama zaidi</string>
+    <string name="done">Nimemaliza</string>
     <string name="dont_see_it">Hauoni?</string>
     <string name="earn_more_bullet_stay_connected">Unganishwa kila siku = Pata hadi %1$s GiB/siku</string>
     <string name="earning_multipliers">Vizidishi vya mapato</string>

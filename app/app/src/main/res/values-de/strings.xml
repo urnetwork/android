@@ -26,6 +26,26 @@
     <string name="amount">Betrag</string>
     <string name="anonymous">Anonym</string>
     <string name="api_error_contact">Wenn das Problem weiterhin besteht, kontaktiere uns unter %1$s oder tritt unserem %2$s für direkten Support bei.</string>
+    <string name="api_keys_copied">Kopiert</string>
+    <string name="api_keys_copy">Schlüssel kopieren</string>
+    <string name="api_keys_create">API-Schlüssel erstellen</string>
+    <string name="api_keys_create_failed">Der API-Schlüssel konnte nicht erstellt werden. Versuche es erneut.</string>
+    <string name="api_keys_created_at">Erstellt: %1$s</string>
+    <string name="api_keys_created_title">Dein neuer API-Schlüssel</string>
+    <string name="api_keys_created_warning">Kopiere diesen Schlüssel jetzt. Er wird nicht noch einmal angezeigt, und jeder, der ihn hat, kann dein Konto verwenden.</string>
+    <string name="api_keys_delete">Löschen</string>
+    <string name="api_keys_delete_confirm_body">„%1$s“ funktioniert sofort nicht mehr, und alles, was ihn verwendet, verliert den Zugriff.</string>
+    <string name="api_keys_delete_confirm_title">Diesen API-Schlüssel löschen?</string>
+    <string name="api_keys_delete_failed">Der API-Schlüssel konnte nicht gelöscht werden. Versuche es erneut.</string>
+    <string name="api_keys_docs_link">So verwendest du API-Schlüssel</string>
+    <string name="api_keys_empty">Du hast keine API-Schlüssel.</string>
+    <string name="api_keys_id">ID %1$s</string>
+    <string name="api_keys_intro">Mit API-Schlüsseln können deine eigenen Tools und Skripte dein URnetwork-Konto über die API nutzen. Wer einen Schlüssel hat, hat vollen Zugriff auf dein Konto, bis du ihn löschst.</string>
+    <string name="api_keys_load_failed">Deine API-Schlüssel konnten nicht geladen werden. Versuche es erneut.</string>
+    <string name="api_keys_name_label">Schlüsselname</string>
+    <string name="api_keys_name_placeholder">z. B. Heimserver</string>
+    <string name="api_keys_title">API-Schlüssel</string>
+    <string name="api_keys_unnamed">Unbenannter Schlüssel</string>
     <string name="app_excluded_toast">%1$s umgeht das VPN</string>
     <string name="app_included_toast">%1$s wird über das VPN geleitet</string>
     <string name="app_pinned_toast">%1$s nutzt einen einzigen Anbieter</string>
@@ -439,6 +459,7 @@
     <string name="dns_settings_unavailable">DNS-Einstellungen nicht verfügbar</string>
     <string name="dns_using_recommended">Empfohlene regionale Einstellungen aktiv</string>
     <string name="dns_using_secure">Sicherste Standardeinstellungen aktiv</string>
+    <string name="done">Fertig</string>
     <string name="dont_see_it">Siehst du ihn nicht?</string>
     <string name="earn_more_bullet_stay_connected">Täglich verbunden bleiben = Verdiene bis zu %1$s GiB/Tag</string>
     <string name="earning_multipliers">Verdienst-Multiplikatoren</string>

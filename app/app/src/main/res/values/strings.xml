@@ -26,6 +26,26 @@
     <string name="amount">Amount</string>
     <string name="anonymous">Anonymous</string>
     <string name="api_error_contact">If the problem persists, contact us at %1$s or join our %2$s for direct support.</string>
+    <string name="api_keys_copied">Copied</string>
+    <string name="api_keys_copy">Copy key</string>
+    <string name="api_keys_create">Create API key</string>
+    <string name="api_keys_create_failed">Couldn\'t create the API key. Try again.</string>
+    <string name="api_keys_created_at">Created %1$s</string>
+    <string name="api_keys_created_title">Your new API key</string>
+    <string name="api_keys_created_warning">Copy this key now. It won\'t be shown again, and anyone who has it can use your account.</string>
+    <string name="api_keys_delete">Delete</string>
+    <string name="api_keys_delete_confirm_body">\"%1$s\" will stop working right away, and anything using it will lose access.</string>
+    <string name="api_keys_delete_confirm_title">Delete this API key?</string>
+    <string name="api_keys_delete_failed">Couldn\'t delete the API key. Try again.</string>
+    <string name="api_keys_docs_link">How to use API keys</string>
+    <string name="api_keys_empty">You don\'t have any API keys.</string>
+    <string name="api_keys_id">ID %1$s</string>
+    <string name="api_keys_intro">API keys let your own tools and scripts use your URnetwork account through the API. Anyone with a key has full access to your account until you delete it.</string>
+    <string name="api_keys_load_failed">Couldn\'t load your API keys. Try again.</string>
+    <string name="api_keys_name_label">Key name</string>
+    <string name="api_keys_name_placeholder">For example, home server</string>
+    <string name="api_keys_title">API keys</string>
+    <string name="api_keys_unnamed">Unnamed key</string>
     <string name="app_excluded_toast">%1$s will bypass the VPN</string>
     <string name="app_included_toast">%1$s will route through the VPN</string>
     <string name="app_name" translatable="false">URnetwork</string>
@@ -444,6 +464,7 @@
     <string name="dns_settings_unavailable">DNS settings unavailable</string>
     <string name="dns_using_recommended">Using recommended regional settings</string>
     <string name="dns_using_secure">Using most secure default settings</string>
+    <string name="done">Done</string>
     <string name="dont_see_it">Don\'t see it?</string>
     <string name="earn_more_bullet_stay_connected">Stay connected daily = Earn up to %1$s GiB/Day</string>
     <string name="earning_multipliers">Earning multipliers</string>

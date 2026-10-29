@@ -26,6 +26,26 @@
     <string name="amount">金額</string>
     <string name="anonymous">匿名</string>
     <string name="api_error_contact">問題が解決しない場合は、%1$s までご連絡いただくか、直接サポートのために私たちの %2$s にご参加ください。</string>
+    <string name="api_keys_copied">コピーしました</string>
+    <string name="api_keys_copy">キーをコピー</string>
+    <string name="api_keys_create">APIキーを作成</string>
+    <string name="api_keys_create_failed">APIキーを作成できませんでした。もう一度お試しください。</string>
+    <string name="api_keys_created_at">作成日: %1$s</string>
+    <string name="api_keys_created_title">新しいAPIキー</string>
+    <string name="api_keys_created_warning">今すぐこのキーをコピーしてください。キーは二度と表示されません。また、キーを持っている人は誰でもアカウントを使用できます。</string>
+    <string name="api_keys_delete">削除</string>
+    <string name="api_keys_delete_confirm_body">「%1$s」はすぐに使えなくなり、このキーを使用しているものはすべてアクセスできなくなります。</string>
+    <string name="api_keys_delete_confirm_title">このAPIキーを削除しますか？</string>
+    <string name="api_keys_delete_failed">APIキーを削除できませんでした。もう一度お試しください。</string>
+    <string name="api_keys_docs_link">APIキーの使い方</string>
+    <string name="api_keys_empty">APIキーはありません。</string>
+    <string name="api_keys_id">ID %1$s</string>
+    <string name="api_keys_intro">APIキーを使うと、自分のツールやスクリプトから API 経由で URnetwork アカウントを利用できます。キーを持っている人は誰でも、キーを削除するまでアカウントにフルアクセスできます。</string>
+    <string name="api_keys_load_failed">APIキーを読み込めませんでした。もう一度お試しください。</string>
+    <string name="api_keys_name_label">キーの名前</string>
+    <string name="api_keys_name_placeholder">例: 自宅サーバー</string>
+    <string name="api_keys_title">APIキー</string>
+    <string name="api_keys_unnamed">名前のないキー</string>
     <string name="app_excluded_toast">%1$sはVPNを迂回します</string>
     <string name="app_included_toast">%1$sはVPN経由でルーティングされます</string>
     <string name="app_pinned_toast">%1$sは1つのプロバイダーを使用します</string>
@@ -439,6 +459,7 @@
     <string name="dns_settings_unavailable">DNS設定は利用できません</string>
     <string name="dns_using_recommended">地域の推奨設定を使用中</string>
     <string name="dns_using_secure">最も安全なデフォルト設定を使用中</string>
+    <string name="done">完了</string>
     <string name="dont_see_it">メールが見つかりませんか？</string>
     <string name="earn_more_bullet_stay_connected">毎日接続を維持 = 最大 %1$s GiB/日を獲得</string>
     <string name="earning_multipliers">獲得ポイントの倍率</string>

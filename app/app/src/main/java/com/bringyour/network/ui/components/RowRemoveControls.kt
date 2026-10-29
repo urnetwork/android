@@ -29,6 +29,12 @@ val providerLocationRemoveControls: Set<RowRemoveControl> = setOf(
     RowRemoveControl.Button,
 )
 
+// Account -> API keys: deleting a key has no other path
+val apiKeyRemoveControls: Set<RowRemoveControl> = setOf(
+    RowRemoveControl.Swipe,
+    RowRemoveControl.Button,
+)
+
 /**
  * The accessibility actions of a swipe-to-reveal row. Assistive tech cannot
  * swipe, so the revealed action (delete, or Sessions' sign out) is also
