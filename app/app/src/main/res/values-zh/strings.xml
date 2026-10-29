@@ -26,6 +26,26 @@
     <string name="amount">金额</string>
     <string name="anonymous">匿名</string>
     <string name="api_error_contact">如果问题仍然存在，请通过 %1$s 联系我们，或加入我们的 %2$s 获取直接支持。</string>
+    <string name="api_keys_copied">已复制</string>
+    <string name="api_keys_copy">复制密钥</string>
+    <string name="api_keys_create">创建 API 密钥</string>
+    <string name="api_keys_create_failed">无法创建 API 密钥。请重试。</string>
+    <string name="api_keys_created_at">创建于 %1$s</string>
+    <string name="api_keys_created_title">您的新 API 密钥</string>
+    <string name="api_keys_created_warning">请立即复制此密钥。它不会再次显示，任何持有它的人都可以使用您的账户。</string>
+    <string name="api_keys_delete">删除</string>
+    <string name="api_keys_delete_confirm_body">“%1$s”将立即失效，所有使用它的应用或工具都将失去访问权限。</string>
+    <string name="api_keys_delete_confirm_title">删除此 API 密钥？</string>
+    <string name="api_keys_delete_failed">无法删除 API 密钥。请重试。</string>
+    <string name="api_keys_docs_link">如何使用 API 密钥</string>
+    <string name="api_keys_empty">您还没有 API 密钥。</string>
+    <string name="api_keys_id">ID %1$s</string>
+    <string name="api_keys_intro">API 密钥可让您自己的工具和脚本通过 API 使用您的 URnetwork 账户。任何持有密钥的人都能完全访问您的账户，直到您将其删除。</string>
+    <string name="api_keys_load_failed">无法加载您的 API 密钥。请重试。</string>
+    <string name="api_keys_name_label">密钥名称</string>
+    <string name="api_keys_name_placeholder">例如：家庭服务器</string>
+    <string name="api_keys_title">API 密钥</string>
+    <string name="api_keys_unnamed">未命名密钥</string>
     <string name="app_excluded_toast">%1$s 将绕过 VPN</string>
     <string name="app_included_toast">%1$s 将通过 VPN 路由</string>
     <string name="app_pinned_toast">%1$s 将使用单个提供商</string>
@@ -439,6 +459,7 @@
     <string name="dns_settings_unavailable">DNS 设置不可用</string>
     <string name="dns_using_recommended">正在使用推荐的地区设置</string>
     <string name="dns_using_secure">正在使用最安全的默认设置</string>
+    <string name="done">完成</string>
     <string name="dont_see_it">没有看到？</string>
     <string name="earn_more_bullet_stay_connected">每天保持连接 = 每日最多可赚 %1$s GiB</string>
     <string name="earning_multipliers">收益倍增器</string>

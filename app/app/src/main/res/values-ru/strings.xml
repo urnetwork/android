@@ -26,6 +26,26 @@
     <string name="amount">Сумма</string>
     <string name="anonymous">Анонимно</string>
     <string name="api_error_contact">Если проблема сохраняется, свяжитесь с нами по адресу %1$s или присоединяйтесь к нашему %2$s для получения прямой поддержки.</string>
+    <string name="api_keys_copied">Скопировано</string>
+    <string name="api_keys_copy">Копировать ключ</string>
+    <string name="api_keys_create">Создать API-ключ</string>
+    <string name="api_keys_create_failed">Не удалось создать API-ключ. Попробуйте ещё раз.</string>
+    <string name="api_keys_created_at">Создан: %1$s</string>
+    <string name="api_keys_created_title">Ваш новый API-ключ</string>
+    <string name="api_keys_created_warning">Скопируйте этот ключ сейчас. Он больше не будет показан, и любой, у кого он есть, сможет пользоваться вашим аккаунтом.</string>
+    <string name="api_keys_delete">Удалить</string>
+    <string name="api_keys_delete_confirm_body">«%1$s» сразу перестанет работать, и всё, что его использует, потеряет доступ.</string>
+    <string name="api_keys_delete_confirm_title">Удалить этот API-ключ?</string>
+    <string name="api_keys_delete_failed">Не удалось удалить API-ключ. Попробуйте ещё раз.</string>
+    <string name="api_keys_docs_link">Как использовать API-ключи</string>
+    <string name="api_keys_empty">У вас нет API-ключей.</string>
+    <string name="api_keys_id">ID %1$s</string>
+    <string name="api_keys_intro">API-ключи позволяют вашим собственным инструментам и скриптам использовать ваш аккаунт URnetwork через API. Любой, у кого есть ключ, получает полный доступ к вашему аккаунту, пока вы не удалите этот ключ.</string>
+    <string name="api_keys_load_failed">Не удалось загрузить ваши API-ключи. Попробуйте ещё раз.</string>
+    <string name="api_keys_name_label">Название ключа</string>
+    <string name="api_keys_name_placeholder">Например, домашний сервер</string>
+    <string name="api_keys_title">API-ключи</string>
+    <string name="api_keys_unnamed">Ключ без названия</string>
     <string name="app_excluded_toast">%1$s будет работать в обход VPN</string>
     <string name="app_included_toast">%1$s будет работать через VPN</string>
     <string name="app_pinned_toast">%1$s будет использовать одного провайдера</string>
@@ -439,6 +459,7 @@
     <string name="dns_settings_unavailable">Настройки DNS недоступны</string>
     <string name="dns_using_recommended">Используются рекомендованные региональные настройки</string>
     <string name="dns_using_secure">Используются самые безопасные настройки по умолчанию</string>
+    <string name="done">Готово</string>
     <string name="dont_see_it">Не видите письмо?</string>
     <string name="earn_more_bullet_stay_connected">Оставайтесь на связи ежедневно = Зарабатывайте до %1$s GiB/день</string>
     <string name="earning_multipliers">Множители заработка</string>

@@ -26,6 +26,26 @@
     <string name="amount">Bedrag</string>
     <string name="anonymous">Anoniem</string>
     <string name="api_error_contact">Als het probleem blijft bestaan, neem dan contact met ons op via %1$s of sluit je aan bij onze %2$s voor directe ondersteuning.</string>
+    <string name="api_keys_copied">Gekopieerd</string>
+    <string name="api_keys_copy">Sleutel kopiëren</string>
+    <string name="api_keys_create">API-sleutel maken</string>
+    <string name="api_keys_create_failed">Kan de API-sleutel niet maken. Probeer het opnieuw.</string>
+    <string name="api_keys_created_at">Aangemaakt: %1$s</string>
+    <string name="api_keys_created_title">Je nieuwe API-sleutel</string>
+    <string name="api_keys_created_warning">Kopieer deze sleutel nu. Hij wordt niet opnieuw getoond en iedereen die hem heeft, kan je account gebruiken.</string>
+    <string name="api_keys_delete">Verwijderen</string>
+    <string name="api_keys_delete_confirm_body">‘%1$s’ werkt meteen niet meer en alles wat deze sleutel gebruikt, verliest de toegang.</string>
+    <string name="api_keys_delete_confirm_title">Deze API-sleutel verwijderen?</string>
+    <string name="api_keys_delete_failed">Kan de API-sleutel niet verwijderen. Probeer het opnieuw.</string>
+    <string name="api_keys_docs_link">Zo gebruik je API-sleutels</string>
+    <string name="api_keys_empty">Je hebt geen API-sleutels.</string>
+    <string name="api_keys_id">ID %1$s</string>
+    <string name="api_keys_intro">Met API-sleutels kunnen je eigen tools en scripts je URnetwork-account gebruiken via de API. Iedereen met een sleutel heeft volledige toegang tot je account totdat je de sleutel verwijdert.</string>
+    <string name="api_keys_load_failed">Kan je API-sleutels niet laden. Probeer het opnieuw.</string>
+    <string name="api_keys_name_label">Sleutelnaam</string>
+    <string name="api_keys_name_placeholder">Bijvoorbeeld thuisserver</string>
+    <string name="api_keys_title">API-sleutels</string>
+    <string name="api_keys_unnamed">Naamloze sleutel</string>
     <string name="app_excluded_toast">%1$s omzeilt de VPN</string>
     <string name="app_included_toast">%1$s gaat via de VPN</string>
     <string name="app_pinned_toast">%1$s gebruikt één provider</string>
@@ -439,6 +459,7 @@
     <string name="dns_settings_unavailable">DNS-instellingen niet beschikbaar</string>
     <string name="dns_using_recommended">Aanbevolen regionale instellingen actief</string>
     <string name="dns_using_secure">Veiligste standaardinstellingen actief</string>
+    <string name="done">Gereed</string>
     <string name="dont_see_it">Zie je het niet?</string>
     <string name="earn_more_bullet_stay_connected">Dagelijks verbonden blijven = Verdien tot %1$s GiB/dag</string>
     <string name="earning_multipliers">Verdienvermenigvuldigers</string>

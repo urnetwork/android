@@ -26,6 +26,26 @@
     <string name="amount">Ποσό</string>
     <string name="anonymous">Ανώνυμο</string>
     <string name="api_error_contact">Αν το πρόβλημα παραμένει, επικοινωνήστε μαζί μας στο %1$s ή μπείτε στο %2$s μας για άμεση υποστήριξη.</string>
+    <string name="api_keys_copied">Αντιγράφηκε</string>
+    <string name="api_keys_copy">Αντιγραφή κλειδιού</string>
+    <string name="api_keys_create">Δημιουργία κλειδιού API</string>
+    <string name="api_keys_create_failed">Δεν ήταν δυνατή η δημιουργία του κλειδιού API. Δοκιμάστε ξανά.</string>
+    <string name="api_keys_created_at">Δημιουργήθηκε: %1$s</string>
+    <string name="api_keys_created_title">Το νέο σας κλειδί API</string>
+    <string name="api_keys_created_warning">Αντιγράψτε αυτό το κλειδί τώρα. Δεν θα εμφανιστεί ξανά και όποιος το έχει μπορεί να χρησιμοποιήσει τον λογαριασμό σας.</string>
+    <string name="api_keys_delete">Διαγραφή</string>
+    <string name="api_keys_delete_confirm_body">Το «%1$s» θα σταματήσει να λειτουργεί αμέσως και ό,τι το χρησιμοποιεί θα χάσει την πρόσβαση.</string>
+    <string name="api_keys_delete_confirm_title">Διαγραφή αυτού του κλειδιού API;</string>
+    <string name="api_keys_delete_failed">Δεν ήταν δυνατή η διαγραφή του κλειδιού API. Δοκιμάστε ξανά.</string>
+    <string name="api_keys_docs_link">Πώς να χρησιμοποιήσετε τα κλειδιά API</string>
+    <string name="api_keys_empty">Δεν έχετε κλειδιά API.</string>
+    <string name="api_keys_id">ID %1$s</string>
+    <string name="api_keys_intro">Τα κλειδιά API επιτρέπουν στα δικά σας εργαλεία και scripts να χρησιμοποιούν τον λογαριασμό σας στο URnetwork μέσω του API. Όποιος έχει ένα κλειδί έχει πλήρη πρόσβαση στον λογαριασμό σας μέχρι να το διαγράψετε.</string>
+    <string name="api_keys_load_failed">Δεν ήταν δυνατή η φόρτωση των κλειδιών API σας. Δοκιμάστε ξανά.</string>
+    <string name="api_keys_name_label">Όνομα κλειδιού</string>
+    <string name="api_keys_name_placeholder">Για παράδειγμα, οικιακός διακομιστής</string>
+    <string name="api_keys_title">Κλειδιά API</string>
+    <string name="api_keys_unnamed">Κλειδί χωρίς όνομα</string>
     <string name="app_excluded_toast">Η εφαρμογή %1$s θα παρακάμπτει το VPN</string>
     <string name="app_included_toast">Η εφαρμογή %1$s θα δρομολογείται μέσω του VPN</string>
     <string name="app_pinned_toast">Η εφαρμογή %1$s θα χρησιμοποιεί έναν πάροχο</string>
@@ -439,6 +459,7 @@
     <string name="dns_settings_unavailable">Οι ρυθμίσεις DNS δεν είναι διαθέσιμες</string>
     <string name="dns_using_recommended">Χρήση προτεινόμενων ρυθμίσεων περιοχής</string>
     <string name="dns_using_secure">Χρήση των πιο ασφαλών προεπιλογών</string>
+    <string name="done">Τέλος</string>
     <string name="dont_see_it">Δεν το βλέπεις;</string>
     <string name="earn_more_bullet_stay_connected">Μείνετε συνδεδεμένοι καθημερινά = Κερδίστε έως %1$s GiB/ημέρα</string>
     <string name="earning_multipliers">Πολλαπλασιαστές κερδών</string>

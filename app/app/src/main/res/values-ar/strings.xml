@@ -26,6 +26,26 @@
     <string name="amount">المبلغ</string>
     <string name="anonymous">مجهول</string>
     <string name="api_error_contact">إذا استمرت المشكلة، تواصل معنا على %1$s أو انضم إلى %2$s الخاص بنا للحصول على دعم مباشر.</string>
+    <string name="api_keys_copied">تم النسخ</string>
+    <string name="api_keys_copy">نسخ المفتاح</string>
+    <string name="api_keys_create">إنشاء مفتاح API</string>
+    <string name="api_keys_create_failed">تعذّر إنشاء مفتاح API. حاول مرة أخرى.</string>
+    <string name="api_keys_created_at">تاريخ الإنشاء: %1$s</string>
+    <string name="api_keys_created_title">مفتاح API الجديد</string>
+    <string name="api_keys_created_warning">انسخ هذا المفتاح الآن. لن يظهر مرة أخرى، ويمكن لأي شخص يملكه استخدام حسابك.</string>
+    <string name="api_keys_delete">حذف</string>
+    <string name="api_keys_delete_confirm_body">سيتوقف «%1$s» عن العمل فورًا، وسيفقد كل ما يستخدمه إمكانية الوصول.</string>
+    <string name="api_keys_delete_confirm_title">هل تريد حذف مفتاح API هذا؟</string>
+    <string name="api_keys_delete_failed">تعذّر حذف مفتاح API. حاول مرة أخرى.</string>
+    <string name="api_keys_docs_link">كيفية استخدام مفاتيح API</string>
+    <string name="api_keys_empty">ليس لديك أي مفاتيح API.</string>
+    <string name="api_keys_id">المعرّف %1$s</string>
+    <string name="api_keys_intro">تتيح مفاتيح API لأدواتك ونصوصك البرمجية الخاصة استخدام حسابك على URnetwork من خلال API. يحصل أي شخص لديه مفتاح على وصول كامل إلى حسابك إلى أن تحذفه.</string>
+    <string name="api_keys_load_failed">تعذّر تحميل مفاتيح API الخاصة بك. حاول مرة أخرى.</string>
+    <string name="api_keys_name_label">اسم المفتاح</string>
+    <string name="api_keys_name_placeholder">مثلًا: الخادم المنزلي</string>
+    <string name="api_keys_title">مفاتيح API</string>
+    <string name="api_keys_unnamed">مفتاح بلا اسم</string>
     <string name="app_excluded_toast">سيتجاوز %1$s شبكة VPN</string>
     <string name="app_included_toast">سيتم توجيه %1$s عبر VPN</string>
     <string name="app_pinned_toast">سيستخدم %1$s مزودًا واحدًا</string>
@@ -439,6 +459,7 @@
     <string name="dns_settings_unavailable">إعدادات DNS غير متاحة</string>
     <string name="dns_using_recommended">استخدام الإعدادات الإقليمية الموصى بها</string>
     <string name="dns_using_secure">استخدام الإعدادات الافتراضية الأكثر أمانًا</string>
+    <string name="done">تم</string>
     <string name="dont_see_it">ألا تراه؟</string>
     <string name="earn_more_bullet_stay_connected">البقاء متصلاً يوميًا = اربح حتى %1$s GiB/يوم</string>
     <string name="earning_multipliers">مضاعفات الأرباح</string>

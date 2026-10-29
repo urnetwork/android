@@ -26,6 +26,26 @@
     <string name="amount">Částka</string>
     <string name="anonymous">Anonymní</string>
     <string name="api_error_contact">Pokud problém přetrvává, kontaktujte nás na %1$s nebo se připojte k našemu %2$s pro přímou podporu.</string>
+    <string name="api_keys_copied">Zkopírováno</string>
+    <string name="api_keys_copy">Kopírovat klíč</string>
+    <string name="api_keys_create">Vytvořit klíč API</string>
+    <string name="api_keys_create_failed">Klíč API se nepodařilo vytvořit. Zkuste to znovu.</string>
+    <string name="api_keys_created_at">Vytvořeno: %1$s</string>
+    <string name="api_keys_created_title">Váš nový klíč API</string>
+    <string name="api_keys_created_warning">Zkopírujte si tento klíč hned teď. Znovu se už nezobrazí a kdokoli, kdo ho má, může používat váš účet.</string>
+    <string name="api_keys_delete">Odstranit</string>
+    <string name="api_keys_delete_confirm_body">„%1$s“ okamžitě přestane fungovat a vše, co ho používá, ztratí přístup.</string>
+    <string name="api_keys_delete_confirm_title">Odstranit tento klíč API?</string>
+    <string name="api_keys_delete_failed">Klíč API se nepodařilo odstranit. Zkuste to znovu.</string>
+    <string name="api_keys_docs_link">Jak používat klíče API</string>
+    <string name="api_keys_empty">Nemáte žádné klíče API.</string>
+    <string name="api_keys_id">ID %1$s</string>
+    <string name="api_keys_intro">Klíče API umožňují vašim vlastním nástrojům a skriptům používat váš účet URnetwork přes API. Kdokoli, kdo má klíč, má k vašemu účtu plný přístup, dokud ho neodstraníte.</string>
+    <string name="api_keys_load_failed">Klíče API se nepodařilo načíst. Zkuste to znovu.</string>
+    <string name="api_keys_name_label">Název klíče</string>
+    <string name="api_keys_name_placeholder">Například domácí server</string>
+    <string name="api_keys_title">Klíče API</string>
+    <string name="api_keys_unnamed">Klíč bez názvu</string>
     <string name="app_excluded_toast">%1$s bude obcházet VPN</string>
     <string name="app_included_toast">%1$s bude používat VPN</string>
     <string name="app_pinned_toast">%1$s bude používat jednoho poskytovatele</string>
@@ -439,6 +459,7 @@
     <string name="dns_settings_unavailable">Nastavení DNS není k dispozici</string>
     <string name="dns_using_recommended">Používáte doporučené regionální nastavení</string>
     <string name="dns_using_secure">Používáte nejbezpečnější výchozí nastavení</string>
+    <string name="done">Hotovo</string>
     <string name="dont_see_it">Nevidíš to?</string>
     <string name="earn_more_bullet_stay_connected">Zůstaňte připojeni denně = Získejte až %1$s GiB/den</string>
     <string name="earning_multipliers">Násobitele výdělku</string>
