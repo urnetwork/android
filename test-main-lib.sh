@@ -3059,3 +3059,59 @@ android_acceptance_uninstall_package() {
     "$uninstall_status" "$absence_status" >>"$log_file"
   return "$absence_status"
 }
+
+# The tabletop job (apple/DUO.md item 7) runs once per canonical acceptance
+# run, on the GitHub flavor when the run has it and else on Play: the two that
+# run on the owned emulator. Launch-only smoke runs and diagnostics skip it.
+# Prints the target, or nothing when the run has no tabletop job.
+android_acceptance_tabletop_target() {
+  local execution_mode="$1" smoke_only="$2" target
+  shift 2
+  [ "$execution_mode" = canonical ] && [ "$smoke_only" = 0 ] || return 0
+  for target in github play; do
+    case " $* " in
+      *" $target "*) printf '%s\n' "$target"; return 0 ;;
+    esac
+  done
+}
+
+# Runs the tabletop job: ConnectTabletopTest on the Gradle Managed Device that
+# app/app/build.gradle defines, a Pixel Fold. Gradle builds the flavor's debug
+# and test APKs, creates and boots that emulator, runs the one test class and
+# shuts the emulator down; it never touches the acceptance AVD or a fleet
+# device. Espresso Device folds it through the emulator console, which AGP
+# grants only with emulator control on. A first run boots the device cold to
+# save its snapshot, which can outlast AGP's default setup limit on a busy
+# host, so the limit is 30 minutes. Remaining arguments go to Gradle.
+android_acceptance_run_tabletop_job() {
+  local app_dir="$1" root="$2" flavor="$3" device="$4" test_scope="$5" build_id="$6"
+  shift 6
+  [ -d "$app_dir" ] || return 2
+  case "$flavor" in Github|Play) ;; *) return 2 ;; esac
+  [[ "$device" =~ ^[A-Za-z0-9]+$ ]] || return 2
+  [[ "$test_scope" =~ ^[A-Za-z0-9_.]+$ ]] || return 2
+  [[ "$build_id" =~ ^[A-Za-z0-9._-]+$ ]] || return 2
+  (
+    cd "$app_dir" || exit 2
+    BRINGYOUR_HOME="$root" timeout 3600 ./gradlew \
+      ":app:${device}${flavor}DebugAndroidTest" \
+      -Pandroid.experimental.androidTest.enableEmulatorControl=true \
+      -Pandroid.experimental.testOptions.managedDevices.setupTimeoutMinutes=30 \
+      "-Pandroid.testInstrumentationRunnerArguments.class=$test_scope" \
+      "-PurnetworkAcceptanceBuildId=$build_id" \
+      "$@"
+  )
+}
+
+# Copies the managed device's JUnit results and logcat for the flavor (what
+# Gradle wrote under build/outputs/androidTest-results/managedDevice) beside
+# the job's log. A run that never reached the device has none to copy.
+android_acceptance_collect_tabletop_results() {
+  local build_dir="$1" flavor="$2" device="$3" destination="$4" variant results
+  variant="$(printf '%s' "$flavor" | tr '[:upper:]' '[:lower:]')Debug"
+  results="$build_dir/outputs/androidTest-results/managedDevice/$variant/$device"
+  [ -d "$results" ] || return 1
+  mkdir -p "$destination/results" || return 1
+  cp -R "$results/." "$destination/results/" || return 1
+  chmod -R go-rwx "$destination/results" || return 1
+}

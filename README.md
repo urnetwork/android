@@ -98,6 +98,57 @@ GOMAXPROCS=2 bash test-main-reporting.test.sh
 GOMAXPROCS=2 bash test-main.test.sh
 ```
 
+### Window size tests
+
+Screenshot tests draw the connect screen and the Account and Leaderboard
+list-detail layouts in four windows: compact, medium and expanded width, and
+compact height (`WindowSizes.kt`), in the navigation frame MainNavHost gives
+them. They run on the JVM: Robolectric's native graphics draws them and
+Roborazzi compares each with its PNG baseline in
+`app/app/src/testPlayDebug/screenshots/`. The sources are in
+`app/app/src/testPlayDebug/java/com/bringyour/network/screenshots/`. Both
+libraries are `testPlayDebugImplementation` only, so no app build resolves
+them, the F-Droid (github) build included.
+
+`./gradlew :app:testPlayDebugUnitTest` verifies them with the other JVM tests.
+A mismatch fails the test and writes `<name>_compare.png` under
+`app/app/build/outputs/roborazzi/`. After an intended layout change, re-record
+the baselines with one command, from `app/`:
+
+```bash
+./gradlew :app:testPlayDebugUnitTest -Pscreenshots=record --tests 'com.bringyour.network.screenshots.*'
+```
+
+`-Pscreenshots=compare` writes the comparisons without failing.
+
+The tabletop job, `ConnectTabletopTest`, folds a Pixel Fold into tabletop and
+checks that connect's canvas sits above the fold and its controls below it.
+It runs on a Gradle Managed Device (`pixelFoldApi36`), which Gradle creates,
+boots and shuts down; `test-main.sh` runs it once per acceptance run. To run it
+on its own, from `app/`:
+
+```bash
+./gradlew :app:pixelFoldApi36GithubDebugAndroidTest \
+    -Pandroid.experimental.androidTest.enableEmulatorControl=true \
+    -Pandroid.experimental.testOptions.managedDevices.setupTimeoutMinutes=30 \
+    -Pandroid.testInstrumentationRunnerArguments.class=com.bringyour.network.ui.connect.ConnectTabletopTest
+```
+
+The first run boots the device cold to save a snapshot, which can outlast
+AGP's default setup limit on a busy machine; hence the 30 minutes. Gradle keeps
+the device's AVD for the next run. `./gradlew cleanManagedDevices` deletes it.
+
+On a foldable emulator you start yourself, start it with its gRPC console
+behind a token (`emulator -avd <foldable AVD> -grpc 8570 -grpc-use-jwt`):
+without one, AGP refuses emulator control and Espresso Device cannot fold it.
+Then name that emulator, so no other device is used:
+
+```bash
+ANDROID_SERIAL=emulator-5570 ./gradlew :app:connectedPlayDebugAndroidTest \
+    -Pandroid.experimental.androidTest.enableEmulatorControl=true \
+    -Pandroid.testInstrumentationRunnerArguments.class=com.bringyour.network.ui.connect.ConnectTabletopTest
+```
+
 To take a screencap
 
 ```

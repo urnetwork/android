@@ -72,8 +72,8 @@ rm -rf "$workflow_dir"
 grep -Fq 'gradle_worker_args=(--max-workers "$android_parallelism")' "$here/test-main.sh" || \
   fail "positive GOMAXPROCS is not mapped to Gradle workers"
 # shellcheck disable=SC2016
-[ "$(grep -Fc '${gradle_worker_args[@]+"${gradle_worker_args[@]}"}' "$here/test-main.sh")" -eq 2 ] || \
-  fail "both Android Gradle invocations do not safely consume the optional worker override"
+[ "$(grep -Fc '${gradle_worker_args[@]+"${gradle_worker_args[@]}"}' "$here/test-main.sh")" -eq 3 ] || \
+  fail "the SDK, cell and tabletop Gradle invocations do not all safely consume the optional worker override"
 # Exercise the exact production vectors on /bin/bash (macOS Bash 3.2) as well
 # as the selected Bash, including absent overrides and unrelated shell errors.
 go -C "$here" test test-main-gradle-workers_test.go -count=1
@@ -3860,6 +3860,65 @@ grep -Fq 'android_acceptance_wait_for_runner_owned_emulator' "$runner_source" ||
   fail "fallback AVD does not wait for its exact guest ownership evidence"
 [ "$(grep -Fc 'android_acceptance_stop_emulator_child' "$runner_source")" -eq 3 ] || \
   fail "fallback, early peer, and normal peer cleanup do not join exact children"
+
+# The tabletop job runs once per canonical run, on GitHub when the run has it
+# and else on Play, and never in smoke or diagnostic runs.
+[ "$(android_acceptance_tabletop_target canonical 0 github play solana_dapp fdroid)" = github ] || \
+  fail "the full matrix does not run the tabletop job on GitHub"
+[ "$(android_acceptance_tabletop_target canonical 0 solana_dapp play)" = play ] || \
+  fail "a run without GitHub does not run the tabletop job on Play"
+for tabletop_skip in 'canonical 0 solana_dapp fdroid' 'canonical 1 github' 'diagnostic 0 github'; do
+  # shellcheck disable=SC2086
+  [ -z "$(android_acceptance_tabletop_target $tabletop_skip)" ] || \
+    fail "the tabletop job ran for: $tabletop_skip"
+done
+# The job's exact Gradle vector, run against a stub timeout in a fixture app
+# directory: the managed device's task for the flavor, emulator control, the
+# setup limit, the one class, the cell's build id, then the caller's arguments.
+tabletop_fixture="$(mktemp -d "${TMPDIR:-/tmp}/urnetwork-android-tabletop.test.XXXXXX")"
+mkdir -p "$tabletop_fixture/app"
+tabletop_argv="$(
+  timeout() { printf '%s|%s|' "$PWD" "$BRINGYOUR_HOME"; printf '%s ' "$@"; }
+  android_acceptance_run_tabletop_job "$tabletop_fixture/app" /fixture-root Github \
+    pixelFoldApi36 com.bringyour.network.ui.connect.ConnectTabletopTest fixture-build \
+    --max-workers 7
+)"
+tabletop_app_dir="$(cd "$tabletop_fixture/app" && pwd)"
+[ "$tabletop_argv" = "$tabletop_app_dir|/fixture-root|3600 ./gradlew :app:pixelFoldApi36GithubDebugAndroidTest -Pandroid.experimental.androidTest.enableEmulatorControl=true -Pandroid.experimental.testOptions.managedDevices.setupTimeoutMinutes=30 -Pandroid.testInstrumentationRunnerArguments.class=com.bringyour.network.ui.connect.ConnectTabletopTest -PurnetworkAcceptanceBuildId=fixture-build --max-workers 7 " ] || \
+  fail "the tabletop job's Gradle vector changed: $tabletop_argv"
+for tabletop_invalid in \
+  "$tabletop_fixture/missing Root Github pixelFoldApi36 a.B b" \
+  "$tabletop_fixture/app Root Solana_dapp pixelFoldApi36 a.B b" \
+  "$tabletop_fixture/app Root Github pixel-fold a.B b" \
+  "$tabletop_fixture/app Root Github pixelFoldApi36 a;B b" \
+  "$tabletop_fixture/app Root Github pixelFoldApi36 a.B b/c"; do
+  # shellcheck disable=SC2086
+  if ( timeout() { return 0; }; android_acceptance_run_tabletop_job $tabletop_invalid ); then
+    fail "the tabletop job accepted: $tabletop_invalid"
+  fi
+done
+# Results are copied from the flavor's managed-device folder, private.
+mkdir -p "$tabletop_fixture/build/outputs/androidTest-results/managedDevice/githubDebug/pixelFoldApi36"
+printf '<testsuite/>\n' \
+  >"$tabletop_fixture/build/outputs/androidTest-results/managedDevice/githubDebug/pixelFoldApi36/TEST-tabletop.xml"
+android_acceptance_collect_tabletop_results \
+  "$tabletop_fixture/build" Github pixelFoldApi36 "$tabletop_fixture/out" || \
+  fail "the tabletop job's managed-device results were not collected"
+[ -f "$tabletop_fixture/out/results/TEST-tabletop.xml" ] || \
+  fail "the tabletop job's JUnit result was not kept"
+if android_acceptance_collect_tabletop_results \
+    "$tabletop_fixture/build" Play pixelFoldApi36 "$tabletop_fixture/out-play"; then
+  fail "a flavor without managed-device results reported collected results"
+fi
+rm -rf "$tabletop_fixture"
+# shellcheck disable=SC2016
+grep -Fq 'tabletop_target="$(android_acceptance_tabletop_target "$execution_mode" "$smoke_only" $targets)"' \
+  "$runner_source" || \
+  fail "the runner does not choose its tabletop target"
+grep -Fq 'android_acceptance_run_tabletop_job \' "$runner_source" || \
+  fail "the runner does not run the tabletop job"
+grep -Fq '"$tabletop_out" "$tabletop_target" tabletop failed "$tabletop_status"' "$runner_source" || \
+  fail "a failed tabletop job is not recorded as its own phase"
 
 bash "$here/test-main-p2p.test.sh"
 bash "$here/test-main-observation.test.sh"

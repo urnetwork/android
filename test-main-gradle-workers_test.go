@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-// Run both production Gradle argument vectors, not a retyped approximation.
+// Run every production Gradle argument vector, not a retyped approximation.
 // timeout is a local argv/exit stub: no build, device, account or network access.
 func TestAcceptanceGradleWorkerArgumentsUnderNounset(t *testing.T) {
 	data, err := os.ReadFile("test-main.sh")
@@ -49,6 +49,24 @@ func TestAcceptanceGradleWorkerArgumentsUnderNounset(t *testing.T) {
 		t.Fatal("unterminated application argument vector")
 	}
 	app = app[:appEnd]
+	// The tabletop job's call, from its first line to its log pipe, run in a
+	// fixture app directory with the runner's job variables.
+	tabletopStart := strings.Index(source, "  android_acceptance_run_tabletop_job \\\n")
+	if tabletopStart < 0 {
+		t.Fatal("production tabletop command boundary changed")
+	}
+	tabletop := source[tabletopStart:]
+	tabletopEnd := strings.Index(tabletop, " \\\n    2>&1 | tee")
+	if tabletopEnd < 0 {
+		t.Fatal("unterminated tabletop argument vector")
+	}
+	tabletopHere := t.TempDir()
+	if err := os.Mkdir(filepath.Join(tabletopHere, "app"), 0o700); err != nil {
+		t.Fatal(err)
+	}
+	tabletop = "here='" + tabletopHere + "'\ntabletop_flavor=Github\ntabletop_managed_device=pixelFoldApi36\n" +
+		"tabletop_test_scope=com.bringyour.network.ui.connect.ConnectTabletopTest\ntabletop_build_id=fixture-build\n" +
+		tabletop[:tabletopEnd]
 	library, err := filepath.Abs("test-main-lib.sh")
 	if err != nil {
 		t.Fatal(err)
@@ -62,7 +80,12 @@ func TestAcceptanceGradleWorkerArgumentsUnderNounset(t *testing.T) {
 			name, source string
 			want         []string
 		}{{"sdk", sdk, []string{"3600", "./gradlew", ":app:buildSdkAcceptance"}},
-			{"app", app, []string{"3600", "./gradlew", ":app:assembleGithubDebug", ":app:assembleGithubDebugAndroidTest", "-PurnetworkAcceptanceBuildId=fixture-build"}}} {
+			{"app", app, []string{"3600", "./gradlew", ":app:assembleGithubDebug", ":app:assembleGithubDebugAndroidTest", "-PurnetworkAcceptanceBuildId=fixture-build"}},
+			{"tabletop", tabletop, []string{"3600", "./gradlew", ":app:pixelFoldApi36GithubDebugAndroidTest",
+				"-Pandroid.experimental.androidTest.enableEmulatorControl=true",
+				"-Pandroid.experimental.testOptions.managedDevices.setupTimeoutMinutes=30",
+				"-Pandroid.testInstrumentationRunnerArguments.class=com.bringyour.network.ui.connect.ConnectTabletopTest",
+				"-PurnetworkAcceptanceBuildId=fixture-build"}}} {
 			for _, workers := range []string{"unset", "", "0", "invalid", "7", "0007"} {
 				t.Run(shell+"/"+command.name+"/"+workers, func(t *testing.T) {
 					for _, mode := range []string{"normal", "child-failure", "unrelated-unset"} {

@@ -282,6 +282,14 @@ sdk_root="${ANDROID_SDK_ROOT:-${ANDROID_HOME:-$HOME/Library/Android/sdk}}"
 adb="$sdk_root/platform-tools/adb"
 emulator="$sdk_root/emulator/emulator"
 avd_name="${UR_ACCEPT_ANDROID_AVD:-urnetwork-acceptance}"
+# The tabletop job (apple/DUO.md item 7): ConnectTabletopTest folds a Pixel
+# Fold into tabletop and checks connect's split at the fold. It runs once, after
+# the device/flavor cells, on its own Gradle Managed Device (app/app/build.gradle),
+# which Gradle creates, boots and shuts down; never on $avd_name or a fleet device.
+tabletop_managed_device=pixelFoldApi36
+tabletop_test_scope="com.bringyour.network.ui.connect.ConnectTabletopTest"
+# shellcheck disable=SC2086
+tabletop_target="$(android_acceptance_tabletop_target "$execution_mode" "$smoke_only" $targets)"
 tools_dir="${UR_ACCEPT_ANDROID_TOOLS:-$root/build/all/android/.acceptance-tools}"
 case "$tools_dir" in
   /*) ;;
@@ -2665,6 +2673,45 @@ if android_acceptance_manages_account_fixture "$execution_mode" "$smoke_only" &&
     rm -f "$fixture"
   else
     echo "could not delete instant-account fixture; retained at $fixture" >&2
+    overall=1
+  fi
+fi
+
+# The tabletop job, measured on its own like the USDC quote case, once the
+# peer emulator is gone and the account fixture is settled: its result never
+# decides whether the fixture is kept. It reuses the target's build id, so
+# Gradle reuses the APKs the cell above built.
+if [ "$unsafe_stop" -eq 0 ] && [ -n "$tabletop_target" ]; then
+  tabletop_flavor="$(gradle_flavor "$tabletop_target")"
+  tabletop_build_id="${timestamp}-${tabletop_target}"
+  tabletop_out="$artifacts/tabletop/$tabletop_target"
+  tabletop_repro="./gradlew :app:${tabletop_managed_device}${tabletop_flavor}DebugAndroidTest -Pandroid.experimental.androidTest.enableEmulatorControl=true -Pandroid.experimental.testOptions.managedDevices.setupTimeoutMinutes=30 -Pandroid.testInstrumentationRunnerArguments.class=$tabletop_test_scope"
+  mkdir -p "$tabletop_out"
+  echo
+  echo "[android acceptance] ════════ tabletop $tabletop_target on $tabletop_managed_device ════════"
+  set +e
+  android_acceptance_run_tabletop_job \
+    "$here/app" "$root" "$tabletop_flavor" "$tabletop_managed_device" \
+    "$tabletop_test_scope" "$tabletop_build_id" \
+    ${gradle_worker_args[@]+"${gradle_worker_args[@]}"} \
+    2>&1 | tee "$tabletop_out/tabletop.log"
+  tabletop_status=${PIPESTATUS[0]}
+  set -e
+  android_acceptance_collect_tabletop_results \
+    "$here/app/app/build" "$tabletop_flavor" "$tabletop_managed_device" "$tabletop_out" || \
+    echo "[android acceptance] the tabletop job left no managed-device results" >&2
+  if [ "$tabletop_status" -eq 0 ]; then
+    record_acceptance_result \
+      "$tabletop_out" "$tabletop_target" tabletop passed 0 \
+      "$tabletop_repro" "$tabletop_build_id" "" "$tabletop_out/tabletop.log" \
+      "$tabletop_test_scope" || overall=1
+    echo "[android acceptance] tabletop split passed on $tabletop_managed_device"
+  else
+    record_acceptance_result \
+      "$tabletop_out" "$tabletop_target" tabletop failed "$tabletop_status" \
+      "$tabletop_repro" "$tabletop_build_id" "" "$tabletop_out/tabletop.log" \
+      "$tabletop_test_scope" || overall=1
+    echo "[android acceptance] tabletop job failed on $tabletop_managed_device; see $tabletop_out" >&2
     overall=1
   fi
 fi
