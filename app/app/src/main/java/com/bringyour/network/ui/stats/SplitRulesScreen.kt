@@ -16,9 +16,11 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -487,7 +489,7 @@ private fun SplitRuleRow(
 // locally" when a local split rule can override it.
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun BlockActionRow(
+internal fun BlockActionRow(
     action: BlockActionUi,
     onClick: () -> Unit,
     onRouteLocal: () -> Unit,
@@ -556,7 +558,8 @@ private fun BlockActionRow(
             }
 
             if (action.safetyRule) {
-                Spacer(modifier = Modifier.height(6.dp))
+                // no spacer: the line is 48 dp tall to touch, its info icon
+                // and "Route locally" (Touch_Targets)
                 SafetyRuleLine(
                     offersRouteLocal = action.offersRouteLocal,
                     onRouteLocal = onRouteLocal,
@@ -600,8 +603,6 @@ private fun SafetyRuleLine(
             highlighted = false
         )
 
-        Spacer(modifier = Modifier.width(6.dp))
-
         InfoIconWithOverlay(
             contentDescription = stringResource(id = R.string.safety_rule)
         ) {
@@ -622,14 +623,15 @@ private fun SafetyRuleLine(
         }
 
         if (offersRouteLocal) {
-            Spacer(modifier = Modifier.width(10.dp))
             Text(
                 stringResource(id = R.string.add_local_split_rule),
                 style = TextStyle(fontSize = 11.sp, fontWeight = FontWeight.Medium),
                 color = Green,
                 modifier = Modifier
                     .clickable { onRouteLocal() }
-                    .padding(vertical = 3.dp)
+                    // 48 dp to touch, the text in the middle (Touch_Targets)
+                    .heightIn(min = 48.dp)
+                    .wrapContentHeight()
             )
         }
     }

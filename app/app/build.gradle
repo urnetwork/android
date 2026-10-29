@@ -733,6 +733,9 @@ dependencies {
     testPlayDebugImplementation 'org.robolectric:robolectric:4.17'
     testPlayDebugImplementation 'io.github.takahirom.roborazzi:roborazzi:1.77.0'
     testPlayDebugImplementation 'io.github.takahirom.roborazzi:roborazzi-compose:1.77.0'
+    // the Accessibility Scanner's touch target check (Google's Accessibility
+    // Test Framework) on the same screens (checkTouchTargets)
+    testPlayDebugImplementation 'io.github.takahirom.roborazzi:roborazzi-accessibility-check:1.77.0'
 
     // Android Studio Preview support
     implementation 'androidx.compose.ui:ui-tooling-preview:1.11.2'

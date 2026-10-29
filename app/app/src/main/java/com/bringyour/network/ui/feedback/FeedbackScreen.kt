@@ -344,7 +344,8 @@ private fun FeedbackForm(
             keyboardController = keyboardController
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        // the switch's 48 dp touch target fills the rest
+        Spacer(modifier = Modifier.height(4.dp))
 
         Row(
             modifier = Modifier

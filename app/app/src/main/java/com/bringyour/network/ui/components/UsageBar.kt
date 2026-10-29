@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -210,10 +211,10 @@ fun UsageBar(
             )
         }
 
-        Spacer(modifier = Modifier.height(8.dp))
-
         /**
-         * Data breakdown
+         * Data breakdown. The balance line opens the data info sheet, so it
+         * is 48 dp tall to touch (Touch_Targets); the room above and below
+         * its text replaces the spacers around it
          */
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -222,7 +223,9 @@ fun UsageBar(
         ) {
             val dataInfoLabel = stringResource(id = R.string.data_info_title)
             Row(
-                modifier = Modifier.clickable(role = Role.Button) { dataInfoPresented = true },
+                modifier = Modifier
+                    .clickable(role = Role.Button) { dataInfoPresented = true }
+                    .heightIn(min = 48.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
@@ -262,22 +265,25 @@ fun UsageBar(
             return@Column
         }
 
-        Spacer(modifier = Modifier.height(8.dp))
-
         HorizontalDivider()
 
-        Spacer(modifier = Modifier.height(8.dp))
+        if (onReferralClick == null) {
+            Spacer(modifier = Modifier.height(8.dp))
+        }
 
         /**
          * referrals. tapping opens the referral flow, to make it easy to
-         * refer people from anywhere the bar is shown
+         * refer people from anywhere the bar is shown. A tappable row is 48 dp
+         * tall, like the balance line, and needs no spacer
          */
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .then(
                     if (onReferralClick != null) {
-                        Modifier.clickable { onReferralClick() }
+                        Modifier
+                            .clickable { onReferralClick() }
+                            .heightIn(min = 48.dp)
                     } else {
                         Modifier
                     }

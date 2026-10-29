@@ -34,13 +34,18 @@ class AdaptiveLayoutTest {
         WindowFold(vertical = true, start = width / 2f, end = width / 2f, separating = false)
 
     @Test
-    fun navigationIsTheRailOnlyAtExpandedWidth() {
+    fun navigationIsTheRailFromMediumWidth() {
         assertEquals(NavigationLayout.BottomBar, navigationLayoutFor(phonePortrait.first, phonePortrait.second, tabletop = false))
-        assertEquals(NavigationLayout.BottomBar, navigationLayoutFor(fold8InnerPortrait.first, fold8InnerPortrait.second, tabletop = false))
-        // the near-square inner screen keeps the bar in both orientations: it
-        // never crosses the 840dp line, so rotating it changes nothing
-        assertEquals(NavigationLayout.BottomBar, navigationLayoutFor(pixelFoldInner.first, pixelFoldInner.second, tabletop = false))
-        assertEquals(NavigationLayout.BottomBar, navigationLayoutFor(pixelFoldInner.second, pixelFoldInner.first, tabletop = false))
+        assertEquals(NavigationLayout.BottomBar, navigationLayoutFor(flipCover.first, flipCover.second, tabletop = false))
+        assertEquals(NavigationLayout.BottomBar, navigationLayoutFor(599f, 900f, tabletop = false))
+        assertEquals(NavigationLayout.Rail, navigationLayoutFor(600f, 900f, tabletop = false))
+        // a book-style foldable open and upright, and a tablet held upright
+        assertEquals(NavigationLayout.Rail, navigationLayoutFor(fold8InnerPortrait.first, fold8InnerPortrait.second, tabletop = false))
+        assertEquals(NavigationLayout.Rail, navigationLayoutFor(tabletLandscape.second, tabletLandscape.first, tabletop = false))
+        // the near-square inner screen keeps the rail in both orientations, so
+        // rotating it changes nothing
+        assertEquals(NavigationLayout.Rail, navigationLayoutFor(pixelFoldInner.first, pixelFoldInner.second, tabletop = false))
+        assertEquals(NavigationLayout.Rail, navigationLayoutFor(pixelFoldInner.second, pixelFoldInner.first, tabletop = false))
         assertEquals(NavigationLayout.Rail, navigationLayoutFor(fold8InnerLandscape.first, fold8InnerLandscape.second, tabletop = false))
         assertEquals(NavigationLayout.Rail, navigationLayoutFor(tabletLandscape.first, tabletLandscape.second, tabletop = false))
         assertEquals(NavigationLayout.Rail, navigationLayoutFor(largeDesktop.first, largeDesktop.second, tabletop = false))
@@ -50,6 +55,8 @@ class AdaptiveLayoutTest {
     fun navigationIsTheBarInTabletopAndInShortWindows() {
         // a full-height rail would cross the fold
         assertEquals(NavigationLayout.BottomBar, navigationLayoutFor(fold8InnerLandscape.first, fold8InnerLandscape.second, tabletop = true))
+        // a medium-wide window under 480dp tall
+        assertEquals(NavigationLayout.BottomBar, navigationLayoutFor(700f, 479f, tabletop = false))
         // a landscape phone is expanded wide but compact tall
         assertEquals(NavigationLayout.BottomBar, navigationLayoutFor(phoneLandscape.first, phoneLandscape.second, tabletop = false))
     }

@@ -332,8 +332,8 @@ private fun MainNavHostContent(
     val connectActionsSheetState = rememberConnectDrawerState()
 
     // the bar or the rail from the window size class and posture, never the
-    // device: the rail at expanded width, the bar otherwise and in tabletop
-    // (navigationLayoutFor)
+    // device: the rail from medium width in a window at least 480 dp tall,
+    // the bar otherwise and in tabletop (navigationLayoutFor)
     val navigationLayout = navigationLayoutFor(windowLayout.widthDp, windowLayout.heightDp, windowLayout.tabletop)
     val navSuiteLayoutType = when (navigationLayout) {
         NavigationLayout.Rail -> NavigationSuiteType.NavigationRail

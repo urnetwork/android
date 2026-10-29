@@ -113,7 +113,8 @@ fun AddBlockedLocationSheet(
                         )
                     }
 
-                    Spacer(modifier = Modifier.height(24.dp))
+                    // the search field keeps 6 dp of its own below
+                    Spacer(modifier = Modifier.height(18.dp))
 
                 }
 

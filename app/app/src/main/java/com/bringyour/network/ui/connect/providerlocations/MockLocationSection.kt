@@ -90,8 +90,6 @@ fun MockLocationSection(
                     color = Color.White,
                 )
 
-                Spacer(modifier = Modifier.width(8.dp))
-
                 InfoIconWithOverlay {
                     Column {
                         Text(stringResource(id = R.string.mock_location_guide_intro))
@@ -150,7 +148,6 @@ fun MockLocationSection(
 
             else -> stringResource(id = R.string.use_most_stable_provider)
         }
-        Spacer(modifier = Modifier.height(4.dp))
         Text(
             label,
             style = MaterialTheme.typography.bodySmall,

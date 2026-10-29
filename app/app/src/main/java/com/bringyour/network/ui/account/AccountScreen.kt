@@ -336,8 +336,6 @@ fun AccountScreenContent(
                     },
                     showFreeRefresh = dataInfoShowsFreeRefresh(currentPlan),
                 )
-                
-                Spacer(modifier = Modifier.height(8.dp))
 
                 /**
                  * "Redeem balance code" gets its own row, as a full-width touch target.

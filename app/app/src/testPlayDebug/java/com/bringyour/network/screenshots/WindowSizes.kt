@@ -16,9 +16,9 @@ object WindowSizes {
 
     /**
      * Medium width, a book-style foldable open and upright (the Galaxy Z
-     * Fold8's inner screen, DUO.md): still the bottom bar, connect stacked
-     * (the graphic above, the statistics and connect below), and Account and
-     * Leaderboard list-detail.
+     * Fold8's inner screen, DUO.md): the rail, connect stacked (the graphic
+     * above, the statistics and connect below), and Account and Leaderboard
+     * list-detail.
      */
     const val MEDIUM = "w704dp-h933dp-port-xhdpi"
 

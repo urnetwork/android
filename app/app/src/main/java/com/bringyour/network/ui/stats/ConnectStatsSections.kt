@@ -293,7 +293,8 @@ fun BlockerTogglePanel(
                 MainTintedBackgroundBase,
                 shape = RoundedCornerShape(12.dp)
             )
-            .padding(16.dp),
+            // the switch's 48 dp touch target fills the rest of the height
+            .padding(horizontal = 16.dp, vertical = 2.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {

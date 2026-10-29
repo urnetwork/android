@@ -421,7 +421,9 @@ private fun LeaderboardHeader(
                 .padding(
                     start = 16.dp,
                     top = 16.dp,
-                    bottom = 10.dp, // hacky due to line-height issue
+                    // hacky due to line-height issue; the last row's switch
+                    // fills the rest with its 48 dp touch target
+                    bottom = 6.dp,
                     end = 16.dp
                 )
         ) {
@@ -484,7 +486,8 @@ private fun LeaderboardHeader(
                     HorizontalDivider()
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                // the switch's 48 dp touch target fills the rest
+                Spacer(modifier = Modifier.height(4.dp))
 
                 Row(
                     modifier = Modifier
@@ -509,9 +512,6 @@ private fun LeaderboardHeader(
                         },
                     )
                 }
-
-                Spacer(modifier = Modifier.height(8.dp))
-
 
             }
         }

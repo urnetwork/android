@@ -255,9 +255,10 @@ fun MockLocationGuideScreen(
                 )
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
-
             if (state.setupComplete && state.status != MockLocationStatus.ORPHANED) {
+                // the switch's 48 dp touch target fills the rest of the 24 dp
+                // above and below its row
+                Spacer(modifier = Modifier.height(10.dp))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -279,12 +280,15 @@ fun MockLocationGuideScreen(
                         color = Green,
                         modifier = Modifier.weight(1f),
                     )
-                    Spacer(modifier = Modifier.width(8.dp))
+                    // the switch's touch target adds 6 dp of its own
+                    Spacer(modifier = Modifier.width(2.dp))
                     URSwitch(
                         checked = state.enabled,
                         toggle = { viewModel.setEnabled(!state.enabled) },
                     )
                 }
+                Spacer(modifier = Modifier.height(10.dp))
+            } else {
                 Spacer(modifier = Modifier.height(24.dp))
             }
 

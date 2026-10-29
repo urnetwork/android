@@ -182,7 +182,8 @@ private fun VlessSettingsForm(
             color = TextMuted,
         )
 
-        Spacer(modifier = Modifier.height(24.dp))
+        // the switch's 48 dp touch target fills the rest, above and below
+        Spacer(modifier = Modifier.height(10.dp))
 
         VlessSwitchRow(
             text = stringResource(id = R.string.vless_enabled),
@@ -191,7 +192,7 @@ private fun VlessSettingsForm(
             toggle = { viewModel.update { it.copy(enabled = !it.enabled) } },
         )
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(10.dp))
 
         /**
          * The share link: a pasted link fills the whole form, and the form
@@ -348,7 +349,8 @@ private fun VlessSettingsForm(
                 toggle = { viewModel.update { it.copy(allowInsecure = !it.allowInsecure) } },
             )
 
-            Spacer(modifier = Modifier.height(24.dp))
+            // the switch's 48 dp touch target fills the rest
+            Spacer(modifier = Modifier.height(10.dp))
         }
 
         if (form.showsRealityKeys) {
@@ -558,7 +560,8 @@ private fun VlessSwitchRow(
             color = Color.White,
             modifier = Modifier.weight(1f),
         )
-        Spacer(modifier = Modifier.width(16.dp))
+        // the switch's touch target adds 6 dp of its own
+        Spacer(modifier = Modifier.width(10.dp))
         URSwitch(
             checked = checked,
             enabled = enabled,
