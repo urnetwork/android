@@ -172,9 +172,18 @@ class ProtocolLeaderboardCatalogTest {
     @Test
     fun theEarningsTileReadsItsMarginWithItsSign() {
         assertEquals("projected · +12%", top200ProjectedText(0.12, text))
-        assertEquals("projected · -8%", top200ProjectedText(-0.08, text))
+        // a minus sign, as apple writes it
+        assertEquals("projected · \u22128%", top200ProjectedText(-0.08, text))
         assertEquals("+0%", numbers.signedPercent(0.0))
         assertEquals("1,234", numbers.count(1_234))
         assertFalse(numbers.score(41.25).isEmpty())
+    }
+
+    @Test
+    fun aSmallMarginNeverReadsZero() {
+        assertEquals("0.4% above the Top 200 line", protocolMarginText(0.004, text))
+        assertEquals("0.4% below the Top 200 line", protocolMarginText(-0.004, text))
+        assertEquals("1% above the Top 200 line", protocolMarginText(0.0096, text))
+        assertEquals("0% above the Top 200 line", protocolMarginText(0.0, text))
     }
 }

@@ -97,6 +97,13 @@ class Top200TileStateTest {
     }
 
     @Test
+    fun whileEveryRowReadsEstimateANetworkNearTheLineIsWarned() {
+        // the Protocol card's rule: within 20% of the line is close (Q13, Q17)
+        val near = top200TileState(answer(185, bindingOpen = true))
+        assertEquals(true, (near as Top200TileState.Projected).borderline)
+    }
+
+    @Test
     fun outsideTheHeadSeatsOrNotMeasurableShowsNoTile() {
         assertEquals(Top200TileState.Hidden, top200TileState(answer(201)))
         assertEquals(Top200TileState.Hidden, top200TileState(answer(120, measurable = false, label = ProtocolLabel.NOT_MEASURABLE)))

@@ -5,6 +5,7 @@ import com.bringyour.network.ui.leaderboard.ProtocolFleet
 import com.bringyour.network.ui.leaderboard.ProtocolLabel
 import com.bringyour.network.ui.leaderboard.ProtocolText
 import com.bringyour.network.ui.leaderboard.ProtocolTopMe
+import com.bringyour.network.ui.leaderboard.protocolClaimPrompt
 
 /**
  * The Earnings page's Top 200 tile (apple/LEADERTOP.md §8), read from
@@ -27,7 +28,7 @@ sealed interface Top200TileState {
         val margin: Double,
         val label: ProtocolLabel?,
         val bindingOpen: Boolean,
-        // labeled borderline: the "close to the line" warning
+        // close to the line (protocolClaimPrompt): the "close to the line" warning
         val borderline: Boolean,
     ) : Top200TileState
 
@@ -63,16 +64,14 @@ fun top200TileState(answer: ProtocolTopMe?): Top200TileState {
             nearLine = row.label == ProtocolLabel.BORDERLINE,
         )
     }
-    val measurable = row.measurable && row.label != ProtocolLabel.NOT_MEASURABLE
-    if (!measurable || !row.claimPrompt) {
-        return Top200TileState.Hidden
-    }
+    // the Protocol card's own prompt rule: no tile where the card prompts nothing
+    val prompt = protocolClaimPrompt(row, answer.snapshot) ?: return Top200TileState.Hidden
     return Top200TileState.Projected(
         position = row.position,
         margin = row.margin,
         label = row.label,
         bindingOpen = bindingOpen,
-        borderline = row.label == ProtocolLabel.BORDERLINE,
+        borderline = prompt.borderline,
     )
 }
 

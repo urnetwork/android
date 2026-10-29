@@ -171,13 +171,13 @@ class ProtocolLeaderboardPresentationTest {
 
     @Test
     fun withBindingClosedTheClaimPromptIsTheOpensSoonNote() {
-        val prompt = standing(signedIn(me(row(173)), snapshot(bindingOpen = false))).prompt
+        val prompt = standing(signedIn(me(row(173, margin = 0.32)), snapshot(bindingOpen = false))).prompt
         assertEquals(ProtocolClaimPrompt(bindingOpen = false, borderline = false), prompt)
     }
 
     @Test
     fun withBindingOpenTheClaimPromptIsTheButton() {
-        val prompt = standing(signedIn(me(row(173)), snapshot(bindingOpen = true))).prompt
+        val prompt = standing(signedIn(me(row(173, margin = 0.32)), snapshot(bindingOpen = true))).prompt
         assertEquals(ProtocolClaimPrompt(bindingOpen = true, borderline = false), prompt)
     }
 
@@ -185,6 +185,28 @@ class ProtocolLeaderboardPresentationTest {
     fun aBorderlineNetworkGetsThePromptWithTheCloseToTheLineWarning() {
         val prompt = standing(signedIn(me(row(196, label = ProtocolLabel.BORDERLINE, margin = 0.03)), snapshot(bindingOpen = true))).prompt
         assertEquals(ProtocolClaimPrompt(bindingOpen = true, borderline = true), prompt)
+    }
+
+    @Test
+    fun whileEveryRowReadsEstimateTheMarginSaysWhatIsClose() {
+        // before precision reaches 90% no row is labeled borderline (Q17):
+        // within 20% of the line is close
+        assertEquals(true, protocolClaimPrompt(row(190, margin = 0.05), snapshot())?.borderline)
+        assertEquals(true, protocolClaimPrompt(row(160, margin = 0.199), snapshot())?.borderline)
+        assertEquals(false, protocolClaimPrompt(row(120, margin = 0.2), snapshot())?.borderline)
+        // once labels switch on, the label decides
+        assertEquals(false, protocolClaimPrompt(row(190, label = ProtocolLabel.LIKELY, margin = 0.05), snapshot())?.borderline)
+        assertEquals(true, protocolClaimPrompt(row(120, label = ProtocolLabel.BORDERLINE, margin = 0.25), snapshot())?.borderline)
+        // an unknown label reads as no label
+        assertEquals(true, protocolClaimPrompt(row(190, label = null, margin = 0.05), snapshot())?.borderline)
+    }
+
+    @Test
+    fun aNetworkThatClaimedOrSitsOutsideTheSeatsIsNotAskedToClaim() {
+        assertNull(protocolClaimPrompt(row(150, fleets = listOf(fleet(81))), snapshot()))
+        // the server's flag alone does not put a row inside the head seats
+        assertNull(protocolClaimPrompt(row(230, claimPrompt = true, margin = -0.1), snapshot()))
+        assertNull(protocolClaimPrompt(row(0, claimPrompt = true), snapshot()))
     }
 
     @Test
@@ -286,12 +308,13 @@ class ProtocolLeaderboardPresentationTest {
     }
 
     @Test
-    fun theStaleBannerComesFirstAndTheClosedBannerGoesWhenBindingOpens() {
+    fun theClosedBannerComesFirstAndGoesWhenBindingOpens() {
         assertEquals(listOf(ProtocolBanner.ClaimingClosed), protocolBanners(snapshot()))
         assertEquals(
-            listOf(ProtocolBanner.Stale(1_799_000_000_000L), ProtocolBanner.ClaimingClosed),
+            listOf(ProtocolBanner.ClaimingClosed, ProtocolBanner.Stale(1_799_000_000_000L)),
             protocolBanners(snapshot(stale = true)),
         )
+        assertEquals(listOf(ProtocolBanner.Stale(1_799_000_000_000L)), protocolBanners(snapshot(bindingOpen = true, stale = true)))
         assertEquals(listOf<ProtocolBanner>(), protocolBanners(snapshot(bindingOpen = true)))
         // a stale snapshot without its time has no "last updated"
         assertEquals(listOf<ProtocolBanner>(), protocolBanners(snapshot(bindingOpen = true, stale = true, computedAtMillis = null)))

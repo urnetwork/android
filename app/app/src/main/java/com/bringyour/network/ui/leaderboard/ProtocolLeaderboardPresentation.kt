@@ -2,7 +2,6 @@ package com.bringyour.network.ui.leaderboard
 
 import androidx.annotation.StringRes
 import com.bringyour.network.R
-import java.text.DecimalFormat
 import java.text.NumberFormat
 import java.util.Locale
 
@@ -38,6 +37,10 @@ data class ProtocolLeaderboardSettings(
     val listRange: Long,
     // rows from the end of the loaded rows at which the next page is asked for
     val loadMoreThreshold: Int,
+    // within this fraction of the line a network is close to it: M of Q13,
+    // 20%. While every row reads "estimate" (Q17) the claim prompt's
+    // borderline warning goes by it; once labels switch on, by the label
+    val closeMargin: Double,
 )
 
 fun defaultProtocolLeaderboardSettings() = ProtocolLeaderboardSettings(
@@ -45,6 +48,7 @@ fun defaultProtocolLeaderboardSettings() = ProtocolLeaderboardSettings(
     seekPageSize = 200,
     listRange = 400,
     loadMoreThreshold = 10,
+    closeMargin = 0.20,
 )
 
 /** The recommendation label (server/LEADERTOP.md §5.6, Q13, Q17), by its wire value. */
@@ -212,11 +216,11 @@ data class ProtocolLeaderboardState(
 
 /** The one-line banners on top of the tab (LEADERTOP §4). */
 sealed interface ProtocolBanner {
-    // the snapshot is more than 3 tempos old: "Rankings last updated {time}."
-    data class Stale(val computedAtMillis: Long) : ProtocolBanner
-
     // binding is closed on mainnet (Q16): the neutral banner, not an error
     data object ClaimingClosed : ProtocolBanner
+
+    // the snapshot is more than 3 tempos old: "Rankings last updated {time}."
+    data class Stale(val computedAtMillis: Long) : ProtocolBanner
 }
 
 /** The claim prompt (Q5, Q13, Q16): only for a measurable network inside the head seats. */
@@ -224,7 +228,7 @@ data class ProtocolClaimPrompt(
     // the "Claim on Earnings" button when binding is open; otherwise the
     // "opens soon" note, and nothing invites registering early
     val bindingOpen: Boolean,
-    // labeled borderline: the "close to the line" warning too
+    // close to the line (protocolClaimPrompt): the "close to the line" warning too
     val borderline: Boolean,
 )
 
@@ -330,10 +334,42 @@ data class ProtocolLeaderboardUi(
 }
 
 /**
+ * The claim prompt for a row (Q5, Q13, Q16), the same on the card and on the
+ * Earnings tile: only a measurable network projected inside the head seats
+ * that has not claimed is asked to claim. It is close to the line when its
+ * label says borderline, or, while it still reads "estimate" (Q17), when its
+ * margin is within `closeMargin` of the line.
+ */
+fun protocolClaimPrompt(
+    row: ProtocolRow,
+    snapshot: ProtocolSnapshot?,
+    closeMargin: Double = defaultProtocolLeaderboardSettings().closeMargin,
+): ProtocolClaimPrompt? {
+    val measurable = row.measurable && row.label != ProtocolLabel.NOT_MEASURABLE
+    val headSeats = snapshot?.headSeats ?: 0L
+    val inside = 1L <= row.position && (headSeats <= 0L || row.position <= headSeats)
+    if (!measurable || !row.claimPrompt || !inside || row.fleets.isNotEmpty()) {
+        return null
+    }
+    val close = when (row.label) {
+        ProtocolLabel.BORDERLINE -> true
+        ProtocolLabel.ESTIMATE, null -> Math.abs(row.margin) < closeMargin
+        else -> false
+    }
+    return ProtocolClaimPrompt(
+        bindingOpen = snapshot?.bindingOpen == true,
+        borderline = close,
+    )
+}
+
+/**
  * The card for the model's state. The card's own numbers come from the
  * /sn/top/me snapshot, which is the one its row was ranked in.
  */
-fun protocolCard(state: ProtocolLeaderboardState): ProtocolCard {
+fun protocolCard(
+    state: ProtocolLeaderboardState,
+    closeMargin: Double = defaultProtocolLeaderboardSettings().closeMargin,
+): ProtocolCard {
     if (!state.signedIn) {
         return ProtocolCard.SignedOut
     }
@@ -349,14 +385,7 @@ fun protocolCard(state: ProtocolLeaderboardState): ProtocolCard {
     val row = me.row
     val measurable = row.measurable && row.label != ProtocolLabel.NOT_MEASURABLE
     val headSeats = snapshot?.headSeats ?: 0L
-    val prompt = if (measurable && row.claimPrompt) {
-        ProtocolClaimPrompt(
-            bindingOpen = snapshot?.bindingOpen == true,
-            borderline = row.label == ProtocolLabel.BORDERLINE,
-        )
-    } else {
-        null
-    }
+    val prompt = protocolClaimPrompt(row, snapshot, closeMargin)
     // after a change of the switch its value wins over a row read before it
     val name = when (state.namePublic) {
         false -> ""
@@ -384,18 +413,18 @@ fun protocolCard(state: ProtocolLeaderboardState): ProtocolCard {
     )
 }
 
-/** The banners for a snapshot: the stale notice first, since it qualifies everything under it. */
+/** The banners for a snapshot: claiming closed, then the stale notice, in the order apple shows them. */
 fun protocolBanners(snapshot: ProtocolSnapshot?): List<ProtocolBanner> {
     if (snapshot == null) {
         return listOf()
     }
     val banners = mutableListOf<ProtocolBanner>()
+    if (!snapshot.bindingOpen) {
+        banners.add(ProtocolBanner.ClaimingClosed)
+    }
     val computedAtMillis = snapshot.computedAtMillis
     if (snapshot.stale && computedAtMillis != null) {
         banners.add(ProtocolBanner.Stale(computedAtMillis))
-    }
-    if (!snapshot.bindingOpen) {
-        banners.add(ProtocolBanner.ClaimingClosed)
     }
     return banners
 }
@@ -430,7 +459,7 @@ fun protocolLeaderboardUi(state: ProtocolLeaderboardState, settings: ProtocolLea
     val listed = body == ProtocolListBody.Rows || body == ProtocolListBody.Empty
     return ProtocolLeaderboardUi(
         banners = protocolBanners(snapshot),
-        card = protocolCard(state),
+        card = protocolCard(state, settings.closeMargin),
         body = body,
         rows = rows,
         footer = when {
@@ -510,18 +539,20 @@ class ProtocolNumberFormat(
         maximumFractionDigits = 1
     }.format(value)
 
-    fun percent(fraction: Double): String = NumberFormat.getPercentInstance(locale).apply {
-        maximumFractionDigits = 0
-    }.format(fraction)
-
-    fun signedPercent(fraction: Double): String {
-        val format = NumberFormat.getPercentInstance(locale).apply {
-            maximumFractionDigits = 0
-        }
-        // the locale's own percent pattern, with a plus sign where its minus goes
-        (format as? DecimalFormat)?.let { it.positivePrefix = "+" + it.positivePrefix }
-        return format.format(fraction)
+    // the size of the fraction, whole, or to a tenth below 1% so a small
+    // margin never reads 0%: as apple formats it
+    fun percent(fraction: Double): String {
+        val size = Math.abs(fraction)
+        val underOne = 0.0 < size && size * 100 < 0.95
+        return NumberFormat.getPercentInstance(locale).apply {
+            minimumFractionDigits = 0
+            maximumFractionDigits = if (underOne) 1 else 0
+        }.format(size)
     }
+
+    // "+12%" above the line, "\u221212%" below it (a minus sign, as apple writes it)
+    fun signedPercent(fraction: Double): String =
+        (if (0.0 <= fraction) "+" else "\u2212") + percent(fraction)
 
     fun share(fraction: Double): String = NumberFormat.getPercentInstance(locale).apply {
         minimumFractionDigits = 1
