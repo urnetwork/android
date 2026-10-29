@@ -12,6 +12,7 @@ import com.bringyour.network.ui.connect.providerlocations.WorldTopology
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.OffWhite
 import com.bringyour.network.widgets.WidgetProviderSnapshot
+import com.bringyour.network.widgets.drawnAt
 import kotlin.math.asin
 import kotlin.math.atan2
 import kotlin.math.cos
@@ -83,7 +84,7 @@ object GlobeBitmapRenderer {
         providers: List<WidgetProviderSnapshot>,
         density: Float,
     ): Bitmap {
-        val bitmap = Bitmap.createBitmap(max(1, widthPx), max(1, heightPx), Bitmap.Config.ARGB_8888)
+        val bitmap = Bitmap.createBitmap(max(1, widthPx), max(1, heightPx), Bitmap.Config.ARGB_8888).drawnAt(density)
         draw(Canvas(bitmap), context, bitmap.width.toFloat(), bitmap.height.toFloat(), providers, density)
         return bitmap
     }

@@ -5,6 +5,7 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Path
 import com.bringyour.network.widgets.WidgetContractSnapshot
+import com.bringyour.network.widgets.drawnAt
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.sqrt
@@ -40,7 +41,7 @@ object ContractStackRenderer {
     fun render(contracts: List<WidgetContractSnapshot>, color: Int, pointsRight: Boolean, style: Style): Bitmap {
         val width = width(contracts.size, style)
         val height = height(style)
-        val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+        val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888).drawnAt(style.density)
         val canvas = Canvas(bitmap)
         val centerY = height / 2f
         val fill = Paint(Paint.ANTI_ALIAS_FLAG).apply { this.style = Paint.Style.FILL }

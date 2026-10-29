@@ -1,5 +1,6 @@
 package com.bringyour.network.ui.wallet
 
+import com.bringyour.network.ui.components.FoldSafeModalBottomSheet
 import com.bringyour.network.ui.components.rememberFoldSafeSheetState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -15,7 +16,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -155,7 +155,7 @@ fun SnConsentColdkeySheet(
     onDismiss: () -> Unit,
 ) {
     val sheetState = rememberFoldSafeSheetState()
-    ModalBottomSheet(
+    FoldSafeModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
         containerColor = SheetBlack,

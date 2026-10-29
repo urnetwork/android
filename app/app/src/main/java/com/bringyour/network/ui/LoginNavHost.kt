@@ -34,7 +34,10 @@ import com.bringyour.network.LoginClientCompletion
 import com.bringyour.network.LoginRequest
 import com.bringyour.network.MainApplication
 import com.bringyour.network.R
+import com.bringyour.network.ui.components.DialogAnchor
+import com.bringyour.network.ui.components.LocalDialogAnchor
 import com.bringyour.network.ui.components.LocalWindowLayout
+import com.bringyour.network.ui.components.recordDialogAnchor
 import com.bringyour.network.ui.components.rememberWindowLayout
 import com.bringyour.network.ui.components.overlays.FullScreenOverlay
 import com.bringyour.network.ui.components.overlays.WelcomeAnimatedOverlayLogin
@@ -108,10 +111,15 @@ fun LoginNavHost(
     }
 
     // the window's size class and fold, for the sign-in screens, their sheets
-    // and dialogs (ui/components/AdaptiveLayout.kt)
-    CompositionLocalProvider(LocalWindowLayout provides rememberWindowLayout()) {
+    // and dialogs (ui/components/AdaptiveLayout.kt), and the touch each dialog
+    // and sheet is opened from, so beside a fold it opens on that touch's side
+    val dialogAnchor = remember { DialogAnchor() }
+    CompositionLocalProvider(
+        LocalWindowLayout provides rememberWindowLayout(),
+        LocalDialogAnchor provides dialogAnchor,
+    ) {
         Box(
-           modifier = Modifier.fillMaxSize()
+           modifier = Modifier.fillMaxSize().recordDialogAnchor(dialogAnchor)
         ) {
 
             if (isLoadingAuthCode) {

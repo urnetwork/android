@@ -116,7 +116,7 @@ fun LeaderboardScreen(
         split = sideBySideSplit(
             containerStart = paneRowInWindow.left / density.density,
             width = paneRowWidth,
-            fold = windowLayout.fold,
+            fold = windowLayout.hinge,
             sidePaneOnLeft = listOnLeft,
         ),
         width = paneRowWidth,

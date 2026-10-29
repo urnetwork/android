@@ -28,7 +28,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material3.AlertDialogDefaults
-import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -72,6 +71,7 @@ import androidx.navigation.NavController
 import com.bringyour.network.R
 import com.bringyour.network.ui.components.ButtonStyle
 import com.bringyour.network.ui.components.CircleImage
+import com.bringyour.network.ui.components.FoldSafeBasicAlertDialog
 import com.bringyour.network.ui.components.SwipeToRevealRow
 import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.components.URInlineErrorText
@@ -542,7 +542,7 @@ private fun SessionsConfirmDialog(
 ) {
     val cancelFocus = remember { FocusRequester() }
 
-    BasicAlertDialog(
+    FoldSafeBasicAlertDialog(
         onDismissRequest = onDismiss,
     ) {
         Surface(

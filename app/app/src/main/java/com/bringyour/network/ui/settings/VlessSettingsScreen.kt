@@ -51,12 +51,12 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.bringyour.network.R
 import com.bringyour.network.ui.components.ButtonStyle
+import com.bringyour.network.ui.components.FoldSafeDialog
 import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.components.URInlineErrorText
 import com.bringyour.network.ui.components.URSwitch
@@ -99,9 +99,11 @@ fun VlessSettingsDialog(
         viewModel.load()
     }
 
-    Dialog(
+    // a screen shown as a dialog: beside a fold, it fills one side
+    FoldSafeDialog(
         onDismissRequest = onDismiss,
         properties = DialogProperties(usePlatformDefaultWidth = false),
+        fullScreen = true,
     ) {
         VlessSettingsScaffold(
             onBack = onDismiss,

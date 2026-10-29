@@ -16,7 +16,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
@@ -41,6 +40,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import com.bringyour.network.NetworkSpaceManagerProvider
 import com.bringyour.network.R
+import com.bringyour.network.ui.components.FoldSafeAlertDialog
 import com.bringyour.network.ui.theme.MainTintedBackgroundBase
 import com.bringyour.network.ui.theme.TextFaint
 import com.bringyour.network.ui.theme.TextMuted
@@ -195,7 +195,7 @@ fun CantReachRegionPrompt(
     var showPicker by rememberSaveable { mutableStateOf(false) }
 
     if (visible && !showPicker) {
-        AlertDialog(
+        FoldSafeAlertDialog(
             onDismissRequest = { prompt.dismiss() },
             text = { Text(stringResource(id = R.string.cant_reach_urnetwork_choose_region)) },
             confirmButton = {
@@ -228,7 +228,7 @@ fun ConnectionRegionPicker(
     val options = remember(model) { model.options() }
     val resolvers = model.resolvers()
 
-    AlertDialog(
+    FoldSafeAlertDialog(
         onDismissRequest = dismiss,
         title = { Text(stringResource(id = R.string.where_are_you_connecting_from)) },
         text = {

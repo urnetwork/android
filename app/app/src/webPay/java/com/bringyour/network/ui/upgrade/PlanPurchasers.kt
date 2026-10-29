@@ -27,12 +27,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.bringyour.network.R
 import com.bringyour.network.analytics.ClientEvents
 import com.bringyour.network.ui.account.GuestAccount
 import com.bringyour.network.ui.account.PurchaseRefusal
+import com.bringyour.network.ui.components.FoldSafeDialog
 import com.bringyour.network.ui.shared.enums.PlanType
 import com.bringyour.network.ui.shared.viewmodels.PlanViewModel
 import com.bringyour.network.ui.shared.viewmodels.SubscriptionBalanceViewModel
@@ -158,9 +158,12 @@ private val PayPageSaver = listSaver<PayPage?, Any>(
 @SuppressLint("SetJavaScriptEnabled")
 @Composable
 private fun PayPageDialog(page: PayPage, onDone: () -> Unit, onDismiss: () -> Unit) {
-    Dialog(
+    // beside a fold the page fills one side, and a fold or an unfold
+    // while it is open never reloads it (FoldSafeDialog)
+    FoldSafeDialog(
         onDismissRequest = onDismiss,
-        properties = DialogProperties(usePlatformDefaultWidth = false, dismissOnClickOutside = false)
+        properties = DialogProperties(usePlatformDefaultWidth = false, dismissOnClickOutside = false),
+        fullScreen = true,
     ) {
         Column(
             modifier = Modifier

@@ -5,6 +5,7 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.RectF
 import com.bringyour.network.widgets.WidgetBalanceSnapshot
+import com.bringyour.network.widgets.drawnAt
 import kotlin.math.max
 
 /**
@@ -25,7 +26,7 @@ object BalanceBarRenderer {
         availableColor: Int,
         density: Float,
     ): Bitmap {
-        val bitmap = Bitmap.createBitmap(max(1, widthPx), max(1, heightPx), Bitmap.Config.ARGB_8888)
+        val bitmap = Bitmap.createBitmap(max(1, widthPx), max(1, heightPx), Bitmap.Config.ARGB_8888).drawnAt(density)
         val canvas = Canvas(bitmap)
         val width = bitmap.width.toFloat()
         val height = bitmap.height.toFloat()

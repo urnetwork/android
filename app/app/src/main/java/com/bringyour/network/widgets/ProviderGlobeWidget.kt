@@ -64,40 +64,117 @@ internal fun ProviderGlobeContent(entry: WidgetEntry) {
     val size = LocalSize.current
     val context = LocalContext.current
     val providers = if (entry.showsTunnelData) entry.tunnel.providers else emptyList()
+    val layout = providerGlobeLayout(size.width.value, size.height.value)
+    val fontScale = context.resources.configuration.fontScale
     WidgetSurface(entry, com.bringyour.network.QuickConnectActivity.ROUTE_PROVIDER_LOCATIONS) {
-        when {
-            size.width < ProviderGlobeWidget.MEDIUM.width && size.height < ProviderGlobeWidget.LARGE.height -> {
+        when (layout.arrangement) {
+            GlobeArrangement.GlobeOnly -> {
                 Box(modifier = GlanceModifier.fillMaxSize(), contentAlignment = Alignment.BottomCenter) {
-                    Globe(providers, (size.width.value - 28f).dp, (size.height.value - 28f).dp)
+                    Globe(providers, layout.globeWidthDp.dp, layout.globeHeightDp.dp)
                     CountBadge(context, providers.size)
                 }
             }
-            size.height < ProviderGlobeWidget.LARGE.height -> {
+            GlobeArrangement.ListBeside -> {
                 Row(modifier = GlanceModifier.fillMaxSize(), verticalAlignment = Alignment.CenterVertically) {
-                    val side = (size.height.value - 28f).dp
-                    Globe(providers, side, side)
-                    Spacer(GlanceModifier.width(12.dp))
-                    ProviderList(entry, providers, maximum = 4)
+                    Globe(providers, layout.globeWidthDp.dp, layout.globeHeightDp.dp)
+                    Spacer(GlanceModifier.width(GLOBE_LIST_GAP_DP.dp))
+                    ProviderList(entry, providers, rows = providerListRows(layout.listHeightDp, fontScale, providers.size))
                 }
             }
-            else -> {
+            GlobeArrangement.ListBelow -> {
                 Column(modifier = GlanceModifier.fillMaxSize()) {
-                    val globeHeight = ((size.height.value - 28f) * 0.55f).dp
-                    Box(modifier = GlanceModifier.fillMaxWidth().height(globeHeight), contentAlignment = Alignment.Center) {
-                        Globe(providers, globeHeight, globeHeight)
+                    Box(
+                        modifier = GlanceModifier.fillMaxWidth().height(layout.globeHeightDp.dp),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Globe(providers, layout.globeWidthDp.dp, layout.globeHeightDp.dp)
                     }
-                    Spacer(GlanceModifier.height(8.dp))
-                    ProviderList(entry, providers, maximum = 6)
+                    Spacer(GlanceModifier.height(GLOBE_LIST_BELOW_GAP_DP.dp))
+                    ProviderList(entry, providers, rows = providerListRows(layout.listHeightDp, fontScale, providers.size))
                 }
             }
         }
     }
 }
 
+/** How the globe widget lays out for its size. */
+internal enum class GlobeArrangement {
+    /** The globe alone, the provider count over it (2x2). */
+    GlobeOnly,
+
+    /** The provider list beside the globe (4x2, and a wide widget on a tablet). */
+    ListBeside,
+
+    /** The provider list below a larger globe (4x3 and up). */
+    ListBelow,
+}
+
+/** The globe's box, and the height the provider list gets, in dp. */
+internal data class GlobeLayout(
+    val arrangement: GlobeArrangement,
+    val globeWidthDp: Float,
+    val globeHeightDp: Float,
+    val listHeightDp: Float,
+)
+
+private const val GLOBE_PADDING_DP = 14f
+private const val GLOBE_LIST_GAP_DP = 12f
+private const val GLOBE_LIST_BELOW_GAP_DP = 8f
+/** Below the list, the globe takes this share of the height. */
+private const val GLOBE_BELOW_SHARE = 0.55f
+/** A widget tall enough for the list below still puts it beside when it gets this much width there. */
+private const val LIST_BESIDE_MIN_DP = 200f
+
+/**
+ * The globe widget's layout for a [widthDp] x [heightDp] widget. Small,
+ * the globe alone. Short, or wide enough for a list [LIST_BESIDE_MIN_DP]
+ * wide beside a globe its full height (a tablet), the list beside a globe no
+ * wider than half the room, so neither crowds the other. Otherwise the list
+ * below a globe that takes 55% of the height and never more than the width,
+ * which a tall narrow widget would overflow.
+ */
+internal fun providerGlobeLayout(widthDp: Float, heightDp: Float): GlobeLayout {
+    val innerWidth = widthDp - 2 * GLOBE_PADDING_DP
+    val innerHeight = heightDp - 2 * GLOBE_PADDING_DP
+    if (widthDp < ProviderGlobeWidget.MEDIUM.width.value && heightDp < ProviderGlobeWidget.LARGE.height.value) {
+        return GlobeLayout(GlobeArrangement.GlobeOnly, innerWidth, innerHeight, 0f)
+    }
+    if (heightDp < ProviderGlobeWidget.LARGE.height.value || LIST_BESIDE_MIN_DP <= innerWidth - GLOBE_LIST_GAP_DP - innerHeight) {
+        val side = minOf(innerHeight, (innerWidth - GLOBE_LIST_GAP_DP) / 2f).coerceAtLeast(0f)
+        return GlobeLayout(GlobeArrangement.ListBeside, side, side, innerHeight)
+    }
+    val side = minOf(innerHeight * GLOBE_BELOW_SHARE, innerWidth).coerceAtLeast(0f)
+    return GlobeLayout(GlobeArrangement.ListBelow, side, side, innerHeight - side - GLOBE_LIST_BELOW_GAP_DP)
+}
+
+/** A provider row, its 13sp line and the 4dp under it, at the default font size. */
+private const val PROVIDER_ROW_DP = 22f
+/** The list's heading and the space under it. */
+private const val PROVIDER_LIST_HEADER_DP = 24f
+/** The "+N more" line. */
+private const val PROVIDER_MORE_DP = 16f
+/** Glance keeps ten children of a column at most and drops the rest. */
+internal const val PROVIDER_ROWS_MAX = 10
+
+/**
+ * How many of [providerCount] providers a list [listHeightDp] tall shows, at
+ * the user's [fontScale]: all that fit, or when not all fit as many as leave
+ * room for the "+N more" line, at least one, at most [PROVIDER_ROWS_MAX].
+ */
+internal fun providerListRows(listHeightDp: Float, fontScale: Float, providerCount: Int): Int {
+    val scale = fontScale.coerceAtLeast(1f)
+    val row = PROVIDER_ROW_DP * scale
+    val room = listHeightDp - PROVIDER_LIST_HEADER_DP * scale
+    if (providerCount <= minOf((room / row).toInt(), PROVIDER_ROWS_MAX)) {
+        return providerCount
+    }
+    return ((room - PROVIDER_MORE_DP * scale) / row).toInt().coerceIn(1, PROVIDER_ROWS_MAX)
+}
+
 @Composable
 private fun Globe(providers: List<WidgetProviderSnapshot>, width: androidx.compose.ui.unit.Dp, height: androidx.compose.ui.unit.Dp) {
     val context = LocalContext.current
-    val density = context.resources.displayMetrics.density
+    val density = widgetBitmapDensity()
     val bitmap = GlobeBitmapRenderer.render(
         context,
         (width.value * density).roundToInt(),
@@ -130,8 +207,9 @@ private fun CountBadge(context: Context, count: Int) {
     }
 }
 
+/** The providers, [rows] of them, and a line for the rest. */
 @Composable
-private fun ProviderList(entry: WidgetEntry, providers: List<WidgetProviderSnapshot>, maximum: Int) {
+private fun ProviderList(entry: WidgetEntry, providers: List<WidgetProviderSnapshot>, rows: Int) {
     val context = LocalContext.current
     Column(modifier = GlanceModifier.fillMaxSize()) {
         Row(modifier = GlanceModifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
@@ -154,12 +232,16 @@ private fun ProviderList(entry: WidgetEntry, providers: List<WidgetProviderSnaps
                 style = WidgetTheme.faint,
             )
         } else {
-            providers.take(maximum).forEach { provider ->
-                ProviderRow(provider, entry.nowMillis)
-                Spacer(GlanceModifier.height(4.dp))
+            // a column of their own, a child each: Glance drops a column's
+            // children past ten, which a row and a spacer each would reach
+            // at four providers and lose the "+N more" line
+            Column(modifier = GlanceModifier.fillMaxWidth()) {
+                providers.take(rows).forEach { provider ->
+                    ProviderRow(provider, entry.nowMillis)
+                }
             }
-            if (maximum < providers.size) {
-                Text(context.getString(R.string.widget_more_providers, providers.size - maximum), style = WidgetTheme.faint)
+            if (rows < providers.size) {
+                Text(context.getString(R.string.widget_more_providers, providers.size - rows), style = WidgetTheme.faint)
             }
         }
     }
@@ -168,7 +250,7 @@ private fun ProviderList(entry: WidgetEntry, providers: List<WidgetProviderSnaps
 @Composable
 private fun ProviderRow(provider: WidgetProviderSnapshot, nowMillis: Long) {
     val context = LocalContext.current
-    Row(modifier = GlanceModifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+    Row(modifier = GlanceModifier.fillMaxWidth().padding(bottom = 4.dp), verticalAlignment = Alignment.CenterVertically) {
         val dot = WidgetColors.parseHex(provider.colorHex, 0xFF0099FF.toInt())
         Box(
             modifier = GlanceModifier.size(8.dp).cornerRadius(4.dp).background(ColorProvider(Color(dot))),

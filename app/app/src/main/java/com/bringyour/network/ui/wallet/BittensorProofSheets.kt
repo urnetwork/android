@@ -1,5 +1,6 @@
 package com.bringyour.network.ui.wallet
 
+import com.bringyour.network.ui.components.FoldSafeModalBottomSheet
 import com.bringyour.network.ui.components.rememberFoldSafeSheetState
 import android.content.Context
 import android.util.Log
@@ -14,7 +15,6 @@ import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -231,7 +231,7 @@ fun BittensorProofSheets(
         BittensorProofStage.Hidden -> {}
         is BittensorProofStage.Choosing, is BittensorProofStage.Loading -> {
             val sheetState = rememberFoldSafeSheetState()
-            ModalBottomSheet(
+            FoldSafeModalBottomSheet(
                 onDismissRequest = { flow.dismiss() },
                 sheetState = sheetState,
                 containerColor = SheetBlack,
@@ -279,7 +279,7 @@ fun BittensorProofSheets(
         }
         is BittensorProofStage.AwaitingBrowser -> {
             val sheetState = rememberFoldSafeSheetState()
-            ModalBottomSheet(
+            FoldSafeModalBottomSheet(
                 onDismissRequest = { flow.dismiss() },
                 sheetState = sheetState,
                 containerColor = SheetBlack,
@@ -309,7 +309,7 @@ fun BittensorProofSheets(
         is BittensorProofStage.Signing -> {
             val sheetState = rememberFoldSafeSheetState()
             val clipboardManager = LocalClipboardManager.current
-            ModalBottomSheet(
+            FoldSafeModalBottomSheet(
                 onDismissRequest = { flow.dismiss() },
                 sheetState = sheetState,
                 containerColor = SheetBlack,

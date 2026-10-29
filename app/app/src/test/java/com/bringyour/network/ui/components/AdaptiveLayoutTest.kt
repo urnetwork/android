@@ -1,6 +1,8 @@
 package com.bringyour.network.ui.components
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /**
@@ -22,10 +24,14 @@ class AdaptiveLayoutTest {
     private val largeDesktop = 1600f to 1000f
 
     // a half-open book posture: the hinge down the middle of the window
-    private fun bookFold(width: Float) = SeparatingFold(vertical = true, start = width / 2f, end = width / 2f)
+    private fun bookFold(width: Float) = WindowFold(vertical = true, start = width / 2f, end = width / 2f)
 
     // a half-open tabletop posture: the hinge across the middle
-    private fun tabletopFold(height: Float) = SeparatingFold(vertical = false, start = height / 2f, end = height / 2f)
+    private fun tabletopFold(height: Float) = WindowFold(vertical = false, start = height / 2f, end = height / 2f)
+
+    // a book-style foldable open flat: its crease down the middle, dividing nothing
+    private fun flatFold(width: Float) =
+        WindowFold(vertical = true, start = width / 2f, end = width / 2f, separating = false)
 
     @Test
     fun navigationIsTheRailOnlyAtExpandedWidth() {
@@ -110,7 +116,7 @@ class AdaptiveLayoutTest {
     @Test
     fun sideBySideSplitsAtTheHinge() {
         // the hinge at 466.5dp in window terms, the panes beside an 80dp rail
-        val fold = SeparatingFold(vertical = true, start = 466.5f, end = 466.5f)
+        val fold = WindowFold(vertical = true, start = 466.5f, end = 466.5f)
         val split = sideBySideSplit(containerStart = 80f, width = 853f, fold = fold, sidePaneOnLeft = true)
         assertEquals(386.5f, split.firstEnd, 0.01f)
         assertEquals(386.5f, split.secondStart, 0.01f)
@@ -119,7 +125,7 @@ class AdaptiveLayoutTest {
     @Test
     fun anOccludingHingeSeparatesThePanes() {
         // a hinge that hides 24dp of the window (two screens): no pane draws under it
-        val fold = SeparatingFold(vertical = true, start = 540f, end = 564f)
+        val fold = WindowFold(vertical = true, start = 540f, end = 564f)
         val split = sideBySideSplit(containerStart = 0f, width = 1104f, fold = fold, sidePaneOnLeft = true)
         assertEquals(540f, split.firstEnd, 0f)
         assertEquals(564f, split.secondStart, 0f)
@@ -128,7 +134,7 @@ class AdaptiveLayoutTest {
     @Test
     fun aFoldNearTheEdgeIsNotTheSplit() {
         // the window only just reaches over the fold: a 120dp pane is no pane
-        val fold = SeparatingFold(vertical = true, start = 1000f, end = 1000f)
+        val fold = WindowFold(vertical = true, start = 1000f, end = 1000f)
         val split = sideBySideSplit(containerStart = 0f, width = 1120f, fold = fold, sidePaneOnLeft = true)
         assertEquals(SIDE_PANE_MAX_WIDTH_DP, split.firstEnd, 0f)
     }
@@ -143,7 +149,7 @@ class AdaptiveLayoutTest {
 
     @Test
     fun theHingeSplitIsTheSameInBothDirections() {
-        val fold = SeparatingFold(vertical = true, start = 400f, end = 400f)
+        val fold = WindowFold(vertical = true, start = 400f, end = 400f)
         val ltr = sideBySideSplit(containerStart = 0f, width = 800f, fold = fold, sidePaneOnLeft = true)
         val rtl = sideBySideSplit(containerStart = 0f, width = 800f, fold = fold, sidePaneOnLeft = false)
         assertEquals(ltr, rtl)
@@ -155,7 +161,7 @@ class AdaptiveLayoutTest {
         assertEquals(PaneSplit(400f, 400f), stackedSplit(containerTop = 24f, height = 800f, fold = null))
 
         // tabletop: the hinge at 352dp in window terms, the panes from the window's top
-        val fold = SeparatingFold(vertical = false, start = 352f, end = 352f)
+        val fold = WindowFold(vertical = false, start = 352f, end = 352f)
         assertEquals(PaneSplit(352f, 352f), stackedSplit(containerTop = 0f, height = 624f, fold = fold))
         // the same with the panes starting under a 24dp status bar
         assertEquals(PaneSplit(328f, 328f), stackedSplit(containerTop = 24f, height = 600f, fold = fold))
@@ -163,7 +169,7 @@ class AdaptiveLayoutTest {
 
     @Test
     fun aVerticalFoldDoesNotSplitAStack() {
-        val fold = SeparatingFold(vertical = true, start = 350f, end = 350f)
+        val fold = WindowFold(vertical = true, start = 350f, end = 350f)
         assertEquals(PaneSplit(400f, 400f), stackedSplit(containerTop = 0f, height = 800f, fold = fold))
     }
 
@@ -232,8 +238,131 @@ class AdaptiveLayoutTest {
     @Test
     fun aSideTooSmallForADialogFallsBackToTheOther() {
         // a tabletop fold low in the window leaves 100dp below it: the dialog goes above
-        val fold = SeparatingFold(vertical = false, start = 600f, end = 600f)
+        val fold = WindowFold(vertical = false, start = 600f, end = 600f)
         assertEquals(WindowRegion(0f, 0f, 933f, 600f), foldSafeDialogRegion(933f, 700f, fold, startOnLeft = true))
+    }
+
+    @Test
+    fun aFlatFoldSplitsSideBySidePanesAtTheHinge() {
+        // the Fold8's inner screen open flat in landscape, the panes beside an
+        // 80dp rail: 40/60 would split 45dp before the crease, at 341dp
+        val split = sideBySideSplit(containerStart = 80f, width = 853f, fold = flatFold(933f), sidePaneOnLeft = true)
+        assertEquals(386.5f, split.firstEnd, 0.01f)
+        assertEquals(386.5f, split.secondStart, 0.01f)
+    }
+
+    @Test
+    fun theHingeWinsOverTheSidePaneBounds() {
+        // past the side pane's 400dp maximum
+        val wide = sideBySideSplit(containerStart = 0f, width = 1200f, fold = flatFold(1200f), sidePaneOnLeft = true)
+        assertEquals(PaneSplit(600f, 600f), wide)
+        // and under its 300dp minimum, the main pane well over its own
+        val crease = WindowFold(vertical = true, start = 250f, end = 250f, separating = false)
+        assertEquals(PaneSplit(250f, 250f), sideBySideSplit(containerStart = 0f, width = 800f, fold = crease, sidePaneOnLeft = true))
+    }
+
+    @Test
+    fun aFlatFoldNearTheEdgeIsNotTheSplit() {
+        // 150dp from the container's edge: 40/60 instead
+        val crease = WindowFold(vertical = true, start = 150f, end = 150f, separating = false)
+        val split = sideBySideSplit(containerStart = 0f, width = 1000f, fold = crease, sidePaneOnLeft = true)
+        assertEquals(SIDE_PANE_MAX_WIDTH_DP, split.firstEnd, 0f)
+    }
+
+    @Test
+    fun aFlatFoldThatSqueezesTheMainPaneIsNotTheSplit() {
+        // the crease would leave the connect pane 220dp, under its 240dp minimum
+        val crease = WindowFold(vertical = true, start = 340f, end = 340f, separating = false)
+        val split = sideBySideSplit(containerStart = 0f, width = 560f, fold = crease, sidePaneOnLeft = true)
+        assertEquals(SIDE_PANE_MIN_WIDTH_DP, split.firstEnd, 0f)
+        assertTrue(MAIN_PANE_MIN_WIDTH_DP <= mainPaneWidth(split, 560f, sidePaneOnLeft = true))
+        // right to left, the main pane is the left one
+        val rtlCrease = WindowFold(vertical = true, start = 220f, end = 220f, separating = false)
+        val rtl = sideBySideSplit(containerStart = 0f, width = 560f, fold = rtlCrease, sidePaneOnLeft = false)
+        assertEquals(560f - SIDE_PANE_MIN_WIDTH_DP, rtl.firstEnd, 0f)
+    }
+
+    @Test
+    fun aHalfOpenFoldIsTheSplitEvenWhenTheMainPaneIsNarrow() {
+        // a pane across a half-open fold is bent in two, so the fold still wins
+        val fold = WindowFold(vertical = true, start = 340f, end = 340f)
+        assertEquals(PaneSplit(340f, 340f), sideBySideSplit(containerStart = 0f, width = 560f, fold = fold, sidePaneOnLeft = true))
+    }
+
+    @Test
+    fun aFlatFoldDecidesNeitherTheArrangementNorAStack() {
+        // open flat in portrait: medium width still stacks, as on iOS
+        assertEquals(
+            ConnectArrangement.Stacked,
+            connectArrangementFor(fold8InnerPortrait.first, fold8InnerPortrait.second, flatFold(fold8InnerPortrait.first)),
+        )
+        // a flat crease across a stack does not move its split
+        val across = WindowFold(vertical = false, start = 350f, end = 350f, separating = false)
+        assertEquals(PaneSplit(400f, 400f), stackedSplit(containerTop = 0f, height = 800f, fold = across))
+    }
+
+    @Test
+    fun besideABookFoldADialogOpensOnTheSideItWasOpenedFrom() {
+        // opened from the right pane in a left-to-right layout
+        assertEquals(
+            WindowRegion(466.5f, 0f, 933f, 704f),
+            foldSafeDialogRegion(933f, 704f, bookFold(933f), startOnLeft = true, anchorX = 700f),
+        )
+        // and from the left pane in a right-to-left one
+        assertEquals(
+            WindowRegion(0f, 0f, 466.5f, 704f),
+            foldSafeDialogRegion(933f, 704f, bookFold(933f), startOnLeft = false, anchorX = 100f),
+        )
+    }
+
+    @Test
+    fun inTabletopADialogOpensBelowTheFoldWhereverItWasOpenedFrom() {
+        // the controls' half (Google's tabletop guidance), even when the
+        // touch that opened it was above the fold
+        assertEquals(
+            WindowRegion(0f, 352f, 933f, 704f),
+            foldSafeDialogRegion(933f, 704f, tabletopFold(704f), startOnLeft = true, anchorX = 100f),
+        )
+    }
+
+    @Test
+    fun aDialogKeepsClearOfTheBarsAndTheKeyboard() {
+        // tabletop with a 330dp keyboard over the half below the fold: the
+        // half above, under the 24dp status bar
+        val typing = WindowRegion(0f, 24f, 933f, 704f - 330f)
+        assertEquals(
+            WindowRegion(0f, 24f, 933f, 352f),
+            foldSafeDialogRegion(933f, 704f, tabletopFold(704f), startOnLeft = true, usable = typing),
+        )
+        // book posture: the start side, above the keyboard
+        val book = WindowRegion(0f, 24f, 933f, 704f - 300f)
+        assertEquals(
+            WindowRegion(0f, 24f, 466.5f, 404f),
+            foldSafeDialogRegion(933f, 704f, bookFold(933f), startOnLeft = true, usable = book),
+        )
+    }
+
+    @Test
+    fun aFlatFoldLeavesDialogsAndSheetsAsTheyAre() {
+        assertEquals(
+            WindowRegion(0f, 0f, 933f, 704f),
+            foldSafeDialogRegion(933f, 704f, flatFold(933f), startOnLeft = true, anchorX = 700f),
+        )
+        assertNull(foldSafeSheetRegion(933f, 704f, flatFold(933f), startOnLeft = true, anchorX = 700f))
+    }
+
+    @Test
+    fun besideABookFoldASheetOpensInOneHalf() {
+        assertEquals(WindowRegion(0f, 0f, 466.5f, 704f), foldSafeSheetRegion(933f, 704f, bookFold(933f), startOnLeft = true))
+        assertEquals(
+            WindowRegion(466.5f, 0f, 933f, 704f),
+            foldSafeSheetRegion(933f, 704f, bookFold(933f), startOnLeft = true, anchorX = 800f),
+        )
+        // in tabletop it keeps its width and opens to the half below the fold instead
+        assertNull(foldSafeSheetRegion(933f, 704f, tabletopFold(704f), startOnLeft = true))
+        assertNull(foldSafeSheetRegion(933f, 704f, null, startOnLeft = true))
+        // halves too narrow for it: it keeps its width
+        assertNull(foldSafeSheetRegion(400f, 800f, bookFold(400f), startOnLeft = true))
     }
 
     @Test
