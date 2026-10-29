@@ -481,6 +481,22 @@ fun AccountScreenContent(
             selected = chosenRoute == Route.Sessions
         )
         HorizontalDivider()
+        // the network's API keys, with create and delete, beside Sessions,
+        // the other credentials. A key gives full access to the network, so
+        // a guest network adds a sign-in method first, like Sessions
+        URNavListItem(
+            iconResourceId = R.drawable.nav_list_item_api_keys,
+            text = stringResource(id = R.string.api_keys_title),
+            onClick = {
+                if (loginMode == LoginMode.Authenticated) {
+                    navigate(Route.ApiKeys)
+                } else {
+                    navigate(Route.GuestConversion)
+                }
+            },
+            selected = chosenRoute == Route.ApiKeys
+        )
+        HorizontalDivider()
         URNavListItem(
             iconResourceId = R.drawable.nav_list_item_settings,
             text = stringResource(id = R.string.settings),

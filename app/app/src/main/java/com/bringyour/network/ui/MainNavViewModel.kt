@@ -106,6 +106,8 @@ sealed class Route {
     @Serializable object Profile : Route()
     // Account -> Sessions: the account's sign-ins, with sign out
     @Serializable object Sessions : Route()
+    // Account -> API keys: the network's API keys, with create and delete
+    @Serializable object ApiKeys : Route()
     @Serializable object Settings : Route()
     @Serializable object Earnings : Route()
     // Earnings › Top 200 › Sign fleet binding (also opened by ur://top200/sign)
