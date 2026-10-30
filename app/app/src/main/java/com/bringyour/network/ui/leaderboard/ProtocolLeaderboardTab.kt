@@ -387,13 +387,12 @@ private fun ProtocolHeader(
             ProtocolCard.LoadFailed -> ProtocolCardBox {
                 SectionLoadError(onRetry = onRetry)
             }
-            ProtocolCard.NotRanked -> ProtocolCardBox {
-                Text(
-                    stringResource(id = R.string.leaderboard_protocol_not_measurable_providing),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = Color.White,
-                )
-            }
+            is ProtocolCard.NotRanked -> ProtocolUnrankedCard(
+                unranked = card.unranked,
+                ownName = ownName,
+                onNamePublic = onNamePublic,
+                settingNamePublic = settingNamePublic,
+            )
             is ProtocolCard.Standing -> ProtocolStandingCard(
                 standing = card.standing,
                 text = text,
@@ -471,28 +470,12 @@ private fun ProtocolStandingCard(
     onOpenEarnings: () -> Unit,
 ) {
     ProtocolCardBox {
-        // identity: the tag and the name as others see it, then the shared switch
-        val name = when {
-            standing.name.isNotEmpty() -> standing.name
-            standing.namePublic == true && ownName.isNotEmpty() -> ownName
-            else -> stringResource(id = R.string.anonymous)
-        }
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            if (standing.tag.isNotEmpty()) {
-                Text(standing.tag, style = MaterialTheme.typography.titleMedium, maxLines = 1)
-            }
-            Text(
-                name,
-                style = MaterialTheme.typography.bodyLarge,
-                fontWeight = FontWeight.Bold,
-                color = Color.White,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
-        }
+        ProtocolCardHeader(
+            tag = standing.tag,
+            name = standing.name,
+            namePublic = standing.namePublic,
+            ownName = ownName,
+        )
 
         // position: "#173", "projected", "of 41,230 ranked networks"
         Row(
@@ -563,49 +546,135 @@ private fun ProtocolStandingCard(
         )
 
         standing.notMeasurable?.let { reason ->
-            Row(
-                verticalAlignment = Alignment.Top,
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.semantics(mergeDescendants = true) {},
-            ) {
-                Icon(
-                    imageVector = Icons.Outlined.VisibilityOff,
-                    contentDescription = null,
-                    tint = TextMuted,
-                    modifier = Modifier.size(18.dp),
-                )
-                Text(
-                    stringResource(id = reason.textRes ?: R.string.leaderboard_protocol_label_not_measurable),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = Color.White,
-                )
-            }
+            ProtocolNotMeasurableLine(reason = reason)
         }
 
         standing.prompt?.let { prompt ->
             ProtocolClaimPromptView(prompt = prompt, onOpenEarnings = onOpenEarnings)
         }
 
-        HorizontalDivider(color = MainBorderBase)
+        ProtocolNameSwitch(
+            namePublic = standing.namePublic,
+            settingNamePublic = settingNamePublic,
+            onNamePublic = onNamePublic,
+        )
+    }
+}
 
-        // the one "show my name on leaderboards" switch, shared with Points (Q12)
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Text(
-                stringResource(id = R.string.show_on_points_leaderboard),
-                style = MaterialTheme.typography.bodyLarge,
-                color = Color.White,
-                modifier = Modifier.weight(1f),
-            )
-            Spacer(modifier = Modifier.width(6.dp))
-            URSwitch(
-                checked = standing.namePublic == true,
-                enabled = standing.namePublic != null && !settingNamePublic,
-                toggle = { onNamePublic(standing.namePublic != true) },
-            )
+/**
+ * The card of a network without a position on the board (GET /sn/top/me
+ * answers position 0): its header, why the validator can't score it when the
+ * server says, and the switch. No rank, no chart and no claim prompt; the
+ * other apps show the same (apple's rankedRow, windows' CardBody::Unranked).
+ */
+@Composable
+private fun ProtocolUnrankedCard(
+    unranked: ProtocolUnranked,
+    ownName: String,
+    onNamePublic: (Boolean) -> Unit,
+    settingNamePublic: Boolean,
+) {
+    ProtocolCardBox {
+        ProtocolCardHeader(
+            tag = unranked.tag,
+            name = unranked.name,
+            namePublic = unranked.namePublic,
+            ownName = ownName,
+        )
+        unranked.reason?.let { reason ->
+            ProtocolNotMeasurableLine(reason = reason)
         }
+        ProtocolNameSwitch(
+            namePublic = unranked.namePublic,
+            settingNamePublic = settingNamePublic,
+            onNamePublic = onNamePublic,
+        )
+    }
+}
+
+/**
+ * The card's identity: the network's tag and its name as others see it, or
+ * "Anonymous"; the caller's own name once the switch shows it, before a row
+ * read after the change carries it.
+ */
+@Composable
+private fun ProtocolCardHeader(
+    tag: String,
+    name: String,
+    namePublic: Boolean?,
+    ownName: String,
+) {
+    val shown = when {
+        name.isNotEmpty() -> name
+        namePublic == true && ownName.isNotEmpty() -> ownName
+        else -> stringResource(id = R.string.anonymous)
+    }
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        if (tag.isNotEmpty()) {
+            Text(tag, style = MaterialTheme.typography.titleMedium, maxLines = 1)
+        }
+        Text(
+            shown,
+            style = MaterialTheme.typography.bodyLarge,
+            fontWeight = FontWeight.Bold,
+            color = Color.White,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+        )
+    }
+}
+
+/** Why the validator can't score the network, and what helps; the label's words for a reason this app does not know. */
+@Composable
+private fun ProtocolNotMeasurableLine(
+    reason: ProtocolNotMeasurableReason,
+) {
+    Row(
+        verticalAlignment = Alignment.Top,
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = Modifier.semantics(mergeDescendants = true) {},
+    ) {
+        Icon(
+            imageVector = Icons.Outlined.VisibilityOff,
+            contentDescription = null,
+            tint = TextMuted,
+            modifier = Modifier.size(18.dp),
+        )
+        Text(
+            stringResource(id = reason.textRes ?: R.string.leaderboard_protocol_label_not_measurable),
+            style = MaterialTheme.typography.bodyMedium,
+            color = Color.White,
+        )
+    }
+}
+
+/** The one "show my name on leaderboards" switch, shared with Points (Q12), under a hairline. */
+@Composable
+private fun ProtocolNameSwitch(
+    namePublic: Boolean?,
+    settingNamePublic: Boolean,
+    onNamePublic: (Boolean) -> Unit,
+) {
+    HorizontalDivider(color = MainBorderBase)
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            stringResource(id = R.string.show_on_points_leaderboard),
+            style = MaterialTheme.typography.bodyLarge,
+            color = Color.White,
+            modifier = Modifier.weight(1f),
+        )
+        Spacer(modifier = Modifier.width(6.dp))
+        URSwitch(
+            checked = namePublic == true,
+            enabled = namePublic != null && !settingNamePublic,
+            toggle = { onNamePublic(namePublic != true) },
+        )
     }
 }
 

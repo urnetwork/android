@@ -26,6 +26,25 @@ internal interface ProtocolTopClient {
     fun setNamePublic(public: Boolean, done: (Result<Unit>) -> Unit)
 }
 
+/**
+ * The http status of a failed sdk call: the sdk's HttpStatusError reads as the
+ * status line and the body ("410 Gone: The snapshot expired. Reload from the
+ * top."), so a leading three digits and a space. Null for a failure that got
+ * no answer from the server, and for a message that only mentions a number.
+ */
+fun protocolHttpStatus(message: String?): Int? =
+    message?.let { PROTOCOL_HTTP_STATUS.find(it) }?.groupValues?.get(1)?.toIntOrNull()
+
+// the status line the sdk's HttpStatusError starts with
+private val PROTOCOL_HTTP_STATUS = Regex("^(\\d{3}) ")
+
+/**
+ * GET /sn/top refused a cursor whose snapshot expired (snapshots are kept 7
+ * days): HTTP 410, after which the board reloads from the newest snapshot's
+ * first page. An unknown snapshot id is a 404, an ordinary failure.
+ */
+fun protocolSnapshotExpired(error: Throwable?): Boolean = protocolHttpStatus(error?.message) == 410
+
 /** SnTopResult: one page of the board. */
 data class ProtocolTopPage(
     val snapshot: ProtocolSnapshot,
@@ -62,7 +81,11 @@ data class ProtocolTopMe(
  *
  * A failed next page is never asked for again by scrolling: the footer's
  * retry is the retry (the hot-loop rule of PointsLeaderboardPaging). A failed
- * refresh keeps the rows it would have replaced.
+ * refresh keeps the rows it would have replaced. A next page whose snapshot
+ * expired (HTTP 410) can never be asked for again, so it reloads the board
+ * from the newest snapshot's first page instead; a second 410 before any page
+ * lands is an ordinary failure, so a server that keeps refusing cannot drive
+ * a reload loop.
  */
 internal class ProtocolLeaderboardModel(
     private val settings: ProtocolLeaderboardSettings,
@@ -94,6 +117,10 @@ internal class ProtocolLeaderboardModel(
     // a seek's target position not loaded yet; 0 when none
     private var seekPosition = 0L
 
+    // the board was reloaded because its snapshot expired and no next page
+    // has landed since: a second 410 is a failure, not another reload
+    private var reloadedForExpiry = false
+
     private var visible = false
     private var closed = false
 
@@ -109,6 +136,7 @@ internal class ProtocolLeaderboardModel(
         client = nextClient
         generation++
         seekPosition = 0L
+        reloadedForExpiry = false
         // the former account's rows, standing and switch go with it
         apply(
             ProtocolLeaderboardState.Initial.copy(
@@ -268,6 +296,8 @@ internal class ProtocolLeaderboardModel(
     }
 
     private fun loadAll() {
+        // asked for: an expiry before it is no reason to stop reloading after
+        reloadedForExpiry = false
         loadFirstPage()
         loadMe()
         loadNamePublic()
@@ -323,6 +353,13 @@ internal class ProtocolLeaderboardModel(
                 }
                 val page = result.getOrNull()
                 if (page == null) {
+                    if (!reloadedForExpiry && protocolSnapshotExpired(result.exceptionOrNull())) {
+                        // the cursor's snapshot is gone and its page with it:
+                        // the newest snapshot from the top, a seek's target too
+                        reloadedForExpiry = true
+                        loadFirstPage()
+                        return@post
+                    }
                     seekPosition = 0L
                     apply(state.copy(pageLoading = false, pageFailed = true))
                     return@post
@@ -333,6 +370,7 @@ internal class ProtocolLeaderboardModel(
                     loadFirstPage()
                     return@post
                 }
+                reloadedForExpiry = false
                 val rows = rowsInRange(state.rows, page.rows)
                 apply(
                     state.copy(
