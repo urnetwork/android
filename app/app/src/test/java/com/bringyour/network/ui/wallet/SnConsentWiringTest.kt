@@ -97,7 +97,7 @@ class SnConsentWiringTest {
         assertFalse(gated.contains("SnConsentBlock("))
         val ledger = content.indexOf("SnLedgerTileBlock(tile = it, onClaim = onOpenLedgerClaim, formatAlpha = formatAlpha)")
         val consent = content.indexOf("SnConsentBlock(")
-        assertTrue(0 <= ledger && ledger < consent && consent < content.indexOf("head?.let"))
+        assertTrue(0 <= ledger && ledger < consent && consent < content.indexOf("when (top200) {"))
         // hidden only without the protocol (signed out)
         assertTrue(screen.contains("consentTile = if (earningsViewModel.protocolAvailable) snConsentTile(consentState, consentStage) else null,"))
         assertTrue(screen.contains("onSignConsent = { earningsViewModel.consentFlow.start() },"))

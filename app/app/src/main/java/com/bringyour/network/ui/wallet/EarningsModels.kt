@@ -1,5 +1,13 @@
 package com.bringyour.network.ui.wallet
 
+import com.bringyour.network.ui.leaderboard.ProtocolFleet
+import com.bringyour.network.ui.leaderboard.ProtocolHistoryPoint
+import com.bringyour.network.ui.leaderboard.ProtocolLabel
+import com.bringyour.network.ui.leaderboard.ProtocolMe
+import com.bringyour.network.ui.leaderboard.ProtocolNotMeasurableReason
+import com.bringyour.network.ui.leaderboard.ProtocolRow
+import com.bringyour.network.ui.leaderboard.ProtocolSnapshot
+import com.bringyour.network.ui.leaderboard.ProtocolTopMe
 import com.bringyour.network.utils.Ss58
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -80,25 +88,6 @@ data class AccountEpoch(
     val shareBps: Long,
 )
 
-/** Head miner (Top 200) eligibility and binding for this network. */
-data class SnHeadState(
-    val eligible: Boolean,
-    val score: Double,
-    val floor: Double,
-    val rankEstimate: Long,
-    val cutoff: Long,
-    val bound: Boolean,
-    val hotkey: String?,
-    val uid: Long,
-    val rank: Long,
-    val epoch: Long,
-    val source: String,
-) {
-    /** bound and within 15% of the eviction floor */
-    val nearFloor: Boolean
-        get() = bound && 0.0 < floor && score < floor * 1.15
-}
-
 data class WalletValidation(
     val validSyntax: Boolean,
     val existsOnChain: Boolean,
@@ -119,7 +108,7 @@ class EarningsUnavailableException(message: String = "The UR protocol is not ava
 /**
  * The SDK seam. Wallet, gas key and claims live in the SDK on the device; claims go
  * directly from the SDK to the settlement vault contract (no URnetwork API in the
- * alpha path). Points history and head eligibility come from the URnetwork API.
+ * alpha path). Points history and the Top 200 standing come from the URnetwork API.
  */
 interface EarningsProtocolSource {
 
@@ -183,7 +172,11 @@ interface EarningsProtocolSource {
 
     suspend fun accountEpochs(): Result<List<AccountEpoch>>
 
-    suspend fun head(): Result<SnHeadState?>
+    /**
+     * the network's standing on the Protocol leaderboard (GET /sn/top/me,
+     * apple/LEADERTOP.md §8), which the Top 200 tile shows
+     */
+    suspend fun topMe(): Result<ProtocolTopMe?>
 
     fun formatAlpha(rao: Long): String
 
@@ -248,7 +241,7 @@ object NoProtocolSource : EarningsProtocolSource {
     override suspend fun consentSubmit(coldkeySs58: String, message: String, signature: String): Result<Unit> =
         Result.failure(EarningsUnavailableException())
     override suspend fun accountEpochs(): Result<List<AccountEpoch>> = Result.success(emptyList())
-    override suspend fun head(): Result<SnHeadState?> = Result.success(null)
+    override suspend fun topMe(): Result<ProtocolTopMe?> = Result.success(null)
     override fun formatAlpha(rao: Long): String = EarningsFormat.alpha(rao)
     override fun formatShareBps(shareBps: Long): String = EarningsFormat.shareBps(shareBps)
     override fun shortSs58(address: String): String = Ss58.short(address)
@@ -485,21 +478,51 @@ class SampleProtocolSource(
         return Result.success(epochs)
     }
 
-    override suspend fun head(): Result<SnHeadState?> {
+    // projected inside the head seats, with binding still closed on mainnet
+    override suspend fun topMe(): Result<ProtocolTopMe?> {
         delay(300)
+        val row = ProtocolRow(
+            position = 143,
+            name = "",
+            tag = "",
+            projectedScore = 52.4,
+            margin = 0.27,
+            trend = 6,
+            label = ProtocolLabel.ESTIMATE,
+            measurable = true,
+            claimPrompt = true,
+            isMe = true,
+            fleets = listOf<ProtocolFleet>(),
+        )
         return Result.success(
-            SnHeadState(
-                eligible = true,
-                score = 812.0,
-                floor = 640.0,
-                rankEstimate = 143,
-                cutoff = 200,
-                bound = false,
-                hotkey = null,
-                uid = 0,
-                rank = 0,
-                epoch = 1_219,
-                source = "server",
+            ProtocolTopMe(
+                snapshot = ProtocolSnapshot(
+                    id = "sample-snapshot",
+                    tempoIndex = 1_219,
+                    computedAtMillis = now,
+                    totalRanked = 41_230,
+                    headSeats = 200,
+                    claimedFleets = 0,
+                    openSeats = 200,
+                    projectedCutoff = 41.2,
+                    bindingOpen = false,
+                    stale = false,
+                ),
+                me = ProtocolMe(
+                    row = row,
+                    soloScore = 61.0,
+                    distinctPrefixes = 58,
+                    sharedPrefixes = 4,
+                    sharedWithUnits = 3,
+                    notMeasurableReason = ProtocolNotMeasurableReason.NONE,
+                    history = (0 until 30).map { day ->
+                        ProtocolHistoryPoint(
+                            day = java.time.LocalDate.now().minusDays((29 - day).toLong()).toString(),
+                            rank = 412L - day * 9L,
+                            score = 30.0 + day * 0.7,
+                        )
+                    },
+                ),
             )
         )
     }

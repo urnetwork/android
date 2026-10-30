@@ -27,6 +27,20 @@ class MainNavViewModel @Inject constructor(
     private val _currentRoute = MutableStateFlow<Route?>(null)
     val currentRoute: StateFlow<Route?> = _currentRoute.asStateFlow()
 
+    // Earnings' "See the Protocol leaderboard": the leaderboard shows its
+    // Protocol tab once, then the request is consumed, so a later visit keeps
+    // the tab the user chose
+    private val _protocolTabRequested = MutableStateFlow(false)
+    val protocolTabRequested: StateFlow<Boolean> = _protocolTabRequested.asStateFlow()
+
+    val requestProtocolTab: () -> Unit = {
+        _protocolTabRequested.value = true
+    }
+
+    val consumeProtocolTabRequest: () -> Unit = {
+        _protocolTabRequested.value = false
+    }
+
     private val _displayIntroFunnel = MutableStateFlow<Boolean>(false)
     val displayIntroFunnel: StateFlow<Boolean> = _displayIntroFunnel.asStateFlow()
 

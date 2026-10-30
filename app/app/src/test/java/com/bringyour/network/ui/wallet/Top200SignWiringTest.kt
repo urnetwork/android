@@ -40,14 +40,17 @@ class Top200SignWiringTest {
     }
 
     @Test
-    fun `both top 200 states offer sign fleet binding`() {
+    fun `both top 200 states offer sign fleet binding once binding is open`() {
+        // while binding is closed it stays hidden (apple/LEADERTOP.md §8, Q16)
         val tile = wallet("Top200Tile.kt")
-        assertTrue(between(tile, "fun Top200Tile(", "fun Top200BoundRow(").contains("SignFleetBindingButton(onClick = onSignFleetBinding)"))
-        assertTrue(between(tile, "fun Top200BoundRow(", "private fun SignFleetBindingButton(").contains("SignFleetBindingButton(onClick = onSignFleetBinding)"))
+        val projected = between(tile, "fun Top200Tile(", "fun Top200BoundRow(")
+        assertTrue(between(projected, "if (state.bindingOpen) {", "} else {").contains("SignFleetBindingButton(onClick = onSignFleetBinding)"))
+        val claimed = between(tile, "fun Top200BoundRow(", "private fun Top200Heading(")
+        assertTrue(between(claimed, "if (state.bindingOpen) {", "}").contains("SignFleetBindingButton(onClick = onSignFleetBinding)"))
         val earnings = wallet("EarningsScreen.kt")
         assertTrue(earnings.contains("val onSignFleetBinding = { navController.navigate(Route.Top200Sign) }"))
-        assertTrue(earnings.contains("Top200BoundRow(head = h, onSignFleetBinding = onSignFleetBinding)"))
-        assertTrue(earnings.contains("Top200Tile(head = h, onSignFleetBinding = onSignFleetBinding)"))
+        assertTrue(between(earnings, "Top200BoundRow(", ")").contains("onSignFleetBinding = onSignFleetBinding,"))
+        assertTrue(between(earnings, "Top200Tile(", ")").contains("onSignFleetBinding = onSignFleetBinding,"))
     }
 
     @Test

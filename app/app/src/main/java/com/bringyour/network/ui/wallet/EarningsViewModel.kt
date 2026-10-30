@@ -1,5 +1,7 @@
 package com.bringyour.network.ui.wallet
 
+import com.bringyour.network.ui.leaderboard.ProtocolTopMe
+
 import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -186,8 +188,21 @@ class EarningsViewModel @Inject constructor(
     private val _epochsLoaded = MutableStateFlow(false)
     val epochsLoaded: StateFlow<Boolean> = _epochsLoaded.asStateFlow()
 
-    private val _head = MutableStateFlow<SnHeadState?>(null)
-    val head: StateFlow<SnHeadState?> = _head.asStateFlow()
+    // the network's standing on the Protocol leaderboard (/sn/top/me): the Top 200 tile
+    private val _top = MutableStateFlow<ProtocolTopMe?>(null)
+    val top: StateFlow<ProtocolTopMe?> = _top.asStateFlow()
+
+    // the leaderboard's "Claim on Earnings": Earnings opens scrolled to the Top 200 tile
+    private val _top200FocusRequested = MutableStateFlow(false)
+    val top200FocusRequested: StateFlow<Boolean> = _top200FocusRequested.asStateFlow()
+
+    fun requestTop200Focus() {
+        _top200FocusRequested.value = true
+    }
+
+    fun consumeTop200Focus() {
+        _top200FocusRequested.value = false
+    }
 
     private val _claimDialog = MutableStateFlow<ClaimDialogState?>(null)
     val claimDialog: StateFlow<ClaimDialogState?> = _claimDialog.asStateFlow()
@@ -251,7 +266,7 @@ class EarningsViewModel @Inject constructor(
             coroutineScope {
                 launch { refreshWallet() }
                 launch { refreshEpochs() }
-                launch { refreshHead() }
+                launch { refreshTop() }
                 // the network's consent, read with or without a wallet entry
                 launch { consentFlow.refresh() }
             }
@@ -291,10 +306,11 @@ class EarningsViewModel @Inject constructor(
         _epochsLoaded.value = true
     }
 
-    private suspend fun refreshHead() {
-        source.head()
-            .onSuccess { _head.value = it }
-            .onFailure { Log.i(TAG, "head: ${it.message}") }
+    // a failed read keeps the standing shown
+    private suspend fun refreshTop() {
+        source.topMe()
+            .onSuccess { _top.value = it }
+            .onFailure { Log.i(TAG, "sn top me: ${it.message}") }
     }
 
     private suspend fun refreshClaims() {
@@ -746,7 +762,7 @@ class EarningsViewModel @Inject constructor(
         _schedule.value = null
         _epochs.value = emptyList()
         _epochsLoaded.value = false
-        _head.value = null
+        _top.value = null
         _claimDialog.value = null
         _isSeekerHolder.value = false
 
