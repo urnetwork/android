@@ -31,8 +31,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.ArrowDropUp
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material.icons.outlined.VisibilityOff
@@ -695,6 +693,11 @@ internal fun ProtocolLabelChip(
     }
 }
 
+/**
+ * The trend's direction as a small triangle, up in the accent and down in
+ * amber; nothing when the position held. Decoration: the row and the card
+ * say the trend in words.
+ */
 @Composable
 private fun ProtocolTrendArrow(
     trend: Long,
@@ -703,12 +706,23 @@ private fun ProtocolTrendArrow(
     if (trend == 0L) {
         return
     }
-    Icon(
-        imageVector = if (0L < trend) Icons.Filled.ArrowDropUp else Icons.Filled.ArrowDropDown,
-        contentDescription = null,
-        tint = if (0L < trend) BlueMedium else Amber,
-        modifier = modifier.size(20.dp),
-    )
+    val up = 0L < trend
+    val color = if (up) BlueMedium else Amber
+    Canvas(modifier = modifier.size(16.dp)) {
+        val halfWidth = size.width * 0.25f
+        val halfHeight = size.height * 0.18f
+        val centerX = size.width / 2f
+        val centerY = size.height / 2f
+        val tip = if (up) centerY - halfHeight else centerY + halfHeight
+        val base = if (up) centerY + halfHeight else centerY - halfHeight
+        val triangle = Path().apply {
+            moveTo(centerX - halfWidth, base)
+            lineTo(centerX + halfWidth, base)
+            lineTo(centerX, tip)
+            close()
+        }
+        drawPath(path = triangle, color = color)
+    }
 }
 
 /**

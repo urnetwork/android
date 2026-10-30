@@ -51,7 +51,7 @@ class SnLedgerWiringTest {
     fun `the v2 tile sits under the v1 unclaimed tile, which is unchanged`() {
         // UX-1
         val screen = source("EarningsScreen.kt")
-        val walletBlock = between(screen, "if (wallet != null) {\n                    Spacer", "head?.let")
+        val walletBlock = between(screen, "if (wallet != null) {\n                    Spacer", "when (top200) {")
         val unclaimed = walletBlock.indexOf("UnclaimedTile(")
         val ledger = walletBlock.indexOf("SnLedgerTileBlock(tile = it, onClaim = onOpenLedgerClaim, formatAlpha = formatAlpha)")
         assertTrue(0 <= unclaimed && unclaimed < ledger)
