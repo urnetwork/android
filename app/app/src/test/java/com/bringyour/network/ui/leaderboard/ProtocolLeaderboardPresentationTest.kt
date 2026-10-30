@@ -252,6 +252,50 @@ class ProtocolLeaderboardPresentationTest {
     }
 
     @Test
+    fun anUnrankedCallerIsNotRankedRatherThanNumberZero() {
+        // GET /sn/top/me always answers a row: position 0 when the network has
+        // no board row (not_providing) or a stored row without a rank (its reason)
+        val noRow = protocolCard(
+            signedIn(
+                me(
+                    row(0, label = ProtocolLabel.NOT_MEASURABLE, measurable = false, claimPrompt = false),
+                    reason = ProtocolNotMeasurableReason.NOT_PROVIDING,
+                )
+            )
+        )
+        assertTrue("$noRow", noRow is ProtocolCard.NotRanked)
+        val stored = protocolCard(
+            signedIn(
+                me(
+                    row(0, label = ProtocolLabel.NOT_MEASURABLE, measurable = false, claimPrompt = false),
+                    reason = ProtocolNotMeasurableReason.SHARED_EGRESS,
+                )
+            )
+        )
+        assertTrue("$stored", stored is ProtocolCard.NotRanked)
+        // nothing below position 1 is a rank
+        val negative = protocolCard(signedIn(me(row(-1, claimPrompt = false))))
+        assertTrue("$negative", negative is ProtocolCard.NotRanked)
+        // position 1 is
+        assertTrue(protocolCard(signedIn(me(row(1)))) is ProtocolCard.Standing)
+    }
+
+    @Test
+    fun aSnapshotWithoutAnIdIsTheEmptyState() {
+        // the board before its first snapshot: an empty id and no rows
+        val state = ProtocolLeaderboardState.Initial.copy(
+            hasClient = true,
+            snapshot = snapshot().copy(id = "", totalRanked = 0),
+            rows = listOf(),
+            listLoaded = true,
+        )
+        val ui = protocolLeaderboardUi(state, settings)
+        assertEquals(ProtocolListBody.Empty, ui.body)
+        assertEquals(0L, ui.indicatorTotal)
+        assertFalse(ui.hasMoreAfter)
+    }
+
+    @Test
     fun theCardShowsTheNameOnlyWhenTheSwitchSaysSo() {
         // the switch just turned off: a standing read before it still has the name
         val hidden = standing(signedIn(me(row(173, name = "kayak-hollow")), namePublic = false))

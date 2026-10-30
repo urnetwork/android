@@ -77,6 +77,14 @@ class Top200TileStateTest {
     )
 
     @Test
+    fun anUnrankedCallerHasNoTileEvenWithAClaimedFleet() {
+        // /sn/top/me answers position 0 for a network without a rank; a claimed
+        // fleet does not make it one, and the tile would read "#0"
+        assertEquals(Top200TileState.Hidden, top200TileState(answer(0, label = ProtocolLabel.NOT_MEASURABLE, measurable = false)))
+        assertEquals(Top200TileState.Hidden, top200TileState(answer(0, fleets = listOf(fleet(81)))))
+    }
+
+    @Test
     fun noStandingShowsNoTile() {
         assertEquals(Top200TileState.Hidden, top200TileState(null))
         assertEquals(Top200TileState.Hidden, top200TileState(ProtocolTopMe(snapshot = snapshot(false), me = null)))

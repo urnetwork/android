@@ -301,6 +301,58 @@ class ProtocolLeaderboardModelTest {
     }
 
     @Test
+    fun anExpiredSnapshotReloadsTheBoardFromTheTopOfTheNewest() {
+        val client = FakeClient("a")
+        val model = shownModel(client)
+        model.onLastVisibleRow(49)
+        // the cursor's snapshot is gone (kept 7 days): the server answers 410,
+        // and the sdk hands over its status line and body
+        client.tops.removeFirst()(Result.failure(IOException("410 Gone: The snapshot expired. Reload from the top.")))
+        runPosted()
+        // not a failed page that its retry would send again forever: the first
+        // page of the newest snapshot, over the rows shown
+        assertEquals(listOf("a:top:50:c1:snap-1", "a:top:50::"), events)
+        assertEquals(ProtocolListFooter.None, model.ui.footer)
+        assertEquals(50, model.ui.rows.size)
+        client.answerTop(page(1, 50, next = "d1", snapshot = snapshot(id = "snap-2")))
+        runPosted()
+        events.clear()
+        model.onLastVisibleRow(49)
+        assertEquals(listOf("a:top:50:d1:snap-2"), events)
+    }
+
+    @Test
+    fun anExpiredSnapshotDuringASeekReloadsAndDropsTheSeek() {
+        val client = FakeClient("a")
+        val model = shownModel(client)
+        model.seekTo(380)
+        client.tops.removeFirst()(Result.failure(IOException("410 Gone: The snapshot expired. Reload from the top.")))
+        runPosted()
+        assertEquals(listOf("a:top:200:c1:snap-1", "a:top:50::"), events)
+        client.answerTop(page(1, 50, next = "d1", snapshot = snapshot(id = "snap-2")))
+        runPosted()
+        // the seek was into the old ranking: it does not page on by itself
+        assertEquals(2, events.size)
+    }
+
+    @Test
+    fun anyOtherFailedPageWaitsForItsRetry() {
+        val client = FakeClient("a")
+        val model = shownModel(client)
+        model.onLastVisibleRow(49)
+        client.tops.removeFirst()(Result.failure(IOException("404 Not Found: Unknown snapshot.")))
+        runPosted()
+        assertEquals(ProtocolListFooter.Failed, model.ui.footer)
+        assertEquals(listOf("a:top:50:c1:snap-1"), events)
+        // and a message that only mentions 410 is not one
+        model.retry()
+        client.tops.removeFirst()(Result.failure(IOException("dial tcp 192.0.2.1:410: connection refused")))
+        runPosted()
+        assertEquals(ProtocolListFooter.Failed, model.ui.footer)
+        assertEquals(listOf("a:top:50:c1:snap-1", "a:top:50:c1:snap-1"), events)
+    }
+
+    @Test
     fun aSeekPagesWithTheLargestPageUntilItsPositionIsLoaded() {
         val client = FakeClient("a")
         val model = shownModel(client)
