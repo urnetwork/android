@@ -281,6 +281,43 @@ class ProtocolLeaderboardPresentationTest {
     }
 
     @Test
+    fun theNotRankedCardSaysWhyWhenTheServerDoes() {
+        val unranked = row(0, name = "kayak-hollow", label = ProtocolLabel.NOT_MEASURABLE, measurable = false, claimPrompt = false)
+        assertEquals(
+            ProtocolCard.NotRanked(
+                ProtocolUnranked(tag = "", name = "", namePublic = false, reason = ProtocolNotMeasurableReason.SHARED_EGRESS)
+            ),
+            protocolCard(signedIn(me(unranked, reason = ProtocolNotMeasurableReason.SHARED_EGRESS))),
+        )
+        // the name as others see it, as on a ranked card
+        assertEquals(
+            ProtocolCard.NotRanked(
+                ProtocolUnranked(tag = "", name = "kayak-hollow", namePublic = true, reason = ProtocolNotMeasurableReason.NOT_PROVIDING)
+            ),
+            protocolCard(signedIn(me(unranked, reason = ProtocolNotMeasurableReason.NOT_PROVIDING), namePublic = true)),
+        )
+        // no reason given, none shown
+        assertEquals(
+            ProtocolCard.NotRanked(ProtocolUnranked(tag = "", name = "", namePublic = false, reason = null)),
+            protocolCard(signedIn(me(unranked, reason = ProtocolNotMeasurableReason.NONE))),
+        )
+    }
+
+    @Test
+    fun aPageWithoutASnapshotIsTheEmptyStateWithoutABanner() {
+        val state = ProtocolLeaderboardState.Initial.copy(
+            hasClient = true,
+            snapshot = protocolNoSnapshot(),
+            rows = listOf(),
+            listLoaded = true,
+        )
+        val ui = protocolLeaderboardUi(state, settings)
+        assertEquals(ProtocolListBody.Empty, ui.body)
+        // nothing is known about binding: no banner claims it is closed
+        assertEquals(listOf<ProtocolBanner>(), ui.banners)
+    }
+
+    @Test
     fun aSnapshotWithoutAnIdIsTheEmptyState() {
         // the board before its first snapshot: an empty id and no rows
         val state = ProtocolLeaderboardState.Initial.copy(

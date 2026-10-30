@@ -78,7 +78,7 @@ enum class ProtocolNotMeasurableReason(val wire: String, @get:StringRes val text
     }
 }
 
-/** SnTopSnapshot: the one tempo's board every row and the card come from. */
+/** SnTopSnapshot: the one tempo's board every row and the card come from. Its id is empty before the board's first snapshot. */
 data class ProtocolSnapshot(
     val id: String,
     val tempoIndex: Long,
@@ -95,6 +95,23 @@ data class ProtocolSnapshot(
     val bindingOpen: Boolean,
     // computed more than 3 tempos ago
     val stale: Boolean,
+)
+
+/**
+ * A page that came with no snapshot at all: no rankings yet, like a snapshot
+ * without an id. Nothing is known about binding then, so it claims no banner.
+ */
+fun protocolNoSnapshot() = ProtocolSnapshot(
+    id = "",
+    tempoIndex = 0,
+    computedAtMillis = null,
+    totalRanked = 0,
+    headSeats = 0,
+    claimedFleets = 0,
+    openSeats = 0,
+    projectedCutoff = 0.0,
+    bindingOpen = true,
+    stale = false,
 )
 
 /** SnTopFleet: one claimed fleet of a row. Nulls are what the server has not measured. */
@@ -258,6 +275,22 @@ data class ProtocolStanding(
     val fleets: List<ProtocolFleet>,
 )
 
+/**
+ * The caller's network when it has no position on the board: GET /sn/top/me
+ * answers position 0 for it (no board row, or a stored row without a rank).
+ * The card shows its header and the switch, and why the validator can't
+ * score it when the server says; never a rank.
+ */
+data class ProtocolUnranked(
+    val tag: String,
+    // the name as others see it; empty when anonymous
+    val name: String,
+    // the switch's value: points_leaderboard_public; null until read
+    val namePublic: Boolean?,
+    // null when the server gives no reason
+    val reason: ProtocolNotMeasurableReason?,
+)
+
 /** The own-status card (LEADERTOP §5), or what stands in its place. */
 sealed interface ProtocolCard {
     // no network auth: the public list only, and no card (LEADERTOP §9)
@@ -269,8 +302,8 @@ sealed interface ProtocolCard {
     // the first read failed: the retry row in the card's box
     data object LoadFailed : ProtocolCard
 
-    // the network has no row on the board: what gets it ranked
-    data object NotRanked : ProtocolCard
+    // the network has no position on the board: its header and why, no rank
+    data class NotRanked(val unranked: ProtocolUnranked) : ProtocolCard
 
     data class Standing(val standing: ProtocolStanding) : ProtocolCard
 }
@@ -375,13 +408,28 @@ fun protocolCard(
     val me = state.me
     if (me == null) {
         return when {
-            state.meLoaded -> ProtocolCard.NotRanked
+            state.meLoaded -> ProtocolCard.NotRanked(
+                ProtocolUnranked(tag = "", name = "", namePublic = state.namePublic, reason = null)
+            )
             state.meFailed -> ProtocolCard.LoadFailed
             else -> ProtocolCard.Loading
         }
     }
     val snapshot = state.meSnapshot ?: state.snapshot
     val row = me.row
+    // nothing below position 1 is a rank: /sn/top/me answers 0 for a network
+    // without one, with the reason it can't be scored (not_providing when it
+    // has no board row at all)
+    if (row.position <= 0L) {
+        return ProtocolCard.NotRanked(
+            ProtocolUnranked(
+                tag = row.tag,
+                name = if (state.namePublic == false) "" else row.name,
+                namePublic = state.namePublic,
+                reason = me.notMeasurableReason.takeIf { it != ProtocolNotMeasurableReason.NONE },
+            )
+        )
+    }
     val measurable = row.measurable && row.label != ProtocolLabel.NOT_MEASURABLE
     val headSeats = snapshot?.headSeats ?: 0L
     val prompt = protocolClaimPrompt(row, snapshot, closeMargin)
@@ -439,7 +487,8 @@ fun protocolLeaderboardUi(state: ProtocolLeaderboardState, settings: ProtocolLea
         !state.listLoaded && state.listLoading -> ProtocolListBody.Progress
         !state.listLoaded && state.listFailed -> ProtocolListBody.LoadFailed
         !state.listLoaded -> ProtocolListBody.Progress
-        state.rows.isEmpty() -> ProtocolListBody.Empty
+        // a snapshot without an id is the board before its first snapshot: no rankings yet
+        state.rows.isEmpty() || state.snapshot?.id.isNullOrEmpty() -> ProtocolListBody.Empty
         else -> ProtocolListBody.Rows
     }
     val rows = if (body == ProtocolListBody.Rows) {

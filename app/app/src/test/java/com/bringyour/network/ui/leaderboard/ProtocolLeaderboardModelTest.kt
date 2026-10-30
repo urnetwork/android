@@ -523,7 +523,79 @@ class ProtocolLeaderboardModelTest {
         model.setVisible(true)
         client.answerMe(null)
         runPosted()
-        assertEquals(ProtocolCard.NotRanked, model.ui.card)
+        assertEquals(
+            ProtocolCard.NotRanked(ProtocolUnranked(tag = "", name = "", namePublic = null, reason = null)),
+            model.ui.card,
+        )
+    }
+
+    @Test
+    fun anUnrankedStandingIsTheNotRankedCardWithItsReason() {
+        val client = FakeClient("a")
+        val model = model()
+        model.setClient(client)
+        model.setVisible(true)
+        // what GET /sn/top/me answers for a network with no board row
+        client.answerMe(
+            me(
+                row(0, label = ProtocolLabel.NOT_MEASURABLE, measurable = false).copy(claimPrompt = false, tag = "\uD83E\uDD8A"),
+                reason = ProtocolNotMeasurableReason.NOT_PROVIDING,
+            )
+        )
+        client.answerNamePublic(false)
+        runPosted()
+        assertEquals(
+            ProtocolCard.NotRanked(
+                ProtocolUnranked(
+                    tag = "\uD83E\uDD8A",
+                    name = "",
+                    namePublic = false,
+                    reason = ProtocolNotMeasurableReason.NOT_PROVIDING,
+                )
+            ),
+            model.ui.card,
+        )
+    }
+
+    @Test
+    fun aSecondExpiredSnapshotBeforeAnyPageLandsIsAFailure() {
+        val client = FakeClient("a")
+        val model = shownModel(client)
+        val expired = IOException("410 Gone: The snapshot expired. Reload from the top.")
+        model.onLastVisibleRow(49)
+        client.tops.removeFirst()(Result.failure(expired))
+        runPosted()
+        client.answerTop(page(1, 50, next = "d1", snapshot = snapshot(id = "snap-2")))
+        runPosted()
+        model.onLastVisibleRow(49)
+        // the newest snapshot's cursor is refused too: no reload loop
+        client.tops.removeFirst()(Result.failure(expired))
+        runPosted()
+        assertEquals(ProtocolListFooter.Failed, model.ui.footer)
+        assertEquals(listOf("a:top:50:c1:snap-1", "a:top:50::", "a:top:50:d1:snap-2"), events)
+
+        // a page that lands, or a refresh, makes the next expiry a reload again
+        model.retry()
+        client.answerTop(page(51, 100, next = "d2", snapshot = snapshot(id = "snap-2")))
+        runPosted()
+        model.onLastVisibleRow(99)
+        client.tops.removeFirst()(Result.failure(expired))
+        runPosted()
+        assertEquals("a:top:50::", events.last())
+        assertEquals(ProtocolListFooter.None, model.ui.footer)
+    }
+
+    @Test
+    fun theStatusOfAFailureIsItsLeadingStatusLine() {
+        assertEquals(410, protocolHttpStatus("410 Gone: The snapshot expired. Reload from the top."))
+        assertEquals(404, protocolHttpStatus("404 Not Found: Unknown snapshot."))
+        assertEquals(null, protocolHttpStatus("dial tcp 192.0.2.1:410: connection refused"))
+        assertEquals(null, protocolHttpStatus("4100 too many digits"))
+        assertEquals(null, protocolHttpStatus(""))
+        assertEquals(null, protocolHttpStatus(null))
+        assertTrue(protocolSnapshotExpired(IOException("410 Gone: The snapshot expired. Reload from the top.")))
+        assertFalse(protocolSnapshotExpired(IOException("404 Not Found: Unknown snapshot.")))
+        assertFalse(protocolSnapshotExpired(null))
     }
 
     @Test

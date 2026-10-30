@@ -47,7 +47,9 @@ internal class SdkProtocolTopClient(
                     }
                     checkNotNull(result) { "no answer" }
                     result.error?.let { throw ProtocolTopException(it.message.orEmpty()) }
-                    val snapshot = checkNotNull(result.snapshot?.let(::protocolSnapshotOf)) { "no snapshot" }
+                    // the server sends a snapshot without an id before the board's
+                    // first one; no snapshot at all reads the same: no rankings yet
+                    val snapshot = result.snapshot?.let(::protocolSnapshotOf) ?: protocolNoSnapshot()
                     val list = result.rows
                     ProtocolTopPage(
                         snapshot = snapshot,

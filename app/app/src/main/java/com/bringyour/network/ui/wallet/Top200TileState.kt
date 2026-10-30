@@ -54,6 +54,11 @@ sealed interface Top200TileState {
 fun top200TileState(answer: ProtocolTopMe?): Top200TileState {
     val me = answer?.me ?: return Top200TileState.Hidden
     val row = me.row
+    // /sn/top/me answers position 0 for a network without a rank: no tile, a
+    // claimed fleet or not, as the Protocol card shows no rank for it
+    if (row.position <= 0L) {
+        return Top200TileState.Hidden
+    }
     val bindingOpen = answer.snapshot?.bindingOpen == true
     if (row.fleets.isNotEmpty()) {
         return Top200TileState.Claimed(
