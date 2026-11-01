@@ -140,7 +140,7 @@
     <string name="choose_photo">写真を選択</string>
     <string name="cities">都市</string>
     <string name="claim">受け取る</string>
-    <string name="claim_across_epochs">確定済みの %1$d エポック分</string>
+    <string name="claim_across_epochs">受け取り可能なエポック: %1$d</string>
     <string name="claim_alpha_title">SN25α を受け取る</string>
     <string name="claim_amount_button">%1$s を受け取る</string>
     <string name="claim_confirmed">受け取り済み</string>
@@ -1141,6 +1141,7 @@
     <string name="sn_ledger_unavailable">利用不可</string>
     <string name="sn_payout_schedule">収益はエポックごとに確定し、受け取ると SN25α で Bittensor の coldkey に支払われます。</string>
     <string name="sn_payout_schedule_times">このエポックは %1$s に終了します。あなたの取り分は %2$s から %3$s まで受け取れます。</string>
+    <string name="sn_status_not_finalized">公開された支払いなし</string>
     <string name="solana_one_time_payment">Solana 上の USDC での支払いは年 1 回の一括払いで、無料トライアルはありません。</string>
     <string name="solana_payment_still_checking">Solana での支払いをまだ確認しています。ネットワーク上の確認には 1～2 分かかることがあります。</string>
     <string name="solana_sign_in">Solanaでサインイン</string>

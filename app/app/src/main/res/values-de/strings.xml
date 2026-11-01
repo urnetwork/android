@@ -140,7 +140,7 @@
     <string name="choose_photo">Foto auswählen</string>
     <string name="cities">Städte</string>
     <string name="claim">Einlösen</string>
-    <string name="claim_across_epochs">Abgeschlossene Epochen: %1$d</string>
+    <string name="claim_across_epochs">Einlösbare Epochen: %1$d</string>
     <string name="claim_alpha_title">SN25α einlösen</string>
     <string name="claim_amount_button">%1$s einlösen</string>
     <string name="claim_confirmed">Eingelöst</string>
@@ -1141,6 +1141,7 @@
     <string name="sn_ledger_unavailable">Nicht verfügbar</string>
     <string name="sn_payout_schedule">Einnahmen werden jede Epoche abgerechnet und in SN25α an deinen Bittensor-Coldkey ausgezahlt, sobald du sie einlöst.</string>
     <string name="sn_payout_schedule_times">Diese Epoche endet am %1$s. Löse deinen Anteil zwischen %2$s und %3$s ein.</string>
+    <string name="sn_status_not_finalized">Keine Auszahlung veröffentlicht</string>
     <string name="solana_one_time_payment">Die Zahlung mit USDC auf Solana ist eine einmalige Jahreszahlung ohne kostenlose Testphase.</string>
     <string name="solana_payment_still_checking">Wir prüfen deine Solana-Zahlung noch. Die Bestätigung im Netzwerk kann ein bis zwei Minuten dauern.</string>
     <string name="solana_sign_in">Mit Solana anmelden</string>

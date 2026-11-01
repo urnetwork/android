@@ -140,7 +140,7 @@
     <string name="choose_photo">เลือกรูปภาพ</string>
     <string name="cities">เมือง</string>
     <string name="claim">รับ</string>
-    <string name="claim_across_epochs">จาก %1$d อีพอคที่สรุปแล้ว</string>
+    <string name="claim_across_epochs">อีพอคที่รับได้: %1$d</string>
     <string name="claim_alpha_title">รับ SN25α</string>
     <string name="claim_amount_button">รับ %1$s</string>
     <string name="claim_confirmed">รับแล้ว</string>
@@ -1141,6 +1141,7 @@
     <string name="sn_ledger_unavailable">ไม่พร้อมใช้งาน</string>
     <string name="sn_payout_schedule">รายได้จะสรุปทุกอีพอคและจ่ายเป็น SN25α ไปยัง coldkey Bittensor ของคุณเมื่อคุณกดรับ</string>
     <string name="sn_payout_schedule_times">อีพอคนี้สิ้นสุด %1$s รับส่วนแบ่งของคุณได้ตั้งแต่ %2$s ถึง %3$s</string>
+    <string name="sn_status_not_finalized">ไม่มีการเผยแพร่การจ่ายเงิน</string>
     <string name="solana_one_time_payment">การชำระด้วย USDC บน Solana เป็นการชำระรายปีครั้งเดียว ไม่มีช่วงทดลองใช้ฟรี</string>
     <string name="solana_payment_still_checking">ยังคงตรวจสอบการชำระเงิน Solana ของคุณ การยืนยันบนเครือข่ายอาจใช้เวลาหนึ่งถึงสองนาที</string>
     <string name="solana_sign_in">เข้าสู่ระบบด้วยเครือข่าย Solana</string>

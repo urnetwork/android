@@ -140,7 +140,7 @@
     <string name="choose_photo">Choisir une photo</string>
     <string name="cities">Villes</string>
     <string name="claim">Réclamer</string>
-    <string name="claim_across_epochs">Époques finalisées : %1$d</string>
+    <string name="claim_across_epochs">Époques réclamables : %1$d</string>
     <string name="claim_alpha_title">Réclamer des SN25α</string>
     <string name="claim_amount_button">Réclamer %1$s</string>
     <string name="claim_confirmed">Réclamé</string>
@@ -1141,6 +1141,7 @@
     <string name="sn_ledger_unavailable">Indisponible</string>
     <string name="sn_payout_schedule">Les gains sont réglés à chaque époque et versés en SN25α sur votre coldkey Bittensor lorsque vous les réclamez.</string>
     <string name="sn_payout_schedule_times">Cette époque se termine le %1$s. Réclamez votre part du %2$s au %3$s.</string>
+    <string name="sn_status_not_finalized">Aucun paiement publié</string>
     <string name="solana_one_time_payment">Payer en USDC sur Solana est un paiement annuel unique, sans essai gratuit.</string>
     <string name="solana_payment_still_checking">Nous vérifions encore votre paiement Solana. La confirmation sur le réseau peut prendre une minute ou deux.</string>
     <string name="solana_sign_in">Se connecter avec Solana</string>

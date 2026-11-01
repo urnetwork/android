@@ -140,7 +140,7 @@
     <string name="choose_photo">Wybierz zdjęcie</string>
     <string name="cities">Miasta</string>
     <string name="claim">Odbierz</string>
-    <string name="claim_across_epochs">Sfinalizowane epoki: %1$d</string>
+    <string name="claim_across_epochs">Epoki do odebrania: %1$d</string>
     <string name="claim_alpha_title">Odbierz SN25α</string>
     <string name="claim_amount_button">Odbierz %1$s</string>
     <string name="claim_confirmed">Odebrano</string>
@@ -1141,6 +1141,7 @@
     <string name="sn_ledger_unavailable">Niedostępne</string>
     <string name="sn_payout_schedule">Zarobki są rozliczane w każdej epoce i wypłacane w SN25α na Twój coldkey Bittensor, gdy je odbierzesz.</string>
     <string name="sn_payout_schedule_times">Ta epoka kończy się %1$s. Odbierz swój udział od %2$s do %3$s.</string>
+    <string name="sn_status_not_finalized">Nie opublikowano wypłaty</string>
     <string name="solana_one_time_payment">Płatność w USDC w sieci Solana to jednorazowa płatność roczna, bez bezpłatnego okresu próbnego.</string>
     <string name="solana_payment_still_checking">Nadal sprawdzamy twoją płatność w sieci Solana. Potwierdzenie w sieci może potrwać minutę lub dwie.</string>
     <string name="solana_sign_in">Zaloguj się za pomocą Solana</string>

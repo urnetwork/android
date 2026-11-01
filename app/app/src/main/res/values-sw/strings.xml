@@ -140,7 +140,7 @@
     <string name="choose_photo">Chagua picha</string>
     <string name="cities">Miji</string>
     <string name="claim">DAI</string>
-    <string name="claim_across_epochs">Vipindi vilivyokamilika: %1$d</string>
+    <string name="claim_across_epochs">Vipindi vinavyoweza kudaiwa: %1$d</string>
     <string name="claim_alpha_title">Dai SN25α</string>
     <string name="claim_amount_button">Dai %1$s</string>
     <string name="claim_confirmed">Imedaiwa</string>
@@ -1141,6 +1141,7 @@
     <string name="sn_ledger_unavailable">Haipatikani</string>
     <string name="sn_payout_schedule">Mapato hulipwa kila kipindi kwa SN25α kwenye coldkey yako ya Bittensor unapoyadai.</string>
     <string name="sn_payout_schedule_times">Kipindi hiki kinaisha %1$s. Dai sehemu yako kuanzia %2$s hadi %3$s.</string>
+    <string name="sn_status_not_finalized">Hakuna malipo yaliyochapishwa</string>
     <string name="solana_one_time_payment">Kulipa kwa USDC kwenye Solana ni malipo ya mara moja kwa mwaka, bila jaribio la bila malipo.</string>
     <string name="solana_payment_still_checking">Bado tunakagua malipo yako ya Solana. Uthibitishaji kwenye mtandao unaweza kuchukua dakika moja au mbili.</string>
     <string name="solana_sign_in">Ingia na Solana</string>

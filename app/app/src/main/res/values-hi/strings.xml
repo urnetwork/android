@@ -140,7 +140,7 @@
     <string name="choose_photo">फ़ोटो चुनें</string>
     <string name="cities">शहर</string>
     <string name="claim">दावा करें</string>
-    <string name="claim_across_epochs">%1$d पूर्ण एपोक में</string>
+    <string name="claim_across_epochs">दावा योग्य एपोक: %1$d</string>
     <string name="claim_alpha_title">SN25α का दावा करें</string>
     <string name="claim_amount_button">%1$s का दावा करें</string>
     <string name="claim_confirmed">दावा किया गया</string>
@@ -1141,6 +1141,7 @@
     <string name="sn_ledger_unavailable">उपलब्ध नहीं</string>
     <string name="sn_payout_schedule">कमाई हर एपोक में तय होती है और जब आप उस पर दावा करते हैं, तो SN25α में आपके Bittensor coldkey पर भुगतान की जाती है।</string>
     <string name="sn_payout_schedule_times">यह एपोक %1$s को समाप्त होता है। अपने हिस्से का दावा %2$s से %3$s तक करें।</string>
+    <string name="sn_status_not_finalized">कोई भुगतान प्रकाशित नहीं हुआ</string>
     <string name="solana_one_time_payment">Solana पर USDC से भुगतान एक बार का सालाना भुगतान है, जिसमें मुफ़्त ट्रायल नहीं है।</string>
     <string name="solana_payment_still_checking">आपके Solana भुगतान की जाँच अभी जारी है। नेटवर्क पर पुष्टि में एक-दो मिनट लग सकते हैं।</string>
     <string name="solana_sign_in">Solana से साइन इन करें</string>
