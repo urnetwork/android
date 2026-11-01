@@ -44,6 +44,14 @@ data class SnGasBalanceState(
     val tao: Double,
 )
 
+/**
+ * The SDK's SnEpochClaim.Status. OPEN: the vault has not finalized the epoch, so
+ * nothing is claimable yet. NOT_FINALIZED ("not-finalized"): despite the SDK's
+ * name, the vault has finalized the epoch with nothing for this coldkey to claim,
+ * either because no payout root was published for it (the root was missed, which
+ * is final) or because its payout list holds no share for this coldkey. A status
+ * this build does not know is OPEN, which promises nothing.
+ */
 enum class EpochClaimStatus {
     OPEN,
     CLAIMABLE,
@@ -57,7 +65,8 @@ enum class EpochClaimStatus {
             "claimable" -> CLAIMABLE
             "claimed" -> CLAIMED
             "expired" -> EXPIRED
-            else -> NOT_FINALIZED
+            "not-finalized" -> NOT_FINALIZED
+            else -> OPEN
         }
     }
 }

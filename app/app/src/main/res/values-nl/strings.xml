@@ -140,7 +140,7 @@
     <string name="choose_photo">Foto kiezen</string>
     <string name="cities">Steden</string>
     <string name="claim">Opeisen</string>
-    <string name="claim_across_epochs">Afgeronde epochs: %1$d</string>
+    <string name="claim_across_epochs">Op te eisen epochs: %1$d</string>
     <string name="claim_alpha_title">SN25α opeisen</string>
     <string name="claim_amount_button">%1$s opeisen</string>
     <string name="claim_confirmed">Opgeëist</string>
@@ -1141,6 +1141,7 @@
     <string name="sn_ledger_unavailable">Niet beschikbaar</string>
     <string name="sn_payout_schedule">Verdiensten worden elke epoch afgerekend en in SN25α uitbetaald aan je Bittensor-coldkey wanneer je ze opeist.</string>
     <string name="sn_payout_schedule_times">Deze epoch eindigt op %1$s. Eis je aandeel op van %2$s tot %3$s.</string>
+    <string name="sn_status_not_finalized">Geen uitbetaling gepubliceerd</string>
     <string name="solana_one_time_payment">Betalen met USDC op Solana is een eenmalige jaarbetaling, zonder gratis proefperiode.</string>
     <string name="solana_payment_still_checking">We controleren je Solana-betaling nog. Bevestiging op het netwerk kan een minuut of twee duren.</string>
     <string name="solana_sign_in">Inloggen met Solana</string>

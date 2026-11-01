@@ -140,7 +140,7 @@
     <string name="choose_photo">Escolher fotografia</string>
     <string name="cities">Cidades</string>
     <string name="claim">Reivindicar</string>
-    <string name="claim_across_epochs">Épocas finalizadas: %1$d</string>
+    <string name="claim_across_epochs">Épocas reivindicáveis: %1$d</string>
     <string name="claim_alpha_title">Reivindicar SN25α</string>
     <string name="claim_amount_button">Reivindicar %1$s</string>
     <string name="claim_confirmed">Reivindicado</string>
@@ -1141,6 +1141,7 @@
     <string name="sn_ledger_unavailable">Indisponível</string>
     <string name="sn_payout_schedule">Os ganhos são liquidados a cada época e pagos em SN25α na sua coldkey Bittensor quando você os reivindica.</string>
     <string name="sn_payout_schedule_times">Esta época termina em %1$s. Reivindique sua parte de %2$s até %3$s.</string>
+    <string name="sn_status_not_finalized">Nenhum pagamento publicado</string>
     <string name="solana_one_time_payment">Pagar com USDC na Solana é um pagamento anual único, sem teste grátis.</string>
     <string name="solana_payment_still_checking">Ainda a verificar o seu pagamento Solana. A confirmação na rede pode demorar um ou dois minutos.</string>
     <string name="solana_sign_in">Iniciar sessão com Solana</string>

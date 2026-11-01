@@ -140,7 +140,7 @@
     <string name="choose_photo">اختيار صورة</string>
     <string name="cities">المدن</string>
     <string name="claim">مطالبة</string>
-    <string name="claim_across_epochs">عدد الفترات المكتملة: %1$d</string>
+    <string name="claim_across_epochs">عدد الفترات القابلة للمطالبة: %1$d</string>
     <string name="claim_alpha_title">المطالبة بـ SN25α</string>
     <string name="claim_amount_button">المطالبة بـ %1$s</string>
     <string name="claim_confirmed">تمت المطالبة</string>
@@ -1141,6 +1141,7 @@
     <string name="sn_ledger_unavailable">غير متاح</string>
     <string name="sn_payout_schedule">تُسوّى الأرباح في كل فترة وتُدفع بعملة SN25α إلى coldkey الخاص بك على Bittensor عند المطالبة بها.</string>
     <string name="sn_payout_schedule_times">تنتهي هذه الفترة في %1$s. طالِب بحصتك من %2$s حتى %3$s.</string>
+    <string name="sn_status_not_finalized">لم تُنشر أي دفعة</string>
     <string name="solana_one_time_payment">الدفع بـ USDC على Solana دفعة سنوية لمرة واحدة، دون تجربة مجانية.</string>
     <string name="solana_payment_still_checking">لا نزال نتحقق من دفعتك عبر Solana. قد يستغرق التأكيد على الشبكة دقيقة أو دقيقتين.</string>
     <string name="solana_sign_in">تسجيل الدخول باستخدام Solana</string>

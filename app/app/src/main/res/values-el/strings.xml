@@ -140,7 +140,7 @@
     <string name="choose_photo">Επιλογή φωτογραφίας</string>
     <string name="cities">Πόλεις</string>
     <string name="claim">Απαίτηση</string>
-    <string name="claim_across_epochs">Οριστικοποιημένες εποχές: %1$d</string>
+    <string name="claim_across_epochs">Εποχές προς διεκδίκηση: %1$d</string>
     <string name="claim_alpha_title">Διεκδίκηση SN25α</string>
     <string name="claim_amount_button">Διεκδίκηση %1$s</string>
     <string name="claim_confirmed">Διεκδικήθηκε</string>
@@ -1141,6 +1141,7 @@
     <string name="sn_ledger_unavailable">Μη διαθέσιμο</string>
     <string name="sn_payout_schedule">Τα κέρδη εκκαθαρίζονται σε κάθε εποχή και πληρώνονται σε SN25α στο Bittensor coldkey σας όταν τα διεκδικήσετε.</string>
     <string name="sn_payout_schedule_times">Αυτή η εποχή λήγει στις %1$s. Διεκδικήστε το μερίδιό σας από %2$s έως %3$s.</string>
+    <string name="sn_status_not_finalized">Δεν δημοσιεύτηκε πληρωμή</string>
     <string name="solana_one_time_payment">Η πληρωμή με USDC στο Solana είναι μια εφάπαξ ετήσια πληρωμή, χωρίς δωρεάν δοκιμή.</string>
     <string name="solana_payment_still_checking">Ελέγχουμε ακόμη την πληρωμή σας στο Solana. Η επιβεβαίωση στο δίκτυο μπορεί να διαρκέσει ένα ή δύο λεπτά.</string>
     <string name="solana_sign_in">Είσοδος με Solana</string>

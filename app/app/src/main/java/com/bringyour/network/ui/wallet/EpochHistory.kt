@@ -30,6 +30,8 @@ import java.util.Locale
 /**
  * Per-epoch history. Points are always shown; the alpha column appears only once a
  * wallet is connected, and only for epochs the vault knows about (not retroactive).
+ * An epoch the vault finalized without a payout for this coldkey (the SDK's
+ * not-finalized) reads No payout published.
  */
 @Composable
 fun EpochHistory(
@@ -115,12 +117,15 @@ fun EpochRow(
                 stringResource(id = R.string.points_short, EarningsFormat.points(epoch.points)),
                 style = MaterialTheme.typography.bodyLarge.copy(fontFamily = ppNeueBitBold)
             )
-            if (showAlpha && claim != null && claim.status != EpochClaimStatus.NOT_FINALIZED) {
+            if (showAlpha && claim != null) {
                 val (label, color) = when (claim.status) {
                     EpochClaimStatus.CLAIMABLE -> stringResource(id = R.string.unclaimed) to BlueMedium
                     EpochClaimStatus.CLAIMED -> stringResource(id = R.string.claim_confirmed) to Green
                     EpochClaimStatus.EXPIRED -> stringResource(id = R.string.claim_expired) to TextMuted
-                    else -> null to TextMuted
+                    // finalized by the vault with nothing to claim: no payout was published for it
+                    EpochClaimStatus.NOT_FINALIZED -> stringResource(id = R.string.sn_status_not_finalized) to TextMuted
+                    // not finalized yet: its amount only, once there is one
+                    EpochClaimStatus.OPEN -> null to TextMuted
                 }
                 if (0 < claim.amountRao) {
                     Text(

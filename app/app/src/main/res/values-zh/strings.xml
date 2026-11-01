@@ -140,7 +140,7 @@
     <string name="choose_photo">选择照片</string>
     <string name="cities">城市</string>
     <string name="claim">领取</string>
-    <string name="claim_across_epochs">涵盖 %1$d 个已确认的周期</string>
+    <string name="claim_across_epochs">可领取的周期：%1$d 个</string>
     <string name="claim_alpha_title">领取 SN25α</string>
     <string name="claim_amount_button">领取 %1$s</string>
     <string name="claim_confirmed">已领取</string>
@@ -1141,6 +1141,7 @@
     <string name="sn_ledger_unavailable">不可用</string>
     <string name="sn_payout_schedule">收益每个周期结算一次，你领取后会以 SN25α 支付到你的 Bittensor coldkey。</string>
     <string name="sn_payout_schedule_times">本周期于 %1$s 结束。请在 %2$s 至 %3$s 之间领取你的份额。</string>
+    <string name="sn_status_not_finalized">未发布支付</string>
     <string name="solana_one_time_payment">使用 Solana 上的 USDC 支付为一次性年付，不含免费试用。</string>
     <string name="solana_payment_still_checking">仍在检查您的 Solana 付款。网络确认可能需要一两分钟。</string>
     <string name="solana_sign_in">使用 Solana 登录</string>

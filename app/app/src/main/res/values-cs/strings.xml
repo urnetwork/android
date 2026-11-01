@@ -140,7 +140,7 @@
     <string name="choose_photo">Vybrat fotku</string>
     <string name="cities">Města</string>
     <string name="claim">Vyzvědněte</string>
-    <string name="claim_across_epochs">Dokončené epochy: %1$d</string>
+    <string name="claim_across_epochs">Epochy k vyzvednutí: %1$d</string>
     <string name="claim_alpha_title">Vyzvednout SN25α</string>
     <string name="claim_amount_button">Vyzvednout %1$s</string>
     <string name="claim_confirmed">Vyzvednuto</string>
@@ -1141,6 +1141,7 @@
     <string name="sn_ledger_unavailable">Nedostupné</string>
     <string name="sn_payout_schedule">Výdělky se vypořádávají každou epochu a vyplácejí se v SN25α na váš Bittensor coldkey, když si je vyzvednete.</string>
     <string name="sn_payout_schedule_times">Tato epocha končí %1$s. Svůj podíl si vyzvedněte od %2$s do %3$s.</string>
+    <string name="sn_status_not_finalized">Žádná zveřejněná výplata</string>
     <string name="solana_one_time_payment">Platba v USDC na síti Solana je jednorázová roční platba bez zkušebního období zdarma.</string>
     <string name="solana_payment_still_checking">Vaši platbu na síti Solana stále ověřujeme. Potvrzení v síti může trvat minutu nebo dvě.</string>
     <string name="solana_sign_in">Přihlaste se pomocí Solana</string>
