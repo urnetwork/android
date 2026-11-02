@@ -166,6 +166,7 @@
     <string name="community_edition_details">नेटवर्क में भाग लें और कम्युनिटी एडिशन तक मुफ्त पहुंच प्राप्त करें।</string>
     <string name="companion">साथी</string>
     <string name="conn_failed">कनेक्ट नहीं हो सका</string>
+    <string name="conn_not_protected">आपका इंटरनेट ट्रैफ़िक सुरक्षित नहीं है।</string>
     <string name="connect">कनेक्ट करें</string>
     <string name="connect_and_open">कनेक्ट करें और लिंक खोलें</string>
     <string name="connect_bittensor_wallet">Bittensor वॉलेट कनेक्ट करें</string>
@@ -262,6 +263,8 @@
     <string name="data_info_title">आपके डेटा के बारे में</string>
     <string name="data_info_used">अब तक आपके द्वारा उपयोग किया गया डेटा।</string>
     <string name="data_info_why">क्यों?</string>
+    <string name="data_limit_held_notice">जब तक और डेटा उपलब्ध नहीं होता या आप डिस्कनेक्ट नहीं करते, आपका ट्रैफ़िक टनल में रोका रहता है।</string>
+    <string name="data_limit_reached">डेटा सीमा पूरी हो गई</string>
     <string name="data_usage">डेटा उपयोग</string>
     <string name="default_daily_data">डिफ़ॉल्ट रूप से, आपको हर दिन %1$s मिलता है।</string>
     <string name="default_wallet">डिफ़ॉल्ट</string>

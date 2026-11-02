@@ -98,6 +98,10 @@ internal fun ConnectActions(
     // (see privateDnsStrictNoticeHost). Shown only while connected in strict mode.
     privateDnsStrictHost: String?,
     insufficientBalance: Boolean,
+    // whether a tunnel is running, for what the alert says about the traffic, and
+    // a paying account refused at a data limit (DataLimitGate)
+    tunnelStarted: Boolean,
+    dataLimitReached: Boolean,
     // reserved (Pending) or used up, from the last account balance, and the
     // reserved amount it names
     outOfBalanceKind: OutOfBalanceKind,
@@ -227,6 +231,8 @@ internal fun ConnectActions(
                 // in-app alert, above the fold so it shows in the collapsed peek
                 ConnectActionNotices(
                     actionButtons = actionButtons,
+                    tunnelStarted = tunnelStarted,
+                    dataLimitReached = dataLimitReached,
                     outOfBalanceKind = outOfBalanceKind,
                     reservedBytes = reservedBytes,
                     balanceRecovery = balanceRecovery,
@@ -471,6 +477,8 @@ internal fun ConnectActionButtonRow(
 @Composable
 internal fun ConnectActionNotices(
     actionButtons: ConnectActionButtons,
+    tunnelStarted: Boolean,
+    dataLimitReached: Boolean,
     outOfBalanceKind: OutOfBalanceKind,
     reservedBytes: Long,
     balanceRecovery: BalanceRecoveryState,
@@ -480,7 +488,12 @@ internal fun ConnectActionNotices(
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
 
-        val outOfBalanceNotice = outOfBalanceNotice(actionButtons, outOfBalanceKind, balanceRecovery)
+        val outOfBalanceNotice = outOfBalanceNotice(
+            actionButtons,
+            outOfBalanceKind,
+            balanceRecovery,
+            tunnelStarted = tunnelStarted,
+        )
 
         if (outOfBalanceNotice.refresh) {
             Spacer(modifier = Modifier.height(8.dp))
@@ -524,10 +537,10 @@ internal fun ConnectActionNotices(
             )
         }
 
-        if (outOfBalanceNotice.held) {
+        refusedTrafficTextId(dataLimit = false, traffic = outOfBalanceNotice.traffic)?.let { line ->
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                stringResource(id = R.string.insufficient_balance_held_notice),
+                stringResource(id = line),
                 style = MaterialTheme.typography.bodyMedium,
                 color = TextMuted,
                 modifier = Modifier
@@ -535,6 +548,29 @@ internal fun ConnectActionNotices(
                     .padding(horizontal = 4.dp)
                     .testTag("acceptance.insufficient_balance_notice")
             )
+        }
+
+        // a paying account refused at a data limit: nothing to buy, and the
+        // Disconnect beside this stays the way out
+        if (dataLimitReached) {
+            refusedTrafficTextId(
+                dataLimit = true,
+                traffic = refusedTraffic(
+                    connectRequested = actionButtons.disconnect || actionButtons.reconnect,
+                    tunnelStarted = tunnelStarted,
+                ),
+            )?.let { line ->
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    stringResource(id = line),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = TextMuted,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 4.dp)
+                        .testTag("acceptance.data_limit_notice")
+                )
+            }
         }
 
         if (outOfBalanceNotice.willReconnect) {

@@ -210,6 +210,10 @@ fun ConnectScreen(
         accountBalanceExhausted = balanceExhausted,
         connectRequested = displayConnectStatus != ConnectStatus.DISCONNECTED,
     ) && !isPro
+    // a paying account refused at a data limit (DataLimitGate), and whether a
+    // tunnel is running, for what the alert says about the traffic
+    val dataLimitReached = connectViewModel.dataLimitReached
+    val tunnelConnected = connectViewModel.tunnelConnected
 
     var promptSolanaReview by rememberSaveable { mutableStateOf(false) }
 
@@ -349,8 +353,9 @@ fun ConnectScreen(
                 shuffleSuccessPoints = connectViewModel.shuffleSuccessPoints,
                 getStateColor = connectViewModel.getStateColor,
                 displayReconnectTunnel = connectViewModel.displayReconnectTunnel,
-                insufficientBalance = displayInsufficientBalance,
-                isPollingSubscriptionBalance = subscriptionBalanceViewModel.isPollingSubscriptionBalance
+                insufficientBalance = displayInsufficientBalance || dataLimitReached,
+                isPollingSubscriptionBalance = subscriptionBalanceViewModel.isPollingSubscriptionBalance,
+                dataLimitReached = dataLimitReached,
             )
         }
     }
@@ -365,7 +370,8 @@ fun ConnectScreen(
             contractStatus = contractStatus,
             currentPlan = currentPlan,
             isPollingSubscriptionBalance = subscriptionBalanceViewModel.isPollingSubscriptionBalance,
-            onShowProviderLocations = { navController.navigate(Route.ProviderLocations) }
+            onShowProviderLocations = { navController.navigate(Route.ProviderLocations) },
+            dataLimitReached = dataLimitReached,
         )
     }
 
@@ -401,6 +407,8 @@ fun ConnectScreen(
         Column(modifier = Modifier.fillMaxWidth()) {
             ConnectActionNotices(
                 actionButtons = actionButtons,
+                tunnelStarted = tunnelConnected,
+                dataLimitReached = dataLimitReached,
                 outOfBalanceKind = outOfBalanceKind(accountBalance),
                 reservedBytes = accountBalance?.openTransferByteCount ?: 0L,
                 balanceRecovery = balanceRecoveryState,
@@ -453,6 +461,8 @@ fun ConnectScreen(
                 displayReconnectTunnel = connectViewModel.displayReconnectTunnel,
                 privateDnsStrictHost = privateDnsStrictHost,
                 insufficientBalance = displayInsufficientBalance,
+                tunnelStarted = tunnelConnected,
+                dataLimitReached = dataLimitReached,
                 outOfBalanceKind = outOfBalanceKind(accountBalance),
                 reservedBytes = accountBalance?.openTransferByteCount ?: 0L,
                 balanceRecovery = balanceRecoveryState,

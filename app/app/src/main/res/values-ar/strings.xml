@@ -166,6 +166,7 @@
     <string name="community_edition_details">شارك في الشبكة واحصل على وصول مجاني إلى إصدار المجتمع.</string>
     <string name="companion">الطرف المقابل</string>
     <string name="conn_failed">تعذّر الاتصال</string>
+    <string name="conn_not_protected">حركة الإنترنت لديك غير محمية.</string>
     <string name="connect">اربط</string>
     <string name="connect_and_open">الاتصال وفتح الرابط</string>
     <string name="connect_bittensor_wallet">ربط محفظة Bittensor</string>
@@ -262,6 +263,8 @@
     <string name="data_info_title">حول بياناتك</string>
     <string name="data_info_used">البيانات التي استخدمتها حتى الآن.</string>
     <string name="data_info_why">لماذا؟</string>
+    <string name="data_limit_held_notice">تبقى حركة بياناتك محتجزة داخل النفق حتى تتوفر بيانات إضافية أو تقوم بقطع الاتصال.</string>
+    <string name="data_limit_reached">تم بلوغ حد البيانات</string>
     <string name="data_usage">استخدام البيانات</string>
     <string name="default_daily_data">افتراضيًا، تحصل على %1$s كل يوم.</string>
     <string name="default_wallet">الافتراضي</string>

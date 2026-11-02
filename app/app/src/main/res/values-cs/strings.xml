@@ -166,6 +166,7 @@
     <string name="community_edition_details">Zapojte se do sítě a získejte bezplatný přístup k komunitní edici.</string>
     <string name="companion">Protějšek</string>
     <string name="conn_failed">Nepodařilo se připojit</string>
+    <string name="conn_not_protected">Váš internetový provoz není chráněn.</string>
     <string name="connect">Připojit</string>
     <string name="connect_and_open">Připojení a otevření odkazu</string>
     <string name="connect_bittensor_wallet">Připojit peněženku Bittensor</string>
@@ -262,6 +263,8 @@
     <string name="data_info_title">O vašich datech</string>
     <string name="data_info_used">Data, která jste dosud využili.</string>
     <string name="data_info_why">Proč?</string>
+    <string name="data_limit_held_notice">Váš provoz zůstává zadržen v tunelu, dokud nebudou k dispozici další data nebo se neodpojíte.</string>
+    <string name="data_limit_reached">Dosažen limit dat</string>
     <string name="data_usage">Využití dat</string>
     <string name="default_daily_data">Ve výchozím nastavení dostáváte každý den %1$s.</string>
     <string name="default_wallet">Výchozí</string>

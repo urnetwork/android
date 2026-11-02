@@ -166,6 +166,7 @@
     <string name="community_edition_details">Dołącz do sieci i uzyskaj bezpłatny dostęp do wersji społecznościowej.</string>
     <string name="companion">Partner</string>
     <string name="conn_failed">Nie udało się połączyć</string>
+    <string name="conn_not_protected">Twój ruch internetowy nie jest chroniony.</string>
     <string name="connect">Połącz</string>
     <string name="connect_and_open">Połącz i otwórz link</string>
     <string name="connect_bittensor_wallet">Połącz portfel Bittensor</string>
@@ -262,6 +263,8 @@
     <string name="data_info_title">O Twoich danych</string>
     <string name="data_info_used">Dane wykorzystane do tej pory.</string>
     <string name="data_info_why">Dlaczego?</string>
+    <string name="data_limit_held_notice">Twój ruch jest zatrzymany w tunelu, dopóki nie będzie dostępnych więcej danych lub się nie rozłączysz.</string>
+    <string name="data_limit_reached">Osiągnięto limit danych</string>
     <string name="data_usage">Zużycie danych</string>
     <string name="default_daily_data">Domyślnie dostajesz %1$s każdego dnia.</string>
     <string name="default_wallet">Domyślny</string>

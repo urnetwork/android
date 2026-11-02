@@ -37,6 +37,7 @@ fun InsufficientBalanceNoticeEffect(
 
     val insufficientBalance = contractStatus?.insufficientBalance == true
     val connectRequested = connectStatus != ConnectStatus.DISCONNECTED
+    val tunnelConnected = connectViewModel.tunnelConnected
 
     // the start connect gate outside the ui reads the same plan and poll state
     SideEffect {
@@ -44,12 +45,21 @@ fun InsufficientBalanceNoticeEffect(
         application.uiPollingSubscriptionBalance = isPollingSubscriptionBalance
     }
 
-    LaunchedEffect(insufficientBalance, isPro, isPollingSubscriptionBalance, connectRequested) {
+    LaunchedEffect(insufficientBalance, isPro, isPollingSubscriptionBalance, connectRequested, tunnelConnected) {
+        val currentPlan = if (isPro) Plan.Supporter else Plan.Basic
+        val dataLimit = application.dataLimitGate.observe(
+            insufficientBalance = insufficientBalance,
+            currentPlan = currentPlan,
+            isPollingSubscriptionBalance = isPollingSubscriptionBalance,
+        )
+        connectViewModel.setDataLimitReached(dataLimit)
         application.insufficientBalanceMonitor.update(
             insufficientBalance = insufficientBalance,
-            currentPlan = if (isPro) Plan.Supporter else Plan.Basic,
+            currentPlan = currentPlan,
             isPollingSubscriptionBalance = isPollingSubscriptionBalance,
             connectRequested = connectRequested,
+            dataLimit = dataLimit,
+            tunnelStarted = tunnelConnected,
         )
     }
 
