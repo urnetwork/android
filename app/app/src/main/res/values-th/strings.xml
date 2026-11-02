@@ -93,6 +93,7 @@
     <string name="bittensor_continue_in_browser">ดำเนินการต่อในเบราว์เซอร์ แล้วอนุมัติคำขอในส่วนขยาย %1$s</string>
     <string name="bittensor_error_address_not_in_wallet">กระเป๋าเงิน %1$s ของคุณไม่มีที่อยู่ที่คุณป้อน เพิ่มหรือเชื่อมต่อบัญชีนั้นในกระเป๋าเงิน หรือป้อนที่อยู่ที่มีอยู่ในกระเป๋าเงิน</string>
     <string name="bittensor_error_challenge_expired">คำขอนี้หมดอายุแล้ว เริ่มใหม่เพื่อรับข้อความใหม่สำหรับลงนาม</string>
+    <string name="bittensor_error_extension_not_authorized">%1$s ยังไม่อนุญาตให้ ur.io ใช้บัญชี Bittensor ของคุณ อนุมัติคำขอเชื่อมต่อในกระเป๋าเงิน หรืออนุญาต ur.io ภายใต้ “Connected Sites” (เว็บไซต์ที่เชื่อมต่อ) ในการตั้งค่า แล้วลองอีกครั้ง</string>
     <string name="bittensor_error_extension_not_found">ไม่พบส่วนขยาย %1$s ในเบราว์เซอร์นี้ ติดตั้งส่วนขยาย แล้วลองอีกครั้ง</string>
     <string name="bittensor_error_invalid_signature">ลายเซ็นนี้ไม่ถูกต้อง วางลายเซ็น 0x แบบเต็มจากกระเป๋าเงินของคุณ</string>
     <string name="bittensor_error_message_mismatch">กระเป๋าเงินลงนามคำขออื่น โปรดเริ่มใหม่</string>
@@ -101,6 +102,9 @@
     <string name="bittensor_error_user_rejected">คำขอถูกปฏิเสธในกระเป๋าเงินของคุณ เริ่มใหม่และอนุมัติคำขอเพื่อดำเนินการต่อ</string>
     <string name="bittensor_error_walletconnect_expired">คำขอ WalletConnect หมดอายุก่อนที่กระเป๋าเงินจะตอบกลับ เริ่มใหม่อีกครั้ง</string>
     <string name="bittensor_error_walletconnect_unavailable">WalletConnect ไม่พร้อมใช้งานในขณะนี้ ลองอีกครั้งในภายหลัง หรือป้อนที่อยู่ของคุณด้วยตนเอง</string>
+    <string name="bittensor_manual_choice">ลงนามด้วยตนเอง</string>
+    <string name="bittensor_manual_no_popup">จะไม่มีหน้าต่างกระเป๋าเงินเปิดขึ้นสำหรับขั้นตอนนี้ คุณต้องลงนามข้อความด้วยตนเอง แล้ววางลายเซ็นด้านล่าง</string>
+    <string name="bittensor_manual_phone_route">หากกระเป๋าเงินของคุณลงนามข้อความที่วางไม่ได้ ให้ย้อนกลับแล้วเลือก WalletConnect (Nova และอื่น ๆ) หรือลงนามที่ ur.io/app/account/earnings ในเบราว์เซอร์บนคอมพิวเตอร์</string>
     <string name="bittensor_manual_sign_instructions">ลงนามข้อความนี้ด้วยกระเป๋าเงิน %1$s ที่เก็บ coldkey ของคุณ แล้ววางที่อยู่และลายเซ็นด้านล่าง</string>
     <string name="bittensor_message_to_sign">ข้อความที่ต้องลงนาม</string>
     <string name="bittensor_sign_in">เข้าสู่ระบบด้วย Bittensor</string>

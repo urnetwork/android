@@ -93,6 +93,7 @@
     <string name="bittensor_continue_in_browser">Pokračujte v prohlížeči a schvalte požadavek v rozšíření %1$s.</string>
     <string name="bittensor_error_address_not_in_wallet">Vaše peněženka %1$s neobsahuje adresu, kterou jste zadali. Přidejte nebo připojte tento účet v peněžence, nebo zadejte adresu, kterou obsahuje.</string>
     <string name="bittensor_error_challenge_expired">Platnost tohoto požadavku vypršela. Začněte znovu a získejte novou zprávu k podpisu.</string>
+    <string name="bittensor_error_extension_not_authorized">%1$s zatím nepovolil webu ur.io používat váš účet Bittensor. Schvalte žádost o připojení v peněžence nebo povolte ur.io v jejím nastavení v části „Connected Sites“ (připojené weby) a zkuste to znovu.</string>
     <string name="bittensor_error_extension_not_found">Rozšíření %1$s nebylo v tomto prohlížeči nalezeno. Nainstalujte ho a zkuste to znovu.</string>
     <string name="bittensor_error_invalid_signature">To není platný podpis. Vložte celý podpis 0x ze své peněženky.</string>
     <string name="bittensor_error_message_mismatch">Peněženka podepsala jiný požadavek. Začněte znovu.</string>
@@ -101,6 +102,9 @@
     <string name="bittensor_error_user_rejected">Požadavek byl ve vaší peněžence zamítnut. Začněte znovu a schvalte ho, abyste mohli pokračovat.</string>
     <string name="bittensor_error_walletconnect_expired">Požadavek WalletConnect vypršel dříve, než peněženka odpověděla. Začněte znovu.</string>
     <string name="bittensor_error_walletconnect_unavailable">WalletConnect teď není k dispozici. Zkuste to později znovu, nebo zadejte adresu ručně.</string>
+    <string name="bittensor_manual_choice">Podepsat ručně</string>
+    <string name="bittensor_manual_no_popup">Žádné okno peněženky se neotevře. Zprávu podepíšete sami a podpis pak vložíte níže.</string>
+    <string name="bittensor_manual_phone_route">Pokud vaše peněženka neumí podepsat vloženou zprávu, vraťte se a zvolte WalletConnect (Nova a další), nebo podepište na ur.io/app/account/earnings v prohlížeči na počítači.</string>
     <string name="bittensor_manual_sign_instructions">Podepište tuto zprávu peněženkou %1$s, ve které máte svůj coldkey, a pak níže vložte adresu a podpis.</string>
     <string name="bittensor_message_to_sign">Zpráva k podpisu</string>
     <string name="bittensor_sign_in">Přihlásit se přes Bittensor</string>

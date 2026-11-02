@@ -93,6 +93,7 @@
     <string name="bittensor_continue_in_browser">Continuez dans votre navigateur et approuvez la demande dans l’extension %1$s.</string>
     <string name="bittensor_error_address_not_in_wallet">Votre portefeuille %1$s ne contient pas l\'adresse que vous avez saisie. Ajoutez ou connectez ce compte dans le portefeuille, ou saisissez une adresse qu\'il contient.</string>
     <string name="bittensor_error_challenge_expired">Cette demande a expiré. Recommencez pour obtenir un nouveau message à signer.</string>
+    <string name="bittensor_error_extension_not_authorized">%1$s n\'a pas encore autorisé ur.io à utiliser votre compte Bittensor. Approuvez la demande de connexion dans le portefeuille ou autorisez ur.io dans « Connected Sites » (sites connectés) dans ses réglages, puis réessayez.</string>
     <string name="bittensor_error_extension_not_found">L\'extension %1$s est introuvable dans ce navigateur. Installez-la, puis réessayez.</string>
     <string name="bittensor_error_invalid_signature">Ce n’est pas une signature valide. Collez la signature 0x complète de votre portefeuille.</string>
     <string name="bittensor_error_message_mismatch">Le portefeuille a signé une autre demande. Recommencez.</string>
@@ -101,6 +102,9 @@
     <string name="bittensor_error_user_rejected">La demande a été refusée dans votre portefeuille. Recommencez et approuvez-la pour continuer.</string>
     <string name="bittensor_error_walletconnect_expired">La demande WalletConnect a expiré avant que le portefeuille ne réponde. Recommencez.</string>
     <string name="bittensor_error_walletconnect_unavailable">WalletConnect n\'est pas disponible pour le moment. Réessayez plus tard ou saisissez votre adresse manuellement.</string>
+    <string name="bittensor_manual_choice">Signer manuellement</string>
+    <string name="bittensor_manual_no_popup">Aucune fenêtre de portefeuille ne s\'ouvre ici. Vous signez le message vous-même, puis vous collez la signature ci-dessous.</string>
+    <string name="bittensor_manual_phone_route">Si votre portefeuille ne peut pas signer un message collé, revenez en arrière et choisissez WalletConnect (Nova et d\'autres), ou signez sur ur.io/app/account/earnings dans le navigateur d\'un ordinateur.</string>
     <string name="bittensor_manual_sign_instructions">Signez ce message avec le portefeuille %1$s qui détient votre coldkey, puis collez l’adresse et la signature ci-dessous.</string>
     <string name="bittensor_message_to_sign">Message à signer</string>
     <string name="bittensor_sign_in">Se connecter avec Bittensor</string>
