@@ -82,7 +82,9 @@ fun ConnectButton(
     getStateColor: (ProviderPointState?) -> Color,
     displayReconnectTunnel: Boolean,
     insufficientBalance: Boolean,
-    isPollingSubscriptionBalance: Boolean
+    isPollingSubscriptionBalance: Boolean,
+    // the warning below is a paying account's data limit, for the button's name
+    dataLimitReached: Boolean = false,
 ) {
 
     var currentStatus by remember { mutableStateOf<ConnectStatus?>(null) }
@@ -110,6 +112,7 @@ fun ConnectButton(
         insufficientBalance = insufficientBalance,
         isPollingSubscriptionBalance = isPollingSubscriptionBalance,
         displayReconnectTunnel = displayReconnectTunnel,
+        dataLimitReached = dataLimitReached,
     )?.let { stringResource(id = it) }
 
     Box(

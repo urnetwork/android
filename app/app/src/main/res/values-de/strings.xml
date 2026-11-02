@@ -170,6 +170,7 @@
     <string name="community_edition_details">Nimm am Netzwerk teil und erhalte kostenlosen Zugang zur Community Edition.</string>
     <string name="companion">Gegenstelle</string>
     <string name="conn_failed">Verbindung fehlgeschlagen</string>
+    <string name="conn_not_protected">Dein Internetverkehr ist nicht geschützt.</string>
     <string name="connect">Verbinde</string>
     <string name="connect_and_open">Verbinden und Link öffnen</string>
     <string name="connect_bittensor_wallet">Bittensor-Wallet verbinden</string>
@@ -266,6 +267,8 @@
     <string name="data_info_title">Über deine Daten</string>
     <string name="data_info_used">Daten, die du bisher verbraucht hast.</string>
     <string name="data_info_why">Warum?</string>
+    <string name="data_limit_held_notice">Dein Datenverkehr wird im Tunnel gehalten, bis wieder Daten verfügbar sind oder du die Verbindung trennst.</string>
+    <string name="data_limit_reached">Datenlimit erreicht</string>
     <string name="data_usage">Datennutzung</string>
     <string name="default_daily_data">Standardmäßig erhältst du jeden Tag %1$s.</string>
     <string name="default_wallet">Standard</string>

@@ -170,6 +170,7 @@
     <string name="community_edition_details">参与网络并免费获得社区版的访问权限。</string>
     <string name="companion">对端</string>
     <string name="conn_failed">无法连接</string>
+    <string name="conn_not_protected">你的互联网流量未受保护。</string>
     <string name="connect">连接</string>
     <string name="connect_and_open">连接并打开链接</string>
     <string name="connect_bittensor_wallet">连接 Bittensor 钱包</string>
@@ -266,6 +267,8 @@
     <string name="data_info_title">关于你的数据</string>
     <string name="data_info_used">你目前已使用的数据。</string>
     <string name="data_info_why">为什么？</string>
+    <string name="data_limit_held_notice">在有更多可用数据或你断开连接之前，你的流量会保留在隧道中。</string>
+    <string name="data_limit_reached">已达到数据上限</string>
     <string name="data_usage">数据使用量</string>
     <string name="default_daily_data">默认情况下，您每天可获得 %1$s。</string>
     <string name="default_wallet">默认</string>

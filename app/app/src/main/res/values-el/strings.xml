@@ -170,6 +170,7 @@
     <string name="community_edition_details">Συμμετέχετε στο δίκτυο και αποκτήστε δωρεάν πρόσβαση στην έκδοση κοινότητας.</string>
     <string name="companion">Συμβαλλόμενος</string>
     <string name="conn_failed">Δεν ήταν δυνατή η σύνδεση</string>
+    <string name="conn_not_protected">Η κίνηση του διαδικτύου σας δεν προστατεύεται.</string>
     <string name="connect">Σύνδεση</string>
     <string name="connect_and_open">Σύνδεση και άνοιγμα συνδέσμου</string>
     <string name="connect_bittensor_wallet">Σύνδεση πορτοφολιού Bittensor</string>
@@ -266,6 +267,8 @@
     <string name="data_info_title">Σχετικά με τα δεδομένα σας</string>
     <string name="data_info_used">Δεδομένα που έχετε χρησιμοποιήσει μέχρι τώρα.</string>
     <string name="data_info_why">Γιατί;</string>
+    <string name="data_limit_held_notice">Η κίνησή σας παραμένει στη σήραγγα μέχρι να υπάρξουν περισσότερα δεδομένα ή να αποσυνδεθείτε.</string>
+    <string name="data_limit_reached">Συμπληρώθηκε το όριο δεδομένων</string>
     <string name="data_usage">Χρήση δεδομένων</string>
     <string name="default_daily_data">Από προεπιλογή, λαμβάνετε %1$s κάθε μέρα.</string>
     <string name="default_wallet">Προεπιλογή</string>

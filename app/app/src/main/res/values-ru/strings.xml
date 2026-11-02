@@ -170,6 +170,7 @@
     <string name="community_edition_details">Получите бесплатный доступ к версии для сообщества.</string>
     <string name="companion">Партнёр</string>
     <string name="conn_failed">Не удалось подключиться</string>
+    <string name="conn_not_protected">Ваш интернет-трафик не защищён.</string>
     <string name="connect">Подключить</string>
     <string name="connect_and_open">Подключиться и открыть ссылку</string>
     <string name="connect_bittensor_wallet">Подключить кошелек Bittensor</string>
@@ -266,6 +267,8 @@
     <string name="data_info_title">О ваших данных</string>
     <string name="data_info_used">Данные, которые вы уже использовали.</string>
     <string name="data_info_why">Почему?</string>
+    <string name="data_limit_held_notice">Ваш трафик удерживается в туннеле, пока не появятся дополнительные данные или вы не отключитесь.</string>
+    <string name="data_limit_reached">Достигнут лимит данных</string>
     <string name="data_usage">Использование данных</string>
     <string name="default_daily_data">По умолчанию вы получаете %1$s каждый день.</string>
     <string name="default_wallet">По умолчанию</string>

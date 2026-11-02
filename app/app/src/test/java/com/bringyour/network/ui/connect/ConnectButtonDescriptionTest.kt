@@ -19,12 +19,26 @@ class ConnectButtonDescriptionTest {
         insufficientBalance: Boolean = false,
         isPollingSubscriptionBalance: Boolean = false,
         displayReconnectTunnel: Boolean = false,
+        dataLimitReached: Boolean = false,
     ) = connectButtonDescriptionId(
         status = status,
         insufficientBalance = insufficientBalance,
         isPollingSubscriptionBalance = isPollingSubscriptionBalance,
         displayReconnectTunnel = displayReconnectTunnel,
+        dataLimitReached = dataLimitReached,
     )
+
+    @Test
+    fun `a data limit names the button for the limit, not the balance`() {
+        assertEquals(
+            R.string.data_limit_reached,
+            description(ConnectStatus.CONNECTED, insufficientBalance = true, dataLimitReached = true),
+        )
+        assertEquals(
+            R.string.insufficient_balance,
+            description(ConnectStatus.CONNECTED, insufficientBalance = true),
+        )
+    }
 
     @Test
     fun `connected names the button`() {

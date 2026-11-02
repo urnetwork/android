@@ -170,6 +170,7 @@
     <string name="community_edition_details">เข้าร่วมเครือข่ายและรับสิทธิ์เข้าถึงฉบับชุมชนฟรี</string>
     <string name="companion">คู่สัญญา</string>
     <string name="conn_failed">เชื่อมต่อไม่ได้</string>
+    <string name="conn_not_protected">ทราฟฟิกอินเทอร์เน็ตของคุณไม่ได้รับการป้องกัน</string>
     <string name="connect">เชื่อมต่อ</string>
     <string name="connect_and_open">เชื่อมต่อและเปิดลิงก์</string>
     <string name="connect_bittensor_wallet">เชื่อมต่อกระเป๋าเงิน Bittensor</string>
@@ -266,6 +267,8 @@
     <string name="data_info_title">เกี่ยวกับข้อมูลของคุณ</string>
     <string name="data_info_used">ข้อมูลที่คุณใช้ไปแล้ว</string>
     <string name="data_info_why">ทำไม?</string>
+    <string name="data_limit_held_notice">ทราฟฟิกของคุณถูกกักไว้ในอุโมงค์จนกว่าจะมีข้อมูลเพิ่มหรือคุณตัดการเชื่อมต่อ</string>
+    <string name="data_limit_reached">ถึงขีดจำกัดข้อมูลแล้ว</string>
     <string name="data_usage">การใช้ข้อมูล</string>
     <string name="default_daily_data">ตามค่าเริ่มต้น คุณจะได้รับ %1$s ทุกวัน</string>
     <string name="default_wallet">ค่าเริ่มต้น</string>

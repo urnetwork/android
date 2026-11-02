@@ -5,6 +5,7 @@ import com.bringyour.network.vpnPacketFlowMode
 import com.bringyour.network.ui.shared.models.ConnectStatus
 import com.bringyour.network.ui.shared.viewmodels.Plan
 import com.bringyour.network.widgets.WidgetBalanceSnapshot
+import com.bringyour.network.R
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -143,8 +144,13 @@ class InsufficientBalancePolicyTest {
 
     private class RecordingSession : InsufficientBalanceSession {
         val events = mutableListOf<String>()
+        // what each post said
+        val said = mutableListOf<Pair<Boolean, RefusedTraffic>>()
         override fun disconnect() { events.add("disconnect") }
-        override fun postNotice() { events.add("post") }
+        override fun postNotice(dataLimit: Boolean, traffic: RefusedTraffic) {
+            events.add("post")
+            said.add(dataLimit to traffic)
+        }
         override fun cancelNotice() { events.add("cancel") }
     }
 
@@ -153,7 +159,16 @@ class InsufficientBalancePolicyTest {
         currentPlan: Plan = Plan.Basic,
         isPollingSubscriptionBalance: Boolean = false,
         connectRequested: Boolean = true,
-    ) = update(insufficientBalance, currentPlan, isPollingSubscriptionBalance, connectRequested)
+        dataLimit: Boolean = false,
+        tunnelStarted: Boolean = true,
+    ) = update(
+        insufficientBalance,
+        currentPlan,
+        isPollingSubscriptionBalance,
+        connectRequested,
+        dataLimit,
+        tunnelStarted,
+    )
 
     @Test
     fun outOfBalanceNeverDisconnects() {
@@ -495,7 +510,7 @@ class InsufficientBalancePolicyTest {
             override fun disconnect() {
                 disconnects += 1
             }
-            override fun postNotice() {
+            override fun postNotice(dataLimit: Boolean, traffic: RefusedTraffic) {
                 notices += 1
             }
             override fun cancelNotice() {}
@@ -507,6 +522,8 @@ class InsufficientBalancePolicyTest {
                 currentPlan = Plan.Basic,
                 isPollingSubscriptionBalance = false,
                 connectRequested = true,
+                dataLimit = false,
+                tunnelStarted = true,
             )
         }
         assertEquals(0, session.disconnects)
@@ -525,7 +542,8 @@ class InsufficientBalancePolicyTest {
             isPollingSubscriptionBalance = isPollingSubscriptionBalance,
             connectStatus = connectStatus,
             displayReconnectTunnel = false,
-        )
+        ),
+        tunnelStarted = true,
     )
 
     @Test
@@ -533,7 +551,7 @@ class InsufficientBalancePolicyTest {
         for (status in requestedStatuses) {
             assertEquals(
                 "$status",
-                OutOfBalanceNotice(refresh = true, held = true),
+                OutOfBalanceNotice(refresh = true, traffic = RefusedTraffic.HELD),
                 outOfBalanceNoticeFor(insufficientBalance = true, connectStatus = status),
             )
         }
@@ -544,14 +562,14 @@ class InsufficientBalancePolicyTest {
         // the upgrade button alone read as a paywall: say when the free data
         // comes back, with Why? to the data sheet; nothing is held in a tunnel
         assertEquals(
-            OutOfBalanceNotice(refresh = true, held = false),
+            OutOfBalanceNotice(refresh = true, traffic = RefusedTraffic.NONE),
             outOfBalanceNoticeFor(insufficientBalance = true, connectStatus = ConnectStatus.DISCONNECTED),
         )
     }
 
     @Test
     fun noOutOfBalanceNoticeOutsideTheGate() {
-        val none = OutOfBalanceNotice(refresh = false, held = false)
+        val none = OutOfBalanceNotice(refresh = false, traffic = RefusedTraffic.NONE)
         for (status in requestedStatuses + ConnectStatus.DISCONNECTED) {
             assertEquals("$status funded", none, outOfBalanceNoticeFor(insufficientBalance = false, connectStatus = status))
             assertEquals(
@@ -622,7 +640,7 @@ class InsufficientBalancePolicyTest {
                     connectStatus = status,
                     displayReconnectTunnel = false,
                 )
-                assertEquals("$kind $status", kind, outOfBalanceNotice(gated, kind).kind)
+                assertEquals("$kind $status", kind, outOfBalanceNotice(gated, kind, tunnelStarted = true).kind)
                 val funded = connectActionButtons(
                     insufficientBalance = false,
                     currentPlan = Plan.Basic,
@@ -630,7 +648,7 @@ class InsufficientBalancePolicyTest {
                     connectStatus = status,
                     displayReconnectTunnel = false,
                 )
-                assertEquals("$kind $status funded", OutOfBalanceKind.UNKNOWN, outOfBalanceNotice(funded, kind).kind)
+                assertEquals("$kind $status funded", OutOfBalanceKind.UNKNOWN, outOfBalanceNotice(funded, kind, tunnelStarted = true).kind)
             }
         }
     }
@@ -663,21 +681,21 @@ class InsufficientBalancePolicyTest {
         val spent = BalanceRecoveryState(startWaiting = false, retriesLeft = false)
 
         // a held connection is rebuilt by itself; Disconnect is its way out
-        val heldNotice = outOfBalanceNotice(held, recovery = waiting)
+        val heldNotice = outOfBalanceNotice(held, recovery = waiting, tunnelStarted = true)
         assertTrue(heldNotice.willReconnect)
         assertFalse(heldNotice.cancel)
         // a refused start waits with Cancel, also once the gate has lifted
         for (buttons in listOf(blockedDisconnected, ungatedDisconnected)) {
-            val notice = outOfBalanceNotice(buttons, recovery = startWaiting)
+            val notice = outOfBalanceNotice(buttons, recovery = startWaiting, tunnelStarted = true)
             assertTrue("$buttons", notice.willReconnect)
             assertTrue("$buttons", notice.cancel)
         }
         // nothing the user asked for is waiting: no promise
-        assertFalse(outOfBalanceNotice(blockedDisconnected, recovery = waiting).willReconnect)
-        assertFalse(outOfBalanceNotice(ungatedDisconnected, recovery = waiting).willReconnect)
+        assertFalse(outOfBalanceNotice(blockedDisconnected, recovery = waiting, tunnelStarted = true).willReconnect)
+        assertFalse(outOfBalanceNotice(ungatedDisconnected, recovery = waiting, tunnelStarted = true).willReconnect)
         // the retries are used up: no promise
-        assertFalse(outOfBalanceNotice(held, recovery = spent).willReconnect)
-        assertFalse(outOfBalanceNotice(held).willReconnect)
+        assertFalse(outOfBalanceNotice(held, recovery = spent, tunnelStarted = true).willReconnect)
+        assertFalse(outOfBalanceNotice(held, tunnelStarted = true).willReconnect)
     }
 
     @Test
@@ -688,5 +706,195 @@ class InsufficientBalancePolicyTest {
         // Pro gets no free daily grant
         assertFalse(upgradeShowsFreeRefresh(openedByStartConnectBlock = true, currentPlan = Plan.Supporter))
         assertFalse(upgradeShowsFreeRefresh(openedByStartConnectBlock = false, currentPlan = Plan.Supporter))
+    }
+
+    // ---- what the traffic is doing while refused ----
+
+    @Test
+    fun trafficIsHeldOnlyByARunningTunnel() {
+        assertEquals(RefusedTraffic.HELD, refusedTraffic(connectRequested = true, tunnelStarted = true))
+        assertEquals(RefusedTraffic.NOT_PROTECTED, refusedTraffic(connectRequested = true, tunnelStarted = false))
+        assertEquals(RefusedTraffic.NONE, refusedTraffic(connectRequested = false, tunnelStarted = true))
+        assertEquals(RefusedTraffic.NONE, refusedTraffic(connectRequested = false, tunnelStarted = false))
+    }
+
+    @Test
+    fun theLineForTheTrafficSaysWhatIsTrue() {
+        assertEquals(R.string.insufficient_balance_held_notice, refusedTrafficTextId(false, RefusedTraffic.HELD))
+        assertEquals(R.string.data_limit_held_notice, refusedTrafficTextId(true, RefusedTraffic.HELD))
+        for (dataLimit in listOf(false, true)) {
+            assertEquals(R.string.conn_not_protected, refusedTrafficTextId(dataLimit, RefusedTraffic.NOT_PROTECTED))
+            assertEquals(null, refusedTrafficTextId(dataLimit, RefusedTraffic.NONE))
+        }
+    }
+
+    @Test
+    fun theAlertDoesNotClaimHeldWithNoTunnel() {
+        // the defect: a connection requested with no tunnel running, told its
+        // traffic is held in the tunnel
+        for (status in requestedStatuses) {
+            val buttons = connectActionButtons(
+                insufficientBalance = true,
+                currentPlan = Plan.Basic,
+                isPollingSubscriptionBalance = false,
+                connectStatus = status,
+                displayReconnectTunnel = false,
+            )
+            assertEquals("$status", RefusedTraffic.NOT_PROTECTED, outOfBalanceNotice(buttons, tunnelStarted = false).traffic)
+            assertEquals("$status", RefusedTraffic.HELD, outOfBalanceNotice(buttons, tunnelStarted = true).traffic)
+        }
+        val disconnected = connectActionButtons(
+            insufficientBalance = true,
+            currentPlan = Plan.Basic,
+            isPollingSubscriptionBalance = false,
+            connectStatus = ConnectStatus.DISCONNECTED,
+            displayReconnectTunnel = false,
+        )
+        assertEquals(RefusedTraffic.NONE, outOfBalanceNotice(disconnected, tunnelStarted = false).traffic)
+    }
+
+    @Test
+    fun theNotificationDoesNotClaimHeldWithNoTunnel() {
+        val session = RecordingSession()
+        InsufficientBalanceMonitor(session).observe(tunnelStarted = false)
+        assertEquals(listOf(false to RefusedTraffic.NOT_PROTECTED), session.said)
+    }
+
+    @Test
+    fun theNotificationFollowsTheTunnelInPlace() {
+        val session = RecordingSession()
+        val monitor = InsufficientBalanceMonitor(session)
+        // the refusal lands before the tunnel is up
+        monitor.observe(tunnelStarted = false)
+        monitor.observe(tunnelStarted = false)
+        assertEquals(1, session.said.size)
+        // the tunnel comes up: the notice up is replaced, not repeated
+        monitor.observe(tunnelStarted = true)
+        monitor.observe(tunnelStarted = true)
+        assertEquals(
+            listOf(false to RefusedTraffic.NOT_PROTECTED, false to RefusedTraffic.HELD),
+            session.said,
+        )
+        // it goes away under the notice
+        monitor.observe(tunnelStarted = false)
+        assertEquals(false to RefusedTraffic.NOT_PROTECTED, session.said.last())
+        assertEquals(3, session.said.size)
+        // a disconnect removes it, and it does not come back within the episode
+        monitor.observe(connectRequested = false)
+        monitor.observe(tunnelStarted = true)
+        assertEquals(3, session.said.size)
+        assertEquals("cancel", session.events.last())
+        assertFalse("disconnect" in session.events)
+    }
+
+    // ---- a paying account refused: the data limit ----
+
+    @Test
+    fun aDataLimitIsAPayingAccountsRefusal() {
+        val gate = DataLimitGate()
+        assertTrue(gate.observe(true, Plan.Supporter, false))
+        assertFalse(gate.observe(false, Plan.Supporter, false))
+        assertFalse(DataLimitGate().observe(true, Plan.Basic, false))
+        assertFalse(DataLimitGate().observe(false, Plan.Supporter, false))
+        // a poll defers it
+        val polled = DataLimitGate()
+        assertFalse(polled.observe(true, Plan.Supporter, true))
+        assertTrue(polled.observe(true, Plan.Supporter, false))
+    }
+
+    @Test
+    fun aRefusalFromBeforeThePurchaseIsNoDataLimit() {
+        val gate = DataLimitGate()
+        assertFalse(gate.observe(true, Plan.Basic, false))
+        assertFalse(gate.observe(true, Plan.Basic, true))
+        assertFalse(gate.observe(true, Plan.Supporter, true))
+        // the purchase landed with the old refusal still standing
+        assertFalse(gate.observe(true, Plan.Supporter, false))
+        assertFalse(gate.observe(true, Plan.Supporter, false))
+        // it clears, and the next one the Supporter plan got for itself
+        assertFalse(gate.observe(false, Plan.Supporter, false))
+        assertTrue(gate.observe(true, Plan.Supporter, false))
+    }
+
+    @Test
+    fun aDataLimitPostsOncePerEpisodeInItsOwnWordsAndNeverDisconnects() {
+        val session = RecordingSession()
+        val monitor = InsufficientBalanceMonitor(session)
+        monitor.observe(currentPlan = Plan.Supporter, dataLimit = true)
+        monitor.observe(currentPlan = Plan.Supporter, dataLimit = true)
+        assertEquals(listOf(true to RefusedTraffic.HELD), session.said)
+        monitor.observe(currentPlan = Plan.Supporter, dataLimit = true, tunnelStarted = false)
+        assertEquals(true to RefusedTraffic.NOT_PROTECTED, session.said.last())
+        monitor.observe(insufficientBalance = false, currentPlan = Plan.Supporter)
+        assertEquals("cancel", session.events.last())
+        monitor.observe(currentPlan = Plan.Supporter, dataLimit = true)
+        assertEquals(3, session.said.size)
+        assertFalse("disconnect" in session.events)
+    }
+
+    @Test
+    fun aPurchaseDoesNotAnnounceADataLimit() {
+        val session = RecordingSession()
+        val monitor = InsufficientBalanceMonitor(session)
+        val gate = DataLimitGate()
+        // out of balance and told so, then the plan turns Supporter over the old refusal
+        monitor.observe(dataLimit = gate.observe(true, Plan.Basic, false))
+        monitor.observe(currentPlan = Plan.Supporter, dataLimit = gate.observe(true, Plan.Supporter, false))
+        assertEquals(listOf(false to RefusedTraffic.HELD), session.said)
+    }
+
+    @Test
+    fun aDataLimitHasNothingToBuy() {
+        // the supporter plan is never in the upgrade gate, so the buttons stay what
+        // they were: Disconnect, and no Upgrade or free refresh
+        val buttons = connectActionButtons(
+            insufficientBalance = false,
+            currentPlan = Plan.Supporter,
+            isPollingSubscriptionBalance = false,
+            connectStatus = ConnectStatus.CONNECTED,
+            displayReconnectTunnel = false,
+        )
+        assertFalse(buttons.upgrade)
+        assertTrue(buttons.disconnect)
+        assertEquals(
+            OutOfBalanceNotice(refresh = false, traffic = RefusedTraffic.NONE),
+            outOfBalanceNotice(buttons, tunnelStarted = true),
+        )
+    }
+
+    private fun mainSource(relative: String): String {
+        val file = listOf("", "app/", "app/app/")
+            .map { java.io.File(it + "src/main/java/com/bringyour/network/" + relative) }
+            .firstOrNull { it.isFile }
+        assertTrue("missing $relative", file != null)
+        return file!!.readText()
+    }
+
+    // The notification, the alert and the status need Android to run, so they are
+    // read: each says what the policy says, and none names the held line itself.
+    @Test
+    fun everySurfaceReadsThePolicy() {
+        val application = mainSource("MainApplication.kt")
+        assertFalse(application.contains("R.string.insufficient_balance_held_notice"))
+        assertTrue(application.contains(".refusedTrafficTextId(dataLimit, traffic)"))
+        assertTrue(application.contains("if (dataLimit) R.string.data_limit_reached else R.string.insufficient_balance"))
+        assertTrue(application.contains("internal val dataLimitGate by lazy"))
+
+        val actions = mainSource("ui/connect/ConnectActions.kt")
+        assertFalse(actions.contains("R.string.insufficient_balance_held_notice"))
+        assertTrue(actions.contains("refusedTrafficTextId(dataLimit = false, traffic = outOfBalanceNotice.traffic)"))
+        assertTrue(actions.contains("tunnelStarted = tunnelStarted,"))
+        assertTrue(actions.contains("acceptance.data_limit_notice"))
+
+        val effect = mainSource("ui/connect/InsufficientBalanceNoticeEffect.kt")
+        assertTrue(effect.contains("application.dataLimitGate.observe("))
+        assertTrue(effect.contains("connectViewModel.setDataLimitReached(dataLimit)"))
+        assertTrue(effect.contains("tunnelStarted = tunnelConnected,"))
+        assertTrue(effect.contains("connectRequested, tunnelConnected)"))
+
+        val screen = mainSource("ui/connect/ConnectScreen.kt")
+        assertTrue(screen.contains("insufficientBalance = displayInsufficientBalance || dataLimitReached,"))
+        val indicator = mainSource("ui/connect/ConnectStatusIndicator.kt")
+        assertTrue(indicator.contains("dataLimitReached -> stringResource(id = R.string.data_limit_reached)"))
     }
 }

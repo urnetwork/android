@@ -47,11 +47,14 @@ fun ConnectStatusIndicator(
     // when set, the provider status label opens the provider locations detail:
     // "Connected to N providers" and "Connecting to providers" alike (the detail
     // shows whatever providers are known so far while connecting)
-    onShowProviderLocations: (() -> Unit)? = null
+    onShowProviderLocations: (() -> Unit)? = null,
+    // a paying account refused at a data limit (DataLimitGate)
+    dataLimitReached: Boolean = false,
 ) {
 
     val text = when {
         isPollingSubscriptionBalance -> stringResource(id = R.string.processing_subscription_balance)
+        dataLimitReached -> stringResource(id = R.string.data_limit_reached)
         contractStatus?.insufficientBalance == true && currentPlan != Plan.Supporter -> stringResource(id = R.string.insufficient_balance)
         displayReconnectTunnel -> stringResource(id = R.string.reconnect_tunnel_status_indicator)
         status == ConnectStatus.CONNECTED -> pluralStringResource(
@@ -72,7 +75,7 @@ fun ConnectStatusIndicator(
     }
 
     val indicatorId = when {
-        displayReconnectTunnel || isPollingSubscriptionBalance || (contractStatus?.insufficientBalance == true && currentPlan != Plan.Supporter) -> R.drawable.circle_indicator_yellow
+        displayReconnectTunnel || isPollingSubscriptionBalance || dataLimitReached || (contractStatus?.insufficientBalance == true && currentPlan != Plan.Supporter) -> R.drawable.circle_indicator_yellow
         status == ConnectStatus.CONNECTED -> R.drawable.circle_indicator_green
         status == ConnectStatus.CONNECTING || status == ConnectStatus.DESTINATION_SET -> R.drawable.circle_indicator_yellow
         status == ConnectStatus.CONNECT_FAILED -> R.drawable.circle_indicator_red
@@ -101,6 +104,7 @@ fun ConnectStatusIndicator(
         providerStatus &&
                 !displayReconnectTunnel &&
                 !isPollingSubscriptionBalance &&
+                !dataLimitReached &&
                 !(contractStatus?.insufficientBalance == true && currentPlan != Plan.Supporter)
     }
 

@@ -20,8 +20,10 @@ fun connectButtonDescriptionId(
     insufficientBalance: Boolean,
     isPollingSubscriptionBalance: Boolean,
     displayReconnectTunnel: Boolean,
+    dataLimitReached: Boolean = false,
 ): Int? = when {
     insufficientBalance && isPollingSubscriptionBalance -> R.string.processing_subscription_balance
+    dataLimitReached -> R.string.data_limit_reached
     insufficientBalance -> R.string.insufficient_balance
     status == ConnectStatus.CONNECT_FAILED -> R.string.conn_failed
     displayReconnectTunnel -> R.string.reconnect_tunnel_status_indicator

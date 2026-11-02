@@ -1,5 +1,7 @@
 package com.bringyour.network.ui.connect
 
+import androidx.annotation.StringRes
+import com.bringyour.network.R
 import com.bringyour.network.ui.shared.models.ConnectStatus
 import com.bringyour.network.ui.shared.viewmodels.Plan
 import com.bringyour.network.widgets.WidgetBalanceSnapshot
@@ -14,6 +16,14 @@ import com.bringyour.network.widgets.WidgetBalanceSnapshot
  * the tunnel without the user knowing. The app never disconnects on its own:
  * it tells the user (in-app alert plus one notification per entry into the
  * state) and always offers an explicit disconnect next to upgrade.
+ *
+ * "Held in the tunnel" is a claim about a running tunnel. A connection can be
+ * requested with none (its permission refused, another VPN in the way, a packet
+ * flow that ended and is being retried), and then nothing is held: the alert and
+ * the notification say what the traffic is doing ([refusedTraffic]).
+ *
+ * A paying account refused at a data limit gets the same alert and notification
+ * in words for the limit, with no upgrade on offer ([DataLimitGate]).
  *
  * Two cases are kept apart (product decision, 2026-10-03):
  * - Start connect: a new connect request from any surface (the connect
@@ -273,12 +283,73 @@ internal fun outOfBalanceKind(balance: WidgetBalanceSnapshot?): OutOfBalanceKind
     else -> OutOfBalanceKind.EXHAUSTED
 }
 
+/**
+ * What the traffic is doing while a connection is refused. The tunnel is what
+ * holds it: with none running, nothing is held and the traffic goes out the
+ * normal way, and saying otherwise implies a protection the user does not have.
+ */
+internal enum class RefusedTraffic {
+    /** No connection is requested: nothing to say about the traffic. */
+    NONE,
+    /** The tunnel runs and captures the traffic, which waits in it. */
+    HELD,
+    /** A connection is requested and no tunnel is running. */
+    NOT_PROTECTED,
+}
+
+internal fun refusedTraffic(connectRequested: Boolean, tunnelStarted: Boolean): RefusedTraffic = when {
+    !connectRequested -> RefusedTraffic.NONE
+    tunnelStarted -> RefusedTraffic.HELD
+    else -> RefusedTraffic.NOT_PROTECTED
+}
+
+/** The line for what the traffic is doing, or null for no line. */
+@StringRes
+internal fun refusedTrafficTextId(dataLimit: Boolean, traffic: RefusedTraffic): Int? = when (traffic) {
+    RefusedTraffic.NONE -> null
+    RefusedTraffic.HELD ->
+        if (dataLimit) R.string.data_limit_held_notice else R.string.insufficient_balance_held_notice
+    RefusedTraffic.NOT_PROTECTED -> R.string.conn_not_protected
+}
+
+/**
+ * A refusal the plan does not explain. The server refuses a paying account with
+ * the same status it gives an empty one when a data limit stands in the way: the
+ * client's own data cap, or the plan's data. The upgrade gate never applies to
+ * it, so without this the account hears nothing.
+ *
+ * Supporter and the status together do not always mean that. A refusal made
+ * before a purchase still stands right after it: the status changes only with the
+ * next contract result, and a held connection that sends nothing may not get one.
+ * So a refusal seen while the plan was not Supporter says nothing about the
+ * Supporter plan until it clears. Process-wide, as the monitor is: an activity
+ * recreated over the old refusal must not take it for a limit.
+ */
+internal class DataLimitGate {
+    private var refusedBeforeSupporter = false
+
+    fun observe(
+        insufficientBalance: Boolean,
+        currentPlan: Plan,
+        isPollingSubscriptionBalance: Boolean,
+    ): Boolean {
+        if (!insufficientBalance) {
+            refusedBeforeSupporter = false
+            return false
+        }
+        if (currentPlan != Plan.Supporter) {
+            refusedBeforeSupporter = true
+        }
+        return currentPlan == Plan.Supporter && !refusedBeforeSupporter && !isPollingSubscriptionBalance
+    }
+}
+
 /** What the out-of-balance notice shows. */
 internal data class OutOfBalanceNotice(
     /** "Free data refreshes in {time}." with a Why? link to the data sheet. */
     val refresh: Boolean,
-    /** Traffic is held in the tunnel until the user upgrades or disconnects. */
-    val held: Boolean,
+    /** What the traffic is doing with a connection requested. */
+    val traffic: RefusedTraffic,
     /** "{amount} is reserved ..." or "You're out of data ...", or neither. */
     val kind: OutOfBalanceKind = OutOfBalanceKind.UNKNOWN,
     /** "You'll be reconnected when data is available again." */
@@ -292,7 +363,7 @@ internal data class OutOfBalanceNotice(
  * when the free data refreshes, whether or not a connection is requested, so
  * the upgrade button does not read as the only way back; Why? opens the
  * "About your data" sheet. Then whether the data is reserved or used up, and
- * the held-traffic line while a connection is requested.
+ * what the traffic is doing while a connection is requested.
  *
  * While a connect the user asked for waits on the balance (BalanceRecovery,
  * null when there is none), it says the app reconnects by itself: for a held
@@ -304,13 +375,14 @@ internal fun outOfBalanceNotice(
     buttons: ConnectActionButtons,
     kind: OutOfBalanceKind = OutOfBalanceKind.UNKNOWN,
     recovery: BalanceRecoveryState? = null,
+    tunnelStarted: Boolean,
 ): OutOfBalanceNotice {
     val held = buttons.upgrade && buttons.disconnect
     val startWaiting = recovery?.startWaiting == true
     val willReconnect = recovery?.retriesLeft == true && (startWaiting || held)
     return OutOfBalanceNotice(
         refresh = buttons.upgrade,
-        held = held,
+        traffic = refusedTraffic(connectRequested = held, tunnelStarted = tunnelStarted),
         kind = if (buttons.upgrade) kind else OutOfBalanceKind.UNKNOWN,
         willReconnect = willReconnect,
         cancel = willReconnect && startWaiting,
@@ -335,31 +407,35 @@ internal fun upgradeShowsFreeRefresh(
  */
 internal interface InsufficientBalanceSession {
     fun disconnect()
-    fun postNotice()
+    fun postNotice(dataLimit: Boolean, traffic: RefusedTraffic)
     fun cancelNotice()
 }
 
 /**
  * Reacts to contract status, plan, balance poll and connection observations.
  * An episode starts when insufficient balance is first seen and ends when it
- * clears. The notice says traffic is held in the tunnel, so it is posted once
- * per episode at the first observation where the gate holds and a connection
- * is requested (a supporter plan or a balance poll at entry defers it). It is
- * removed when it stops being true: the episode ends or the user disconnects.
- * A disconnect does not re-arm it within the episode. Not thread safe; feed it
- * from one thread.
+ * clears. The notice says what the traffic is doing, so it is posted once per
+ * episode at the first observation where the gate holds or the data limit reads
+ * and a connection is requested (a supporter plan or a balance poll at entry
+ * defers it), and replaced in place if that stops being true (the tunnel came up,
+ * or went away). It is removed when the episode ends or the user disconnects. A
+ * disconnect does not re-arm it within the episode. Not thread safe; feed it from
+ * one thread.
  */
 internal class InsufficientBalanceMonitor(
     private val session: InsufficientBalanceSession,
 ) {
     private var noticePosted = false
     private var noticeShown = false
+    private var noticeSaid: Pair<Boolean, RefusedTraffic>? = null
 
     fun update(
         insufficientBalance: Boolean,
         currentPlan: Plan,
         isPollingSubscriptionBalance: Boolean,
         connectRequested: Boolean,
+        dataLimit: Boolean,
+        tunnelStarted: Boolean,
     ) {
         if (!insufficientBalance) {
             noticePosted = false
@@ -370,12 +446,18 @@ internal class InsufficientBalanceMonitor(
             hideNotice()
             return
         }
-        if (!noticePosted &&
-            insufficientBalanceGate(insufficientBalance, currentPlan, isPollingSubscriptionBalance)
+        if (!dataLimit &&
+            !insufficientBalanceGate(insufficientBalance, currentPlan, isPollingSubscriptionBalance)
         ) {
+            return
+        }
+        val traffic = refusedTraffic(connectRequested = true, tunnelStarted = tunnelStarted)
+        val said = dataLimit to traffic
+        if (!noticePosted || (noticeShown && said != noticeSaid)) {
             noticePosted = true
             noticeShown = true
-            session.postNotice()
+            noticeSaid = said
+            session.postNotice(dataLimit, traffic)
         }
     }
 

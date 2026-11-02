@@ -2977,6 +2977,10 @@ class MainApplication : Application() {
      * across activity recreation. Fed on the main thread by
      * InsufficientBalanceNoticeEffect.
      */
+    internal val dataLimitGate by lazy(LazyThreadSafetyMode.NONE) {
+        com.bringyour.network.ui.connect.DataLimitGate()
+    }
+
     internal val insufficientBalanceMonitor by lazy(LazyThreadSafetyMode.NONE) {
         com.bringyour.network.ui.connect.InsufficientBalanceMonitor(
             object : com.bringyour.network.ui.connect.InsufficientBalanceSession {
@@ -2984,8 +2988,11 @@ class MainApplication : Application() {
                     disconnectVpnConnection("insufficient_balance")
                 }
 
-                override fun postNotice() {
-                    postInsufficientBalanceNotice()
+                override fun postNotice(
+                    dataLimit: Boolean,
+                    traffic: com.bringyour.network.ui.connect.RefusedTraffic,
+                ) {
+                    postInsufficientBalanceNotice(dataLimit, traffic)
                 }
 
                 override fun cancelNotice() {
@@ -2999,12 +3006,15 @@ class MainApplication : Application() {
     }
 
     /**
-     * Tells the user the account is out of balance and traffic is held in the
-     * tunnel, with a disconnect action. Without notification permission the
+     * Tells the user the account is out of balance or at a data limit, and what
+     * the traffic is doing, with a disconnect action. Without notification permission the
      * in-app alert still explains it.
      */
     @android.annotation.SuppressLint("NotificationPermission")
-    private fun postInsufficientBalanceNotice() {
+    private fun postInsufficientBalanceNotice(
+        dataLimit: Boolean,
+        traffic: com.bringyour.network.ui.connect.RefusedTraffic,
+    ) {
         runCatching {
             val notificationManager =
                 getSystemService(NOTIFICATION_SERVICE) as android.app.NotificationManager
@@ -3032,17 +3042,24 @@ class MainApplication : Application() {
                     .setAction(NotificationDisconnectReceiver.ACTION_DISCONNECT),
                 android.app.PendingIntent.FLAG_IMMUTABLE or android.app.PendingIntent.FLAG_UPDATE_CURRENT,
             )
-            val message = getString(R.string.insufficient_balance_held_notice)
+            val message = com.bringyour.network.ui.connect
+                .refusedTrafficTextId(dataLimit, traffic)
+                ?.let { getString(it) }
+                .orEmpty()
             val builder = androidx.core.app.NotificationCompat.Builder(
                 this,
                 MainService.NOTIFICATION_CHANNEL_ID,
             )
                 .setSmallIcon(R.drawable.ic_status)
-                .setContentTitle(getString(R.string.insufficient_balance))
+                .setContentTitle(
+                    getString(if (dataLimit) R.string.data_limit_reached else R.string.insufficient_balance)
+                )
                 .setContentText(message)
                 .setStyle(androidx.core.app.NotificationCompat.BigTextStyle().bigText(message))
                 .setContentIntent(contentIntent)
                 .setAutoCancel(true)
+                // a correction goes into the notice in place, without alerting again
+                .setOnlyAlertOnce(true)
             if (!systemAlwaysOnVpn) {
                 builder.addAction(R.drawable.ic_close, getString(R.string.disconnect), disconnectIntent)
             }

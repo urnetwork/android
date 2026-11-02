@@ -141,7 +141,18 @@ internal constructor(
     private var lastGridSignature: String = ""
 
     // var grid by mutableStateOf<ConnectGrid?>(null)
-    private var tunnelConnected = false
+    // read by the connect screen and the balance notice, for what they say about
+    // the traffic while a connection is refused
+    var tunnelConnected by mutableStateOf(false)
+        private set
+
+    // a paying account refused at a data limit, from the process-wide DataLimitGate
+    var dataLimitReached by mutableStateOf(false)
+        private set
+
+    val setDataLimitReached: (Boolean) -> Unit = { reached ->
+        dataLimitReached = reached
+    }
 
     // A failed connect attempt (the sdk's CONNECT_FAILED, or no provider in the
     // window past the time bound, while the user wants to be connected) is

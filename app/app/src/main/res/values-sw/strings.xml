@@ -170,6 +170,7 @@
     <string name="community_edition_details">Shiriki katika mtandao na upate ufikiaji wa bure wa toleo la jamii.</string>
     <string name="companion">Mshirika</string>
     <string name="conn_failed">Imeshindwa kuunganisha</string>
+    <string name="conn_not_protected">Trafiki yako ya intaneti hailindwi.</string>
     <string name="connect">Unganisha</string>
     <string name="connect_and_open">Unganisha na ufungue kiungo</string>
     <string name="connect_bittensor_wallet">Unganisha pochi ya Bittensor</string>
@@ -266,6 +267,8 @@
     <string name="data_info_title">Kuhusu data yako</string>
     <string name="data_info_used">Data uliyotumia hadi sasa.</string>
     <string name="data_info_why">Kwa nini?</string>
+    <string name="data_limit_held_notice">Trafiki yako imeshikiliwa ndani ya handaki hadi data zaidi ipatikane au utenganishe.</string>
+    <string name="data_limit_reached">Kikomo cha data kimefikiwa</string>
     <string name="data_usage">Matumizi ya data</string>
     <string name="default_daily_data">Kwa chaguomsingi, unapata %1$s kila siku.</string>
     <string name="default_wallet">Chaguo msingi</string>

@@ -170,6 +170,7 @@
     <string name="community_edition_details">Neem deel aan het netwerk en krijg gratis toegang tot de community-editie.</string>
     <string name="companion">Tegenpartij</string>
     <string name="conn_failed">Kan geen verbinding maken</string>
+    <string name="conn_not_protected">Je internetverkeer is niet beschermd.</string>
     <string name="connect">Verbinden</string>
     <string name="connect_and_open">Verbind en open de link</string>
     <string name="connect_bittensor_wallet">Bittensor-wallet koppelen</string>
@@ -266,6 +267,8 @@
     <string name="data_info_title">Over je data</string>
     <string name="data_info_used">Data die je tot nu toe hebt gebruikt.</string>
     <string name="data_info_why">Waarom?</string>
+    <string name="data_limit_held_notice">Je verkeer wordt in de tunnel vastgehouden totdat er meer data beschikbaar is of je de verbinding verbreekt.</string>
+    <string name="data_limit_reached">Datalimiet bereikt</string>
     <string name="data_usage">Dataverbruik</string>
     <string name="default_daily_data">Standaard krijg je elke dag %1$s.</string>
     <string name="default_wallet">Standaard</string>

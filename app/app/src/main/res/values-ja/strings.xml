@@ -170,6 +170,7 @@
     <string name="community_edition_details">ネットワークに参加して、コミュニティ版に無料でアクセスしましょう。</string>
     <string name="companion">相手</string>
     <string name="conn_failed">接続できませんでした</string>
+    <string name="conn_not_protected">インターネット通信は保護されていません。</string>
     <string name="connect">接続</string>
     <string name="connect_and_open">接続してリンクを開く</string>
     <string name="connect_bittensor_wallet">Bittensor ウォレットを接続</string>
@@ -266,6 +267,8 @@
     <string name="data_info_title">データについて</string>
     <string name="data_info_used">これまでに使用したデータです。</string>
     <string name="data_info_why">なぜ？</string>
+    <string name="data_limit_held_notice">追加のデータが利用可能になるか切断するまで、通信はトンネル内に保持されます。</string>
+    <string name="data_limit_reached">データ上限に達しました</string>
     <string name="data_usage">データ使用量</string>
     <string name="default_daily_data">デフォルトでは、毎日 %1$s を受け取れます。</string>
     <string name="default_wallet">デフォルト</string>
