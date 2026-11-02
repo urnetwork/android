@@ -60,7 +60,8 @@ object BittensorWallets {
     /** The chooser line under a wallet's name, or null. */
     @StringRes
     fun subtitleRes(walletId: String): Int? = when (walletId) {
-        TAO_COM -> R.string.enter_address_manually
+        // neither has a way to sign here directly on a phone: say so up front
+        TALISMAN, TAO_COM -> R.string.bittensor_manual_choice
         WALLET_CONNECT -> R.string.bittensor_walletconnect_hint
         else -> null
     }
@@ -105,6 +106,7 @@ object BittensorWallets {
     const val BRIDGE_ERROR_ADDRESS_MISMATCH = "address_mismatch"
     const val BRIDGE_ERROR_EXTENSION_NOT_FOUND = "extension_not_found"
     const val BRIDGE_ERROR_NO_ACCOUNT = "no_account"
+    const val BRIDGE_ERROR_EXTENSION_NOT_AUTHORIZED = "extension_not_authorized"
     const val BRIDGE_ERROR_USER_REJECTED = "user_rejected"
     const val BRIDGE_ERROR_WALLETCONNECT_EXPIRED = "walletconnect_expired"
     const val BRIDGE_ERROR_WALLETCONNECT_UNAVAILABLE = "walletconnect_unavailable"
@@ -114,6 +116,7 @@ object BittensorWallets {
         BRIDGE_ERROR_ADDRESS_NOT_IN_WALLET,
         BRIDGE_ERROR_EXTENSION_NOT_FOUND,
         BRIDGE_ERROR_NO_ACCOUNT,
+        BRIDGE_ERROR_EXTENSION_NOT_AUTHORIZED,
     )
 
     /**
@@ -126,6 +129,7 @@ object BittensorWallets {
         BRIDGE_ERROR_ADDRESS_MISMATCH -> R.string.earnings_wallet_mismatch
         BRIDGE_ERROR_EXTENSION_NOT_FOUND -> R.string.bittensor_error_extension_not_found
         BRIDGE_ERROR_NO_ACCOUNT -> R.string.bittensor_error_no_account
+        BRIDGE_ERROR_EXTENSION_NOT_AUTHORIZED -> R.string.bittensor_error_extension_not_authorized
         BRIDGE_ERROR_USER_REJECTED -> R.string.bittensor_error_user_rejected
         BRIDGE_ERROR_WALLETCONNECT_EXPIRED -> R.string.bittensor_error_walletconnect_expired
         BRIDGE_ERROR_WALLETCONNECT_UNAVAILABLE -> R.string.bittensor_error_walletconnect_unavailable
