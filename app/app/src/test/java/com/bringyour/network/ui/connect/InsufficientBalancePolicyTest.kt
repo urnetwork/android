@@ -897,4 +897,92 @@ class InsufficientBalancePolicyTest {
         val indicator = mainSource("ui/connect/ConnectStatusIndicator.kt")
         assertTrue(indicator.contains("dataLimitReached -> stringResource(id = R.string.data_limit_reached)"))
     }
+
+    // Where the store's traffic rides the tunnel (the Play flavor), a held tunnel stops
+    // the purchase, so the alert says to disconnect first, while it holds and only then.
+    @Test
+    fun disconnectFirstOnlyWhereCheckoutRidesAHoldingTunnel() {
+        for (status in requestedStatuses) {
+            val gated = connectActionButtons(
+                insufficientBalance = true,
+                currentPlan = Plan.Basic,
+                isPollingSubscriptionBalance = false,
+                connectStatus = status,
+                displayReconnectTunnel = false,
+            )
+            assertTrue("$status", gated.disconnect)
+            assertTrue("$status", outOfBalanceNotice(gated, tunnelStarted = true, checkoutRidesTunnel = true).disconnectFirst)
+            // the flavors whose checkout runs in the app, which the tunnel leaves out
+            assertFalse("$status", outOfBalanceNotice(gated, tunnelStarted = true, checkoutRidesTunnel = false).disconnectFirst)
+            // no tunnel running: the store's traffic goes out the normal way
+            assertFalse("$status", outOfBalanceNotice(gated, tunnelStarted = false, checkoutRidesTunnel = true).disconnectFirst)
+            // a paying account at a limit is offered nothing to pay for
+            val paying = connectActionButtons(
+                insufficientBalance = true,
+                currentPlan = Plan.Supporter,
+                isPollingSubscriptionBalance = false,
+                connectStatus = status,
+                displayReconnectTunnel = false,
+            )
+            assertFalse("$status", outOfBalanceNotice(paying, tunnelStarted = true, checkoutRidesTunnel = true).disconnectFirst)
+        }
+        // nothing requested: nothing to disconnect from
+        val disconnected = connectActionButtons(
+            insufficientBalance = true,
+            currentPlan = Plan.Basic,
+            isPollingSubscriptionBalance = false,
+            connectStatus = ConnectStatus.DISCONNECTED,
+            displayReconnectTunnel = false,
+        )
+        assertFalse(outOfBalanceNotice(disconnected, tunnelStarted = true, checkoutRidesTunnel = true).disconnectFirst)
+    }
+
+    private fun flavorSource(relative: String): String {
+        val file = listOf("", "app/", "app/app/")
+            .map { java.io.File(it + "src/" + relative) }
+            .firstOrNull { it.isFile }
+        assertTrue("missing $relative", file != null)
+        return file!!.readText()
+    }
+
+    // The alert shows the line the policy decides, from this flavor's fact, beside the
+    // Disconnect it names. That press only disconnects: the provide mode stands.
+    @Test
+    fun theAlertSaysDisconnectFirstFromTheFlavorsCheckout() {
+        val actions = mainSource("ui/connect/ConnectActions.kt")
+        assertTrue(actions.contains("checkoutRidesTunnel = PLAN_CHECKOUT_RIDES_TUNNEL,"))
+        assertTrue(actions.contains("if (outOfBalanceNotice.disconnectFirst) {"))
+        assertTrue(actions.contains("stringResource(id = R.string.insufficient_balance_disconnect_first)"))
+        assertTrue(actions.contains("acceptance.insufficient_balance_disconnect_first"))
+        assertTrue(actions.contains("if (actionButtons.disconnect) {\n                    disconnectButton(Modifier.weight(1f))"))
+        val model = mainSource("ui/connect/ConnectViewModel.kt")
+        val disconnect = model.substring(model.indexOf("val disconnect: () -> Unit = {"))
+        val body = disconnect.substring(0, disconnect.indexOf("\n    }\n"))
+        assertTrue(body.contains("runCommand(connect = false) { it.disconnect() }"))
+        assertFalse(body.contains("rovide"))
+    }
+
+    // What each flavor's answer rests on. The tunnel leaves out this app's own uid, and
+    // the store apps are not among the other apps it leaves out, so Play Billing, which
+    // runs in the Play Store and Play services, rides it while the web view and the
+    // Stripe sheet, in this app, do not.
+    @Test
+    fun eachFlavorsCheckoutGoesWhereItsAnswerSays() {
+        val service = mainSource("MainService.kt")
+        assertTrue(service.contains("builder.addDisallowedApplication(packageName)"))
+        for (storeApp in listOf("com.android.vending", "com.google.android.gms")) {
+            assertFalse(storeApp, service.contains(storeApp))
+        }
+        assertTrue(flavorSource("google/java/com/bringyour/network/MainActivity.kt").contains("launchBillingFlow("))
+        val play = flavorSource("google/java/com/bringyour/network/ui/upgrade/PlanPurchasers.kt")
+        assertTrue(play.contains("PLAN_CHECKOUT_RIDES_TUNNEL = true"))
+        val web = flavorSource("webPay/java/com/bringyour/network/ui/upgrade/PlanPurchasers.kt")
+        assertTrue(web.contains("WebView(context)"))
+        assertFalse(web.contains("ACTION_VIEW"))
+        assertTrue(web.contains("PLAN_CHECKOUT_RIDES_TUNNEL = false"))
+        val sheet = flavorSource("stripeSheet/java/com/bringyour/network/ui/upgrade/PlanPurchasers.kt")
+        assertTrue(sheet.contains("PaymentSheet.Builder"))
+        assertFalse(sheet.contains("ACTION_VIEW"))
+        assertTrue(sheet.contains("PLAN_CHECKOUT_RIDES_TUNNEL = false"))
+    }
 }

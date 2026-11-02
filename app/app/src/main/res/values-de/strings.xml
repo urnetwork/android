@@ -585,6 +585,7 @@
     <string name="includes_free_trial_days">Enthält eine %1$d-tägige kostenlose Testphase</string>
     <string name="instant_account_no_email_password">Keine E-Mail und kein Passwort nötig. Dein Konto wird durch eine Seedphrase gesichert.</string>
     <string name="insufficient_balance">Unzureichendes Guthaben</string>
+    <string name="insufficient_balance_disconnect_first">Wähle zum Upgraden zuerst „Trennen“. Vorher kommt die Zahlung nicht durch.</string>
     <string name="insufficient_balance_exhausted">Deine Daten sind bis zur kostenlosen Erneuerung oder einem Upgrade aufgebraucht.</string>
     <string name="insufficient_balance_held_notice">Dein Datenverkehr wird im Tunnel gehalten, bis du upgradest oder die Verbindung trennst.</string>
     <string name="insufficient_balance_reconnecting">Daten sind wieder verfügbar. Verbindung wird wiederhergestellt…</string>

@@ -25,6 +25,11 @@ import com.bringyour.network.widgets.WidgetBalanceSnapshot
  * A paying account refused at a data limit gets the same alert and notification
  * in words for the limit, with no upgrade on offer ([DataLimitGate]).
  *
+ * Where the store's traffic rides the tunnel (the Play flavor,
+ * PLAN_CHECKOUT_RIDES_TUNNEL) a held tunnel stops a purchase too. There is no way
+ * around it, which could leak: the alert says to disconnect first
+ * ([OutOfBalanceNotice.disconnectFirst]), and the user does.
+ *
  * Two cases are kept apart (product decision, 2026-10-03):
  * - Start connect: a new connect request from any surface (the connect
  *   screen, a location pick, a link, the Quick Settings tile, the launcher
@@ -356,6 +361,11 @@ internal data class OutOfBalanceNotice(
     val willReconnect: Boolean = false,
     /** A Cancel action next to it: a refused start has no Disconnect to stop it. */
     val cancel: Boolean = false,
+    /**
+     * "To upgrade, press Disconnect first ...": this flavor's checkout goes through
+     * the tunnel, and the tunnel is holding the traffic.
+     */
+    val disconnectFirst: Boolean = false,
 )
 
 /**
@@ -370,22 +380,30 @@ internal data class OutOfBalanceNotice(
  * connection, and for a refused start even once the gate has lifted, since
  * that start can still fire. A refused start gets Cancel, the only way to
  * stop it.
+ *
+ * On a flavor whose checkout goes through the tunnel ([checkoutRidesTunnel]), a
+ * tunnel holding the traffic stops a purchase too, so it says to disconnect first,
+ * beside the Disconnect it names. Nothing disconnects for the user. With no tunnel
+ * running nothing is in the way.
  */
 internal fun outOfBalanceNotice(
     buttons: ConnectActionButtons,
     kind: OutOfBalanceKind = OutOfBalanceKind.UNKNOWN,
     recovery: BalanceRecoveryState? = null,
     tunnelStarted: Boolean,
+    checkoutRidesTunnel: Boolean = false,
 ): OutOfBalanceNotice {
     val held = buttons.upgrade && buttons.disconnect
     val startWaiting = recovery?.startWaiting == true
     val willReconnect = recovery?.retriesLeft == true && (startWaiting || held)
+    val traffic = refusedTraffic(connectRequested = held, tunnelStarted = tunnelStarted)
     return OutOfBalanceNotice(
         refresh = buttons.upgrade,
-        traffic = refusedTraffic(connectRequested = held, tunnelStarted = tunnelStarted),
+        traffic = traffic,
         kind = if (buttons.upgrade) kind else OutOfBalanceKind.UNKNOWN,
         willReconnect = willReconnect,
         cancel = willReconnect && startWaiting,
+        disconnectFirst = checkoutRidesTunnel && traffic == RefusedTraffic.HELD,
     )
 }
 
