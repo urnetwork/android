@@ -775,8 +775,12 @@
     <string name="of_total">/ %1$s</string>
     <string name="off">オフ</string>
     <string name="offer_available_until">%1$sまで有効</string>
+    <string name="offer_first_month_price">初月 %1$s</string>
     <string name="offer_first_year_price">初年度 %1$s</string>
+    <string name="offer_percent_off_first_month">初月%1$d%%オフ</string>
     <string name="offer_percent_off_first_year">初年度%1$d%%オフ</string>
+    <string name="offer_terms_first_month">初月 %1$s、その後 %2$s/月。いつでもキャンセル可。</string>
+    <string name="offer_then_regular_monthly_price">その後 %1$s/月</string>
     <string name="offer_then_regular_price">その後 %1$s/年</string>
     <string name="offer_timeline_day">%1$d日目</string>
     <string name="offer_timeline_first_charge">年額 %1$s、それまではいつでもキャンセル可</string>

@@ -775,8 +775,12 @@
     <string name="of_total">z %1$s</string>
     <string name="off">Vypnuto</string>
     <string name="offer_available_until">K dispozici do %1$s</string>
+    <string name="offer_first_month_price">%1$s za první měsíc</string>
     <string name="offer_first_year_price">%1$s za první rok</string>
+    <string name="offer_percent_off_first_month">%1$d %% sleva na první měsíc</string>
     <string name="offer_percent_off_first_year">%1$d %% sleva na první rok</string>
+    <string name="offer_terms_first_month">%1$s za první měsíc, poté %2$s/měsíc. Zrušit lze kdykoli.</string>
+    <string name="offer_then_regular_monthly_price">poté %1$s/měsíc</string>
     <string name="offer_then_regular_price">poté %1$s/rok</string>
     <string name="offer_timeline_day">Den %1$d</string>
     <string name="offer_timeline_first_charge">%1$s za rok, do té doby lze kdykoli zrušit</string>

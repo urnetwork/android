@@ -775,8 +775,12 @@
     <string name="of_total">%1$s में से</string>
     <string name="off">बंद</string>
     <string name="offer_available_until">%1$s तक उपलब्ध</string>
+    <string name="offer_first_month_price">पहले महीने के लिए %1$s</string>
     <string name="offer_first_year_price">पहले साल के लिए %1$s</string>
+    <string name="offer_percent_off_first_month">पहले महीने पर %1$d%% की छूट</string>
     <string name="offer_percent_off_first_year">पहले साल पर %1$d%% की छूट</string>
+    <string name="offer_terms_first_month">पहले महीने %1$s, फिर %2$s/महीना। कभी भी रद्द करें।</string>
+    <string name="offer_then_regular_monthly_price">फिर %1$s/महीना</string>
     <string name="offer_then_regular_price">फिर %1$s/वर्ष</string>
     <string name="offer_timeline_day">दिन %1$d</string>
     <string name="offer_timeline_first_charge">साल के लिए %1$s, उससे पहले कभी भी रद्द करें</string>

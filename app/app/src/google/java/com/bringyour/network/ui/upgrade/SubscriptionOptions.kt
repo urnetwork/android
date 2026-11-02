@@ -25,7 +25,8 @@ fun SubscriptionOptions(
 ) {
     val priceTier by subscriptionBalanceViewModel.priceTier.collectAsState()
     val onboardingOffer by subscriptionBalanceViewModel.onboardingOffer.collectAsState()
-    val presentation = rememberPlanPresentation(planViewModel, priceTier, onboardingOffer)
+    val winbackOffer by subscriptionBalanceViewModel.winbackOffer.collectAsState()
+    val presentation = rememberPlanPresentation(planViewModel, priceTier, onboardingOffer, winbackOffer)
     val purchaser = rememberPlanPurchaser(planViewModel, subscriptionBalanceViewModel, onPurchaseSuccess = onStripePaymentSuccess)
 
     // Play's billing country is the storefront: the server resolves the tier from it

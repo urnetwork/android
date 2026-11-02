@@ -24,6 +24,7 @@ import com.bringyour.sdk.AuthCodeCreateArgs
 import com.bringyour.sdk.ExperimentAssignmentList
 import com.bringyour.sdk.OnboardingOffer
 import com.bringyour.sdk.OnboardingOfferIssueArgs
+import com.bringyour.sdk.WinbackOffer
 import com.bringyour.sdk.PriceTier
 import com.bringyour.sdk.Sdk
 import com.bringyour.sdk.Api
@@ -66,6 +67,14 @@ class SubscriptionBalanceViewModel @Inject constructor(
 
     private val _onboardingOffer = MutableStateFlow<OnboardingOffer?>(null)
     val onboardingOffer: StateFlow<OnboardingOffer?> = _onboardingOffer.asStateFlow()
+
+    /**
+     * A returning subscriber's win-back offer (mmm/reengagement/PLAN.md "THE
+     * STORES"): the monthly plan's first month at a discount on one store,
+     * until its deadline. Null when there is none, and from an older server.
+     */
+    private val _winbackOffer = MutableStateFlow<WinbackOffer?>(null)
+    val winbackOffer: StateFlow<WinbackOffer?> = _winbackOffer.asStateFlow()
 
     private val _experiments = MutableStateFlow<ExperimentAssignmentList?>(null)
     val experiments: StateFlow<ExperimentAssignmentList?> = _experiments.asStateFlow()
@@ -560,6 +569,7 @@ class SubscriptionBalanceViewModel @Inject constructor(
                             // the onboarding plan data: absent on an older server
                             result.priceTier?.let { _priceTier.value = it }
                             _onboardingOffer.value = result.onboardingOffer
+                            _winbackOffer.value = result.winbackOffer
                             result.experiments?.let { _experiments.value = it }
                             _balanceAnswer.value = BalanceAnswer(result)
 

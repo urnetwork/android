@@ -775,8 +775,12 @@
     <string name="of_total">/ %1$s</string>
     <string name="off">关</string>
     <string name="offer_available_until">有效期至 %1$s</string>
+    <string name="offer_first_month_price">首月 %1$s</string>
     <string name="offer_first_year_price">首年 %1$s</string>
+    <string name="offer_percent_off_first_month">首月立减 %1$d%%</string>
     <string name="offer_percent_off_first_year">首年立减 %1$d%%</string>
+    <string name="offer_terms_first_month">首月 %1$s，之后 %2$s/月。可随时取消。</string>
+    <string name="offer_then_regular_monthly_price">之后 %1$s/月</string>
     <string name="offer_then_regular_price">之后 %1$s/年</string>
     <string name="offer_timeline_day">第 %1$d 天</string>
     <string name="offer_timeline_first_charge">全年 %1$s，此前可随时取消</string>

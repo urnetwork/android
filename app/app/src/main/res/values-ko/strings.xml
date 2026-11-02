@@ -775,8 +775,12 @@
     <string name="of_total">/ %1$s</string>
     <string name="off">꺼짐</string>
     <string name="offer_available_until">%1$s까지 이용 가능</string>
+    <string name="offer_first_month_price">첫 달 %1$s</string>
     <string name="offer_first_year_price">첫해 %1$s</string>
+    <string name="offer_percent_off_first_month">첫 달 %1$d%% 할인</string>
     <string name="offer_percent_off_first_year">첫해 %1$d%% 할인</string>
+    <string name="offer_terms_first_month">첫 달 %1$s, 이후 %2$s/월. 언제든 취소 가능.</string>
+    <string name="offer_then_regular_monthly_price">이후 %1$s/월</string>
     <string name="offer_then_regular_price">이후 %1$s/년</string>
     <string name="offer_timeline_day">%1$d일 차</string>
     <string name="offer_timeline_first_charge">연 %1$s, 그 전에 언제든 취소 가능</string>

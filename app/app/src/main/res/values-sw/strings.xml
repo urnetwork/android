@@ -775,8 +775,12 @@
     <string name="of_total">kati ya %1$s</string>
     <string name="off">Imezimwa</string>
     <string name="offer_available_until">Inapatikana hadi %1$s</string>
+    <string name="offer_first_month_price">%1$s kwa mwezi wako wa kwanza</string>
     <string name="offer_first_year_price">%1$s kwa mwaka wako wa kwanza</string>
+    <string name="offer_percent_off_first_month">Punguzo la %1$d%% kwa mwezi wako wa kwanza</string>
     <string name="offer_percent_off_first_year">Punguzo la %1$d%% kwa mwaka wako wa kwanza</string>
+    <string name="offer_terms_first_month">%1$s kwa mwezi wa kwanza, kisha %2$s/mwezi. Ghairi wakati wowote.</string>
+    <string name="offer_then_regular_monthly_price">kisha %1$s/mwezi</string>
     <string name="offer_then_regular_price">kisha %1$s/mwaka</string>
     <string name="offer_timeline_day">Siku ya %1$d</string>
     <string name="offer_timeline_first_charge">%1$s kwa mwaka, ghairi wakati wowote kabla</string>
