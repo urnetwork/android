@@ -94,11 +94,14 @@ data class SnConsentTile(
     val unavailable: Boolean,
     // sn_consent_active with this coldkey, Change and its note; null: sn_consent_none with Sign
     val activeColdkeySs58: String?,
-    // sn_consent_signing: from the challenge until the consent is submitted
+    // the flow is under way, from the challenge until the consent is submitted
     val signing: Boolean,
     val outcome: SnConsentOutcome?,
     // Sign or Change
     val actionEnabled: Boolean,
+    // sn_consent_signing: a wallet was asked. Never beside the manual sheet, where no
+    // wallet window comes and the sheet says what to do (support inbox 8167)
+    val waitingOnWallet: Boolean = false,
 )
 
 /**
@@ -123,6 +126,7 @@ fun snConsentTile(state: SnConsentState, stage: BittensorProofStage): SnConsentT
         signing = signing,
         outcome = (if (noCredential) SnConsentOutcome.OwnerOnly else state.outcome).takeIf { !signing },
         actionEnabled = status != null && state.networkCredential && !signing && state.outcome != SnConsentOutcome.OwnerOnly,
+        waitingOnWallet = stage is BittensorProofStage.AwaitingBrowser,
     )
 }
 
