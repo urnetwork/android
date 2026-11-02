@@ -57,8 +57,8 @@ class SnConsentTileTest {
     }
 
     @Test
-    fun `the waiting line shows from the challenge until the consent is submitted`() {
-        // C4: sn_consent_signing while the challenge is fetched, the wallet signs, or the consent is submitted
+    fun `the flow is busy from the challenge until the consent is submitted`() {
+        // C4: the flow is busy while the challenge is fetched, the wallet signs, or the consent is submitted
         val request = BittensorProofRequest(BittensorWallets.TALISMAN, BittensorWallets.PURPOSE_CONSENT, alice)
         for (stage in listOf(
             BittensorProofStage.Loading(request),
@@ -75,6 +75,18 @@ class SnConsentTileTest {
         assertFalse(snConsentTile(loaded(active = false), BittensorProofStage.Choosing()).signing)
         val entering = loaded(active = false).copy(coldkeyEntry = SnConsentColdkeyEntry(BittensorWallets.TALISMAN))
         assertFalse(snConsentTile(entering, BittensorProofStage.Hidden).signing)
+    }
+
+    // Support inbox 8167: "Waiting for your wallet's signature…" under the manual form, where no
+    // wallet window ever comes.
+    @Test
+    fun `the waiting line shows only while a wallet was asked, never beside the manual sheet`() {
+        val request = BittensorProofRequest(BittensorWallets.TALISMAN, BittensorWallets.PURPOSE_CONSENT, alice)
+        assertTrue(snConsentTile(loaded(active = false), BittensorProofStage.AwaitingBrowser(BittensorWallets.WALLET_CONNECT)).waitingOnWallet)
+        assertFalse(snConsentTile(loaded(active = false), BittensorProofStage.Signing(Session(), alice, "")).waitingOnWallet)
+        assertFalse(snConsentTile(loaded(active = false), BittensorProofStage.Loading(request)).waitingOnWallet)
+        assertFalse(snConsentTile(loaded(active = true).copy(submitting = true), BittensorProofStage.Hidden).waitingOnWallet)
+        assertFalse(snConsentTile(loaded(active = false), BittensorProofStage.Hidden).waitingOnWallet)
     }
 
     @Test

@@ -163,6 +163,15 @@ class PlanViewModel @Inject constructor(
     val storeYearlyPrice: com.bringyour.network.ui.upgrade.StorePrice? = null
     val storeMonthlyPrice: com.bringyour.network.ui.upgrade.StorePrice? = null
 
+    /**
+     * The store whose win-back offer this flavor shows (mmm/reengagement/
+     * PLAN.md "THE STORES"): Stripe, which applies it at checkout, so the
+     * picker only prints it. No store offers here: the first month is the
+     * tier's monthly price at the offer's discount.
+     */
+    val winbackStore: String = com.bringyour.sdk.Sdk.WinbackOfferStoreStripe
+    val storeMonthlyOfferPrices: Map<String, com.bringyour.network.ui.upgrade.StorePrice> = emptyMap()
+
     /** The yearly plan's free trial on Stripe, in days. */
     val freeTrialDays: Int = com.bringyour.network.ui.upgrade.FREE_TRIAL_DAYS
 

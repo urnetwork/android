@@ -93,6 +93,7 @@
     <string name="bittensor_continue_in_browser">Continue no seu navegador e aprove a solicitação na extensão %1$s.</string>
     <string name="bittensor_error_address_not_in_wallet">Sua carteira %1$s não tem o endereço que você digitou. Adicione ou conecte essa conta na carteira, ou digite um endereço que ela tenha.</string>
     <string name="bittensor_error_challenge_expired">Esta solicitação expirou. Comece de novo para receber uma nova mensagem para assinar.</string>
+    <string name="bittensor_error_extension_not_authorized">%1$s ainda não permitiu que o ur.io use sua conta Bittensor. Aprove a solicitação de conexão na carteira ou permita o ur.io em “Connected Sites” (sites conectados) nas configurações e tente novamente.</string>
     <string name="bittensor_error_extension_not_found">A extensão %1$s não foi encontrada neste navegador. Instale-a e tente novamente.</string>
     <string name="bittensor_error_invalid_signature">Essa não é uma assinatura válida. Cole a assinatura 0x completa da sua carteira.</string>
     <string name="bittensor_error_message_mismatch">A carteira assinou uma solicitação diferente. Comece de novo.</string>
@@ -101,6 +102,9 @@
     <string name="bittensor_error_user_rejected">A solicitação foi recusada na sua carteira. Comece de novo e aprove-a para continuar.</string>
     <string name="bittensor_error_walletconnect_expired">A solicitação do WalletConnect expirou antes de a carteira responder. Comece de novo.</string>
     <string name="bittensor_error_walletconnect_unavailable">O WalletConnect não está disponível no momento. Tente novamente mais tarde ou digite seu endereço manualmente.</string>
+    <string name="bittensor_manual_choice">Assinar manualmente</string>
+    <string name="bittensor_manual_no_popup">Nenhuma janela da carteira é aberta aqui. Você mesmo assina a mensagem e depois cola a assinatura abaixo.</string>
+    <string name="bittensor_manual_phone_route">Se sua carteira não puder assinar uma mensagem colada, volte e escolha WalletConnect (Nova e outras) ou assine em ur.io/app/account/earnings no navegador de um computador.</string>
     <string name="bittensor_manual_sign_instructions">Assine esta mensagem com a carteira %1$s que guarda sua coldkey e depois cole o endereço e a assinatura abaixo.</string>
     <string name="bittensor_message_to_sign">Mensagem para assinar</string>
     <string name="bittensor_sign_in">Entrar com Bittensor</string>
@@ -775,8 +779,12 @@
     <string name="of_total">de %1$s</string>
     <string name="off">Desativado</string>
     <string name="offer_available_until">Disponível até %1$s</string>
+    <string name="offer_first_month_price">%1$s no primeiro mês</string>
     <string name="offer_first_year_price">%1$s no primeiro ano</string>
+    <string name="offer_percent_off_first_month">%1$d%% de desconto no primeiro mês</string>
     <string name="offer_percent_off_first_year">%1$d%% de desconto no primeiro ano</string>
+    <string name="offer_terms_first_month">%1$s no primeiro mês, depois %2$s/mês. Cancele quando quiser.</string>
+    <string name="offer_then_regular_monthly_price">depois %1$s/mês</string>
     <string name="offer_then_regular_price">depois %1$s/ano</string>
     <string name="offer_timeline_day">Dia %1$d</string>
     <string name="offer_timeline_first_charge">%1$s pelo ano, cancele antes quando quiser</string>

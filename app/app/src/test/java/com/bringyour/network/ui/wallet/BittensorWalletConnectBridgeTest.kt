@@ -50,8 +50,9 @@ class BittensorWalletConnectBridgeTest {
     fun `walletconnect is the third chooser entry with its wallets named`() {
         assertEquals("walletconnect", BittensorWallets.walletIds[2])
         assertEquals(R.string.bittensor_walletconnect_hint, BittensorWallets.subtitleRes(BittensorWallets.WALLET_CONNECT))
-        assertEquals(R.string.enter_address_manually, BittensorWallets.subtitleRes(BittensorWallets.TAO_COM))
-        assertNull(BittensorWallets.subtitleRes(BittensorWallets.TALISMAN))
+        // neither has a way to sign here directly on a phone: the chooser says so
+        assertEquals(R.string.bittensor_manual_choice, BittensorWallets.subtitleRes(BittensorWallets.TAO_COM))
+        assertEquals(R.string.bittensor_manual_choice, BittensorWallets.subtitleRes(BittensorWallets.TALISMAN))
     }
 
     @Test
@@ -168,6 +169,9 @@ class BittensorWalletConnectBridgeTest {
             Triple("address_not_in_wallet", R.string.bittensor_error_address_not_in_wallet, "WalletConnect"),
             Triple("extension_not_found", R.string.bittensor_error_extension_not_found, "WalletConnect"),
             Triple("no_account", R.string.bittensor_error_no_account, "WalletConnect"),
+            // the follow-up from support inbox 8142: the page used to hand back
+            // wallet_error for this, with the extension's own English
+            Triple("extension_not_authorized", R.string.bittensor_error_extension_not_authorized, "WalletConnect"),
             Triple("address_mismatch", R.string.earnings_wallet_mismatch, null),
             Triple("user_rejected", R.string.bittensor_error_user_rejected, null),
             Triple("walletconnect_expired", R.string.bittensor_error_walletconnect_expired, null),

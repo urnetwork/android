@@ -93,6 +93,7 @@
     <string name="bittensor_continue_in_browser">브라우저에서 계속하고 %1$s 확장 프로그램에서 요청을 승인하세요.</string>
     <string name="bittensor_error_address_not_in_wallet">%1$s 지갑에 입력한 주소가 없습니다. 지갑에서 해당 계정을 추가 또는 연결하거나, 지갑에 있는 주소를 입력하세요.</string>
     <string name="bittensor_error_challenge_expired">이 요청이 만료되었습니다. 처음부터 다시 시작해 서명할 새 메시지를 받으세요.</string>
+    <string name="bittensor_error_extension_not_authorized">%1$s에서 아직 ur.io가 Bittensor 계정을 사용하도록 허용하지 않았습니다. 지갑에서 연결 요청을 승인하거나 설정의 “Connected Sites”(연결된 사이트)에서 ur.io를 허용한 후 다시 시도하세요.</string>
     <string name="bittensor_error_extension_not_found">이 브라우저에서 %1$s 확장 프로그램을 찾을 수 없습니다. 설치한 후 다시 시도하세요.</string>
     <string name="bittensor_error_invalid_signature">유효한 서명이 아닙니다. 지갑의 0x 서명 전체를 붙여 넣으세요.</string>
     <string name="bittensor_error_message_mismatch">지갑이 다른 요청에 서명했습니다. 처음부터 다시 시작하세요.</string>
@@ -101,6 +102,9 @@
     <string name="bittensor_error_user_rejected">지갑에서 요청이 거부되었습니다. 다시 시작하고 요청을 승인하여 계속하세요.</string>
     <string name="bittensor_error_walletconnect_expired">지갑이 응답하기 전에 WalletConnect 요청이 만료되었습니다. 다시 시작하세요.</string>
     <string name="bittensor_error_walletconnect_unavailable">지금은 WalletConnect를 사용할 수 없습니다. 나중에 다시 시도하거나 주소를 직접 입력하세요.</string>
+    <string name="bittensor_manual_choice">수동으로 서명</string>
+    <string name="bittensor_manual_no_popup">여기서는 지갑 창이 열리지 않습니다. 메시지에 직접 서명한 다음 아래에 서명을 붙여 넣으세요.</string>
+    <string name="bittensor_manual_phone_route">지갑에서 붙여 넣은 메시지에 서명할 수 없다면 뒤로 돌아가 WalletConnect(Nova 등)를 선택하거나, 컴퓨터 브라우저의 ur.io/app/account/earnings에서 서명하세요.</string>
     <string name="bittensor_manual_sign_instructions">coldkey가 있는 %1$s 지갑으로 이 메시지에 서명한 다음, 아래에 주소와 서명을 붙여 넣으세요.</string>
     <string name="bittensor_message_to_sign">서명할 메시지</string>
     <string name="bittensor_sign_in">Bittensor로 로그인</string>
@@ -775,8 +779,12 @@
     <string name="of_total">/ %1$s</string>
     <string name="off">꺼짐</string>
     <string name="offer_available_until">%1$s까지 이용 가능</string>
+    <string name="offer_first_month_price">첫 달 %1$s</string>
     <string name="offer_first_year_price">첫해 %1$s</string>
+    <string name="offer_percent_off_first_month">첫 달 %1$d%% 할인</string>
     <string name="offer_percent_off_first_year">첫해 %1$d%% 할인</string>
+    <string name="offer_terms_first_month">첫 달 %1$s, 이후 %2$s/월. 언제든 취소 가능.</string>
+    <string name="offer_then_regular_monthly_price">이후 %1$s/월</string>
     <string name="offer_then_regular_price">이후 %1$s/년</string>
     <string name="offer_timeline_day">%1$d일 차</string>
     <string name="offer_timeline_first_charge">연 %1$s, 그 전에 언제든 취소 가능</string>

@@ -121,6 +121,10 @@ fun AccountScreen(
     val accountOffer = androidx.compose.runtime.remember(priceTier, onboardingOffer) {
         com.bringyour.network.ui.upgrade.PlanPresentations.build(priceTier, onboardingOffer).offer
     }
+    // the win-back offer as the Get Pro screen sells it (on Play, only once
+    // Play lists the tagged offer)
+    val winbackOffer by subscriptionBalanceViewModel.winbackOffer.collectAsState()
+    val accountWinback = com.bringyour.network.ui.upgrade.rememberPlanPresentation(planViewModel, priceTier, null, winbackOffer).winback
     val availableBalanceByteCount by subscriptionBalanceViewModel.availableBalanceByteCount.collectAsState()
     val dailyBalanceBytes by subscriptionBalanceViewModel.startBalanceByteCount.collectAsState()
 
@@ -168,6 +172,7 @@ fun AccountScreen(
                         currentPlan = if (isPro) Plan.Supporter else Plan.Basic,
                         currentStore = currentStore,
                         accountOffer = accountOffer,
+                        accountWinback = accountWinback,
                         launchOverlay = overlayViewModel.launch,
                         onPlanLabelTap = { overlayViewModel.launchSunglassesFlight() },
                         isProcessingUpgrade = subscriptionBalanceViewModel.isPollingSubscriptionBalance,
@@ -232,6 +237,8 @@ fun AccountScreenContent(
     currentStore: String?,
     // the welcome offer while it can be redeemed (read-only on this screen)
     accountOffer: com.bringyour.network.ui.upgrade.OfferPresentation? = null,
+    // a returning subscriber's win-back offer while this app can sell it (read-only here)
+    accountWinback: com.bringyour.network.ui.upgrade.WinbackPresentation? = null,
     launchOverlay: (OverlayMode) -> Unit,
     // a Pro network's plan label replays the Pro celebration
     onPlanLabelTap: () -> Unit = {},
@@ -314,6 +321,11 @@ fun AccountScreenContent(
                 if (currentPlan == Plan.Basic && accountOffer != null) {
                     AccountOfferLine(
                         offer = accountOffer,
+                        openGetPro = { navController.navigate(Route.Upgrade) }
+                    )
+                } else if (currentPlan == Plan.Basic && accountWinback != null) {
+                    AccountWinbackLine(
+                        winback = accountWinback,
                         openGetPro = { navController.navigate(Route.Upgrade) }
                     )
                 }

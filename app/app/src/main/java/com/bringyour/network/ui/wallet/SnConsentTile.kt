@@ -112,7 +112,7 @@ fun SnConsentBlock(
             }
         }
 
-        if (tile.signing) {
+        if (tile.waitingOnWallet) {
             Spacer(modifier = Modifier.height(8.dp))
             Text(
                 stringResource(id = R.string.sn_consent_signing),

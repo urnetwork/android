@@ -93,6 +93,7 @@
     <string name="bittensor_continue_in_browser">Συνεχίστε στο πρόγραμμα περιήγησης και εγκρίνετε το αίτημα στην επέκταση %1$s.</string>
     <string name="bittensor_error_address_not_in_wallet">Το πορτοφόλι %1$s σας δεν περιέχει τη διεύθυνση που εισαγάγατε. Προσθέστε ή συνδέστε αυτόν τον λογαριασμό στο πορτοφόλι ή εισαγάγετε μια διεύθυνση που περιέχει.</string>
     <string name="bittensor_error_challenge_expired">Αυτό το αίτημα έληξε. Ξεκινήστε ξανά για να λάβετε νέο μήνυμα προς υπογραφή.</string>
+    <string name="bittensor_error_extension_not_authorized">Το %1$s δεν έχει επιτρέψει ακόμη στο ur.io να χρησιμοποιεί τον λογαριασμό σας Bittensor. Εγκρίνετε το αίτημα σύνδεσης στο πορτοφόλι ή επιτρέψτε το ur.io στο «Connected Sites» (συνδεδεμένοι ιστότοποι) στις ρυθμίσεις του και δοκιμάστε ξανά.</string>
     <string name="bittensor_error_extension_not_found">Η επέκταση %1$s δεν βρέθηκε σε αυτό το πρόγραμμα περιήγησης. Εγκαταστήστε την και δοκιμάστε ξανά.</string>
     <string name="bittensor_error_invalid_signature">Αυτή δεν είναι έγκυρη υπογραφή. Επικολλήστε ολόκληρη την υπογραφή 0x από το πορτοφόλι σας.</string>
     <string name="bittensor_error_message_mismatch">Το πορτοφόλι υπέγραψε διαφορετικό αίτημα. Ξεκινήστε ξανά.</string>
@@ -101,6 +102,9 @@
     <string name="bittensor_error_user_rejected">Το αίτημα απορρίφθηκε στο πορτοφόλι σας. Ξεκινήστε ξανά και εγκρίνετέ το για να συνεχίσετε.</string>
     <string name="bittensor_error_walletconnect_expired">Το αίτημα WalletConnect έληξε πριν απαντήσει το πορτοφόλι. Ξεκινήστε ξανά.</string>
     <string name="bittensor_error_walletconnect_unavailable">Το WalletConnect δεν είναι διαθέσιμο αυτή τη στιγμή. Δοκιμάστε ξανά αργότερα ή εισαγάγετε τη διεύθυνσή σας χειροκίνητα.</string>
+    <string name="bittensor_manual_choice">Χειροκίνητη υπογραφή</string>
+    <string name="bittensor_manual_no_popup">Δεν ανοίγει παράθυρο πορτοφολιού για αυτό. Υπογράφετε το μήνυμα μόνοι σας και, στη συνέχεια, επικολλάτε την υπογραφή παρακάτω.</string>
+    <string name="bittensor_manual_phone_route">Αν το πορτοφόλι σας δεν μπορεί να υπογράψει επικολλημένο μήνυμα, επιστρέψτε και επιλέξτε WalletConnect (Nova και άλλα) ή υπογράψτε στο ur.io/app/account/earnings από το πρόγραμμα περιήγησης ενός υπολογιστή.</string>
     <string name="bittensor_manual_sign_instructions">Υπογράψτε αυτό το μήνυμα με το πορτοφόλι %1$s που περιέχει το coldkey σας και, στη συνέχεια, επικολλήστε παρακάτω τη διεύθυνση και την υπογραφή.</string>
     <string name="bittensor_message_to_sign">Μήνυμα προς υπογραφή</string>
     <string name="bittensor_sign_in">Σύνδεση με Bittensor</string>
@@ -775,8 +779,12 @@
     <string name="of_total">από %1$s</string>
     <string name="off">Ανενεργό</string>
     <string name="offer_available_until">Διαθέσιμο έως %1$s</string>
+    <string name="offer_first_month_price">%1$s για τον πρώτο μήνα</string>
     <string name="offer_first_year_price">%1$s για τον πρώτο χρόνο</string>
+    <string name="offer_percent_off_first_month">%1$d%% έκπτωση στον πρώτο μήνα</string>
     <string name="offer_percent_off_first_year">%1$d%% έκπτωση στον πρώτο χρόνο</string>
+    <string name="offer_terms_first_month">%1$s για τον πρώτο μήνα, έπειτα %2$s/μήνα. Ακύρωση οποτεδήποτε.</string>
+    <string name="offer_then_regular_monthly_price">έπειτα %1$s/μήνα</string>
     <string name="offer_then_regular_price">έπειτα %1$s/έτος</string>
     <string name="offer_timeline_day">Ημέρα %1$d</string>
     <string name="offer_timeline_first_charge">%1$s για το έτος, ακύρωση οποτεδήποτε πριν</string>
