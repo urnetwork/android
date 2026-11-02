@@ -134,6 +134,22 @@ class PlanViewModel @Inject constructor(
         private set
 
     /**
+     * The store whose win-back offer this flavor sells (mmm/reengagement/
+     * PLAN.md "THE STORES"): Play, through the monthly base plan's offer the
+     * server names by tag (`winback_offer.play_offer_tag`).
+     */
+    val winbackStore: String = com.bringyour.sdk.Sdk.WinbackOfferStorePlay
+
+    /**
+     * Play's price for the first paid period of each monthly offer that has
+     * tags of its own, by tag (the win-back offer's discounted first month);
+     * empty until the offers load. A tag Play does not list has no price, and
+     * the picker then shows no win-back: the purchase would buy the base plan.
+     */
+    var storeMonthlyOfferPrices by mutableStateOf<Map<String, com.bringyour.network.ui.upgrade.StorePrice>>(emptyMap())
+        private set
+
+    /**
      * Play's billing country for this account (the storefront), from
      * `getBillingConfigAsync`; null until it answers. The balance request
      * carries it so the server resolves the price tier from the storefront.
@@ -142,9 +158,10 @@ class PlanViewModel @Inject constructor(
         private set
 
     /**
-     * The welcome offer's Play tag while the caller's offer is active (set by
-     * the plan surfaces from the balance); the purchase prefers the offer
-     * carrying it.
+     * The Play tag of the offer the server names for the plan being bought
+     * (set by the purchaser from the balance): the welcome offer's for yearly,
+     * the win-back offer's for monthly. The purchase prefers the offer carrying
+     * it and otherwise never buys a tagged offer.
      */
     @Volatile
     var preferredOfferTag: String? = null
@@ -718,6 +735,7 @@ class PlanViewModel @Inject constructor(
         val offers = productDetails.subscriptionOfferDetails ?: emptyList()
         storeYearlyPrice = null
         storeMonthlyPrice = null
+        storeMonthlyOfferPrices = emptyMap()
         // what Play actually returned for this device and account, so a missing
         // plan can be told apart from a classification bug from a log alone
         Log.i(
@@ -750,6 +768,17 @@ class PlanViewModel @Inject constructor(
         yearlyPaid?.let {
             storeYearlyPrice = com.bringyour.network.ui.upgrade.StorePrice(it.priceAmountMicros / 1_000_000.0, it.priceCurrencyCode)
         }
+        // each tagged monthly offer's first paid period: the win-back offer's
+        // discounted first month sits in front of the base price
+        val tagged = mutableMapOf<String, com.bringyour.network.ui.upgrade.StorePrice>()
+        planOffers.filter { it.periodDays in 28..31 && !it.basePlan }.forEach { planOffer ->
+            val paid = offers[planOffer.index].pricingPhases.pricingPhaseList.firstOrNull { 0L < it.priceAmountMicros }
+                ?: return@forEach
+            for (tag in planOffer.tags) {
+                tagged.putIfAbsent(tag, com.bringyour.network.ui.upgrade.StorePrice(paid.priceAmountMicros / 1_000_000.0, paid.priceCurrencyCode))
+            }
+        }
+        storeMonthlyOfferPrices = tagged
     }
 
     /** Asks Play for the account's billing country once per connection; the app sends it as the storefront. */
@@ -829,16 +858,30 @@ internal fun offerFreeDays(offer: com.android.billingclient.api.ProductDetails.S
     return parseIsoPeriodDays(free.billingPeriod) ?: 0
 }
 
-/** Play's offers reduced to the picker's decision data, in Play's order. */
-internal fun List<com.android.billingclient.api.ProductDetails.SubscriptionOfferDetails>.toPlanOffers(): List<PlanOffer> =
-    mapIndexed { index, offer ->
-        PlanOffer(index = index, periodDays = offerPeriodDays(offer), freeDays = offerFreeDays(offer), tags = offer.offerTags)
+/**
+ * Play's offers reduced to the picker's decision data, in Play's order. The
+ * base plan is the entry without an offer id; an offer's tags are its own,
+ * its base plan's left out (Play reports them together).
+ */
+internal fun List<com.android.billingclient.api.ProductDetails.SubscriptionOfferDetails>.toPlanOffers(): List<PlanOffer> {
+    val baseTags = filter { it.offerId == null }.associate { it.basePlanId to it.offerTags.toSet() }
+    return mapIndexed { index, offer ->
+        val basePlan = offer.offerId == null
+        PlanOffer(
+            index = index,
+            periodDays = offerPeriodDays(offer),
+            freeDays = offerFreeDays(offer),
+            tags = if (basePlan) offer.offerTags else PlanOffers.ownTags(offer.offerTags, baseTags[offer.basePlanId].orEmpty()),
+            basePlan = basePlan,
+        )
     }
+}
 
 /**
  * Picks the offer to buy for a plan (see [PlanOffers.forPlan]): for the yearly
  * plan the offer with the free trial when Play returns one, so the purchase
- * carries the trial the picker promised.
+ * carries the trial the picker promised; for either plan the offer tagged
+ * `preferTag` when Play lists it, and never another tagged offer.
  */
 internal fun offerForPlan(
     offers: List<com.android.billingclient.api.ProductDetails.SubscriptionOfferDetails>,

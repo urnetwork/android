@@ -775,8 +775,12 @@
     <string name="of_total">von %1$s</string>
     <string name="off">Aus</string>
     <string name="offer_available_until">Verfügbar bis %1$s</string>
+    <string name="offer_first_month_price">%1$s für deinen ersten Monat</string>
     <string name="offer_first_year_price">%1$s für dein erstes Jahr</string>
+    <string name="offer_percent_off_first_month">%1$d %% Rabatt auf deinen ersten Monat</string>
     <string name="offer_percent_off_first_year">%1$d %% Rabatt auf dein erstes Jahr</string>
+    <string name="offer_terms_first_month">%1$s für deinen ersten Monat, danach %2$s/Monat. Jederzeit kündbar.</string>
+    <string name="offer_then_regular_monthly_price">danach %1$s/Monat</string>
     <string name="offer_then_regular_price">danach %1$s/Jahr</string>
     <string name="offer_timeline_day">Tag %1$d</string>
     <string name="offer_timeline_first_charge">%1$s für das Jahr, davor jederzeit kündbar</string>

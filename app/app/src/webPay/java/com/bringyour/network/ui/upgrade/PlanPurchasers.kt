@@ -97,7 +97,7 @@ fun rememberPlanPurchaser(
             val planName = if (yearly) Sdk.PlanYearly else Sdk.PlanMonthly
             ClientEvents.purchaseStarted(
                 Sdk.EventStoreStripe, ClientEvents.PRODUCT_STRIPE_PRO, planName, yearly,
-                if (yearly) (presentation.offer?.firstYearAmount ?: presentation.yearlyAmount) else presentation.monthlyAmount,
+                presentation.firstChargeAmount(plan),
                 presentation.currency,
             )
             StripeSheetRequest.request(api, plan, subscriptionBalanceViewModel.storefrontCountry) { result, failure, refusal ->

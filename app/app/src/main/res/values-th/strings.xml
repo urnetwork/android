@@ -775,8 +775,12 @@
     <string name="of_total">จาก %1$s</string>
     <string name="off">ปิด</string>
     <string name="offer_available_until">ใช้ได้ถึง %1$s</string>
+    <string name="offer_first_month_price">%1$s สำหรับเดือนแรก</string>
     <string name="offer_first_year_price">%1$s สำหรับปีแรก</string>
+    <string name="offer_percent_off_first_month">ลด %1$d%% สำหรับเดือนแรก</string>
     <string name="offer_percent_off_first_year">ลด %1$d%% สำหรับปีแรก</string>
+    <string name="offer_terms_first_month">%1$s สำหรับเดือนแรก จากนั้น %2$s/เดือน ยกเลิกได้ทุกเมื่อ</string>
+    <string name="offer_then_regular_monthly_price">จากนั้น %1$s/เดือน</string>
     <string name="offer_then_regular_price">จากนั้น %1$s/ปี</string>
     <string name="offer_timeline_day">วันที่ %1$d</string>
     <string name="offer_timeline_first_charge">%1$s ต่อปี ยกเลิกได้ทุกเมื่อก่อนหน้านั้น</string>

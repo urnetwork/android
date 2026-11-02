@@ -24,7 +24,9 @@ import com.bringyour.sdk.Sdk
  * an active welcome offer the yearly card is the offer card and the button
  * reads "Start free trial with 3 months free"; the offer events are emitted
  * here (`offer.screen.shown` once per appearance with the surface,
- * `offer.card.tapped`, `offer.cta.tapped`).
+ * `offer.card.tapped`, `offer.cta.tapped`). A returning subscriber's win-back
+ * offer makes the monthly card its offer card, and the terms line under the
+ * button names its discounted first month while monthly is chosen.
  *
  * On the flavors that sell outside a store, [methodSlot] puts the payment
  * method row between the cards and the button. While a method other than the

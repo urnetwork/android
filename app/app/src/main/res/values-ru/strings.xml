@@ -775,8 +775,12 @@
     <string name="of_total">из %1$s</string>
     <string name="off">Выкл.</string>
     <string name="offer_available_until">Доступно до %1$s</string>
+    <string name="offer_first_month_price">%1$s за первый месяц</string>
     <string name="offer_first_year_price">%1$s за первый год</string>
+    <string name="offer_percent_off_first_month">Скидка %1$d%% на первый месяц</string>
     <string name="offer_percent_off_first_year">Скидка %1$d%% на первый год</string>
+    <string name="offer_terms_first_month">%1$s за первый месяц, затем %2$s/месяц. Отмена в любой момент.</string>
+    <string name="offer_then_regular_monthly_price">далее %1$s/месяц</string>
     <string name="offer_then_regular_price">далее %1$s/год</string>
     <string name="offer_timeline_day">День %1$d</string>
     <string name="offer_timeline_first_charge">%1$s за год, до этого можно отменить в любой момент</string>

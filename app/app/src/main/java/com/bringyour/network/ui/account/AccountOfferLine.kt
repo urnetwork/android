@@ -16,6 +16,7 @@ import com.bringyour.network.R
 import com.bringyour.network.ui.theme.ProGoldLight
 import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.upgrade.OfferPresentation
+import com.bringyour.network.ui.upgrade.WinbackPresentation
 import com.bringyour.network.ui.upgrade.formatOfferDeadline
 
 /**
@@ -44,6 +45,38 @@ fun AccountOfferLine(
         if (0L < offer.expiresAtMillis) {
             Text(
                 stringResource(id = R.string.offer_available_until, formatOfferDeadline(offer.expiresAtMillis)),
+                style = MaterialTheme.typography.bodySmall,
+                color = TextMuted
+            )
+        }
+    }
+}
+
+/**
+ * A returning subscriber's win-back offer on the Account plan row while this
+ * app can sell it (mmm/reengagement/PLAN.md "THE STORES"): "50% off your
+ * first month" and the static deadline, laid out as the welcome offer's line.
+ * A tap opens the Get Pro screen, whose monthly card sells it.
+ */
+@Composable
+fun AccountWinbackLine(
+    winback: WinbackPresentation,
+    openGetPro: () -> Unit,
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { openGetPro() }
+    ) {
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            stringResource(id = R.string.offer_percent_off_first_month, winback.percentOff),
+            style = MaterialTheme.typography.bodyMedium,
+            color = ProGoldLight
+        )
+        if (0L < winback.expiresAtMillis) {
+            Text(
+                stringResource(id = R.string.offer_available_until, formatOfferDeadline(winback.expiresAtMillis)),
                 style = MaterialTheme.typography.bodySmall,
                 color = TextMuted
             )

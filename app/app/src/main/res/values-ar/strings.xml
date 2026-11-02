@@ -775,8 +775,12 @@
     <string name="of_total">من %1$s</string>
     <string name="off">إيقاف</string>
     <string name="offer_available_until">متاح حتى %1$s</string>
+    <string name="offer_first_month_price">%1$s لشهرك الأول</string>
     <string name="offer_first_year_price">%1$s لسنتك الأولى</string>
+    <string name="offer_percent_off_first_month">خصم %1$d%% على شهرك الأول</string>
     <string name="offer_percent_off_first_year">خصم %1$d%% على سنتك الأولى</string>
+    <string name="offer_terms_first_month">%1$s لشهرك الأول، ثم %2$s/شهر. يمكنك الإلغاء في أي وقت.</string>
+    <string name="offer_then_regular_monthly_price">ثم %1$s/شهر</string>
     <string name="offer_then_regular_price">ثم %1$s/سنة</string>
     <string name="offer_timeline_day">اليوم %1$d</string>
     <string name="offer_timeline_first_charge">%1$s للسنة، يمكنك الإلغاء في أي وقت قبل ذلك</string>

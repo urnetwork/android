@@ -35,8 +35,11 @@ import java.util.Date
  * against monthly, and the trial line. While the welcome offer is active the
  * yearly card becomes the offer card: "$29.99 for your first year", "then
  * $39.99/year", the trial line, and the static deadline. Monthly prints
- * "$4.99/month" and "Billed monthly · cancel anytime". The two cards are
- * always the same height.
+ * "$4.99/month" and "Billed monthly · cancel anytime"; while a returning
+ * subscriber's win-back offer is active (mmm/reengagement/PLAN.md "THE
+ * STORES") the monthly card becomes its offer card the same way: "$2.49 for
+ * your first month", "then $4.99/month", the percent off, and the static
+ * deadline. The two cards are always the same height.
  *
  * With a [monthlyNote] the chosen payment method does not sell monthly
  * ("Monthly is card only", PlanAlternative): the monthly card is greyed, can't
@@ -81,6 +84,19 @@ fun PlanCards(
                         }
                         YearlyCardLines(presentation, offer, trialOffered, freeTrialDays, countryName, oneTimeYear = true)
                     }
+                } else if (showMonthly && monthlyNote == null && presentation.winback != null) {
+                    // the monthly card's win-back lines can outnumber the yearly
+                    // card's: an invisible copy of them keeps the cards one height
+                    Box(contentAlignment = Alignment.CenterStart) {
+                        Column(
+                            modifier = Modifier
+                                .alpha(0f)
+                                .clearAndSetSemantics {}
+                        ) {
+                            MonthlyCardLines(presentation, monthlyNote = null)
+                        }
+                        YearlyCardLines(presentation, offer, trialOffered, freeTrialDays, countryName, oneTimeYear = false)
+                    }
                 } else {
                     YearlyCardLines(presentation, offer, trialOffered, freeTrialDays, countryName, oneTimeYear = false)
                 }
@@ -113,20 +129,58 @@ fun PlanCards(
                     ) {
                         YearlyCardLines(presentation, offer, trialOffered, freeTrialDays, countryName, oneTimeYear = false)
                     }
-                    Column {
-                        Text(
-                            stringResource(id = R.string.plan_price_per_month, presentation.monthlyPrice),
-                            style = TopBarTitleTextStyle
-                        )
-                        Text(
-                            monthlyNote ?: stringResource(id = R.string.plan_billed_monthly_cancel_anytime),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = TextMuted
-                        )
-                    }
+                    MonthlyCardLines(presentation, monthlyNote)
                 }
             }
         )
+    }
+}
+
+/**
+ * The monthly card's lines: the win-back offer's while it is active and the
+ * chosen payment method sells the monthly plan, else the plain price with its
+ * billing line (or the method's note, when the method sells no monthly plan).
+ */
+@Composable
+private fun MonthlyCardLines(
+    presentation: PlanPresentation,
+    monthlyNote: String?,
+) {
+    val winback = presentation.winback?.takeIf { monthlyNote == null }
+    Column {
+        if (winback != null) {
+            Text(
+                stringResource(id = R.string.offer_first_month_price, winback.firstMonthPrice),
+                style = TopBarTitleTextStyle
+            )
+            Text(
+                stringResource(id = R.string.offer_then_regular_monthly_price, winback.regularMonthPrice),
+                style = MaterialTheme.typography.bodyMedium,
+                color = TextMuted
+            )
+            Text(
+                stringResource(id = R.string.offer_percent_off_first_month, winback.percentOff),
+                style = MaterialTheme.typography.bodyMedium,
+                color = ProGoldLight
+            )
+            if (0L < winback.expiresAtMillis) {
+                Text(
+                    stringResource(id = R.string.offer_available_until, formatOfferDeadline(winback.expiresAtMillis)),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = TextMuted
+                )
+            }
+        } else {
+            Text(
+                stringResource(id = R.string.plan_price_per_month, presentation.monthlyPrice),
+                style = TopBarTitleTextStyle
+            )
+            Text(
+                monthlyNote ?: stringResource(id = R.string.plan_billed_monthly_cancel_anytime),
+                style = MaterialTheme.typography.bodyMedium,
+                color = TextMuted
+            )
+        }
     }
 }
 
@@ -203,7 +257,8 @@ fun formatOfferDeadline(expiresAtMillis: Long): String =
 /**
  * The terms line under the primary button: the trial, the first charge and
  * the cancel rule, so the price is never hidden (App Store 3.1.2(c) and the
- * Play equivalent).
+ * Play equivalent). With the win-back offer the monthly line names the
+ * discounted first month and the price after it.
  */
 @Composable
 fun PlanTermsLine(
@@ -212,7 +267,10 @@ fun PlanTermsLine(
     freeTrialDays: Int = FREE_TRIAL_DAYS,
 ) {
     val offer = presentation.offer
+    val winback = presentation.winback
     val text = when {
+        selectedPlan == PlanType.MONTHLY && winback != null ->
+            stringResource(id = R.string.offer_terms_first_month, winback.firstMonthPrice, winback.regularMonthPrice)
         selectedPlan == PlanType.MONTHLY ->
             stringResource(id = R.string.plan_billed_monthly_cancel_anytime)
         offer != null ->

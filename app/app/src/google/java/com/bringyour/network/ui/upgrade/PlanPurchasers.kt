@@ -12,7 +12,9 @@ import com.bringyour.sdk.Sdk
  * The play flavor sells through Google Play Billing: the purchase selects the
  * plan, prefers the welcome offer's tag while the offer is active (the
  * developer-determined `onboarding25` offer: trial, then the discounted first
- * year), and launches the billing flow through PlanViewModel.upgrade. The
+ * year) and, for monthly, the win-back offer's tag while that offer is active
+ * (`winback-monthly-50`: the first month at half price), and launches the
+ * billing flow through PlanViewModel.upgrade. The
  * success is observed where it always was (upgradeSuccessSequence in
  * MainNavHost), so [onPurchaseSuccess] is unused here.
  */
@@ -24,11 +26,16 @@ fun rememberPlanPurchaser(
 ): PlanPurchaser {
     return remember(planViewModel) {
         PlanPurchaser(store = Sdk.EventStorePlay) { plan, presentation ->
-            val offer = presentation.offer
-            planViewModel.preferredOfferTag = if (plan == PlanType.YEARLY) offer?.playOfferTag?.takeIf { it.isNotEmpty() } else null
+            // the tag of the offer the server named for this plan: the welcome
+            // offer's for yearly, the win-back offer's for monthly (shown only
+            // while Play lists it); without one no tagged offer is bought
+            planViewModel.preferredOfferTag = when (plan) {
+                PlanType.YEARLY -> presentation.offer?.playOfferTag
+                PlanType.MONTHLY -> presentation.winback?.playOfferTag
+            }?.takeIf { it.isNotEmpty() }
             planViewModel.setSelectedPlan(plan)
             val yearly = plan == PlanType.YEARLY
-            val price = if (yearly) (offer?.firstYearAmount ?: presentation.yearlyAmount) else presentation.monthlyAmount
+            val price = presentation.firstChargeAmount(plan)
             planViewModel.pendingPurchaseEvent = PlanViewModel.PendingPurchaseEvent(
                 plan = if (yearly) Sdk.PlanYearly else Sdk.PlanMonthly,
                 trial = yearly,

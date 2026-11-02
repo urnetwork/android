@@ -775,8 +775,12 @@
     <string name="of_total">van %1$s</string>
     <string name="off">Uit</string>
     <string name="offer_available_until">Beschikbaar tot %1$s</string>
+    <string name="offer_first_month_price">%1$s voor je eerste maand</string>
     <string name="offer_first_year_price">%1$s voor je eerste jaar</string>
+    <string name="offer_percent_off_first_month">%1$d%% korting op je eerste maand</string>
     <string name="offer_percent_off_first_year">%1$d%% korting op je eerste jaar</string>
+    <string name="offer_terms_first_month">%1$s voor je eerste maand, daarna %2$s/maand. Altijd opzegbaar.</string>
+    <string name="offer_then_regular_monthly_price">daarna %1$s/maand</string>
     <string name="offer_then_regular_price">daarna %1$s/jaar</string>
     <string name="offer_timeline_day">Dag %1$d</string>
     <string name="offer_timeline_first_charge">%1$s voor het jaar, tot dan altijd opzegbaar</string>

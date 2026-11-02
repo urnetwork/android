@@ -775,8 +775,12 @@
     <string name="of_total">από %1$s</string>
     <string name="off">Ανενεργό</string>
     <string name="offer_available_until">Διαθέσιμο έως %1$s</string>
+    <string name="offer_first_month_price">%1$s για τον πρώτο μήνα</string>
     <string name="offer_first_year_price">%1$s για τον πρώτο χρόνο</string>
+    <string name="offer_percent_off_first_month">%1$d%% έκπτωση στον πρώτο μήνα</string>
     <string name="offer_percent_off_first_year">%1$d%% έκπτωση στον πρώτο χρόνο</string>
+    <string name="offer_terms_first_month">%1$s για τον πρώτο μήνα, έπειτα %2$s/μήνα. Ακύρωση οποτεδήποτε.</string>
+    <string name="offer_then_regular_monthly_price">έπειτα %1$s/μήνα</string>
     <string name="offer_then_regular_price">έπειτα %1$s/έτος</string>
     <string name="offer_timeline_day">Ημέρα %1$d</string>
     <string name="offer_timeline_first_charge">%1$s για το έτος, ακύρωση οποτεδήποτε πριν</string>
