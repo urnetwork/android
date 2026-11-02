@@ -93,6 +93,7 @@
     <string name="bittensor_continue_in_browser">تابع في متصفحك ووافق على الطلب في إضافة %1$s.</string>
     <string name="bittensor_error_address_not_in_wallet">محفظة %1$s لديك لا تحتوي على العنوان الذي أدخلته. أضف هذا الحساب أو اربطه في المحفظة، أو أدخل عنوانًا موجودًا فيها.</string>
     <string name="bittensor_error_challenge_expired">انتهت صلاحية هذا الطلب. ابدأ من جديد للحصول على رسالة جديدة للتوقيع.</string>
+    <string name="bittensor_error_extension_not_authorized">لم يسمح %1$s بعد لموقع ur.io باستخدام حساب Bittensor الخاص بك. وافق على طلب الاتصال في المحفظة، أو اسمح لموقع ur.io ضمن «Connected Sites» (المواقع المتصلة) في إعداداتها، ثم حاول مرة أخرى.</string>
     <string name="bittensor_error_extension_not_found">لم يتم العثور على إضافة %1$s في هذا المتصفح. ثبّتها ثم حاول مرة أخرى.</string>
     <string name="bittensor_error_invalid_signature">هذا ليس توقيعًا صالحًا. الصق توقيع 0x الكامل من محفظتك.</string>
     <string name="bittensor_error_message_mismatch">وقّعت المحفظة طلبًا مختلفًا. ابدأ من جديد.</string>
@@ -101,6 +102,9 @@
     <string name="bittensor_error_user_rejected">تم رفض الطلب في محفظتك. ابدأ من جديد ووافق عليه للمتابعة.</string>
     <string name="bittensor_error_walletconnect_expired">انتهت صلاحية طلب WalletConnect قبل أن تستجيب المحفظة. ابدأ من جديد.</string>
     <string name="bittensor_error_walletconnect_unavailable">WalletConnect غير متاح حاليًا. حاول مرة أخرى لاحقًا، أو أدخل عنوانك يدويًا.</string>
+    <string name="bittensor_manual_choice">التوقيع يدويًا</string>
+    <string name="bittensor_manual_no_popup">لن تُفتح نافذة محفظة هنا. وقّع الرسالة بنفسك، ثم الصق التوقيع أدناه.</string>
+    <string name="bittensor_manual_phone_route">إذا لم تتمكن محفظتك من توقيع رسالة ملصقة، فارجع واختر WalletConnect (Nova وغيرها)، أو وقّع من خلال ur.io/app/account/earnings في متصفح على الكمبيوتر.</string>
     <string name="bittensor_manual_sign_instructions">وقّع هذه الرسالة باستخدام محفظة %1$s التي تملك مفتاحك البارد (coldkey)، ثم الصق العنوان والتوقيع أدناه.</string>
     <string name="bittensor_message_to_sign">الرسالة المطلوب توقيعها</string>
     <string name="bittensor_sign_in">تسجيل الدخول باستخدام Bittensor</string>

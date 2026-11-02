@@ -93,6 +93,7 @@
     <string name="bittensor_continue_in_browser">Continúa en tu navegador y aprueba la solicitud en la extensión de %1$s.</string>
     <string name="bittensor_error_address_not_in_wallet">Tu billetera %1$s no tiene la dirección que introdujiste. Añade o conecta esa cuenta en la billetera, o introduce una dirección que tenga.</string>
     <string name="bittensor_error_challenge_expired">Esta solicitud caducó. Empieza de nuevo para obtener un mensaje nuevo para firmar.</string>
+    <string name="bittensor_error_extension_not_authorized">%1$s todavía no ha permitido que ur.io use tu cuenta de Bittensor. Aprueba la solicitud de conexión en la billetera o permite ur.io en «Sitios Conectados» de su configuración, y vuelve a intentarlo.</string>
     <string name="bittensor_error_extension_not_found">No se encontró la extensión de %1$s en este navegador. Instálala y vuelve a intentarlo.</string>
     <string name="bittensor_error_invalid_signature">No es una firma válida. Pega la firma 0x completa de tu billetera.</string>
     <string name="bittensor_error_message_mismatch">La billetera firmó una solicitud diferente. Empieza de nuevo.</string>
@@ -101,6 +102,9 @@
     <string name="bittensor_error_user_rejected">La solicitud se rechazó en tu billetera. Empieza de nuevo y apruébala para continuar.</string>
     <string name="bittensor_error_walletconnect_expired">La solicitud de WalletConnect caducó antes de que respondiera la billetera. Empieza de nuevo.</string>
     <string name="bittensor_error_walletconnect_unavailable">WalletConnect no está disponible en este momento. Inténtalo de nuevo más tarde o introduce tu dirección manualmente.</string>
+    <string name="bittensor_manual_choice">Firmar manualmente</string>
+    <string name="bittensor_manual_no_popup">Aquí no se abre ninguna ventana de billetera. Tú mismo firmas el mensaje y luego pegas la firma abajo.</string>
+    <string name="bittensor_manual_phone_route">Si tu billetera no puede firmar un mensaje pegado, vuelve atrás y elige WalletConnect (Nova y otras), o firma en ur.io/app/account/earnings en el navegador de un ordenador.</string>
     <string name="bittensor_manual_sign_instructions">Firma este mensaje con la billetera %1$s que contiene tu coldkey y luego pega abajo la dirección y la firma.</string>
     <string name="bittensor_message_to_sign">Mensaje para firmar</string>
     <string name="bittensor_sign_in">Iniciar sesión con Bittensor</string>

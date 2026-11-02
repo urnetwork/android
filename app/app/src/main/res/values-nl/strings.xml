@@ -93,6 +93,7 @@
     <string name="bittensor_continue_in_browser">Ga verder in je browser en keur het verzoek goed in de %1$s-extensie.</string>
     <string name="bittensor_error_address_not_in_wallet">Je %1$s-wallet bevat het ingevoerde adres niet. Voeg dat account in de wallet toe of koppel het, of voer een adres in dat de wallet wel bevat.</string>
     <string name="bittensor_error_challenge_expired">Dit verzoek is verlopen. Begin opnieuw om een nieuw bericht te krijgen om te ondertekenen.</string>
+    <string name="bittensor_error_extension_not_authorized">%1$s heeft ur.io nog geen toestemming gegeven om je Bittensor-account te gebruiken. Keur het verbindingsverzoek goed in de wallet of sta ur.io toe onder ‘Connected Sites’ (verbonden sites) in de instellingen en probeer het opnieuw.</string>
     <string name="bittensor_error_extension_not_found">De %1$s-extensie is niet gevonden in deze browser. Installeer de extensie en probeer het opnieuw.</string>
     <string name="bittensor_error_invalid_signature">Dat is geen geldige handtekening. Plak de volledige 0x-handtekening uit je wallet.</string>
     <string name="bittensor_error_message_mismatch">De wallet heeft een ander verzoek ondertekend. Begin opnieuw.</string>
@@ -101,6 +102,9 @@
     <string name="bittensor_error_user_rejected">Het verzoek is geweigerd in je wallet. Begin opnieuw en keur het goed om door te gaan.</string>
     <string name="bittensor_error_walletconnect_expired">Het WalletConnect-verzoek is verlopen voordat de wallet antwoordde. Begin opnieuw.</string>
     <string name="bittensor_error_walletconnect_unavailable">WalletConnect is op dit moment niet beschikbaar. Probeer het later opnieuw of voer je adres handmatig in.</string>
+    <string name="bittensor_manual_choice">Handmatig ondertekenen</string>
+    <string name="bittensor_manual_no_popup">Hiervoor wordt geen walletvenster geopend. Je ondertekent het bericht zelf en plakt de handtekening hieronder.</string>
+    <string name="bittensor_manual_phone_route">Kan je wallet geen geplakt bericht ondertekenen, ga dan terug en kies WalletConnect (Nova en andere), of onderteken op ur.io/app/account/earnings in de browser van een computer.</string>
     <string name="bittensor_manual_sign_instructions">Onderteken dit bericht met de %1$s-wallet die je coldkey bevat en plak daarna hieronder het adres en de handtekening.</string>
     <string name="bittensor_message_to_sign">Bericht om te ondertekenen</string>
     <string name="bittensor_sign_in">Inloggen met Bittensor</string>

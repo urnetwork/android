@@ -93,6 +93,7 @@
     <string name="bittensor_continue_in_browser">ブラウザで続行し、%1$s 拡張機能でリクエストを承認してください。</string>
     <string name="bittensor_error_address_not_in_wallet">お使いの%1$sウォレットに、入力したアドレスがありません。ウォレットでそのアカウントを追加または接続するか、ウォレットにあるアドレスを入力してください。</string>
     <string name="bittensor_error_challenge_expired">このリクエストは期限切れです。最初からやり直して、署名する新しいメッセージを取得してください。</string>
+    <string name="bittensor_error_extension_not_authorized">%1$s はまだ ur.io に Bittensor アカウントの使用を許可していません。ウォレットで接続リクエストを承認するか、設定の「Connected Sites」（接続済みサイト）で ur.io を許可してから、もう一度お試しください。</string>
     <string name="bittensor_error_extension_not_found">このブラウザーで%1$s拡張機能が見つかりませんでした。インストールしてから、もう一度お試しください。</string>
     <string name="bittensor_error_invalid_signature">有効な署名ではありません。ウォレットの 0x 署名全体を貼り付けてください。</string>
     <string name="bittensor_error_message_mismatch">ウォレットが別のリクエストに署名しました。最初からやり直してください。</string>
@@ -101,6 +102,9 @@
     <string name="bittensor_error_user_rejected">ウォレットでリクエストが拒否されました。最初からやり直し、リクエストを承認して続行してください。</string>
     <string name="bittensor_error_walletconnect_expired">ウォレットが応答する前に WalletConnect のリクエストの有効期限が切れました。最初からやり直してください。</string>
     <string name="bittensor_error_walletconnect_unavailable">WalletConnect は現在利用できません。しばらくしてからもう一度お試しいただくか、アドレスを手動で入力してください。</string>
+    <string name="bittensor_manual_choice">手動で署名</string>
+    <string name="bittensor_manual_no_popup">ここではウォレットのウィンドウは開きません。メッセージにご自身で署名し、署名を下に貼り付けてください。</string>
+    <string name="bittensor_manual_phone_route">ウォレットが貼り付けたメッセージに署名できない場合は、戻って WalletConnect（Nova など）を選ぶか、コンピューターのブラウザで ur.io/app/account/earnings から署名してください。</string>
     <string name="bittensor_manual_sign_instructions">coldkey を保管している %1$s ウォレットでこのメッセージに署名し、アドレスと署名を下に貼り付けてください。</string>
     <string name="bittensor_message_to_sign">署名するメッセージ</string>
     <string name="bittensor_sign_in">Bittensorでサインイン</string>
