@@ -1008,7 +1008,8 @@ test("bound collector rechecks launch and receipt identity after eligible teleme
         return row;
       },
       wallNow: () => {
-        assert.equal(readTelemetry, false); readTelemetry = true;
+        if (readTelemetry) return Date.now(); // Inject the owner change once, independently of clock observation count.
+        readTelemetry = true;
         const owner = JSON.parse(readFileSync(f.options.owner, "utf8"));
         if (kind === "terminal") writeFileSync(`${f.options.owner}.terminal.json`, "{}", { mode: 0o600 });
         if (kind === "owner-id") owner.ownerId = "00000000-0000-0000-0000-000000000000";
@@ -1277,7 +1278,7 @@ async function oneShotCollectorHelperLiveness(t, point) {
   try {
     try {
       result = await f.boundCheck({
-        wallNow: () => { prefixRead = true; prefixProbes = 0; return Date.now(); },
+        wallNow: () => { if (!prefixRead) { prefixRead = true; prefixProbes = 0; } return Date.now(); },
         isLive: pid => {
           if (prefixRead && pid === f.child.pid) {
             prefixProbes++;

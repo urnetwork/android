@@ -322,9 +322,22 @@ fun BittensorProofSheets(
                         .verticalScroll(rememberScrollState())
                         .padding(horizontal = 16.dp)
                 ) {
+                    // no wallet window comes on this path: say so before the steps, and what
+                    // works when the wallet has no way to sign a pasted message
+                    Text(
+                        stringResource(id = R.string.bittensor_manual_no_popup),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         stringResource(id = R.string.bittensor_manual_sign_instructions, displayName(s.session.walletId)),
                         style = MaterialTheme.typography.bodyMedium
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        stringResource(id = R.string.bittensor_manual_phone_route),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = TextMuted
                     )
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(

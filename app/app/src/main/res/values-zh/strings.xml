@@ -93,6 +93,7 @@
     <string name="bittensor_continue_in_browser">请在浏览器中继续，并在 %1$s 扩展中批准请求。</string>
     <string name="bittensor_error_address_not_in_wallet">您的 %1$s 钱包中没有您输入的地址。请在钱包中添加或连接该账户，或输入钱包中已有的地址。</string>
     <string name="bittensor_error_challenge_expired">此请求已过期。请重新开始以获取新的待签名消息。</string>
+    <string name="bittensor_error_extension_not_authorized">%1$s 尚未允许 ur.io 使用您的 Bittensor 账户。请在钱包中批准连接请求，或在其设置的“连接网站”中允许 ur.io，然后重试。</string>
     <string name="bittensor_error_extension_not_found">在此浏览器中未找到 %1$s 扩展。请安装后重试。</string>
     <string name="bittensor_error_invalid_signature">这不是有效的签名。请粘贴钱包中完整的 0x 签名。</string>
     <string name="bittensor_error_message_mismatch">钱包签署了另一个请求。请重新开始。</string>
@@ -101,6 +102,9 @@
     <string name="bittensor_error_user_rejected">该请求已在您的钱包中被拒绝。请重新开始并批准该请求以继续。</string>
     <string name="bittensor_error_walletconnect_expired">钱包响应之前，WalletConnect 请求已过期。请重新开始。</string>
     <string name="bittensor_error_walletconnect_unavailable">WalletConnect 目前不可用。请稍后重试，或手动输入您的地址。</string>
+    <string name="bittensor_manual_choice">手动签名</string>
+    <string name="bittensor_manual_no_popup">此处不会打开钱包窗口。请您自行对消息签名，然后将签名粘贴到下方。</string>
+    <string name="bittensor_manual_phone_route">如果您的钱包无法对粘贴的消息签名，请返回并选择 WalletConnect（Nova 等），或在电脑浏览器中前往 ur.io/app/account/earnings 签名。</string>
     <string name="bittensor_manual_sign_instructions">请使用持有您 coldkey 的 %1$s 钱包签署此消息，然后在下方粘贴地址和签名。</string>
     <string name="bittensor_message_to_sign">待签名消息</string>
     <string name="bittensor_sign_in">使用 Bittensor 登录</string>

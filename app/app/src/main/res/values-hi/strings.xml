@@ -93,6 +93,7 @@
     <string name="bittensor_continue_in_browser">अपने ब्राउज़र में जारी रखें और %1$s एक्सटेंशन में अनुरोध को मंज़ूरी दें।</string>
     <string name="bittensor_error_address_not_in_wallet">आपके %1$s वॉलेट में वह पता नहीं है जो आपने दर्ज किया है। उस खाते को वॉलेट में जोड़ें या कनेक्ट करें, या ऐसा पता दर्ज करें जो वॉलेट में हो।</string>
     <string name="bittensor_error_challenge_expired">यह अनुरोध समाप्त हो गया है। साइन करने के लिए नया संदेश पाने हेतु फिर से शुरू करें।</string>
+    <string name="bittensor_error_extension_not_authorized">%1$s ने अभी तक ur.io को आपका Bittensor खाता उपयोग करने की अनुमति नहीं दी है। वॉलेट में कनेक्शन अनुरोध स्वीकृत करें, या उसकी सेटिंग्स में “Connected Sites” (कनेक्ट की गई साइटें) के अंतर्गत ur.io को अनुमति दें, फिर से प्रयास करें।</string>
     <string name="bittensor_error_extension_not_found">इस ब्राउज़र में %1$s एक्सटेंशन नहीं मिला। इसे इंस्टॉल करें, फिर दोबारा प्रयास करें।</string>
     <string name="bittensor_error_invalid_signature">यह मान्य हस्ताक्षर नहीं है। अपने वॉलेट से पूरा 0x हस्ताक्षर पेस्ट करें।</string>
     <string name="bittensor_error_message_mismatch">वॉलेट ने किसी दूसरे अनुरोध पर साइन किया। फिर से शुरू करें।</string>
@@ -101,6 +102,9 @@
     <string name="bittensor_error_user_rejected">आपके वॉलेट में अनुरोध अस्वीकार कर दिया गया। जारी रखने के लिए फिर से शुरू करें और अनुरोध को स्वीकृत करें।</string>
     <string name="bittensor_error_walletconnect_expired">वॉलेट के जवाब देने से पहले WalletConnect अनुरोध की समय-सीमा समाप्त हो गई। फिर से शुरू करें।</string>
     <string name="bittensor_error_walletconnect_unavailable">WalletConnect अभी उपलब्ध नहीं है। बाद में फिर से प्रयास करें, या अपना पता मैन्युअल रूप से दर्ज करें।</string>
+    <string name="bittensor_manual_choice">मैन्युअल रूप से हस्ताक्षर करें</string>
+    <string name="bittensor_manual_no_popup">इसके लिए कोई वॉलेट विंडो नहीं खुलेगी। आप संदेश पर स्वयं हस्ताक्षर करें, फिर हस्ताक्षर नीचे चिपकाएँ।</string>
+    <string name="bittensor_manual_phone_route">यदि आपका वॉलेट चिपकाए गए संदेश पर हस्ताक्षर नहीं कर सकता, तो वापस जाएँ और WalletConnect (Nova और अन्य) चुनें, या कंप्यूटर के ब्राउज़र में ur.io/app/account/earnings पर हस्ताक्षर करें।</string>
     <string name="bittensor_manual_sign_instructions">इस संदेश पर उस %1$s वॉलेट से साइन करें जिसमें आपकी coldkey है, फिर नीचे पता और हस्ताक्षर पेस्ट करें।</string>
     <string name="bittensor_message_to_sign">साइन करने के लिए संदेश</string>
     <string name="bittensor_sign_in">Bittensor से साइन इन करें</string>

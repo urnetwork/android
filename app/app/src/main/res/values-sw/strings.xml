@@ -93,6 +93,7 @@
     <string name="bittensor_continue_in_browser">Endelea kwenye kivinjari chako na uidhinishe ombi kwenye kiendelezi cha %1$s.</string>
     <string name="bittensor_error_address_not_in_wallet">Pochi yako ya %1$s haina anwani uliyoweka. Ongeza au unganisha akaunti hiyo kwenye pochi, au weka anwani iliyomo kwenye pochi hiyo.</string>
     <string name="bittensor_error_challenge_expired">Ombi hili limeisha muda. Anza upya ili upate ujumbe mpya wa kutia sahihi.</string>
+    <string name="bittensor_error_extension_not_authorized">%1$s bado haijaruhusu ur.io kutumia akaunti yako ya Bittensor. Idhinisha ombi la kuunganisha kwenye pochi, au ruhusu ur.io chini ya “Connected Sites” (tovuti zilizounganishwa) katika mipangilio yake, kisha ujaribu tena.</string>
     <string name="bittensor_error_extension_not_found">Kiendelezi cha %1$s hakikupatikana kwenye kivinjari hiki. Kisakinishe, kisha ujaribu tena.</string>
     <string name="bittensor_error_invalid_signature">Hiyo si sahihi halali. Bandika sahihi kamili ya 0x kutoka kwenye pochi yako.</string>
     <string name="bittensor_error_message_mismatch">Pochi ilitia sahihi ombi tofauti. Anza upya.</string>
@@ -101,6 +102,9 @@
     <string name="bittensor_error_user_rejected">Ombi lilikataliwa kwenye pochi yako. Anza upya na uliidhinishe ili kuendelea.</string>
     <string name="bittensor_error_walletconnect_expired">Muda wa ombi la WalletConnect uliisha kabla pochi haijajibu. Anza upya.</string>
     <string name="bittensor_error_walletconnect_unavailable">WalletConnect haipatikani kwa sasa. Jaribu tena baadaye, au weka anwani yako mwenyewe.</string>
+    <string name="bittensor_manual_choice">Saini mwenyewe</string>
+    <string name="bittensor_manual_no_popup">Hakuna dirisha la pochi litakalofunguka hapa. Unasaini ujumbe mwenyewe, kisha ubandike saini hapa chini.</string>
+    <string name="bittensor_manual_phone_route">Ikiwa pochi yako haiwezi kusaini ujumbe uliobandikwa, rudi nyuma uchague WalletConnect (Nova na nyingine), au saini kwenye ur.io/app/account/earnings katika kivinjari cha kompyuta.</string>
     <string name="bittensor_manual_sign_instructions">Tia sahihi ujumbe huu kwa pochi ya %1$s inayoshikilia coldkey yako, kisha bandika anwani na sahihi hapa chini.</string>
     <string name="bittensor_message_to_sign">Ujumbe wa kutia sahihi</string>
     <string name="bittensor_sign_in">Ingia na Bittensor</string>

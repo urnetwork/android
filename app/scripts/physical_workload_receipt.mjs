@@ -138,7 +138,8 @@ export function evaluateWorkloadCoverage(records, start, end, label) {
 // and the same file/first sample so late starts/restarts cannot replace it.
 export function requireLiveCollector(collector, label, coverageStart, dependencies = {}) {
   const isLive = dependencies.isLive ?? processIsLive;
-  const now = (dependencies.wallNow ?? Date.now)();
+  const wallNow = dependencies.wallNow ?? Date.now;
+  const readStarted = wallNow();
   if (!pidValid(collector?.pid) || !isLive(collector.pid)) fail("collector-owner-not-live");
   const path = realpathSync(collector.path);
   const stat = statSync(path);
@@ -146,6 +147,10 @@ export function requireLiveCollector(collector, label, coverageStart, dependenci
   const raw = readFileSync(path, "utf8");
   // A concurrently appended last line is not complete evidence yet.
   const records = raw.slice(0, raw.lastIndexOf("\n") + 1).split("\n").filter(Boolean).map(JSON.parse);
+  // A live collector may append during liveness/stat/read/parse. Compare the
+  // observed prefix with a clock read after it, preserving the exact 5s cap.
+  const now = wallNow();
+  if (!timeValid(readStarted) || !timeValid(now) || now < readStarted) fail("collector-host-clock-regressed");
   if (records.some((r) => r.type === "summary")) fail("collector-already-finished");
   const samples = records.filter((r) => r.type === "sample");
   const first = samples[0]?.startTimeUnixMs;

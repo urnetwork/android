@@ -93,6 +93,7 @@
     <string name="bittensor_continue_in_browser">Fahre in deinem Browser fort und bestätige die Anfrage in der %1$s-Erweiterung.</string>
     <string name="bittensor_error_address_not_in_wallet">Deine %1$s-Wallet enthält die eingegebene Adresse nicht. Füge das Konto in der Wallet hinzu oder verbinde es dort. Oder gib eine Adresse ein, die sie enthält.</string>
     <string name="bittensor_error_challenge_expired">Diese Anfrage ist abgelaufen. Starte erneut, um eine neue Nachricht zum Signieren zu erhalten.</string>
+    <string name="bittensor_error_extension_not_authorized">%1$s hat ur.io noch nicht erlaubt, dein Bittensor-Konto zu verwenden. Bestätige die Verbindungsanfrage in der Wallet oder erlaube ur.io in ihren Einstellungen unter „Verbundene Seiten“ und versuche es dann erneut.</string>
     <string name="bittensor_error_extension_not_found">Die %1$s-Erweiterung wurde in diesem Browser nicht gefunden. Installiere sie und versuche es dann erneut.</string>
     <string name="bittensor_error_invalid_signature">Das ist keine gültige Signatur. Füge die vollständige 0x-Signatur aus deiner Wallet ein.</string>
     <string name="bittensor_error_message_mismatch">Die Wallet hat eine andere Anfrage signiert. Starte erneut.</string>
@@ -101,6 +102,9 @@
     <string name="bittensor_error_user_rejected">Die Anfrage wurde in deiner Wallet abgelehnt. Starte erneut und bestätige sie, um fortzufahren.</string>
     <string name="bittensor_error_walletconnect_expired">Die WalletConnect-Anfrage ist abgelaufen, bevor die Wallet geantwortet hat. Starte erneut.</string>
     <string name="bittensor_error_walletconnect_unavailable">WalletConnect ist gerade nicht verfügbar. Versuche es später erneut oder gib deine Adresse manuell ein.</string>
+    <string name="bittensor_manual_choice">Manuell signieren</string>
+    <string name="bittensor_manual_no_popup">Hierfür öffnet sich kein Wallet-Fenster. Du signierst die Nachricht selbst und fügst die Signatur dann unten ein.</string>
+    <string name="bittensor_manual_phone_route">Wenn deine Wallet keine eingefügte Nachricht signieren kann, gehe zurück und wähle WalletConnect (Nova und andere), oder signiere auf ur.io/app/account/earnings im Browser eines Computers.</string>
     <string name="bittensor_manual_sign_instructions">Signiere diese Nachricht mit der %1$s-Wallet, die deinen Coldkey enthält, und füge dann unten die Adresse und die Signatur ein.</string>
     <string name="bittensor_message_to_sign">Zu signierende Nachricht</string>
     <string name="bittensor_sign_in">Mit Bittensor anmelden</string>

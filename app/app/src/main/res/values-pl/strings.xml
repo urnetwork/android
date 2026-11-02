@@ -93,6 +93,7 @@
     <string name="bittensor_continue_in_browser">Kontynuuj w przeglądarce i zatwierdź żądanie w rozszerzeniu %1$s.</string>
     <string name="bittensor_error_address_not_in_wallet">Twój portfel %1$s nie zawiera wprowadzonego adresu. Dodaj lub połącz to konto w portfelu albo wprowadź adres, który się w nim znajduje.</string>
     <string name="bittensor_error_challenge_expired">To żądanie wygasło. Zacznij od nowa, aby otrzymać nową wiadomość do podpisania.</string>
+    <string name="bittensor_error_extension_not_authorized">%1$s nie zezwolił jeszcze ur.io na używanie Twojego konta Bittensor. Zatwierdź żądanie połączenia w portfelu lub zezwól na ur.io w sekcji „Connected Sites” (połączone witryny) w jego ustawieniach, a następnie spróbuj ponownie.</string>
     <string name="bittensor_error_extension_not_found">Nie znaleziono rozszerzenia %1$s w tej przeglądarce. Zainstaluj je, a potem spróbuj ponownie.</string>
     <string name="bittensor_error_invalid_signature">To nie jest prawidłowy podpis. Wklej pełny podpis 0x ze swojego portfela.</string>
     <string name="bittensor_error_message_mismatch">Portfel podpisał inne żądanie. Zacznij od nowa.</string>
@@ -101,6 +102,9 @@
     <string name="bittensor_error_user_rejected">Żądanie zostało odrzucone w Twoim portfelu. Zacznij od nowa i zatwierdź je, aby kontynuować.</string>
     <string name="bittensor_error_walletconnect_expired">Żądanie WalletConnect wygasło, zanim portfel odpowiedział. Zacznij od nowa.</string>
     <string name="bittensor_error_walletconnect_unavailable">WalletConnect jest teraz niedostępny. Spróbuj ponownie później lub wprowadź adres ręcznie.</string>
+    <string name="bittensor_manual_choice">Podpisz ręcznie</string>
+    <string name="bittensor_manual_no_popup">Okno portfela się tu nie otworzy. Podpisujesz wiadomość samodzielnie, a następnie wklejasz podpis poniżej.</string>
+    <string name="bittensor_manual_phone_route">Jeśli Twój portfel nie może podpisać wklejonej wiadomości, wróć i wybierz WalletConnect (Nova i inne) albo podpisz na ur.io/app/account/earnings w przeglądarce na komputerze.</string>
     <string name="bittensor_manual_sign_instructions">Podpisz tę wiadomość portfelem %1$s, w którym jest twój coldkey, a potem wklej poniżej adres i podpis.</string>
     <string name="bittensor_message_to_sign">Wiadomość do podpisania</string>
     <string name="bittensor_sign_in">Zaloguj się przez Bittensor</string>

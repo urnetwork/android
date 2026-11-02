@@ -4,7 +4,7 @@ import { diagnosticIdentity } from "./physical_diagnostic_identity.mjs";
 import { runIoLoopFastBoundary } from "./physical_ioloop_boundary.mjs";
 import { spawn, spawnSync } from "node:child_process";
 import { EventEmitter } from "node:events";
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from "node:fs";
+import { appendFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import test from "node:test";
@@ -763,3 +763,75 @@ test("native-loop boundary failure or joined failed traffic remains failed witho
   }
 });
 
+
+// Freshness uses the clock after the complete append-only prefix is read.
+const clockRaceSample = (start, end) => ({ type: 'sample', startTimeUnixMs: start, endTimeUnixMs: end, eligibility: { eligible: true }, telemetryErrors: [] });
+function clockRaceFixture(t, records = [clockRaceSample(8000, 9000)]) {
+  const dir = mkdtempSync(join(tmpdir(), 'collector-real-append-'));
+  t.after(() => rmSync(dir, { recursive: true, force: true }));
+  const path = join(dir, 'telemetry.ndjson');
+  writeFileSync(path, [{ type: 'environment', label: 'cell' }, ...records].map(JSON.stringify).join('\n') + '\n', { mode: 0o600 });
+  const info = statSync(path);
+  return { dir, path, collector: { pid: 900, path, device: info.dev, inode: info.ino, firstSampleHostTimeUnixMs: records[0].startTimeUnixMs } };
+}
+
+
+
+test('collector clock race: a same-inode append after the initial clock is fresh at the read boundary', t => {
+  const f = clockRaceFixture(t); let now = 10000; let appended = false;
+  const dependencies = { wallNow: () => now, isLive: () => {
+    if (!appended) { appendFileSync(f.path, JSON.stringify(clockRaceSample(9000, 10001)) + '\n'); now = 10002; appended = true; }
+    return true;
+  } };
+  assert.equal(requireLiveCollector(f.collector, 'cell', 8000, dependencies).inode, f.collector.inode);
+  assert.equal(statSync(f.path).ino, f.collector.inode);
+});
+test('fixed clock observation preserves true future, stale, owner, coverage, restart and regression failures', t => {
+  const cases = [
+    { name: 'future', records: [clockRaceSample(8000, 10003)], reason: /fresh-sample-required/ },
+    { name: 'stale', records: [clockRaceSample(2000, 3999)], reason: /fresh-sample-required/ },
+    { name: 'read-stalls-past-freshness', records: [clockRaceSample(8000, 9000)], clock: [10000, 14001], reason: /fresh-sample-required/ },
+    { name: 'dead-owner', live: () => false, reason: /owner-not-live/ },
+    { name: 'wrong-label', label: 'foreign', reason: /coverage-incomplete/ },
+    { name: 'missing-coverage', start: 7000, reason: /coverage-incomplete/ },
+    { name: 'restart', change: c => { c.firstSampleHostTimeUnixMs = 7000; }, reason: /restarted-or-truncated/ },
+    { name: 'wrong-inode', change: c => { c.inode += 1; }, reason: /file-replaced/ },
+    { name: 'clock-regression', clock: [10002, 10000], reason: /host-clock-regressed/ },
+    { name: 'lost-owner-after-read', live: (() => { let n = 0; return () => ++n === 1; })(), reason: /owner-not-live/ },
+  ];
+  for (const c of cases) {
+    const f = clockRaceFixture(t, c.records ?? [clockRaceSample(8000, 10001)]); c.change?.(f.collector);
+    const clock = [...(c.clock ?? [10000, 10002])];
+    assert.throws(() => requireLiveCollector(f.collector, c.label ?? 'cell', c.start ?? 8000,
+      { wallNow: () => clock.shift(), isLive: c.live ?? (() => true) }), c.reason, c.name);
+  }
+});
+
+
+
+test('collector clock race: real recordChild postconditions retain a joined successful child after same-file append', async t => {
+  const f = clockRaceFixture(t); let now = 10000; let post = false; let appended = false; let ownerPath;
+  const closedChild = pid => ({ closed: true, pid, exitCode: 0, signal: null, interrupted: false });
+  const dependencies = {
+    terminal: () => ({ inputTTY: true, outputTTY: true }),
+    hostProcess: pid => ({ status: 0, stdout: `${pid} S 700 700 ttys-fixture Mon Sep 21 10:11:12 2026\n` }),
+    wallNow: () => now,
+    isLive: pid => {
+      if (pid === 900 && post && !appended) { appendFileSync(f.path, JSON.stringify(clockRaceSample(9000, 10001)) + '\n'); now = 10002; appended = true; }
+      return pid === 900;
+    },
+    adb: args => ({ status: args.includes('pidof') ? 1 : 0, stdout: '', stderr: '' }),
+  };
+  const receipt = await ownWorkloads({ serial: 'synthetic-device', label: 'cell', output: join(f.dir, 'workloads.json'),
+    children: ['wiki'], 'collector-pid': 900, telemetry: f.path, command: ['synthetic-owner-never-spawned'] },
+  { ...dependencies, run: async (_command, env) => {
+    ownerPath = env.URNETWORK_PERF_WORKLOAD_OWNER;
+    await recordChild({ ownerPath, name: 'wiki', command: ['synthetic-child-never-spawned'] },
+      { ...dependencies, run: async () => { post = true; return closedChild(500); } });
+    await recordChild({ ownerPath, cleanup: true, serial: 'synthetic-device' }, dependencies);
+    return closedChild(501);
+  } });
+  assert.equal(receipt.state, 'complete');
+  const child = JSON.parse(readFileSync(join(ownerPath, '..', 'wiki.complete.json'), 'utf8'));
+  assert.equal(child.exitCode, 0);
+});
