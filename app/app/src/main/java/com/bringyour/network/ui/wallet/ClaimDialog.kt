@@ -142,18 +142,10 @@ fun ClaimDialog(
                 )
                 is ClaimDialogState.Unavailable -> {
                     Text(
-                        stringResource(id = R.string.chain_rpc_unreachable),
+                        claimsReadFailureText(state.detail),
                         style = MaterialTheme.typography.bodyMedium,
                         color = Red
                     )
-                    if (!state.detail.isNullOrBlank() && state.detail != stringResource(id = R.string.chain_rpc_unreachable)) {
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text(
-                            state.detail,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = TextMuted
-                        )
-                    }
                     Spacer(modifier = Modifier.height(16.dp))
                     DialogButtons(
                         primary = stringResource(id = R.string.retry),
@@ -482,6 +474,12 @@ internal fun ClaimStatusTrailing(
         }
     }
 }
+
+/** A failed claims read in the store's words (claimsReadFailureRes), or the SDK's detail. */
+@Composable
+internal fun claimsReadFailureText(message: String?): String =
+    claimsReadFailureRes(message)?.let { stringResource(id = it) }
+        ?: snLedgerClaimFailureDetail(message.orEmpty())
 
 /** The SDK reports "<code>: <reason>"; known codes have a string of the same name. */
 @Composable

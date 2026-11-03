@@ -1,5 +1,6 @@
 package com.bringyour.network.ui.wallet
 
+import com.bringyour.network.R
 import com.bringyour.network.ui.leaderboard.ProtocolTopMe
 
 import android.util.Log
@@ -334,7 +335,7 @@ class EarningsViewModel @Inject constructor(
             }
             .onFailure {
                 Log.i(TAG, "claims: ${it.message}")
-                _claimsError.value = it.message
+                _claimsError.value = claimsReadFailureMessage(it)
             }
     }
 
@@ -813,7 +814,12 @@ class EarningsViewModel @Inject constructor(
         const val SN_CODE_EXPIRED = "claims_for_epoch_expired"
         const val SN_CODE_ALREADY_CLAIMED = "already_claimed"
         const val SN_CODE_RPC_UNREACHABLE = "chain_rpc_unreachable"
+        const val SN_CODE_RPC_ERROR = "chain_rpc_error"
         const val SN_CODE_CHAIN_NOT_CONFIGURED = "chain_not_configured"
+        const val SN_CODE_ARTIFACT_UNAVAILABLE = "artifact_unavailable"
+        const val SN_CODE_LEDGER_UNAVAILABLE = "ledger_unavailable"
+        const val SN_CODE_CONNECT_WALLET_FIRST = "connect_wallet_first"
+        const val SN_CODE_LOCAL_STATE_UNAVAILABLE = "local_state_unavailable"
         // POST /sn/wallet: the signature is not from the entered address (bittensor_error_signature_mismatch)
         const val SN_CODE_SIGNATURE_MISMATCH = "signature_mismatch"
         // the payout consent's refusals in the SDK's "code: message" form (sn_consent_owner_only,
@@ -833,6 +839,36 @@ class EarningsViewModel @Inject constructor(
 
         // what the funding hint suggests sending to the mirror address: a claim's gas up to about 6.7 gwei
         const val SUGGESTED_GAS_TAO = 0.02
+    }
+}
+
+/**
+ * A failed claims read as the view model keeps it: the SDK's "<code>: <reason>",
+ * the form a claim's own failure arrives in, so the screen can tell failures apart.
+ */
+fun claimsReadFailureMessage(error: Throwable): String? {
+    val code = (error as? SnProtocolException)?.code
+    return if (code != null) "$code: ${error.message}" else error.message
+}
+
+/**
+ * The string a failed claims read says, for the codes that have one; null for the
+ * others, which show the SDK's detail. The chain and its artifacts being out of
+ * reach all ask for a retry, the same grouping as iOS's SnLedgerClaimFailure.
+ */
+fun claimsReadFailureRes(message: String?): Int? {
+    if (message.isNullOrBlank()) {
+        return R.string.chain_rpc_unreachable
+    }
+    return when (EarningsViewModel.claimFailureCode(message)) {
+        EarningsViewModel.SN_CODE_RPC_UNREACHABLE,
+        EarningsViewModel.SN_CODE_RPC_ERROR,
+        EarningsViewModel.SN_CODE_CHAIN_NOT_CONFIGURED,
+        EarningsViewModel.SN_CODE_ARTIFACT_UNAVAILABLE,
+        EarningsViewModel.SN_CODE_LEDGER_UNAVAILABLE -> R.string.chain_rpc_unreachable
+        EarningsViewModel.SN_CODE_CONNECT_WALLET_FIRST,
+        EarningsViewModel.SN_CODE_LOCAL_STATE_UNAVAILABLE -> R.string.connect_wallet_first
+        else -> null
     }
 }
 
