@@ -585,6 +585,7 @@
     <string name="includes_free_trial_days">%1$d दिन का मुफ़्त ट्रायल शामिल है</string>
     <string name="instant_account_no_email_password">ईमेल या पासवर्ड की ज़रूरत नहीं। आपका खाता एक सीडफ़्रेज़ से सुरक्षित है।</string>
     <string name="insufficient_balance">अपर्याप्त शेष राशि</string>
+    <string name="insufficient_balance_disconnect_first">अपग्रेड करने के लिए पहले \"डिस्कनेक्ट करें\" चुनें। तब तक भुगतान पूरा नहीं हो पाएगा।</string>
     <string name="insufficient_balance_exhausted">निःशुल्क रीफ़्रेश या अपग्रेड तक आपका डेटा खत्म हो गया है।</string>
     <string name="insufficient_balance_held_notice">जब तक आप अपग्रेड या डिस्कनेक्ट नहीं करते, आपका ट्रैफ़िक टनल में रोका रहता है।</string>
     <string name="insufficient_balance_reconnecting">डेटा फिर से उपलब्ध है। दोबारा कनेक्ट हो रहा है…</string>

@@ -585,6 +585,7 @@
     <string name="includes_free_trial_days">Comprend un essai gratuit de %1$d jours</string>
     <string name="instant_account_no_email_password">Ni e-mail ni mot de passe. Votre compte est protégé par une phrase de récupération.</string>
     <string name="insufficient_balance">Solde insuffisant</string>
+    <string name="insufficient_balance_disconnect_first">Pour passer à une offre supérieure, choisissez d’abord « Déconnecter ». Le paiement ne peut pas aboutir avant cela.</string>
     <string name="insufficient_balance_exhausted">Vous n’avez plus de données jusqu’au renouvellement gratuit ou à un passage à une offre supérieure.</string>
     <string name="insufficient_balance_held_notice">Votre trafic est retenu dans le tunnel jusqu’à ce que vous passiez à une offre supérieure ou que vous vous déconnectiez.</string>
     <string name="insufficient_balance_reconnecting">Des données sont de nouveau disponibles. Reconnexion…</string>

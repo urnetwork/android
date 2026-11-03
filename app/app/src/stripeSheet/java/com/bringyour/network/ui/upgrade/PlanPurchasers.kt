@@ -131,3 +131,9 @@ fun rememberPlanPurchaser(
 }
 
 private class PurchaseInFlight(val plan: String, val trial: Boolean, val price: Double, val currency: String)
+
+/**
+ * The Stripe sheet runs in this app, and the tunnel leaves this app out (MainService),
+ * so a tunnel holding traffic does not stop a card purchase.
+ */
+internal const val PLAN_CHECKOUT_RIDES_TUNNEL = false

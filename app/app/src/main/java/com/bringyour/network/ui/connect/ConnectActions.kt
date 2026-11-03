@@ -71,6 +71,7 @@ import com.bringyour.network.ui.theme.Amber
 import com.bringyour.network.ui.theme.Red400
 import com.bringyour.network.ui.theme.TextFaint
 import com.bringyour.network.ui.theme.TextMuted
+import com.bringyour.network.ui.upgrade.PLAN_CHECKOUT_RIDES_TUNNEL
 import com.bringyour.sdk.ConnectLocation
 import kotlin.math.roundToInt
 
@@ -493,6 +494,7 @@ internal fun ConnectActionNotices(
             outOfBalanceKind,
             balanceRecovery,
             tunnelStarted = tunnelStarted,
+            checkoutRidesTunnel = PLAN_CHECKOUT_RIDES_TUNNEL,
         )
 
         if (outOfBalanceNotice.refresh) {
@@ -547,6 +549,21 @@ internal fun ConnectActionNotices(
                     .fillMaxWidth()
                     .padding(horizontal = 4.dp)
                     .testTag("acceptance.insufficient_balance_notice")
+            )
+        }
+
+        // this flavor's checkout goes through the tunnel, so paying has to wait for
+        // the Disconnect above, which nothing presses for the user
+        if (outOfBalanceNotice.disconnectFirst) {
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                stringResource(id = R.string.insufficient_balance_disconnect_first),
+                style = MaterialTheme.typography.bodyMedium,
+                color = TextMuted,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 4.dp)
+                    .testTag("acceptance.insufficient_balance_disconnect_first")
             )
         }
 

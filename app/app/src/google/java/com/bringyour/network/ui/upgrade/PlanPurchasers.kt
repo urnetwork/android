@@ -54,3 +54,11 @@ fun rememberPlanPurchaser(
         }
     }
 }
+
+/**
+ * Play Billing runs in the Play Store and Play services, other apps to the tunnel,
+ * which leaves out only this app and a short list that does not name them
+ * (MainService). So a tunnel holding traffic stops a purchase, and the out-of-balance
+ * alert says to disconnect first.
+ */
+internal const val PLAN_CHECKOUT_RIDES_TUNNEL = true

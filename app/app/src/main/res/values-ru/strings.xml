@@ -585,6 +585,7 @@
     <string name="includes_free_trial_days">Включает бесплатный пробный период: %1$d дн.</string>
     <string name="instant_account_no_email_password">Не нужны ни почта, ни пароль. Ваш аккаунт защищён сид-фразой.</string>
     <string name="insufficient_balance">Недостаточно средств</string>
+    <string name="insufficient_balance_disconnect_first">Чтобы повысить тариф, сначала выберите «Отключить». До этого оплата не пройдёт.</string>
     <string name="insufficient_balance_exhausted">Данные закончились до бесплатного обновления или повышения тарифа.</string>
     <string name="insufficient_balance_held_notice">Ваш трафик удерживается в туннеле, пока вы не повысите тариф или не отключитесь.</string>
     <string name="insufficient_balance_reconnecting">Данные снова доступны. Переподключение…</string>

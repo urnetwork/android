@@ -585,6 +585,7 @@
     <string name="includes_free_trial_days">يتضمن تجربة مجانية لمدة %1$d يومًا</string>
     <string name="instant_account_no_email_password">لا حاجة إلى بريد إلكتروني أو كلمة مرور. حسابك محمي بعبارة الاسترداد.</string>
     <string name="insufficient_balance">رصيد غير كافٍ</string>
+    <string name="insufficient_balance_disconnect_first">للترقية، اختر «قطع الاتصال» أولًا. لا يمكن إتمام الدفع قبل ذلك.</string>
     <string name="insufficient_balance_exhausted">نفدت بياناتك حتى التجديد المجاني أو الترقية.</string>
     <string name="insufficient_balance_held_notice">تبقى حركة بياناتك محتجزة داخل النفق حتى تقوم بالترقية أو قطع الاتصال.</string>
     <string name="insufficient_balance_reconnecting">البيانات متاحة مجددًا. جارٍ إعادة الاتصال…</string>

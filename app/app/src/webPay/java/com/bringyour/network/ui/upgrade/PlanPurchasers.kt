@@ -199,3 +199,9 @@ private fun PayPageDialog(page: PayPage, onDone: () -> Unit, onDismiss: () -> Un
         }
     }
 }
+
+/**
+ * The pay page runs in this app's own web view, and the tunnel leaves this app out
+ * (MainService), so a tunnel holding traffic does not stop a purchase.
+ */
+internal const val PLAN_CHECKOUT_RIDES_TUNNEL = false

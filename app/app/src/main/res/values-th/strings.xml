@@ -585,6 +585,7 @@
     <string name="includes_free_trial_days">รวมทดลองใช้ฟรี %1$d วัน</string>
     <string name="instant_account_no_email_password">ไม่ต้องใช้อีเมลหรือรหัสผ่าน บัญชีของคุณได้รับการปกป้องด้วยซีดเฟรส</string>
     <string name="insufficient_balance">ยอดเงินไม่เพียงพอ</string>
+    <string name="insufficient_balance_disconnect_first">หากต้องการอัปเกรด ให้เลือก “ตัดการเชื่อมต่อ” ก่อน จนกว่าจะถึงตอนนั้น การชำระเงินจะไม่สำเร็จ</string>
     <string name="insufficient_balance_exhausted">ข้อมูลของคุณหมดแล้วจนกว่าจะมีการรีเฟรชฟรีหรืออัปเกรด</string>
     <string name="insufficient_balance_held_notice">ทราฟฟิกของคุณถูกกักไว้ในอุโมงค์จนกว่าคุณจะอัปเกรดหรือตัดการเชื่อมต่อ</string>
     <string name="insufficient_balance_reconnecting">มีข้อมูลใช้งานได้อีกครั้ง กำลังเชื่อมต่อใหม่…</string>
