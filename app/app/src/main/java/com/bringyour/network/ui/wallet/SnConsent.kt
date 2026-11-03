@@ -29,6 +29,8 @@ data class SnConsentStatusState(
     // a consent whose through epoch has not passed: in force, or starting next epoch
     val active: Boolean,
     val coldkeySs58: String,
+    // its first epoch, 0 with none: the payout key's "Payouts start next epoch"
+    val fromEpoch: Long = 0,
 )
 
 /** The consent after a read. */

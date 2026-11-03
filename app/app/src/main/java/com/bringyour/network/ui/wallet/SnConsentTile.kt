@@ -41,10 +41,15 @@ import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.URNetworkTheme
 
 /**
- * The payout consent block, under the Settlement v2 tile: without a consent,
- * why to sign and Sign with wallet; with one, the coldkey paid, Change
- * wallet and when a change takes effect. Sign and Change start the same
- * steps. While the wallet signs, the waiting line; after a refusal, its line.
+ * The payout consent block, the payout card: without a consent, why to sign
+ * and Sign with wallet; with one, the coldkey paid, Change wallet and when a
+ * change takes effect. Sign and Change start the same steps. While the
+ * wallet signs, the waiting line; after a refusal, its line.
+ *
+ * The sdk's payout key flow fills the card where it applies (`key`,
+ * BittensorKeyCard.kt): the one tap with no consent in force, and where the
+ * key is with one. A session that can't make a key keeps the wallet card.
+ * The card shows the owner's disclaimer the flow names for it, once.
  */
 @Composable
 fun SnConsentBlock(
@@ -52,6 +57,10 @@ fun SnConsentBlock(
     onSign: () -> Unit,
     onRetry: () -> Unit,
     shortSs58: (String) -> String,
+    key: BittensorKeyCardInfo? = null,
+    keyActions: BittensorKeyCardActions = BittensorKeyCardActions(),
+    // the session holds the network credential, so it can choose the payout wallet
+    changesWallet: Boolean = tile.actionEnabled,
 ) {
     Column(
         modifier = Modifier
@@ -67,12 +76,27 @@ fun SnConsentBlock(
         when {
             tile.unavailable -> SectionLoadError(onRetry = onRetry)
             tile.loading -> ConsentSpinner()
+            tile.activeColdkeySs58 != null && key != null && bittensorKeyActiveBodyDraws(key) -> {
+                BittensorKeyActiveBody(
+                    key = key,
+                    coldkeySs58 = tile.activeColdkeySs58,
+                    shortSs58 = shortSs58,
+                    actions = keyActions,
+                    changesWallet = changesWallet,
+                    changeWalletEnabled = tile.actionEnabled,
+                    changingWallet = tile.signing,
+                    onChangeWallet = onSign,
+                )
+            }
             tile.activeColdkeySs58 != null -> {
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     stringResource(id = R.string.sn_consent_active, shortSs58(tile.activeColdkeySs58)),
                     style = MaterialTheme.typography.bodyMedium
                 )
+                if (key != null) {
+                    BittensorKeyActiveLines(key = key, actions = keyActions)
+                }
                 Spacer(modifier = Modifier.height(16.dp))
                 URButton(
                     onClick = onSign,
@@ -89,6 +113,7 @@ fun SnConsentBlock(
                     color = TextMuted
                 )
             }
+            key != null && key.showsKeyPath -> BittensorKeyNoConsentBody(key = key, actions = keyActions)
             else -> {
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
@@ -136,6 +161,12 @@ fun SnConsentBlock(
                 style = MaterialTheme.typography.bodyMedium,
                 color = Red
             )
+        }
+
+        // the card's disclaimer, as the flow names it: none for the wallet card
+        if (key != null && bittensorFundsDisclaimerRes(key.fundsDisclaimer) != null) {
+            Spacer(modifier = Modifier.height(16.dp))
+            BittensorFundsDisclaimerText(disclaimer = key.fundsDisclaimer)
         }
     }
 }

@@ -44,6 +44,8 @@ class QuickConnectActivity : Activity() {
         const val ROUTE_CONTRACT_STATS = "contract_stats"
         /** A connect blocked by insufficient balance (see QuickConnect.Result.NEEDS_UPGRADE). */
         const val ROUTE_UPGRADE = "upgrade"
+        /** The payout key's reminder, tapped: Earnings with its Key screen (BittensorKeyReminderNotice). */
+        const val ROUTE_EARNINGS_KEY = "earnings_key"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

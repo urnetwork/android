@@ -22,6 +22,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.BlueMedium
 import com.bringyour.network.ui.theme.Red
 import com.bringyour.network.ui.theme.TextFaint
@@ -30,7 +31,10 @@ import com.bringyour.network.ui.theme.URNetworkTheme
 import com.bringyour.network.ui.theme.ppNeueBitBold
 
 enum class ButtonStyle {
-    PRIMARY, SECONDARY, OUTLINE, WARNING
+    PRIMARY, SECONDARY, OUTLINE, WARNING,
+    // a destructive action that stands alone: filled coral with dark text, which
+    // reads at 6.8:1 where white on coral is 2.8:1 (the payout key's Delete)
+    DESTRUCTIVE,
 }
 
 val buttonTextStyle = TextStyle(
@@ -66,12 +70,20 @@ fun URButton(
             containerColor = Color.Transparent,
             contentColor = Red
         )
+        ButtonStyle.DESTRUCTIVE -> ButtonDefaults.buttonColors(
+            containerColor = Red,
+            contentColor = Black,
+            disabledContainerColor = Red.copy(alpha = 0.4f),
+            disabledContentColor = Black.copy(alpha = 0.6f),
+        )
     }
 
     val baseModifier = when(style) {
         ButtonStyle.PRIMARY -> Modifier
             .fillMaxWidth()
         ButtonStyle.SECONDARY -> Modifier
+            .fillMaxWidth()
+        ButtonStyle.DESTRUCTIVE -> Modifier
             .fillMaxWidth()
         ButtonStyle.WARNING -> Modifier
             .fillMaxWidth()

@@ -161,6 +161,7 @@ import com.bringyour.network.ui.profile.ProfileViewModel
 import com.bringyour.network.ui.settings.SettingsScreen
 import com.bringyour.network.ui.settings.VlessSettingsScreen
 import com.bringyour.network.ui.shared.viewmodels.SubscriptionBalanceViewModel
+import com.bringyour.network.ui.wallet.BittensorKeyScreenRequests
 import com.bringyour.network.ui.wallet.EarningsViewModel
 import com.bringyour.network.ui.wallet.EarningsScreen
 import com.bringyour.network.ui.wallet.Top200SignLinks
@@ -450,6 +451,11 @@ private fun MainNavHostContent(
             navController.navigateToUpgradeForBalanceBlock()
             return@LaunchedEffect
         }
+        if (route == com.bringyour.network.QuickConnectActivity.ROUTE_EARNINGS_KEY) {
+            // the payout key's reminder, tapped: Earnings with its Key screen
+            BittensorKeyScreenRequests.request()
+            return@LaunchedEffect
+        }
         // the campaign email links land on Account screens: the widgets page, the
         // Get Pro screen (which shows the welcome offer while it is active), or
         // the feedback screen with the email's rating or reason pre-filled
@@ -486,6 +492,22 @@ private fun MainNavHostContent(
         earningsViewModel.consumeEarningsNavigation()
         selectTopLevelRoute(TopLevelScaffoldRoutes.ACCOUNT_CONTAINER)
         navController.navigate(Route.Earnings)
+    }
+
+    // Back up first (sign out, account deletion) and the payout key's reminder:
+    // Earnings, which opens its Key screen once the key's flow is ready
+    val pendingKeyScreenNavigation by BittensorKeyScreenRequests.navigation.collectAsState()
+    LaunchedEffect(pendingKeyScreenNavigation) {
+        if (!pendingKeyScreenNavigation) {
+            return@LaunchedEffect
+        }
+        BittensorKeyScreenRequests.consumeNavigation()
+        selectTopLevelRoute(TopLevelScaffoldRoutes.ACCOUNT_CONTAINER)
+        // the account stack it restores may already end on Earnings: that one
+        // opens the Key screen, rather than a second Earnings on top of it
+        navController.navigate(Route.Earnings) {
+            launchSingleTop = true
+        }
     }
 
     // a ur://top200/sign app link: open the sign screen whatever the Top 200 state;
@@ -1822,6 +1844,8 @@ fun MainNavContent(
                         activityResultSender = activityResultSender,
                         accountPointsFailed = accountPointsViewModel.pointsLoad.collectAsState().value == SectionLoad.Failed,
                         onSeeProtocolBoard = openProtocolLeaderboard,
+                        // a guest gets no payout key, only the wallet card
+                        isGuest = isGuestNetwork,
                     )
                 }
 

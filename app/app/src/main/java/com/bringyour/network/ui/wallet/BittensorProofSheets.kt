@@ -224,6 +224,9 @@ fun BittensorProofSheets(
     onChoose: (String) -> Unit,
     onSubmit: () -> Unit,
     displayName: (String) -> String = ::bittensorWalletDisplayName,
+    // what the chooser shows above the wallets in place of its title: the
+    // payout consent's Change wallet offers a key on this device there
+    chooserHeader: (@Composable () -> Unit)? = null,
 ) {
     val stage by flow.stage.collectAsState()
 
@@ -241,10 +244,14 @@ fun BittensorProofSheets(
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp)
                 ) {
-                    Text(
-                        stringResource(id = R.string.bittensor_choose_wallet),
-                        style = MaterialTheme.typography.bodyLarge
-                    )
+                    if (chooserHeader != null) {
+                        chooserHeader()
+                    } else {
+                        Text(
+                            stringResource(id = R.string.bittensor_choose_wallet),
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                    }
                     Spacer(modifier = Modifier.height(16.dp))
                     val loadingWalletId = (s as? BittensorProofStage.Loading)?.request?.walletId
                     BittensorWallets.walletIds.forEach { walletId ->

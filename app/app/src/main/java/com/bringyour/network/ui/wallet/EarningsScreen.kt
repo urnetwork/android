@@ -25,6 +25,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.filled.Key
+import androidx.compose.material.icons.filled.Verified
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -41,8 +43,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
@@ -52,6 +56,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -86,6 +91,7 @@ import com.bringyour.network.ui.theme.URNetworkTheme
 import com.bringyour.network.ui.theme.gravityCondensedFamily
 import com.bringyour.network.utils.Ss58
 import com.bringyour.sdk.ReliabilityWindow
+import com.bringyour.sdk.Sdk
 import com.solana.mobilewalletadapter.clientlib.ActivityResultSender
 import kotlinx.coroutines.launch
 import java.time.ZoneId
@@ -97,6 +103,8 @@ const val UR_XYZ_URL = "https://ur.xyz"
 const val EARNINGS_SN_PAYOUT_LINE_TAG = "earnings-sn-payout-line"
 const val EARNINGS_SN_PAYOUT_CLAIM_TAG = "earnings-sn-payout-claim"
 const val EARNINGS_SET_COLDKEY_TAG = "earnings-set-coldkey"
+// the wallet card while the payout key on this device stands in for a wallet
+const val EARNINGS_WALLET_LOCAL_KEY_TAG = "earnings-wallet-local-key"
 
 /**
  * The Earnings screen: points first, always. The UR protocol layer (wallet,
@@ -119,6 +127,8 @@ fun EarningsScreen(
     accountPointsFailed: Boolean = false,
     // the Top 200 tile's "See the Protocol leaderboard"
     onSeeProtocolBoard: () -> Unit = {},
+    // a guest gets no payout key, only the wallet card
+    isGuest: Boolean = false,
 ) {
 
     val wallet by earningsViewModel.wallet.collectAsState()
@@ -133,9 +143,13 @@ fun EarningsScreen(
     val epochsLoaded by earningsViewModel.epochsLoaded.collectAsState()
     val top by earningsViewModel.top.collectAsState()
     val top200FocusRequested by earningsViewModel.top200FocusRequested.collectAsState()
-    // a request to show the tile ends with the screen, shown or not
+    // a request to show the tile ends with the screen, shown or not, and
+    // leaving closes the Key screen, which discards a phrase kept in memory
     DisposableEffect(earningsViewModel) {
-        onDispose { earningsViewModel.consumeTop200Focus() }
+        onDispose {
+            earningsViewModel.consumeTop200Focus()
+            earningsViewModel.keyModel.closeScreen()
+        }
     }
     val isSeekerHolder by earningsViewModel.isSeekerHolder.collectAsState()
     val claimDialog by earningsViewModel.claimDialog.collectAsState()
@@ -145,6 +159,31 @@ fun EarningsScreen(
     val ledgerClaimDialog by earningsViewModel.ledgerFlow.dialog.collectAsState()
     val consentState by earningsViewModel.consentFlow.state.collectAsState()
     val consentStage by earningsViewModel.consentFlow.proofFlow.stage.collectAsState()
+
+    // the payout key on this device: the sdk's flow behind the payout card
+    val keyModel = earningsViewModel.keyModel
+    val keyCard by keyModel.card.collectAsState()
+    val keyReady by keyModel.ready.collectAsState()
+    val pendingReplacement by keyModel.pendingReplacement.collectAsState()
+    // what URnetwork's claim relay says of the v2 balance
+    val claimStatus by earningsViewModel.claimStatus.collectAsState()
+    val claimNowOutcome by earningsViewModel.claimNowOutcome.collectAsState()
+    val isClaimingNow by earningsViewModel.isClaimingNow.collectAsState()
+    // Change wallet offers a key on this device above the wallets; Use a wallet
+    // I already have opens the same chooser without it
+    var consentOffersKey by remember { mutableStateOf(false) }
+
+    LaunchedEffect(isGuest) {
+        keyModel.setGuest(isGuest)
+    }
+    // Back up first and the reminder's notification: the Key screen, once the
+    // key's flow is ready
+    val keyScreenRequested by BittensorKeyScreenRequests.screen.collectAsState()
+    LaunchedEffect(keyScreenRequested, keyReady) {
+        if (keyScreenRequested && keyReady && BittensorKeyScreenRequests.take()) {
+            keyModel.openKeyScreen()
+        }
+    }
 
     // the legacy USDC payout wallet (Solana), connected from the wallet overflow
     val solanaWalletViewModel: SolanaWalletViewModel = hiltViewModel()
@@ -198,9 +237,12 @@ fun EarningsScreen(
 
     // how and when providers are paid, with the times from the epoch schedule
     val locale = LocalConfiguration.current.locales[0]
+    // the network's consent pays the payout key on this device: a coldkey
+    // before the wallet read lists one, so there is no coldkey left to set
+    val hasColdkey = wallet != null || keyCard.state == Sdk.BittensorLocalKeyStateSaveLaterLinked
     val payoutLine = snPayoutLine(
-        walletKnown = earningsViewModel.protocolAvailable && walletLoaded && (wallet != null || !walletFailed),
-        hasColdkey = wallet != null,
+        walletKnown = earningsViewModel.protocolAvailable && walletLoaded && (hasColdkey || !walletFailed),
+        hasColdkey = hasColdkey,
         totalClaimableRao = totalClaimableRao,
         schedule = schedule,
         nowMillis = System.currentTimeMillis(),
@@ -261,11 +303,31 @@ fun EarningsScreen(
         shortSs58 = earningsViewModel::shortSs58,
         payoutLine = payoutLine,
         onSetColdkey = { earningsViewModel.connectWithBridge() },
-        ledgerTile = snLedgerTile(ledgerLoad, ledgerClaimConfigured),
+        // the device wallet's v2 ledger, or what the claim relay says is claimable
+        // for a network with no wallet on this device
+        ledgerTile = snLedgerTileWithRelay(wallet != null, snLedgerTile(ledgerLoad, ledgerClaimConfigured), claimStatus),
         onOpenLedgerClaim = { earningsViewModel.ledgerFlow.open() },
+        claimStatus = claimStatus,
+        onOpenRelayClaim = { earningsViewModel.openRelayClaimDialog() },
         consentTile = if (earningsViewModel.protocolAvailable) snConsentTile(consentState, consentStage) else null,
-        onSignConsent = { earningsViewModel.consentFlow.start() },
+        onSignConsent = {
+            consentOffersKey = true
+            earningsViewModel.consentFlow.start()
+        },
         onRetryConsent = { earningsViewModel.consentFlow.retry() },
+        keyCard = keyCard,
+        keyActions = BittensorKeyCardActions(
+            setUp = keyModel::setUpPayouts,
+            saveFirst = keyModel::saveFirst,
+            useWallet = {
+                consentOffersKey = false
+                earningsViewModel.consentFlow.start()
+            },
+            finishSetup = keyModel::finishSetup,
+            openKeyScreen = keyModel::openKeyScreen,
+            reload = keyModel::visit,
+        ),
+        consentChangesWallet = consentState.networkCredential,
     )
 
     ClaimDialog(
@@ -288,6 +350,24 @@ fun EarningsScreen(
         explorerTxUrl = earningsViewModel::explorerTxUrl,
     )
 
+    // Claim now, through URnetwork's claim relay: a screen of its own, with the
+    // claim sheet's disclaimer
+    ClaimRelayDialog(
+        visible = earningsViewModel.isPresentedRelayClaimDialog,
+        status = claimStatus,
+        outcome = claimNowOutcome,
+        claimingNow = isClaimingNow,
+        fundsDisclaimer = remember(keyCard) { keyModel.fundsDisclaimerAt(Sdk.BittensorFundsDisclaimerPlaceClaimSheet) },
+        onClaimNow = { earningsViewModel.claimNow() },
+        onSelfClaim = {
+            earningsViewModel.closeRelayClaimDialog()
+            earningsViewModel.ledgerFlow.open()
+        },
+        onDismiss = { earningsViewModel.closeRelayClaimDialog() },
+        formatAlpha = earningsViewModel::formatAlpha,
+        shortSs58 = earningsViewModel::shortSs58,
+    )
+
     val bridgeContext = LocalContext.current
     BittensorProofSheets(
         flow = earningsViewModel.proofFlow,
@@ -303,6 +383,20 @@ fun EarningsScreen(
         flow = earningsViewModel.consentFlow.proofFlow,
         onChoose = { walletId -> earningsViewModel.consentFlow.chooseWallet(walletId) },
         onSubmit = earningsViewModel.consentFlow::submit,
+        chooserHeader = if (consentOffersKey && keyCard.offersSetUp) {
+            {
+                BittensorKeyChangeWalletOffer(
+                    fundsDisclaimer = remember(keyCard) { keyModel.fundsDisclaimerAt(Sdk.BittensorFundsDisclaimerPlaceChangeWallet) },
+                    onCreateKey = {
+                        // the chooser closes first, then the one tap, with its warning
+                        earningsViewModel.consentFlow.proofFlow.dismiss()
+                        keyModel.setUpPayouts()
+                    },
+                )
+            }
+        } else {
+            null
+        },
     )
     consentState.coldkeyEntry?.let { entry ->
         SnConsentColdkeySheet(
@@ -364,6 +458,22 @@ fun EarningsScreen(
         onConfirm = { solanaWalletViewModel.removePayoutWallet() },
         onDismiss = { solanaWalletViewModel.closeRemoveDialog() },
     )
+
+    // the payout key's screen, in a secure window of its own
+    BittensorKeyScreenDialog(
+        model = keyModel,
+        shortSs58 = earningsViewModel::shortSs58,
+    )
+
+    // a key replaces the payout wallet from the next epoch: warned first, and
+    // it is never the default
+    if (pendingReplacement != null) {
+        BittensorKeyReplaceDialog(
+            oldAddress = earningsViewModel.shortSs58(keyCard.address),
+            onConfirm = { keyModel.replacementConfirmed() },
+            onDismiss = { keyModel.dismissReplacement() },
+        )
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -411,9 +521,17 @@ fun EarningsScreenContent(
     onSetColdkey: () -> Unit = {},
     ledgerTile: SnLedgerTile? = null,
     onOpenLedgerClaim: () -> Unit = {},
+    // what URnetwork's claim relay says, and its Claim now
+    claimStatus: SnClaimStatusState? = null,
+    onOpenRelayClaim: () -> Unit = {},
     consentTile: SnConsentTile? = null,
     onSignConsent: () -> Unit = {},
     onRetryConsent: () -> Unit = {},
+    // the payout key on this device (BittensorKeyCard.kt)
+    keyCard: BittensorKeyCardInfo = BittensorKeyCardInfo(),
+    keyActions: BittensorKeyCardActions = BittensorKeyCardActions(),
+    // the session holds the network credential, so it can choose the payout wallet
+    consentChangesWallet: Boolean = false,
     // the leaderboard's "Claim on Earnings" asked for the Top 200 tile
     focusTop200: Boolean = false,
     onTop200Focused: () -> Unit = {},
@@ -430,6 +548,21 @@ fun EarningsScreenContent(
         }
     }
     val claimsByEpoch = claims.associateBy { it.epoch }
+
+    // the payout card: the consent, and the payout key where the sdk's flow fills it
+    val payoutCard: @Composable () -> Unit = {
+        consentTile?.let {
+            SnConsentBlock(
+                tile = it,
+                onSign = onSignConsent,
+                onRetry = onRetryConsent,
+                shortSs58 = shortSs58,
+                key = keyCard,
+                keyActions = keyActions,
+                changesWallet = consentChangesWallet,
+            )
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -469,6 +602,19 @@ fun EarningsScreenContent(
                     .padding(horizontal = 16.dp)
             ) {
 
+                // until the payout key's phrase is saved
+                if (keyCard.backupReminder) {
+                    BittensorKeyBackupBanner(onOpen = keyActions.openKeyScreen)
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
+
+                // the payout card leads while it needs action: no consent, or
+                // setup cut short
+                if (keyCard.showsKeyPath && consentTile != null) {
+                    payoutCard()
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
+
                 PointsHeadline(
                     totalAccountPoints = totalAccountPoints,
                     payoutPoints = payoutPoints,
@@ -502,7 +648,9 @@ fun EarningsScreenContent(
                     onConnectSolana = onConnectSolana,
                     // with no payout wallet to show it on, the final USDC payout sits above the wallet actions
                     usdcWaiting = if (legacy.payoutWallet == null) finalUsdcWaitingUsd(legacy, legacyLoaded) else null,
-                    shortSs58 = shortSs58
+                    shortSs58 = shortSs58,
+                    // the payout key on this device takes the connect call's place
+                    localKey = BittensorWalletCardLocalKey.of(keyCard),
                 )
 
                 if (walletLoaded) {
@@ -516,30 +664,39 @@ fun EarningsScreenContent(
                     )
                 }
 
+                // the first claim tile carries the claim card's disclaimer
                 if (wallet != null) {
                     Spacer(modifier = Modifier.height(16.dp))
                     UnclaimedTile(
                         totalClaimableRao = totalClaimableRao,
                         claimsError = claimsError,
                         onOpenClaim = onOpenClaim,
-                        formatAlpha = formatAlpha
+                        formatAlpha = formatAlpha,
+                        fundsDisclaimer = keyCard.claimFundsDisclaimer,
                     )
-                    ledgerTile?.let {
-                        Spacer(modifier = Modifier.height(16.dp))
-                        SnLedgerTileBlock(tile = it, onClaim = onOpenLedgerClaim, formatAlpha = formatAlpha)
-                    }
+                }
+
+                // settlement v2, separate from the v1 claims above: URnetwork claims it
+                // for every consented network (the claim relay), and the device's own
+                // claim stays as the fallback
+                ledgerTile?.let {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    SnLedgerTileBlock(
+                        tile = it,
+                        onClaim = onOpenLedgerClaim,
+                        formatAlpha = formatAlpha,
+                        relay = claimStatus,
+                        onClaimNow = onOpenRelayClaim,
+                        onSelfClaim = onOpenLedgerClaim,
+                        fundsDisclaimer = if (wallet != null) Sdk.BittensorFundsDisclaimerNone else keyCard.claimFundsDisclaimer,
+                    )
                 }
 
                 // with or without a wallet entry: a network that never connected one is
-                // the one the consent pays
-                consentTile?.let {
+                // the one the consent pays. It keeps this place while it needs no action
+                if (!keyCard.showsKeyPath && consentTile != null) {
                     Spacer(modifier = Modifier.height(16.dp))
-                    SnConsentBlock(
-                        tile = it,
-                        onSign = onSignConsent,
-                        onRetry = onRetryConsent,
-                        shortSs58 = shortSs58
-                    )
+                    payoutCard()
                 }
 
                 // the network's standing on the Protocol leaderboard (/sn/top/me)
@@ -815,6 +972,9 @@ internal fun WalletSection(
     shortSs58: (String) -> String,
     walletFailed: Boolean = false,
     onRetryWallet: () -> Unit = {},
+    // the payout key on this device, while no wallet is read: shown in place of
+    // the connect call, which would invite a second wallet
+    localKey: BittensorWalletCardLocalKey? = null,
 ) {
     if (walletLoaded && wallet == null && walletFailed) {
         // a failed read is an error, not the "connect wallet" offer
@@ -882,6 +1042,71 @@ internal fun WalletSection(
             Spacer(modifier = Modifier.height(12.dp))
             Text(
                 stringResource(id = R.string.wallet_connected_to_protocol),
+                style = MaterialTheme.typography.bodyMedium,
+                color = TextMuted
+            )
+        }
+        return
+    }
+
+    if (localKey != null) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(MainTintedBackgroundBase, RoundedCornerShape(12.dp))
+                .padding(16.dp)
+                .testTag(EARNINGS_WALLET_LOCAL_KEY_TAG)
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(
+                    modifier = Modifier
+                        .size(40.dp)
+                        .background(Color(0x0AFFFFFF), RoundedCornerShape(100)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.bittensor_logo),
+                        contentDescription = null,
+                        tint = Color.Unspecified,
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
+                Spacer(modifier = Modifier.width(12.dp))
+                Column {
+                    Text(
+                        stringResource(id = R.string.bittensor_wallet),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = TextMuted
+                    )
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            if (localKey.linked) Icons.Filled.Verified else Icons.Filled.Key,
+                            contentDescription = null,
+                            tint = if (localKey.linked) BlueMedium else TextMuted,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            shortSs58(localKey.address),
+                            style = MaterialTheme.typography.bodyLarge.copy(fontFamily = FontFamily.Monospace)
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.weight(1f))
+                WalletOverflowMenu(
+                    contentDescription = stringResource(id = R.string.wallet_options),
+                    items = listOf(connectSolanaOverflowItem(onConnectSolana))
+                )
+            }
+            if (usdcWaiting != null) {
+                Spacer(modifier = Modifier.height(8.dp))
+                UsdcWaitingLine(pendingUsd = usdcWaiting)
+            }
+            Spacer(modifier = Modifier.height(12.dp))
+            Text(
+                stringResource(
+                    id = if (localKey.linked) R.string.wallet_connected_to_protocol else R.string.bittensor_key_card_not_linked
+                ),
                 style = MaterialTheme.typography.bodyMedium,
                 color = TextMuted
             )
@@ -995,6 +1220,9 @@ private fun UnclaimedTile(
     claimsError: String?,
     onOpenClaim: () -> Unit,
     formatAlpha: (Long) -> String,
+    // the claim card's disclaimer (a BittensorFundsDisclaimer*): Earnings shows
+    // it once, here only while the payout card has none
+    fundsDisclaimer: String = Sdk.BittensorFundsDisclaimerNone,
 ) {
     Column(
         modifier = Modifier
@@ -1040,6 +1268,11 @@ private fun UnclaimedTile(
             enabled = 0 < totalClaimableRao
         ) { buttonTextStyle ->
             Text(stringResource(id = R.string.claim), style = buttonTextStyle)
+        }
+
+        if (bittensorFundsDisclaimerRes(fundsDisclaimer) != null) {
+            Spacer(modifier = Modifier.height(16.dp))
+            BittensorFundsDisclaimerText(disclaimer = fundsDisclaimer)
         }
     }
 }

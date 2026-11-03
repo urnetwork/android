@@ -35,17 +35,30 @@ import com.bringyour.network.ui.theme.TextFaint
 import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.URNetworkTheme
 import com.bringyour.network.ui.theme.gravityCondensedFamily
+import com.bringyour.sdk.Sdk
 
 /**
  * The Settlement v2 tile, under the v1 Unclaimed tile: per account Claimable
  * first, then Paid, Earned and what a pending root adds; "Unavailable" when
  * the ledger cannot be read, never zero; Claim once vault2 is configured.
+ * URnetwork's claim relay claims it for every consented network: while the
+ * relay has something to say (`relay`), who claims and why a balance waits
+ * take the Claim's place, and for a network with no wallet on this device the
+ * tile shows what the relay says is claimable. The first claim tile on
+ * Earnings carries the claim card's disclaimer.
  */
 @Composable
 fun SnLedgerTileBlock(
     tile: SnLedgerTile,
     onClaim: () -> Unit,
     formatAlpha: (Long) -> String,
+    relay: SnClaimStatusState? = null,
+    // Claim now's dialog
+    onClaimNow: () -> Unit = {},
+    // the device's own claim, with its gas key
+    onSelfClaim: () -> Unit = {},
+    // a BittensorFundsDisclaimer*
+    fundsDisclaimer: String = Sdk.BittensorFundsDisclaimerNone,
 ) {
     Column(
         modifier = Modifier
@@ -65,6 +78,23 @@ fun SnLedgerTileBlock(
                     stringResource(id = R.string.sn_ledger_unavailable),
                     style = MaterialTheme.typography.bodyMedium,
                     color = Red
+                )
+            }
+            tile.relayClaimableRao != null -> {
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    stringResource(id = R.string.sn_ledger_claimable),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = TextMuted
+                )
+                Text(
+                    formatAlpha(tile.relayClaimableRao),
+                    style = TextStyle(
+                        fontFamily = gravityCondensedFamily,
+                        fontWeight = FontWeight(900),
+                        fontSize = 40.sp,
+                        color = Color.White
+                    )
                 )
             }
             tile.accounts == null -> LedgerSpinner()
@@ -103,11 +133,19 @@ fun SnLedgerTileBlock(
             }
         }
 
-        if (tile.showClaim) {
+        if (relay != null && snClaimRelaySpeaks(relay)) {
+            Spacer(modifier = Modifier.height(16.dp))
+            SnClaimRelaySection(status = relay, onClaimNow = onClaimNow, onSelfClaim = onSelfClaim, inDialog = false)
+        } else if (tile.showClaim) {
             Spacer(modifier = Modifier.height(16.dp))
             URButton(onClick = onClaim, enabled = tile.claimEnabled) { buttonTextStyle ->
                 Text(stringResource(id = R.string.claim), style = buttonTextStyle)
             }
+        }
+
+        if (bittensorFundsDisclaimerRes(fundsDisclaimer) != null) {
+            Spacer(modifier = Modifier.height(16.dp))
+            BittensorFundsDisclaimerText(disclaimer = fundsDisclaimer)
         }
     }
 }

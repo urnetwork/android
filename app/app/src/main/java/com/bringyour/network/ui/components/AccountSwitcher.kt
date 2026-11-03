@@ -68,6 +68,9 @@ import com.bringyour.network.ui.theme.ProGoldLight
 import com.bringyour.network.ui.theme.BlueMedium
 import com.bringyour.network.ui.theme.MainBorderBase
 import com.bringyour.network.ui.theme.URNetworkTheme
+import com.bringyour.network.ui.wallet.BittensorKeyScreenRequests
+import com.bringyour.network.ui.wallet.BittensorKeySignOut
+import com.bringyour.network.ui.wallet.BittensorKeySignOutDialog
 import com.bringyour.network.utils.isTv
 
 enum class LoginMode {
@@ -89,6 +92,17 @@ fun AccountSwitcher(
 
     var isOverlayVisible by rememberSaveable { mutableStateOf(false) }
     val focusRequester = remember { FocusRequester()}
+    // the sign out waiting on the payout key's warning (the mocks' 3f)
+    var keySignOutPending by remember { mutableStateOf(false) }
+
+    val signOut: () -> Unit = {
+        application?.logout()
+
+        val intent = Intent(context, LoginActivity::class.java)
+        context.startActivity(intent)
+
+        (context as? Activity)?.finish()
+    }
 
     Box(
         modifier = Modifier.size(if (isPro) 40.dp else 32.dp),
@@ -160,10 +174,33 @@ fun AccountSwitcher(
                     context = context,
                     openReferrals = openReferrals,
                     networkName = networkName,
-                    focusRequester = focusRequester
+                    focusRequester = focusRequester,
+                    onSignOut = {
+                        isOverlayVisible = false
+                        // warned first while the network's payout key isn't saved
+                        if (BittensorKeySignOut.needsBackup(context)) {
+                            keySignOutPending = true
+                        } else {
+                            signOut()
+                        }
+                    }
                 )
             }
         }
+    }
+
+    if (keySignOutPending) {
+        BittensorKeySignOutDialog(
+            onBackUpFirst = {
+                keySignOutPending = false
+                BittensorKeyScreenRequests.request()
+            },
+            onSignOut = {
+                keySignOutPending = false
+                signOut()
+            },
+            onDismiss = { keySignOutPending = false },
+        )
     }
 }
 
@@ -256,7 +293,16 @@ fun AuthenticatedPopup(
     application: MainApplication?,
     openReferrals: () -> Unit,
     networkName: String?,
-    focusRequester: FocusRequester
+    focusRequester: FocusRequester,
+    // the sign out, through the payout key's warning
+    onSignOut: () -> Unit = {
+        application?.logout()
+
+        val intent = Intent(context, LoginActivity::class.java)
+        context?.startActivity(intent)
+
+        (context as? Activity)?.finish()
+    },
 ) {
 
     AccountSwitcherPopup(onDismiss = { onDismiss() }) {
@@ -272,12 +318,7 @@ fun AuthenticatedPopup(
             text = stringResource(id = R.string.sign_out),
             modifier = Modifier.testTag("acceptance.account.logout"),
             onClick = {
-                application?.logout()
-
-                val intent = Intent(context, LoginActivity::class.java)
-                context?.startActivity(intent)
-
-                (context as? Activity)?.finish()
+                onSignOut()
             },
             focusRequester = focusRequester
         )
