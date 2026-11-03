@@ -430,7 +430,7 @@ class ProviderStatusPresentationTest {
         )
         // for example before the server has the route
         assertEquals(
-            ProviderStatusDisplay(ProviderDemandState.UNAVAILABLE, why = false),
+            ProviderStatusDisplay(ProviderDemandState.UNAVAILABLE, why = false, retry = true),
             providerStatusDisplay(ProviderStatusUi(lastFetchError = "404 Not Found")),
         )
         // this device is not among the network's provider clients
@@ -443,7 +443,7 @@ class ProviderStatusPresentationTest {
     @Test
     fun statesWithAStatus() {
         assertEquals(
-            ProviderStatusDisplay(ProviderDemandState.UNAVAILABLE, why = true),
+            ProviderStatusDisplay(ProviderDemandState.UNAVAILABLE, why = true, retry = true),
             providerStatusDisplay(loadedStatus(appearancesPerMinute = null)),
         )
         assertEquals(
