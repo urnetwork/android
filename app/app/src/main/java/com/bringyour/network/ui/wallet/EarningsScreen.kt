@@ -366,7 +366,6 @@ fun EarningsScreen(
         onDismiss = { earningsViewModel.closeRelayClaimDialog() },
         formatAlpha = earningsViewModel::formatAlpha,
         shortSs58 = earningsViewModel::shortSs58,
-        explorerTxUrl = earningsViewModel::explorerTxUrl,
     )
 
     val bridgeContext = LocalContext.current
@@ -687,6 +686,7 @@ fun EarningsScreenContent(
                         onClaim = onOpenLedgerClaim,
                         formatAlpha = formatAlpha,
                         relay = claimStatus,
+                        shortSs58 = shortSs58,
                         onClaimNow = onOpenRelayClaim,
                         onSelfClaim = onOpenLedgerClaim,
                         fundsDisclaimer = if (wallet != null) Sdk.BittensorFundsDisclaimerNone else keyCard.claimFundsDisclaimer,
