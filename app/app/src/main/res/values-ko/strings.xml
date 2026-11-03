@@ -102,6 +102,8 @@
     <string name="bittensor_error_user_rejected">지갑에서 요청이 거부되었습니다. 다시 시작하고 요청을 승인하여 계속하세요.</string>
     <string name="bittensor_error_walletconnect_expired">지갑이 응답하기 전에 WalletConnect 요청이 만료되었습니다. 다시 시작하세요.</string>
     <string name="bittensor_error_walletconnect_unavailable">지금은 WalletConnect를 사용할 수 없습니다. 나중에 다시 시도하거나 주소를 직접 입력하세요.</string>
+    <string name="bittensor_funds_disclaimer">이 키는 앱의 보안 저장소에 로컬로 저장됩니다. URnetwork와 절대 공유되지 않습니다. URnetwork는 사용자 자금에 일절 손대지 않으며 이에 대한 책임도 지지 않습니다.</string>
+    <string name="bittensor_funds_disclaimer_funds_only">URnetwork는 사용자 자금에 일절 손대지 않으며 이에 대한 책임도 지지 않습니다.</string>
     <string name="bittensor_manual_choice">수동으로 서명</string>
     <string name="bittensor_manual_no_popup">여기서는 지갑 창이 열리지 않습니다. 메시지에 직접 서명한 다음 아래에 서명을 붙여 넣으세요.</string>
     <string name="bittensor_manual_phone_route">지갑에서 붙여 넣은 메시지에 서명할 수 없다면 뒤로 돌아가 WalletConnect(Nova 등)를 선택하거나, 컴퓨터 브라우저의 ur.io/app/account/earnings에서 서명하세요.</string>

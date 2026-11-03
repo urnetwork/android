@@ -102,6 +102,8 @@
     <string name="bittensor_error_user_rejected">आपके वॉलेट में अनुरोध अस्वीकार कर दिया गया। जारी रखने के लिए फिर से शुरू करें और अनुरोध को स्वीकृत करें।</string>
     <string name="bittensor_error_walletconnect_expired">वॉलेट के जवाब देने से पहले WalletConnect अनुरोध की समय-सीमा समाप्त हो गई। फिर से शुरू करें।</string>
     <string name="bittensor_error_walletconnect_unavailable">WalletConnect अभी उपलब्ध नहीं है। बाद में फिर से प्रयास करें, या अपना पता मैन्युअल रूप से दर्ज करें।</string>
+    <string name="bittensor_funds_disclaimer">यह कुंजी ऐप के सुरक्षित स्टोरेज में स्थानीय रूप से सेव रहती है। इसे कभी भी URnetwork के साथ शेयर नहीं किया जाता। URnetwork उपयोगकर्ताओं के किसी भी फ़ंड को नहीं छूता और उनके लिए ज़िम्मेदार नहीं है।</string>
+    <string name="bittensor_funds_disclaimer_funds_only">URnetwork उपयोगकर्ताओं के किसी भी फ़ंड को नहीं छूता और उनके लिए ज़िम्मेदार नहीं है।</string>
     <string name="bittensor_manual_choice">मैन्युअल रूप से हस्ताक्षर करें</string>
     <string name="bittensor_manual_no_popup">इसके लिए कोई वॉलेट विंडो नहीं खुलेगी। आप संदेश पर स्वयं हस्ताक्षर करें, फिर हस्ताक्षर नीचे चिपकाएँ।</string>
     <string name="bittensor_manual_phone_route">यदि आपका वॉलेट चिपकाए गए संदेश पर हस्ताक्षर नहीं कर सकता, तो वापस जाएँ और WalletConnect (Nova और अन्य) चुनें, या कंप्यूटर के ब्राउज़र में ur.io/app/account/earnings पर हस्ताक्षर करें।</string>

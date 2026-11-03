@@ -105,6 +105,8 @@
     <string name="bittensor_error_user_rejected">The request was declined in your wallet. Start again and approve it to continue.</string>
     <string name="bittensor_error_walletconnect_expired">The WalletConnect request expired before the wallet answered. Start again.</string>
     <string name="bittensor_error_walletconnect_unavailable">WalletConnect is not available right now. Try again later, or enter your address manually.</string>
+    <string name="bittensor_funds_disclaimer">This key is stored locally in the app secure storage. It is never shared with URnetwork. URnetwork does not touch and is not responsible for any user funds.</string>
+    <string name="bittensor_funds_disclaimer_funds_only">URnetwork does not touch and is not responsible for any user funds.</string>
     <string name="bittensor_manual_choice">Sign manually</string>
     <string name="bittensor_manual_no_popup">No wallet window opens for this. You sign the message yourself, then paste the signature below.</string>
     <string name="bittensor_manual_phone_route">If your wallet can\'t sign a pasted message, go back and choose WalletConnect (Nova and others), or sign at ur.io/app/account/earnings in a computer\'s browser.</string>

@@ -102,6 +102,8 @@
     <string name="bittensor_error_user_rejected">该请求已在您的钱包中被拒绝。请重新开始并批准该请求以继续。</string>
     <string name="bittensor_error_walletconnect_expired">钱包响应之前，WalletConnect 请求已过期。请重新开始。</string>
     <string name="bittensor_error_walletconnect_unavailable">WalletConnect 目前不可用。请稍后重试，或手动输入您的地址。</string>
+    <string name="bittensor_funds_disclaimer">此密钥本地存储在应用的安全存储中。它绝不会与 URnetwork 共享。URnetwork 不会触碰任何用户资金，也不对其承担任何责任。</string>
+    <string name="bittensor_funds_disclaimer_funds_only">URnetwork 不会触碰任何用户资金，也不对其承担任何责任。</string>
     <string name="bittensor_manual_choice">手动签名</string>
     <string name="bittensor_manual_no_popup">此处不会打开钱包窗口。请您自行对消息签名，然后将签名粘贴到下方。</string>
     <string name="bittensor_manual_phone_route">如果您的钱包无法对粘贴的消息签名，请返回并选择 WalletConnect（Nova 等），或在电脑浏览器中前往 ur.io/app/account/earnings 签名。</string>

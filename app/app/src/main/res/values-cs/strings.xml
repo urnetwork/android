@@ -102,6 +102,8 @@
     <string name="bittensor_error_user_rejected">Požadavek byl ve vaší peněžence zamítnut. Začněte znovu a schvalte ho, abyste mohli pokračovat.</string>
     <string name="bittensor_error_walletconnect_expired">Požadavek WalletConnect vypršel dříve, než peněženka odpověděla. Začněte znovu.</string>
     <string name="bittensor_error_walletconnect_unavailable">WalletConnect teď není k dispozici. Zkuste to později znovu, nebo zadejte adresu ručně.</string>
+    <string name="bittensor_funds_disclaimer">Tento klíč je uložen místně v zabezpečeném úložišti aplikace. Nikdy se nesdílí s URnetwork. URnetwork se nedotýká žádných prostředků uživatelů a nenese za ně odpovědnost.</string>
+    <string name="bittensor_funds_disclaimer_funds_only">URnetwork se nedotýká žádných prostředků uživatelů a nenese za ně odpovědnost.</string>
     <string name="bittensor_manual_choice">Podepsat ručně</string>
     <string name="bittensor_manual_no_popup">Žádné okno peněženky se neotevře. Zprávu podepíšete sami a podpis pak vložíte níže.</string>
     <string name="bittensor_manual_phone_route">Pokud vaše peněženka neumí podepsat vloženou zprávu, vraťte se a zvolte WalletConnect (Nova a další), nebo podepište na ur.io/app/account/earnings v prohlížeči na počítači.</string>

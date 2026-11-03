@@ -102,6 +102,8 @@
     <string name="bittensor_error_user_rejected">Ombi lilikataliwa kwenye pochi yako. Anza upya na uliidhinishe ili kuendelea.</string>
     <string name="bittensor_error_walletconnect_expired">Muda wa ombi la WalletConnect uliisha kabla pochi haijajibu. Anza upya.</string>
     <string name="bittensor_error_walletconnect_unavailable">WalletConnect haipatikani kwa sasa. Jaribu tena baadaye, au weka anwani yako mwenyewe.</string>
+    <string name="bittensor_funds_disclaimer">Ufunguo huu umehifadhiwa ndani ya kifaa katika hifadhi salama ya programu. Haushirikiwi kamwe na URnetwork. URnetwork haigusi fedha zozote za watumiaji na haiwajibiki kwazo.</string>
+    <string name="bittensor_funds_disclaimer_funds_only">URnetwork haigusi fedha zozote za watumiaji na haiwajibiki kwazo.</string>
     <string name="bittensor_manual_choice">Saini mwenyewe</string>
     <string name="bittensor_manual_no_popup">Hakuna dirisha la pochi litakalofunguka hapa. Unasaini ujumbe mwenyewe, kisha ubandike saini hapa chini.</string>
     <string name="bittensor_manual_phone_route">Ikiwa pochi yako haiwezi kusaini ujumbe uliobandikwa, rudi nyuma uchague WalletConnect (Nova na nyingine), au saini kwenye ur.io/app/account/earnings katika kivinjari cha kompyuta.</string>
