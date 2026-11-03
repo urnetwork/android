@@ -1217,8 +1217,6 @@
     <string name="sn_claim_relay_again_on">ستتوفر «المطالبة الآن» مجددًا في %1$s.</string>
     <string name="sn_claim_relay_cap">نفدت ميزانية المطالبات لهذا اليوم، لذا سينتظر هذا حتى اليوم التالي. لا يضيع شيء: هذا الرصيد لا تنتهي صلاحيته أبدًا.</string>
     <string name="sn_claim_relay_claim_now">المطالبة الآن</string>
-    <string name="sn_claim_relay_claim_now_paid">«المطالبة الآن» على حساب URnetwork، مرة كل %1$d يومًا.</string>
-    <string name="sn_claim_relay_claim_now_paid_each">على حساب URnetwork، مرة كل %1$d يومًا لكل coldkey.</string>
     <string name="sn_claim_relay_claimed">تمت المطالبة بواسطة URnetwork. أصبح %1$s SN25α على مفتاحك، %2$s.</string>
     <string name="sn_claim_relay_for_you">يطالب URnetwork بهذا نيابةً عنك</string>
     <string name="sn_claim_relay_lands_on">يطالب URnetwork بهذا نيابةً عنك. يدفع رسوم الغاز، ويصل SN25α الخاص بك إلى %1$s.</string>
@@ -1691,6 +1689,22 @@
         <item quantity="few">%1$d موسّعات</item>
         <item quantity="many">%1$d موسّعًا</item>
         <item quantity="other">%1$d موسّع</item>
+    </plurals>
+    <plurals name="sn_claim_relay_claim_now_paid">
+        <item quantity="zero">«المطالبة الآن» على حساب URnetwork، مرة كل %1$d يوم.</item>
+        <item quantity="one">«المطالبة الآن» على حساب URnetwork، مرة كل يوم.</item>
+        <item quantity="two">«المطالبة الآن» على حساب URnetwork، مرة كل يومين.</item>
+        <item quantity="few">«المطالبة الآن» على حساب URnetwork، مرة كل %1$d أيام.</item>
+        <item quantity="many">«المطالبة الآن» على حساب URnetwork، مرة كل %1$d يومًا.</item>
+        <item quantity="other">«المطالبة الآن» على حساب URnetwork، مرة كل %1$d يوم.</item>
+    </plurals>
+    <plurals name="sn_claim_relay_claim_now_paid_each">
+        <item quantity="zero">على حساب URnetwork، مرة كل %1$d يوم لكل coldkey.</item>
+        <item quantity="one">على حساب URnetwork، مرة كل يوم لكل coldkey.</item>
+        <item quantity="two">على حساب URnetwork، مرة كل يومين لكل coldkey.</item>
+        <item quantity="few">على حساب URnetwork، مرة كل %1$d أيام لكل coldkey.</item>
+        <item quantity="many">على حساب URnetwork، مرة كل %1$d يومًا لكل coldkey.</item>
+        <item quantity="other">على حساب URnetwork، مرة كل %1$d يوم لكل coldkey.</item>
     </plurals>
     <plurals name="split_rule_count">
         <item quantity="zero">%1$d قاعدة تقسيم</item>

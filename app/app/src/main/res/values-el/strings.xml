@@ -1217,8 +1217,6 @@
     <string name="sn_claim_relay_again_on">Το «Διεκδίκηση τώρα» θα είναι ξανά διαθέσιμο στις %1$s.</string>
     <string name="sn_claim_relay_cap">Ο σημερινός προϋπολογισμός διεκδικήσεων εξαντλήθηκε, οπότε αυτό θα περιμένει την επόμενη ημέρα. Δεν χάνεται τίποτα: αυτή η πίστωση δεν λήγει ποτέ.</string>
     <string name="sn_claim_relay_claim_now">Διεκδίκηση τώρα</string>
-    <string name="sn_claim_relay_claim_now_paid">Το «Διεκδίκηση τώρα» πληρώνεται από το URnetwork, μία φορά κάθε %1$d ημέρες.</string>
-    <string name="sn_claim_relay_claim_now_paid_each">Πληρώνεται από το URnetwork, μία φορά κάθε %1$d ημέρες για κάθε coldkey.</string>
     <string name="sn_claim_relay_claimed">Διεκδικήθηκε από το URnetwork. %1$s SN25α βρίσκονται στο κλειδί σας, %2$s.</string>
     <string name="sn_claim_relay_for_you">Το URnetwork το διεκδικεί για εσάς</string>
     <string name="sn_claim_relay_lands_on">Το URnetwork το διεκδικεί για εσάς. Πληρώνει το gas και τα SN25α σας καταλήγουν στη διεύθυνση %1$s.</string>
@@ -1587,6 +1585,14 @@
     <plurals name="share_extenders_count">
         <item quantity="one">%1$d επεκτατής</item>
         <item quantity="other">%1$d επεκτατές</item>
+    </plurals>
+    <plurals name="sn_claim_relay_claim_now_paid">
+        <item quantity="one">Το «Διεκδίκηση τώρα» πληρώνεται από το URnetwork, μία φορά την ημέρα.</item>
+        <item quantity="other">Το «Διεκδίκηση τώρα» πληρώνεται από το URnetwork, μία φορά κάθε %1$d ημέρες.</item>
+    </plurals>
+    <plurals name="sn_claim_relay_claim_now_paid_each">
+        <item quantity="one">Πληρώνεται από το URnetwork, μία φορά την ημέρα για κάθε coldkey.</item>
+        <item quantity="other">Πληρώνεται από το URnetwork, μία φορά κάθε %1$d ημέρες για κάθε coldkey.</item>
     </plurals>
     <plurals name="split_rule_count">
         <item quantity="one">%1$d κανόνας διαχωρισμού</item>

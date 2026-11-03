@@ -1217,8 +1217,6 @@
     <string name="sn_claim_relay_again_on">“अभी दावा करें” %1$s को फिर से उपलब्ध होगा।</string>
     <string name="sn_claim_relay_cap">दावों के लिए आज का बजट खत्म हो गया है, इसलिए यह अगले दिन तक प्रतीक्षा करेगा। कुछ भी खोया नहीं जाता: यह क्रेडिट कभी समाप्त नहीं होता।</string>
     <string name="sn_claim_relay_claim_now">अभी दावा करें</string>
-    <string name="sn_claim_relay_claim_now_paid">“अभी दावा करें” का भुगतान URnetwork करता है, हर %1$d दिन में एक बार।</string>
-    <string name="sn_claim_relay_claim_now_paid_each">भुगतान URnetwork करता है, हर coldkey के लिए हर %1$d दिन में एक बार।</string>
     <string name="sn_claim_relay_claimed">URnetwork ने दावा किया। %1$s SN25α आपकी कुंजी %2$s पर है।</string>
     <string name="sn_claim_relay_for_you">URnetwork आपकी ओर से इसका दावा करता है</string>
     <string name="sn_claim_relay_lands_on">URnetwork आपकी ओर से इसका दावा करता है। वह गैस का भुगतान करता है, और आपका SN25α %1$s पर पहुँचता है।</string>
@@ -1587,6 +1585,14 @@
     <plurals name="share_extenders_count">
         <item quantity="one">%1$d एक्सटेंडर</item>
         <item quantity="other">%1$d एक्सटेंडर</item>
+    </plurals>
+    <plurals name="sn_claim_relay_claim_now_paid">
+        <item quantity="one">“अभी दावा करें” का भुगतान URnetwork करता है, दिन में एक बार।</item>
+        <item quantity="other">“अभी दावा करें” का भुगतान URnetwork करता है, हर %1$d दिन में एक बार।</item>
+    </plurals>
+    <plurals name="sn_claim_relay_claim_now_paid_each">
+        <item quantity="one">भुगतान URnetwork करता है, हर coldkey के लिए दिन में एक बार।</item>
+        <item quantity="other">भुगतान URnetwork करता है, हर coldkey के लिए हर %1$d दिन में एक बार।</item>
     </plurals>
     <plurals name="split_rule_count">
         <item quantity="one">%1$d स्प्लिट नियम</item>

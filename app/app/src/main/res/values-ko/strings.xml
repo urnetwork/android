@@ -1217,8 +1217,6 @@
     <string name="sn_claim_relay_again_on">“지금 받기”는 %1$s에 다시 사용할 수 있습니다.</string>
     <string name="sn_claim_relay_cap">오늘의 받기 예산이 소진되어 다음 날까지 기다립니다. 잃는 것은 없습니다. 이 잔액은 절대 만료되지 않습니다.</string>
     <string name="sn_claim_relay_claim_now">지금 받기</string>
-    <string name="sn_claim_relay_claim_now_paid">“지금 받기”는 URnetwork가 비용을 부담하며, %1$d일에 한 번 사용할 수 있습니다.</string>
-    <string name="sn_claim_relay_claim_now_paid_each">URnetwork가 비용을 부담하며, coldkey마다 %1$d일에 한 번 사용할 수 있습니다.</string>
     <string name="sn_claim_relay_claimed">URnetwork가 받았습니다. %1$s SN25α가 내 키 %2$s에 있습니다.</string>
     <string name="sn_claim_relay_for_you">URnetwork가 받기를 대신 처리합니다</string>
     <string name="sn_claim_relay_lands_on">URnetwork가 받기를 대신 처리합니다. 가스는 URnetwork가 지불하며, SN25α는 %1$s 주소로 들어옵니다.</string>
@@ -1561,6 +1559,12 @@
     </plurals>
     <plurals name="share_extenders_count">
         <item quantity="other">익스텐더 %1$d개</item>
+    </plurals>
+    <plurals name="sn_claim_relay_claim_now_paid">
+        <item quantity="other">“지금 받기”는 URnetwork가 비용을 부담하며, %1$d일에 한 번 사용할 수 있습니다.</item>
+    </plurals>
+    <plurals name="sn_claim_relay_claim_now_paid_each">
+        <item quantity="other">URnetwork가 비용을 부담하며, coldkey마다 %1$d일에 한 번 사용할 수 있습니다.</item>
     </plurals>
     <plurals name="split_rule_count">
         <item quantity="other">분할 규칙 %1$d개</item>

@@ -1217,8 +1217,6 @@
     <string name="sn_claim_relay_again_on">「今すぐ受け取る」は %1$s に再び利用できるようになります。</string>
     <string name="sn_claim_relay_cap">本日の受け取り予算が尽きたため、翌日まで待機します。失われるものはありません。この残高に有効期限はありません。</string>
     <string name="sn_claim_relay_claim_now">今すぐ受け取る</string>
-    <string name="sn_claim_relay_claim_now_paid">「今すぐ受け取る」は URnetwork の負担で、%1$d 日に 1 回利用できます。</string>
-    <string name="sn_claim_relay_claim_now_paid_each">URnetwork の負担で、coldkey ごとに %1$d 日に 1 回利用できます。</string>
     <string name="sn_claim_relay_claimed">URnetwork が受け取りました。%1$s SN25α があなたのキー %2$s にあります。</string>
     <string name="sn_claim_relay_for_you">URnetwork が受け取りの手続きを代行します</string>
     <string name="sn_claim_relay_lands_on">URnetwork が受け取りの手続きを代行します。ガス代は URnetwork が支払い、SN25α は %1$s に届きます。</string>
@@ -1561,6 +1559,12 @@
     </plurals>
     <plurals name="share_extenders_count">
         <item quantity="other">%1$d 件のエクステンダー</item>
+    </plurals>
+    <plurals name="sn_claim_relay_claim_now_paid">
+        <item quantity="other">「今すぐ受け取る」は URnetwork の負担で、%1$d 日に 1 回利用できます。</item>
+    </plurals>
+    <plurals name="sn_claim_relay_claim_now_paid_each">
+        <item quantity="other">URnetwork の負担で、coldkey ごとに %1$d 日に 1 回利用できます。</item>
     </plurals>
     <plurals name="split_rule_count">
         <item quantity="other">%1$d件の分割ルール</item>

@@ -789,3 +789,74 @@ func TestBittensorKeyStringsAreInTheCatalog(t *testing.T) {
 		}
 	}
 }
+
+// Claim now's period is a count (the relay's 30 days today), so its two sentences are
+// the store's plural forms, which the catalogs carry as <plurals>: the note looks each
+// up with pluralStringResource and the period as its count, so every language reads the
+// count in its own form, and nothing looks them up as one sentence, which the catalogs
+// no longer have.
+func TestBittensorKeyClaimNowPeriodTakesThePluralForm(t *testing.T) {
+	ids := []string{"sn_claim_relay_claim_now_paid", "sn_claim_relay_claim_now_paid_each"}
+	note := bittensorKeyBlock(t, bittensorKeyCode(bittensorKeyWallet(t, "ClaimRelayDialog.kt")), "fun SnClaimNowNote(")
+	for _, id := range ids {
+		if !strings.Contains(note, "pluralStringResource(id = R.plurals."+id+", count = status.claimNowPeriodDays.toInt(), status.claimNowPeriodDays)") {
+			t.Errorf("the Claim now note doesn't look up %s by the period's count", id)
+		}
+		single := regexp.MustCompile(`R\.string\.` + id + `\b`)
+		for path, source := range bittensorKeyAllKotlin(t) {
+			if single.MatchString(bittensorKeyCode(source)) {
+				t.Errorf("%s looks up %s as one sentence", path, id)
+			}
+		}
+	}
+
+	res := filepath.Join(bittensorKeyRoot(t), "app/app/src/main/res")
+	entries, err := os.ReadDir(res)
+	if err != nil {
+		t.Fatal(err)
+	}
+	read := 0
+	for _, entry := range entries {
+		if !entry.IsDir() || (entry.Name() != "values" && !strings.HasPrefix(entry.Name(), "values-")) {
+			continue
+		}
+		data, err := os.ReadFile(filepath.Join(res, entry.Name(), "strings.xml"))
+		if err != nil {
+			continue
+		}
+		var parsed struct {
+			Plurals []struct {
+				Name  string `xml:"name,attr"`
+				Items []struct {
+					Quantity string `xml:"quantity,attr"`
+					Value    string `xml:",chardata"`
+				} `xml:"item"`
+			} `xml:"plurals"`
+		}
+		if err := xml.Unmarshal(data, &parsed); err != nil {
+			t.Fatalf("%s: %v", entry.Name(), err)
+		}
+		read++
+		for _, id := range ids {
+			forms := map[string]string{}
+			for _, plural := range parsed.Plurals {
+				if plural.Name == id {
+					for _, item := range plural.Items {
+						forms[item.Quantity] = item.Value
+					}
+				}
+			}
+			// "other" is every language's form for a count it has no other form for,
+			// and it always prints the count
+			if !strings.Contains(forms["other"], "%1$d") {
+				t.Errorf("%s: %s has no other form with the count: %q", entry.Name(), id, forms["other"])
+			}
+			if entry.Name() == "values" && (forms["one"] == "" || !strings.Contains(forms["one"], "once a day")) {
+				t.Errorf("values: %s has no English one form: %q", id, forms["one"])
+			}
+		}
+	}
+	if read < 19 {
+		t.Fatalf("CONTROL FAILED: read %d catalogs", read)
+	}
+}

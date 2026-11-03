@@ -1217,8 +1217,6 @@
     <string name="sn_claim_relay_again_on">«Получить сейчас» снова будет доступно %1$s.</string>
     <string name="sn_claim_relay_cap">Бюджет на получение на сегодня исчерпан, поэтому это подождёт до следующего дня. Ничего не теряется: у этого начисления нет срока действия.</string>
     <string name="sn_claim_relay_claim_now">Получить сейчас</string>
-    <string name="sn_claim_relay_claim_now_paid">«Получить сейчас» оплачивается URnetwork, раз в %1$d дн.</string>
-    <string name="sn_claim_relay_claim_now_paid_each">Оплачивается URnetwork, раз в %1$d дн. для каждого coldkey.</string>
     <string name="sn_claim_relay_claimed">Получено через URnetwork. %1$s SN25α на вашем ключе %2$s.</string>
     <string name="sn_claim_relay_for_you">URnetwork отправляет запрос на получение за вас</string>
     <string name="sn_claim_relay_lands_on">URnetwork отправляет запрос на получение за вас. Он оплачивает газ, а ваши SN25α поступают на %1$s.</string>
@@ -1639,6 +1637,18 @@
         <item quantity="few">%1$d экстендера</item>
         <item quantity="many">%1$d экстендеров</item>
         <item quantity="other">%1$d экстендера</item>
+    </plurals>
+    <plurals name="sn_claim_relay_claim_now_paid">
+        <item quantity="one">«Получить сейчас» оплачивается URnetwork, раз в %1$d день.</item>
+        <item quantity="few">«Получить сейчас» оплачивается URnetwork, раз в %1$d дня.</item>
+        <item quantity="many">«Получить сейчас» оплачивается URnetwork, раз в %1$d дней.</item>
+        <item quantity="other">«Получить сейчас» оплачивается URnetwork, раз в %1$d дня.</item>
+    </plurals>
+    <plurals name="sn_claim_relay_claim_now_paid_each">
+        <item quantity="one">Оплачивается URnetwork, раз в %1$d день для каждого coldkey.</item>
+        <item quantity="few">Оплачивается URnetwork, раз в %1$d дня для каждого coldkey.</item>
+        <item quantity="many">Оплачивается URnetwork, раз в %1$d дней для каждого coldkey.</item>
+        <item quantity="other">Оплачивается URnetwork, раз в %1$d дня для каждого coldkey.</item>
     </plurals>
     <plurals name="split_rule_count">
         <item quantity="one">%1$d правило разделения</item>
