@@ -1,6 +1,9 @@
 package com.bringyour.network.ui.wallet
 
+import android.content.Intent
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -13,6 +16,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -22,17 +26,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.net.toUri
 import com.bringyour.network.R
 import com.bringyour.network.ui.components.ButtonStyle
 import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.components.URDialog
 import com.bringyour.network.ui.theme.BlueMedium
+import com.bringyour.network.ui.theme.Green
 import com.bringyour.network.ui.theme.Red
 import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.gravityCondensedFamily
@@ -52,6 +59,7 @@ import java.time.format.FormatStyle
 
 const val EARNINGS_CLAIM_RELAY_CLAIM_NOW_TAG = "earnings-claim-relay-claim-now"
 const val EARNINGS_CLAIM_RELAY_SELF_CLAIM_TAG = "earnings-claim-relay-self-claim"
+const val EARNINGS_CLAIM_RELAY_CLAIMED_TAG = "earnings-claim-relay-claimed"
 
 /** Who claims, why the balance is still pending, and on the tile Claim now, or the device's own claim while the relay isn't claiming. */
 @Composable
@@ -237,12 +245,68 @@ private fun SnClaimRelayPill(text: String) {
 }
 
 /**
+ * The claimed state (the mocks' 4d): URnetwork's claim is the latest and
+ * nothing is claimable now. What it paid, and its transaction on the
+ * explorer, as the sdk's claim status names them.
+ */
+@Composable
+private fun SnClaimRelayClaimed(
+    status: SnClaimStatusState,
+    formatAlpha: (Long) -> String,
+    explorerTxUrl: (String) -> String,
+) {
+    val context = LocalContext.current
+    val txUrl = status.claimTxUrl.ifEmpty { if (status.claimTxHash.isEmpty()) "" else explorerTxUrl(status.claimTxHash) }
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(Green.copy(alpha = 0.08f), RoundedCornerShape(8.dp))
+            .border(1.dp, Green.copy(alpha = 0.6f), RoundedCornerShape(8.dp))
+            .padding(12.dp)
+            .testTag(EARNINGS_CLAIM_RELAY_CLAIMED_TAG),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Icon(
+            Icons.Filled.CheckCircle,
+            contentDescription = null,
+            tint = Green,
+            modifier = Modifier.size(18.dp),
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        Text(
+            stringResource(id = R.string.claim_confirmed),
+            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
+            color = Green,
+        )
+        if (0 < status.claimAmountRao) {
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                formatAlpha(status.claimAmountRao),
+                style = MaterialTheme.typography.bodyMedium,
+            )
+        }
+        Spacer(modifier = Modifier.weight(1f))
+        if (txUrl.isNotEmpty()) {
+            Text(
+                stringResource(id = R.string.transaction),
+                modifier = Modifier
+                    .clickable {
+                        context.startActivity(Intent(Intent.ACTION_VIEW, txUrl.toUri()))
+                    }
+                    .padding(vertical = 4.dp),
+                style = MaterialTheme.typography.bodyMedium,
+                color = BlueMedium,
+            )
+        }
+    }
+}
+
+/**
  * Claim now, from the Settlement v2 tile: the balance, where it lands, why
  * it's still pending, and Claim now or why it can't act, with the device's
- * own claim as the fallback. It shows the claim sheet's disclaimer (sdk
- * place claim_sheet): claims land on the consent's coldkey, wherever its key
- * is. The relay's status names no transaction, so a claimed balance shows as
- * claimed on the next read rather than with its transaction (mock 4d).
+ * own claim as the fallback, and once URnetwork has claimed it, what it paid
+ * with its transaction. It shows the claim sheet's disclaimer (sdk place
+ * claim_sheet): claims land on the consent's coldkey, wherever its key is.
  */
 @Composable
 fun ClaimRelayDialog(
@@ -256,6 +320,8 @@ fun ClaimRelayDialog(
     onDismiss: () -> Unit,
     formatAlpha: (Long) -> String,
     shortSs58: (String) -> String,
+    // the explorer's page of a transaction, where the sdk names none
+    explorerTxUrl: (String) -> String = { "" },
 ) {
     URDialog(
         visible = visible,
@@ -299,6 +365,10 @@ fun ClaimRelayDialog(
                         stringResource(id = R.string.sn_claim_relay_lands_on, shortSs58(status.coldkeySs58)),
                         style = MaterialTheme.typography.bodyMedium,
                     )
+                }
+                if (status.showsClaimed) {
+                    Spacer(modifier = Modifier.height(12.dp))
+                    SnClaimRelayClaimed(status = status, formatAlpha = formatAlpha, explorerTxUrl = explorerTxUrl)
                 }
                 Spacer(modifier = Modifier.height(12.dp))
                 SnClaimRelaySection(status = status, onClaimNow = {}, onSelfClaim = onSelfClaim, inDialog = true)

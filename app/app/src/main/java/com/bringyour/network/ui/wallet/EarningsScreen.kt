@@ -239,7 +239,7 @@ fun EarningsScreen(
     val locale = LocalConfiguration.current.locales[0]
     // the network's consent pays the payout key on this device: a coldkey
     // before the wallet read lists one, so there is no coldkey left to set
-    val hasColdkey = wallet != null || keyCard.state == Sdk.BittensorLocalKeyStateSaveLaterLinked
+    val hasColdkey = wallet != null || keyCard.paysKeyOnThisDevice
     val payoutLine = snPayoutLine(
         walletKnown = earningsViewModel.protocolAvailable && walletLoaded && (hasColdkey || !walletFailed),
         hasColdkey = hasColdkey,
@@ -366,6 +366,7 @@ fun EarningsScreen(
         onDismiss = { earningsViewModel.closeRelayClaimDialog() },
         formatAlpha = earningsViewModel::formatAlpha,
         shortSs58 = earningsViewModel::shortSs58,
+        explorerTxUrl = earningsViewModel::explorerTxUrl,
     )
 
     val bridgeContext = LocalContext.current

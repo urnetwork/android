@@ -41,6 +41,16 @@ data class SnClaimStatusState(
     val automaticThresholdTaoRao: Long = 0,
     val transferFloorTaoRao: Long = 0,
     val claimNowPeriodDays: Long = 0,
+    // a network with no wallet on this device shows the Settlement v2 tile
+    // exactly while this is true
+    val showsTile: Boolean = false,
+    // the claimed state: URnetwork's claim is the latest and nothing is
+    // claimable now, with its transaction, the explorer's page of it ("" without
+    // one) and what it paid
+    val showsClaimed: Boolean = false,
+    val claimTxHash: String = "",
+    val claimTxUrl: String = "",
+    val claimAmountRao: Long = 0,
     // the balances could not be read: unavailable, never zero
     val unavailable: Boolean = false,
 ) {
@@ -67,13 +77,13 @@ sealed class SnClaimNowOutcome {
 /**
  * The Settlement v2 tile with the relay: the ledger of this device's wallet
  * as before, or, for a network with no wallet on this device, the balance the
- * relay claims for its consent, while it reports one claimable or pending.
+ * relay claims for its consent, while the sdk says the tile shows.
  */
 fun snLedgerTileWithRelay(hasWallet: Boolean, ledgerTile: SnLedgerTile?, claimStatus: SnClaimStatusState?): SnLedgerTile? {
     if (hasWallet && ledgerTile != null) {
         return ledgerTile
     }
-    if (claimStatus == null || claimStatus.unavailable || claimStatus.claimableRao + claimStatus.pendingRao <= 0) {
+    if (claimStatus == null || !claimStatus.showsTile) {
         return null
     }
     return SnLedgerTile(
