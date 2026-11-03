@@ -1217,8 +1217,6 @@
     <string name="sn_claim_relay_again_on">‘Nu opeisen’ is weer beschikbaar op %1$s.</string>
     <string name="sn_claim_relay_cap">Het claimbudget van vandaag is op, dus dit wacht tot de volgende dag. Er gaat niets verloren: dit tegoed verloopt nooit.</string>
     <string name="sn_claim_relay_claim_now">Nu opeisen</string>
-    <string name="sn_claim_relay_claim_now_paid">‘Nu opeisen’ wordt betaald door URnetwork, één keer per %1$d dagen.</string>
-    <string name="sn_claim_relay_claim_now_paid_each">Betaald door URnetwork, één keer per %1$d dagen per coldkey.</string>
     <string name="sn_claim_relay_claimed">Opgeëist door URnetwork. %1$s SN25α staat op je sleutel, %2$s.</string>
     <string name="sn_claim_relay_for_you">URnetwork eist dit voor je op</string>
     <string name="sn_claim_relay_lands_on">URnetwork eist dit voor je op. URnetwork betaalt het gas, en je SN25α komt op %1$s terecht.</string>
@@ -1587,6 +1585,14 @@
     <plurals name="share_extenders_count">
         <item quantity="one">%1$d extender</item>
         <item quantity="other">%1$d extenders</item>
+    </plurals>
+    <plurals name="sn_claim_relay_claim_now_paid">
+        <item quantity="one">‘Nu opeisen’ wordt betaald door URnetwork, één keer per dag.</item>
+        <item quantity="other">‘Nu opeisen’ wordt betaald door URnetwork, één keer per %1$d dagen.</item>
+    </plurals>
+    <plurals name="sn_claim_relay_claim_now_paid_each">
+        <item quantity="one">Betaald door URnetwork, één keer per dag per coldkey.</item>
+        <item quantity="other">Betaald door URnetwork, één keer per %1$d dagen per coldkey.</item>
     </plurals>
     <plurals name="split_rule_count">
         <item quantity="one">%1$d splitsregel</item>

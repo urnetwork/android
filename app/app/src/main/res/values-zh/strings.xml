@@ -1217,8 +1217,6 @@
     <string name="sn_claim_relay_again_on">“立即领取”将于 %1$s 再次可用。</string>
     <string name="sn_claim_relay_cap">今日的领取预算已用完，因此将等到次日。不会有任何损失：这笔余额永不过期。</string>
     <string name="sn_claim_relay_claim_now">立即领取</string>
-    <string name="sn_claim_relay_claim_now_paid">“立即领取”由 URnetwork 支付费用，每 %1$d 天一次。</string>
-    <string name="sn_claim_relay_claim_now_paid_each">由 URnetwork 支付费用，每个 coldkey 每 %1$d 天一次。</string>
     <string name="sn_claim_relay_claimed">已由 URnetwork 领取。%1$s SN25α 已在您的密钥 %2$s 上。</string>
     <string name="sn_claim_relay_for_you">URnetwork 代您发起领取</string>
     <string name="sn_claim_relay_lands_on">URnetwork 代您发起领取。Gas 费由 URnetwork 支付，您的 SN25α 将存入 %1$s。</string>
@@ -1561,6 +1559,12 @@
     </plurals>
     <plurals name="share_extenders_count">
         <item quantity="other">%1$d 个扩展器</item>
+    </plurals>
+    <plurals name="sn_claim_relay_claim_now_paid">
+        <item quantity="other">“立即领取”由 URnetwork 支付费用，每 %1$d 天一次。</item>
+    </plurals>
+    <plurals name="sn_claim_relay_claim_now_paid_each">
+        <item quantity="other">由 URnetwork 支付费用，每个 coldkey 每 %1$d 天一次。</item>
     </plurals>
     <plurals name="split_rule_count">
         <item quantity="other">%1$d 条分流规则</item>

@@ -30,6 +30,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -203,10 +204,11 @@ fun SnClaimRelayReason(status: SnClaimStatusState, modifier: Modifier = Modifier
 @Composable
 fun SnClaimNowNote(status: SnClaimStatusState, eachColdkey: Boolean) {
     val text = if (status.claimNowAvailable) {
+        // the period is a count: each language reads it in its own plural form
         when {
             status.claimNowPeriodDays <= 0 -> null
-            eachColdkey -> stringResource(id = R.string.sn_claim_relay_claim_now_paid_each, status.claimNowPeriodDays)
-            else -> stringResource(id = R.string.sn_claim_relay_claim_now_paid, status.claimNowPeriodDays)
+            eachColdkey -> pluralStringResource(id = R.plurals.sn_claim_relay_claim_now_paid_each, count = status.claimNowPeriodDays.toInt(), status.claimNowPeriodDays)
+            else -> pluralStringResource(id = R.plurals.sn_claim_relay_claim_now_paid, count = status.claimNowPeriodDays.toInt(), status.claimNowPeriodDays)
         }
     } else {
         when (status.claimNowReason) {

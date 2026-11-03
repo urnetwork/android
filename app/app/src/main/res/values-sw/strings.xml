@@ -1217,8 +1217,6 @@
     <string name="sn_claim_relay_again_on">“Dai sasa” litapatikana tena tarehe %1$s.</string>
     <string name="sn_claim_relay_cap">Bajeti ya madai ya leo imekwisha, kwa hivyo hili linasubiri siku inayofuata. Hakuna kinachopotea: salio hili halitaisha muda kamwe.</string>
     <string name="sn_claim_relay_claim_now">Dai sasa</string>
-    <string name="sn_claim_relay_claim_now_paid">“Dai sasa” linalipiwa na URnetwork, mara moja kila siku %1$d.</string>
-    <string name="sn_claim_relay_claim_now_paid_each">Linalipiwa na URnetwork, mara moja kila siku %1$d kwa kila coldkey.</string>
     <string name="sn_claim_relay_claimed">Imedaiwa na URnetwork. %1$s SN25α ziko kwenye ufunguo wako, %2$s.</string>
     <string name="sn_claim_relay_for_you">URnetwork inadai hili kwa niaba yako</string>
     <string name="sn_claim_relay_lands_on">URnetwork inadai hili kwa niaba yako. Inalipa gas, na SN25α yako inaingia kwenye %1$s.</string>
@@ -1587,6 +1585,14 @@
     <plurals name="share_extenders_count">
         <item quantity="one">Kipanuzi %1$d</item>
         <item quantity="other">Vipanuzi %1$d</item>
+    </plurals>
+    <plurals name="sn_claim_relay_claim_now_paid">
+        <item quantity="one">“Dai sasa” linalipiwa na URnetwork, mara moja kila siku.</item>
+        <item quantity="other">“Dai sasa” linalipiwa na URnetwork, mara moja kila siku %1$d.</item>
+    </plurals>
+    <plurals name="sn_claim_relay_claim_now_paid_each">
+        <item quantity="one">Linalipiwa na URnetwork, mara moja kila siku kwa kila coldkey.</item>
+        <item quantity="other">Linalipiwa na URnetwork, mara moja kila siku %1$d kwa kila coldkey.</item>
     </plurals>
     <plurals name="split_rule_count">
         <item quantity="one">%1$d sheria ya mgawanyo</item>

@@ -1217,8 +1217,6 @@
     <string name="sn_claim_relay_again_on">„Odbierz teraz” będzie znowu dostępne %1$s.</string>
     <string name="sn_claim_relay_cap">Dzisiejszy budżet na odbiory się wyczerpał, więc to poczeka do następnego dnia. Nic nie przepada: te środki nigdy nie wygasają.</string>
     <string name="sn_claim_relay_claim_now">Odbierz teraz</string>
-    <string name="sn_claim_relay_claim_now_paid">Za „Odbierz teraz” płaci URnetwork, raz na %1$d dni.</string>
-    <string name="sn_claim_relay_claim_now_paid_each">Płaci URnetwork, raz na %1$d dni dla każdego coldkeya.</string>
     <string name="sn_claim_relay_claimed">Odebrano przez URnetwork. %1$s SN25α jest na twoim kluczu %2$s.</string>
     <string name="sn_claim_relay_for_you">URnetwork przeprowadza odbiór w twoim imieniu</string>
     <string name="sn_claim_relay_lands_on">URnetwork przeprowadza odbiór w twoim imieniu. Płaci za gas, a twoje SN25α trafiają na %1$s.</string>
@@ -1639,6 +1637,18 @@
         <item quantity="few">%1$d extendery</item>
         <item quantity="many">%1$d extenderów</item>
         <item quantity="other">%1$d extendera</item>
+    </plurals>
+    <plurals name="sn_claim_relay_claim_now_paid">
+        <item quantity="one">Za „Odbierz teraz” płaci URnetwork, raz dziennie.</item>
+        <item quantity="few">Za „Odbierz teraz” płaci URnetwork, raz na %1$d dni.</item>
+        <item quantity="many">Za „Odbierz teraz” płaci URnetwork, raz na %1$d dni.</item>
+        <item quantity="other">Za „Odbierz teraz” płaci URnetwork, raz na %1$d dnia.</item>
+    </plurals>
+    <plurals name="sn_claim_relay_claim_now_paid_each">
+        <item quantity="one">Płaci URnetwork, raz dziennie dla każdego coldkeya.</item>
+        <item quantity="few">Płaci URnetwork, raz na %1$d dni dla każdego coldkeya.</item>
+        <item quantity="many">Płaci URnetwork, raz na %1$d dni dla każdego coldkeya.</item>
+        <item quantity="other">Płaci URnetwork, raz na %1$d dnia dla każdego coldkeya.</item>
     </plurals>
     <plurals name="split_rule_count">
         <item quantity="one">%1$d reguła podziału</item>

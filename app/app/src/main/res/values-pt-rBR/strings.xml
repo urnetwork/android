@@ -1217,8 +1217,6 @@
     <string name="sn_claim_relay_again_on">“Resgatar agora” estará disponível novamente em %1$s.</string>
     <string name="sn_claim_relay_cap">O orçamento de resgates de hoje se esgotou, então isso aguarda o dia seguinte. Nada se perde: este saldo nunca expira.</string>
     <string name="sn_claim_relay_claim_now">Resgatar agora</string>
-    <string name="sn_claim_relay_claim_now_paid">“Resgatar agora” é pago pelo URnetwork, uma vez a cada %1$d dias.</string>
-    <string name="sn_claim_relay_claim_now_paid_each">Pago pelo URnetwork, uma vez a cada %1$d dias para cada coldkey.</string>
     <string name="sn_claim_relay_claimed">Resgatado pelo URnetwork. %1$s SN25α estão na sua chave, %2$s.</string>
     <string name="sn_claim_relay_for_you">O URnetwork resgata isso para você</string>
     <string name="sn_claim_relay_lands_on">O URnetwork resgata isso para você. Ele paga o gás, e seu SN25α chega a %1$s.</string>
@@ -1587,6 +1585,14 @@
     <plurals name="share_extenders_count">
         <item quantity="one">%1$d extensor</item>
         <item quantity="other">%1$d extensores</item>
+    </plurals>
+    <plurals name="sn_claim_relay_claim_now_paid">
+        <item quantity="one">“Resgatar agora” é pago pelo URnetwork, uma vez por dia.</item>
+        <item quantity="other">“Resgatar agora” é pago pelo URnetwork, uma vez a cada %1$d dias.</item>
+    </plurals>
+    <plurals name="sn_claim_relay_claim_now_paid_each">
+        <item quantity="one">Pago pelo URnetwork, uma vez por dia para cada coldkey.</item>
+        <item quantity="other">Pago pelo URnetwork, uma vez a cada %1$d dias para cada coldkey.</item>
     </plurals>
     <plurals name="split_rule_count">
         <item quantity="one">%1$d regra de divisão</item>

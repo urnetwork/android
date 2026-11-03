@@ -1217,8 +1217,6 @@
     <string name="sn_claim_relay_again_on">«Reclamar ahora» vuelve a estar disponible el %1$s.</string>
     <string name="sn_claim_relay_cap">El presupuesto de reclamaciones de hoy se ha agotado, así que esto esperará al día siguiente. No se pierde nada: este saldo nunca caduca.</string>
     <string name="sn_claim_relay_claim_now">Reclamar ahora</string>
-    <string name="sn_claim_relay_claim_now_paid">«Reclamar ahora» lo paga URnetwork, una vez cada %1$d días.</string>
-    <string name="sn_claim_relay_claim_now_paid_each">Lo paga URnetwork, una vez cada %1$d días por cada coldkey.</string>
     <string name="sn_claim_relay_claimed">Reclamado por URnetwork. %1$s SN25α ya están en tu clave, %2$s.</string>
     <string name="sn_claim_relay_for_you">URnetwork lo reclama por ti</string>
     <string name="sn_claim_relay_lands_on">URnetwork lo reclama por ti. Paga el gas y tu SN25α llega a %1$s.</string>
@@ -1587,6 +1585,14 @@
     <plurals name="share_extenders_count">
         <item quantity="one">%1$d extensor</item>
         <item quantity="other">%1$d extensores</item>
+    </plurals>
+    <plurals name="sn_claim_relay_claim_now_paid">
+        <item quantity="one">«Reclamar ahora» lo paga URnetwork, una vez al día.</item>
+        <item quantity="other">«Reclamar ahora» lo paga URnetwork, una vez cada %1$d días.</item>
+    </plurals>
+    <plurals name="sn_claim_relay_claim_now_paid_each">
+        <item quantity="one">Lo paga URnetwork, una vez al día por cada coldkey.</item>
+        <item quantity="other">Lo paga URnetwork, una vez cada %1$d días por cada coldkey.</item>
     </plurals>
     <plurals name="split_rule_count">
         <item quantity="one">%1$d regla de división</item>

@@ -1217,8 +1217,6 @@
     <string name="sn_claim_relay_again_on">«Reivindicar agora» volta a estar disponível a %1$s.</string>
     <string name="sn_claim_relay_cap">O orçamento de reivindicações de hoje esgotou-se, por isso isto fica à espera do dia seguinte. Nada se perde: este saldo nunca expira.</string>
     <string name="sn_claim_relay_claim_now">Reivindicar agora</string>
-    <string name="sn_claim_relay_claim_now_paid">«Reivindicar agora» é pago pelo URnetwork, uma vez a cada %1$d dias.</string>
-    <string name="sn_claim_relay_claim_now_paid_each">Pago pelo URnetwork, uma vez a cada %1$d dias por cada coldkey.</string>
     <string name="sn_claim_relay_claimed">Reivindicado pelo URnetwork. %1$s SN25α estão na sua chave, %2$s.</string>
     <string name="sn_claim_relay_for_you">O URnetwork reivindica-o em seu nome</string>
     <string name="sn_claim_relay_lands_on">O URnetwork reivindica-o em seu nome. Paga o gás e o seu SN25α chega a %1$s.</string>
@@ -1587,6 +1585,14 @@
     <plurals name="share_extenders_count">
         <item quantity="one">%1$d extensor</item>
         <item quantity="other">%1$d extensores</item>
+    </plurals>
+    <plurals name="sn_claim_relay_claim_now_paid">
+        <item quantity="one">«Reivindicar agora» é pago pelo URnetwork, uma vez por dia.</item>
+        <item quantity="other">«Reivindicar agora» é pago pelo URnetwork, uma vez a cada %1$d dias.</item>
+    </plurals>
+    <plurals name="sn_claim_relay_claim_now_paid_each">
+        <item quantity="one">Pago pelo URnetwork, uma vez por dia por cada coldkey.</item>
+        <item quantity="other">Pago pelo URnetwork, uma vez a cada %1$d dias por cada coldkey.</item>
     </plurals>
     <plurals name="split_rule_count">
         <item quantity="one">%1$d regra de divisão</item>

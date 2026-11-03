@@ -1229,8 +1229,6 @@
     <string name="sn_claim_relay_again_on">Claim now is available again on %1$s.</string>
     <string name="sn_claim_relay_cap">Today\'s claim budget is used up, so this waits for the next day. Nothing is lost: this credit never expires.</string>
     <string name="sn_claim_relay_claim_now">Claim now</string>
-    <string name="sn_claim_relay_claim_now_paid">Claim now is paid by URnetwork, once every %1$d days.</string>
-    <string name="sn_claim_relay_claim_now_paid_each">Paid by URnetwork, once every %1$d days for each coldkey.</string>
     <string name="sn_claim_relay_claimed">Claimed by URnetwork. %1$s SN25α is on your key, %2$s.</string>
     <string name="sn_claim_relay_for_you">URnetwork claims this for you</string>
     <string name="sn_claim_relay_lands_on">URnetwork claims this for you. It pays the gas, and your SN25α lands on %1$s.</string>
@@ -1610,6 +1608,14 @@
     <plurals name="share_extenders_count">
         <item quantity="one">%1$d extender</item>
         <item quantity="other">%1$d extenders</item>
+    </plurals>
+    <plurals name="sn_claim_relay_claim_now_paid">
+        <item quantity="one">Claim now is paid by URnetwork, once a day.</item>
+        <item quantity="other">Claim now is paid by URnetwork, once every %1$d days.</item>
+    </plurals>
+    <plurals name="sn_claim_relay_claim_now_paid_each">
+        <item quantity="one">Paid by URnetwork, once a day for each coldkey.</item>
+        <item quantity="other">Paid by URnetwork, once every %1$d days for each coldkey.</item>
     </plurals>
     <plurals name="split_rule_count">
         <item quantity="one">%1$d split rule</item>
