@@ -666,7 +666,7 @@
     <string name="includes_free_trial_days">Περιλαμβάνει δωρεάν δοκιμή %1$d ημερών</string>
     <string name="instant_account_no_email_password">Δεν χρειάζεται email ή κωδικός. Ο λογαριασμός σου προστατεύεται από ένα seedphrase.</string>
     <string name="insufficient_balance">Ανεπαρκές υπόλοιπο</string>
-    <string name="insufficient_balance_disconnect_first">Για να αναβαθμίσετε, επιλέξτε πρώτα «Αποσύνδεση». Μέχρι τότε η πληρωμή δεν μπορεί να ολοκληρωθεί.</string>
+    <string name="insufficient_balance_disconnect_first_kill_switch">Για να αναβαθμίσετε, επιλέξτε πρώτα «Αποσύνδεση» και απενεργοποιήστε το Kill switch, αν είναι ενεργό. Μέχρι τότε η πληρωμή δεν μπορεί να ολοκληρωθεί.</string>
     <string name="insufficient_balance_exhausted">Τα δεδομένα σας έχουν τελειώσει μέχρι τη δωρεάν ανανέωση ή μια αναβάθμιση.</string>
     <string name="insufficient_balance_held_notice">Η κίνησή σας παραμένει στη σήραγγα μέχρι να αναβαθμίσετε ή να αποσυνδεθείτε.</string>
     <string name="insufficient_balance_reconnecting">Τα δεδομένα είναι ξανά διαθέσιμα. Επανασύνδεση…</string>

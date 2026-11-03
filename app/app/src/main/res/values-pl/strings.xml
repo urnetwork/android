@@ -666,7 +666,7 @@
     <string name="includes_free_trial_days">Obejmuje %1$d-dniowy bezpłatny okres próbny</string>
     <string name="instant_account_no_email_password">Bez e-maila i hasła. Twoje konto jest zabezpieczone seedphrase.</string>
     <string name="insufficient_balance">Niewystarczające saldo</string>
-    <string name="insufficient_balance_disconnect_first">Aby przejść na wyższy plan, najpierw wybierz „Rozłącz”. Do tego czasu płatność nie przejdzie.</string>
+    <string name="insufficient_balance_disconnect_first_kill_switch">Aby przejść na wyższy plan, najpierw wybierz „Rozłącz” i wyłącz Kill switch, jeśli jest włączony. Do tego czasu płatność nie przejdzie.</string>
     <string name="insufficient_balance_exhausted">Skończyły Ci się dane do darmowego odnowienia lub przejścia na wyższy plan.</string>
     <string name="insufficient_balance_held_notice">Twój ruch jest zatrzymany w tunelu, dopóki nie przejdziesz na wyższy plan lub się nie rozłączysz.</string>
     <string name="insufficient_balance_reconnecting">Dane są znów dostępne. Ponowne łączenie…</string>

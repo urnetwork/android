@@ -666,7 +666,7 @@
     <string name="includes_free_trial_days">%1$d 日間の無料トライアル付き</string>
     <string name="instant_account_no_email_password">メールアドレスやパスワードは不要です。アカウントはシードフレーズで保護されます。</string>
     <string name="insufficient_balance">残高不足</string>
-    <string name="insufficient_balance_disconnect_first">アップグレードするには、先に「切断する」を選択してください。それまでは支払いを完了できません。</string>
+    <string name="insufficient_balance_disconnect_first_kill_switch">アップグレードするには、先に「切断する」を選択し、キルスイッチがオンの場合はオフにしてください。それまでは支払いを完了できません。</string>
     <string name="insufficient_balance_exhausted">無料の更新またはアップグレードまで、使えるデータがありません。</string>
     <string name="insufficient_balance_held_notice">アップグレードするか切断するまで、通信はトンネル内に保持されます。</string>
     <string name="insufficient_balance_reconnecting">データが再び利用可能になりました。再接続しています…</string>

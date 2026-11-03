@@ -666,7 +666,7 @@
     <string name="includes_free_trial_days">包含 %1$d 天免费试用</string>
     <string name="instant_account_no_email_password">无需邮箱或密码。您的账户由助记词保护。</string>
     <string name="insufficient_balance">余额不足</string>
-    <string name="insufficient_balance_disconnect_first">要升级，请先选择“断开连接”。在此之前，付款无法完成。</string>
+    <string name="insufficient_balance_disconnect_first_kill_switch">要升级，请先选择“断开连接”；如果断网保护已开启，请将其关闭。在此之前，付款无法完成。</string>
     <string name="insufficient_balance_exhausted">在免费数据更新或升级之前，你的数据已用完。</string>
     <string name="insufficient_balance_held_notice">在你升级或断开连接之前，你的流量会保留在隧道中。</string>
     <string name="insufficient_balance_reconnecting">数据已再次可用。正在重新连接…</string>

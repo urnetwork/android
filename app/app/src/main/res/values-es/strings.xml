@@ -666,7 +666,7 @@
     <string name="includes_free_trial_days">Incluye una prueba gratuita de %1$d días</string>
     <string name="instant_account_no_email_password">No necesitas correo ni contraseña. Tu cuenta está protegida por una frase semilla.</string>
     <string name="insufficient_balance">Saldo insuficiente</string>
-    <string name="insufficient_balance_disconnect_first">Para mejorar tu plan, elige primero «Desconectar». Hasta entonces, el pago no podrá completarse.</string>
+    <string name="insufficient_balance_disconnect_first_kill_switch">Para mejorar tu plan, elige primero «Desconectar» y desactiva el Kill switch si está activado. Hasta entonces, el pago no podrá completarse.</string>
     <string name="insufficient_balance_exhausted">Te quedaste sin datos hasta la renovación gratis o hasta que mejores tu plan.</string>
     <string name="insufficient_balance_held_notice">Tu tráfico se mantiene en el túnel hasta que mejores tu plan o te desconectes.</string>
     <string name="insufficient_balance_reconnecting">Vuelve a haber datos disponibles. Reconectando…</string>
