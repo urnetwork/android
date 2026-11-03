@@ -561,11 +561,21 @@ func TestBittensorKeyClaimsThroughTheRelay(t *testing.T) {
 		"R.string.done",
 		"SnClaimRelayAgainOn(status = status, centered = true)",
 	)
-	bittensorKeyContainsAll(t, "the claimed banner", bittensorKeyBlock(t, relay, "private fun SnClaimRelayClaimed("),
+	// the store's one claimed-state sentence on every app, with the amount
+	// without its symbol, which the sentence names itself
+	banner := bittensorKeyBlock(t, relay, "private fun SnClaimRelayClaimed(")
+	bittensorKeyContainsAll(t, "the claimed banner", banner,
+		"id = R.string.sn_claim_relay_claimed,",
+		"EarningsFormat.alphaAmount(status.claimAmountRao),",
+		"shortSs58(status.coldkeySs58),",
 		"R.string.claim_confirmed",
-		"formatAlpha(status.claimAmountRao)",
-		"R.string.sn_claim_relay_lands_on, shortSs58(status.coldkeySs58)",
 		"SnClaimRelayTransactionLink(txUrl)",
+	)
+	if strings.Contains(banner, "formatAlpha(") || strings.Contains(banner, "EarningsFormat.alpha(") {
+		t.Error("the claimed banner's amount names SN25α, and so does the sentence")
+	}
+	bittensorKeyContainsAll(t, "the number-only alpha", bittensorKeyBlock(t, bittensorKeyCode(bittensorKeyWallet(t, "EarningsModels.kt")), "fun alphaAmount("),
+		`String.format(Locale.US, "%.4f", rao / RAO_PER_ALPHA)`,
 	)
 	bittensorKeyContainsAll(t, "the claim sheet's rows", bittensorKeyBlock(t, relay, "private fun SnClaimRelayRows("),
 		"if (row.showsClaimed) row.claimAmountRao else row.claimableRao",

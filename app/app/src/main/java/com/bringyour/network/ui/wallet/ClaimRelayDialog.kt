@@ -104,9 +104,7 @@ fun SnClaimRelaySection(
             Spacer(modifier = Modifier.height(12.dp))
             SnClaimRelayClaimed(
                 status = status,
-                formatAlpha = formatAlpha,
                 shortSs58 = shortSs58,
-                showsWhere = true,
                 txUrl = status.claimTxUrl,
             )
             SnClaimRelayAgainOn(status = status, centered = false)
@@ -333,19 +331,16 @@ private fun SnClaimRelayTransactionLink(url: String) {
 
 /**
  * The claimed state (the mocks' 4d): URnetwork's claim is the latest and
- * nothing is claimable now. Claimed with what it paid, where it landed, and
- * its transaction, as the sdk's claim status names them (ClaimAmountRao,
- * ColdkeySs58, ClaimTxUrl). The store has no sentence for the mocks' "Claimed
- * by URnetwork. … is on your key, …", so it is Claimed and the amount, then
- * the relay's own line of where SN25α lands.
+ * nothing is claimable now. The store's one sentence for it on every app,
+ * sn_claim_relay_claimed, "Claimed by URnetwork. … SN25α is on your key, …",
+ * from what the sdk's claim status names (ClaimAmountRao, ColdkeySs58), or
+ * Claimed alone without an amount or a key to name; then its transaction
+ * (ClaimTxUrl). The sentence names SN25α, so the amount carries no symbol.
  */
 @Composable
 private fun SnClaimRelayClaimed(
     status: SnClaimStatusState,
-    formatAlpha: (Long) -> String,
     shortSs58: (String) -> String,
-    // where it landed, where nothing above says it
-    showsWhere: Boolean,
     // URnetwork's transaction, where no row links it: "" for none
     txUrl: String,
 ) {
@@ -366,26 +361,20 @@ private fun SnClaimRelayClaimed(
         )
         Spacer(modifier = Modifier.width(8.dp))
         Column(modifier = Modifier.weight(1f)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
+            if (0 < status.claimAmountRao && status.coldkeySs58.isNotEmpty()) {
+                Text(
+                    stringResource(
+                        id = R.string.sn_claim_relay_claimed,
+                        EarningsFormat.alphaAmount(status.claimAmountRao),
+                        shortSs58(status.coldkeySs58),
+                    ),
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+            } else {
                 Text(
                     stringResource(id = R.string.claim_confirmed),
                     style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
                     color = Green,
-                )
-                if (0 < status.claimAmountRao) {
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        formatAlpha(status.claimAmountRao),
-                        style = MaterialTheme.typography.bodyMedium,
-                    )
-                }
-            }
-            if (showsWhere && status.coldkeySs58.isNotEmpty()) {
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    stringResource(id = R.string.sn_claim_relay_lands_on, shortSs58(status.coldkeySs58)),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = TextMuted,
                 )
             }
             if (txUrl.isNotEmpty()) {
@@ -514,15 +503,12 @@ fun ClaimRelayDialog(
                     SnClaimRelayRows(rows = rows, formatAlpha = formatAlpha, shortSs58 = shortSs58)
                 }
                 if (claimed) {
-                    // 4d: the claimed banner, under the line above that says
-                    // where SN25α lands, its transaction where no row links
-                    // it, then Done, and when Claim now is back
+                    // 4d: the claimed banner, its transaction where no row
+                    // links it, then Done, and when Claim now is back
                     Spacer(modifier = Modifier.height(12.dp))
                     SnClaimRelayClaimed(
                         status = status,
-                        formatAlpha = formatAlpha,
                         shortSs58 = shortSs58,
-                        showsWhere = false,
                         txUrl = if (rows.any { it.showsClaimed && it.claimTxUrl.isNotEmpty() }) "" else status.claimTxUrl,
                     )
                     Spacer(modifier = Modifier.height(16.dp))
