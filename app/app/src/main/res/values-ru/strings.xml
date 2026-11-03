@@ -102,6 +102,8 @@
     <string name="bittensor_error_user_rejected">Запрос отклонен в вашем кошельке. Начните заново и подтвердите его, чтобы продолжить.</string>
     <string name="bittensor_error_walletconnect_expired">Срок действия запроса WalletConnect истек до того, как кошелек ответил. Начните заново.</string>
     <string name="bittensor_error_walletconnect_unavailable">WalletConnect сейчас недоступен. Повторите попытку позже или введите адрес вручную.</string>
+    <string name="bittensor_funds_disclaimer">Этот ключ хранится локально в защищённом хранилище приложения. Он никогда не передаётся URnetwork. URnetwork не прикасается ни к каким средствам пользователей и не несёт за них ответственности.</string>
+    <string name="bittensor_funds_disclaimer_funds_only">URnetwork не прикасается ни к каким средствам пользователей и не несёт за них ответственности.</string>
     <string name="bittensor_manual_choice">Подписать вручную</string>
     <string name="bittensor_manual_no_popup">Окно кошелька здесь не откроется. Вы подписываете сообщение сами, а затем вставляете подпись ниже.</string>
     <string name="bittensor_manual_phone_route">Если ваш кошелек не может подписать вставленное сообщение, вернитесь и выберите WalletConnect (Nova и другие) или подпишите на ur.io/app/account/earnings в браузере на компьютере.</string>

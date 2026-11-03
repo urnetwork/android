@@ -102,6 +102,8 @@
     <string name="bittensor_error_user_rejected">คำขอถูกปฏิเสธในกระเป๋าเงินของคุณ เริ่มใหม่และอนุมัติคำขอเพื่อดำเนินการต่อ</string>
     <string name="bittensor_error_walletconnect_expired">คำขอ WalletConnect หมดอายุก่อนที่กระเป๋าเงินจะตอบกลับ เริ่มใหม่อีกครั้ง</string>
     <string name="bittensor_error_walletconnect_unavailable">WalletConnect ไม่พร้อมใช้งานในขณะนี้ ลองอีกครั้งในภายหลัง หรือป้อนที่อยู่ของคุณด้วยตนเอง</string>
+    <string name="bittensor_funds_disclaimer">คีย์นี้จัดเก็บไว้ในเครื่อง ในพื้นที่จัดเก็บที่ปลอดภัยของแอป คีย์นี้จะไม่ถูกแชร์กับ URnetwork เลย URnetwork ไม่แตะต้องและไม่รับผิดชอบต่อเงินใด ๆ ของผู้ใช้</string>
+    <string name="bittensor_funds_disclaimer_funds_only">URnetwork ไม่แตะต้องและไม่รับผิดชอบต่อเงินใด ๆ ของผู้ใช้</string>
     <string name="bittensor_manual_choice">ลงนามด้วยตนเอง</string>
     <string name="bittensor_manual_no_popup">จะไม่มีหน้าต่างกระเป๋าเงินเปิดขึ้นสำหรับขั้นตอนนี้ คุณต้องลงนามข้อความด้วยตนเอง แล้ววางลายเซ็นด้านล่าง</string>
     <string name="bittensor_manual_phone_route">หากกระเป๋าเงินของคุณลงนามข้อความที่วางไม่ได้ ให้ย้อนกลับแล้วเลือก WalletConnect (Nova และอื่น ๆ) หรือลงนามที่ ur.io/app/account/earnings ในเบราว์เซอร์บนคอมพิวเตอร์</string>

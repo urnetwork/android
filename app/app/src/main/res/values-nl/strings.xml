@@ -102,6 +102,8 @@
     <string name="bittensor_error_user_rejected">Het verzoek is geweigerd in je wallet. Begin opnieuw en keur het goed om door te gaan.</string>
     <string name="bittensor_error_walletconnect_expired">Het WalletConnect-verzoek is verlopen voordat de wallet antwoordde. Begin opnieuw.</string>
     <string name="bittensor_error_walletconnect_unavailable">WalletConnect is op dit moment niet beschikbaar. Probeer het later opnieuw of voer je adres handmatig in.</string>
+    <string name="bittensor_funds_disclaimer">Deze sleutel wordt lokaal opgeslagen in de beveiligde opslag van de app. Hij wordt nooit gedeeld met URnetwork. URnetwork raakt geen geld van gebruikers aan en is er niet verantwoordelijk voor.</string>
+    <string name="bittensor_funds_disclaimer_funds_only">URnetwork raakt geen geld van gebruikers aan en is er niet verantwoordelijk voor.</string>
     <string name="bittensor_manual_choice">Handmatig ondertekenen</string>
     <string name="bittensor_manual_no_popup">Hiervoor wordt geen walletvenster geopend. Je ondertekent het bericht zelf en plakt de handtekening hieronder.</string>
     <string name="bittensor_manual_phone_route">Kan je wallet geen geplakt bericht ondertekenen, ga dan terug en kies WalletConnect (Nova en andere), of onderteken op ur.io/app/account/earnings in de browser van een computer.</string>

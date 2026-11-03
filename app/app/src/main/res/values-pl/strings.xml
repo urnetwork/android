@@ -102,6 +102,8 @@
     <string name="bittensor_error_user_rejected">Żądanie zostało odrzucone w Twoim portfelu. Zacznij od nowa i zatwierdź je, aby kontynuować.</string>
     <string name="bittensor_error_walletconnect_expired">Żądanie WalletConnect wygasło, zanim portfel odpowiedział. Zacznij od nowa.</string>
     <string name="bittensor_error_walletconnect_unavailable">WalletConnect jest teraz niedostępny. Spróbuj ponownie później lub wprowadź adres ręcznie.</string>
+    <string name="bittensor_funds_disclaimer">Ten klucz jest przechowywany lokalnie w bezpiecznej pamięci aplikacji. Nigdy nie jest udostępniany URnetwork. URnetwork nie dotyka żadnych środków użytkowników i nie ponosi za nie odpowiedzialności.</string>
+    <string name="bittensor_funds_disclaimer_funds_only">URnetwork nie dotyka żadnych środków użytkowników i nie ponosi za nie odpowiedzialności.</string>
     <string name="bittensor_manual_choice">Podpisz ręcznie</string>
     <string name="bittensor_manual_no_popup">Okno portfela się tu nie otworzy. Podpisujesz wiadomość samodzielnie, a następnie wklejasz podpis poniżej.</string>
     <string name="bittensor_manual_phone_route">Jeśli Twój portfel nie może podpisać wklejonej wiadomości, wróć i wybierz WalletConnect (Nova i inne) albo podpisz na ur.io/app/account/earnings w przeglądarce na komputerze.</string>

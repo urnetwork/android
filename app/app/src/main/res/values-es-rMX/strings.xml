@@ -102,6 +102,8 @@
     <string name="bittensor_error_user_rejected">La solicitud se rechazó en tu cartera. Comienza de nuevo y apruébala para continuar.</string>
     <string name="bittensor_error_walletconnect_expired">La solicitud de WalletConnect venció antes de que respondiera la cartera. Comienza de nuevo.</string>
     <string name="bittensor_error_walletconnect_unavailable">WalletConnect no está disponible en este momento. Inténtalo de nuevo más tarde o ingresa tu dirección manualmente.</string>
+    <string name="bittensor_funds_disclaimer">Esta clave se guarda localmente en el almacenamiento seguro de la aplicación. Nunca se comparte con URnetwork. URnetwork no toca los fondos de los usuarios ni se hace responsable de ninguno de ellos.</string>
+    <string name="bittensor_funds_disclaimer_funds_only">URnetwork no toca los fondos de los usuarios ni se hace responsable de ninguno de ellos.</string>
     <string name="bittensor_manual_choice">Firmar manualmente</string>
     <string name="bittensor_manual_no_popup">Aquí no se abre ninguna ventana de cartera. Tú firmas el mensaje y luego pegas la firma abajo.</string>
     <string name="bittensor_manual_phone_route">Si tu cartera no puede firmar un mensaje pegado, regresa y elige WalletConnect (Nova y otras), o firma en ur.io/app/account/earnings en el navegador de una computadora.</string>
