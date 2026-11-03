@@ -71,6 +71,7 @@ import com.bringyour.network.ui.login.launchBittensorBridge
 import com.bringyour.network.ui.stats.ThroughputViewModel
 import com.bringyour.network.ui.shared.viewmodels.OverlayViewModel
 import com.bringyour.network.ui.stats.ProviderStatsSection
+import com.bringyour.network.ui.stats.ProviderStatusViewModel
 import com.bringyour.network.ui.theme.Amber
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.BlueMedium
@@ -147,6 +148,8 @@ fun EarningsScreen(
 
     // the legacy USDC payout wallet (Solana), connected from the wallet overflow
     val solanaWalletViewModel: SolanaWalletViewModel = hiltViewModel()
+    // the same instance as the provider statistics' below: one nav entry, one store
+    val providerStatusViewModel: ProviderStatusViewModel = hiltViewModel()
     val legacy by solanaWalletViewModel.legacy.collectAsState()
     val legacyLoaded by solanaWalletViewModel.legacyLoaded.collectAsState()
     val solanaState by solanaWalletViewModel.connectState.collectAsState()
@@ -211,6 +214,7 @@ fun EarningsScreen(
             fetchAccountPoints()
             earningsViewModel.refresh()
             solanaWalletViewModel.refresh()
+            providerStatusViewModel.refresh()
         },
         totalAccountPoints = totalAccountPoints,
         payoutPoints = payoutPoints,

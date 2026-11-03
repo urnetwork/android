@@ -176,6 +176,12 @@ data class ProviderStatusDisplay(
      * the expandable "Why?" with the ranking numbers
      */
     val why: Boolean,
+    /**
+     * the unavailable chart offers a retry: asking again can change the answer.
+     * Not for a device that isn't among the network's provider clients, which
+     * stays so for minutes whatever the app asks.
+     */
+    val retry: Boolean = false,
 )
 
 /**
@@ -187,10 +193,12 @@ fun providerStatusDisplay(status: ProviderStatusUi): ProviderStatusDisplay {
     return when {
         !status.loaded && status.lastFetchError.isEmpty() ->
             ProviderStatusDisplay(ProviderDemandState.LOADING, why = false)
-        !status.loaded || !status.hasStatus ->
+        !status.loaded ->
+            ProviderStatusDisplay(ProviderDemandState.UNAVAILABLE, why = false, retry = true)
+        !status.hasStatus ->
             ProviderStatusDisplay(ProviderDemandState.UNAVAILABLE, why = false)
         !status.hasAppearances ->
-            ProviderStatusDisplay(ProviderDemandState.UNAVAILABLE, why = true)
+            ProviderStatusDisplay(ProviderDemandState.UNAVAILABLE, why = true, retry = true)
         status.appearancesPerMinute.all { it <= 0L } ->
             ProviderStatusDisplay(ProviderDemandState.EMPTY, why = true)
         else ->

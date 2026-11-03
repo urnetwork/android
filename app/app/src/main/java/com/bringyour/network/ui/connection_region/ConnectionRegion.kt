@@ -115,18 +115,29 @@ class ConnectionRegionModel(
 
 private val httpStatusPrefix = Regex("^\\d{3} ")
 
+// an api call that no route answered fails as "http request attempts exhausted"
+// (connect HttpRequestExhaustedError), whose text names none of its causes; the
+// rest are Go's net, tls and http errors and the platform's own
 private val unreachableMarkers = listOf(
+    "http request attempts exhausted",
+    "http request failed",
     "no such host",
+    "server misbehaving",
     "dial tcp",
     "dial udp",
     "i/o timeout",
     "connection refused",
     "connection reset",
     "network is unreachable",
+    "host is unreachable",
     "no route to host",
     "context deadline exceeded",
     "tls handshake",
-    "http request failed",
+    "tls: ",
+    "x509: ",
+    "timeout awaiting response headers",
+    "unexpected eof",
+    ": eof",
     "unable to resolve host",
     "failed to connect",
 )

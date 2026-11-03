@@ -133,6 +133,26 @@ class ConnectionRegionTest {
         assertTrue(isUrnetworkUnreachable(Exception("dial tcp 1.2.3.4:443: connect: network is unreachable")))
     }
 
+    // an api call that no route answered fails with this text, which names none
+    // of its causes (connect HttpRequestExhaustedError): what a mainland China
+    // sign-in reports when the default DoH servers are blocked
+    @Test
+    fun attemptsExhaustedIsUnreachable() {
+        assertTrue(isUrnetworkUnreachable(Exception("http request attempts exhausted")))
+    }
+
+    // the other texts Go's http and tls clients give for a failed round trip,
+    // which Windows and Linux already treat as can't-reach
+    @Test
+    fun goTransportFailuresAreUnreachable() {
+        assertTrue(isUrnetworkUnreachable(Exception("lookup api.bringyour.com: server misbehaving")))
+        assertTrue(isUrnetworkUnreachable(Exception("connect: host is unreachable")))
+        assertTrue(isUrnetworkUnreachable(Exception("net/http: timeout awaiting response headers")))
+        assertTrue(isUrnetworkUnreachable(Exception("Post \"https://api.bringyour.com/auth/login\": EOF")))
+        assertTrue(isUrnetworkUnreachable(Exception("Post \"https://api.bringyour.com/auth/login\": unexpected EOF")))
+        assertTrue(isUrnetworkUnreachable(Exception("tls: failed to verify certificate: x509: certificate signed by unknown authority")))
+    }
+
     @Test
     fun authAndValidationErrorsAreNotUnreachable() {
         assertFalse(isUrnetworkUnreachable(null))
@@ -143,6 +163,8 @@ class ConnectionRegionTest {
         // a status error whose body mentions a timeout is still a reached platform
         assertFalse(isUrnetworkUnreachable(Exception("503 Service Unavailable: upstream i/o timeout")))
         assertFalse(isUrnetworkUnreachable(Exception("Invalid user auth")))
+        // a status answer about attempts is still a reached platform
+        assertFalse(isUrnetworkUnreachable(Exception("429 Too Many Requests: http request attempts exhausted")))
     }
 
     @Test
