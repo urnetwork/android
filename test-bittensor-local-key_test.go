@@ -538,20 +538,61 @@ func TestBittensorKeyClaimsThroughTheRelay(t *testing.T) {
 	if !strings.Contains(tile, "if (claimStatus == null || !claimStatus.showsTile) {") || strings.Contains(tile, "pendingRao") {
 		t.Error("the tile's rule is not the sdk's ShowsTile")
 	}
-	// the claimed state, with URnetwork's transaction (ShowsClaimed, ClaimTxUrl)
+	// the claimed state (4d) as the sdk names it: what URnetwork's claim paid
+	// (ClaimAmountRao), the coldkey it landed on (ColdkeySs58), its transaction
+	// (ClaimTxUrl), when Claim now is back (ClaimNowNextAtMillis), and each
+	// account's (SnClaimRelayAccount)
 	bittensorKeyContainsAll(t, "the sdk source", sdk,
 		"showsTile = result.showsTile,",
 		"showsClaimed = result.showsClaimed,",
 		"claimTxHash = result.claimTxHash,",
 		"claimTxUrl = result.claimTxUrl,",
 		"claimAmountRao = result.claimAmountRao,",
+		"accounts = snClaimRelayAccountsOf(result.accounts),",
+		"claimTxHash = a.claimTxHash,",
+		"claimTxUrl = a.claimTxUrl,",
+		"claimAmountRao = a.claimAmountRao,",
 	)
-	bittensorKeyContainsAll(t, "the claim dialog", relay,
-		"if (status.showsClaimed) {",
+	bittensorKeyContainsAll(t, "the claim dialog", bittensorKeyBlock(t, relay, "fun ClaimRelayDialog("),
+		"val claimed = status != null && !status.unavailable && status.showsClaimed",
+		"val rows = snClaimRelayRows(status)",
+		"SnClaimRelayRows(rows = rows, formatAlpha = formatAlpha, shortSs58 = shortSs58)",
+		`txUrl = if (rows.any { it.showsClaimed && it.claimTxUrl.isNotEmpty() }) "" else status.claimTxUrl,`,
+		"R.string.done",
+		"SnClaimRelayAgainOn(status = status, centered = true)",
+	)
+	bittensorKeyContainsAll(t, "the claimed banner", bittensorKeyBlock(t, relay, "private fun SnClaimRelayClaimed("),
 		"R.string.claim_confirmed",
-		"R.string.transaction",
-		"status.claimTxUrl.ifEmpty {",
+		"formatAlpha(status.claimAmountRao)",
+		"R.string.sn_claim_relay_lands_on, shortSs58(status.coldkeySs58)",
+		"SnClaimRelayTransactionLink(txUrl)",
 	)
+	bittensorKeyContainsAll(t, "the claim sheet's rows", bittensorKeyBlock(t, relay, "private fun SnClaimRelayRows("),
+		"if (row.showsClaimed) row.claimAmountRao else row.claimableRao",
+		"SnClaimRelayPill(stringResource(id = R.string.claim_confirmed), color = BlueMedium)",
+		"SnClaimRelayTransactionLink(row.claimTxUrl)",
+	)
+	bittensorKeyContainsAll(t, "the tile's claimed state", bittensorKeyBlock(t, relay, "fun SnClaimRelaySection("),
+		"if (!inDialog && status.showsClaimed) {",
+		"txUrl = status.claimTxUrl,",
+		"SnClaimRelayAgainOn(status = status, centered = false)",
+	)
+	bittensorKeyContainsAll(t, "when Claim now is back", bittensorKeyBlock(t, relay, "private fun SnClaimRelayAgainOn("),
+		"if (0 < status.claimNowNextAtMillis) {",
+		"R.string.sn_claim_relay_again_on",
+	)
+	rules := bittensorKeyCode(bittensorKeyWallet(t, "SnClaimRelay.kt"))
+	bittensorKeyContainsAll(t, "the claim relay's rules", rules,
+		// the tile speaks in the claimed state, where nothing is left to claim
+		"(relay.showsClaimed || relay.action != Sdk.SnClaimActionNone || 0 < relay.claimableRao)",
+		// a row reads Claimed by the rule the sdk's ShowsClaimed applies to the primary account
+		"get() = claimTxHash.isNotEmpty() && claimableRao <= 0",
+		"status.accounts.filter { 0 < it.claimableRao || it.showsClaimed }",
+	)
+	// the transaction's page is the sdk's (ClaimTxUrl), never one the screens make
+	if strings.Contains(relay, "explorerTxUrl") || strings.Contains(relay, "EXPLORER_TX_URL") {
+		t.Error("the claim relay's screens make their own explorer link")
+	}
 }
 
 // After the one tap the wallet card and the points card show the key on this

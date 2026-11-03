@@ -6,6 +6,7 @@ import com.bringyour.network.ui.leaderboard.protocolTopMeOf
 import com.bringyour.sdk.DeviceLocal
 import com.bringyour.sdk.Sdk
 import com.bringyour.sdk.SnClaimCallback
+import com.bringyour.sdk.SnClaimRelayAccountList
 import com.bringyour.sdk.SnClaimStatusResult
 import com.bringyour.sdk.SnError
 import com.bringyour.sdk.SnLedgerClaimCallback
@@ -60,8 +61,26 @@ class SdkProtocolSource private constructor(
             claimTxHash = result.claimTxHash,
             claimTxUrl = result.claimTxUrl,
             claimAmountRao = result.claimAmountRao,
+            accounts = snClaimRelayAccountsOf(result.accounts),
             unavailable = result.error != null,
         )
+
+        private fun snClaimRelayAccountsOf(list: SnClaimRelayAccountList?): List<SnClaimRelayAccountState> {
+            if (list == null) {
+                return emptyList()
+            }
+            return (0 until list.len()).map { i ->
+                val a = list.get(i)
+                SnClaimRelayAccountState(
+                    coldkeySs58 = a.coldkeySs58,
+                    noId = a.noId,
+                    claimableRao = a.claimableRao,
+                    claimTxHash = a.claimTxHash,
+                    claimTxUrl = a.claimTxUrl,
+                    claimAmountRao = a.claimAmountRao,
+                )
+            }
+        }
     }
 
     override val available: Boolean = true
