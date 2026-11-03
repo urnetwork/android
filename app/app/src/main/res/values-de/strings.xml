@@ -1219,6 +1219,7 @@
     <string name="sn_claim_relay_claim_now">Jetzt einlösen</string>
     <string name="sn_claim_relay_claim_now_paid">„Jetzt einlösen“ wird von URnetwork bezahlt, einmal alle %1$d Tage.</string>
     <string name="sn_claim_relay_claim_now_paid_each">Bezahlt von URnetwork, einmal alle %1$d Tage für jeden Coldkey.</string>
+    <string name="sn_claim_relay_claimed">Von URnetwork eingelöst. %1$s SN25α sind auf deinem Schlüssel %2$s.</string>
     <string name="sn_claim_relay_for_you">URnetwork löst das für dich ein</string>
     <string name="sn_claim_relay_lands_on">URnetwork löst das für dich ein. URnetwork zahlt das Gas, und dein SN25α landet auf %1$s.</string>
     <string name="sn_claim_relay_not_running">Automatische Einlösungen laufen gerade nicht.</string>

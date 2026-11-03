@@ -1219,6 +1219,7 @@
     <string name="sn_claim_relay_claim_now">Vyzvednout hned</string>
     <string name="sn_claim_relay_claim_now_paid">„Vyzvednout hned“ hradí URnetwork, jednou za %1$d dní.</string>
     <string name="sn_claim_relay_claim_now_paid_each">Hradí URnetwork, jednou za %1$d dní pro každý coldkey.</string>
+    <string name="sn_claim_relay_claimed">Vyzvednuto přes URnetwork. %1$s SN25α je na vašem klíči %2$s.</string>
     <string name="sn_claim_relay_for_you">URnetwork za vás odešle nárok</string>
     <string name="sn_claim_relay_lands_on">URnetwork za vás odešle nárok. Zaplatí gas a vaše SN25α přijde na %1$s.</string>
     <string name="sn_claim_relay_not_running">Automatické vyzvedávání teď neprobíhá.</string>

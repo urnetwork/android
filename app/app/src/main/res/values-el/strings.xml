@@ -1219,6 +1219,7 @@
     <string name="sn_claim_relay_claim_now">Διεκδίκηση τώρα</string>
     <string name="sn_claim_relay_claim_now_paid">Το «Διεκδίκηση τώρα» πληρώνεται από το URnetwork, μία φορά κάθε %1$d ημέρες.</string>
     <string name="sn_claim_relay_claim_now_paid_each">Πληρώνεται από το URnetwork, μία φορά κάθε %1$d ημέρες για κάθε coldkey.</string>
+    <string name="sn_claim_relay_claimed">Διεκδικήθηκε από το URnetwork. %1$s SN25α βρίσκονται στο κλειδί σας, %2$s.</string>
     <string name="sn_claim_relay_for_you">Το URnetwork το διεκδικεί για εσάς</string>
     <string name="sn_claim_relay_lands_on">Το URnetwork το διεκδικεί για εσάς. Πληρώνει το gas και τα SN25α σας καταλήγουν στη διεύθυνση %1$s.</string>
     <string name="sn_claim_relay_not_running">Οι αυτόματες διεκδικήσεις δεν λειτουργούν αυτή τη στιγμή.</string>

@@ -1219,6 +1219,7 @@
     <string name="sn_claim_relay_claim_now">Réclamer maintenant</string>
     <string name="sn_claim_relay_claim_now_paid">« Réclamer maintenant » est payé par URnetwork, une fois tous les %1$d jours.</string>
     <string name="sn_claim_relay_claim_now_paid_each">Payé par URnetwork, une fois tous les %1$d jours pour chaque coldkey.</string>
+    <string name="sn_claim_relay_claimed">Réclamé par URnetwork. %1$s SN25α sont sur votre clé, %2$s.</string>
     <string name="sn_claim_relay_for_you">URnetwork le réclame pour vous</string>
     <string name="sn_claim_relay_lands_on">URnetwork le réclame pour vous. Il paie le gas, et vos SN25α arrivent sur %1$s.</string>
     <string name="sn_claim_relay_not_running">Les réclamations automatiques ne fonctionnent pas pour le moment.</string>

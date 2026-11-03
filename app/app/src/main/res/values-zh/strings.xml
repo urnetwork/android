@@ -1219,6 +1219,7 @@
     <string name="sn_claim_relay_claim_now">立即领取</string>
     <string name="sn_claim_relay_claim_now_paid">“立即领取”由 URnetwork 支付费用，每 %1$d 天一次。</string>
     <string name="sn_claim_relay_claim_now_paid_each">由 URnetwork 支付费用，每个 coldkey 每 %1$d 天一次。</string>
+    <string name="sn_claim_relay_claimed">已由 URnetwork 领取。%1$s SN25α 已在您的密钥 %2$s 上。</string>
     <string name="sn_claim_relay_for_you">URnetwork 代您发起领取</string>
     <string name="sn_claim_relay_lands_on">URnetwork 代您发起领取。Gas 费由 URnetwork 支付，您的 SN25α 将存入 %1$s。</string>
     <string name="sn_claim_relay_not_running">自动领取目前未在运行。</string>

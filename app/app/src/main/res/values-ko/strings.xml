@@ -1219,6 +1219,7 @@
     <string name="sn_claim_relay_claim_now">지금 받기</string>
     <string name="sn_claim_relay_claim_now_paid">“지금 받기”는 URnetwork가 비용을 부담하며, %1$d일에 한 번 사용할 수 있습니다.</string>
     <string name="sn_claim_relay_claim_now_paid_each">URnetwork가 비용을 부담하며, coldkey마다 %1$d일에 한 번 사용할 수 있습니다.</string>
+    <string name="sn_claim_relay_claimed">URnetwork가 받았습니다. %1$s SN25α가 내 키 %2$s에 있습니다.</string>
     <string name="sn_claim_relay_for_you">URnetwork가 받기를 대신 처리합니다</string>
     <string name="sn_claim_relay_lands_on">URnetwork가 받기를 대신 처리합니다. 가스는 URnetwork가 지불하며, SN25α는 %1$s 주소로 들어옵니다.</string>
     <string name="sn_claim_relay_not_running">지금은 자동 받기가 실행되고 있지 않습니다.</string>

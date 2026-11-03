@@ -1219,6 +1219,7 @@
     <string name="sn_claim_relay_claim_now">अभी दावा करें</string>
     <string name="sn_claim_relay_claim_now_paid">“अभी दावा करें” का भुगतान URnetwork करता है, हर %1$d दिन में एक बार।</string>
     <string name="sn_claim_relay_claim_now_paid_each">भुगतान URnetwork करता है, हर coldkey के लिए हर %1$d दिन में एक बार।</string>
+    <string name="sn_claim_relay_claimed">URnetwork ने दावा किया। %1$s SN25α आपकी कुंजी %2$s पर है।</string>
     <string name="sn_claim_relay_for_you">URnetwork आपकी ओर से इसका दावा करता है</string>
     <string name="sn_claim_relay_lands_on">URnetwork आपकी ओर से इसका दावा करता है। वह गैस का भुगतान करता है, और आपका SN25α %1$s पर पहुँचता है।</string>
     <string name="sn_claim_relay_not_running">स्वचालित दावे अभी नहीं चल रहे हैं।</string>

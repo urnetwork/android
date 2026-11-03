@@ -1219,6 +1219,7 @@
     <string name="sn_claim_relay_claim_now">รับตอนนี้</string>
     <string name="sn_claim_relay_claim_now_paid">“รับตอนนี้” ออกค่าใช้จ่ายโดย URnetwork ใช้ได้ %1$d วันต่อครั้ง</string>
     <string name="sn_claim_relay_claim_now_paid_each">ออกค่าใช้จ่ายโดย URnetwork ใช้ได้ %1$d วันต่อครั้งสำหรับแต่ละ coldkey</string>
+    <string name="sn_claim_relay_claimed">URnetwork รับให้แล้ว %1$s SN25α อยู่ในคีย์ของคุณ %2$s</string>
     <string name="sn_claim_relay_for_you">URnetwork ดำเนินการรับให้คุณ</string>
     <string name="sn_claim_relay_lands_on">URnetwork ดำเนินการรับให้คุณ โดยเป็นผู้จ่ายค่า gas และ SN25α ของคุณจะเข้าสู่ %1$s</string>
     <string name="sn_claim_relay_not_running">ขณะนี้การรับอัตโนมัติไม่ได้ทำงาน</string>

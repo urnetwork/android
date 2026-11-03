@@ -1219,6 +1219,7 @@
     <string name="sn_claim_relay_claim_now">今すぐ受け取る</string>
     <string name="sn_claim_relay_claim_now_paid">「今すぐ受け取る」は URnetwork の負担で、%1$d 日に 1 回利用できます。</string>
     <string name="sn_claim_relay_claim_now_paid_each">URnetwork の負担で、coldkey ごとに %1$d 日に 1 回利用できます。</string>
+    <string name="sn_claim_relay_claimed">URnetwork が受け取りました。%1$s SN25α があなたのキー %2$s にあります。</string>
     <string name="sn_claim_relay_for_you">URnetwork が受け取りの手続きを代行します</string>
     <string name="sn_claim_relay_lands_on">URnetwork が受け取りの手続きを代行します。ガス代は URnetwork が支払い、SN25α は %1$s に届きます。</string>
     <string name="sn_claim_relay_not_running">現在、自動受け取りは行われていません。</string>

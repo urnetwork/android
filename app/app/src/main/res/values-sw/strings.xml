@@ -1219,6 +1219,7 @@
     <string name="sn_claim_relay_claim_now">Dai sasa</string>
     <string name="sn_claim_relay_claim_now_paid">“Dai sasa” linalipiwa na URnetwork, mara moja kila siku %1$d.</string>
     <string name="sn_claim_relay_claim_now_paid_each">Linalipiwa na URnetwork, mara moja kila siku %1$d kwa kila coldkey.</string>
+    <string name="sn_claim_relay_claimed">Imedaiwa na URnetwork. %1$s SN25α ziko kwenye ufunguo wako, %2$s.</string>
     <string name="sn_claim_relay_for_you">URnetwork inadai hili kwa niaba yako</string>
     <string name="sn_claim_relay_lands_on">URnetwork inadai hili kwa niaba yako. Inalipa gas, na SN25α yako inaingia kwenye %1$s.</string>
     <string name="sn_claim_relay_not_running">Madai ya kiotomatiki hayafanyi kazi kwa sasa.</string>

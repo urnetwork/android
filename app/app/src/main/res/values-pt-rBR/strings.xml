@@ -1219,6 +1219,7 @@
     <string name="sn_claim_relay_claim_now">Resgatar agora</string>
     <string name="sn_claim_relay_claim_now_paid">“Resgatar agora” é pago pelo URnetwork, uma vez a cada %1$d dias.</string>
     <string name="sn_claim_relay_claim_now_paid_each">Pago pelo URnetwork, uma vez a cada %1$d dias para cada coldkey.</string>
+    <string name="sn_claim_relay_claimed">Resgatado pelo URnetwork. %1$s SN25α estão na sua chave, %2$s.</string>
     <string name="sn_claim_relay_for_you">O URnetwork resgata isso para você</string>
     <string name="sn_claim_relay_lands_on">O URnetwork resgata isso para você. Ele paga o gás, e seu SN25α chega a %1$s.</string>
     <string name="sn_claim_relay_not_running">Os resgates automáticos não estão funcionando no momento.</string>

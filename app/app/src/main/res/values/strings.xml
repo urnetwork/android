@@ -1231,6 +1231,7 @@
     <string name="sn_claim_relay_claim_now">Claim now</string>
     <string name="sn_claim_relay_claim_now_paid">Claim now is paid by URnetwork, once every %1$d days.</string>
     <string name="sn_claim_relay_claim_now_paid_each">Paid by URnetwork, once every %1$d days for each coldkey.</string>
+    <string name="sn_claim_relay_claimed">Claimed by URnetwork. %1$s SN25α is on your key, %2$s.</string>
     <string name="sn_claim_relay_for_you">URnetwork claims this for you</string>
     <string name="sn_claim_relay_lands_on">URnetwork claims this for you. It pays the gas, and your SN25α lands on %1$s.</string>
     <string name="sn_claim_relay_not_running">Automatic claims aren\'t running right now.</string>

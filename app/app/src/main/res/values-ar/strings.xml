@@ -1219,6 +1219,7 @@
     <string name="sn_claim_relay_claim_now">المطالبة الآن</string>
     <string name="sn_claim_relay_claim_now_paid">«المطالبة الآن» على حساب URnetwork، مرة كل %1$d يومًا.</string>
     <string name="sn_claim_relay_claim_now_paid_each">على حساب URnetwork، مرة كل %1$d يومًا لكل coldkey.</string>
+    <string name="sn_claim_relay_claimed">تمت المطالبة بواسطة URnetwork. أصبح %1$s SN25α على مفتاحك، %2$s.</string>
     <string name="sn_claim_relay_for_you">يطالب URnetwork بهذا نيابةً عنك</string>
     <string name="sn_claim_relay_lands_on">يطالب URnetwork بهذا نيابةً عنك. يدفع رسوم الغاز، ويصل SN25α الخاص بك إلى %1$s.</string>
     <string name="sn_claim_relay_not_running">المطالبات التلقائية لا تعمل حاليًا.</string>
