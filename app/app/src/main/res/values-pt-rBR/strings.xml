@@ -666,7 +666,7 @@
     <string name="includes_free_trial_days">Inclui teste grátis de %1$d dias</string>
     <string name="instant_account_no_email_password">Sem e-mail nem senha. Sua conta é protegida por uma frase-semente.</string>
     <string name="insufficient_balance">Saldo insuficiente</string>
-    <string name="insufficient_balance_disconnect_first">Para fazer upgrade, escolha primeiro \"Desconectar\". Até lá, o pagamento não será concluído.</string>
+    <string name="insufficient_balance_disconnect_first_kill_switch">Para fazer upgrade, escolha primeiro \"Desconectar\" e desative o Kill switch se estiver ativado. Até lá, o pagamento não será concluído.</string>
     <string name="insufficient_balance_exhausted">Seus dados acabaram até a renovação grátis ou um upgrade.</string>
     <string name="insufficient_balance_held_notice">Seu tráfego fica retido no túnel até você fazer upgrade ou desconectar.</string>
     <string name="insufficient_balance_reconnecting">Há dados disponíveis novamente. Reconectando…</string>

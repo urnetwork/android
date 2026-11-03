@@ -666,7 +666,7 @@
     <string name="includes_free_trial_days">Inajumuisha jaribio la bila malipo la siku %1$d</string>
     <string name="instant_account_no_email_password">Hakuna haja ya barua pepe au nenosiri. Akaunti yako inalindwa na seedphrase.</string>
     <string name="insufficient_balance">Salio halitoshi</string>
-    <string name="insufficient_balance_disconnect_first">Ili kupandisha kiwango, chagua kwanza \"Tenganisha\". Malipo hayawezi kukamilika kabla ya hapo.</string>
+    <string name="insufficient_balance_disconnect_first_kill_switch">Ili kupandisha kiwango, chagua kwanza \"Tenganisha\" na uzime Kill switch ikiwa imewashwa. Malipo hayawezi kukamilika kabla ya hapo.</string>
     <string name="insufficient_balance_exhausted">Data yako imeisha hadi usasishaji wa bure au hadi upandishe kiwango.</string>
     <string name="insufficient_balance_held_notice">Trafiki yako imeshikiliwa ndani ya handaki hadi upandishe kiwango au utenganishe.</string>
     <string name="insufficient_balance_reconnecting">Data inapatikana tena. Inaunganisha upya…</string>

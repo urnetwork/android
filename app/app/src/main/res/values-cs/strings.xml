@@ -666,7 +666,7 @@
     <string name="includes_free_trial_days">Zahrnuje %1$ddenní zkušební období zdarma</string>
     <string name="instant_account_no_email_password">Není potřeba e-mail ani heslo. Váš účet je zabezpečen seedphrase.</string>
     <string name="insufficient_balance">Nedostatečný zůstatek</string>
-    <string name="insufficient_balance_disconnect_first">Pro přechod na vyšší tarif nejprve zvolte „Odpojení“. Do té doby platba neprojde.</string>
+    <string name="insufficient_balance_disconnect_first_kill_switch">Pro přechod na vyšší tarif nejprve zvolte „Odpojení“ a vypněte Kill switch, pokud je zapnutý. Do té doby platba neprojde.</string>
     <string name="insufficient_balance_exhausted">Došla vám data až do bezplatného obnovení nebo přechodu na vyšší tarif.</string>
     <string name="insufficient_balance_held_notice">Váš provoz zůstává zadržen v tunelu, dokud nepřejdete na vyšší tarif nebo se neodpojíte.</string>
     <string name="insufficient_balance_reconnecting">Data jsou opět k dispozici. Znovu se připojuje…</string>

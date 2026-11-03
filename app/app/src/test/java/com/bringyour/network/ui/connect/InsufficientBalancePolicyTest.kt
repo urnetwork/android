@@ -952,7 +952,7 @@ class InsufficientBalancePolicyTest {
         val actions = mainSource("ui/connect/ConnectActions.kt")
         assertTrue(actions.contains("checkoutRidesTunnel = PLAN_CHECKOUT_RIDES_TUNNEL,"))
         assertTrue(actions.contains("if (outOfBalanceNotice.disconnectFirst) {"))
-        assertTrue(actions.contains("stringResource(id = R.string.insufficient_balance_disconnect_first)"))
+        assertTrue(actions.contains("stringResource(id = R.string.insufficient_balance_disconnect_first_kill_switch)"))
         assertTrue(actions.contains("acceptance.insufficient_balance_disconnect_first"))
         assertTrue(actions.contains("if (actionButtons.disconnect) {\n                    disconnectButton(Modifier.weight(1f))"))
         val model = mainSource("ui/connect/ConnectViewModel.kt")

@@ -553,11 +553,13 @@ internal fun ConnectActionNotices(
         }
 
         // this flavor's checkout goes through the tunnel, so paying has to wait for
-        // the Disconnect above, which nothing presses for the user
+        // the Disconnect above, which nothing presses for the user. A kill switch
+        // that is on keeps the VPN service up after it (vpnServiceRequired), so the
+        // line names that too
         if (outOfBalanceNotice.disconnectFirst) {
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                stringResource(id = R.string.insufficient_balance_disconnect_first),
+                stringResource(id = R.string.insufficient_balance_disconnect_first_kill_switch),
                 style = MaterialTheme.typography.bodyMedium,
                 color = TextMuted,
                 modifier = Modifier

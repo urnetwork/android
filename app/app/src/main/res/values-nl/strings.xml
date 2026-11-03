@@ -666,7 +666,7 @@
     <string name="includes_free_trial_days">Inclusief gratis proefperiode van %1$d dagen</string>
     <string name="instant_account_no_email_password">Geen e-mail of wachtwoord nodig. Je account wordt beveiligd met een seedphrase.</string>
     <string name="insufficient_balance">Onvoldoende saldo</string>
-    <string name="insufficient_balance_disconnect_first">Kies eerst ‘Verbinding verbreken’ om te upgraden. Tot die tijd kan de betaling niet doorgaan.</string>
+    <string name="insufficient_balance_disconnect_first_kill_switch">Kies eerst ‘Verbinding verbreken’ om te upgraden en zet de Kill switch uit als die aan staat. Tot die tijd kan de betaling niet doorgaan.</string>
     <string name="insufficient_balance_exhausted">Je data is op tot de gratis vernieuwing of een upgrade.</string>
     <string name="insufficient_balance_held_notice">Je verkeer wordt in de tunnel vastgehouden totdat je upgradet of de verbinding verbreekt.</string>
     <string name="insufficient_balance_reconnecting">Er is weer data beschikbaar. Opnieuw verbinden…</string>
