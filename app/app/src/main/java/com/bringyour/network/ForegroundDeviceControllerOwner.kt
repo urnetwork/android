@@ -115,6 +115,14 @@ internal class VisibleDeviceControllerOwner<D : Any, C : Any>(
         reconcile()
     }
 
+    /**
+     * Runs [action] on the controller while it is started. A stopped or unopened
+     * one has nothing to do: the next showing starts it, which polls at once.
+     */
+    fun ifStarted(action: (C) -> Unit) {
+        startedController?.let(action)
+    }
+
     /** Closes the controller and forgets the device, when the owner itself ends. */
     fun close() {
         foreground = false

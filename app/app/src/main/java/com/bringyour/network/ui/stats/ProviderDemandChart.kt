@@ -101,6 +101,7 @@ fun ProviderStatusLineRow(
 @Composable
 fun ProviderDemandChart(
     status: ProviderStatusUi,
+    onRetry: () -> Unit,
 ) {
     val display = providerStatusDisplay(status)
     val histogram = remember(status.appearancesPerMinute) {
@@ -157,9 +158,21 @@ fun ProviderDemandChart(
         ) {
             when (display.demand) {
                 ProviderDemandState.LOADING -> DemandChartNote(stringResource(id = R.string.loading))
-                ProviderDemandState.UNAVAILABLE -> DemandChartNote(
-                    stringResource(id = R.string.provider_status_unavailable)
-                )
+                ProviderDemandState.UNAVAILABLE -> Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    DemandChartNote(stringResource(id = R.string.provider_status_unavailable))
+                    if (display.retry) {
+                        Text(
+                            stringResource(id = R.string.retry),
+                            style = MaterialTheme.typography.bodySmall,
+                            fontWeight = FontWeight.Medium,
+                            modifier = Modifier
+                                .clickable(onClick = onRetry)
+                                .padding(horizontal = 8.dp, vertical = 4.dp)
+                        )
+                    }
+                }
                 ProviderDemandState.EMPTY, ProviderDemandState.BARS -> {
                     Canvas(
                         modifier = Modifier

@@ -172,6 +172,27 @@ class ProviderStatusPresentationTest {
         )
     }
 
+    // the chart's unavailable state offers a retry only where asking again can
+    // change the answer: a failed poll, or a status the server could not read a
+    // histogram for. A device that isn't among the network's providers stays that
+    // way for minutes, whatever the app asks
+    @Test
+    fun theUnavailableChartOffersARetryWhereAskingAgainCanHelp() {
+        val failedPoll = ProviderStatusUi.Empty.copy(lastFetchError = "503 Cached response is temporarily unavailable.")
+        assertEquals(ProviderDemandState.UNAVAILABLE, providerStatusDisplay(failedPoll).demand)
+        assertTrue(providerStatusDisplay(failedPoll).retry)
+
+        val noHistogram = ProviderStatusUi.Empty.copy(loaded = true, hasStatus = true, hasAppearances = false)
+        assertEquals(ProviderDemandState.UNAVAILABLE, providerStatusDisplay(noHistogram).demand)
+        assertTrue(providerStatusDisplay(noHistogram).retry)
+
+        val notAProvider = ProviderStatusUi.Empty.copy(loaded = true, hasStatus = false)
+        assertEquals(ProviderDemandState.UNAVAILABLE, providerStatusDisplay(notAProvider).demand)
+        assertFalse(providerStatusDisplay(notAProvider).retry)
+
+        assertFalse(providerStatusDisplay(ProviderStatusUi.Empty).retry)
+    }
+
     @Test
     fun everyServerReasonCodeHasItsKey() {
         val keys = mapOf(
