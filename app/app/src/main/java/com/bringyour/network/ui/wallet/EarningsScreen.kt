@@ -1021,7 +1021,7 @@ private fun UnclaimedTile(
 
         if (claimsError != null) {
             Text(
-                stringResource(id = R.string.chain_rpc_unreachable),
+                claimsReadFailureText(claimsError),
                 style = MaterialTheme.typography.bodyMedium,
                 color = Red
             )
