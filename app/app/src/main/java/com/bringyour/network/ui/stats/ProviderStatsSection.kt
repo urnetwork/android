@@ -154,6 +154,7 @@ fun ProviderStatsSection(
 
             ProviderDemandChart(
                 status = providerStatusViewModel.status,
+                onRetry = providerStatusViewModel::refresh,
             )
 
         } else {

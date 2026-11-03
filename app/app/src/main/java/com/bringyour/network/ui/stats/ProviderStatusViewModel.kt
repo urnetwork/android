@@ -86,6 +86,15 @@ class ProviderStatusViewModel @Inject constructor(
         controllerOwner.setVisible(visible)
     }
 
+    /**
+     * Asks for the status now, as the Earnings refresh and the chart's retry do:
+     * the controller otherwise waits for its next poll. Hidden, it is stopped and
+     * nothing is asked.
+     */
+    fun refresh() {
+        controllerOwner.ifStarted { it.refresh() }
+    }
+
     /** Opens the device's controller and follows its polls. */
     private fun openProviderStatus(device: DeviceLocal): ProviderStatusViewController {
         val vc = device.openProviderStatusViewController()

@@ -58,6 +58,27 @@ class VisibleDeviceControllerOwnerTest {
         assertEquals(listOf("open:device", "start:controller-device"), events)
     }
 
+    // a refresh asks a running controller; a stopped or unopened one has nothing to do
+    @Test
+    fun ifStartedRunsOnlyOnAStartedController() {
+        val owner = owner()
+        owner.setDevice("device")
+        owner.setForeground(true)
+        owner.setEnabled(true)
+        val asked = mutableListOf<String>()
+
+        owner.ifStarted { asked.add(it) }
+        assertEquals(listOf<String>(), asked)
+
+        owner.setVisible(true)
+        owner.ifStarted { asked.add(it) }
+        assertEquals(listOf("controller-device"), asked)
+
+        owner.setVisible(false)
+        owner.ifStarted { asked.add(it) }
+        assertEquals(listOf("controller-device"), asked)
+    }
+
     @Test
     fun aHiddenScreenStopsWithoutClosing() {
         val owner = shownOwner()
