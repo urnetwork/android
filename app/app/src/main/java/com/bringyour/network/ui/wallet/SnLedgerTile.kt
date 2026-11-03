@@ -35,6 +35,7 @@ import com.bringyour.network.ui.theme.TextFaint
 import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.URNetworkTheme
 import com.bringyour.network.ui.theme.gravityCondensedFamily
+import com.bringyour.network.utils.Ss58
 import com.bringyour.sdk.Sdk
 
 /**
@@ -42,10 +43,11 @@ import com.bringyour.sdk.Sdk
  * first, then Paid, Earned and what a pending root adds; "Unavailable" when
  * the ledger cannot be read, never zero; Claim once vault2 is configured.
  * URnetwork's claim relay claims it for every consented network: while the
- * relay has something to say (`relay`), who claims and why a balance waits
- * take the Claim's place, and for a network with no wallet on this device the
- * tile shows what the relay says is claimable. The first claim tile on
- * Earnings carries the claim card's disclaimer.
+ * relay has something to say (`relay`), who claims and why a balance waits,
+ * or what URnetwork's claim paid and where, take the Claim's place, and for a
+ * network with no wallet on this device the tile shows what the relay says is
+ * claimable. The first claim tile on Earnings carries the claim card's
+ * disclaimer.
  */
 @Composable
 fun SnLedgerTileBlock(
@@ -53,6 +55,8 @@ fun SnLedgerTileBlock(
     onClaim: () -> Unit,
     formatAlpha: (Long) -> String,
     relay: SnClaimStatusState? = null,
+    // the relay's claimed state names the coldkey its claim paid
+    shortSs58: (String) -> String = { Ss58.short(it) },
     // Claim now's dialog
     onClaimNow: () -> Unit = {},
     // the device's own claim, with its gas key
@@ -135,7 +139,14 @@ fun SnLedgerTileBlock(
 
         if (relay != null && snClaimRelaySpeaks(relay)) {
             Spacer(modifier = Modifier.height(16.dp))
-            SnClaimRelaySection(status = relay, onClaimNow = onClaimNow, onSelfClaim = onSelfClaim, inDialog = false)
+            SnClaimRelaySection(
+                status = relay,
+                onClaimNow = onClaimNow,
+                onSelfClaim = onSelfClaim,
+                formatAlpha = formatAlpha,
+                shortSs58 = shortSs58,
+                inDialog = false,
+            )
         } else if (tile.showClaim) {
             Spacer(modifier = Modifier.height(16.dp))
             URButton(onClick = onClaim, enabled = tile.claimEnabled) { buttonTextStyle ->

@@ -51,6 +51,9 @@ data class SnClaimStatusState(
     val claimTxHash: String = "",
     val claimTxUrl: String = "",
     val claimAmountRao: Long = 0,
+    // each of the network's accounts, including a wallet's it replaced, whose
+    // balance URnetwork keeps claiming
+    val accounts: List<SnClaimRelayAccountState> = emptyList(),
     // the balances could not be read: unavailable, never zero
     val unavailable: Boolean = false,
 ) {
@@ -61,6 +64,38 @@ data class SnClaimStatusState(
     val relayClaims: Boolean
         get() = reason != Sdk.SnClaimReasonRelayNotRunning && reason != Sdk.SnClaimReasonRelayPaused
 }
+
+/**
+ * One of the network's accounts in the operator's pool, as the relay sees it
+ * (sdk SnClaimRelayAccount). Amounts are rao of SN25α.
+ */
+data class SnClaimRelayAccountState(
+    val coldkeySs58: String = "",
+    val noId: Long = 0,
+    val claimableRao: Long = 0,
+    // the account's latest claim when URnetwork sent it: the transaction, the
+    // explorer's page of it ("" without one) and what it paid; "" and 0 for a
+    // claim anyone else sent, or none
+    val claimTxHash: String = "",
+    val claimTxUrl: String = "",
+    val claimAmountRao: Long = 0,
+) {
+    /**
+     * The claim sheet's row reads Claimed, with what URnetwork's claim paid
+     * and its transaction: that claim is the latest and nothing is claimable
+     * since. The sdk's ShowsClaimed rule, which it decides for the primary
+     * account only, applied to each row.
+     */
+    val showsClaimed: Boolean
+        get() = claimTxHash.isNotEmpty() && claimableRao <= 0
+}
+
+/**
+ * The claim sheet's rows: each account with something to claim, Pending, and
+ * each URnetwork claimed with nothing claimable since, Claimed.
+ */
+fun snClaimRelayRows(status: SnClaimStatusState): List<SnClaimRelayAccountState> =
+    status.accounts.filter { 0 < it.claimableRao || it.showsClaimed }
 
 /** The answer to a Claim now tap (sdk SnClaimNowResult). */
 sealed class SnClaimNowOutcome {
@@ -95,6 +130,10 @@ fun snLedgerTileWithRelay(hasWallet: Boolean, ledgerTile: SnLedgerTile?, claimSt
     )
 }
 
-/** The tile says who claims and why, in place of its own Claim: the relay answered and has something to say. */
+/**
+ * The tile says who claims and why, in place of its own Claim: the relay
+ * answered and has something to say, a balance to claim or URnetwork's claim.
+ */
 fun snClaimRelaySpeaks(relay: SnClaimStatusState?): Boolean =
-    relay != null && !relay.unavailable && (relay.action != Sdk.SnClaimActionNone || 0 < relay.claimableRao)
+    relay != null && !relay.unavailable &&
+        (relay.showsClaimed || relay.action != Sdk.SnClaimActionNone || 0 < relay.claimableRao)

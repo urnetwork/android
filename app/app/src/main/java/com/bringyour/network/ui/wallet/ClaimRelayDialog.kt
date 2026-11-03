@@ -16,7 +16,9 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -31,6 +33,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
@@ -53,21 +56,30 @@ import java.time.format.FormatStyle
  * The claim relay on Earnings (the mocks' flow 4): under the Settlement v2
  * tile's balances, who claims and why a balance is still pending, Claim now
  * with its limit, or, while the relay isn't claiming, the device's own claim
- * with its gas key; and the claim dialog Claim now opens. The sdk's claim
- * status decides every line here (SnClaimStatus); these only word it.
+ * with its gas key; once URnetwork has claimed it, what its claim paid, where
+ * it landed and its transaction (4d); and the claim dialog Claim now opens.
+ * The sdk's claim status decides every line here (SnClaimStatus); these only
+ * word it.
  */
 
 const val EARNINGS_CLAIM_RELAY_CLAIM_NOW_TAG = "earnings-claim-relay-claim-now"
 const val EARNINGS_CLAIM_RELAY_SELF_CLAIM_TAG = "earnings-claim-relay-self-claim"
 const val EARNINGS_CLAIM_RELAY_CLAIMED_TAG = "earnings-claim-relay-claimed"
+const val EARNINGS_CLAIM_RELAY_TRANSACTION_TAG = "earnings-claim-relay-transaction"
 
-/** Who claims, why the balance is still pending, and on the tile Claim now, or the device's own claim while the relay isn't claiming. */
+/**
+ * Who claims, why the balance is still pending, and on the tile Claim now, or
+ * the device's own claim while the relay isn't claiming, or once URnetwork
+ * has claimed it, the claimed state.
+ */
 @Composable
 fun SnClaimRelaySection(
     status: SnClaimStatusState,
     onClaimNow: () -> Unit,
     onSelfClaim: () -> Unit,
-    // in the claim dialog, which has its own Claim now
+    formatAlpha: (Long) -> String,
+    shortSs58: (String) -> String,
+    // in the claim dialog, which has its own Claim now and claimed state
     inDialog: Boolean,
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
@@ -86,10 +98,34 @@ fun SnClaimRelaySection(
                 )
             }
         }
+        if (!inDialog && status.showsClaimed) {
+            // nothing is left to claim: what URnetwork's claim paid, where it
+            // landed, its transaction, and when Claim now is back
+            Spacer(modifier = Modifier.height(12.dp))
+            SnClaimRelayClaimed(
+                status = status,
+                formatAlpha = formatAlpha,
+                shortSs58 = shortSs58,
+                showsWhere = true,
+                txUrl = status.claimTxUrl,
+            )
+            SnClaimRelayAgainOn(status = status, centered = false)
+            return@Column
+        }
         if (0 < status.claimableRao) {
             Spacer(modifier = Modifier.height(8.dp))
             Row(verticalAlignment = Alignment.Top) {
-                SnClaimRelayPill(stringResource(id = R.string.pending_data_key))
+                if (inDialog) {
+                    // the dialog's rows carry the Pending pill
+                    Icon(
+                        Icons.Filled.Schedule,
+                        contentDescription = null,
+                        tint = TextMuted,
+                        modifier = Modifier.size(16.dp),
+                    )
+                } else {
+                    SnClaimRelayPill(stringResource(id = R.string.pending_data_key))
+                }
                 Spacer(modifier = Modifier.width(8.dp))
                 SnClaimRelayReason(status = status, modifier = Modifier.weight(1f))
             }
@@ -195,6 +231,17 @@ fun SnClaimNowNote(status: SnClaimStatusState, eachColdkey: Boolean) {
     text?.let { SnClaimRelayNote(it) }
 }
 
+/** In the claimed state: the day Claim now is available again, while its limit holds. */
+@Composable
+private fun SnClaimRelayAgainOn(status: SnClaimStatusState, centered: Boolean) {
+    if (0 < status.claimNowNextAtMillis) {
+        SnClaimRelayNote(
+            stringResource(id = R.string.sn_claim_relay_again_on, snClaimNowDate(status.claimNowNextAtMillis)),
+            centered = centered,
+        )
+    }
+}
+
 /** The day Claim now is available again, in the reader's own form. */
 @Composable
 private fun snClaimNowDate(millis: Long): String {
@@ -206,13 +253,23 @@ private fun snClaimNowDate(millis: Long): String {
 }
 
 @Composable
-private fun SnClaimRelayNote(text: String) {
+private fun SnClaimRelayNote(text: String, centered: Boolean = false) {
     Spacer(modifier = Modifier.height(8.dp))
-    Text(
-        text,
-        style = MaterialTheme.typography.bodySmall,
-        color = TextMuted,
-    )
+    if (centered) {
+        Text(
+            text,
+            modifier = Modifier.fillMaxWidth(),
+            style = MaterialTheme.typography.bodySmall,
+            color = TextMuted,
+            textAlign = TextAlign.Center,
+        )
+    } else {
+        Text(
+            text,
+            style = MaterialTheme.typography.bodySmall,
+            color = TextMuted,
+        )
+    }
 }
 
 @Composable
@@ -233,30 +290,65 @@ private fun SnClaimRelayReasonDetail(text: String) {
     )
 }
 
+// Pending in grey, Claimed in blue, as the mocks' pills
 @Composable
-private fun SnClaimRelayPill(text: String) {
+private fun SnClaimRelayPill(text: String, color: Color = TextMuted) {
     Text(
         text,
         modifier = Modifier
-            .background(TextMuted.copy(alpha = 0.2f), RoundedCornerShape(50))
+            .background(color.copy(alpha = 0.2f), RoundedCornerShape(50))
             .padding(horizontal = 8.dp, vertical = 2.dp),
         style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold),
+        color = if (color == TextMuted) Color.Unspecified else color,
     )
+}
+
+/** The explorer's page of a claim's transaction, as the sdk names it. */
+@Composable
+private fun SnClaimRelayTransactionLink(url: String) {
+    val context = LocalContext.current
+    Row(
+        modifier = Modifier
+            .clickable {
+                runCatching { context.startActivity(Intent(Intent.ACTION_VIEW, url.toUri())) }
+            }
+            .padding(vertical = 4.dp)
+            .testTag(EARNINGS_CLAIM_RELAY_TRANSACTION_TAG),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            stringResource(id = R.string.transaction),
+            style = MaterialTheme.typography.bodyMedium,
+            color = BlueMedium,
+        )
+        Spacer(modifier = Modifier.width(4.dp))
+        Icon(
+            Icons.AutoMirrored.Filled.OpenInNew,
+            contentDescription = null,
+            tint = BlueMedium,
+            modifier = Modifier.size(14.dp),
+        )
+    }
 }
 
 /**
  * The claimed state (the mocks' 4d): URnetwork's claim is the latest and
- * nothing is claimable now. What it paid, and its transaction on the
- * explorer, as the sdk's claim status names them.
+ * nothing is claimable now. Claimed with what it paid, where it landed, and
+ * its transaction, as the sdk's claim status names them (ClaimAmountRao,
+ * ColdkeySs58, ClaimTxUrl). The store has no sentence for the mocks' "Claimed
+ * by URnetwork. … is on your key, …", so it is Claimed and the amount, then
+ * the relay's own line of where SN25α lands.
  */
 @Composable
 private fun SnClaimRelayClaimed(
     status: SnClaimStatusState,
     formatAlpha: (Long) -> String,
-    explorerTxUrl: (String) -> String,
+    shortSs58: (String) -> String,
+    // where it landed, where nothing above says it
+    showsWhere: Boolean,
+    // URnetwork's transaction, where no row links it: "" for none
+    txUrl: String,
 ) {
-    val context = LocalContext.current
-    val txUrl = status.claimTxUrl.ifEmpty { if (status.claimTxHash.isEmpty()) "" else explorerTxUrl(status.claimTxHash) }
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -264,7 +356,7 @@ private fun SnClaimRelayClaimed(
             .border(1.dp, Green.copy(alpha = 0.6f), RoundedCornerShape(8.dp))
             .padding(12.dp)
             .testTag(EARNINGS_CLAIM_RELAY_CLAIMED_TAG),
-        verticalAlignment = Alignment.CenterVertically,
+        verticalAlignment = Alignment.Top,
     ) {
         Icon(
             Icons.Filled.CheckCircle,
@@ -273,40 +365,91 @@ private fun SnClaimRelayClaimed(
             modifier = Modifier.size(18.dp),
         )
         Spacer(modifier = Modifier.width(8.dp))
-        Text(
-            stringResource(id = R.string.claim_confirmed),
-            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
-            color = Green,
-        )
-        if (0 < status.claimAmountRao) {
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                formatAlpha(status.claimAmountRao),
-                style = MaterialTheme.typography.bodyMedium,
-            )
-        }
-        Spacer(modifier = Modifier.weight(1f))
-        if (txUrl.isNotEmpty()) {
-            Text(
-                stringResource(id = R.string.transaction),
-                modifier = Modifier
-                    .clickable {
-                        context.startActivity(Intent(Intent.ACTION_VIEW, txUrl.toUri()))
-                    }
-                    .padding(vertical = 4.dp),
-                style = MaterialTheme.typography.bodyMedium,
-                color = BlueMedium,
-            )
+        Column(modifier = Modifier.weight(1f)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    stringResource(id = R.string.claim_confirmed),
+                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
+                    color = Green,
+                )
+                if (0 < status.claimAmountRao) {
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        formatAlpha(status.claimAmountRao),
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
+                }
+            }
+            if (showsWhere && status.coldkeySs58.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    stringResource(id = R.string.sn_claim_relay_lands_on, shortSs58(status.coldkeySs58)),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = TextMuted,
+                )
+            }
+            if (txUrl.isNotEmpty()) {
+                SnClaimRelayTransactionLink(txUrl)
+            }
         }
     }
 }
 
 /**
- * Claim now, from the Settlement v2 tile: the balance, where it lands, why
- * it's still pending, and Claim now or why it can't act, with the device's
- * own claim as the fallback, and once URnetwork has claimed it, what it paid
- * with its transaction. It shows the claim sheet's disclaimer (sdk place
- * claim_sheet): claims land on the consent's coldkey, wherever its key is.
+ * The claim sheet's rows (snClaimRelayRows): each pool account, with what it
+ * holds to claim, Pending, or what URnetwork's claim paid, Claimed, with that
+ * claim's transaction under it. A network paid to more than one coldkey names
+ * each row's.
+ */
+@Composable
+private fun SnClaimRelayRows(
+    rows: List<SnClaimRelayAccountState>,
+    formatAlpha: (Long) -> String,
+    shortSs58: (String) -> String,
+) {
+    val coldkeys = rows.map { it.coldkeySs58 }.distinct().size
+    Column(modifier = Modifier.fillMaxWidth()) {
+        rows.forEach { row ->
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 6.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                val pool = stringResource(id = R.string.sn_ledger_pool, row.noId)
+                Text(
+                    if (1 < coldkeys) "$pool · ${shortSs58(row.coldkeySs58)}" else pool,
+                    modifier = Modifier.weight(1f),
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+                val amountRao = if (row.showsClaimed) row.claimAmountRao else row.claimableRao
+                if (0 < amountRao) {
+                    Text(
+                        formatAlpha(amountRao),
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                }
+                if (row.showsClaimed) {
+                    SnClaimRelayPill(stringResource(id = R.string.claim_confirmed), color = BlueMedium)
+                } else {
+                    SnClaimRelayPill(stringResource(id = R.string.pending_data_key))
+                }
+            }
+            if (row.showsClaimed && row.claimTxUrl.isNotEmpty()) {
+                SnClaimRelayTransactionLink(row.claimTxUrl)
+            }
+        }
+    }
+}
+
+/**
+ * Claim now, from the Settlement v2 tile: the balance, where it lands, each
+ * pool account's, why it's still pending, and Claim now or why it can't act,
+ * with the device's own claim as the fallback; once URnetwork has claimed it
+ * (ShowsClaimed), what it paid with its transaction, Done, and when Claim now
+ * is back. It shows the claim sheet's disclaimer (sdk place claim_sheet):
+ * claims land on the consent's coldkey, wherever its key is.
  */
 @Composable
 fun ClaimRelayDialog(
@@ -320,13 +463,12 @@ fun ClaimRelayDialog(
     onDismiss: () -> Unit,
     formatAlpha: (Long) -> String,
     shortSs58: (String) -> String,
-    // the explorer's page of a transaction, where the sdk names none
-    explorerTxUrl: (String) -> String = { "" },
 ) {
     URDialog(
         visible = visible,
         onDismiss = onDismiss,
     ) {
+        val claimed = status != null && !status.unavailable && status.showsClaimed
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -366,57 +508,84 @@ fun ClaimRelayDialog(
                         style = MaterialTheme.typography.bodyMedium,
                     )
                 }
-                if (status.showsClaimed) {
+                val rows = snClaimRelayRows(status)
+                if (rows.isNotEmpty()) {
                     Spacer(modifier = Modifier.height(12.dp))
-                    SnClaimRelayClaimed(status = status, formatAlpha = formatAlpha, explorerTxUrl = explorerTxUrl)
+                    SnClaimRelayRows(rows = rows, formatAlpha = formatAlpha, shortSs58 = shortSs58)
                 }
-                Spacer(modifier = Modifier.height(12.dp))
-                SnClaimRelaySection(status = status, onClaimNow = {}, onSelfClaim = onSelfClaim, inDialog = true)
-                Spacer(modifier = Modifier.height(16.dp))
-                when (outcome) {
-                    SnClaimNowOutcome.Requested -> {
-                        Text(
-                            stringResource(id = R.string.sn_claim_relay_requested),
-                            style = MaterialTheme.typography.bodyMedium,
+                if (claimed) {
+                    // 4d: the claimed banner, under the line above that says
+                    // where SN25α lands, its transaction where no row links
+                    // it, then Done, and when Claim now is back
+                    Spacer(modifier = Modifier.height(12.dp))
+                    SnClaimRelayClaimed(
+                        status = status,
+                        formatAlpha = formatAlpha,
+                        shortSs58 = shortSs58,
+                        showsWhere = false,
+                        txUrl = if (rows.any { it.showsClaimed && it.claimTxUrl.isNotEmpty() }) "" else status.claimTxUrl,
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    URButton(onClick = onDismiss) { buttonTextStyle ->
+                        Text(stringResource(id = R.string.done), style = buttonTextStyle)
+                    }
+                    SnClaimRelayAgainOn(status = status, centered = true)
+                } else {
+                    Spacer(modifier = Modifier.height(12.dp))
+                    SnClaimRelaySection(
+                        status = status,
+                        onClaimNow = {},
+                        onSelfClaim = onSelfClaim,
+                        formatAlpha = formatAlpha,
+                        shortSs58 = shortSs58,
+                        inDialog = true,
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    when (outcome) {
+                        SnClaimNowOutcome.Requested -> {
+                            Text(
+                                stringResource(id = R.string.sn_claim_relay_requested),
+                                style = MaterialTheme.typography.bodyMedium,
+                            )
+                            Spacer(modifier = Modifier.height(12.dp))
+                            URButton(onClick = {}, enabled = false) { buttonTextStyle ->
+                                Text(stringResource(id = R.string.sn_claim_relay_queued_button), style = buttonTextStyle)
+                            }
+                        }
+                        is SnClaimNowOutcome.Refused -> SnClaimNowNote(
+                            status = status.copy(
+                                claimNowAvailable = false,
+                                claimNowReason = outcome.reason,
+                                claimNowNextAtMillis = outcome.nextAtMillis,
+                            ),
+                            eachColdkey = true,
                         )
-                        Spacer(modifier = Modifier.height(12.dp))
-                        URButton(onClick = {}, enabled = false) { buttonTextStyle ->
-                            Text(stringResource(id = R.string.sn_claim_relay_queued_button), style = buttonTextStyle)
+                        is SnClaimNowOutcome.Failed -> Text(
+                            claimsReadFailureText(outcome.message),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Red
+                        )
+                        null -> if (status.relayClaims) {
+                            URButton(
+                                onClick = onClaimNow,
+                                enabled = status.claimNowAvailable,
+                                isProcessing = claimingNow,
+                                modifier = Modifier.testTag(EARNINGS_CLAIM_RELAY_CLAIM_NOW_TAG),
+                            ) { buttonTextStyle ->
+                                Text(stringResource(id = R.string.sn_claim_relay_claim_now), style = buttonTextStyle)
+                            }
+                            SnClaimNowNote(status = status, eachColdkey = true)
+                        } else {
+                            SnClaimRelayNote(stringResource(id = R.string.sn_claim_relay_waits_for_relay))
                         }
                     }
-                    is SnClaimNowOutcome.Refused -> SnClaimNowNote(
-                        status = status.copy(
-                            claimNowAvailable = false,
-                            claimNowReason = outcome.reason,
-                            claimNowNextAtMillis = outcome.nextAtMillis,
-                        ),
-                        eachColdkey = true,
-                    )
-                    is SnClaimNowOutcome.Failed -> Text(
-                        claimsReadFailureText(outcome.message),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = Red
-                    )
-                    null -> if (status.relayClaims) {
-                        URButton(
-                            onClick = onClaimNow,
-                            enabled = status.claimNowAvailable,
-                            isProcessing = claimingNow,
-                            modifier = Modifier.testTag(EARNINGS_CLAIM_RELAY_CLAIM_NOW_TAG),
-                        ) { buttonTextStyle ->
-                            Text(stringResource(id = R.string.sn_claim_relay_claim_now), style = buttonTextStyle)
-                        }
-                        SnClaimNowNote(status = status, eachColdkey = true)
-                    } else {
-                        SnClaimRelayNote(stringResource(id = R.string.sn_claim_relay_waits_for_relay))
+                    if (status.selfClaimAvailable) {
+                        BittensorKeyCardLink(
+                            text = stringResource(id = R.string.sn_claim_relay_self_claim),
+                            onClick = onSelfClaim,
+                            testTag = EARNINGS_CLAIM_RELAY_SELF_CLAIM_TAG,
+                        )
                     }
-                }
-                if (status.selfClaimAvailable) {
-                    BittensorKeyCardLink(
-                        text = stringResource(id = R.string.sn_claim_relay_self_claim),
-                        onClick = onSelfClaim,
-                        testTag = EARNINGS_CLAIM_RELAY_SELF_CLAIM_TAG,
-                    )
                 }
             } else {
                 Text(
@@ -428,9 +597,12 @@ fun ClaimRelayDialog(
 
             Spacer(modifier = Modifier.height(16.dp))
             BittensorFundsDisclaimerText(disclaimer = fundsDisclaimer, boxed = true)
-            Spacer(modifier = Modifier.height(16.dp))
-            URButton(onClick = onDismiss, style = ButtonStyle.OUTLINE) { buttonTextStyle ->
-                Text(stringResource(id = R.string.close), style = buttonTextStyle)
+            // the claimed state's Done closes it
+            if (!claimed) {
+                Spacer(modifier = Modifier.height(16.dp))
+                URButton(onClick = onDismiss, style = ButtonStyle.OUTLINE) { buttonTextStyle ->
+                    Text(stringResource(id = R.string.close), style = buttonTextStyle)
+                }
             }
         }
     }
