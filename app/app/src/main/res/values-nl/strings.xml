@@ -134,7 +134,7 @@
     <string name="bittensor_key_failure_consent">Uitbetalingen konden niet worden ingesteld. Probeer het opnieuw.</string>
     <string name="bittensor_key_failure_delete">De sleutel kon niet van dit apparaat worden verwijderd. Hij staat er nog.</string>
     <string name="bittensor_key_failure_generate">Er kon geen sleutel worden gemaakt op dit apparaat. Probeer het opnieuw.</string>
-    <string name="bittensor_key_failure_keychain">De sleutelhanger van dit apparaat kon niet worden gelezen. Ontgrendel je apparaat en probeer het opnieuw.</string>
+    <string name="bittensor_key_failure_keychain">De beveiligde opslag van dit apparaat kon niet worden gelezen. Ontgrendel je apparaat en probeer het opnieuw.</string>
     <string name="bittensor_key_failure_store">De sleutel kon niet op dit apparaat worden opgeslagen, dus er is niets ondertekend. Probeer het opnieuw of sla eerst de herstelzin op.</string>
     <string name="bittensor_key_finish_body">Het instellen is vóór het ondertekenen gestopt, dus er is niets aan deze sleutel uitbetaald. ‘Instellen voltooien’ ondertekent de toestemming met deze sleutel.</string>
     <string name="bittensor_key_finish_setup">Instellen voltooien</string>

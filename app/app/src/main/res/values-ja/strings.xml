@@ -134,7 +134,7 @@
     <string name="bittensor_key_failure_consent">支払いを設定できませんでした。もう一度お試しください。</string>
     <string name="bittensor_key_failure_delete">このデバイスからキーを削除できませんでした。キーはまだここにあります。</string>
     <string name="bittensor_key_failure_generate">このデバイスでキーを作成できませんでした。もう一度お試しください。</string>
-    <string name="bittensor_key_failure_keychain">このデバイスのキーチェーンを読み取れませんでした。デバイスのロックを解除して、もう一度お試しください。</string>
+    <string name="bittensor_key_failure_keychain">このデバイスの安全なストレージを読み取れませんでした。デバイスのロックを解除して、もう一度お試しください。</string>
     <string name="bittensor_key_failure_store">このデバイスにキーを保存できなかったため、何も署名されていません。もう一度お試しいただくか、先に復元フレーズを保存してください。</string>
     <string name="bittensor_key_finish_body">署名の前に設定が中断されたため、このキーには何も支払われていません。「設定を完了」で、このキーを使って同意に署名します。</string>
     <string name="bittensor_key_finish_setup">設定を完了</string>

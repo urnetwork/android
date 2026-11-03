@@ -134,7 +134,7 @@
     <string name="bittensor_key_failure_consent">भुगतान सेट नहीं हो सका। दोबारा कोशिश करें।</string>
     <string name="bittensor_key_failure_delete">इस डिवाइस से कुंजी डिलीट नहीं हो सकी। वह अभी भी यहीं है।</string>
     <string name="bittensor_key_failure_generate">इस डिवाइस पर कुंजी नहीं बन सकी। दोबारा कोशिश करें।</string>
-    <string name="bittensor_key_failure_keychain">इस डिवाइस का कीचेन पढ़ा नहीं जा सका। अपना डिवाइस अनलॉक करें और दोबारा कोशिश करें।</string>
+    <string name="bittensor_key_failure_keychain">इस डिवाइस का सुरक्षित स्टोरेज पढ़ा नहीं जा सका। अपना डिवाइस अनलॉक करें और दोबारा कोशिश करें।</string>
     <string name="bittensor_key_failure_store">इस डिवाइस पर कुंजी सहेजी नहीं जा सकी, इसलिए कुछ भी साइन नहीं हुआ। दोबारा कोशिश करें, या पहले रिकवरी फ़्रेज़ सहेजें।</string>
     <string name="bittensor_key_finish_body">साइन करने से पहले सेटअप रुक गया, इसलिए इस कुंजी पर कुछ भी भुगतान नहीं हुआ। “सेटअप पूरा करें” इसी कुंजी से सहमति पर साइन करता है।</string>
     <string name="bittensor_key_finish_setup">सेटअप पूरा करें</string>

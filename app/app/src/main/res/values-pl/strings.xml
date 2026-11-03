@@ -134,7 +134,7 @@
     <string name="bittensor_key_failure_consent">Nie udało się skonfigurować wypłat. Spróbuj ponownie.</string>
     <string name="bittensor_key_failure_delete">Nie udało się usunąć klucza z tego urządzenia. Nadal tu jest.</string>
     <string name="bittensor_key_failure_generate">Nie udało się utworzyć klucza na tym urządzeniu. Spróbuj ponownie.</string>
-    <string name="bittensor_key_failure_keychain">Nie udało się odczytać pęku kluczy tego urządzenia. Odblokuj urządzenie i spróbuj ponownie.</string>
+    <string name="bittensor_key_failure_keychain">Nie udało się odczytać bezpiecznej pamięci tego urządzenia. Odblokuj urządzenie i spróbuj ponownie.</string>
     <string name="bittensor_key_failure_store">Nie udało się zapisać klucza na tym urządzeniu, więc nic nie zostało podpisane. Spróbuj ponownie lub najpierw zapisz frazę odzyskiwania.</string>
     <string name="bittensor_key_finish_body">Konfiguracja zatrzymała się przed podpisaniem, więc nic nie zostało wypłacone na ten klucz. „Dokończ konfigurację” podpisuje nim zgodę.</string>
     <string name="bittensor_key_finish_setup">Dokończ konfigurację</string>

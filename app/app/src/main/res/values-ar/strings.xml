@@ -134,7 +134,7 @@
     <string name="bittensor_key_failure_consent">تعذّر إعداد المدفوعات. حاول مرة أخرى.</string>
     <string name="bittensor_key_failure_delete">تعذّر حذف المفتاح من هذا الجهاز. لا يزال موجودًا هنا.</string>
     <string name="bittensor_key_failure_generate">تعذّر إنشاء مفتاح على هذا الجهاز. حاول مرة أخرى.</string>
-    <string name="bittensor_key_failure_keychain">تعذّرت قراءة سلسلة المفاتيح على هذا الجهاز. افتح قفل جهازك وحاول مرة أخرى.</string>
+    <string name="bittensor_key_failure_keychain">تعذّرت قراءة التخزين الآمن على هذا الجهاز. افتح قفل جهازك وحاول مرة أخرى.</string>
     <string name="bittensor_key_failure_store">تعذّر حفظ المفتاح على هذا الجهاز، لذا لم يُوقَّع أي شيء. حاول مرة أخرى، أو احفظ عبارة النسخ الاحتياطي أولًا.</string>
     <string name="bittensor_key_finish_body">توقّف الإعداد قبل التوقيع، لذا لم يُدفع أي شيء إلى هذا المفتاح. يوقّع «إنهاء الإعداد» الموافقة باستخدام هذا المفتاح.</string>
     <string name="bittensor_key_finish_setup">إنهاء الإعداد</string>

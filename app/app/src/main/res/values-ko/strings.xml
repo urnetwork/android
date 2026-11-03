@@ -134,7 +134,7 @@
     <string name="bittensor_key_failure_consent">지급을 설정하지 못했습니다. 다시 시도하세요.</string>
     <string name="bittensor_key_failure_delete">이 기기에서 키를 삭제하지 못했습니다. 키는 아직 여기에 있습니다.</string>
     <string name="bittensor_key_failure_generate">이 기기에서 키를 만들지 못했습니다. 다시 시도하세요.</string>
-    <string name="bittensor_key_failure_keychain">이 기기의 키체인을 읽지 못했습니다. 기기 잠금을 해제하고 다시 시도하세요.</string>
+    <string name="bittensor_key_failure_keychain">이 기기의 보안 저장소를 읽지 못했습니다. 기기 잠금을 해제하고 다시 시도하세요.</string>
     <string name="bittensor_key_failure_store">이 기기에 키를 저장하지 못해 아무것도 서명되지 않았습니다. 다시 시도하거나 복구 문구를 먼저 저장하세요.</string>
     <string name="bittensor_key_finish_body">서명 전에 설정이 중단되어 이 키로 지급된 것은 없습니다. \'설정 완료\'는 이 키로 동의에 서명합니다.</string>
     <string name="bittensor_key_finish_setup">설정 완료</string>

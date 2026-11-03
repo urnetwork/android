@@ -134,7 +134,7 @@
     <string name="bittensor_key_failure_consent">Не удалось настроить выплаты. Повторите попытку.</string>
     <string name="bittensor_key_failure_delete">Не удалось удалить ключ с этого устройства. Он всё ещё здесь.</string>
     <string name="bittensor_key_failure_generate">Не удалось создать ключ на этом устройстве. Повторите попытку.</string>
-    <string name="bittensor_key_failure_keychain">Не удалось прочитать связку ключей этого устройства. Разблокируйте устройство и повторите попытку.</string>
+    <string name="bittensor_key_failure_keychain">Не удалось прочитать защищённое хранилище этого устройства. Разблокируйте устройство и повторите попытку.</string>
     <string name="bittensor_key_failure_store">Не удалось сохранить ключ на этом устройстве, поэтому ничего не подписано. Повторите попытку или сначала сохраните фразу восстановления.</string>
     <string name="bittensor_key_finish_body">Настройка остановилась до подписания, поэтому на этот ключ ничего не выплачено. «Завершить настройку» подпишет им согласие.</string>
     <string name="bittensor_key_finish_setup">Завершить настройку</string>

@@ -134,7 +134,7 @@
     <string name="bittensor_key_failure_consent">Não foi possível configurar os pagamentos. Tente novamente.</string>
     <string name="bittensor_key_failure_delete">Não foi possível excluir a chave deste dispositivo. Ela continua aqui.</string>
     <string name="bittensor_key_failure_generate">Não foi possível criar uma chave neste dispositivo. Tente novamente.</string>
-    <string name="bittensor_key_failure_keychain">Não foi possível ler o chaveiro deste dispositivo. Desbloqueie seu dispositivo e tente novamente.</string>
+    <string name="bittensor_key_failure_keychain">Não foi possível ler o armazenamento seguro deste dispositivo. Desbloqueie seu dispositivo e tente novamente.</string>
     <string name="bittensor_key_failure_store">Não foi possível salvar a chave neste dispositivo, então nada foi assinado. Tente novamente ou salve primeiro a frase de recuperação.</string>
     <string name="bittensor_key_finish_body">A configuração parou antes da assinatura, então nada foi pago a esta chave. \"Concluir configuração\" assina o consentimento com ela.</string>
     <string name="bittensor_key_finish_setup">Concluir configuração</string>

@@ -134,7 +134,7 @@
     <string name="bittensor_key_failure_consent">Výplaty se nepodařilo nastavit. Zkuste to znovu.</string>
     <string name="bittensor_key_failure_delete">Klíč se z tohoto zařízení nepodařilo odstranit. Stále je tady.</string>
     <string name="bittensor_key_failure_generate">Na tomto zařízení se nepodařilo vytvořit klíč. Zkuste to znovu.</string>
-    <string name="bittensor_key_failure_keychain">Klíčenku tohoto zařízení se nepodařilo přečíst. Odemkněte zařízení a zkuste to znovu.</string>
+    <string name="bittensor_key_failure_keychain">Zabezpečené úložiště tohoto zařízení se nepodařilo přečíst. Odemkněte zařízení a zkuste to znovu.</string>
     <string name="bittensor_key_failure_store">Klíč se na tomto zařízení nepodařilo uložit, takže nebylo nic podepsáno. Zkuste to znovu, nebo si nejdřív uložte obnovovací frázi.</string>
     <string name="bittensor_key_finish_body">Nastavení se zastavilo před podepsáním, takže na tento klíč nebylo nic vyplaceno. „Dokončit nastavení“ jím podepíše souhlas.</string>
     <string name="bittensor_key_finish_setup">Dokončit nastavení</string>

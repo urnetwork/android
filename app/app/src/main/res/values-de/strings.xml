@@ -134,7 +134,7 @@
     <string name="bittensor_key_failure_consent">Auszahlungen konnten nicht eingerichtet werden. Versuche es erneut.</string>
     <string name="bittensor_key_failure_delete">Der Schlüssel konnte nicht von diesem Gerät gelöscht werden. Er ist noch hier.</string>
     <string name="bittensor_key_failure_generate">Auf diesem Gerät konnte kein Schlüssel erstellt werden. Versuche es erneut.</string>
-    <string name="bittensor_key_failure_keychain">Der Schlüsselbund dieses Geräts konnte nicht gelesen werden. Entsperre dein Gerät und versuche es erneut.</string>
+    <string name="bittensor_key_failure_keychain">Der sichere Speicher dieses Geräts konnte nicht gelesen werden. Entsperre dein Gerät und versuche es erneut.</string>
     <string name="bittensor_key_failure_store">Der Schlüssel konnte auf diesem Gerät nicht gespeichert werden, daher wurde nichts signiert. Versuche es erneut oder speichere zuerst die Wiederherstellungsphrase.</string>
     <string name="bittensor_key_finish_body">Die Einrichtung wurde vor dem Signieren unterbrochen, daher wurde nichts an diesen Schlüssel ausgezahlt. „Einrichtung abschließen“ signiert damit die Zustimmung.</string>
     <string name="bittensor_key_finish_setup">Einrichtung abschließen</string>

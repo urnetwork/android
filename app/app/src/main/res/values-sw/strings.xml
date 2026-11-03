@@ -134,7 +134,7 @@
     <string name="bittensor_key_failure_consent">Imeshindwa kusanidi malipo. Jaribu tena.</string>
     <string name="bittensor_key_failure_delete">Imeshindwa kufuta ufunguo kwenye kifaa hiki. Bado upo hapa.</string>
     <string name="bittensor_key_failure_generate">Imeshindwa kuunda ufunguo kwenye kifaa hiki. Jaribu tena.</string>
-    <string name="bittensor_key_failure_keychain">Imeshindwa kusoma keychain ya kifaa hiki. Fungua kifaa chako kisha ujaribu tena.</string>
+    <string name="bittensor_key_failure_keychain">Imeshindwa kusoma hifadhi salama ya kifaa hiki. Fungua kifaa chako kisha ujaribu tena.</string>
     <string name="bittensor_key_failure_store">Imeshindwa kuhifadhi ufunguo kwenye kifaa hiki, kwa hivyo hakuna kilichotiwa sahihi. Jaribu tena, au hifadhi kifungu cha urejeshaji kwanza.</string>
     <string name="bittensor_key_finish_body">Usanidi ulisimama kabla ya kutia sahihi, kwa hivyo hakuna kilicholipwa kwenye ufunguo huu. “Kamilisha usanidi” inatia sahihi idhini kwa kutumia ufunguo huo.</string>
     <string name="bittensor_key_finish_setup">Kamilisha usanidi</string>
