@@ -6,6 +6,7 @@ import com.bringyour.network.ui.leaderboard.protocolTopMeOf
 import com.bringyour.sdk.DeviceLocal
 import com.bringyour.sdk.Sdk
 import com.bringyour.sdk.SnClaimCallback
+import com.bringyour.sdk.SnClaimStatusResult
 import com.bringyour.sdk.SnError
 import com.bringyour.sdk.SnLedgerClaimCallback
 import com.bringyour.sdk.SnWallet
@@ -35,6 +36,27 @@ class SdkProtocolSource private constructor(
 
         private fun SnError?.toException(): SnProtocolException? =
             this?.let { SnProtocolException(it.code.ifBlank { null }, it.message) }
+
+        // an error leaves the balances unavailable, never zero
+        private fun snClaimStatusOf(result: SnClaimStatusResult) = SnClaimStatusState(
+            relayState = result.relayState,
+            coldkeySs58 = result.coldkeySs58,
+            action = result.action,
+            reason = result.reason,
+            claimableRao = result.claimableRao,
+            valueTaoRao = result.valueTaoRao,
+            pendingRao = result.pendingRao,
+            claimNowAvailable = result.claimNowAvailable,
+            claimNowReason = result.claimNowReason,
+            claimNowNextAtMillis = result.claimNowNextAtMillis,
+            selfClaimAvailable = result.selfClaimAvailable,
+            selfClaimNeedsGas = result.selfClaimNeedsGas,
+            automaticThresholdRao = result.automaticThresholdRao,
+            automaticThresholdTaoRao = result.automaticThresholdTaoRao,
+            transferFloorTaoRao = result.transferFloorTaoRao,
+            claimNowPeriodDays = result.claimNowPeriodDays,
+            unavailable = result.error != null,
+        )
     }
 
     override val available: Boolean = true
@@ -184,6 +206,7 @@ class SdkProtocolSource private constructor(
                                 endMillis = it.endMillis,
                                 claimOpenMillis = it.claimOpenMillis,
                                 expiryMillis = it.expiryMillis,
+                                epochBlocks = it.epochBlocks,
                             )
                         }
                         continuation.resume(Result.success(ClaimsSnapshot(claims, result.totalClaimableRao, schedule)))
@@ -288,7 +311,7 @@ class SdkProtocolSource private constructor(
                 when {
                     err != null -> continuation.resume(Result.failure(err))
                     result == null -> continuation.resume(Result.failure(IllegalStateException("empty consent status")))
-                    else -> continuation.resume(Result.success(SnConsentStatusState(result.active, result.coldkeySs58)))
+                    else -> continuation.resume(Result.success(SnConsentStatusState(result.active, result.coldkeySs58, result.fromEpoch)))
                 }
             }
         }
@@ -320,6 +343,36 @@ class SdkProtocolSource private constructor(
                         Result.failure(SnProtocolException(result.error.code.ifBlank { null }, result.error.message))
                     )
                     else -> continuation.resume(Result.success(Unit))
+                }
+            }
+        }
+
+    override suspend fun claimStatus(): SnClaimStatusState? =
+        suspendCancellableCoroutine { continuation ->
+            device.snClaimStatus { result, _ ->
+                // copied off the gomobile objects here: an exception thrown out
+                // of the callback cannot cross JNI and aborts the process
+                val status = runCatching { result?.let { snClaimStatusOf(it) } }.getOrNull()
+                if (continuation.isActive) {
+                    continuation.resume(status)
+                }
+            }
+        }
+
+    override suspend fun claimNow(coldkeySs58: String): SnClaimNowOutcome =
+        suspendCancellableCoroutine { continuation ->
+            device.snClaimNow(coldkeySs58) { result, err ->
+                val outcome = runCatching {
+                    when {
+                        err != null -> SnClaimNowOutcome.Failed(err.message ?: "")
+                        result == null -> SnClaimNowOutcome.Failed("")
+                        result.error != null -> SnClaimNowOutcome.Failed("${result.error.code}: ${result.error.message}")
+                        result.requested -> SnClaimNowOutcome.Requested
+                        else -> SnClaimNowOutcome.Refused(result.reason, result.nextAtMillis)
+                    }
+                }.getOrElse { SnClaimNowOutcome.Failed(it.message ?: "") }
+                if (continuation.isActive) {
+                    continuation.resume(outcome)
                 }
             }
         }

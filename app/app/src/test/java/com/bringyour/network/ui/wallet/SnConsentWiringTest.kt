@@ -71,7 +71,7 @@ class SnConsentWiringTest {
         val status = between(sdk, "override suspend fun consentStatus()", "override suspend fun consentSession(")
         assertTrue(status.contains("api.snNetworkConsentStatus { result, err ->"))
         assertTrue(status.contains("err != null -> continuation.resume(Result.failure(err))"))
-        assertTrue(status.contains("SnConsentStatusState(result.active, result.coldkeySs58)"))
+        assertTrue(status.contains("SnConsentStatusState(result.active, result.coldkeySs58, result.fromEpoch)"))
         val session = between(sdk, "override suspend fun consentSession(", "override suspend fun consentSubmit(")
         assertTrue(session.contains("return startBittensorConsentSession(api, walletId, coldkeySs58)"))
         // C10, probe F2: Sign is offered only with the network credential
@@ -84,23 +84,29 @@ class SnConsentWiringTest {
     }
 
     @Test
-    fun `the consent block sits after the v2 tile, with or without a wallet entry, with its own steps`() {
+    fun `the consent block sits after the v2 tile unless it leads, with or without a wallet entry, with its own steps`() {
         // C4: after the v2 tile and claim; C10, probe F1: not behind the legacy wallet, since a
-        // network without a GET /sn/wallet entry is the one the consent pays
+        // network without a GET /sn/wallet entry is the one the consent pays. BTEASY: the same
+        // card leads Earnings while the payout key's flow says it needs action (ShowsKeyPath)
         val screen = wallet("EarningsScreen.kt")
         val content = screen.substring(screen.indexOf("fun EarningsScreenContent("))
         // the protocol layer's block, the one holding UnclaimedTile
         val gateAt = content.indexOf("if (wallet != null) {\n                    Spacer(modifier = Modifier.height(16.dp))\n                    UnclaimedTile(")
         assertTrue(0 <= gateAt)
         val gated = blockAfter(content.substring(gateAt), "if (wallet != null) {")
-        assertTrue(gated.contains("SnLedgerTileBlock("))
+        assertFalse(gated.contains("payoutCard()"))
         assertFalse(gated.contains("SnConsentBlock("))
-        val ledger = content.indexOf("SnLedgerTileBlock(tile = it, onClaim = onOpenLedgerClaim, formatAlpha = formatAlpha)")
-        val consent = content.indexOf("SnConsentBlock(")
-        assertTrue(0 <= ledger && ledger < consent && consent < content.indexOf("when (top200) {"))
+        // one card, drawn in one of two places
+        assertTrue(between(content, "val payoutCard: @Composable () -> Unit = {", "Scaffold(").contains("SnConsentBlock("))
+        assertEquals(1, Regex(Regex.escape("SnConsentBlock(")).findAll(content).count())
+        val lead = content.indexOf("if (keyCard.showsKeyPath && consentTile != null) {\n                    payoutCard()")
+        val points = content.indexOf("PointsHeadline(")
+        val ledger = content.indexOf("SnLedgerTileBlock(")
+        val rest = content.indexOf("if (!keyCard.showsKeyPath && consentTile != null) {\n                    Spacer(modifier = Modifier.height(16.dp))\n                    payoutCard()")
+        assertTrue(0 <= lead && lead < points && points < gateAt && gateAt < ledger && ledger < rest && rest < content.indexOf("when (top200) {"))
         // hidden only without the protocol (signed out)
         assertTrue(screen.contains("consentTile = if (earningsViewModel.protocolAvailable) snConsentTile(consentState, consentStage) else null,"))
-        assertTrue(screen.contains("onSignConsent = { earningsViewModel.consentFlow.start() },"))
+        assertTrue(between(screen, "onSignConsent = {", "onRetryConsent = ").contains("earningsViewModel.consentFlow.start()"))
         assertTrue(screen.contains("onRetryConsent = { earningsViewModel.consentFlow.retry() },"))
         val steps = between(screen, "flow = earningsViewModel.consentFlow.proofFlow,", "if (earningsViewModel.isPresentedManualSheet) {")
         assertTrue(steps.contains("onChoose = { walletId -> earningsViewModel.consentFlow.chooseWallet(walletId) },"))

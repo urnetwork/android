@@ -179,6 +179,17 @@ interface EarningsProtocolSource {
      */
     suspend fun consentSubmit(coldkeySs58: String, message: String, signature: String): Result<Unit>
 
+    /**
+     * what URnetwork's claim relay says of the network's settlement v2 balance
+     * (SnClaimStatus); null when nothing can ask, and a status that could not
+     * be read is unavailable, never zero
+     */
+    suspend fun claimStatus(): SnClaimStatusState? = null
+
+    /** asks URnetwork to claim the coldkey's balance now (SnClaimNow) */
+    suspend fun claimNow(coldkeySs58: String): SnClaimNowOutcome =
+        SnClaimNowOutcome.Failed(EarningsUnavailableException().message ?: "")
+
     suspend fun accountEpochs(): Result<List<AccountEpoch>>
 
     /**
@@ -215,6 +226,20 @@ object EarningsFormat {
 
     fun tao(tao: Double): String =
         String.format(Locale.US, "%.4f", tao)
+
+    /** "0.0125" (no symbol): an amount in rao of TAO, for a sentence that names TAO itself */
+    fun taoAmount(rao: Long): String =
+        String.format(Locale.US, "%.4f", rao / RAO_PER_ALPHA)
+
+    /** "3", "1.5" or "0.0420" (no symbol): an estimate, as precise as its size needs, for "about 3 SN25α" */
+    fun approx(rao: Long): String {
+        val value = rao / RAO_PER_ALPHA
+        return when {
+            10 <= value -> String.format(Locale.US, "%.0f", value)
+            1 <= value -> String.format(Locale.US, "%.1f", value)
+            else -> String.format(Locale.US, "%.4f", value)
+        }
+    }
 }
 
 /** No device (signed out): points-only, nothing protocol-side. */

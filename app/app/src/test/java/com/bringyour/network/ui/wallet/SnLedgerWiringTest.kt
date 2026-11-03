@@ -53,9 +53,15 @@ class SnLedgerWiringTest {
         val screen = source("EarningsScreen.kt")
         val walletBlock = between(screen, "if (wallet != null) {\n                    Spacer", "when (top200) {")
         val unclaimed = walletBlock.indexOf("UnclaimedTile(")
-        val ledger = walletBlock.indexOf("SnLedgerTileBlock(tile = it, onClaim = onOpenLedgerClaim, formatAlpha = formatAlpha)")
+        val ledger = walletBlock.indexOf("SnLedgerTileBlock(")
         assertTrue(0 <= unclaimed && unclaimed < ledger)
-        assertTrue(screen.contains("ledgerTile = snLedgerTile(ledgerLoad, ledgerClaimConfigured),"))
+        val tile = between(walletBlock, "SnLedgerTileBlock(", "\n                    )")
+        for (argument in listOf("tile = it,", "onClaim = onOpenLedgerClaim,", "formatAlpha = formatAlpha,")) {
+            assertTrue(argument, tile.contains(argument))
+        }
+        // the device wallet's ledger, or for a network with no wallet here what the claim relay
+        // says is claimable (BTEASY, sdk SnClaimStatus)
+        assertTrue(screen.contains("ledgerTile = snLedgerTileWithRelay(wallet != null, snLedgerTile(ledgerLoad, ledgerClaimConfigured), claimStatus),"))
         assertTrue(screen.contains("onOpenLedgerClaim = { earningsViewModel.ledgerFlow.open() },"))
         val dialog = between(screen, "SnLedgerClaimDialog(", "BittensorProofSheets(")
         assertTrue(dialog.contains("onClaim = { earningsViewModel.ledgerFlow.claim() },"))

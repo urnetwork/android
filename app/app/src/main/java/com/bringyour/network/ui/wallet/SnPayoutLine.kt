@@ -21,6 +21,8 @@ data class SnEpochScheduleState(
     val endMillis: Long,
     val claimOpenMillis: Long,
     val expiryMillis: Long,
+    // the policy's epoch length, 0 while unknown: the payout key's one reminder
+    val epochBlocks: Long = 0,
 )
 
 /** The three times `sn_payout_schedule_times` names, formatted for the reader. */

@@ -117,6 +117,8 @@ import com.bringyour.network.ui.shared.viewmodels.SubscriptionBalanceViewModel
 import com.bringyour.network.ui.theme.BlueMedium
 import com.bringyour.network.ui.theme.Green
 import com.bringyour.network.ui.upgrade.SubscriptionManageLine
+import com.bringyour.network.ui.wallet.BittensorKeyScreenRequests
+import com.bringyour.network.ui.wallet.BittensorKeySignOut
 import com.bringyour.network.ui.wallet.EarningsViewModel
 import com.bringyour.network.ui.wallet.SeekerSignOutcome
 import com.bringyour.network.ui.wallet.SeekerVerifyNotice
@@ -1683,6 +1685,11 @@ private fun SettingsScreen(
             val requiresTypedName = DeleteAccountConfirmation.requiresTypedName(networkName)
             val deleteConfirmed = DeleteAccountConfirmation.confirms(networkName, deleteConfirmText.text)
             val deleteAccountFailedText = stringResource(id = R.string.error_deleting_account)
+            // the network the dialog deletes, and whether its payout key on this
+            // device is unsaved: the phrase can't be recovered once the key goes
+            // with the account
+            val deletedNetworkId = remember { BittensorKeySignOut.networkId(context) }
+            val keyNeedsBackup = remember { BittensorKeySignOut.needsBackup(context, deletedNetworkId) }
 
             FoldSafeBasicAlertDialog(
                 onDismissRequest = {
@@ -1726,6 +1733,17 @@ private fun SettingsScreen(
                             )
                         }
 
+                        if (keyNeedsBackup) {
+                            Spacer(modifier = Modifier.height(8.dp))
+
+                            Row {
+                                Text(
+                                    stringResource(id = R.string.bittensor_key_delete_account_message_2),
+                                    style = MaterialTheme.typography.bodyLarge
+                                )
+                            }
+                        }
+
                         if (requiresTypedName) {
                             Spacer(modifier = Modifier.height(12.dp))
 
@@ -1761,6 +1779,26 @@ private fun SettingsScreen(
 
                         Spacer(modifier = Modifier.height(16.dp))
 
+                        if (keyNeedsBackup) {
+                            URButton(
+                                onClick = {
+                                    setShowDeleteAccountDialog(false)
+                                    BittensorKeyScreenRequests.request()
+                                },
+                                enabled = !isDeletingAccount,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .testTag("acceptance.account.delete.backUpFirst")
+                            ) { buttonTextStyle ->
+                                Text(
+                                    stringResource(id = R.string.bittensor_key_back_up_first),
+                                    style = buttonTextStyle
+                                )
+                            }
+
+                            Spacer(modifier = Modifier.height(8.dp))
+                        }
+
                         Row(
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
                             modifier = Modifier.fillMaxWidth()
@@ -1784,6 +1822,10 @@ private fun SettingsScreen(
                                     deleteAccount(
                                         { signedOutDevice ->
                                             setShowDeleteAccountDialog(false)
+
+                                            // the network is gone, and so is its payout key
+                                            // on this device, with its reminder
+                                            BittensorKeySignOut.forgetNetwork(context, deletedNetworkId)
 
                                             // only the deleted account signs out: by the
                                             // server's answer it may be signed out already,

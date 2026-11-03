@@ -61,6 +61,9 @@ data class SnLedgerTile(
     // the Claim action, once vault2's address is configured
     val showClaim: Boolean,
     val claimEnabled: Boolean,
+    // a network with no wallet on this device: what the claim relay says is
+    // claimable for its consent, in place of the accounts (snLedgerTileWithRelay)
+    val relayClaimableRao: Long? = null,
 )
 
 fun SnLedgerAccountState.lines() = SnLedgerAccountLines(

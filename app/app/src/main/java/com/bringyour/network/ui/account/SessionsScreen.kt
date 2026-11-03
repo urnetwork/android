@@ -91,6 +91,7 @@ import com.bringyour.network.ui.theme.Red
 import com.bringyour.network.ui.theme.TextFaint
 import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.TopBarTitleTextStyle
+import com.bringyour.network.ui.wallet.BittensorKeySignOut
 import com.bringyour.network.utils.relativeTime
 import com.bringyour.sdk.Sdk
 import kotlinx.coroutines.launch
@@ -317,12 +318,22 @@ private fun SessionsContent(
     }
 
     when (confirmation) {
-        is SessionsConfirmation.SignOut -> SessionsConfirmDialog(
-            title = stringResource(id = R.string.sessions_confirm_title),
-            body = sessionConfirmBody(confirmation.row, text),
-            onDismiss = onDismissConfirmation,
-            onConfirm = onConfirm,
-        )
+        is SessionsConfirmation.SignOut -> {
+            // this app's own sign out warns while the network's payout key isn't saved
+            val context = LocalContext.current
+            val keyNeedsBackup = remember(confirmation) {
+                confirmation.row.current && BittensorKeySignOut.needsBackup(context)
+            }
+            val keyWarning = stringResource(id = R.string.bittensor_key_sign_out_message)
+            SessionsConfirmDialog(
+                title = stringResource(id = R.string.sessions_confirm_title),
+                body = sessionConfirmBody(confirmation.row, text).let { body ->
+                    if (keyNeedsBackup) body + "\n\n" + keyWarning else body
+                },
+                onDismiss = onDismissConfirmation,
+                onConfirm = onConfirm,
+            )
+        }
 
         SessionsConfirmation.SignOutOthers -> SessionsConfirmDialog(
             title = stringResource(id = R.string.sessions_confirm_others_title),
