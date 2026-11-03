@@ -55,6 +55,11 @@ class SdkProtocolSource private constructor(
             automaticThresholdTaoRao = result.automaticThresholdTaoRao,
             transferFloorTaoRao = result.transferFloorTaoRao,
             claimNowPeriodDays = result.claimNowPeriodDays,
+            showsTile = result.showsTile,
+            showsClaimed = result.showsClaimed,
+            claimTxHash = result.claimTxHash,
+            claimTxUrl = result.claimTxUrl,
+            claimAmountRao = result.claimAmountRao,
             unavailable = result.error != null,
         )
     }

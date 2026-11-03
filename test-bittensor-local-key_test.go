@@ -529,9 +529,28 @@ func TestBittensorKeyClaimsThroughTheRelay(t *testing.T) {
 		"device.snClaimNow(coldkeySs58) { result, err ->",
 		"unavailable = result.error != null,",
 	)
-	// a network with no wallet on this device still sees what the relay claims for it
+	// a network with no wallet on this device still sees what the relay claims for
+	// it, while the sdk says the tile shows (ShowsTile)
 	bittensorKeyContainsAll(t, "Earnings", bittensorKeyWallet(t, "EarningsScreen.kt"),
 		"ledgerTile = snLedgerTileWithRelay(wallet != null, snLedgerTile(ledgerLoad, ledgerClaimConfigured), claimStatus),",
+	)
+	tile := bittensorKeyBlock(t, bittensorKeyWallet(t, "SnClaimRelay.kt"), "fun snLedgerTileWithRelay(")
+	if !strings.Contains(tile, "if (claimStatus == null || !claimStatus.showsTile) {") || strings.Contains(tile, "pendingRao") {
+		t.Error("the tile's rule is not the sdk's ShowsTile")
+	}
+	// the claimed state, with URnetwork's transaction (ShowsClaimed, ClaimTxUrl)
+	bittensorKeyContainsAll(t, "the sdk source", sdk,
+		"showsTile = result.showsTile,",
+		"showsClaimed = result.showsClaimed,",
+		"claimTxHash = result.claimTxHash,",
+		"claimTxUrl = result.claimTxUrl,",
+		"claimAmountRao = result.claimAmountRao,",
+	)
+	bittensorKeyContainsAll(t, "the claim dialog", relay,
+		"if (status.showsClaimed) {",
+		"R.string.claim_confirmed",
+		"R.string.transaction",
+		"status.claimTxUrl.ifEmpty {",
 	)
 }
 
@@ -553,11 +572,21 @@ func TestBittensorKeyWalletCardShowsTheKeyOnThisDevice(t *testing.T) {
 	if strings.Contains(keyBranch, "onConnectWallet") {
 		t.Error("the key's wallet card still connects a wallet")
 	}
+	// the sdk says when the consent pays the key on this device (PaysKeyOnThisDevice)
 	bittensorKeyContainsAll(t, "Earnings", earnings,
 		"localKey = BittensorWalletCardLocalKey.of(keyCard),",
-		"val hasColdkey = wallet != null || keyCard.state == Sdk.BittensorLocalKeyStateSaveLaterLinked",
+		"val hasColdkey = wallet != null || keyCard.paysKeyOnThisDevice",
 		"hasColdkey = hasColdkey,",
 	)
+	bittensorKeyContainsAll(t, "the wallet card's key", bittensorKeySources(t)["BittensorKeyCard.kt"],
+		"BittensorWalletCardLocalKey(card.storedAddress, card.paysKeyOnThisDevice)",
+	)
+	bittensorKeyContainsAll(t, "the seam", bittensorKeySources(t)["BittensorKeyFlow.kt"],
+		"paysKeyOnThisDevice = card.paysKeyOnThisDevice,",
+	)
+	if strings.Contains(earnings, "Sdk.BittensorLocalKeyStateSaveLaterLinked") {
+		t.Error("Earnings decides from the key's state what the sdk's card says")
+	}
 }
 
 // The owner's disclaimer (BTEASY.md, Wording; 2026-11-03), in plain view on every

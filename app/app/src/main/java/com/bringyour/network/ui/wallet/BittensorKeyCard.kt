@@ -576,7 +576,7 @@ data class BittensorWalletCardLocalKey(
             if (card.storedAddress.isEmpty()) {
                 null
             } else {
-                BittensorWalletCardLocalKey(card.storedAddress, card.state == Sdk.BittensorLocalKeyStateSaveLaterLinked)
+                BittensorWalletCardLocalKey(card.storedAddress, card.paysKeyOnThisDevice)
             }
     }
 }

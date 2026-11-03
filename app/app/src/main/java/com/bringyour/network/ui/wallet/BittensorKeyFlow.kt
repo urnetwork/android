@@ -43,6 +43,9 @@ data class BittensorKeyCardInfo(
     // the disclaimer the claim tiles show, a BittensorFundsDisclaimer*: none
     // while the card shows one
     val claimFundsDisclaimer: String = Sdk.BittensorFundsDisclaimerFundsOnly,
+    // the consent pays the key on this device: the network has a coldkey even
+    // before the wallet read lists one, so no card asks for a coldkey
+    val paysKeyOnThisDevice: Boolean = false,
 )
 
 /** What the Key screen shows (sdk BittensorLocalKeyScreen). Holds no secret: the words are [BittensorKeyFlowing.revealedWords]. */
@@ -192,6 +195,7 @@ class SdkBittensorKeyFlow(api: Api?, networkId: String, store: BittensorLocalKey
                 failureMessage = card.failureMessage,
                 fundsDisclaimer = card.fundsDisclaimer,
                 claimFundsDisclaimer = card.claimFundsDisclaimer,
+                paysKeyOnThisDevice = card.paysKeyOnThisDevice,
             )
         }
 
