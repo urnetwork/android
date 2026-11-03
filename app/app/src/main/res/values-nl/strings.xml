@@ -134,7 +134,7 @@
     <string name="bittensor_key_failure_consent">Uitbetalingen konden niet worden ingesteld. Probeer het opnieuw.</string>
     <string name="bittensor_key_failure_delete">De sleutel kon niet van dit apparaat worden verwijderd. Hij staat er nog.</string>
     <string name="bittensor_key_failure_generate">Er kon geen sleutel worden gemaakt op dit apparaat. Probeer het opnieuw.</string>
-    <string name="bittensor_key_failure_keychain">De sleutelhanger van dit apparaat kon niet worden gelezen. Ontgrendel je apparaat en probeer het opnieuw.</string>
+    <string name="bittensor_key_failure_keychain">De beveiligde opslag van dit apparaat kon niet worden gelezen. Ontgrendel je apparaat en probeer het opnieuw.</string>
     <string name="bittensor_key_failure_store">De sleutel kon niet op dit apparaat worden opgeslagen, dus er is niets ondertekend. Probeer het opnieuw of sla eerst de herstelzin op.</string>
     <string name="bittensor_key_finish_body">Het instellen is vóór het ondertekenen gestopt, dus er is niets aan deze sleutel uitbetaald. ‘Instellen voltooien’ ondertekent de toestemming met deze sleutel.</string>
     <string name="bittensor_key_finish_setup">Instellen voltooien</string>
@@ -1219,6 +1219,7 @@
     <string name="sn_claim_relay_claim_now">Nu opeisen</string>
     <string name="sn_claim_relay_claim_now_paid">‘Nu opeisen’ wordt betaald door URnetwork, één keer per %1$d dagen.</string>
     <string name="sn_claim_relay_claim_now_paid_each">Betaald door URnetwork, één keer per %1$d dagen per coldkey.</string>
+    <string name="sn_claim_relay_claimed">Opgeëist door URnetwork. %1$s SN25α staat op je sleutel, %2$s.</string>
     <string name="sn_claim_relay_for_you">URnetwork eist dit voor je op</string>
     <string name="sn_claim_relay_lands_on">URnetwork eist dit voor je op. URnetwork betaalt het gas, en je SN25α komt op %1$s terecht.</string>
     <string name="sn_claim_relay_not_running">Automatische claims draaien op dit moment niet.</string>

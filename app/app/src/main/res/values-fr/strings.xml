@@ -134,7 +134,7 @@
     <string name="bittensor_key_failure_consent">Impossible de configurer les paiements. Réessayez.</string>
     <string name="bittensor_key_failure_delete">Impossible de supprimer la clé de cet appareil. Elle est toujours là.</string>
     <string name="bittensor_key_failure_generate">Impossible de créer une clé sur cet appareil. Réessayez.</string>
-    <string name="bittensor_key_failure_keychain">Impossible de lire le trousseau de cet appareil. Déverrouillez votre appareil et réessayez.</string>
+    <string name="bittensor_key_failure_keychain">Impossible de lire le stockage sécurisé de cet appareil. Déverrouillez votre appareil et réessayez.</string>
     <string name="bittensor_key_failure_store">Impossible d’enregistrer la clé sur cet appareil, donc rien n’a été signé. Réessayez ou enregistrez d’abord la phrase de sauvegarde.</string>
     <string name="bittensor_key_finish_body">La configuration s’est arrêtée avant la signature, donc rien n’a été versé sur cette clé. « Terminer la configuration » signe le consentement avec cette clé.</string>
     <string name="bittensor_key_finish_setup">Terminer la configuration</string>
@@ -1219,6 +1219,7 @@
     <string name="sn_claim_relay_claim_now">Réclamer maintenant</string>
     <string name="sn_claim_relay_claim_now_paid">« Réclamer maintenant » est payé par URnetwork, une fois tous les %1$d jours.</string>
     <string name="sn_claim_relay_claim_now_paid_each">Payé par URnetwork, une fois tous les %1$d jours pour chaque coldkey.</string>
+    <string name="sn_claim_relay_claimed">Réclamé par URnetwork. %1$s SN25α sont sur votre clé, %2$s.</string>
     <string name="sn_claim_relay_for_you">URnetwork le réclame pour vous</string>
     <string name="sn_claim_relay_lands_on">URnetwork le réclame pour vous. Il paie le gas, et vos SN25α arrivent sur %1$s.</string>
     <string name="sn_claim_relay_not_running">Les réclamations automatiques ne fonctionnent pas pour le moment.</string>

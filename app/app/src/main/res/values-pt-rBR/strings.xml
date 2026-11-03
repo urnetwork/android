@@ -134,7 +134,7 @@
     <string name="bittensor_key_failure_consent">Não foi possível configurar os pagamentos. Tente novamente.</string>
     <string name="bittensor_key_failure_delete">Não foi possível excluir a chave deste dispositivo. Ela continua aqui.</string>
     <string name="bittensor_key_failure_generate">Não foi possível criar uma chave neste dispositivo. Tente novamente.</string>
-    <string name="bittensor_key_failure_keychain">Não foi possível ler o chaveiro deste dispositivo. Desbloqueie seu dispositivo e tente novamente.</string>
+    <string name="bittensor_key_failure_keychain">Não foi possível ler o armazenamento seguro deste dispositivo. Desbloqueie seu dispositivo e tente novamente.</string>
     <string name="bittensor_key_failure_store">Não foi possível salvar a chave neste dispositivo, então nada foi assinado. Tente novamente ou salve primeiro a frase de recuperação.</string>
     <string name="bittensor_key_finish_body">A configuração parou antes da assinatura, então nada foi pago a esta chave. \"Concluir configuração\" assina o consentimento com ela.</string>
     <string name="bittensor_key_finish_setup">Concluir configuração</string>
@@ -1219,6 +1219,7 @@
     <string name="sn_claim_relay_claim_now">Resgatar agora</string>
     <string name="sn_claim_relay_claim_now_paid">“Resgatar agora” é pago pelo URnetwork, uma vez a cada %1$d dias.</string>
     <string name="sn_claim_relay_claim_now_paid_each">Pago pelo URnetwork, uma vez a cada %1$d dias para cada coldkey.</string>
+    <string name="sn_claim_relay_claimed">Resgatado pelo URnetwork. %1$s SN25α estão na sua chave, %2$s.</string>
     <string name="sn_claim_relay_for_you">O URnetwork resgata isso para você</string>
     <string name="sn_claim_relay_lands_on">O URnetwork resgata isso para você. Ele paga o gás, e seu SN25α chega a %1$s.</string>
     <string name="sn_claim_relay_not_running">Os resgates automáticos não estão funcionando no momento.</string>

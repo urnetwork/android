@@ -134,7 +134,7 @@
     <string name="bittensor_key_failure_consent">Δεν ήταν δυνατή η ρύθμιση των πληρωμών. Δοκιμάστε ξανά.</string>
     <string name="bittensor_key_failure_delete">Δεν ήταν δυνατή η διαγραφή του κλειδιού από αυτή τη συσκευή. Βρίσκεται ακόμη εδώ.</string>
     <string name="bittensor_key_failure_generate">Δεν ήταν δυνατή η δημιουργία κλειδιού σε αυτή τη συσκευή. Δοκιμάστε ξανά.</string>
-    <string name="bittensor_key_failure_keychain">Δεν ήταν δυνατή η ανάγνωση του μπρελόκ αυτής της συσκευής. Ξεκλειδώστε τη συσκευή σας και δοκιμάστε ξανά.</string>
+    <string name="bittensor_key_failure_keychain">Δεν ήταν δυνατή η ανάγνωση του ασφαλούς χώρου αποθήκευσης αυτής της συσκευής. Ξεκλειδώστε τη συσκευή σας και δοκιμάστε ξανά.</string>
     <string name="bittensor_key_failure_store">Δεν ήταν δυνατή η αποθήκευση του κλειδιού σε αυτή τη συσκευή, οπότε δεν υπογράφηκε τίποτα. Δοκιμάστε ξανά ή αποθηκεύστε πρώτα τη φράση επαναφοράς.</string>
     <string name="bittensor_key_finish_body">Η ρύθμιση σταμάτησε πριν από την υπογραφή, οπότε δεν πληρώθηκε τίποτα σε αυτό το κλειδί. Η «Ολοκλήρωση ρύθμισης» υπογράφει τη συγκατάθεση με αυτό.</string>
     <string name="bittensor_key_finish_setup">Ολοκλήρωση ρύθμισης</string>
@@ -1219,6 +1219,7 @@
     <string name="sn_claim_relay_claim_now">Διεκδίκηση τώρα</string>
     <string name="sn_claim_relay_claim_now_paid">Το «Διεκδίκηση τώρα» πληρώνεται από το URnetwork, μία φορά κάθε %1$d ημέρες.</string>
     <string name="sn_claim_relay_claim_now_paid_each">Πληρώνεται από το URnetwork, μία φορά κάθε %1$d ημέρες για κάθε coldkey.</string>
+    <string name="sn_claim_relay_claimed">Διεκδικήθηκε από το URnetwork. %1$s SN25α βρίσκονται στο κλειδί σας, %2$s.</string>
     <string name="sn_claim_relay_for_you">Το URnetwork το διεκδικεί για εσάς</string>
     <string name="sn_claim_relay_lands_on">Το URnetwork το διεκδικεί για εσάς. Πληρώνει το gas και τα SN25α σας καταλήγουν στη διεύθυνση %1$s.</string>
     <string name="sn_claim_relay_not_running">Οι αυτόματες διεκδικήσεις δεν λειτουργούν αυτή τη στιγμή.</string>

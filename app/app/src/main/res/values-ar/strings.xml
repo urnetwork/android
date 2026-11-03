@@ -134,7 +134,7 @@
     <string name="bittensor_key_failure_consent">تعذّر إعداد المدفوعات. حاول مرة أخرى.</string>
     <string name="bittensor_key_failure_delete">تعذّر حذف المفتاح من هذا الجهاز. لا يزال موجودًا هنا.</string>
     <string name="bittensor_key_failure_generate">تعذّر إنشاء مفتاح على هذا الجهاز. حاول مرة أخرى.</string>
-    <string name="bittensor_key_failure_keychain">تعذّرت قراءة سلسلة المفاتيح على هذا الجهاز. افتح قفل جهازك وحاول مرة أخرى.</string>
+    <string name="bittensor_key_failure_keychain">تعذّرت قراءة التخزين الآمن على هذا الجهاز. افتح قفل جهازك وحاول مرة أخرى.</string>
     <string name="bittensor_key_failure_store">تعذّر حفظ المفتاح على هذا الجهاز، لذا لم يُوقَّع أي شيء. حاول مرة أخرى، أو احفظ عبارة النسخ الاحتياطي أولًا.</string>
     <string name="bittensor_key_finish_body">توقّف الإعداد قبل التوقيع، لذا لم يُدفع أي شيء إلى هذا المفتاح. يوقّع «إنهاء الإعداد» الموافقة باستخدام هذا المفتاح.</string>
     <string name="bittensor_key_finish_setup">إنهاء الإعداد</string>
@@ -1219,6 +1219,7 @@
     <string name="sn_claim_relay_claim_now">المطالبة الآن</string>
     <string name="sn_claim_relay_claim_now_paid">«المطالبة الآن» على حساب URnetwork، مرة كل %1$d يومًا.</string>
     <string name="sn_claim_relay_claim_now_paid_each">على حساب URnetwork، مرة كل %1$d يومًا لكل coldkey.</string>
+    <string name="sn_claim_relay_claimed">تمت المطالبة بواسطة URnetwork. أصبح %1$s SN25α على مفتاحك، %2$s.</string>
     <string name="sn_claim_relay_for_you">يطالب URnetwork بهذا نيابةً عنك</string>
     <string name="sn_claim_relay_lands_on">يطالب URnetwork بهذا نيابةً عنك. يدفع رسوم الغاز، ويصل SN25α الخاص بك إلى %1$s.</string>
     <string name="sn_claim_relay_not_running">المطالبات التلقائية لا تعمل حاليًا.</string>

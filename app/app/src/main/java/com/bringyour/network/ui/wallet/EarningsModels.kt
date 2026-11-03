@@ -218,6 +218,10 @@ object EarningsFormat {
     fun alpha(rao: Long): String =
         String.format(Locale.US, "%.4f %s", rao / RAO_PER_ALPHA, ALPHA_SYMBOL)
 
+    /** "0.8420" (no symbol): an amount of α for a sentence that names SN25α itself, as sn_claim_relay_claimed does */
+    fun alphaAmount(rao: Long): String =
+        String.format(Locale.US, "%.4f", rao / RAO_PER_ALPHA)
+
     fun shareBps(shareBps: Long): String =
         String.format(Locale.US, "%.2f%%", shareBps / 100.0)
 

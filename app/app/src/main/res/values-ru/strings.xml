@@ -134,7 +134,7 @@
     <string name="bittensor_key_failure_consent">Не удалось настроить выплаты. Повторите попытку.</string>
     <string name="bittensor_key_failure_delete">Не удалось удалить ключ с этого устройства. Он всё ещё здесь.</string>
     <string name="bittensor_key_failure_generate">Не удалось создать ключ на этом устройстве. Повторите попытку.</string>
-    <string name="bittensor_key_failure_keychain">Не удалось прочитать связку ключей этого устройства. Разблокируйте устройство и повторите попытку.</string>
+    <string name="bittensor_key_failure_keychain">Не удалось прочитать защищённое хранилище этого устройства. Разблокируйте устройство и повторите попытку.</string>
     <string name="bittensor_key_failure_store">Не удалось сохранить ключ на этом устройстве, поэтому ничего не подписано. Повторите попытку или сначала сохраните фразу восстановления.</string>
     <string name="bittensor_key_finish_body">Настройка остановилась до подписания, поэтому на этот ключ ничего не выплачено. «Завершить настройку» подпишет им согласие.</string>
     <string name="bittensor_key_finish_setup">Завершить настройку</string>
@@ -1219,6 +1219,7 @@
     <string name="sn_claim_relay_claim_now">Получить сейчас</string>
     <string name="sn_claim_relay_claim_now_paid">«Получить сейчас» оплачивается URnetwork, раз в %1$d дн.</string>
     <string name="sn_claim_relay_claim_now_paid_each">Оплачивается URnetwork, раз в %1$d дн. для каждого coldkey.</string>
+    <string name="sn_claim_relay_claimed">Получено через URnetwork. %1$s SN25α на вашем ключе %2$s.</string>
     <string name="sn_claim_relay_for_you">URnetwork отправляет запрос на получение за вас</string>
     <string name="sn_claim_relay_lands_on">URnetwork отправляет запрос на получение за вас. Он оплачивает газ, а ваши SN25α поступают на %1$s.</string>
     <string name="sn_claim_relay_not_running">Автоматическое получение сейчас не работает.</string>

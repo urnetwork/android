@@ -137,7 +137,7 @@
     <string name="bittensor_key_failure_consent">Couldn\'t set up payouts. Try again.</string>
     <string name="bittensor_key_failure_delete">Couldn\'t delete the key from this device. It\'s still here.</string>
     <string name="bittensor_key_failure_generate">Couldn\'t make a key on this device. Try again.</string>
-    <string name="bittensor_key_failure_keychain">Couldn\'t read this device\'s keychain. Unlock your device and try again.</string>
+    <string name="bittensor_key_failure_keychain">Couldn\'t read this device\'s secure storage. Unlock your device and try again.</string>
     <string name="bittensor_key_failure_store">Couldn\'t save the key on this device, so nothing was signed. Try again, or save the recovery phrase first.</string>
     <string name="bittensor_key_finish_body">Setup stopped before signing, so nothing was paid to this key. Finish setup signs the consent with it.</string>
     <string name="bittensor_key_finish_setup">Finish setup</string>
@@ -1231,6 +1231,7 @@
     <string name="sn_claim_relay_claim_now">Claim now</string>
     <string name="sn_claim_relay_claim_now_paid">Claim now is paid by URnetwork, once every %1$d days.</string>
     <string name="sn_claim_relay_claim_now_paid_each">Paid by URnetwork, once every %1$d days for each coldkey.</string>
+    <string name="sn_claim_relay_claimed">Claimed by URnetwork. %1$s SN25α is on your key, %2$s.</string>
     <string name="sn_claim_relay_for_you">URnetwork claims this for you</string>
     <string name="sn_claim_relay_lands_on">URnetwork claims this for you. It pays the gas, and your SN25α lands on %1$s.</string>
     <string name="sn_claim_relay_not_running">Automatic claims aren\'t running right now.</string>

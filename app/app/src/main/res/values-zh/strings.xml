@@ -134,7 +134,7 @@
     <string name="bittensor_key_failure_consent">无法设置支付。请重试。</string>
     <string name="bittensor_key_failure_delete">无法从这台设备删除密钥。密钥仍在这里。</string>
     <string name="bittensor_key_failure_generate">无法在这台设备上创建密钥。请重试。</string>
-    <string name="bittensor_key_failure_keychain">无法读取这台设备的钥匙串。请解锁您的设备，然后重试。</string>
+    <string name="bittensor_key_failure_keychain">无法读取这台设备的安全存储。请解锁您的设备，然后重试。</string>
     <string name="bittensor_key_failure_store">无法在这台设备上保存密钥，因此未进行任何签名。请重试，或先保存恢复短语。</string>
     <string name="bittensor_key_finish_body">设置在签名前中断，因此没有向此密钥支付任何款项。“完成设置”会使用此密钥签署授权。</string>
     <string name="bittensor_key_finish_setup">完成设置</string>
@@ -1219,6 +1219,7 @@
     <string name="sn_claim_relay_claim_now">立即领取</string>
     <string name="sn_claim_relay_claim_now_paid">“立即领取”由 URnetwork 支付费用，每 %1$d 天一次。</string>
     <string name="sn_claim_relay_claim_now_paid_each">由 URnetwork 支付费用，每个 coldkey 每 %1$d 天一次。</string>
+    <string name="sn_claim_relay_claimed">已由 URnetwork 领取。%1$s SN25α 已在您的密钥 %2$s 上。</string>
     <string name="sn_claim_relay_for_you">URnetwork 代您发起领取</string>
     <string name="sn_claim_relay_lands_on">URnetwork 代您发起领取。Gas 费由 URnetwork 支付，您的 SN25α 将存入 %1$s。</string>
     <string name="sn_claim_relay_not_running">自动领取目前未在运行。</string>

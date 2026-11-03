@@ -134,7 +134,7 @@
     <string name="bittensor_key_failure_consent">ไม่สามารถตั้งค่าการจ่ายได้ ลองอีกครั้ง</string>
     <string name="bittensor_key_failure_delete">ไม่สามารถลบคีย์ออกจากอุปกรณ์นี้ได้ คีย์ยังอยู่ที่นี่</string>
     <string name="bittensor_key_failure_generate">ไม่สามารถสร้างคีย์บนอุปกรณ์นี้ได้ ลองอีกครั้ง</string>
-    <string name="bittensor_key_failure_keychain">ไม่สามารถอ่านพวงกุญแจของอุปกรณ์นี้ได้ ปลดล็อกอุปกรณ์ของคุณแล้วลองอีกครั้ง</string>
+    <string name="bittensor_key_failure_keychain">ไม่สามารถอ่านพื้นที่จัดเก็บที่ปลอดภัยของอุปกรณ์นี้ได้ ปลดล็อกอุปกรณ์ของคุณแล้วลองอีกครั้ง</string>
     <string name="bittensor_key_failure_store">ไม่สามารถบันทึกคีย์บนอุปกรณ์นี้ได้ จึงไม่มีการลงนามใดๆ ลองอีกครั้ง หรือบันทึกวลีสำรองก่อน</string>
     <string name="bittensor_key_finish_body">การตั้งค่าหยุดลงก่อนลงนาม จึงไม่มีการจ่ายใดๆ เข้าคีย์นี้ “ตั้งค่าให้เสร็จสิ้น” จะใช้คีย์นี้ลงนามในความยินยอม</string>
     <string name="bittensor_key_finish_setup">ตั้งค่าให้เสร็จสิ้น</string>
@@ -1219,6 +1219,7 @@
     <string name="sn_claim_relay_claim_now">รับตอนนี้</string>
     <string name="sn_claim_relay_claim_now_paid">“รับตอนนี้” ออกค่าใช้จ่ายโดย URnetwork ใช้ได้ %1$d วันต่อครั้ง</string>
     <string name="sn_claim_relay_claim_now_paid_each">ออกค่าใช้จ่ายโดย URnetwork ใช้ได้ %1$d วันต่อครั้งสำหรับแต่ละ coldkey</string>
+    <string name="sn_claim_relay_claimed">URnetwork รับให้แล้ว %1$s SN25α อยู่ในคีย์ของคุณ %2$s</string>
     <string name="sn_claim_relay_for_you">URnetwork ดำเนินการรับให้คุณ</string>
     <string name="sn_claim_relay_lands_on">URnetwork ดำเนินการรับให้คุณ โดยเป็นผู้จ่ายค่า gas และ SN25α ของคุณจะเข้าสู่ %1$s</string>
     <string name="sn_claim_relay_not_running">ขณะนี้การรับอัตโนมัติไม่ได้ทำงาน</string>
