@@ -102,6 +102,26 @@ internal fun decideVpnServiceLaunch(
 }
 
 /**
+ * The Reconnect the user taps in the drawer's lost-tunnel state (the connect is
+ * requested and the tunnel is not started; support inbox 7814). A plain launch
+ * decides ALREADY_RUNNING while the service runs, before it looks at the VPN
+ * permission, so when Android no longer counts this app as the prepared VPN
+ * every rebuild's establish() fails and Reconnect can never bring the tunnel
+ * back; only Disconnect, then Connect, asked again. The user's Reconnect asks
+ * for the permission first, running service or not, and otherwise a running
+ * service rebuilds its tunnel at once (MainService.rebuildTunnelNow).
+ */
+internal fun decideVpnServiceReconnect(
+    serviceActive: Boolean,
+    startPending: Boolean,
+    vpnPermissionRequired: Boolean,
+): VpnServiceLaunchDecision = when {
+    vpnPermissionRequired -> VpnServiceLaunchDecision.REQUEST_VPN_PERMISSION
+    serviceActive || startPending -> VpnServiceLaunchDecision.ALREADY_RUNNING
+    else -> VpnServiceLaunchDecision.START_FOREGROUND
+}
+
+/**
  * Timing for keeping the VPN interface up. The defaults are the shipped
  * behavior; tests and callers pass their own instance to change any of them.
  */

@@ -2828,6 +2828,50 @@ class MainApplication : Application() {
         }
     }
 
+    /**
+     * The drawer's Reconnect for a lost tunnel (support inbox 7814). Unlike
+     * startVpnService, it asks Android whether the app is still the prepared VPN
+     * while the service runs (decideVpnServiceReconnect), and a running service
+     * rebuilds its tunnel now instead of waiting out a TUN retry's backoff.
+     */
+    fun reconnectVpnService() {
+        if (android.os.Looper.myLooper() != mainLooper) {
+            mainHandler.post { reconnectVpnService() }
+            return
+        }
+        if (device == null) return
+
+        try {
+            when (
+                decideVpnServiceReconnect(
+                    serviceActive = serviceActive,
+                    startPending = vpnStartPending,
+                    vpnPermissionRequired = VpnService.prepare(this) != null,
+                )
+            ) {
+                VpnServiceLaunchDecision.REQUEST_VPN_PERMISSION -> {
+                    cancelVpnStartRetry(resetFailureCount = false)
+                    vpnRequestStart = true
+                    vpnRequestStartListener?.invoke()
+                }
+                VpnServiceLaunchDecision.ALREADY_RUNNING -> {
+                    val running = service?.get()
+                    if (running == null) {
+                        // a start in flight adopts the device when it lands
+                        startVpnService()
+                    } else {
+                        cancelVpnStartRetry(resetFailureCount = true)
+                        running.rebuildTunnelNow("user-reconnect")
+                    }
+                }
+                VpnServiceLaunchDecision.START_FOREGROUND -> startVpnService()
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Unable to prepare VPN reconnect: ${e.message}", e)
+            startVpnService()
+        }
+    }
+
     private fun scheduleVpnStartAdoptionWatchdog() {
         vpnStartAdoptionWatchdog?.let(mainHandler::removeCallbacks)
         val generation = ++vpnStartAttemptGeneration

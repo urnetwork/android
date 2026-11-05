@@ -300,4 +300,44 @@ class VpnServiceStartPolicyTest {
             VpnTunnelTimingSettings(tunnelRetryDelaysMillis = emptyList())
         }
     }
+
+    // Support inbox 7814: the drawer's Reconnect for a lost tunnel went through
+    // the plain launch decision, which answers ALREADY_RUNNING for a running
+    // service before it looks at the VPN permission. With the permission gone,
+    // every rebuild failed and Reconnect could never ask for it.
+    @Test
+    fun reconnectAsksForALostVpnPermissionWhileTheServiceRuns() {
+        assertEquals(
+            VpnServiceLaunchDecision.ALREADY_RUNNING,
+            decideVpnServiceLaunch(serviceActive = true, startPending = false, vpnPermissionRequired = true),
+        )
+        assertEquals(
+            VpnServiceLaunchDecision.REQUEST_VPN_PERMISSION,
+            decideVpnServiceReconnect(serviceActive = true, startPending = false, vpnPermissionRequired = true),
+        )
+        assertEquals(
+            VpnServiceLaunchDecision.REQUEST_VPN_PERMISSION,
+            decideVpnServiceReconnect(serviceActive = false, startPending = true, vpnPermissionRequired = true),
+        )
+    }
+
+    @Test
+    fun reconnectRebuildsARunningServiceAndStartsAStoppedOne() {
+        assertEquals(
+            VpnServiceLaunchDecision.ALREADY_RUNNING,
+            decideVpnServiceReconnect(serviceActive = true, startPending = false, vpnPermissionRequired = false),
+        )
+        assertEquals(
+            VpnServiceLaunchDecision.ALREADY_RUNNING,
+            decideVpnServiceReconnect(serviceActive = false, startPending = true, vpnPermissionRequired = false),
+        )
+        assertEquals(
+            VpnServiceLaunchDecision.START_FOREGROUND,
+            decideVpnServiceReconnect(serviceActive = false, startPending = false, vpnPermissionRequired = false),
+        )
+        assertEquals(
+            VpnServiceLaunchDecision.REQUEST_VPN_PERMISSION,
+            decideVpnServiceReconnect(serviceActive = false, startPending = false, vpnPermissionRequired = true),
+        )
+    }
 }
