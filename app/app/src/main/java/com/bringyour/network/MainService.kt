@@ -482,6 +482,27 @@ import kotlin.math.roundToInt
         reconcilePfd()
     }
 
+    /**
+     * The user's Reconnect (MainApplication.reconnectVpnService): rebuild the
+     * tunnel now. reconcilePfd defers a rebuild to a scheduled TUN retry, whose
+     * backoff reaches 30 s after a few failed establishes, so a Reconnect tapped
+     * during it did nothing (support inbox 7814). The user asking is new
+     * information: the backoff and its failure count start over, and the rebuild
+     * runs on this call.
+     */
+    fun rebuildTunnelNow(reason: String) {
+        if (Looper.myLooper() != mainLooper) {
+            mainHandler.post { rebuildTunnelNow(reason) }
+            return
+        }
+        val app = application as MainApplication
+        if (stopping || app.service?.get() !== this) return
+        Log.i(TAG, "[service] tunnel rebuild requested reason=$reason")
+        cancelTunnelRetry(resetFailureCount = true)
+        attachToCurrentDevice()
+        reconcilePfd()
+    }
+
     private fun desiredTunnelConfiguration(): VpnPacketFlowConfiguration {
         val app = application as MainApplication
         val (includedAppIds, excludedAppIds) = tunnelAppSplit()

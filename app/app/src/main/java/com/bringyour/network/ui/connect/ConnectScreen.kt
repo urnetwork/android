@@ -394,7 +394,9 @@ fun ConnectScreen(
     }
 
     val connect = { connectViewModel.connect(connectViewModel.selectedLocation) }
-    val reconnectTunnel = { application?.startVpnService(); Unit }
+    // the drawer's Reconnect for a lost tunnel: asks for the VPN permission if
+    // it is gone and rebuilds the running service's tunnel now (support 7814)
+    val reconnectTunnel = { application?.reconnectVpnService(); Unit }
     val actionButtons = connectActionButtons(
         insufficientBalance = displayInsufficientBalance,
         currentPlan = currentPlan,
