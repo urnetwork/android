@@ -1115,6 +1115,14 @@ class MainApplication : Application() {
         }
 
         val activityManager = getSystemService(ACTIVITY_SERVICE) as ActivityManager?
+
+        // Why the earlier processes ended (support 8190): a crash, an ANR, a
+        // low-memory or battery-manager kill and the user stopping the app all
+        // look the same to a user ("the app closes by itself"). Written after
+        // glog is pointed at its directory, so "send feedback with logs" carries
+        // the lines (see ProcessExitDiagnostics).
+        logProcessExitReasons(applicationContext, activityManager, diagnosticLog)
+
         // Publish the applied limit so DeviceLocal uses the full allowance
         // without exceeding the memory-class clamp on smaller devices.
         val sdkMemoryMib = effectiveProcessMemoryLimitMib(MEMORY_PROFILE_NAME, activityManager?.memoryClass)
