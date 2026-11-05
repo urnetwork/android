@@ -92,6 +92,8 @@ class MainApplication : Application() {
         const val CLIENT_EVENT_SESSION_GAP_MILLIS = 30L * 60L * 1000L
         // how long logout waits for the pending product events to send
         const val CLIENT_EVENT_LOGOUT_DRAIN_MILLIS = 1500L
+        // how long logout waits for the server sign-out: past the sdk's own 2 s bound
+        const val SERVER_SIGN_OUT_MILLIS = 2500L
         // the device type every request of the api reports (Api.SetClientInfo)
         const val CLIENT_INFO_DEVICE_TYPE = "android"
         // Admission scales with the effective process allowance. The debug
@@ -2331,7 +2333,35 @@ class MainApplication : Application() {
             return
         }
         val attemptId = loginStartupTracker.ensureAttempt(LoginStartupStage.AUTH_CLIENT)
-        loginClientCoordinator.authenticate(attemptId, callback)
+        loginClientCoordinator.authenticate(attemptId) { completion ->
+            // nothing else names a client this attempt was allocated and then
+            // abandoned, so the device's sign-out cannot remove it
+            abandonedLoginClientId(completion, device?.clientId?.toString())?.let {
+                removeAbandonedLoginClient(request.api, it)
+            }
+            callback(completion)
+        }
+    }
+
+    /**
+     * Removes a client a failed sign-in was allocated, with the request's api,
+     * which still holds the network credential (a failed sign-in keeps it for
+     * the retry). Best effort: the answer is only logged.
+     */
+    private fun removeAbandonedLoginClient(requestApi: com.bringyour.sdk.Api, clientId: String) {
+        try {
+            val args = com.bringyour.sdk.RemoveNetworkClientArgs().apply {
+                this.clientId = com.bringyour.sdk.Sdk.parseId(clientId)
+            }
+            requestApi.removeNetworkClient(args) { result, error ->
+                val message = error?.message ?: result?.error?.message
+                if (message != null) {
+                    Log.i(TAG, "[login]abandoned client $clientId not removed: $message")
+                }
+            }
+        } catch (error: Throwable) {
+            Log.i(TAG, "[login]abandoned client $clientId not removed: ${error.message}")
+        }
     }
 
     fun addLoginClientAllocationListener(listener: (LoginClientAllocation) -> Unit): () -> Unit =
@@ -2417,6 +2447,23 @@ class MainApplication : Application() {
         // the pending product events can only be sent while the jwt is still
         // set; give the queue a bounded moment to drain before it is cleared
         clientEventQueue?.flushAndWait(CLIENT_EVENT_LOGOUT_DRAIN_MILLIS)
+
+        // the server half while the network credential is still set (the two
+        // lines below clear it): the sdk removes this device's client and
+        // revokes the session. The device is stopped, and the wait is bounded
+        // like the drain above, so an offline sign-out still ends
+        api?.let { signedOutApi ->
+            BoundedServerCall(SERVER_SIGN_OUT_MILLIS).await { answered ->
+                signedOutApi.signOut { result, error ->
+                    if (error != null) {
+                        Log.i(TAG, "[logout]server sign-out: ${error.message}")
+                    } else if (result != null) {
+                        Log.i(TAG, "[logout]server sign-out: revocation confirmed ${result.revocationConfirmed}, credential cleared ${result.credentialCleared}")
+                    }
+                    answered()
+                }
+            }
+        }
 
         // note this clears the clientJwt also
         asyncLocalState?.localState?.logout()
