@@ -80,6 +80,9 @@ class PhysicalLowbarSessionTest {
     private val hostedTransportPolicy = InstrumentationRegistry.getArguments().getString(HOSTED_H1_POLICY_ARGUMENT).orEmpty().also {
         requireHostedH1Scope(it, qualificationScope)
     }
+    private val privateRelayOnly = requirePrivateRelayOnly(
+        InstrumentationRegistry.getArguments().getString("privateRelayOnly"), hostedTransportPolicy,
+    )
     private val acceptanceLaunchId = InstrumentationRegistry.getArguments().getString("acceptanceLaunchId")?.also {
         require(Regex("^[a-f0-9]{32}$").matches(it)) { "invalid acceptanceLaunchId" }
     }
@@ -101,6 +104,7 @@ class PhysicalLowbarSessionTest {
     private var ioLoopDiagnostics: com.bringyour.sdk.IoLoopDiagnosticSession? = null
     private var ioLoopDiagnosticReceiptName: String? = null
     private var carrierBaseline = emptyMap<String, PhysicalCarrierBytes>()
+    private var privateRelayConfigured = false
     private val peerTimingEvidence = PhysicalPeerTimingEvidence()
     private var commandStartedAtMillis = 0L
     private val failureEvidence = PhysicalFailureEvidence()
@@ -389,6 +393,13 @@ class PhysicalLowbarSessionTest {
             val providers = liveProviders(device)
             val tracked = device.memoryUsed()
             val reliability = device.reliabilityMetrics
+            if (privateRelayOnly) {
+                result.put("privateRelayOnly", true)
+                    .put("explicitAllowDirectOverride", if (privateRelayConfigured) false else JSONObject.NULL)
+                    .put("privateRelayConfigured", privateRelayConfigured)
+                    .put("clientTransportMode", device.transportSettings?.mode.orEmpty())
+                    .put("providerTransportMode", device.providerTransportSettings?.mode.orEmpty())
+            }
             result
                 .put("connected", device.connectEnabled)
                 .put("tunnelStarted", device.tunnelStarted)
@@ -913,6 +924,7 @@ class PhysicalLowbarSessionTest {
         connectVc: ConnectViewController,
         mode: String,
     ) {
+        require(!privateRelayOnly) { "private relay cannot select a public country pool" }
         require(hostedTransportPolicy.isEmpty() || mode == Sdk.TransportModeH1) { "hosted H1 policy refuses other public modes" }
         stopClient(connectVc, device)
         stopProvider(application, device)
@@ -972,12 +984,32 @@ class PhysicalLowbarSessionTest {
         }
     }
 
+    private fun configurePrivateRelay(device: DeviceLocal, retireProvider: () -> Unit = {}) {
+        if (privateRelayOnly) privateRelayConfigured = false
+        configurePrivateRelayOnly(privateRelayOnly,
+            retireProvider = retireProvider,
+            disableDirect = { device.setTransferDiagAllowDirect(true, false) },
+            setClientH1 = {
+                device.transportSettings = Sdk.transportSettingsWithMode(Sdk.defaultTransportSettings(), Sdk.TransportModeH1)
+            },
+            setProviderH1 = {
+                device.providerTransportSettings = Sdk.transportSettingsWithMode(Sdk.defaultProviderTransportSettings(), Sdk.TransportModeH1)
+            },
+            verifyH1 = {
+                check(device.transportSettings?.mode == Sdk.TransportModeH1)
+                check(device.providerTransportSettings?.mode == Sdk.TransportModeH1)
+            },
+        )
+        if (privateRelayOnly) privateRelayConfigured = true
+    }
+
     private fun startProvider(
         application: MainApplication,
         device: DeviceLocal,
         connectVc: ConnectViewController,
     ) {
         stopClient(connectVc, device)
+        configurePrivateRelay(device) { stopProvider(application, device) }
         application.deviceManager.provideNetworkMode = ProvideNetworkMode.ALL
         application.deviceManager.provideControlMode = ProvideControlMode.NETWORK
         device.providePaused = false
@@ -992,8 +1024,9 @@ class PhysicalLowbarSessionTest {
     private fun peerLocation(
         peerVc: PeerViewController,
         networkPeer: Boolean,
+        privatePin: String? = null,
     ): ConnectLocation? {
-        val expectedPeerId = expectedPeerFile
+        val expectedPeerId = privatePin ?: expectedPeerFile
             .takeIf(File::isFile)
             ?.readText()
             ?.trim()
@@ -1007,7 +1040,7 @@ class PhysicalLowbarSessionTest {
         for (i in 0 until peers.len()) {
             val peer = peers.get(i) ?: continue
             if (!peer.provideEnabled || peer.clientId == null) continue
-            if (expectedPeerId != null && peer.clientId.idStr != expectedPeerId) continue
+            if (!privateRelayPeerMatches(expectedPeerId, peer.clientId.idStr)) continue
             val locationId = ConnectLocationId()
             locationId.clientId = peer.clientId
             return ConnectLocation().apply {
@@ -1029,13 +1062,21 @@ class PhysicalLowbarSessionTest {
     ) {
         stopClient(connectVc, device)
         stopProvider(application, device)
+        if (privateRelayOnly) {
+            requirePrivateRelayPeerMode(networkPeer, mode)
+        }
+        val privatePin = if (privateRelayOnly) capturePrivateRelayPin {
+            expectedPeerFile.takeIf(File::isFile)?.readText()
+        } else null
+        configurePrivateRelay(device)
         if (mode.isNotEmpty()) configureClientMode(device, mode)
         carrierBaseline = carrierBytes(device)
         waitFor(PhysicalWaitStage.CONNECTABLE_PEER, PEER_TIMEOUT_MILLIS) {
-            peerLocation(peerVc, networkPeer) != null
+            peerLocation(peerVc, networkPeer, privatePin) != null
         }
-        val selectedPeer = checkNotNull(peerLocation(peerVc, networkPeer))
-        val expectedPeerId = checkNotNull(selectedPeer.connectLocationId?.clientId?.idStr)
+        val selectedPeer = checkNotNull(peerLocation(peerVc, networkPeer, privatePin))
+        val expectedPeerId = privatePin ?: checkNotNull(selectedPeer.connectLocationId?.clientId?.idStr)
+        check(privateRelayPeerMatches(expectedPeerId, selectedPeer.connectLocationId?.clientId?.idStr))
         val timing = PhysicalPeerConnectTiming(
             SystemClock.elapsedRealtime(), CONNECT_TIMEOUT_MILLIS, commandStartedAtMillis,
         )
