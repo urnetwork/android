@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
+import { CdpSession } from "./chrome_cdp.mjs";
 import { main, parseArgs, runFastBenchmark, validFastDisplay, validateFastMeasurement } from "./chrome_fast_benchmark.mjs";
 
 // Synthetic page/browser sessions use an explicit clock; no device or network is contacted.
@@ -14,7 +15,7 @@ function fixture() {
   const f = {
     calls, output,
     samples: [{ value: "40", units: "Mbps", progress: "succeeded", loaded: "complete" }],
-    requests: 1, finished: 1, encodedBytes: 768, failed: 0, failedEvents: [],
+    requests: 1, finished: 1, encodedBytes: 768, failed: 0, failedEvents: [], networkEvents: [],
     evaluateDelay: 0,
     options: parseArgs(["--port", "9223", "--timeout-ms", "90000"]),
     deps: {
@@ -44,6 +45,10 @@ function fixture() {
         for (let i = 0; i < f.finished; i += 1) listeners.get("Network.loadingFinished")({ encodedDataLength: f.encodedBytes });
         for (let i = 0; i < f.failed; i += 1) listeners.get("Network.loadingFailed")({});
         for (const event of f.failedEvents) listeners.get("Network.loadingFailed")(event);
+        for (const [method, event] of f.networkEvents) {
+          if (f.dispatchNetwork) f.dispatchNetwork(method, event);
+          else listeners.get(method)(event);
+        }
         if (f.navigationError) return { errorText: f.navigationError };
       }
       if (method === "Runtime.evaluate") {
@@ -60,12 +65,223 @@ function fixture() {
   return f;
 }
 
+// Exercise the actual CDP event decoder and collector listeners without opening
+// a socket. URLs and identities are synthetic; the production suffix is unused.
+function protocolFixture() {
+  const f = fixture();
+  f.requests = 0; f.finished = 0;
+  f.options.protocolSettings = { ...f.options.protocolSettings, downloadHostSuffix: "download.example" };
+  const receiver = new CdpSession("ws://page.example", { createSocket: () => ({ addEventListener() {}, close() {} }) });
+  const on = f.page.on, close = f.page.close;
+  f.page.on = (method, listener) => { on(method, listener); return receiver.on(method, listener); };
+  f.page.close = () => { receiver.close(); close(); };
+  f.dispatchNetwork = (method, params) => receiver.handleMessage(JSON.stringify({ method, params }));
+  return f;
+}
+
+// A complete event triplet makes the exact response/finished join observable.
+function completeProtocolEvents(id, protocol, url = "https://cdn.download.example/speedtest/range/0-1023?token=synthetic-private", bytes = 1024) {
+  return [
+    ["Network.requestWillBeSent", { requestId: id, request: { method: "GET", url: "https://unused.example/?token=synthetic-request" } }],
+    ["Network.responseReceived", { requestId: id, response: { protocol, url, remotePort: 443, status: 200 } }],
+    ["Network.loadingFinished", { requestId: id, encodedDataLength: bytes }],
+  ];
+}
+
 function assertClosed(f) {
   assert.equal(f.calls.filter((call) => Array.isArray(call) && call[0] === "Target.closeTarget").length, 1);
   assert.deepEqual(f.calls.at(-2), ["Target.closeTarget", { targetId: "owned" }]);
   assert.equal(f.calls.at(-1), "browser-close");
   assert.ok(f.calls.includes("page-close"));
 }
+
+// Protocol is taken from responseReceived, never inferred from carrier or port.
+test("protocol metadata joins actual CDP h1 h2 h3 and unknown responses to completed bytes", async () => {
+  for (const [wire, bucket] of [["http/1.0", "h1"], ["http/1.1", "h1"], ["h2", "h2"], ["h3", "h3"],
+    [undefined, "unknown"], ["synthetic-private-protocol", "unknown"]]) {
+    const f = protocolFixture();
+    f.networkEvents = completeProtocolEvents("synthetic-id", wire);
+    const result = await runFastBenchmark(f.options, f.deps);
+    const evidence = result.pageProtocolEvidence;
+    assert.ok(evidence, "missing response protocol observation");
+    const actual = evidence.byRequestClass.fastDownload[bucket];
+    assert.equal(actual.responses, 1); assert.equal(actual.completed, 1);
+    assert.equal(actual.completedByteSamples, 1); assert.equal(actual.completedEncodedBytes, 1024);
+    assert.equal(evidence.knownDownloadResponseProtocolObserved, bucket !== "unknown");
+    assert.equal(evidence.trackedRequests, 1); assert.equal(evidence.ambiguousRequests, 0);
+    assert.equal(evidence.scope, "page-target-only"); assert.equal(evidence.completeWorkloadCoverage, false);
+    assert.equal(evidence.qualificationEligible, false);
+    assert.equal(result.valid, true); assert.equal(result.elapsedMs, 1000);
+    assert.doesNotMatch(JSON.stringify(evidence), /synthetic|token|download\.example|requestId|remotePort|https/);
+    assertClosed(f);
+  }
+});
+
+// Only an exact HTTPS GET endpoint in the configured namespace is a download.
+test("protocol metadata separates download other and unknown without query based classification", async () => {
+  const cases = [
+    { url: "https://download.example/speedtest?token=synthetic-private", method: "GET", kind: "fastDownload" },
+    { url: "https://cdn.download.example/speedtest/range/0-999", method: "GET", kind: "fastDownload" },
+    { url: "https://cdn.download.example/?next=/speedtest", method: "GET", kind: "other" },
+    { url: "https://cdn.download.example.evil.example/speedtest", method: "GET", kind: "other" },
+    { url: "https://notdownload.example/speedtest", method: "GET", kind: "other" },
+    { url: "http://cdn.download.example/speedtest", method: "GET", kind: "other" },
+    { url: "https://cdn.download.example/speedtest", method: "POST", kind: "other" },
+    { url: "https://cdn.download.example/speedtest", method: undefined, kind: "unknown" },
+    { url: "synthetic-malformed-private", method: "GET", kind: "unknown" },
+    { url: "data:text/plain,synthetic-private", method: "GET", kind: "unknown" },
+    { url: "https://download.example/speedtest", method: "GET", status: 404, kind: "other" },
+    { url: "https://download.example/speedtest", method: "GET", status: null, kind: "unknown" },
+  ];
+  for (const { url, method, status = 200, kind } of cases) {
+    const f = protocolFixture(); f.networkEvents = completeProtocolEvents("synthetic-id", "h2", url);
+    f.networkEvents[0][1].request.method = method;
+    f.networkEvents[1][1].response.status = status;
+    const result = await runFastBenchmark(f.options, f.deps);
+    assert.equal(result.pageProtocolEvidence.byRequestClass[kind].h2.completedEncodedBytes, 1024);
+    assert.equal(result.pageProtocolEvidence.knownDownloadResponseProtocolObserved, kind === "fastDownload");
+    assert.doesNotMatch(JSON.stringify(result), /synthetic|token|download\.example|requestId|remotePort|https/);
+  }
+});
+
+// Cancellation may leave a known protocol and partial transfer, but no finished
+// encoded-byte observation; unrelated page success remains a separate verdict.
+test("protocol metadata keeps canceled responses and does not invent partial byte totals", async () => {
+  const f = protocolFixture();
+  f.networkEvents = completeProtocolEvents("synthetic-canceled", "h3").slice(0, 2);
+  f.networkEvents.push(["Network.dataReceived", { requestId: "synthetic-canceled", dataLength: 500000, encodedDataLength: 400000 }],
+    ["Network.loadingFailed", { requestId: "synthetic-canceled", canceled: true, errorText: "net::ERR_ABORTED" }]);
+  f.networkEvents.push(...completeProtocolEvents("synthetic-other", "http/1.1", "https://page.example/", 256));
+  const result = await runFastBenchmark(f.options, f.deps), bucket = result.pageProtocolEvidence.byRequestClass.fastDownload.h3;
+  assert.equal(bucket.responses, 1); assert.equal(bucket.canceled, 1); assert.equal(bucket.completed, 0);
+  assert.equal(bucket.completedEncodedBytes, null); assert.equal(bucket.completedByteSamples, 0);
+  assert.equal(result.pageProtocolEvidence.byRequestClass.other.h1.completedEncodedBytes, 256);
+  assert.equal(result.pageFailureCategoryCounts.canceled, 1); assert.equal(result.valid, true);
+  assertClosed(f);
+});
+
+// The same real display deadline preserves pending protocol evidence, without
+// extending the run or promoting an incomplete Fast display.
+test("protocol metadata survives a timed out context with pending bytes explicitly unknown", async () => {
+  const f = protocolFixture(); f.options.timeoutMs = 2000;
+  f.samples = [{ value: "0.5", units: "Mbps", progress: "running", loaded: "complete" }];
+  f.networkEvents = completeProtocolEvents("synthetic-pending", "h2").slice(0, 2);
+  const result = await runFastBenchmark(f.options, f.deps), bucket = result.pageProtocolEvidence.byRequestClass.fastDownload.h2;
+  assert.equal(bucket.pending, 1); assert.equal(bucket.completedEncodedBytes, null);
+  assert.equal(result.valid, false); assert.equal(result.failureReason, "deadline-exceeded");
+  assert.equal(result.totalElapsedMs, 2000); assertClosed(f);
+});
+
+// Request identity joins are required. A response can prove a protocol while
+// its missing request method prevents download classification.
+test("protocol metadata distinguishes missing response missing request and unknown terminal context", async () => {
+  const f = protocolFixture();
+  f.networkEvents = completeProtocolEvents("synthetic-no-response", "h2").filter(([method]) => method !== "Network.responseReceived");
+  f.networkEvents.push(...completeProtocolEvents("synthetic-no-request", "h3").slice(1),
+    ["Network.loadingFinished", { requestId: "synthetic-unmatched", encodedDataLength: 9999 }]);
+  const result = await runFastBenchmark(f.options, f.deps), evidence = result.pageProtocolEvidence;
+  assert.equal(evidence.requestsWithoutResponse, 1); assert.equal(evidence.unmatchedTerminalEvents, 1);
+  assert.equal(evidence.byRequestClass.unknown.h3.completedEncodedBytes, 1024);
+  assert.equal(evidence.byRequestClass.fastDownload.h2.completedEncodedBytes, null);
+  assert.equal(evidence.knownDownloadResponseProtocolObserved, false);
+});
+
+// Completed entries remain bounded tombstones. Overflow is explicit even when
+// all corresponding page bytes contributed to the unchanged legacy counter.
+test("protocol metadata enforces the actual per owner tracking boundary and reports drops", async () => {
+  for (const limit of [2, parseArgs([]).protocolSettings.maximumTrackedRequests]) {
+    const f = protocolFixture(); f.options.protocolSettings.maximumTrackedRequests = limit;
+    for (let i = 0; i <= limit; i += 1) f.networkEvents.push(...completeProtocolEvents(`synthetic-${i}`, "h2"));
+    const result = await runFastBenchmark(f.options, f.deps), evidence = result.pageProtocolEvidence;
+    assert.equal(evidence.trackedRequests, limit); assert.equal(evidence.maximumTrackedRequests, limit);
+    assert.equal(evidence.trackingTruncated, true); assert.equal(evidence.droppedTrackingEvents, 2);
+    assert.equal(evidence.unmatchedTerminalEvents, 1);
+    assert.equal(evidence.byRequestClass.fastDownload.h2.completedEncodedBytes, limit * 1024);
+    assert.equal(result.pageEncodedBytes, (limit + 1) * 1024); assert.equal(result.valid, true);
+  }
+});
+
+// A reused, redirected or duplicated identity cannot retain a misleading byte
+// join, including when the first response already finished.
+test("protocol metadata withholds ambiguous identities instead of double counting or cross joining", async () => {
+  for (const duplicate of ["request", "response", "terminal"]) {
+    const f = protocolFixture(); f.networkEvents = completeProtocolEvents("synthetic-reused", "h2");
+    const index = { request: 0, response: 1, terminal: 2 }[duplicate];
+    f.networkEvents.push(f.networkEvents[index]);
+    const result = await runFastBenchmark(f.options, f.deps), evidence = result.pageProtocolEvidence;
+    assert.equal(evidence.ambiguousRequests, 1);
+    assert.equal(evidence.byRequestClass.fastDownload.h2.responses, 0);
+    assert.equal(evidence.byRequestClass.fastDownload.h2.completedEncodedBytes, null);
+    assert.equal(evidence.knownDownloadResponseProtocolObserved, false);
+    assert.equal(evidence[{ request: "reusedRequestEvents", response: "duplicateResponseEvents", terminal: "duplicateTerminalEvents" }[duplicate]], 1);
+  }
+});
+
+// Caches and service workers can report an HTTP protocol without proving fresh
+// network bytes. Preserve that fact beside the bounded completion observations.
+test("protocol metadata exposes reported cache and service worker responses", async () => {
+  for (const flag of ["fromDiskCache", "fromPrefetchCache", "fromServiceWorker"]) {
+    const f = protocolFixture(); f.networkEvents = completeProtocolEvents("synthetic-cached", "h2", undefined, 0);
+    f.networkEvents[1][1].response[flag] = true;
+    const evidence = (await runFastBenchmark(f.options, f.deps)).pageProtocolEvidence;
+    const bucket = evidence.byRequestClass.fastDownload.h2;
+    assert.equal(bucket.cacheOrWorkerReported, 1); assert.equal(bucket.completedByteSamples, 1);
+    assert.equal(bucket.completedEncodedBytes, 0, "observed zero differs from missing bytes");
+    assert.equal(evidence.completeWorkloadCoverage, false);
+  }
+});
+
+// Length bounds apply before parsing; malformed metadata remains unknown and
+// must not leak identities, URLs, protocol strings or query tokens.
+test("protocol metadata bounds private metadata and rejects invalid byte observations", async () => {
+  const f = protocolFixture(); f.options.protocolSettings.maximumIdentityLength = 32; f.options.protocolSettings.maximumUrlLength = 64;
+  f.networkEvents = completeProtocolEvents("synthetic-id", "synthetic-private-protocol", "https://cdn.download.example/" + "synthetic-private".repeat(20), -1);
+  f.networkEvents.push(...completeProtocolEvents("synthetic-private".repeat(20), "h3"));
+  const result = await runFastBenchmark(f.options, f.deps), evidence = result.pageProtocolEvidence;
+  assert.equal(evidence.trackedRequests, 1); assert.equal(evidence.invalidIdentityEvents, 3);
+  assert.equal(evidence.invalidEncodedLengthEvents, 1);
+  assert.equal(evidence.byRequestClass.unknown.unknown.responses, 1);
+  assert.equal(evidence.byRequestClass.unknown.unknown.completedEncodedBytes, null);
+  assert.doesNotMatch(JSON.stringify(result), /synthetic|private|token|requestId|https|download\.example/);
+});
+
+// Arithmetic overflow must withhold an aggregate, not round it to a false byte
+// total or reset it to zero after an otherwise valid request join.
+test("protocol metadata marks unsafe encoded byte sums unavailable", async () => {
+  const f = protocolFixture();
+  f.networkEvents = [...completeProtocolEvents("synthetic-one", "h2", undefined, Number.MAX_SAFE_INTEGER),
+    ...completeProtocolEvents("synthetic-two", "h2", undefined, 1)];
+  const bucket = (await runFastBenchmark(f.options, f.deps)).pageProtocolEvidence.byRequestClass.fastDownload.h2;
+  assert.equal(bucket.completedByteSamples, 2); assert.equal(bucket.encodedByteSumOverflow, true);
+  assert.equal(bucket.completedEncodedBytes, null);
+});
+
+// Five successive host invocations have independent counters and do not attach
+// workers or alter browser protocol selection. App memory profiles are not read.
+test("protocol metadata resets for five invocations and preserves the existing browser command set", async () => {
+  for (let i = 0; i < 5; i += 1) {
+    const f = protocolFixture(); f.networkEvents = completeProtocolEvents("synthetic-same-local-id", "h2");
+    const result = await runFastBenchmark(f.options, f.deps), evidence = result.pageProtocolEvidence;
+    assert.equal(evidence.trackedRequests, 1); assert.equal(evidence.byRequestClass.fastDownload.h2.responses, 1);
+    assert.equal(evidence.trackingTruncated, false); assert.equal(evidence.droppedTrackingEvents, 0);
+    const allowed = new Set(["Target.createTarget", "Target.closeTarget", "Page.enable", "Network.enable", "Runtime.enable",
+      "Network.setCacheDisabled", "Network.clearBrowserCache", "Page.navigate", "Runtime.evaluate"]);
+    for (const call of f.calls.filter(Array.isArray)) assert.ok(allowed.has(call[0]));
+    assertClosed(f);
+  }
+});
+
+// Invalid owner limits fail before any browser interaction instead of silently
+// disabling bounds or creating shared process-wide tracking state.
+test("protocol metadata requires positive instance limits before opening the browser", async () => {
+  for (const key of ["maximumTrackedRequests", "maximumIdentityLength", "maximumUrlLength"]) {
+    for (const value of [0, -1, NaN, Infinity]) {
+      const f = protocolFixture(); f.options.protocolSettings[key] = value;
+      await assert.rejects(runFastBenchmark(f.options, f.deps), /invalid protocol evidence limit/);
+      assert.equal(f.calls.length, 0);
+    }
+  }
+});
 
 test("last-state observation is opt-in and leaves the canonical result and deadline unchanged", async () => {
   const plain = fixture(), observed = fixture();

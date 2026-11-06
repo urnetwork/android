@@ -2,8 +2,8 @@
 
 // Run Fast.com's real browser workload through an adb-forwarded Android Chrome
 // DevTools socket. Output intentionally contains aggregate timings and byte
-// counts and fixed failure categories only: Fast.com's ephemeral download URLs
-// may contain signed tokens and must not be copied into benchmark logs.
+// counts, fixed failure categories and bounded protocol summaries only: Fast's
+// ephemeral URLs may contain signed tokens and must never enter benchmark logs.
 
 import process from "node:process";
 import { existsSync, lstatSync, readFileSync, renameSync, writeFileSync } from "node:fs";
@@ -13,7 +13,7 @@ import { CdpSession, cdpFailureDetails } from "./chrome_cdp.mjs";
 import { prepareArtifactDirectory, requireArtifactPaths } from "./physical_artifact_directory.mjs";
 
 export function parseArgs(argv) {
-  const options = { port: 9222, timeoutMs: 90_000 };
+  const options = { port: 9222, timeoutMs: 90_000, protocolSettings: defaultFastProtocolSettings() };
   for (let i = 0; i < argv.length; i += 1) {
     const arg = argv[i];
     if (arg === "--port") options.port = Number(argv[++i]);
@@ -24,7 +24,7 @@ export function parseArgs(argv) {
     else throw new Error(`unknown option: ${arg}`);
   }
   for (const [name, value] of Object.entries(options)) {
-    if (!["help", "diagnosticLastState", "diagnosticActivity"].includes(name) && (!Number.isSafeInteger(value) || value <= 0 || value > 2_147_483_647)) {
+    if (!["help", "diagnosticLastState", "diagnosticActivity", "protocolSettings"].includes(name) && (!Number.isSafeInteger(value) || value <= 0 || value > 2_147_483_647)) {
       throw new Error(`${name} must be a positive number`);
     }
   }
@@ -34,6 +34,163 @@ export function parseArgs(argv) {
     throw new Error("absolute diagnostic activity path required");
   }
   return options;
+}
+
+// Per-invocation limits bound retained identity metadata, never browser traffic.
+// Positive lengths are JS characters; no URL or identity is serialized.
+function defaultFastProtocolSettings() {
+  return { maximumTrackedRequests: 256, maximumIdentityLength: 256, maximumUrlLength: 8192,
+    downloadHostSuffix: "nflxvideo.net" };
+}
+
+// CDP JSON has own data properties. Ignore malformed accessors without invoking
+// them or coercing opaque values into retained diagnostics.
+function protocolDataField(value, name) {
+  if (value === null || typeof value !== "object") return undefined;
+  return Object.getOwnPropertyDescriptor(value, name)?.value;
+}
+
+// One page owns this bounded map until its result is published. Completed ids
+// stay as tombstones: a reused id must not join another response's byte total.
+class FastProtocolEvidence {
+  constructor(settings) {
+    for (const key of ["maximumTrackedRequests", "maximumIdentityLength", "maximumUrlLength"]) {
+      if (!Number.isSafeInteger(settings[key]) || settings[key] <= 0) throw new Error("invalid protocol evidence limit");
+    }
+    if (typeof settings.downloadHostSuffix !== "string" ||
+        !/^[a-z0-9]+(?:[.-][a-z0-9]+)+$/.test(settings.downloadHostSuffix)) {
+      throw new Error("invalid protocol evidence host suffix");
+    }
+    this.settings = { ...settings };
+    this.requests = new Map();
+    this.counts = { requestEvents: 0, responseEvents: 0, finishedEvents: 0, failedEvents: 0,
+      invalidIdentityEvents: 0, droppedTrackingEvents: 0, unmatchedTerminalEvents: 0,
+      reusedRequestEvents: 0, duplicateResponseEvents: 0, duplicateTerminalEvents: 0,
+      invalidEncodedLengthEvents: 0 };
+  }
+
+  // Only request/response events admit an identity; terminal-only events cannot
+  // invent a response or classify unobserved bytes.
+  entry(event, kind, admit) {
+    this.counts[kind] += 1;
+    const id = protocolDataField(event, "requestId");
+    if (typeof id !== "string" || id.length === 0 || id.length > this.settings.maximumIdentityLength) {
+      this.counts.invalidIdentityEvents += 1;
+      return undefined;
+    }
+    let entry = this.requests.get(id);
+    if (!entry && !admit) { this.counts.unmatchedTerminalEvents += 1; return undefined; }
+    if (!entry) {
+      if (this.requests.size >= this.settings.maximumTrackedRequests) {
+        this.counts.droppedTrackingEvents += 1;
+        return undefined;
+      }
+      entry = { requestSeen: false, responseSeen: false, method: "unknown", urlKind: "unknown", statusKind: "unknown",
+        protocol: "unknown", terminal: null, encodedBytes: null, cacheOrWorkerReported: false, ambiguous: false };
+      this.requests.set(id, entry);
+    }
+    return entry;
+  }
+
+  // Request method is a finite enum; request URLs, headers and bodies are unused.
+  request(event) {
+    const entry = this.entry(event, "requestEvents", true);
+    if (!entry) return;
+    if (entry.requestSeen) { entry.ambiguous = true; this.counts.reusedRequestEvents += 1; }
+    entry.requestSeen = true;
+    const method = protocolDataField(protocolDataField(event, "request"), "method");
+    entry.method = method === "GET" ? "get" : typeof method === "string" ? "other" : "unknown";
+  }
+
+  // Classify only the final response's bounded URL, then discard it. The suffix
+  // and speedtest path are a narrow download classifier, not full Fast coverage.
+  response(event) {
+    const entry = this.entry(event, "responseEvents", true);
+    if (!entry) return;
+    if (entry.responseSeen) {
+      entry.ambiguous = true; this.counts.duplicateResponseEvents += 1; return;
+    }
+    entry.responseSeen = true;
+    const response = protocolDataField(event, "response");
+    const status = protocolDataField(response, "status");
+    if (Number.isInteger(status) && status >= 100 && status <= 599) {
+      entry.statusKind = status >= 200 && status < 300 ? "success" : "other";
+    }
+    switch (protocolDataField(response, "protocol")) {
+      case "http/1.0": case "http/1.1": entry.protocol = "h1"; break;
+      case "h2": entry.protocol = "h2"; break;
+      case "h3": entry.protocol = "h3"; break;
+    }
+    entry.cacheOrWorkerReported = ["fromDiskCache", "fromPrefetchCache", "fromServiceWorker"]
+      .some(key => protocolDataField(response, key) === true);
+    const text = protocolDataField(response, "url");
+    if (typeof text !== "string" || text.length > this.settings.maximumUrlLength) return;
+    try {
+      const url = new URL(text);
+      if (!["http:", "https:"].includes(url.protocol)) return;
+      const suffix = this.settings.downloadHostSuffix;
+      entry.urlKind = url.protocol === "https:" &&
+        (url.hostname === suffix || url.hostname.endsWith(`.${suffix}`)) &&
+        /^\/speedtest(?:\/range\/\d+-\d+)?\/?$/.test(url.pathname) ? "speedtest" : "other";
+    } catch { /* Malformed URLs remain unknown; never include parser errors. */ }
+  }
+
+  // Canceled/failed responses have no completed-byte sample. Pending responses
+  // retain their observed protocol even when the display deadline expires.
+  terminal(event, failed) {
+    const entry = this.entry(event, failed ? "failedEvents" : "finishedEvents", false);
+    if (!entry) return;
+    if (entry.terminal !== null) {
+      entry.ambiguous = true; this.counts.duplicateTerminalEvents += 1; return;
+    }
+    const canceled = protocolDataField(event, "canceled") === true || protocolDataField(event, "errorText") === "net::ERR_ABORTED";
+    entry.terminal = failed ? (canceled ? "canceled" : "failed") : "completed";
+    if (!failed) {
+      const bytes = protocolDataField(event, "encodedDataLength");
+      if (Number.isSafeInteger(bytes) && bytes >= 0) entry.encodedBytes = bytes;
+      else this.counts.invalidEncodedLengthEvents += 1;
+    }
+  }
+
+  // Byte totals are CDP completed-response encoded lengths, not decoded body,
+  // packet-wire or whole-browser totals. Null means no usable byte observation.
+  snapshot() {
+    const byRequestClass = {};
+    for (const kind of ["fastDownload", "other", "unknown"]) {
+      byRequestClass[kind] = {};
+      for (const protocol of ["h1", "h2", "h3", "unknown"]) {
+        byRequestClass[kind][protocol] = { responses: 0, completed: 0, failed: 0, canceled: 0,
+          pending: 0, cacheOrWorkerReported: 0, completedByteSamples: 0, completedEncodedBytes: null,
+          encodedByteSumOverflow: false };
+      }
+    }
+    let ambiguousRequests = 0, requestsWithoutResponse = 0;
+    for (const entry of this.requests.values()) {
+      if (entry.ambiguous) { ambiguousRequests += 1; continue; }
+      if (!entry.responseSeen) { requestsWithoutResponse += 1; continue; }
+      const kind = entry.urlKind === "other" || entry.statusKind === "other" || (entry.urlKind === "speedtest" && entry.method === "other")
+        ? "other" : entry.urlKind === "speedtest" && entry.method === "get" && entry.statusKind === "success" ? "fastDownload" : "unknown";
+      const bucket = byRequestClass[kind][entry.protocol];
+      bucket.responses += 1;
+      bucket[entry.terminal ?? "pending"] += 1;
+      if (entry.cacheOrWorkerReported) bucket.cacheOrWorkerReported += 1;
+      if (entry.terminal === "completed" && entry.encodedBytes !== null) {
+        bucket.completedByteSamples += 1;
+        if (!bucket.encodedByteSumOverflow) {
+          const total = (bucket.completedEncodedBytes ?? 0) + entry.encodedBytes;
+          if (Number.isSafeInteger(total)) bucket.completedEncodedBytes = total;
+          else { bucket.completedEncodedBytes = null; bucket.encodedByteSumOverflow = true; }
+        }
+      }
+    }
+    return { scope: "page-target-only", classification: "successful-get-speedtest-path-host-suffix",
+      completeWorkloadCoverage: false, qualificationEligible: false,
+      maximumTrackedRequests: this.settings.maximumTrackedRequests, trackedRequests: this.requests.size,
+      trackingTruncated: this.counts.droppedTrackingEvents > 0, ...this.counts,
+      ambiguousRequests, requestsWithoutResponse,
+      knownDownloadResponseProtocolObserved: ["h1", "h2", "h3"].some(key => byRequestClass.fastDownload[key].responses > 0),
+      byRequestClass };
+  }
 }
 
 function usage() {
@@ -215,6 +372,7 @@ export async function runFastBenchmark(options, dependencies = {}) {
   const lifecycleStartedAt = now();
   const deadline = new Deadline(options.timeoutMs, now, dependencies);
   const activity = createFastDiagnosticActivity(options.diagnosticActivity);
+  const protocolEvidence = new FastProtocolEvidence(options.protocolSettings ?? defaultFastProtocolSettings());
   const baseUrl = `http://127.0.0.1:${options.port}`;
   let browser;
   let targetId;
@@ -266,17 +424,21 @@ export async function runFastBenchmark(options, dependencies = {}) {
     // downloads into a worker/child target, so these are diagnostic page
     // counters, not the authoritative speed-test byte total. The displayed
     // result remains Fast.com's canonical aggregate measurement.
-    session.on("Network.requestWillBeSent", () => {
+    session.on("Network.requestWillBeSent", (event) => {
+      protocolEvidence.request(event);
       pageRequestCount += 1;
       activeRequests += 1;
       maxParallelRequests = Math.max(maxParallelRequests, activeRequests);
     });
+    session.on("Network.responseReceived", (event) => protocolEvidence.response(event));
     session.on("Network.loadingFinished", (event) => {
+      protocolEvidence.terminal(event, false);
       pageCompletedRequestCount += 1;
       pageEncodedBytes += Math.max(0, event.encodedDataLength ?? 0);
       activeRequests = Math.max(0, activeRequests - 1);
     });
     session.on("Network.loadingFailed", (event) => {
+      protocolEvidence.terminal(event, true);
       // Exact protocol codes only. Unknown text, URLs and request identities
       // never become keys or retained values; cancellation takes precedence.
       let category = "other";
@@ -394,6 +556,7 @@ export async function runFastBenchmark(options, dependencies = {}) {
     pageFailedRequestCount,
     pageFailureScope: "page-target-only",
     pageFailureCategoryCounts,
+    pageProtocolEvidence: protocolEvidence.snapshot(),
     pageMaxParallelRequests: maxParallelRequests,
     completed: completionReason !== null,
     completionReason,
