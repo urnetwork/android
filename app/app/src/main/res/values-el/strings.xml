@@ -242,6 +242,9 @@
     <string name="client_contracts">Συμβόλαια πελάτη</string>
     <string name="client_id">ID πελάτη</string>
     <string name="client_id_copied">Το ID πελάτη αντιγράφηκε</string>
+    <string name="client_limit_reached">Συμπληρώθηκε το όριο συσκευών</string>
+    <string name="client_limit_remove_client_message">Το πρόγραμμά σας έφτασε το όριο συσκευών που συνδέονται ταυτόχρονα. Αποσυνδεθείτε από το URnetwork σε μια συσκευή που δεν χρησιμοποιείτε πια και δοκιμάστε ξανά.</string>
+    <string name="client_limit_upgrade_message">Το δωρεάν πρόγραμμά σας συνδέει περιορισμένο αριθμό συσκευών ταυτόχρονα. Αναβαθμίστε σε UR Pro για να συνδέσετε περισσότερες ή αποσυνδέστε το URnetwork σε άλλη συσκευή.</string>
     <string name="client_statistics">Στατιστικά πελάτη</string>
     <string name="clients">Πελάτες</string>
     <string name="close">Κλείσιμο</string>
@@ -781,6 +784,16 @@
     <string name="login_verify_header">Έχετε ένα email</string>
     <string name="longest_streak">Μεγαλύτερο σερί</string>
     <string name="make_default">Ορισμός ως προεπιλογή</string>
+    <string name="manage_devices">Διαχείριση συσκευών</string>
+    <string name="manage_devices_connecting">Σύνδεση αυτής της συσκευής…</string>
+    <string name="manage_devices_help">Κάθε συνδεδεμένη συσκευή ή διακομιστής μεσολάβησης καταλαμβάνει μία θέση του προγράμματός σας. Αφαιρέστε όποιο δεν χρησιμοποιείτε πια για να ελευθερώσετε τη θέση του.</string>
+    <string name="manage_devices_last_seen">Τελευταία εμφάνιση: %1$s</string>
+    <string name="manage_devices_load_failed">Δεν ήταν δυνατή η φόρτωση των συσκευών σας.</string>
+    <string name="manage_devices_proxy">Φιλοξενούμενος διακομιστής μεσολάβησης</string>
+    <string name="manage_devices_remove_failed">Δεν ήταν δυνατή η αφαίρεση της συσκευής. Δοκιμάστε ξανά.</string>
+    <string name="manage_devices_remove_title">Αφαίρεση αυτής της συσκευής;</string>
+    <string name="manage_devices_sign_in_required">Συνδεθείτε ξανά για να διαχειριστείτε συσκευές.</string>
+    <string name="manage_devices_this_device">Αυτή η συσκευή</string>
     <string name="manage_subscription">Διαχείριση συνδρομής</string>
     <string name="member">Μέλος</string>
     <string name="method">Μέθοδος</string>

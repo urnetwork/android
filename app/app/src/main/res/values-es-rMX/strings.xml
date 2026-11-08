@@ -242,6 +242,9 @@
     <string name="client_contracts">Contratos de cliente</string>
     <string name="client_id">ID de cliente</string>
     <string name="client_id_copied">ID de cliente copiado</string>
+    <string name="client_limit_reached">Se alcanzó el límite de dispositivos</string>
+    <string name="client_limit_remove_client_message">Tu plan alcanzó el límite de dispositivos conectados a la vez. Cierra sesión en URnetwork en un dispositivo que ya no uses y vuelve a intentarlo.</string>
+    <string name="client_limit_upgrade_message">Tu plan gratuito conecta una cantidad limitada de dispositivos a la vez. Mejora a UR Pro para conectar más o desconecta URnetwork en otro dispositivo.</string>
     <string name="client_statistics">Estadísticas del cliente</string>
     <string name="clients">Clientes</string>
     <string name="close">Cerrar</string>
@@ -781,6 +784,16 @@
     <string name="login_verify_header">Tienes un correo</string>
     <string name="longest_streak">Racha más larga</string>
     <string name="make_default">Establecer como predeterminada</string>
+    <string name="manage_devices">Administrar dispositivos</string>
+    <string name="manage_devices_connecting">Conectando este dispositivo…</string>
+    <string name="manage_devices_help">Cada dispositivo o proxy conectado ocupa un lugar de tu plan. Quita el que ya no uses para liberar su lugar.</string>
+    <string name="manage_devices_last_seen">Visto por última vez: %1$s</string>
+    <string name="manage_devices_load_failed">No se pudieron cargar tus dispositivos.</string>
+    <string name="manage_devices_proxy">Proxy alojado</string>
+    <string name="manage_devices_remove_failed">No se pudo quitar el dispositivo. Vuelve a intentarlo.</string>
+    <string name="manage_devices_remove_title">¿Quitar este dispositivo?</string>
+    <string name="manage_devices_sign_in_required">Vuelve a iniciar sesión para administrar los dispositivos.</string>
+    <string name="manage_devices_this_device">Este dispositivo</string>
     <string name="manage_subscription">Administrar suscripción</string>
     <string name="member">Miembro</string>
     <string name="method">Método</string>

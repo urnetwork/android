@@ -242,6 +242,10 @@ internal fun ConnectActions(
                     showDataInfo = showDataInfo,
                 )
 
+                // the network's client limit holds the device off: what to
+                // do, above the fold with the other alerts
+                ClientLimitNotice(navController = navController)
+
                 // the fold marker: a zero-height anchor at the bottom of the
                 // location + connect block. positionInParent is relative to the
                 // card's content area (inside its padding), so the card's top

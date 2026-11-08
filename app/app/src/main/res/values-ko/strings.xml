@@ -242,6 +242,9 @@
     <string name="client_contracts">클라이언트 계약</string>
     <string name="client_id">클라이언트 ID</string>
     <string name="client_id_copied">클라이언트 ID가 복사되었습니다</string>
+    <string name="client_limit_reached">기기 한도에 도달했습니다</string>
+    <string name="client_limit_remove_client_message">요금제의 동시 연결 기기 한도에 도달했습니다. 더 이상 사용하지 않는 기기에서 URnetwork에서 로그아웃한 다음 다시 시도하세요.</string>
+    <string name="client_limit_upgrade_message">무료 요금제는 동시에 연결할 수 있는 기기 수가 제한됩니다. 더 많이 연결하려면 UR Pro로 업그레이드하거나 다른 기기에서 URnetwork 연결을 해제하세요.</string>
     <string name="client_statistics">클라이언트 통계</string>
     <string name="clients">클라이언트</string>
     <string name="close">닫기</string>
@@ -781,6 +784,16 @@
     <string name="login_verify_header">메일을 확인해주세요</string>
     <string name="longest_streak">최장 연속</string>
     <string name="make_default">기본값으로 설정</string>
+    <string name="manage_devices">기기 관리</string>
+    <string name="manage_devices_connecting">이 기기를 연결하는 중…</string>
+    <string name="manage_devices_help">연결된 기기나 프록시는 각각 요금제의 자리를 하나씩 사용합니다. 더 이상 사용하지 않는 것을 제거하면 자리가 비워집니다.</string>
+    <string name="manage_devices_last_seen">마지막 확인: %1$s</string>
+    <string name="manage_devices_load_failed">기기를 불러오지 못했습니다.</string>
+    <string name="manage_devices_proxy">호스팅 프록시</string>
+    <string name="manage_devices_remove_failed">기기를 제거하지 못했습니다. 다시 시도하세요.</string>
+    <string name="manage_devices_remove_title">이 기기를 제거할까요?</string>
+    <string name="manage_devices_sign_in_required">기기를 관리하려면 다시 로그인하세요.</string>
+    <string name="manage_devices_this_device">이 기기</string>
     <string name="manage_subscription">구독 관리</string>
     <string name="member">회원</string>
     <string name="method">방법</string>

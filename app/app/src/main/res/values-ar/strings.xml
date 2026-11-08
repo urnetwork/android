@@ -242,6 +242,9 @@
     <string name="client_contracts">عقود العميل</string>
     <string name="client_id">معرّف العميل</string>
     <string name="client_id_copied">تم نسخ معرّف العميل</string>
+    <string name="client_limit_reached">تم بلوغ الحد الأقصى للأجهزة</string>
+    <string name="client_limit_remove_client_message">بلغت خطتك الحد الأقصى للأجهزة المتصلة في الوقت نفسه. سجّل الخروج من URnetwork على جهاز لم تعد تستخدمه، ثم حاول مرة أخرى.</string>
+    <string name="client_limit_upgrade_message">تتيح خطتك المجانية توصيل عدد محدود من الأجهزة في الوقت نفسه. قم بالترقية إلى UR Pro لتوصيل المزيد، أو افصل URnetwork على جهاز آخر.</string>
     <string name="client_statistics">إحصائيات العميل</string>
     <string name="clients">العملاء</string>
     <string name="close">إغلاق</string>
@@ -781,6 +784,16 @@
     <string name="login_verify_header">لديك بريد إلكتروني</string>
     <string name="longest_streak">أطول سلسلة</string>
     <string name="make_default">جعل الافتراضي</string>
+    <string name="manage_devices">إدارة الأجهزة</string>
+    <string name="manage_devices_connecting">جارٍ توصيل هذا الجهاز…</string>
+    <string name="manage_devices_help">يستخدم كل جهاز أو وكيل متصل مكانًا من خطتك. أزل ما لم تعد تستخدمه لتحرير مكانه.</string>
+    <string name="manage_devices_last_seen">آخر ظهور: %1$s</string>
+    <string name="manage_devices_load_failed">تعذّر تحميل أجهزتك.</string>
+    <string name="manage_devices_proxy">وكيل مستضاف</string>
+    <string name="manage_devices_remove_failed">تعذّرت إزالة الجهاز. حاول مرة أخرى.</string>
+    <string name="manage_devices_remove_title">إزالة هذا الجهاز؟</string>
+    <string name="manage_devices_sign_in_required">سجّل الدخول مرة أخرى لإدارة الأجهزة.</string>
+    <string name="manage_devices_this_device">هذا الجهاز</string>
     <string name="manage_subscription">إدارة الاشتراك</string>
     <string name="member">عضو</string>
     <string name="method">الطريقة</string>

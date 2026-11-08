@@ -242,6 +242,9 @@
     <string name="client_contracts">Контракты клиента</string>
     <string name="client_id">ID клиента</string>
     <string name="client_id_copied">ID клиента скопирован</string>
+    <string name="client_limit_reached">Достигнут лимит устройств</string>
+    <string name="client_limit_remove_client_message">Ваш тариф достиг лимита одновременно подключённых устройств. Выйдите из URnetwork на устройстве, которым больше не пользуетесь, и попробуйте снова.</string>
+    <string name="client_limit_upgrade_message">Бесплатный тариф позволяет подключать одновременно ограниченное число устройств. Перейдите на UR Pro, чтобы подключить больше, или отключите URnetwork на другом устройстве.</string>
     <string name="client_statistics">Статистика клиента</string>
     <string name="clients">Клиенты</string>
     <string name="close">Закрыть</string>
@@ -781,6 +784,16 @@
     <string name="login_verify_header">Вам письмо</string>
     <string name="longest_streak">Самая длинная серия</string>
     <string name="make_default">Сделать по умолчанию</string>
+    <string name="manage_devices">Управление устройствами</string>
+    <string name="manage_devices_connecting">Подключение этого устройства…</string>
+    <string name="manage_devices_help">Каждое подключённое устройство или прокси занимает одно место в тарифе. Удалите то, которым больше не пользуетесь, чтобы освободить место.</string>
+    <string name="manage_devices_last_seen">Последняя активность: %1$s</string>
+    <string name="manage_devices_load_failed">Не удалось загрузить устройства.</string>
+    <string name="manage_devices_proxy">Размещённый прокси</string>
+    <string name="manage_devices_remove_failed">Не удалось удалить устройство. Попробуйте ещё раз.</string>
+    <string name="manage_devices_remove_title">Удалить это устройство?</string>
+    <string name="manage_devices_sign_in_required">Войдите снова, чтобы управлять устройствами.</string>
+    <string name="manage_devices_this_device">Это устройство</string>
     <string name="manage_subscription">Управление подпиской</string>
     <string name="member">Участник</string>
     <string name="method">Способ</string>

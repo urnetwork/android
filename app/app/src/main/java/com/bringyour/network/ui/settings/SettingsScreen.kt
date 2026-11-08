@@ -975,6 +975,34 @@ private fun SettingsScreen(
                 )
             }
 
+            Spacer(modifier = Modifier.height(12.dp))
+
+            /**
+             * Manage devices: the network's devices and hosted proxies, each
+             * removable to free a slot of the plan
+             */
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable {
+                        navController.navigate(Route.ManageDevices)
+                    }
+                    .padding(vertical = 6.dp)
+                    .testTag("acceptance.settings_manage_devices"),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    stringResource(id = R.string.manage_devices),
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                    contentDescription = null,
+                    tint = TextMuted
+                )
+            }
+
             Spacer(modifier = Modifier.height(32.dp))
 
             URTextInputLabel(text = stringResource(id = R.string.connections))

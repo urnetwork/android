@@ -242,6 +242,9 @@
     <string name="client_contracts">Kontrakty klienta</string>
     <string name="client_id">ID klienta</string>
     <string name="client_id_copied">ID klienta zkopírováno</string>
+    <string name="client_limit_reached">Dosažen limit zařízení</string>
+    <string name="client_limit_remove_client_message">Váš tarif dosáhl limitu zařízení připojených najednou. Odhlaste se z URnetwork na zařízení, které už nepoužíváte, a zkuste to znovu.</string>
+    <string name="client_limit_upgrade_message">Váš bezplatný tarif umožňuje připojit najednou jen omezený počet zařízení. Přejděte na UR Pro a připojte jich víc, nebo odpojte URnetwork na jiném zařízení.</string>
     <string name="client_statistics">Statistiky klienta</string>
     <string name="clients">Klienti</string>
     <string name="close">Zavřít</string>
@@ -781,6 +784,16 @@
     <string name="login_verify_header">Máš poštu</string>
     <string name="longest_streak">Nejdelší série</string>
     <string name="make_default">Udělat výchozí</string>
+    <string name="manage_devices">Spravovat zařízení</string>
+    <string name="manage_devices_connecting">Připojování tohoto zařízení…</string>
+    <string name="manage_devices_help">Každé připojené zařízení nebo proxy zabírá jedno místo vašeho tarifu. Odeberte to, které už nepoužíváte, a uvolněte jeho místo.</string>
+    <string name="manage_devices_last_seen">Naposledy viděno: %1$s</string>
+    <string name="manage_devices_load_failed">Zařízení se nepodařilo načíst.</string>
+    <string name="manage_devices_proxy">Hostovaná proxy</string>
+    <string name="manage_devices_remove_failed">Zařízení se nepodařilo odebrat. Zkuste to znovu.</string>
+    <string name="manage_devices_remove_title">Odebrat toto zařízení?</string>
+    <string name="manage_devices_sign_in_required">Pro správu zařízení se znovu přihlaste.</string>
+    <string name="manage_devices_this_device">Toto zařízení</string>
     <string name="manage_subscription">Správa předplatného</string>
     <string name="member">Člen</string>
     <string name="method">Způsob</string>

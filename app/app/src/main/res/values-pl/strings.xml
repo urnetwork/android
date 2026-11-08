@@ -242,6 +242,9 @@
     <string name="client_contracts">Kontrakty klienta</string>
     <string name="client_id">ID klienta</string>
     <string name="client_id_copied">Skopiowano ID klienta</string>
+    <string name="client_limit_reached">Osiągnięto limit urządzeń</string>
+    <string name="client_limit_remove_client_message">Twój plan osiągnął limit urządzeń połączonych jednocześnie. Wyloguj się z URnetwork na urządzeniu, którego już nie używasz, i spróbuj ponownie.</string>
+    <string name="client_limit_upgrade_message">Twój darmowy plan łączy jednocześnie ograniczoną liczbę urządzeń. Przejdź na UR Pro, aby połączyć więcej, albo rozłącz URnetwork na innym urządzeniu.</string>
     <string name="client_statistics">Statystyki klienta</string>
     <string name="clients">Klienci</string>
     <string name="close">Zamknij</string>
@@ -781,6 +784,16 @@
     <string name="login_verify_header">Masz wiadomość</string>
     <string name="longest_streak">Najdłuższa seria</string>
     <string name="make_default">Ustaw jako domyślny</string>
+    <string name="manage_devices">Zarządzaj urządzeniami</string>
+    <string name="manage_devices_connecting">Łączenie tego urządzenia…</string>
+    <string name="manage_devices_help">Każde połączone urządzenie lub serwer proxy zajmuje jedno miejsce w Twoim planie. Usuń to, którego już nie używasz, aby zwolnić miejsce.</string>
+    <string name="manage_devices_last_seen">Ostatnio widziane: %1$s</string>
+    <string name="manage_devices_load_failed">Nie udało się wczytać urządzeń.</string>
+    <string name="manage_devices_proxy">Hostowany serwer proxy</string>
+    <string name="manage_devices_remove_failed">Nie udało się usunąć urządzenia. Spróbuj ponownie.</string>
+    <string name="manage_devices_remove_title">Usunąć to urządzenie?</string>
+    <string name="manage_devices_sign_in_required">Zaloguj się ponownie, aby zarządzać urządzeniami.</string>
+    <string name="manage_devices_this_device">To urządzenie</string>
     <string name="manage_subscription">Zarządzaj subskrypcją</string>
     <string name="member">Członek</string>
     <string name="method">Metoda</string>
