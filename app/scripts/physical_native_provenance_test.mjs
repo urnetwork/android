@@ -15,6 +15,7 @@ import { collectNativeInputs, hashNativeInputFile, nativeWriterArguments, native
 import { prepareCredentialOwnership } from "./physical_credential_ownership.mjs";
 import { runInstrumentationSession } from "./physical_collector_session.mjs";
 import { parseArgs as writerArgs, runNativeWriter } from "./physical_native_writer.mjs";
+import { fixtureCommandOwner, fixtureCommandDiagnostic, fixtureProcessIsLive, reapFixtureOrphanGroup, runFixtureCommand } from "./physical_test_command_owner.mjs";
 
 const SDK = "github.com/urnetwork/sdk";
 const CONNECT = "github.com/urnetwork/connect";
@@ -39,7 +40,7 @@ function writerOwnership(before) {
 
 function fixture(t, prefix = "native-source-contract-") {
   const root = realpathSync(mkdtempSync(join(tmpdir(), prefix)));
-  t.after(() => rmSync(root, { recursive: true, force: true }));
+  const f = fixtureCommandOwner(t, root);
   const cwd = join(root, "sdk/build"); const privateDir = join(root, "private");
   mkdirSync(privateDir, { mode: 0o700 });
   const paths = { before: join(privateDir, "before.json"), after: join(privateDir, "after.json"), output: join(privateDir, "proof.json"),
@@ -88,9 +89,9 @@ function fixture(t, prefix = "native-source-contract-") {
   symlinkSync("llvm-objcopy", join(dirname(objcopy), "llvm-strip"));
   const versionHome = join(root, "version-context");
   json(join(versionHome, "version.json"), { stagedVersion: "fixture-version", stagedVersionCode: 12340 });
-  const f = { hostOS: "darwin", hostArch: "arm64", hostMain, hostDependency, ndk, androidSdk, versionHome,
+  Object.assign(f, { hostOS: "darwin", hostArch: "arm64", hostMain, hostDependency, ndk, androidSdk, versionHome,
     root, cwd, privateDir, paths, modules, commands: [], now: 1000, workspace: "", dirty: true,
-    options: { root, phase: "before", "build-owner": "fixture-owner", "build-id": "fixture-build", "profile-rate": "65536" } };
+    options: { root, phase: "before", "build-owner": "fixture-owner", "build-id": "fixture-build", "profile-rate": "65536" } });
   // Synthetic metadata reports empty GOFLAGS; its CLI children must use that same
   // fixture policy, independently of compiler flags inherited by the test runner.
   f.dependencies = { now: () => f.now++, env: { GOFLAGS: "", PATH: tools, HOME: root, ANDROID_HOME: androidSdk, ANDROID_SDK_ROOT: androidSdk,
@@ -331,9 +332,9 @@ test("public/tampered manifests, missing module input, failed metadata and unsup
   rmSync(join(f.root, "connect/go.mod")); assert.throws(() => f.capture("before"));
 });
 
-test("real CLI rejects an incomplete private proof before any tool/device access and prints no private input", t => {
+test("real CLI rejects an incomplete private proof before any tool/device access and prints no private input", async t => {
   const f = fixture(t); json(f.paths.output, { privateValue: "do-not-output", eligible: true });
-  const result = spawnSync(process.execPath, [new URL("./physical_native_provenance.mjs", import.meta.url).pathname,
+  const result = await runFixtureCommand(f, process.execPath, [new URL("./physical_native_provenance.mjs", import.meta.url).pathname,
     "check", "--proof", f.paths.output, "--build-id", "fixture-build"], { encoding: "utf8", timeout: 3000 });
   assert.equal(result.status, 2); assert.equal(result.stdout, "");
   assert.equal(result.stderr, "native input provenance failed: verified-native-input-proof-required\n");
@@ -396,11 +397,11 @@ test("native consumer cannot use inherited environment markers as a kernel-lock 
     lockInvoke: () => assert.fail("a missing/wrong descriptor must not query the lock") }), /^Error: native-consumer-lock-required$/);
 });
 
-test("real prepare-consumer CLI refuses a source-valid before manifest outside the kernel consumer lock", t => {
+test("real prepare-consumer CLI refuses a source-valid before manifest outside the kernel consumer lock", async t => {
   const f = fixture(t); json(f.paths.before, f.capture("before")); f.writerReceipt();
   const env = { ...process.env };
   for (const key of Object.keys(env)) if (key.startsWith("URNETWORK_ANDROID_SDK_OUTPUT_LOCK_")) delete env[key];
-  const result = spawnSync(process.execPath, [new URL("./physical_native_provenance.mjs", import.meta.url).pathname,
+  const result = await runFixtureCommand(f, process.execPath, [new URL("./physical_native_provenance.mjs", import.meta.url).pathname,
     "prepare-consumer", "--root", f.root, "--before", f.paths.before, "--after", f.paths.after, "--output", f.paths.output,
     "--writer-receipt", f.paths["writer-receipt"]],
   { env, encoding: "utf8", timeout: 3000 });
@@ -421,6 +422,7 @@ function prepareCommandFixture(f, inheritedEnv = process.env) {
   };
   const fakeCommand = join(f.root, "metadata-command.mjs"); const tablePath = join(f.root, "metadata.json");
   write(fakeCommand, `import fs from 'node:fs';const [command,...args]=process.argv.slice(2);\n` +
+    (f.metadataPrelude ?? "") +
     `const key=JSON.stringify([command,args,process.cwd(),command==='go'&&(args.includes('-deps')||args.includes('all'))?process.env.GOARCH:null]);\n` +
     `const table=JSON.parse(fs.readFileSync(${JSON.stringify(tablePath)},'utf8'));if(!(key in table))process.exit(3);process.stdout.write(table[key]);\n`);
   for (const command of ["go", "git"]) {
@@ -437,23 +439,256 @@ function prepareCommandFixture(f, inheritedEnv = process.env) {
   return env;
 }
 
-test("current wrapper and real preparation helper complete the full barrier under a real fixture lock before the consumer", t => {
+test("current wrapper and real preparation helper complete the full barrier under a real fixture lock before the consumer", async t => {
   const f = fixture(t); const env = prepareCommandFixture(f); f.writerReceipt();
   const marker = join(f.privateDir, "consumer-started");
   const consumer = `const fs=require('node:fs');for(const file of process.argv.slice(1,3)){if(!fs.existsSync(file))process.exit(4)}fs.writeFileSync(process.argv[3],'assembled-after-proof',{mode:0o600});`;
-  const result = spawnSync("bash", [new URL("./physical_native_consumer.sh", import.meta.url).pathname,
+  const result = await runFixtureCommand(f, "bash", [new URL("./physical_native_consumer.sh", import.meta.url).pathname,
     "--root", f.root, "--before", f.paths.before, "--after", f.paths.after, "--proof", f.paths.output,
     "--writer-receipt", f.paths["writer-receipt"],
     "--", process.execPath, "-e", consumer, f.paths.after, f.paths.output, marker],
   { cwd: f.root, env, encoding: "utf8", timeout: 20000 });
-  assert.equal(result.status, 0, result.stderr);
+  assert.equal(result.status, 0, fixtureCommandDiagnostic(result));
   assert.equal(readFileSync(marker, "utf8"), "assembled-after-proof");
   assert.equal(requireVerifiedNativeInputs(f.paths.output, "fixture-build", f.dependencies).buildOwner, "fixture-owner");
   assert.deepEqual(JSON.parse(result.stdout), { eligible: true, classification: "NATIVE_INPUTS_VERIFIED" });
 });
 
-function writerFixture(t, prefix) {
-  const f = fixture(t, prefix); const env = prepareCommandFixture(f);
+test("native fixture failure diagnostics retain fate and output bounds without child text", () => {
+  const secret = "private-fixture-output-and-path";
+  const value = { closed: true, exitCode: null, signal: "SIGTERM", timedOut: true, interrupted: false,
+    joinTimedOut: false, orphaned: false, launchError: null, groupJoined: true, error: { code: "ETIMEDOUT", message: secret },
+    stdout: secret, stderr: secret, output: { stdout: { bytes: 4096, sha256: sha(secret), truncated: false },
+      stderr: { bytes: 65537, sha256: sha(secret), truncated: true } } };
+  const result = fixtureCommandDiagnostic(value);
+  assert.equal(result.includes(secret), false);
+  assert.deepEqual(JSON.parse(result), { type: "native-fixture-command", closed: true, exitCode: null,
+    signal: "SIGTERM", timedOut: true, interrupted: false, joinTimedOut: false, orphaned: false, launchError: null,
+    errorCode: "ETIMEDOUT", groupJoined: true, output: value.output });
+  assert.ok(result.length < 1024);
+});
+
+test("timed-out real preparation metadata joins the locked helper group before fixture removal", { timeout: 20000 }, async t => {
+  const f = fixture(t, "native-consumer-timeout-");
+  const server = createServer();
+  let peer, info, expire, escalate, deadlineFired = false, termObserved = false, barrierFailure = null;
+  let resolveReady, resolvePeerClosed;
+  const ready = new Promise(resolve => { resolveReady = resolve; });
+  const peerClosed = new Promise(resolve => { resolvePeerClosed = resolve; });
+  server.on("connection", socket => {
+    if (peer) { barrierFailure = "duplicate-metadata-peer"; socket.destroy(); return; }
+    peer = socket;
+    let pending = "";
+    socket.on("data", data => {
+      pending += data;
+      if (pending.length > 256) { barrierFailure = "unbounded-metadata-barrier"; socket.destroy(); return; }
+      while (pending.includes("\n")) {
+        const end = pending.indexOf("\n"), line = pending.slice(0, end); pending = pending.slice(end + 1);
+        if (line === "term") { termObserved = true; escalate?.(); }
+        else if (/^ready:[1-9][0-9]*:[1-9][0-9]*$/.test(line) && info === undefined) {
+          const [, pid, parentPid] = line.split(":"); info = { pid: Number(pid), parentPid: Number(parentPid) };
+          resolveReady(info);
+        } else { barrierFailure = "unexpected-metadata-barrier"; socket.destroy(); }
+      }
+    });
+    socket.on("error", () => {});
+    socket.once("close", () => { resolveReady(null); resolvePeerClosed(); });
+  });
+  server.listen(0, "127.0.0.1"); await once(server, "listening");
+  // This is the real first metadata child, reached only after prepare-consumer
+  // verified its inherited kernel lock. The metadata child need not own the FD.
+  f.metadataPrelude = `if(command==='go'&&args[0]==='env'){\n` +
+    `const {connect}=await import('node:net');const socket=connect(${server.address().port},'127.0.0.1');\n` +
+    `socket.on('error',()=>process.exit(6));socket.on('close',()=>process.exit(0));\n` +
+    `process.on('SIGTERM',()=>socket.write('term\\n'));\n` +
+    `socket.once('connect',()=>socket.write('ready:'+process.pid+':'+process.ppid+'\\n'));\n` +
+    `await new Promise(()=>{});}\n`;
+  const env = prepareCommandFixture(f); f.writerReceipt();
+  const marker = join(f.privateDir, "consumer-started");
+  const args = [new URL("./physical_native_consumer.sh", import.meta.url).pathname,
+    "--root", f.root, "--before", f.paths.before, "--after", f.paths.after, "--proof", f.paths.output,
+    "--writer-receipt", f.paths["writer-receipt"], "--", process.execPath, "-e",
+    "require('node:fs').writeFileSync(process.argv[1],'consumer')", marker];
+  const lockProbe = () => runFixtureCommand(f, "bash", ["-c",
+    "source ./sdk-android-output-lock.sh; sdk_android_output_lock_acquire fixture-probe >/dev/null 2>&1"],
+    { cwd: f.cwd, env, timeout: 5000 });
+  let command, result, cleanup, removedWhileHeld = false, lockReacquiredBeforeRemove = false;
+  try {
+    command = runFixtureCommand(f, "bash", args, { cwd: f.root, env, timeout: 20000, expectedTimeout: true }, {
+      setTimer(callback, delay) {
+        if (delay === 1000) {
+          const token = { armed: true };
+          escalate = () => { if (token.armed) { token.armed = false; callback(); } };
+          if (termObserved) escalate();
+          return token;
+        }
+        if (delay !== 20000) return setTimeout(callback, delay);
+        const fire = () => { if (!deadlineFired) { deadlineFired = true; callback(); } };
+        const timer = setTimeout(fire, delay);
+        expire = () => { clearTimeout(timer); fire(); };
+        return timer;
+      },
+      clearTimer(timer) { if (timer && Object.hasOwn(timer, "armed")) timer.armed = false; else clearTimeout(timer); },
+    });
+    const initialized = await Promise.race([ready, command.then(() => null)]);
+    assert.ok(initialized, "METADATA_HELPER_EXITED_BEFORE_REAL_LOCKED_WAIT");
+    assert.equal(fixtureProcessIsLive(info.pid), true);
+    assert.equal(fixtureProcessIsLive(info.parentPid), true);
+    assert.equal((await lockProbe()).status, 75, "actual preparation helper must still exclude another lock owner");
+    assert.equal(existsSync(marker), false);
+    assert.equal(existsSync(f.paths.after), false); assert.equal(existsSync(f.paths.output), false);
+    f.beforeRemove = async () => {
+      const fate = f.commandOwners[0].result;
+      assert.equal(fate.groupJoined, true);
+      assert.equal(fixtureProcessIsLive(-fate.pid), false);
+      assert.equal(fixtureProcessIsLive(info.pid), false);
+      assert.equal(fixtureProcessIsLive(info.parentPid), false);
+      await peerClosed;
+      // The exact unsafe-cleanup counterfactual still joins every child before
+      // reporting its typed cause; it cannot attempt a probe in deleted files.
+      if (!removedWhileHeld) {
+        assert.equal(existsSync(f.root), true);
+        assert.equal((await lockProbe()).status, 0, "kernel lock must be reusable before fixture deletion");
+        assert.equal(existsSync(marker), false);
+        assert.equal(existsSync(f.paths.after), false); assert.equal(existsSync(f.paths.output), false);
+        lockReacquiredBeforeRemove = true;
+      }
+    };
+    cleanup = f.cleanup();
+    removedWhileHeld = !existsSync(f.root);
+    expire();
+    result = await command;
+    await cleanup;
+  } finally {
+    expire?.(); escalate?.();
+    if (command) await command.catch(() => {});
+    const heldOwner = f.commandOwners[0];
+    if (heldOwner?.result?.pid && !heldOwner.joined) {
+      heldOwner.joined = await reapFixtureOrphanGroup(heldOwner.result.pid, { killAfterMs: 1000, joinAfterMs: 5000 });
+    }
+    if (cleanup) await cleanup.catch(() => {});
+    peer?.destroy();
+    if (peer) await peerClosed;
+    await new Promise(resolve => server.close(resolve));
+  }
+  assert.equal(barrierFailure, null);
+  assert.equal(result.timedOut, true); assert.equal(result.error.code, "ETIMEDOUT");
+  assert.equal(result.closed, true); assert.equal(result.joinTimedOut, false); assert.equal(result.groupJoined, true);
+  assert.equal(fixtureProcessIsLive(-result.pid), false);
+  assert.equal(termObserved, true, "held metadata ignores TERM and requires the existing escalation");
+  if (removedWhileHeld) assert.fail("NATIVE_FIXTURE_CLEANUP_BEFORE_JOIN");
+  assert.equal(lockReacquiredBeforeRemove, true);
+  assert.equal(existsSync(f.root), false);
+});
+
+test("native fixture unjoined return seals hashes while late child output keeps draining", async t => {
+  const child = new EventEmitter(); child.pid = 123456789; child.exitCode = null; child.signalCode = null;
+  child.stdout = new EventEmitter(); child.stderr = new EventEmitter(); child.unref = () => {};
+  const timers = new Map(); let next = 0;
+  const f = { testContext: t, commandOwners: [] }; // No real process or filesystem owner in this control.
+  const command = runFixtureCommand(f, "synthetic-native-command", [], { timeout: 20 }, {
+    spawn: () => child, isLive: () => true, kill: () => {},
+    setTimer(callback, delay) { const id = ++next; timers.set(id, { callback, delay }); return id; },
+    clearTimer(id) { timers.delete(id); },
+  });
+  const failed = assert.rejects(command, /NATIVE_FIXTURE_GROUP_NOT_JOINED/);
+  child.stdout.emit("data", Buffer.from("private-prefix"));
+  [...timers.values()].find(timer => timer.delay === 20).callback();
+  [...timers.values()].find(timer => timer.delay === 6000).callback();
+  await failed;
+  const receipt = f.commandOwners[0].result;
+  assert.equal(receipt.closed, false); assert.equal(receipt.joinTimedOut, true); assert.equal(receipt.groupJoined, false);
+  assert.equal(receipt.output.stdout.complete, false); assert.equal(receipt.output.stdout.sha256, null);
+  assert.equal(receipt.output.stderr.complete, false); assert.equal(receipt.output.stderr.sha256, null);
+  const sealed = JSON.stringify(receipt.output);
+  assert.doesNotThrow(() => {
+    child.stdout.emit("data", Buffer.from("late private stdout"));
+    child.stderr.emit("data", Buffer.from("late private stderr"));
+  }, "NATIVE_FIXTURE_LATE_OUTPUT_MUTATED_SEALED_HASH");
+  assert.equal(JSON.stringify(receipt.output), sealed, "an unresolved prefix is never relabeled a complete stream");
+  assert.equal(timers.size, 0);
+});
+
+test("native fixture reaps a held descendant after its leader closes all stdio", { timeout: 20000 }, async t => {
+  const f = fixture(t, "native-helper-orphan-");
+  const server = createServer();
+  let peer, descendantPid, termObserved = false, escalate, barrierFailure = null;
+  let resolveReady, resolveClosed;
+  const ready = new Promise(resolve => { resolveReady = resolve; });
+  const peerClosed = new Promise(resolve => { resolveClosed = resolve; });
+  server.on("connection", socket => {
+    if (peer) { barrierFailure = "duplicate-orphan-peer"; socket.destroy(); return; }
+    peer = socket; let pending = "";
+    socket.on("data", data => {
+      pending += data;
+      if (pending.length > 128) { barrierFailure = "unbounded-orphan-barrier"; socket.destroy(); return; }
+      while (pending.includes("\n")) {
+        const end = pending.indexOf("\n"), line = pending.slice(0, end); pending = pending.slice(end + 1);
+        if (line === "term") { termObserved = true; escalate?.(); }
+        else if (/^ready:[1-9][0-9]*$/.test(line) && descendantPid === undefined) {
+          descendantPid = Number(line.slice(6)); resolveReady(true);
+        } else { barrierFailure = "unexpected-orphan-barrier"; socket.destroy(); }
+      }
+    });
+    socket.on("error", () => {});
+    socket.once("close", () => { resolveReady(false); resolveClosed(); });
+  });
+  server.listen(0, "127.0.0.1"); await once(server, "listening");
+  const held = join(f.root, "stdio-closed-child.mjs");
+  write(held, `import {connect} from 'node:net';\n` +
+    `const socket=connect(${server.address().port},'127.0.0.1');\n` +
+    `process.on('SIGTERM',()=>socket.write('term\\n'));process.on('disconnect',()=>{});\n` +
+    `socket.on('error',()=>process.exit(3));socket.on('close',()=>process.exit(0));\n` +
+    `socket.once('connect',()=>{socket.write('ready:'+process.pid+'\\n');process.send('ready');});\n`);
+  const parent = `const {spawn}=require('node:child_process');` +
+    `const child=spawn(process.execPath,[${JSON.stringify(held)}],{stdio:['ignore','ignore','ignore','ipc']});` +
+    `child.once('message',()=>process.exit(0));`;
+  let command, result, failure;
+  try {
+    command = runFixtureCommand(f, process.execPath, ["-e", parent],
+      { cwd: f.root, timeout: 20000, expectedOrphan: true }, {
+        setTimer(callback, delay) {
+          if (delay !== 1000) return setTimeout(callback, delay);
+          const token = { armed: true };
+          escalate = () => { if (token.armed) { token.armed = false; callback(); } };
+          if (termObserved) escalate();
+          return token;
+        },
+        clearTimer(timer) { if (timer && Object.hasOwn(timer, "armed")) timer.armed = false; else clearTimeout(timer); },
+      });
+    assert.equal(await Promise.race([ready, command.then(() => false)]), true, "ORPHAN_EXITED_BEFORE_READY");
+    result = await command;
+    await peerClosed;
+  } catch (error) { failure = error; }
+  finally {
+    escalate?.();
+    if (command) await command.catch(() => {});
+    const owner = f.commandOwners[0];
+    if (owner?.result?.pid && !owner.joined) {
+      owner.joined = await reapFixtureOrphanGroup(owner.result.pid, { killAfterMs: 1000, joinAfterMs: 5000 });
+    }
+    peer?.destroy();
+    if (peer) await peerClosed;
+    await new Promise(resolve => server.close(resolve));
+  }
+  const owner = f.commandOwners[0];
+  if (failure) {
+    if (owner?.result?.orphaned && !owner.result.groupJoined && owner.joined && descendantPid &&
+        termObserved && !fixtureProcessIsLive(-owner.result.pid) &&
+        /NATIVE_FIXTURE_GROUP_NOT_JOINED/.test(failure.message)) assert.fail("NATIVE_FIXTURE_ORPHAN_NOT_JOINED");
+    throw failure;
+  }
+  assert.equal(barrierFailure, null);
+  assert.equal(result.status, 0, "original leader exit remains observable");
+  assert.equal(result.signal, null); assert.equal(result.timedOut, false);
+  assert.equal(result.orphaned, true); assert.equal(result.groupJoined, true); assert.equal(result.joinTimedOut, false);
+  assert.equal(termObserved, true);
+  assert.equal(fixtureProcessIsLive(descendantPid), false);
+  assert.equal(fixtureProcessIsLive(-result.pid), false);
+});
+
+function writerFixture(t, prefix, configure) {
+  const f = fixture(t, prefix); configure?.(f); const env = prepareCommandFixture(f);
   const gradle = join(f.root, "android/app/gradlew");
   const fake = join(f.root, "fake-gradle.mjs");
   write(fake, `if(process.argv[2]!==':app:buildSdkAcceptance'||process.env.URNETWORK_ANDROID_SDK_BUILD_OWNER!=='fixture-owner'||process.env.GOMAXPROCS!=='1')process.exit(44);\n` +
@@ -464,15 +699,15 @@ function writerFixture(t, prefix) {
     "--build-id", "fixture-build", "--profile-rate", "65536", "--memory-profile", "ios-memory-audit-v1", "--max-workers", "1",
     "--receipt", f.paths["writer-receipt"], "--stdout", join(f.privateDir, "writer.stdout"), "--stderr", join(f.privateDir, "writer.stderr")];
   return { ...f, env, args, gradle,
-    run(kind = "success") { return spawnSync("zsh", ["-fc", 'exec bash "$@"', "writer-boundary", ...args],
+    run(kind = "success") { return runFixtureCommand(f, "zsh", ["-fc", 'exec bash "$@"', "writer-boundary", ...args],
       { cwd: f.root, env: { ...env, WRITER_FIXTURE: kind }, encoding: "utf8", timeout: 15000 }); } };
 }
 
-test("terra_proof_arm: zsh status is read-only, but Bash-owned writer atomically retains a joined success receipt", t => {
+test("terra_proof_arm: zsh status is read-only, but Bash-owned writer atomically retains a joined success receipt", async t => {
   const old = spawnSync("zsh", ["-fc", "status=0"], { encoding: "utf8", timeout: 3000 });
   assert.notEqual(old.status, 0); assert.match(old.stderr, /read-only variable: status/);
-  const f = writerFixture(t); const result = f.run();
-  assert.equal(result.status, 0, result.stderr);
+  const f = writerFixture(t); const result = await f.run();
+  assert.equal(result.status, 0, fixtureCommandDiagnostic(result));
   assert.deepEqual(JSON.parse(result.stdout), { eligible: true, classification: "NATIVE_WRITER_COMPLETE" });
   const receipt = requireNativeWriterReceipt(f.paths, JSON.parse(readFileSync(f.paths.before)));
   assert.equal(receipt.childStarted, true); assert.equal(receipt.childExitCode, 0); assert.equal(receipt.interrupted, false);
@@ -481,11 +716,11 @@ test("terra_proof_arm: zsh status is read-only, but Bash-owned writer atomically
   assert.equal(readdirSync(f.privateDir).some(name => name.includes(".pending-")), false);
 });
 
-test("Bash-owned Android writer retains the selected profile through actual child arguments and receipt verification", t => {
+test("Bash-owned Android writer retains the selected profile through actual child arguments and receipt verification", async t => {
   const f = writerFixture(t);
   f.args[f.args.indexOf("--memory-profile") + 1] = "android";
-  const result = f.run();
-  assert.equal(result.status, 0, result.stderr);
+  const result = await f.run();
+  assert.equal(result.status, 0, fixtureCommandDiagnostic(result));
   const receipt = requireNativeWriterReceipt(f.paths, JSON.parse(readFileSync(f.paths.before)));
   assert.equal(receipt.memoryProfile, "android");
   assert.ok(receipt.arguments.includes("-PurnetworkMemoryProfile=android"));
@@ -493,10 +728,10 @@ test("Bash-owned Android writer retains the selected profile through actual chil
   assert.equal(receipt.sourceHashes.some(row => row.name === "physical_native_provenance.mjs"), true);
 });
 
-test("writer nonzero and spawn failure publish failed terminal receipts that cannot authorize consumption", t => {
+test("writer nonzero and spawn failure publish failed terminal receipts that cannot authorize consumption", async t => {
   for (const kind of ["nonzero", "spawn"]) {
     const f = writerFixture(t); if (kind === "spawn") rmSync(f.gradle);
-    const result = f.run(kind); assert.equal(result.status, 2, result.stderr);
+    const result = await f.run(kind); assert.equal(result.status, 2, result.stderr);
     const receipt = JSON.parse(readFileSync(f.paths["writer-receipt"]));
     assert.equal(receipt.eligible, false); assert.equal(receipt.state, "terminal");
     assert.equal(receipt.childExitCode, kind === "nonzero" ? 7 : null);
@@ -508,20 +743,87 @@ test("writer nonzero and spawn failure publish failed terminal receipts that can
   }
 });
 
-test("writer interruption cannot publish success or expose a terminal receipt before the child has joined", async t => {
-  const f = writerFixture(t);
-  const child = spawn("zsh", ["-fc", 'exec bash "$@"', "writer-boundary", ...f.args],
-    { cwd: f.root, env: { ...f.env, WRITER_FIXTURE: "held" }, stdio: ["ignore", "pipe", "pipe"] });
-  const closed = new Promise(resolve => child.once("close", resolve));
-  t.after(async () => { if (child.exitCode === null) child.kill("SIGTERM"); await closed; });
-  const output = join(f.privateDir, "writer.stdout");
-  for (let i = 0; i < 400 && (!existsSync(output) || statSync(output).size === 0); i++) await sleep(10);
-  assert.ok(existsSync(output) && statSync(output).size > 0);
-  assert.equal(existsSync(f.paths["writer-receipt"]), false);
-  child.kill("SIGTERM"); assert.equal(await closed, 2);
-  const receipt = JSON.parse(readFileSync(f.paths["writer-receipt"]));
-  assert.equal(receipt.interrupted, true); assert.equal(receipt.signal, "SIGTERM"); assert.equal(receipt.eligible, false);
-  assert.equal(readdirSync(f.privateDir).some(name => name.includes(".pending-")), false);
+// Startup can include arbitrary valid metadata work. The fixture's own ready
+// message follows its stdout flush; interruption is ordered after that barrier.
+async function writerInterruptionAttempt(t, holdPreflight = false) {
+  const server = createServer(); const nonce = randomUUID(); const peers = new Set();
+  let writer; let writerClosed = false; let writerDone; let metadataPeer; let readySeen = false; let cleaned = false;
+  let resolveReady; let resolveHeld;
+  const ready = new Promise(resolve => { resolveReady = resolve; });
+  const held = new Promise(resolve => { resolveHeld = resolve; });
+  server.on("connection", peer => {
+    peers.add(peer); let pending = "";
+    peer.on("error", () => {});
+    peer.on("data", data => {
+      pending += data; assert(pending.length < 256);
+      while (pending.includes("\n")) {
+        const end = pending.indexOf("\n"), value = pending.slice(0, end); pending = pending.slice(end + 1);
+        if (value === `metadata-held:${nonce}`) { assert.equal(metadataPeer, undefined); metadataPeer = peer; resolveHeld(true); }
+        else if (value === `writer-ready:${nonce}`) { assert.equal(readySeen, false); readySeen = true; resolveReady(true); }
+        else assert.fail("unexpected writer fixture barrier");
+      }
+    });
+    peer.once("close", () => peers.delete(peer));
+  });
+  server.listen(0, "127.0.0.1"); await once(server, "listening");
+  const cleanup = async () => {
+    if (cleaned) return; cleaned = true;
+    if (writer && !writerClosed) writer.kill("SIGTERM");
+    for (const peer of peers) peer.destroy();
+    if (writerDone) await writerDone;
+    await new Promise(resolve => server.close(resolve));
+  };
+  t.after(cleanup);
+  const port = server.address().port;
+  const f = writerFixture(t, "native-writer-interruption-", fixture => {
+    if (holdPreflight) fixture.metadataPrelude = `import {connect} from 'node:net';\n` +
+      `let first=false;try{fs.closeSync(fs.openSync(${JSON.stringify(join(fixture.root, "metadata-claimed"))},'wx'));first=true;}catch(error){if(error.code!=='EEXIST')throw error;}\n` +
+      `if(first)await new Promise((resolve,reject)=>{const peer=connect(${port},'127.0.0.1');let pending='',done=false;\n` +
+      `peer.once('connect',()=>peer.write(${JSON.stringify(`metadata-held:${nonce}\n`)}));\n` +
+      `peer.on('data',data=>{pending+=data;if(pending===${JSON.stringify(`release:${nonce}\n`)}){done=true;peer.end();resolve();}else if(pending.includes(${JSON.stringify("\n")}))reject(new Error('invalid fixture release'));});\n` +
+      `peer.on('error',reject);peer.once('close',()=>{if(!done)reject(new Error('fixture barrier closed'));});});\n`;
+  });
+  if (holdPreflight) {
+    const parsed = spawnSync(process.execPath, ["--check", join(f.root, "metadata-command.mjs")], { env: f.env, encoding: "utf8", timeout: 5000 });
+    assert.equal(parsed.status, 0, parsed.stderr);
+  }
+  const fake = join(f.root, "fake-gradle.mjs");
+  write(fake, `import {connect} from 'node:net';\n` + readFileSync(fake, "utf8") +
+    `if(process.env.WRITER_FIXTURE==='held'){const peer=connect(${port},'127.0.0.1');\n` +
+    `peer.once('connect',()=>process.stdout.write('',()=>peer.write(${JSON.stringify(`writer-ready:${nonce}\n`)})));peer.on('error',()=>process.exit(52));}\n`);
+  f.beforeCleanup.push(cleanup);
+  try {
+    writer = spawn("zsh", ["-fc", 'exec bash "$@"', "writer-boundary", ...f.args],
+      { cwd: f.root, env: { ...f.env, WRITER_FIXTURE: "held" }, stdio: ["ignore", "pipe", "pipe"] });
+    writer.stdout.resume(); writer.stderr.resume();
+    writerDone = new Promise(resolve => writer.once("close", value => { writerClosed = true; resolveReady(false); resolveHeld(false); resolve(value); }));
+    const output = join(f.privateDir, "writer.stdout");
+    if (holdPreflight) {
+      assert.equal(await Promise.race([held, writerDone.then(() => false)]), true, "WRITER_EXITED_BEFORE_METADATA_BARRIER");
+      assert.equal(readySeen, false);
+      assert.equal(existsSync(output), false, "valid held preflight does not imply writer stdout exists");
+      assert.equal(existsSync(f.paths["writer-receipt"]), false);
+      metadataPeer.write(`release:${nonce}\n`);
+    }
+    assert.equal(await Promise.race([ready, writerDone.then(() => false)]), true, "WRITER_EXITED_BEFORE_GRADLE_READY");
+    assert.ok(existsSync(output) && statSync(output).size > 0);
+    assert.equal(existsSync(f.paths["writer-receipt"]), false);
+    writer.kill("SIGTERM"); assert.equal(await writerDone, 2);
+    const receipt = JSON.parse(readFileSync(f.paths["writer-receipt"]));
+    assert.equal(receipt.childStarted, true); assert.equal(receipt.interrupted, true);
+    assert.equal(receipt.signal, "SIGTERM"); assert.equal(receipt.eligible, false);
+    assert.equal(receipt.ownership.groupJoined, true); assert.equal(receipt.ownership.ownerClosed, true);
+    assert.equal(readdirSync(f.privateDir).some(name => name.includes(".pending-")), false);
+    t.diagnostic(`explicit writer ready/interruption/join barriers passed; heldPreflight=${holdPreflight}`);
+  } finally { await cleanup(); }
+}
+
+test("writer interruption cannot publish success or expose a terminal receipt before the child has joined", { timeout: 20000 }, async t => {
+  await writerInterruptionAttempt(t);
+});
+
+test("writer interruption waits for explicitly released valid preflight before the Gradle-ready barrier", { timeout: 20000 }, async t => {
+  await writerInterruptionAttempt(t, true);
 });
 
 // The real fake Gradle forks an independently held same-group child, then
@@ -713,8 +1015,8 @@ test("native writer complete IPC cannot qualify a subsequently killed anchor", {
   assert.equal(receipt.ownership.ownerSignal, "SIGKILL"); assert.equal(receipt.eligible, false);
 });
 
-test("actual consumer entry point refuses missing, nonzero and forged receipts before any assembly marker", t => {
-  const f = writerFixture(t); const result = f.run(); assert.equal(result.status, 0, result.stderr);
+test("actual consumer entry point refuses missing, nonzero and forged receipts before any assembly marker", async t => {
+  const f = writerFixture(t); const result = await f.run(); assert.equal(result.status, 0, fixtureCommandDiagnostic(result));
   const receipt = JSON.parse(readFileSync(f.paths["writer-receipt"])); const marker = join(f.privateDir, "assembly-marker");
   const args = [new URL("./physical_native_consumer.sh", import.meta.url).pathname, "--root", f.root,
     "--before", f.paths.before, "--after", f.paths.after, "--proof", f.paths.output, "--writer-receipt", f.paths["writer-receipt"],
@@ -735,24 +1037,24 @@ test("actual consumer entry point refuses missing, nonzero and forged receipts b
     else if (kind === "forced-anchor") json(f.paths["writer-receipt"], { ...receipt, ownership: { ...receipt.ownership, ownerSignal: "SIGKILL" } });
     else if (kind === "orphaned") json(f.paths["writer-receipt"], { ...receipt, ownership: { ...receipt.ownership, orphaned: true } });
     else json(f.paths["writer-receipt"], { ...receipt, beforeSha256: "0".repeat(64) });
-    const rejected = spawnSync("bash", args, { cwd: f.root, env: f.env, encoding: "utf8", timeout: 10000 });
+    const rejected = await runFixtureCommand(f, "bash", args, { cwd: f.root, env: f.env, encoding: "utf8", timeout: 10000 });
     assert.equal(rejected.status, 2, kind); assert.equal(existsSync(marker), false, kind);
     assert.equal(existsSync(f.paths.after), false, kind); assert.equal(existsSync(f.paths.output), false, kind);
   }
   json(f.paths["writer-receipt"], receipt);
-  const accepted = spawnSync("bash", args, { cwd: f.root, env: f.env, encoding: "utf8", timeout: 10000 });
-  assert.equal(accepted.status, 0, accepted.stderr); assert.equal(readFileSync(marker, "utf8"), "consumer");
+  const accepted = await runFixtureCommand(f, "bash", args, { cwd: f.root, env: f.env, encoding: "utf8", timeout: 10000 });
+  assert.equal(accepted.status, 0, fixtureCommandDiagnostic(accepted)); assert.equal(readFileSync(marker, "utf8"), "consumer");
 });
 
-test("writer rejects missing explicit profile, stale before inputs and existing receipt before fake Gradle spawn", t => {
+test("writer rejects missing explicit profile, stale before inputs and existing receipt before fake Gradle spawn", async t => {
   const f = writerFixture(t);
-  const missing = spawnSync("bash", f.args.filter((_, index) => index !== 9 && index !== 10),
+  const missing = await runFixtureCommand(f, "bash", f.args.filter((_, index) => index !== 9 && index !== 10),
     { cwd: f.root, env: f.env, encoding: "utf8", timeout: 3000 });
   assert.equal(missing.status, 2); assert.equal(existsSync(join(f.privateDir, "writer.stdout")), false);
   write(join(f.root, "connect/connect.go"), "package changed\n");
-  const changed = f.run(); assert.equal(changed.status, 2); assert.match(changed.stderr, /native-inputs-changed-before-writer/);
+  const changed = await f.run(); assert.equal(changed.status, 2); assert.match(changed.stderr, /native-inputs-changed-before-writer/);
   assert.equal(existsSync(join(f.privateDir, "writer.stdout")), false);
-  json(f.paths["writer-receipt"], { prior: true }); const existing = f.run(); assert.equal(existing.status, 2);
+  json(f.paths["writer-receipt"], { prior: true }); const existing = await f.run(); assert.equal(existing.status, 2);
   assert.deepEqual(JSON.parse(readFileSync(f.paths["writer-receipt"])), { prior: true });
 });
 
@@ -798,23 +1100,23 @@ function documentedWriterFixture(t) {
   const writer = documentedNativeBlock("# WRITER executor call:");
   const consumer = documentedNativeBlock("# CONSUMER executor call:");
   return { ...f, env, label, restore, writer, consumer,
-    runBlock(block, extra = {}) { return spawnSync("zsh", ["-fc", `set -eu\n${restore}\n${block}`],
+    runBlock(block, extra = {}) { return runFixtureCommand(f, "zsh", ["-fc", `set -eu\n${restore}\n${block}`],
       { cwd: f.root, env: { ...env, ...extra }, encoding: "utf8", timeout: 20000 }); } };
 }
 
-test("xRWdea: outer zsh readarray fails before Bash writer exec, with no native child or receipt", t => {
+test("xRWdea: outer zsh readarray fails before Bash writer exec, with no native child or receipt", async t => {
   const f = documentedWriterFixture(t);
-  const old = spawnSync("zsh", ["-fc", `set -eu\nreadarray -t arm < "$RUN_DIR/arm-identifiers"\n${f.writer}`],
+  const old = await runFixtureCommand(f, "zsh", ["-fc", `set -eu\nreadarray -t arm < "$RUN_DIR/arm-identifiers"\n${f.writer}`],
     { cwd: f.root, env: f.env, encoding: "utf8", timeout: 3000 });
   assert.notEqual(old.status, 0); assert.match(old.stderr, /command not found: readarray/);
   assert.equal(existsSync(f.paths["writer-receipt"]), false);
   assert.equal(existsSync(join(f.privateDir, `${f.label}.native-writer.stdout`)), false);
 });
 
-test("exact documented scalar restore, writer and consumer run from separate default-zsh calls including spaced paths", t => {
+test("exact documented scalar restore, writer and consumer run from separate default-zsh calls including spaced paths", async t => {
   const f = documentedWriterFixture(t);
   assert.doesNotMatch(`${f.restore}\n${f.writer}\n${f.consumer}`, /\b(?:readarray|mapfile|eval)\b|bash\s+-lc/);
-  const built = f.runBlock(f.writer); assert.equal(built.status, 0, built.stderr);
+  const built = await f.runBlock(f.writer); assert.equal(built.status, 0, fixtureCommandDiagnostic(built));
   const before = JSON.parse(readFileSync(f.paths.before));
   const receipt = requireNativeWriterReceipt(f.paths, before);
   assert.equal(receipt.buildId, "fixture-build"); assert.equal(receipt.profileRate, 65536);
@@ -824,15 +1126,15 @@ test("exact documented scalar restore, writer and consumer run from separate def
     `test -s ${JSON.stringify(f.paths.after)}\ntest -s ${JSON.stringify(f.paths.output)}\n` +
     `printf '%s' assembled-after-proof > ${JSON.stringify(marker)}\n`);
   // No variables from the first zsh invocation survive this separate process.
-  const consumed = f.runBlock(f.consumer, { NATIVE_CONSUMER_SCRIPT: consumerScript });
-  assert.equal(consumed.status, 0, consumed.stderr);
+  const consumed = await f.runBlock(f.consumer, { NATIVE_CONSUMER_SCRIPT: consumerScript });
+  assert.equal(consumed.status, 0, fixtureCommandDiagnostic(consumed));
   assert.equal(readFileSync(marker, "utf8"), "assembled-after-proof");
   assert.equal(requireVerifiedNativeInputs(f.paths.output, "fixture-build", f.dependencies).buildOwner, "fixture-owner");
 });
 
-test("WhH7v8: documented writer and consumer accept intact canonical log bindings through a tmp-style ancestor alias", t => {
+test("WhH7v8: documented writer and consumer accept intact canonical log bindings through a tmp-style ancestor alias", async t => {
   const f = documentedWriterFixture(t); const alias = join(f.root, "tmp-alias"); symlinkSync(f.root, alias);
-  const built = f.runBlock(f.writer, { RUN_DIR: alias }); assert.equal(built.status, 0, built.stderr);
+  const built = await f.runBlock(f.writer, { RUN_DIR: alias }); assert.equal(built.status, 0, fixtureCommandDiagnostic(built));
   const receipt = JSON.parse(readFileSync(f.paths["writer-receipt"]));
   assert.equal(dirname(receipt.stdout.path), f.privateDir, "writer hashes retain canonical log paths");
   assert.notEqual(dirname(receipt.stdout.path), join(alias, "private"));
@@ -851,18 +1153,18 @@ test("WhH7v8: documented writer and consumer accept intact canonical log binding
   write(consumerScript, `#!/bin/bash\nset -Eeuo pipefail\n` +
     `test -s ${JSON.stringify(f.paths.after)}\ntest -s ${JSON.stringify(f.paths.output)}\n` +
     `printf '%s' assembled-after-proof > ${JSON.stringify(marker)}\n`);
-  const consumed = f.runBlock(f.consumer, { RUN_DIR: alias, NATIVE_CONSUMER_SCRIPT: consumerScript });
-  assert.equal(consumed.status, 0, consumed.stderr);
+  const consumed = await f.runBlock(f.consumer, { RUN_DIR: alias, NATIVE_CONSUMER_SCRIPT: consumerScript });
+  assert.equal(consumed.status, 0, fixtureCommandDiagnostic(consumed));
   assert.equal(readFileSync(marker, "utf8"), "assembled-after-proof");
   assert.equal(requireVerifiedNativeInputs(f.paths.output, "fixture-build", f.dependencies).buildOwner, "fixture-owner");
 });
 
-test("documented scalar restore rejects missing, blank, incomplete and extra-line arm records before writer spawn", t => {
+test("documented scalar restore rejects missing, blank, incomplete and extra-line arm records before writer spawn", async t => {
   const f = documentedWriterFixture(t); const identifiers = join(f.root, "arm-identifiers");
   for (const record of [null, "", "fixture-arm\n", "fixture-arm\nfixture-build", "\nfixture-build\n", "fixture-arm\n\n",
     "fixture-arm\nfixture-build\nthird\n", "fixture-arm\nfixture-build\nthird", "fixture-arm\nfixture-build\n\n"]) {
     if (record === null) rmSync(identifiers); else write(identifiers, record);
-    const rejected = f.runBlock(f.writer);
+    const rejected = await f.runBlock(f.writer);
     assert.equal(rejected.status, 2);
     assert.equal(rejected.stderr, "native launch failed: invalid-arm-context-no-spawn\n");
     assert.equal(existsSync(f.paths["writer-receipt"]), false);
@@ -1023,7 +1325,7 @@ test("selected mobile tools require actual embedded frozen compiler and exact pa
 });
 
 
-test("native capture CLI binds mobile compiler metadata to PATH order for every selected tool", t => {
+test("native capture CLI binds mobile compiler metadata to PATH order for every selected tool", async t => {
   for (const name of ["gomobile", "gobind", "checksec"]) {
     const f = fixture(t); const env = prepareCommandFixture(f);
     const selected = JSON.parse(readFileSync(f.paths.before, "utf8"));
@@ -1038,7 +1340,7 @@ test("native capture CLI binds mobile compiler metadata to PATH order for every 
       JSON.stringify(staleInfo);
     json(tablePath, table);
 
-    const capture = (path, output) => spawnSync(process.execPath, [
+    const capture = (path, output) => runFixtureCommand(f, process.execPath, [
       new URL("./physical_native_provenance.mjs", import.meta.url).pathname, "capture",
       "--phase", "before", "--root", f.root, "--build-owner", "fixture-owner",
       "--build-id", "fixture-build", "--profile-rate", "65536", "--output", output,
@@ -1046,7 +1348,7 @@ test("native capture CLI binds mobile compiler metadata to PATH order for every 
 
     // Only the compiler metadata differs; the exact package and module pins still match.
     const rejectedPath = join(f.privateDir, "stale-first.json");
-    const rejected = capture(`${ambientTools}:${selectedTools}:${process.env.PATH}`, rejectedPath);
+    const rejected = await capture(`${ambientTools}:${selectedTools}:${process.env.PATH}`, rejectedPath);
     assert.equal(rejected.error, undefined, name);
     assert.equal(rejected.signal, null, name);
     assert.equal(rejected.status, 2, `${name}: ${rejected.stderr}`);
@@ -1056,7 +1358,7 @@ test("native capture CLI binds mobile compiler metadata to PATH order for every 
 
     // Reorder the same paths without rebuilding, rewriting, or relaxing either tool's metadata.
     const acceptedPath = join(f.privateDir, "selected-first.json");
-    const accepted = capture(`${selectedTools}:${ambientTools}:${process.env.PATH}`, acceptedPath);
+    const accepted = await capture(`${selectedTools}:${ambientTools}:${process.env.PATH}`, acceptedPath);
     assert.equal(accepted.error, undefined, name);
     assert.equal(accepted.signal, null, name);
     assert.equal(accepted.status, 0, `${name}: ${accepted.stderr}`);
@@ -1248,7 +1550,7 @@ test("retained native readers reject changed artifacts proof chain profile and c
   }
 });
 
-test("retained native shell publishes only after a successful joined consumer under the original lock", t => {
+test("retained native shell publishes only after a successful joined consumer under the original lock", async t => {
   for (const [kind, location] of [["success", "root"], ["success", "nested"], ["success", "sdk"],
     ["nonzero", "nested"], ["owner-changed", "nested"], ["lock-replaced", "nested"]]) {
     const f = fixture(t); f.options["profile-rate"] = "0";
@@ -1270,7 +1572,7 @@ test("retained native shell publishes only after a successful joined consumer un
       "if(kind==='lock-replaced'){const lock=process.env.URNETWORK_ANDROID_SDK_OUTPUT_LOCK_PATH;" +
       "fs.renameSync(lock,lock+'.replaced');fs.writeFileSync(lock,'replacement',{mode:0o600,flag:'wx'});}" +
       "fs.renameSync(pending,binary);";
-    const result = spawnSync("bash", [new URL("./physical_native_consumer.sh", import.meta.url).pathname,
+    const result = await runFixtureCommand(f, "bash", [new URL("./physical_native_consumer.sh", import.meta.url).pathname,
       "--root", f.root, "--before", f.paths.before, "--after", f.paths.after, "--proof", f.paths.output,
       "--writer-receipt", f.paths["writer-receipt"], "--retained-proof", options.output, "--",
       process.execPath, "-e", consumer, f.paths.output, options.output, pending, options["binary-provenance"], marker,
@@ -1325,17 +1627,17 @@ test("retained native proof preserves actual credential and instrumentation read
   assert.equal(spawnCount, 1);
 });
 
-test("synthetic native CLI fixture isolates poisoned ambient GOFLAGS without changing its before capture", t => {
+test("synthetic native CLI fixture isolates poisoned ambient GOFLAGS without changing its before capture", async t => {
   const inheritedEnv = { ...process.env, GOFLAGS: "-mod=readonly -p=1" };
   const f = fixture(t); const env = prepareCommandFixture(f, inheritedEnv); f.writerReceipt();
   const before = JSON.parse(readFileSync(f.paths.before));
   const marker = join(f.privateDir, "consumer-started");
-  const result = spawnSync("bash", [new URL("./physical_native_consumer.sh", import.meta.url).pathname,
+  const result = await runFixtureCommand(f, "bash", [new URL("./physical_native_consumer.sh", import.meta.url).pathname,
     "--root", f.root, "--before", f.paths.before, "--after", f.paths.after, "--proof", f.paths.output,
     "--writer-receipt", f.paths["writer-receipt"], "--", process.execPath, "-e",
     "require('node:fs').writeFileSync(process.argv[1],'consumed',{mode:0o600})", marker],
   { cwd: f.root, env, encoding: "utf8", timeout: 20000 });
-  assert.equal(result.status, 0, result.stderr);
+  assert.equal(result.status, 0, fixtureCommandDiagnostic(result));
   assert.equal(readFileSync(marker, "utf8"), "consumed");
   assert.equal(f.dependencies.env.GOFLAGS, "");
   assert.equal(env.GOFLAGS, "");
@@ -1347,13 +1649,13 @@ test("synthetic native CLI fixture isolates poisoned ambient GOFLAGS without cha
   assert.equal(requireVerifiedNativeInputs(f.paths.output, "fixture-build", f.dependencies).inputHash, before.inputHash);
 });
 
-test("real native writer rejects explicit unsupported GOFLAGS before Gradle spawn", t => {
+test("real native writer rejects explicit unsupported GOFLAGS before Gradle spawn", async t => {
   for (const flags of ["-mod=readonly -p=1", "-overlay=fixture-overlay.json"]) {
     const f = writerFixture(t);
     const marker = join(f.privateDir, "gradle-started");
     write(join(f.root, "fake-gradle.mjs"),
       "import fs from 'node:fs';fs.writeFileSync(" + JSON.stringify(marker) + ",'started',{mode:0o600});\n");
-    const result = spawnSync("bash", f.args, {
+    const result = await runFixtureCommand(f, "bash", f.args, {
       cwd: f.root, env: { ...f.env, GOFLAGS: flags }, encoding: "utf8", timeout: 15000,
     });
     assert.equal(result.error, undefined, flags); assert.equal(result.signal, null, flags);
