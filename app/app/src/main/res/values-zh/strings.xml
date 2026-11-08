@@ -793,7 +793,7 @@
     <string name="manage_devices_remove_failed">无法移除该设备。请重试。</string>
     <string name="manage_devices_remove_title">移除此设备？</string>
     <string name="manage_devices_sign_in_required">请重新登录以管理设备。</string>
-    <string name="manage_devices_this_device">此设备</string>
+    <string name="manage_devices_this_device">这台设备</string>
     <string name="manage_subscription">管理订阅</string>
     <string name="member">会员</string>
     <string name="method">方式</string>
