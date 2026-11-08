@@ -245,6 +245,9 @@
     <string name="client_contracts">Client contracts</string>
     <string name="client_id">Client ID</string>
     <string name="client_id_copied">Client ID copied</string>
+    <string name="client_limit_reached">Device limit reached</string>
+    <string name="client_limit_remove_client_message">Your plan\'s limit of devices connected at once is reached. Sign out of URnetwork on a device you no longer use, then try again.</string>
+    <string name="client_limit_upgrade_message">Your free plan connects a limited number of devices at once. Upgrade to UR Pro to connect more, or disconnect URnetwork on another device.</string>
     <string name="client_statistics">Client statistics</string>
     <string name="clients">Clients</string>
     <string name="close">Close</string>

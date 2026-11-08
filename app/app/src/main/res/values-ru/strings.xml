@@ -242,6 +242,9 @@
     <string name="client_contracts">Контракты клиента</string>
     <string name="client_id">ID клиента</string>
     <string name="client_id_copied">ID клиента скопирован</string>
+    <string name="client_limit_reached">Достигнут лимит устройств</string>
+    <string name="client_limit_remove_client_message">Ваш тариф достиг лимита одновременно подключённых устройств. Выйдите из URnetwork на устройстве, которым больше не пользуетесь, и попробуйте снова.</string>
+    <string name="client_limit_upgrade_message">Бесплатный тариф позволяет подключать одновременно ограниченное число устройств. Перейдите на UR Pro, чтобы подключить больше, или отключите URnetwork на другом устройстве.</string>
     <string name="client_statistics">Статистика клиента</string>
     <string name="clients">Клиенты</string>
     <string name="close">Закрыть</string>

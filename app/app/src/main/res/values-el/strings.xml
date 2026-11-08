@@ -242,6 +242,9 @@
     <string name="client_contracts">Συμβόλαια πελάτη</string>
     <string name="client_id">ID πελάτη</string>
     <string name="client_id_copied">Το ID πελάτη αντιγράφηκε</string>
+    <string name="client_limit_reached">Συμπληρώθηκε το όριο συσκευών</string>
+    <string name="client_limit_remove_client_message">Το πρόγραμμά σας έφτασε το όριο συσκευών που συνδέονται ταυτόχρονα. Αποσυνδεθείτε από το URnetwork σε μια συσκευή που δεν χρησιμοποιείτε πια και δοκιμάστε ξανά.</string>
+    <string name="client_limit_upgrade_message">Το δωρεάν πρόγραμμά σας συνδέει περιορισμένο αριθμό συσκευών ταυτόχρονα. Αναβαθμίστε σε UR Pro για να συνδέσετε περισσότερες ή αποσυνδέστε το URnetwork σε άλλη συσκευή.</string>
     <string name="client_statistics">Στατιστικά πελάτη</string>
     <string name="clients">Πελάτες</string>
     <string name="close">Κλείσιμο</string>

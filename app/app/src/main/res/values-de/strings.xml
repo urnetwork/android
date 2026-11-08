@@ -242,6 +242,9 @@
     <string name="client_contracts">Client-Verträge</string>
     <string name="client_id">Client-ID</string>
     <string name="client_id_copied">Client-ID kopiert</string>
+    <string name="client_limit_reached">Gerätelimit erreicht</string>
+    <string name="client_limit_remove_client_message">Dein Tarif hat sein Limit für gleichzeitig verbundene Geräte erreicht. Melde dich auf einem Gerät, das du nicht mehr nutzt, von URnetwork ab und versuche es dann erneut.</string>
+    <string name="client_limit_upgrade_message">Dein kostenloser Tarif verbindet nur eine begrenzte Anzahl von Geräten gleichzeitig. Upgrade auf UR Pro, um mehr zu verbinden, oder trenne URnetwork auf einem anderen Gerät.</string>
     <string name="client_statistics">Client-Statistiken</string>
     <string name="clients">Clients</string>
     <string name="close">Schließen</string>

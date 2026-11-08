@@ -242,6 +242,9 @@
     <string name="client_contracts">クライアント契約</string>
     <string name="client_id">クライアントID</string>
     <string name="client_id_copied">クライアントIDをコピーしました</string>
+    <string name="client_limit_reached">デバイスの上限に達しました</string>
+    <string name="client_limit_remove_client_message">プランで同時に接続できるデバイスの上限に達しました。使っていないデバイスで URnetwork からサインアウトしてから、もう一度お試しください。</string>
+    <string name="client_limit_upgrade_message">無料プランで同時に接続できるデバイスの数には上限があります。さらに接続するには UR Pro にアップグレードするか、別のデバイスで URnetwork を切断してください。</string>
     <string name="client_statistics">クライアント統計</string>
     <string name="clients">クライアント</string>
     <string name="close">閉じる</string>

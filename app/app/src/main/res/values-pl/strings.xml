@@ -242,6 +242,9 @@
     <string name="client_contracts">Kontrakty klienta</string>
     <string name="client_id">ID klienta</string>
     <string name="client_id_copied">Skopiowano ID klienta</string>
+    <string name="client_limit_reached">Osiągnięto limit urządzeń</string>
+    <string name="client_limit_remove_client_message">Twój plan osiągnął limit urządzeń połączonych jednocześnie. Wyloguj się z URnetwork na urządzeniu, którego już nie używasz, i spróbuj ponownie.</string>
+    <string name="client_limit_upgrade_message">Twój darmowy plan łączy jednocześnie ograniczoną liczbę urządzeń. Przejdź na UR Pro, aby połączyć więcej, albo rozłącz URnetwork na innym urządzeniu.</string>
     <string name="client_statistics">Statystyki klienta</string>
     <string name="clients">Klienci</string>
     <string name="close">Zamknij</string>

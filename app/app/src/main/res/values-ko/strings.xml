@@ -242,6 +242,9 @@
     <string name="client_contracts">클라이언트 계약</string>
     <string name="client_id">클라이언트 ID</string>
     <string name="client_id_copied">클라이언트 ID가 복사되었습니다</string>
+    <string name="client_limit_reached">기기 한도에 도달했습니다</string>
+    <string name="client_limit_remove_client_message">요금제의 동시 연결 기기 한도에 도달했습니다. 더 이상 사용하지 않는 기기에서 URnetwork에서 로그아웃한 다음 다시 시도하세요.</string>
+    <string name="client_limit_upgrade_message">무료 요금제는 동시에 연결할 수 있는 기기 수가 제한됩니다. 더 많이 연결하려면 UR Pro로 업그레이드하거나 다른 기기에서 URnetwork 연결을 해제하세요.</string>
     <string name="client_statistics">클라이언트 통계</string>
     <string name="clients">클라이언트</string>
     <string name="close">닫기</string>

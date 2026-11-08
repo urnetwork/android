@@ -371,6 +371,7 @@ internal class MainApplicationFixture(val store: LocalState) {
     var tunnelChangeSub: Sub? = null
     var contractStatusChangeSub: Sub? = null
     var lastLoggedContractStatus: String? = null
+    fun clearClientLimit() {}
     fun resetTunnelRecoveryState() {}
     var stopHook: () -> Unit = {}
     fun stopVpnService() { stopHook() }

@@ -242,6 +242,9 @@
     <string name="client_contracts">Clientcontracten</string>
     <string name="client_id">Client-ID</string>
     <string name="client_id_copied">Client-ID gekopieerd</string>
+    <string name="client_limit_reached">Apparaatlimiet bereikt</string>
+    <string name="client_limit_remove_client_message">Je abonnement heeft de limiet voor tegelijk verbonden apparaten bereikt. Meld je af bij URnetwork op een apparaat dat je niet meer gebruikt en probeer het opnieuw.</string>
+    <string name="client_limit_upgrade_message">Je gratis abonnement verbindt een beperkt aantal apparaten tegelijk. Upgrade naar UR Pro om er meer te verbinden, of verbreek URnetwork op een ander apparaat.</string>
     <string name="client_statistics">Clientstatistieken</string>
     <string name="clients">Clients</string>
     <string name="close">Sluiten</string>

@@ -88,6 +88,8 @@ class MainApplication : Application() {
         const val VPN_STATE_BURST_COALESCE_MILLIS = 20L
         // distinct from MainService.NOTIFICATION_ID so it outlives the service notification
         const val INSUFFICIENT_BALANCE_NOTIFICATION_ID = 102
+        // the client limit hold's notice (ClientLimitNotice), distinct from both
+        const val CLIENT_LIMIT_NOTIFICATION_ID = 103
         // a return to the foreground after this long starts a new product-event session
         const val CLIENT_EVENT_SESSION_GAP_MILLIS = 30L * 60L * 1000L
         // how long logout waits for the pending product events to send
@@ -214,6 +216,20 @@ class MainApplication : Application() {
 //    var router: Router? = null
     var tunnelChangeSub: Sub? = null
     var contractStatusChangeSub: Sub? = null
+    var clientLimitStatusChangeSub: Sub? = null
+
+    /**
+     * The platform holds the device off for its network's client limit while
+     * a connection is requested (ClientLimitNotice): the connect screen shows
+     * what to do. Null otherwise. Set on the main thread.
+     */
+    val clientLimitHold = kotlinx.coroutines.flow.MutableStateFlow<com.bringyour.network.ui.connect.ClientLimitHold?>(null)
+    // main-looper confined: the device's last client limit status, and the
+    // sdk's decision of its notification
+    private var clientLimitStatus: com.bringyour.sdk.ClientLimitStatus? = null
+    private val clientLimitNoticeTracker by lazy(LazyThreadSafetyMode.NONE) {
+        Sdk.newClientLimitNoticeTracker()
+    }
 
     var networkCallback: ConnectivityManager.NetworkCallback? = null
     var offlineCallback: ConnectivityManager.NetworkCallback? = null
@@ -278,13 +294,25 @@ class MainApplication : Application() {
                     }
                     currentApi.authNetworkClient(args) { result, error ->
                         val resultError = result?.error
+                        // the sdk decides what a client limit refusal offers
+                        // (ClientLimitStatus.prompt): the upgrade when UR Pro
+                        // lifts it, else a freed slot. The message says what
+                        // to do, where every sign-in screen shows it; any
+                        // other refusal keeps the server's message
                         val failure = when {
-                            resultError?.clientLimitExceeded == true ->
-                                LoginStartupFailure.AUTH_CLIENT_LIMIT_EXCEEDED
-                            resultError?.upgradeRequired == true ->
+                            resultError?.clientLimitPrompt == Sdk.ClientLimitPromptUpgrade ->
                                 LoginStartupFailure.AUTH_CLIENT_UPGRADE_REQUIRED
+                            resultError?.clientLimitPrompt == Sdk.ClientLimitPromptRemoveClient ->
+                                LoginStartupFailure.AUTH_CLIENT_LIMIT_EXCEEDED
                             resultError != null -> LoginStartupFailure.AUTH_CLIENT_REJECTED
                             else -> null
+                        }
+                        val failureMessage = when (failure) {
+                            LoginStartupFailure.AUTH_CLIENT_UPGRADE_REQUIRED ->
+                                getString(com.bringyour.network.ui.connect.clientLimitMessageId(offersUpgrade = true))
+                            LoginStartupFailure.AUTH_CLIENT_LIMIT_EXCEEDED ->
+                                getString(com.bringyour.network.ui.connect.clientLimitMessageId(offersUpgrade = false))
+                            else -> resultError?.message
                         }
                         callback(
                             result?.let {
@@ -292,7 +320,7 @@ class MainApplication : Application() {
                                     clientId = it.clientId?.toString(),
                                     byClientJwt = it.byClientJwt,
                                     failure = failure,
-                                    failureMessage = resultError?.message,
+                                    failureMessage = failureMessage,
                                 )
                             },
                             error?.message,
@@ -501,9 +529,20 @@ class MainApplication : Application() {
      * The plan and balance poll state the connect screen shows, mirrored by
      * InsufficientBalanceNoticeEffect so the start connect gate outside the ui
      * (tile, shortcuts, widget button) matches the in-app swap. Main thread.
+     *
+     * The plan turning Pro, as after a purchase from the client limit
+     * prompt, lets a device the limit holds off dial again at once instead of
+     * waiting out the hold (retryClientLimit, a no-op with no hold).
      */
     @Volatile
     internal var uiIsPro: Boolean = false
+        set(value) {
+            val upgraded = value && !field
+            field = value
+            if (upgraded) {
+                retryClientLimit()
+            }
+        }
     @Volatile
     internal var uiPollingSubscriptionBalance: Boolean = false
 
@@ -2518,6 +2557,7 @@ class MainApplication : Application() {
         contractStatusChangeSub?.close()
         contractStatusChangeSub = null
         lastLoggedContractStatus = null
+        clearClientLimit()
 
 //        provideEnabled = false
 //        connectEnabled = false
@@ -2625,6 +2665,8 @@ class MainApplication : Application() {
                 updateVpnService()
                 // an active Quick Settings tile is only bound when the app asks
                 QuickConnectTileService.requestUpdate(this)
+                // the client limit prompt and its notice follow the request
+                evaluateClientLimit()
             }
         }
 
@@ -2645,6 +2687,17 @@ class MainApplication : Application() {
                 updateContractStatus()
             }
         }
+        // the platform's client limit hold, from the device in this process:
+        // the prompt and its notice reach the user whether or not the ui runs
+        val clientLimitDevice = device
+        clientLimitStatusChangeSub = device?.addClientLimitStatusChangeListener { status ->
+            Handler(mainLooper).post {
+                if (device === clientLimitDevice) {
+                    clientLimitStatus = status
+                    evaluateClientLimit()
+                }
+            }
+        }
 
         // one path state per device: membership and the physical default
         // decide together when the transports re-dial
@@ -2659,6 +2712,9 @@ class MainApplication : Application() {
         updateTunnelStarted()
         lastLoggedContractStatus = null
         updateContractStatus()
+        // the listener reports changes only: a hold already in force shows now
+        clientLimitStatus = device?.clientLimitStatus
+        evaluateClientLimit()
         service?.get()?.onDeviceAvailable()
         updateVpnService()
 
@@ -3165,6 +3221,130 @@ class MainApplication : Application() {
             notificationManager.notify(INSUFFICIENT_BALANCE_NOTIFICATION_ID, builder.build())
         }.onFailure {
             Log.i(TAG, "Insufficient balance notice failed: ${it.message}")
+        }
+    }
+
+    /**
+     * Publishes the client limit hold the connect screen shows, and applies
+     * the sdk's decision of its notification (ClientLimitNoticeTracker): the
+     * prompt shows while the device is held and a connection is requested.
+     * The user's traffic is held in the tunnel until they act; nothing here
+     * disconnects. Main thread.
+     */
+    private fun evaluateClientLimit() {
+        val connectRequested = device?.connectEnabled == true
+        val status = clientLimitStatus
+        val held = status?.status == Sdk.ClientLimitStatusExceeded
+        val hold = if (held && connectRequested) {
+            com.bringyour.network.ui.connect.ClientLimitHold(prompt = status?.prompt.orEmpty())
+        } else {
+            null
+        }
+        if (clientLimitHold.value != hold) {
+            clientLimitHold.value = hold
+        }
+        applyClientLimitNoticeAction(
+            clientLimitNoticeTracker.update(status, connectRequested),
+            offersUpgrade = hold?.offersUpgrade ?: true,
+        )
+    }
+
+    /**
+     * The device is gone (stop, sign out): no hold, and no notice for it.
+     * Main thread.
+     */
+    private fun clearClientLimit() {
+        clientLimitStatusChangeSub?.close()
+        clientLimitStatusChangeSub = null
+        clientLimitStatus = null
+        clientLimitHold.value = null
+        applyClientLimitNoticeAction(clientLimitNoticeTracker.reset(), offersUpgrade = true)
+    }
+
+    /**
+     * Dials again at once instead of waiting out the client limit hold, once
+     * the user has acted on the prompt: Retry, or a purchase that made the
+     * plan Pro. The sdk ends at most one hold per interval and none with no
+     * hold in force, so a repeated tap cannot storm the limit; a refusal
+     * starts a new hold and the prompt shows again.
+     */
+    fun retryClientLimit() {
+        if (android.os.Looper.myLooper() != mainLooper) {
+            mainHandler.post { retryClientLimit() }
+            return
+        }
+        runCatching { device?.retryClientLimit() }
+            .onFailure { Log.i(TAG, "Client limit retry failed: ${it.message}") }
+    }
+
+    private fun applyClientLimitNoticeAction(action: String, offersUpgrade: Boolean) {
+        when (action) {
+            Sdk.ClientLimitNoticePost -> postClientLimitNotice(offersUpgrade, quietly = false)
+            Sdk.ClientLimitNoticeUpdate -> postClientLimitNotice(offersUpgrade, quietly = true)
+            Sdk.ClientLimitNoticeRemove -> runCatching {
+                (getSystemService(NOTIFICATION_SERVICE) as android.app.NotificationManager)
+                    .cancel(CLIENT_LIMIT_NOTIFICATION_ID)
+            }
+            else -> {}
+        }
+    }
+
+    /**
+     * Tells the user the network's client limit holds this device off and
+     * what to do, with a disconnect action, as the insufficient balance notice
+     * does. A tap opens the app, whose connect screen offers Get Pro or Retry.
+     * Without notification permission the in-app notice still explains it.
+     */
+    @android.annotation.SuppressLint("NotificationPermission")
+    private fun postClientLimitNotice(offersUpgrade: Boolean, quietly: Boolean) {
+        runCatching {
+            val notificationManager =
+                getSystemService(NOTIFICATION_SERVICE) as android.app.NotificationManager
+            // same channel as the service notification; creating it again is a no-op
+            notificationManager.createNotificationChannel(
+                android.app.NotificationChannel(
+                    MainService.NOTIFICATION_CHANNEL_ID,
+                    getString(R.string.app_name),
+                    android.app.NotificationManager.IMPORTANCE_LOW,
+                ).apply {
+                    setShowBadge(false)
+                }
+            )
+            val contentIntent = android.app.PendingIntent.getActivity(
+                this,
+                0,
+                android.content.Intent(this, MainActivity::class.java),
+                android.app.PendingIntent.FLAG_IMMUTABLE or android.app.PendingIntent.FLAG_UPDATE_CURRENT,
+            )
+            // the service notification's disconnect target
+            val disconnectIntent = android.app.PendingIntent.getBroadcast(
+                this,
+                1,
+                android.content.Intent(this, NotificationDisconnectReceiver::class.java)
+                    .setAction(NotificationDisconnectReceiver.ACTION_DISCONNECT),
+                android.app.PendingIntent.FLAG_IMMUTABLE or android.app.PendingIntent.FLAG_UPDATE_CURRENT,
+            )
+            val message = getString(com.bringyour.network.ui.connect.clientLimitMessageId(offersUpgrade))
+            val builder = androidx.core.app.NotificationCompat.Builder(
+                this,
+                MainService.NOTIFICATION_CHANNEL_ID,
+            )
+                .setSmallIcon(R.drawable.ic_status)
+                .setContentTitle(getString(R.string.client_limit_reached))
+                .setContentText(message)
+                .setStyle(androidx.core.app.NotificationCompat.BigTextStyle().bigText(message))
+                .setContentIntent(contentIntent)
+                .setAutoCancel(true)
+                // shown again for the same connection, or corrected: in place,
+                // without alerting again
+                .setOnlyAlertOnce(true)
+                .setSilent(quietly)
+            if (!systemAlwaysOnVpn) {
+                builder.addAction(R.drawable.ic_close, getString(R.string.disconnect), disconnectIntent)
+            }
+            notificationManager.notify(CLIENT_LIMIT_NOTIFICATION_ID, builder.build())
+        }.onFailure {
+            Log.i(TAG, "Client limit notice failed: ${it.message}")
         }
     }
 

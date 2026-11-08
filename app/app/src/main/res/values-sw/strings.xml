@@ -242,6 +242,9 @@
     <string name="client_contracts">Mikataba ya mteja</string>
     <string name="client_id">Kitambulisho cha mteja</string>
     <string name="client_id_copied">Kitambulisho cha mteja kimenakiliwa</string>
+    <string name="client_limit_reached">Kikomo cha vifaa kimefikiwa</string>
+    <string name="client_limit_remove_client_message">Mpango wako umefikia kikomo cha vifaa vilivyounganishwa kwa wakati mmoja. Ondoka kwenye URnetwork kwenye kifaa usichokitumia tena, kisha ujaribu tena.</string>
+    <string name="client_limit_upgrade_message">Mpango wako wa bure huunganisha idadi ndogo ya vifaa kwa wakati mmoja. Pandisha hadi UR Pro ili kuunganisha zaidi, au tenganisha URnetwork kwenye kifaa kingine.</string>
     <string name="client_statistics">Takwimu za mteja</string>
     <string name="clients">Wateja</string>
     <string name="close">Funga</string>

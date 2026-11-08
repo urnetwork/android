@@ -242,6 +242,9 @@
     <string name="client_contracts">客户端合约</string>
     <string name="client_id">客户端 ID</string>
     <string name="client_id_copied">客户端 ID 已复制</string>
+    <string name="client_limit_reached">已达到设备数量上限</string>
+    <string name="client_limit_remove_client_message">您的套餐已达到可同时连接的设备数量上限。请在不再使用的设备上退出 URnetwork，然后重试。</string>
+    <string name="client_limit_upgrade_message">免费套餐可同时连接的设备数量有限。升级到 UR Pro 以连接更多设备，或在另一台设备上断开 URnetwork。</string>
     <string name="client_statistics">客户端统计</string>
     <string name="clients">客户端</string>
     <string name="close">关闭</string>

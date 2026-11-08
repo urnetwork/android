@@ -242,6 +242,9 @@
     <string name="client_contracts">क्लाइंट कॉन्ट्रैक्ट</string>
     <string name="client_id">क्लाइंट ID</string>
     <string name="client_id_copied">क्लाइंट ID कॉपी किया गया</string>
+    <string name="client_limit_reached">डिवाइस की सीमा पूरी हो गई</string>
+    <string name="client_limit_remove_client_message">आपके प्लान में एक साथ कनेक्ट डिवाइस की सीमा पूरी हो गई है। जिस डिवाइस का अब इस्तेमाल नहीं करते, उस पर URnetwork से साइन आउट करें, फिर दोबारा कोशिश करें।</string>
+    <string name="client_limit_upgrade_message">आपका मुफ़्त प्लान एक साथ सीमित संख्या में डिवाइस कनेक्ट करता है। और डिवाइस कनेक्ट करने के लिए UR Pro में अपग्रेड करें, या किसी दूसरे डिवाइस पर URnetwork डिस्कनेक्ट करें।</string>
     <string name="client_statistics">क्लाइंट आँकड़े</string>
     <string name="clients">क्लाइंट्स</string>
     <string name="close">बंद करें</string>

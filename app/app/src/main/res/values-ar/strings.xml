@@ -242,6 +242,9 @@
     <string name="client_contracts">عقود العميل</string>
     <string name="client_id">معرّف العميل</string>
     <string name="client_id_copied">تم نسخ معرّف العميل</string>
+    <string name="client_limit_reached">تم بلوغ الحد الأقصى للأجهزة</string>
+    <string name="client_limit_remove_client_message">بلغت خطتك الحد الأقصى للأجهزة المتصلة في الوقت نفسه. سجّل الخروج من URnetwork على جهاز لم تعد تستخدمه، ثم حاول مرة أخرى.</string>
+    <string name="client_limit_upgrade_message">تتيح خطتك المجانية توصيل عدد محدود من الأجهزة في الوقت نفسه. قم بالترقية إلى UR Pro لتوصيل المزيد، أو افصل URnetwork على جهاز آخر.</string>
     <string name="client_statistics">إحصائيات العميل</string>
     <string name="clients">العملاء</string>
     <string name="close">إغلاق</string>

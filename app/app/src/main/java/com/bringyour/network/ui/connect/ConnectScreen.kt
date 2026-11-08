@@ -418,6 +418,8 @@ fun ConnectScreen(
                 privateDnsStrictHost = privateDnsStrictHost,
                 showDataInfo = { dataInfoPresented = true },
             )
+            // the network's client limit holds the device off: what to do
+            ClientLimitNotice(navController = navController)
             Spacer(modifier = Modifier.height(12.dp))
             ConnectActionButtonRow(
                 actionButtons = actionButtons,

@@ -242,6 +242,9 @@
     <string name="client_contracts">สัญญาไคลเอ็นต์</string>
     <string name="client_id">ID ไคลเอ็นต์</string>
     <string name="client_id_copied">คัดลอก ID ไคลเอ็นต์แล้ว</string>
+    <string name="client_limit_reached">ถึงขีดจำกัดจำนวนอุปกรณ์แล้ว</string>
+    <string name="client_limit_remove_client_message">แพ็กเกจของคุณถึงขีดจำกัดจำนวนอุปกรณ์ที่เชื่อมต่อพร้อมกันแล้ว ออกจากระบบ URnetwork บนอุปกรณ์ที่คุณไม่ได้ใช้แล้ว แล้วลองอีกครั้ง</string>
+    <string name="client_limit_upgrade_message">แพ็กเกจฟรีของคุณเชื่อมต่ออุปกรณ์พร้อมกันได้ในจำนวนจำกัด อัปเกรดเป็น UR Pro เพื่อเชื่อมต่อเพิ่ม หรือยกเลิกการเชื่อมต่อ URnetwork บนอุปกรณ์เครื่องอื่น</string>
     <string name="client_statistics">สถิติไคลเอ็นต์</string>
     <string name="clients">ไคลเอ็นต์</string>
     <string name="close">ปิด</string>

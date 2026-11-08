@@ -242,6 +242,9 @@
     <string name="client_contracts">Kontrakty klienta</string>
     <string name="client_id">ID klienta</string>
     <string name="client_id_copied">ID klienta zkopírováno</string>
+    <string name="client_limit_reached">Dosažen limit zařízení</string>
+    <string name="client_limit_remove_client_message">Váš tarif dosáhl limitu zařízení připojených najednou. Odhlaste se z URnetwork na zařízení, které už nepoužíváte, a zkuste to znovu.</string>
+    <string name="client_limit_upgrade_message">Váš bezplatný tarif umožňuje připojit najednou jen omezený počet zařízení. Přejděte na UR Pro a připojte jich víc, nebo odpojte URnetwork na jiném zařízení.</string>
     <string name="client_statistics">Statistiky klienta</string>
     <string name="clients">Klienti</string>
     <string name="close">Zavřít</string>
