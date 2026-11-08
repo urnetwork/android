@@ -3298,7 +3298,11 @@ class MainApplication : Application() {
      * The plan turned Pro: ends the hold in force when it offered the
      * upgrade, as after a purchase from the prompt. uiIsPro also turns true
      * when a Pro account's ui starts, and no plan lifts a hold at the Pro
-     * limit, so that retry would only be refused again.
+     * limit, so that retry would only be refused again. The purchase is a
+     * change the server confirmed, so this is the sdk's change retry
+     * (Device.retryClientLimitAfterChange): it starts the retry floor over,
+     * and retries refused before the purchase never keep a paid plan waiting
+     * out the hold.
      */
     private fun retryClientLimitAfterUpgrade() {
         if (android.os.Looper.myLooper() != mainLooper) {
@@ -3306,7 +3310,8 @@ class MainApplication : Application() {
             return
         }
         if (clientLimitHoldOfferedUpgrade) {
-            retryClientLimit()
+            runCatching { device?.retryClientLimitAfterChange() }
+                .onFailure { Log.i(TAG, "Client limit retry after the upgrade failed: ${it.message}") }
         }
     }
 
