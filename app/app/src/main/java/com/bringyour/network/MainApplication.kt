@@ -227,6 +227,11 @@ class MainApplication : Application() {
     // main-looper confined: the device's last client limit status, and the
     // sdk's decision of its notification
     private var clientLimitStatus: com.bringyour.sdk.ClientLimitStatus? = null
+    // main-looper confined: the hold in force offered the upgrade at some
+    // point, until it ends. A purchase refreshes the client's plan, which
+    // turns the hold's prompt to remove_client, maybe before uiIsPro turns
+    // true; the plan turning Pro still ends that hold.
+    private var clientLimitHoldOfferedUpgrade = false
     private val clientLimitNoticeTracker by lazy(LazyThreadSafetyMode.NONE) {
         Sdk.newClientLimitNoticeTracker()
     }
@@ -532,7 +537,7 @@ class MainApplication : Application() {
      *
      * The plan turning Pro, as after a purchase from the client limit
      * prompt, lets a device the limit holds off dial again at once instead of
-     * waiting out the hold (retryClientLimit, a no-op with no hold).
+     * waiting out the hold (retryClientLimitAfterUpgrade).
      */
     @Volatile
     internal var uiIsPro: Boolean = false
@@ -540,7 +545,7 @@ class MainApplication : Application() {
             val upgraded = value && !field
             field = value
             if (upgraded) {
-                retryClientLimit()
+                retryClientLimitAfterUpgrade()
             }
         }
     @Volatile
@@ -3243,6 +3248,11 @@ class MainApplication : Application() {
         if (clientLimitHold.value != hold) {
             clientLimitHold.value = hold
         }
+        if (hold == null) {
+            clientLimitHoldOfferedUpgrade = false
+        } else if (hold.offersUpgrade) {
+            clientLimitHoldOfferedUpgrade = true
+        }
         applyClientLimitNoticeAction(
             clientLimitNoticeTracker.update(status, connectRequested),
             offersUpgrade = hold?.offersUpgrade ?: true,
@@ -3258,7 +3268,24 @@ class MainApplication : Application() {
         clientLimitStatusChangeSub = null
         clientLimitStatus = null
         clientLimitHold.value = null
+        clientLimitHoldOfferedUpgrade = false
         applyClientLimitNoticeAction(clientLimitNoticeTracker.reset(), offersUpgrade = true)
+    }
+
+    /**
+     * The plan turned Pro: ends the hold in force when it offered the
+     * upgrade, as after a purchase from the prompt. uiIsPro also turns true
+     * when a Pro account's ui starts, and no plan lifts a hold at the Pro
+     * limit, so that retry would only be refused again.
+     */
+    private fun retryClientLimitAfterUpgrade() {
+        if (android.os.Looper.myLooper() != mainLooper) {
+            mainHandler.post { retryClientLimitAfterUpgrade() }
+            return
+        }
+        if (clientLimitHoldOfferedUpgrade) {
+            retryClientLimit()
+        }
     }
 
     /**
