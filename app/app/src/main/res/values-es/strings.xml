@@ -784,6 +784,16 @@
     <string name="login_verify_header">Tienes un correo electrónico</string>
     <string name="longest_streak">Racha más larga</string>
     <string name="make_default">Establecer como predeterminada</string>
+    <string name="manage_devices">Gestionar dispositivos</string>
+    <string name="manage_devices_connecting">Conectando este dispositivo…</string>
+    <string name="manage_devices_help">Cada dispositivo o proxy conectado ocupa una plaza de tu plan. Quita el que ya no uses para liberar su plaza.</string>
+    <string name="manage_devices_last_seen">Visto por última vez: %1$s</string>
+    <string name="manage_devices_load_failed">No se pudieron cargar tus dispositivos.</string>
+    <string name="manage_devices_proxy">Proxy alojado</string>
+    <string name="manage_devices_remove_failed">No se pudo quitar el dispositivo. Vuelve a intentarlo.</string>
+    <string name="manage_devices_remove_title">¿Quitar este dispositivo?</string>
+    <string name="manage_devices_sign_in_required">Vuelve a iniciar sesión para gestionar los dispositivos.</string>
+    <string name="manage_devices_this_device">Este dispositivo</string>
     <string name="manage_subscription">Administrar suscripción</string>
     <string name="member">Miembro</string>
     <string name="method">Método</string>

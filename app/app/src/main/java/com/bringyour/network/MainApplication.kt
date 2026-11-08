@@ -232,6 +232,17 @@ class MainApplication : Application() {
     // turns the hold's prompt to remove_client, maybe before uiIsPro turns
     // true; the plan turning Pro still ends that hold.
     private var clientLimitHoldOfferedUpgrade = false
+
+    /**
+     * A sign-in the network's client limit refused (offerSignInClientLimit):
+     * the sign-in screens offer what to do and the device list, where a
+     * removal runs the sign-in again. Null otherwise. Set on the main thread.
+     */
+    val signInClientLimit = kotlinx.coroutines.flow.MutableStateFlow<com.bringyour.network.ui.account.SignInClientLimit?>(null)
+    // why the last retry of that sign-in failed, above the device list
+    val signInClientLimitRetryMessage = kotlinx.coroutines.flow.MutableStateFlow<String?>(null)
+    // main-looper confined: numbers the offers, so a retry answers only its own
+    private var signInClientLimitSequence = 0L
     private val clientLimitNoticeTracker by lazy(LazyThreadSafetyMode.NONE) {
         Sdk.newClientLimitNoticeTracker()
     }
@@ -397,7 +408,16 @@ class MainApplication : Application() {
                 if (request == null) {
                     completion(LoginClientCompletion.Failed(LoginStartupFailure.STALE_ATTEMPT))
                 } else {
-                    authenticateNetworkSession(request, byJwt, newNetwork, completion)
+                    authenticateNetworkSession(request, byJwt, newNetwork) { clientCompletion ->
+                        // the network's client limit refused the client: the
+                        // password screen shows the message, and the device
+                        // list is offered with this sign-in's network token,
+                        // which only this path holds
+                        if (clientCompletion is LoginClientCompletion.Failed && ownsLoginRequest(request)) {
+                            offerSignInClientLimit(request, byJwt, newNetwork, clientCompletion.failure)
+                        }
+                        completion(clientCompletion)
+                    }
                 }
             },
             dispatch = ::dispatchLoginAction,
@@ -2720,6 +2740,8 @@ class MainApplication : Application() {
         // the listener reports changes only: a hold already in force shows now
         clientLimitStatus = device?.clientLimitStatus
         evaluateClientLimit()
+        // signed in: a refused sign-in's offer is over
+        dismissSignInClientLimit()
         service?.get()?.onDeviceAvailable()
         updateVpnService()
 
@@ -3302,6 +3324,83 @@ class MainApplication : Application() {
         }
         runCatching { device?.retryClientLimit() }
             .onFailure { Log.i(TAG, "Client limit retry failed: ${it.message}") }
+    }
+
+    /**
+     * A sign-in's client was refused for the network's client limit: the
+     * sign-in screens offer what to do and the device list (LoginNavHost),
+     * which lists the network's devices with the sign-in's own network token.
+     * Returns whether it offered them; any other failure offers nothing.
+     */
+    internal fun offerSignInClientLimit(
+        request: LoginRequest,
+        networkJwt: String,
+        newNetwork: Boolean,
+        failure: LoginStartupFailure,
+    ): Boolean {
+        val offersUpgrade = when (failure) {
+            LoginStartupFailure.AUTH_CLIENT_UPGRADE_REQUIRED -> true
+            LoginStartupFailure.AUTH_CLIENT_LIMIT_EXCEEDED -> false
+            else -> return false
+        }
+        if (networkJwt.isEmpty()) return false
+        dispatchLoginAction {
+            signInClientLimitSequence += 1
+            signInClientLimitRetryMessage.value = null
+            signInClientLimit.value = com.bringyour.network.ui.account.SignInClientLimit(
+                api = request.api,
+                networkJwt = networkJwt,
+                newNetwork = newNetwork,
+                offersUpgrade = offersUpgrade,
+                sequence = signInClientLimitSequence,
+            )
+        }
+        return true
+    }
+
+    /** The user closed the offer or the device list. Main thread. */
+    fun dismissSignInClientLimit() {
+        signInClientLimit.value = null
+        signInClientLimitRetryMessage.value = null
+    }
+
+    /**
+     * A removal in the device list freed a slot: the refused sign-in again,
+     * with its network token, as a new login request. Success clears the
+     * offer and hands the request to [finish], which completes the login as
+     * the sign-in screens do; another refusal keeps the list open and says
+     * why (signInClientLimitRetryMessage). Main thread.
+     */
+    internal fun retrySignInClientLimit(
+        limit: com.bringyour.network.ui.account.SignInClientLimit,
+        finish: (LoginRequest) -> Unit,
+    ) {
+        if (signInClientLimit.value?.sequence != limit.sequence) return
+        val request = beginLoginRequest() ?: return
+        authenticateNetworkSession(request, limit.networkJwt, limit.newNetwork) { completion ->
+            dispatchLoginAction {
+                if (!ownsLoginRequest(request)) return@dispatchLoginAction
+                when (completion) {
+                    is LoginClientCompletion.Ready -> {
+                        if (signInClientLimit.value?.sequence == limit.sequence) {
+                            dismissSignInClientLimit()
+                        }
+                        finish(request)
+                    }
+                    is LoginClientCompletion.Failed -> {
+                        if (signInClientLimit.value?.sequence == limit.sequence) {
+                            signInClientLimitRetryMessage.value = when (completion.failure) {
+                                LoginStartupFailure.AUTH_CLIENT_UPGRADE_REQUIRED ->
+                                    getString(com.bringyour.network.ui.connect.clientLimitMessageId(offersUpgrade = true))
+                                LoginStartupFailure.AUTH_CLIENT_LIMIT_EXCEEDED ->
+                                    getString(com.bringyour.network.ui.connect.clientLimitMessageId(offersUpgrade = false))
+                                else -> getString(R.string.something_went_wrong)
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     private fun applyClientLimitNoticeAction(action: String, offersUpgrade: Boolean) {

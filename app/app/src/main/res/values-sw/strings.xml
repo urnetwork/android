@@ -784,6 +784,16 @@
     <string name="login_verify_header">Umepata barua</string>
     <string name="longest_streak">Mfululizo mrefu zaidi</string>
     <string name="make_default">Fanya chaguo-msingi</string>
+    <string name="manage_devices">Dhibiti vifaa</string>
+    <string name="manage_devices_connecting">Inaunganisha kifaa hiki…</string>
+    <string name="manage_devices_help">Kila kifaa au proksi iliyounganishwa hutumia nafasi moja ya mpango wako. Ondoa usichokitumia tena ili kuachilia nafasi yake.</string>
+    <string name="manage_devices_last_seen">Ilionekana mwisho: %1$s</string>
+    <string name="manage_devices_load_failed">Imeshindwa kupakia vifaa vyako.</string>
+    <string name="manage_devices_proxy">Proksi iliyopangishwa</string>
+    <string name="manage_devices_remove_failed">Imeshindwa kuondoa kifaa. Jaribu tena.</string>
+    <string name="manage_devices_remove_title">Ondoa kifaa hiki?</string>
+    <string name="manage_devices_sign_in_required">Ingia tena ili kudhibiti vifaa.</string>
+    <string name="manage_devices_this_device">Kifaa hiki</string>
     <string name="manage_subscription">Dhibiti usajili</string>
     <string name="member">Mwanachama</string>
     <string name="method">Njia</string>

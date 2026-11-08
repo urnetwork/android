@@ -784,6 +784,16 @@
     <string name="login_verify_header">คุณได้รับอีเมลใหม่</string>
     <string name="longest_streak">ต่อเนื่องยาวนานที่สุด</string>
     <string name="make_default">ตั้งเป็นกระเป๋ารับยอด</string>
+    <string name="manage_devices">จัดการอุปกรณ์</string>
+    <string name="manage_devices_connecting">กำลังเชื่อมต่ออุปกรณ์นี้…</string>
+    <string name="manage_devices_help">อุปกรณ์หรือพร็อกซีที่เชื่อมต่ออยู่แต่ละรายการใช้ช่องหนึ่งในแพ็กเกจของคุณ นำรายการที่ไม่ได้ใช้แล้วออกเพื่อเพิ่มช่องว่าง</string>
+    <string name="manage_devices_last_seen">เห็นล่าสุด: %1$s</string>
+    <string name="manage_devices_load_failed">โหลดอุปกรณ์ของคุณไม่ได้</string>
+    <string name="manage_devices_proxy">พร็อกซีที่โฮสต์ไว้</string>
+    <string name="manage_devices_remove_failed">นำอุปกรณ์ออกไม่ได้ ลองอีกครั้ง</string>
+    <string name="manage_devices_remove_title">นำอุปกรณ์นี้ออกไหม</string>
+    <string name="manage_devices_sign_in_required">ลงชื่อเข้าใช้อีกครั้งเพื่อจัดการอุปกรณ์</string>
+    <string name="manage_devices_this_device">อุปกรณ์นี้</string>
     <string name="manage_subscription">จัดการระบบรายเดือน</string>
     <string name="member">รูปแบบสมาชิก</string>
     <string name="method">วิธี</string>

@@ -784,6 +784,16 @@
     <string name="login_verify_header">メールが届いています</string>
     <string name="longest_streak">最長連続</string>
     <string name="make_default">デフォルトに設定</string>
+    <string name="manage_devices">デバイスを管理</string>
+    <string name="manage_devices_connecting">このデバイスを接続しています…</string>
+    <string name="manage_devices_help">接続中のデバイスやプロキシは、それぞれプランの枠を 1 つ使います。使わなくなったものを削除すると、その枠が空きます。</string>
+    <string name="manage_devices_last_seen">最終確認: %1$s</string>
+    <string name="manage_devices_load_failed">デバイスを読み込めませんでした。</string>
+    <string name="manage_devices_proxy">ホスト型プロキシ</string>
+    <string name="manage_devices_remove_failed">デバイスを削除できませんでした。もう一度お試しください。</string>
+    <string name="manage_devices_remove_title">このデバイスを削除しますか？</string>
+    <string name="manage_devices_sign_in_required">デバイスを管理するには、もう一度サインインしてください。</string>
+    <string name="manage_devices_this_device">このデバイス</string>
     <string name="manage_subscription">サブスクリプションを管理</string>
     <string name="member">メンバー</string>
     <string name="method">方法</string>

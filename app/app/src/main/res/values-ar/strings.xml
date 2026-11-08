@@ -784,6 +784,16 @@
     <string name="login_verify_header">لديك بريد إلكتروني</string>
     <string name="longest_streak">أطول سلسلة</string>
     <string name="make_default">جعل الافتراضي</string>
+    <string name="manage_devices">إدارة الأجهزة</string>
+    <string name="manage_devices_connecting">جارٍ توصيل هذا الجهاز…</string>
+    <string name="manage_devices_help">يستخدم كل جهاز أو وكيل متصل مكانًا من خطتك. أزل ما لم تعد تستخدمه لتحرير مكانه.</string>
+    <string name="manage_devices_last_seen">آخر ظهور: %1$s</string>
+    <string name="manage_devices_load_failed">تعذّر تحميل أجهزتك.</string>
+    <string name="manage_devices_proxy">وكيل مستضاف</string>
+    <string name="manage_devices_remove_failed">تعذّرت إزالة الجهاز. حاول مرة أخرى.</string>
+    <string name="manage_devices_remove_title">إزالة هذا الجهاز؟</string>
+    <string name="manage_devices_sign_in_required">سجّل الدخول مرة أخرى لإدارة الأجهزة.</string>
+    <string name="manage_devices_this_device">هذا الجهاز</string>
     <string name="manage_subscription">إدارة الاشتراك</string>
     <string name="member">عضو</string>
     <string name="method">الطريقة</string>

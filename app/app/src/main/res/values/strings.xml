@@ -792,6 +792,16 @@
     <string name="login_verify_header">You\'ve got mail</string>
     <string name="longest_streak">Longest streak</string>
     <string name="make_default">Make default</string>
+    <string name="manage_devices">Manage devices</string>
+    <string name="manage_devices_connecting">Connecting this device…</string>
+    <string name="manage_devices_help">Each connected device or proxy uses a slot of your plan. Remove one you no longer use to free its slot.</string>
+    <string name="manage_devices_last_seen">Last seen %1$s</string>
+    <string name="manage_devices_load_failed">Couldn\'t load your devices.</string>
+    <string name="manage_devices_proxy">Hosted proxy</string>
+    <string name="manage_devices_remove_failed">Couldn\'t remove the device. Try again.</string>
+    <string name="manage_devices_remove_title">Remove this device?</string>
+    <string name="manage_devices_sign_in_required">Sign in again to manage devices.</string>
+    <string name="manage_devices_this_device">This device</string>
     <string name="manage_subscription">Manage subscription</string>
     <string name="member">Member</string>
     <string name="method">Method</string>

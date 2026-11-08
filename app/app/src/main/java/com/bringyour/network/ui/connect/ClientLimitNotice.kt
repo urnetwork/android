@@ -62,9 +62,10 @@ fun clientLimitMessageId(offersUpgrade: Boolean): Int =
 /**
  * The hold's notice, with the connect buttons: the title, what to do for the
  * plan, Get Pro when UR Pro lifts the limit (the upgrade screen every Get Pro
- * opens), and Retry, which dials again at once instead of waiting out the
- * hold. Disconnect beside the notice stays the way out; nothing here
- * disconnects.
+ * opens), Manage devices, where removing a device frees a slot for this one
+ * (beside Get Pro on a free plan, alone on Pro), and Retry, which dials again
+ * at once instead of waiting out the hold. Disconnect beside the notice stays
+ * the way out; nothing here disconnects.
  */
 @Composable
 fun ClientLimitNotice(navController: NavController) {
@@ -115,20 +116,38 @@ fun ClientLimitNotice(navController: NavController) {
                 }
             }
             URButton(
-                onClick = { application.retryClientLimit() },
+                onClick = { navController.navigate(Route.ManageDevices) },
                 style = ButtonStyle.OUTLINE,
                 modifier = Modifier
                     .weight(1f)
-                    .testTag("acceptance.client_limit_retry")
+                    .testTag("acceptance.client_limit_manage_devices")
             ) { buttonTextStyle ->
                 Text(
-                    stringResource(id = R.string.retry),
+                    stringResource(id = R.string.manage_devices),
                     style = buttonTextStyle,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.padding(horizontal = 4.dp)
                 )
             }
+        }
+        Spacer(modifier = Modifier.height(8.dp))
+        // under them: the row keeps Get Pro and Manage devices readable on a
+        // phone
+        URButton(
+            onClick = { application.retryClientLimit() },
+            style = ButtonStyle.OUTLINE,
+            modifier = Modifier
+                .fillMaxWidth()
+                .testTag("acceptance.client_limit_retry")
+        ) { buttonTextStyle ->
+            Text(
+                stringResource(id = R.string.retry),
+                style = buttonTextStyle,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.padding(horizontal = 4.dp)
+            )
         }
     }
 }

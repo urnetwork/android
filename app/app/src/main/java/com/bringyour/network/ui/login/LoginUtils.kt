@@ -601,7 +601,11 @@ fun handleLoginFlow(
                 val visibility = loginRetryVisibility()
                 onContentVisibilityChange(visibility.contentVisible)
                 onWelcomeOverlayVisibilityChange(visibility.welcomeOverlayVisible)
-                onErr()
+                // the network's client limit refused the client: what to do,
+                // and the device list (LoginNavHost), in place of the error
+                if (!app.offerSignInClientLimit(request, networkJwt, newNetwork = false, completion.failure)) {
+                    onErr()
+                }
                 return@launch
             }
 

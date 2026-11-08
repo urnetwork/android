@@ -784,6 +784,16 @@
     <string name="login_verify_header">Vous avez un courriel</string>
     <string name="longest_streak">Plus longue série</string>
     <string name="make_default">Définir par défaut</string>
+    <string name="manage_devices">Gérer les appareils</string>
+    <string name="manage_devices_connecting">Connexion de cet appareil…</string>
+    <string name="manage_devices_help">Chaque appareil ou proxy connecté occupe une place de votre offre. Retirez celui que vous n’utilisez plus pour libérer sa place.</string>
+    <string name="manage_devices_last_seen">Vu pour la dernière fois : %1$s</string>
+    <string name="manage_devices_load_failed">Impossible de charger vos appareils.</string>
+    <string name="manage_devices_proxy">Proxy hébergé</string>
+    <string name="manage_devices_remove_failed">Impossible de retirer l’appareil. Réessayez.</string>
+    <string name="manage_devices_remove_title">Retirer cet appareil ?</string>
+    <string name="manage_devices_sign_in_required">Reconnectez-vous pour gérer les appareils.</string>
+    <string name="manage_devices_this_device">Cet appareil</string>
     <string name="manage_subscription">Gérer l\'abonnement</string>
     <string name="member">Membre</string>
     <string name="method">Méthode</string>

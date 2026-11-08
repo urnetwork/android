@@ -784,6 +784,16 @@
     <string name="login_verify_header">Máš poštu</string>
     <string name="longest_streak">Nejdelší série</string>
     <string name="make_default">Udělat výchozí</string>
+    <string name="manage_devices">Spravovat zařízení</string>
+    <string name="manage_devices_connecting">Připojování tohoto zařízení…</string>
+    <string name="manage_devices_help">Každé připojené zařízení nebo proxy zabírá jedno místo vašeho tarifu. Odeberte to, které už nepoužíváte, a uvolněte jeho místo.</string>
+    <string name="manage_devices_last_seen">Naposledy viděno: %1$s</string>
+    <string name="manage_devices_load_failed">Zařízení se nepodařilo načíst.</string>
+    <string name="manage_devices_proxy">Hostovaná proxy</string>
+    <string name="manage_devices_remove_failed">Zařízení se nepodařilo odebrat. Zkuste to znovu.</string>
+    <string name="manage_devices_remove_title">Odebrat toto zařízení?</string>
+    <string name="manage_devices_sign_in_required">Pro správu zařízení se znovu přihlaste.</string>
+    <string name="manage_devices_this_device">Toto zařízení</string>
     <string name="manage_subscription">Správa předplatného</string>
     <string name="member">Člen</string>
     <string name="method">Způsob</string>

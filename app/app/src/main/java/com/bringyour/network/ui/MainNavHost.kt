@@ -122,6 +122,7 @@ import com.bringyour.network.ui.account.ExtendersScreen
 import com.bringyour.network.ui.account.ImportExtendersScreen
 import com.bringyour.network.ui.account.ProviderIdentitiesScreen
 import com.bringyour.network.ui.account.SessionsScreen
+import com.bringyour.network.ui.account.ManageDevicesScreen
 import com.bringyour.network.ui.account.ApiKeysScreen
 import com.bringyour.network.ui.account.ShareExtendersScreen
 import com.bringyour.network.ui.components.ProSunglassesFlight
@@ -1657,6 +1658,17 @@ fun MainNavContent(
                         },
                     )
                 }
+            }
+
+            // the device list, top level like the upgrade: the client limit
+            // notice on the connect screen opens it, and so does Settings
+            composable<Route.ManageDevices>(
+                enterTransition = NavigationAnimations.enterTransition(),
+                exitTransition = NavigationAnimations.exitTransition(),
+                popEnterTransition = NavigationAnimations.popEnterTransition(),
+                popExitTransition = NavigationAnimations.popExitTransition()
+            ) {
+                ManageDevicesScreen(navController = navController)
             }
 
             navigation<Route.AccountContainer>(

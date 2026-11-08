@@ -784,6 +784,16 @@
     <string name="login_verify_header">Je hebt mail</string>
     <string name="longest_streak">Langste reeks</string>
     <string name="make_default">Als standaard instellen</string>
+    <string name="manage_devices">Apparaten beheren</string>
+    <string name="manage_devices_connecting">Dit apparaat wordt verbonden…</string>
+    <string name="manage_devices_help">Elk verbonden apparaat of elke proxy gebruikt een plek van je abonnement. Verwijder er een die je niet meer gebruikt om de plek vrij te maken.</string>
+    <string name="manage_devices_last_seen">Laatst gezien: %1$s</string>
+    <string name="manage_devices_load_failed">Je apparaten konden niet worden geladen.</string>
+    <string name="manage_devices_proxy">Gehoste proxy</string>
+    <string name="manage_devices_remove_failed">Het apparaat kon niet worden verwijderd. Probeer het opnieuw.</string>
+    <string name="manage_devices_remove_title">Dit apparaat verwijderen?</string>
+    <string name="manage_devices_sign_in_required">Meld je opnieuw aan om apparaten te beheren.</string>
+    <string name="manage_devices_this_device">Dit apparaat</string>
     <string name="manage_subscription">Abonnement beheren</string>
     <string name="member">Lid</string>
     <string name="method">Methode</string>

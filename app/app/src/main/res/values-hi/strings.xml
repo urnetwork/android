@@ -784,6 +784,16 @@
     <string name="login_verify_header">आपके पास एक ईमेल है</string>
     <string name="longest_streak">सबसे लंबी स्ट्रीक</string>
     <string name="make_default">डिफ़ॉल्ट बनाएं</string>
+    <string name="manage_devices">डिवाइस प्रबंधित करें</string>
+    <string name="manage_devices_connecting">यह डिवाइस कनेक्ट हो रहा है…</string>
+    <string name="manage_devices_help">हर कनेक्ट डिवाइस या प्रॉक्सी आपके प्लान की एक जगह लेता है। जिसका अब इस्तेमाल नहीं करते, उसे हटाकर उसकी जगह खाली करें।</string>
+    <string name="manage_devices_last_seen">आख़िरी बार देखा गया: %1$s</string>
+    <string name="manage_devices_load_failed">आपके डिवाइस लोड नहीं हो सके।</string>
+    <string name="manage_devices_proxy">होस्ट की गई प्रॉक्सी</string>
+    <string name="manage_devices_remove_failed">डिवाइस नहीं हटाया जा सका। फिर से कोशिश करें।</string>
+    <string name="manage_devices_remove_title">यह डिवाइस हटाएं?</string>
+    <string name="manage_devices_sign_in_required">डिवाइस प्रबंधित करने के लिए फिर से साइन इन करें।</string>
+    <string name="manage_devices_this_device">यह डिवाइस</string>
     <string name="manage_subscription">सदस्यता प्रबंधित करें</string>
     <string name="member">सदस्य</string>
     <string name="method">विधि</string>

@@ -784,6 +784,16 @@
     <string name="login_verify_header">Du hast eine E-Mail</string>
     <string name="longest_streak">Längste Serie</string>
     <string name="make_default">Als Standard festlegen</string>
+    <string name="manage_devices">Geräte verwalten</string>
+    <string name="manage_devices_connecting">Dieses Gerät wird verbunden …</string>
+    <string name="manage_devices_help">Jedes verbundene Gerät und jeder Proxy belegt einen Platz deines Tarifs. Entferne eines, das du nicht mehr nutzt, um seinen Platz freizugeben.</string>
+    <string name="manage_devices_last_seen">Zuletzt gesehen: %1$s</string>
+    <string name="manage_devices_load_failed">Deine Geräte konnten nicht geladen werden.</string>
+    <string name="manage_devices_proxy">Gehosteter Proxy</string>
+    <string name="manage_devices_remove_failed">Das Gerät konnte nicht entfernt werden. Versuche es erneut.</string>
+    <string name="manage_devices_remove_title">Dieses Gerät entfernen?</string>
+    <string name="manage_devices_sign_in_required">Melde dich erneut an, um Geräte zu verwalten.</string>
+    <string name="manage_devices_this_device">Dieses Gerät</string>
     <string name="manage_subscription">Abonnement verwalten</string>
     <string name="member">Mitglied</string>
     <string name="method">Methode</string>

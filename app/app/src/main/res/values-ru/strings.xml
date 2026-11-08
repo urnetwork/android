@@ -784,6 +784,16 @@
     <string name="login_verify_header">Вам письмо</string>
     <string name="longest_streak">Самая длинная серия</string>
     <string name="make_default">Сделать по умолчанию</string>
+    <string name="manage_devices">Управление устройствами</string>
+    <string name="manage_devices_connecting">Подключение этого устройства…</string>
+    <string name="manage_devices_help">Каждое подключённое устройство или прокси занимает одно место в тарифе. Удалите то, которым больше не пользуетесь, чтобы освободить место.</string>
+    <string name="manage_devices_last_seen">Последняя активность: %1$s</string>
+    <string name="manage_devices_load_failed">Не удалось загрузить устройства.</string>
+    <string name="manage_devices_proxy">Размещённый прокси</string>
+    <string name="manage_devices_remove_failed">Не удалось удалить устройство. Попробуйте ещё раз.</string>
+    <string name="manage_devices_remove_title">Удалить это устройство?</string>
+    <string name="manage_devices_sign_in_required">Войдите снова, чтобы управлять устройствами.</string>
+    <string name="manage_devices_this_device">Это устройство</string>
     <string name="manage_subscription">Управление подпиской</string>
     <string name="member">Участник</string>
     <string name="method">Способ</string>

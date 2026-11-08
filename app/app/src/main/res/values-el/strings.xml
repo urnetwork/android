@@ -784,6 +784,16 @@
     <string name="login_verify_header">Έχετε ένα email</string>
     <string name="longest_streak">Μεγαλύτερο σερί</string>
     <string name="make_default">Ορισμός ως προεπιλογή</string>
+    <string name="manage_devices">Διαχείριση συσκευών</string>
+    <string name="manage_devices_connecting">Σύνδεση αυτής της συσκευής…</string>
+    <string name="manage_devices_help">Κάθε συνδεδεμένη συσκευή ή διακομιστής μεσολάβησης καταλαμβάνει μία θέση του προγράμματός σας. Αφαιρέστε όποιο δεν χρησιμοποιείτε πια για να ελευθερώσετε τη θέση του.</string>
+    <string name="manage_devices_last_seen">Τελευταία εμφάνιση: %1$s</string>
+    <string name="manage_devices_load_failed">Δεν ήταν δυνατή η φόρτωση των συσκευών σας.</string>
+    <string name="manage_devices_proxy">Φιλοξενούμενος διακομιστής μεσολάβησης</string>
+    <string name="manage_devices_remove_failed">Δεν ήταν δυνατή η αφαίρεση της συσκευής. Δοκιμάστε ξανά.</string>
+    <string name="manage_devices_remove_title">Αφαίρεση αυτής της συσκευής;</string>
+    <string name="manage_devices_sign_in_required">Συνδεθείτε ξανά για να διαχειριστείτε συσκευές.</string>
+    <string name="manage_devices_this_device">Αυτή η συσκευή</string>
     <string name="manage_subscription">Διαχείριση συνδρομής</string>
     <string name="member">Μέλος</string>
     <string name="method">Μέθοδος</string>

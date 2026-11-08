@@ -54,6 +54,11 @@ fun SwitchAccountScreen(
                     loginActivity.finishAuthenticatedLoginNow(acceptedRequest)
                 } else {
                     setSwitchAccount(false)
+                    // the other account's client limit refused the client:
+                    // what to do, and its device list (LoginNavHost)
+                    if (completion is LoginClientCompletion.Failed) {
+                        application.offerSignInClientLimit(acceptedRequest, targetJwt, newNetwork = false, completion.failure)
+                    }
                 }
             }
 

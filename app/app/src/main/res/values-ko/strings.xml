@@ -784,6 +784,16 @@
     <string name="login_verify_header">메일을 확인해주세요</string>
     <string name="longest_streak">최장 연속</string>
     <string name="make_default">기본값으로 설정</string>
+    <string name="manage_devices">기기 관리</string>
+    <string name="manage_devices_connecting">이 기기를 연결하는 중…</string>
+    <string name="manage_devices_help">연결된 기기나 프록시는 각각 요금제의 자리를 하나씩 사용합니다. 더 이상 사용하지 않는 것을 제거하면 자리가 비워집니다.</string>
+    <string name="manage_devices_last_seen">마지막 확인: %1$s</string>
+    <string name="manage_devices_load_failed">기기를 불러오지 못했습니다.</string>
+    <string name="manage_devices_proxy">호스팅 프록시</string>
+    <string name="manage_devices_remove_failed">기기를 제거하지 못했습니다. 다시 시도하세요.</string>
+    <string name="manage_devices_remove_title">이 기기를 제거할까요?</string>
+    <string name="manage_devices_sign_in_required">기기를 관리하려면 다시 로그인하세요.</string>
+    <string name="manage_devices_this_device">이 기기</string>
     <string name="manage_subscription">구독 관리</string>
     <string name="member">회원</string>
     <string name="method">방법</string>
