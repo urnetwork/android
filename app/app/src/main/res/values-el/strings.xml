@@ -585,7 +585,7 @@
     <string name="dns_preset_dropped_custom">Χειροκίνητη εισαγωγή στο Προσαρμοσμένο</string>
     <string name="dns_preset_error_personal_id_invalid">Αυτό το αναγνωριστικό δεν έχει τη σωστή μορφή.</string>
     <string name="dns_preset_error_personal_id_not_accepted">Αυτή η προρύθμιση δεν χρησιμοποιεί αναγνωριστικό προφίλ.</string>
-    <string name="dns_preset_error_personal_id_other_provider">Αυτή η διεύθυνση ανήκει σε άλλον πάροχο DNS. Επιλέξτε καλύτερα εκείνον τον πάροχο.</string>
+    <string name="dns_preset_error_personal_id_other_provider">Αυτή η διεύθυνση ανήκει σε άλλον πάροχο αποκλεισμού διαφημίσεων. Επιλέξτε καλύτερα εκείνον τον πάροχο αποκλεισμού διαφημίσεων.</string>
     <string name="dns_preset_error_personal_id_required">Εισαγάγετε το αναγνωριστικό του προφίλ σας.</string>
     <string name="dns_preset_error_unknown">Αυτή η προρύθμιση δεν είναι διαθέσιμη. Επιλέξτε άλλη.</string>
     <string name="dns_preset_fast_dns_note">Κατά τη σύνδεση, οι αναζητήσεις χρησιμοποιούν το DNS του URnetwork, οπότε %1$s δεν τις φιλτράρει.</string>
@@ -603,10 +603,10 @@
     <string name="dns_status_change_location">Αλλαγή τοποθεσίας</string>
     <string name="dns_status_fallback">%1$s δεν απαντά. Χρησιμοποιείται το DNS του URnetwork.</string>
     <string name="dns_status_paused">Ο αποκλεισμός διαφημίσεων είναι σε παύση: %1$s δεν απαντά</string>
-    <string name="dns_status_paused_detail">Χρησιμοποιείται το DNS του URnetwork μέχρι να απαντήσει ο πάροχος. Ο αποκλεισμός διαφημίσεων θα επανέλθει αυτόματα.</string>
+    <string name="dns_status_paused_detail">Χρησιμοποιείται το DNS του URnetwork μέχρι να απαντήσει ο πάροχος αποκλεισμού διαφημίσεων. Ο αποκλεισμός διαφημίσεων θα επανέλθει αυτόματα.</string>
     <string name="dns_status_provider">DNS: %1$s</string>
     <string name="dns_status_unreachable">%1$s δεν απαντά</string>
-    <string name="dns_status_unreachable_detail">Για να μείνει ενεργό το φιλτράρισμα, το URnetwork δεν αλλάζει DNS από μόνο του. Οι ιστότοποι μπορεί να μη φορτώνουν μέχρι να απαντήσει ο πάροχος.</string>
+    <string name="dns_status_unreachable_detail">Για να μείνει ενεργό το φιλτράρισμα, το URnetwork δεν αλλάζει DNS από μόνο του. Οι ιστότοποι μπορεί να μη φορτώνουν μέχρι να απαντήσει ο πάροχος αποκλεισμού διαφημίσεων.</string>
     <string name="dns_status_use_default">Χρήση DNS του URnetwork</string>
     <string name="dns_summary_ad_blocking">DNS: %1$s · Αποκλεισμός διαφημίσεων</string>
     <string name="dns_summary_custom">DNS: Προσαρμοσμένο</string>

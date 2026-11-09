@@ -585,7 +585,7 @@
     <string name="dns_preset_dropped_custom">Inserir manualmente em Personalizado</string>
     <string name="dns_preset_error_personal_id_invalid">Este ID não está no formato correto.</string>
     <string name="dns_preset_error_personal_id_not_accepted">Esta predefinição não usa um ID de perfil.</string>
-    <string name="dns_preset_error_personal_id_other_provider">Este endereço pertence a outro provedor de DNS. Escolha esse provedor.</string>
+    <string name="dns_preset_error_personal_id_other_provider">Este endereço pertence a outro provedor de bloqueio de anúncios. Escolha esse provedor de bloqueio de anúncios.</string>
     <string name="dns_preset_error_personal_id_required">Digite o ID do seu perfil.</string>
     <string name="dns_preset_error_unknown">Esta predefinição não está disponível. Escolha outra.</string>
     <string name="dns_preset_fast_dns_note">Durante a conexão, as consultas usam o DNS da URnetwork, então %1$s não as filtra.</string>
@@ -603,10 +603,10 @@
     <string name="dns_status_change_location">Alterar local</string>
     <string name="dns_status_fallback">%1$s não está respondendo. Usando o DNS da URnetwork.</string>
     <string name="dns_status_paused">Bloqueio de anúncios pausado: %1$s não está respondendo</string>
-    <string name="dns_status_paused_detail">Usando o DNS da URnetwork até o provedor responder. O bloqueio de anúncios volta sozinho.</string>
+    <string name="dns_status_paused_detail">Usando o DNS da URnetwork até o provedor de bloqueio de anúncios responder. O bloqueio de anúncios volta sozinho.</string>
     <string name="dns_status_provider">DNS: %1$s</string>
     <string name="dns_status_unreachable">%1$s não está respondendo</string>
-    <string name="dns_status_unreachable_detail">Para manter a filtragem, a URnetwork não troca de DNS sozinha. Os sites podem não carregar até o provedor responder.</string>
+    <string name="dns_status_unreachable_detail">Para manter a filtragem, a URnetwork não troca de DNS sozinha. Os sites podem não carregar até o provedor de bloqueio de anúncios responder.</string>
     <string name="dns_status_use_default">Usar o DNS da URnetwork</string>
     <string name="dns_summary_ad_blocking">DNS: %1$s · Bloqueio de anúncios</string>
     <string name="dns_summary_custom">DNS: Personalizado</string>

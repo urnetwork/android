@@ -585,7 +585,7 @@
     <string name="dns_preset_dropped_custom">사용자 지정에서 직접 입력</string>
     <string name="dns_preset_error_personal_id_invalid">이 ID의 형식이 올바르지 않습니다.</string>
     <string name="dns_preset_error_personal_id_not_accepted">이 프리셋은 프로필 ID를 사용하지 않습니다.</string>
-    <string name="dns_preset_error_personal_id_other_provider">이 주소는 다른 DNS 제공업체의 것입니다. 해당 제공업체를 선택하세요.</string>
+    <string name="dns_preset_error_personal_id_other_provider">이 주소는 다른 광고 차단 서비스의 것입니다. 해당 광고 차단 서비스를 선택하세요.</string>
     <string name="dns_preset_error_personal_id_required">프로필 ID를 입력하세요.</string>
     <string name="dns_preset_error_unknown">이 프리셋은 사용할 수 없습니다. 다른 프리셋을 선택하세요.</string>
     <string name="dns_preset_fast_dns_note">연결 중에는 조회에 URnetwork DNS를 사용하므로 %1$s에서 필터링하지 않습니다.</string>
@@ -603,10 +603,10 @@
     <string name="dns_status_change_location">위치 변경</string>
     <string name="dns_status_fallback">%1$s 응답 없음. URnetwork DNS를 사용 중입니다.</string>
     <string name="dns_status_paused">광고 차단 일시 중지됨: %1$s 응답 없음</string>
-    <string name="dns_status_paused_detail">제공업체가 응답할 때까지 URnetwork DNS를 사용합니다. 광고 차단은 자동으로 다시 시작됩니다.</string>
+    <string name="dns_status_paused_detail">광고 차단 서비스가 응답할 때까지 URnetwork DNS를 사용합니다. 광고 차단은 자동으로 다시 시작됩니다.</string>
     <string name="dns_status_provider">DNS: %1$s</string>
     <string name="dns_status_unreachable">%1$s 응답 없음</string>
-    <string name="dns_status_unreachable_detail">필터링을 유지하기 위해 URnetwork는 DNS를 자동으로 바꾸지 않습니다. 제공업체가 응답할 때까지 사이트가 로드되지 않을 수 있습니다.</string>
+    <string name="dns_status_unreachable_detail">필터링을 유지하기 위해 URnetwork는 DNS를 자동으로 바꾸지 않습니다. 광고 차단 서비스가 응답할 때까지 사이트가 로드되지 않을 수 있습니다.</string>
     <string name="dns_status_use_default">URnetwork DNS 사용</string>
     <string name="dns_summary_ad_blocking">DNS: %1$s · 광고 차단</string>
     <string name="dns_summary_custom">DNS: 사용자 지정</string>

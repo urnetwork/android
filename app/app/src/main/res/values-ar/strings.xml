@@ -585,7 +585,7 @@
     <string name="dns_preset_dropped_custom">أدخله بنفسك ضمن مخصص</string>
     <string name="dns_preset_error_personal_id_invalid">صيغة هذا المعرّف غير صحيحة.</string>
     <string name="dns_preset_error_personal_id_not_accepted">هذا الإعداد المسبق لا يستخدم معرّف ملف شخصي.</string>
-    <string name="dns_preset_error_personal_id_other_provider">هذا العنوان يخص مزوّد DNS آخر. اختر ذلك المزوّد بدلًا منه.</string>
+    <string name="dns_preset_error_personal_id_other_provider">هذا العنوان يخص موفّر حظر إعلانات آخر. اختر موفّر حظر الإعلانات ذلك بدلًا منه.</string>
     <string name="dns_preset_error_personal_id_required">أدخل معرّف ملفك الشخصي.</string>
     <string name="dns_preset_error_unknown">هذا الإعداد المسبق غير متاح. اختر إعدادًا آخر.</string>
     <string name="dns_preset_fast_dns_note">أثناء الاتصال، تستخدم عمليات البحث DNS الخاص بـ URnetwork، لذا لا يقوم %1$s بتصفيتها.</string>
@@ -603,10 +603,10 @@
     <string name="dns_status_change_location">تغيير الموقع</string>
     <string name="dns_status_fallback">%1$s لا يستجيب. يتم استخدام DNS الخاص بـ URnetwork.</string>
     <string name="dns_status_paused">تم إيقاف حظر الإعلانات مؤقتًا: %1$s لا يستجيب</string>
-    <string name="dns_status_paused_detail">يتم استخدام DNS الخاص بـ URnetwork حتى يستجيب المزوّد. وسيعود حظر الإعلانات تلقائيًا.</string>
+    <string name="dns_status_paused_detail">يتم استخدام DNS الخاص بـ URnetwork حتى يستجيب موفّر حظر الإعلانات. وسيعود حظر الإعلانات تلقائيًا.</string>
     <string name="dns_status_provider">DNS: %1$s</string>
     <string name="dns_status_unreachable">%1$s لا يستجيب</string>
-    <string name="dns_status_unreachable_detail">للإبقاء على التصفية، لا يبدّل URnetwork خادم DNS تلقائيًا. قد لا يتم تحميل المواقع حتى يستجيب المزوّد.</string>
+    <string name="dns_status_unreachable_detail">للإبقاء على التصفية، لا يبدّل URnetwork خادم DNS تلقائيًا. قد لا يتم تحميل المواقع حتى يستجيب موفّر حظر الإعلانات.</string>
     <string name="dns_status_use_default">استخدام DNS الخاص بـ URnetwork</string>
     <string name="dns_summary_ad_blocking">DNS: %1$s · حظر الإعلانات</string>
     <string name="dns_summary_custom">DNS: مخصص</string>

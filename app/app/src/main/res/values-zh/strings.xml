@@ -585,7 +585,7 @@
     <string name="dns_preset_dropped_custom">在“自定义”中自行输入</string>
     <string name="dns_preset_error_personal_id_invalid">此 ID 格式不正确。</string>
     <string name="dns_preset_error_personal_id_not_accepted">此预设不使用配置文件 ID。</string>
-    <string name="dns_preset_error_personal_id_other_provider">此地址属于其他 DNS 提供商。请改为选择该提供商。</string>
+    <string name="dns_preset_error_personal_id_other_provider">此地址属于其他广告拦截服务商。请改为选择该广告拦截服务商。</string>
     <string name="dns_preset_error_personal_id_required">请输入您的配置文件 ID。</string>
     <string name="dns_preset_error_unknown">此预设不可用。请选择其他预设。</string>
     <string name="dns_preset_fast_dns_note">连接过程中，查询会使用 URnetwork DNS，因此 %1$s 不会对其进行过滤。</string>

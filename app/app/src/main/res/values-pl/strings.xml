@@ -579,13 +579,13 @@
     <string name="dns_preset_copy_malware_phishing">Blokuje złośliwe oprogramowanie i phishing, nie reklamy</string>
     <string name="dns_preset_copy_nothing">Niczego nie blokuje</string>
     <string name="dns_preset_copy_personal">Używa filtrów ustawionych na Twoim koncie %1$s</string>
-    <string name="dns_preset_disclosure">Twoje zapytania DNS trafiają przez tunel do %1$s, więc ten dostawca nigdy nie widzi Twojego adresu IP. Obowiązuje jego polityka prywatności.</string>
+    <string name="dns_preset_disclosure">Twoje zapytania DNS trafiają przez tunel do %1$s, więc ten dostawca blokowania reklam nigdy nie widzi Twojego adresu IP. Obowiązuje jego polityka prywatności.</string>
     <string name="dns_preset_dropped">Usługa %1$s nie jest już dostępna. Używasz DNS URnetwork, więc zapytania nie są filtrowane.</string>
     <string name="dns_preset_dropped_choose">Wybierz inne gotowe ustawienie</string>
     <string name="dns_preset_dropped_custom">Wpisz go ręcznie w sekcji Własny</string>
     <string name="dns_preset_error_personal_id_invalid">Ten identyfikator ma nieprawidłowy format.</string>
     <string name="dns_preset_error_personal_id_not_accepted">To gotowe ustawienie nie używa identyfikatora profilu.</string>
-    <string name="dns_preset_error_personal_id_other_provider">Ten adres należy do innego dostawcy DNS. Wybierz tamtego dostawcę.</string>
+    <string name="dns_preset_error_personal_id_other_provider">Ten adres należy do innego dostawcy blokowania reklam. Wybierz tamtego dostawcę blokowania reklam.</string>
     <string name="dns_preset_error_personal_id_required">Wpisz identyfikator profilu.</string>
     <string name="dns_preset_error_unknown">To gotowe ustawienie jest niedostępne. Wybierz inne.</string>
     <string name="dns_preset_fast_dns_note">Podczas łączenia zapytania korzystają z DNS URnetwork, więc %1$s ich nie filtruje.</string>
@@ -606,7 +606,7 @@
     <string name="dns_status_paused_detail">Do czasu odpowiedzi używany jest DNS URnetwork. Blokowanie reklam wznowi się samo.</string>
     <string name="dns_status_provider">DNS: %1$s</string>
     <string name="dns_status_unreachable">%1$s nie odpowiada</string>
-    <string name="dns_status_unreachable_detail">Aby filtrowanie pozostało włączone, URnetwork nie zmienia DNS samodzielnie. Strony mogą się nie ładować, dopóki dostawca nie odpowie.</string>
+    <string name="dns_status_unreachable_detail">Aby filtrowanie pozostało włączone, URnetwork nie zmienia DNS samodzielnie. Strony mogą się nie ładować, dopóki dostawca blokowania reklam nie odpowie.</string>
     <string name="dns_status_use_default">Użyj DNS URnetwork</string>
     <string name="dns_summary_ad_blocking">DNS: %1$s · Blokowanie reklam</string>
     <string name="dns_summary_custom">DNS: Własny</string>
