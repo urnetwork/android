@@ -230,9 +230,9 @@ fun ConnectStatsSections(
 
         val settings = dnsSettingsViewModel.settings
         // what the settings select, from the sdk: "DNS: URnetwork", a
-        // preset's provider and what it does, Custom or Regional
+        // preset's name, which says what it does, Custom or Regional
         val summary = dnsSettingsViewModel.selection?.let {
-            dnsKeyText(it.summaryKey, it.providerName)
+            dnsKeyText(it.summaryKey, dnsPresetName(it.name))
         }
 
         if (settings != null) {

@@ -66,6 +66,7 @@ import com.bringyour.network.ui.components.sideBySideSplit
 import com.bringyour.network.ui.components.stackedSplit
 import com.bringyour.network.ui.stats.AppSplitRulesPanel
 import com.bringyour.network.ui.stats.ConnectStatsTiles
+import com.bringyour.network.ui.stats.dnsPresetName
 import com.bringyour.network.ui.theme.MainTintedBackgroundBase
 import com.bringyour.network.ui.theme.Pink
 import com.bringyour.network.ui.theme.TopBarTitleTextStyle
@@ -416,7 +417,7 @@ fun ConnectScreen(
                 balanceRecovery = balanceRecoveryState,
                 cancelBalanceRecovery = { application?.clearBalanceRecovery() },
                 privateDnsStrictHost = privateDnsStrictHost,
-                privateDnsPresetName = dnsSettingsViewModel.selectedPresetProviderName,
+                privateDnsPresetName = dnsSettingsViewModel.selectedPresetName?.let { dnsPresetName(it) },
                 showDataInfo = { dataInfoPresented = true },
             )
             // the network's client limit holds the device off: what to do

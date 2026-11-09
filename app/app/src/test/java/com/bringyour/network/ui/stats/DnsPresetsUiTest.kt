@@ -35,6 +35,13 @@ class DnsPresetsUiTest {
         "dns_provider_custom_copy",
         "dns_provider_regional",
         "dns_recommendation_message",
+        "dns_preset_name_ad_blocking",
+        "dns_preset_name_malware_blocking",
+        "dns_preset_name_family",
+        "dns_preset_name_child",
+        "dns_preset_name_child_ads",
+        "dns_preset_name_no_filtering",
+        "dns_preset_name_personal",
         "dns_preset_copy_ads_phishing",
         "dns_preset_copy_ads_malware",
         "dns_preset_copy_ads_malware_phishing",
@@ -49,11 +56,6 @@ class DnsPresetsUiTest {
         "dns_preset_copy_court_orders",
         "dns_preset_copy_personal",
         "dns_summary_default",
-        "dns_summary_ad_blocking",
-        "dns_summary_malware_blocking",
-        "dns_summary_family",
-        "dns_summary_no_filtering",
-        "dns_summary_personal",
         "dns_summary_custom",
         "dns_summary_custom_unencrypted",
         "dns_summary_regional",
@@ -101,6 +103,10 @@ class DnsPresetsUiTest {
         // a key an older sdk returned, which the store never had
         assertNull(dnsKeyResId("dns_status_personal"))
         assertNull(dnsKeyResId("dns_group_block_ads"))
+        // a preset's summary row before it had a name, which the sdk no longer
+        // returns: "DNS: <name>" (dns_status_provider) replaced it
+        assertNull(dnsKeyResId("dns_summary_ad_blocking"))
+        assertNull(dnsKeyResId("dns_summary_personal"))
     }
 
     private fun preset(presetId: String, providerName: String) = DnsPresetUi(
@@ -175,7 +181,12 @@ class DnsPresetsUiTest {
         val onDefault = DnsSelectionUi(kind = DNS_PICK_KIND_DEFAULT, presetId = DNS_PRESET_ID_DEFAULT)
         assertEquals(listOf(defaultPick), picks.filter { dnsPickSelected(it, onDefault) })
 
-        val onBeta = DnsSelectionUi(kind = DNS_PICK_KIND_PRESET, presetId = "beta", providerName = "Beta DNS")
+        val onBeta = DnsSelectionUi(
+            kind = DNS_PICK_KIND_PRESET,
+            presetId = "beta",
+            name = DnsPresetNameUi(key = "dns_preset_name_ad_blocking", provider = "Beta"),
+            providerName = "Beta DNS",
+        )
         assertEquals(listOf(betaPick), picks.filter { dnsPickSelected(it, onBeta) })
 
         val onCustom = DnsSelectionUi(kind = DNS_PICK_KIND_CUSTOM, presetId = "")
@@ -189,7 +200,7 @@ class DnsPresetsUiTest {
             kind = DNS_PICK_KIND_DEFAULT,
             presetId = DNS_PRESET_ID_DEFAULT,
             dropped = true,
-            droppedProviderName = "Delta DNS",
+            droppedName = DnsPresetNameUi(key = "dns_preset_name_family", provider = "Delta"),
         )
         assertEquals(listOf(defaultPick), picks.filter { dnsPickSelected(it, dropped) })
     }

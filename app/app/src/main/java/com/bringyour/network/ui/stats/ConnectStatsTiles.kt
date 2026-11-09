@@ -161,7 +161,7 @@ fun ConnectStatsTiles(
                 // the custom dns card's summary, else its first row; the row
                 // opens the dns settings, as the card does
                 val summary = dnsSettingsViewModel.selection?.let {
-                    dnsKeyText(it.summaryKey, it.providerName)
+                    dnsKeyText(it.summaryKey, dnsPresetName(it.name))
                 }
                 val dohEnabled = dnsSettingsViewModel.settings?.dohEnabled
                 Row(

@@ -263,7 +263,7 @@ fun DnsSettingsScreen(
 
                     if (selection.dropped) {
                         DnsDroppedNotice(
-                            providerName = selection.droppedProviderName,
+                            name = selection.droppedName,
                             choose = {
                                 scope.launch { pickerBringIntoView.bringIntoView() }
                             },
@@ -292,7 +292,10 @@ fun DnsSettingsScreen(
                                 val selected = dnsPickSelected(pick, selection)
                                 if (pick.kind == DNS_PICK_KIND_PRESET && preset != null) {
                                     DnsPickRow(
-                                        label = preset.providerName,
+                                        // the preset's name; its line names
+                                        // the adblock provider, as a personal
+                                        // preset's does
+                                        label = dnsPresetName(preset.name),
                                         copy = dnsKeyText(pick.copyKey, preset.providerName),
                                         preset = preset,
                                         selected = selected,
@@ -394,11 +397,11 @@ fun DnsSettingsScreen(
                         style = MaterialTheme.typography.bodySmall,
                         color = TextFaint
                     )
-                    val presetProviderName = dnsSettingsViewModel.selectedPresetProviderName
-                    if (presetProviderName != null) {
+                    val presetName = dnsSettingsViewModel.selectedPresetName?.let { dnsPresetName(it) }
+                    if (presetName != null) {
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
-                            stringResource(id = R.string.dns_preset_fast_dns_note, presetProviderName),
+                            stringResource(id = R.string.dns_preset_fast_dns_note, presetName),
                             style = MaterialTheme.typography.bodySmall,
                             color = TextMuted
                         )
@@ -487,9 +490,11 @@ private fun DnsSelectionPanel(
     val status = dnsSettingsViewModel.status
     val preset = dnsSettingsViewModel.selectedPreset
     val uriHandler = LocalUriHandler.current
-    // a preset's status line stands for its summary on this screen
-    val headline = dnsKeyText(status.statusKey, status.providerName)
-        ?: dnsKeyText(selection.summaryKey, selection.providerName)
+    // a preset's status line stands for its summary on this screen; both, and
+    // the blocked count, name the preset, while the verification line and
+    // its link name the adblock provider
+    val headline = dnsKeyText(status.statusKey, dnsPresetName(status.name))
+        ?: dnsKeyText(selection.summaryKey, dnsPresetName(selection.name))
     val detail = dnsKeyText(status.statusDetailKey)
     val verification = dnsKeyText(status.verificationKey, status.providerName)
     val dashboardLink = dnsKeyText(status.verificationLinkKey, status.providerName)
@@ -575,7 +580,7 @@ private fun DnsSelectionPanel(
                     id = R.plurals.dns_blocked_count,
                     count = blockedCount.coerceIn(0L, Int.MAX_VALUE.toLong()).toInt(),
                     blockedCount,
-                    status.providerName,
+                    dnsPresetName(status.name),
                 ),
                 style = MaterialTheme.typography.bodyMedium,
                 color = Color.White
@@ -629,8 +634,9 @@ private fun DnsSelectionPanel(
  */
 @Composable
 private fun DnsDroppedNotice(
-    // empty for a preset this release never knew
-    providerName: String,
+    // the dropped preset's name as it showed; empty for a preset this release
+    // never knew
+    name: DnsPresetNameUi,
     choose: () -> Unit,
     enterCustom: () -> Unit,
     dismiss: () -> Unit,
@@ -645,8 +651,8 @@ private fun DnsDroppedNotice(
             .padding(16.dp)
     ) {
         Text(
-            if (providerName.isNotEmpty()) {
-                stringResource(id = R.string.dns_preset_dropped, providerName)
+            if (name.key.isNotEmpty()) {
+                stringResource(id = R.string.dns_preset_dropped, dnsPresetName(name))
             } else {
                 stringResource(id = R.string.dns_preset_error_unknown)
             },
