@@ -230,7 +230,7 @@ internal class DeviceLocal(val networkSpace: NetworkSpace, val keyMaterial: Stri
     fun initProvideSecretKeys() {}
     fun close() { closes += 1 }
 }
-internal class JwtManager { fun updateJwt(jwt: Any) {}; fun clearJwt() {} }
+internal class JwtManager { fun updateJwt(jwt: Any, storedByJwt: String? = null) {}; fun clearJwt() {} }
 internal class DeviceChanges { fun prepareUpdate(device: DeviceLocal): () -> Unit = {} }
 internal class DeviceManager {
     var clearCalls = 0
