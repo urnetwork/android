@@ -239,6 +239,7 @@ internal fun ConnectActions(
                     balanceRecovery = balanceRecovery,
                     cancelBalanceRecovery = cancelBalanceRecovery,
                     privateDnsStrictHost = privateDnsStrictHost,
+                    privateDnsPresetName = dnsSettingsViewModel.selectedPresetProviderName,
                     showDataInfo = showDataInfo,
                 )
 
@@ -489,6 +490,9 @@ internal fun ConnectActionNotices(
     balanceRecovery: BalanceRecoveryState,
     cancelBalanceRecovery: () -> Unit,
     privateDnsStrictHost: String?,
+    // the selected DNS preset's provider, which strict Private DNS overrides,
+    // or null when no preset is selected (DnsSettingsViewModel)
+    privateDnsPresetName: String?,
     showDataInfo: () -> Unit,
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
@@ -642,6 +646,19 @@ internal fun ConnectActionNotices(
                     .padding(horizontal = 4.dp)
                     .testTag("acceptance.private_dns_strict_notice")
             )
+            // the DNS preset the user picked does not apply either (connect
+            // ADBLOCK3RD F2)
+            if (privateDnsPresetName != null) {
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    stringResource(id = R.string.dns_private_dns_overrides_preset, privateDnsPresetName),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = TextMuted,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 4.dp)
+                )
+            }
             TextButton(
                 onClick = {
                     runCatching {

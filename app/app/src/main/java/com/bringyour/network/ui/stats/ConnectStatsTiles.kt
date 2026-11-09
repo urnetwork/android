@@ -37,7 +37,7 @@ import com.bringyour.network.ui.theme.TextMuted
 /**
  * The connect statistics in two columns, for the stacked connect arrangement
  * at medium width (apple/DUO.md): remote and blocked traffic, local traffic
- * with the split rules, and the blocker with dns over https. Each tile opens
+ * with the split rules, and the blocker with the dns summary. Each tile opens
  * what its full card in the drawer opens; the blocked plot, like the full
  * card's, opens nothing.
  */
@@ -139,8 +139,10 @@ fun ConnectStatsTiles(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
+                    // URnetwork's own blocker, not a dns provider under "Block
+                    // ads and trackers" (BlockerTogglePanel)
                     Text(
-                        stringResource(id = R.string.block_ads_and_trackers),
+                        stringResource(id = R.string.dns_builtin_blocker_label),
                         style = MaterialTheme.typography.bodyMedium,
                         color = Color.White,
                         modifier = Modifier.weight(1f)
@@ -156,8 +158,11 @@ fun ConnectStatsTiles(
                     )
                 }
 
-                // the first of the custom dns card's rows; the row opens the dns
-                // settings, as the card does
+                // the custom dns card's summary, else its first row; the row
+                // opens the dns settings, as the card does
+                val summary = dnsSettingsViewModel.selection?.let {
+                    dnsKeyText(it.summaryKey, it.providerName)
+                }
                 val dohEnabled = dnsSettingsViewModel.settings?.dohEnabled
                 Row(
                     modifier = Modifier
@@ -168,13 +173,13 @@ fun ConnectStatsTiles(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        stringResource(id = R.string.dns_over_https),
+                        summary ?: stringResource(id = R.string.dns_over_https),
                         style = MaterialTheme.typography.bodyMedium,
                         color = Color.White,
                         modifier = Modifier.weight(1f)
                     )
 
-                    if (dohEnabled != null) {
+                    if (summary == null && dohEnabled != null) {
                         Text(
                             stringResource(id = if (dohEnabled) R.string.on else R.string.off),
                             style = MaterialTheme.typography.bodyMedium,

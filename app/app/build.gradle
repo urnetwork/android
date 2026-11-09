@@ -305,6 +305,9 @@ android {
             // never play-services-auth.
             buildConfigField "boolean", "BRINGYOUR_BUNDLE_SSO_GOOGLE", 'true'
             buildConfigField "String", "BRINGYOUR_BUNDLE_WALLET", '"solana"'
+            // every DNS preset is offered; only the play flavor may hide the
+            // ones that block ads (see play)
+            buildConfigField "boolean", "BRINGYOUR_BUNDLE_DNS_PRESETS_HIDE_AD_BLOCKING", 'false'
 
             signingConfig = signingConfigs.github
 
@@ -343,6 +346,13 @@ android {
             buildConfigField "String[]", "BRINGYOUR_BUNDLE_NET_EXTENDER_NETWORKS", 'new String[]{}'
             buildConfigField "boolean", "BRINGYOUR_BUNDLE_SSO_GOOGLE", 'true'
             buildConfigField "String", "BRINGYOUR_BUNDLE_WALLET", '"solana"'
+            // the DNS preset catalog on Play (connect ADBLOCK3RD O15, H4). false
+            // offers every preset, as every flavor does: ad blocking is off by
+            // default and only ever the user's choice. true hides the presets
+            // that block ads, if Play review objects; malware, family, no
+            // filtering, personal IDs and Custom stay. MainApplication hands it
+            // to Sdk.setDnsPresetsHideAdBlocking before any device is built.
+            buildConfigField "boolean", "BRINGYOUR_BUNDLE_DNS_PRESETS_HIDE_AD_BLOCKING", 'false'
 
             ndk {
                 abiFilters = ['x86_64', 'armeabi-v7a', 'arm64-v8a']
@@ -369,6 +379,9 @@ android {
             buildConfigField "String", "BRINGYOUR_BUNDLE_WALLET", '"solana"'
             buildConfigField "String[]", "BRINGYOUR_BUNDLE_NET_EXTENDER_NETWORKS", 'new String[]{}'
             buildConfigField "boolean", "BRINGYOUR_BUNDLE_SSO_GOOGLE", 'true'
+            // every DNS preset is offered; only the play flavor may hide the
+            // ones that block ads (see play)
+            buildConfigField "boolean", "BRINGYOUR_BUNDLE_DNS_PRESETS_HIDE_AD_BLOCKING", 'false'
 
             signingConfig = signingConfigs.solana_dapp
 
@@ -406,6 +419,9 @@ android {
             buildConfigField "String", "BRINGYOUR_BUNDLE_WALLET", '"ethos"'
             buildConfigField "String[]", "BRINGYOUR_BUNDLE_NET_EXTENDER_NETWORKS", 'new String[]{}'
             buildConfigField "boolean", "BRINGYOUR_BUNDLE_SSO_GOOGLE", 'true'
+            // every DNS preset is offered; only the play flavor may hide the
+            // ones that block ads (see play)
+            buildConfigField "boolean", "BRINGYOUR_BUNDLE_DNS_PRESETS_HIDE_AD_BLOCKING", 'false'
 
             signingConfig = signingConfigs.ethos_dapp
 
