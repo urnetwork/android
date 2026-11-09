@@ -362,12 +362,13 @@ class DnsSettingsViewModel @Inject constructor(
     }
 
     /**
-     * The id saved with a personal preset, for its field to start from; empty
-     * unless that preset is the one in force.
+     * The id saved with a personal preset, for its field to start from when
+     * it opens (GetDnsPresetPersonalIdForEdit, ADBLOCK3RD decision 21): the
+     * id in force while the settings select that preset, else empty. The
+     * field is the one place it shows.
      */
     fun personalIdOf(presetId: String): String {
-        val sdkSettings = currentSdkSettings() ?: return ""
-        return if (sdkSettings.presetId == presetId) sdkSettings.presetPersonalId.orEmpty() else ""
+        return Sdk.getDnsPresetPersonalIdForEdit(currentSdkSettings(), presetId).orEmpty()
     }
 
     /**
