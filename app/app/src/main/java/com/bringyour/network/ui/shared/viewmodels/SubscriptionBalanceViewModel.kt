@@ -527,9 +527,8 @@ class SubscriptionBalanceViewModel @Inject constructor(
                              * The server is the source of truth for Pro, and
                              * `currentSubscription` is non-null exactly when the network is
                              * Pro. The jwt's `pro` claim is baked in when the token is
-                             * issued, so it goes stale on both an upgrade and a lapse.
-                             * Refresh the token whenever the two disagree, in either
-                             * direction.
+                             * issued, so it goes stale on both an upgrade and a lapse. The
+                             * sdk decides when to refresh the token (below).
                              *
                              * The downgrade case used to be unreachable: it lived inside
                              * `currentSubscription?.plan?.let`, which does not run precisely
@@ -551,14 +550,16 @@ class SubscriptionBalanceViewModel @Inject constructor(
                                     )
                                 }
                             }
-                            val jwtIsPro = jwtManager.jwtFlow.value?.pro == true
-
                             val provideControlMode = deviceManager.provideControlMode
-                            val sync = ProStatusSync.plan(serverIsPro, jwtIsPro, provideControlMode)
+                            val sync = ProStatusSync.plan(provideControlMode)
                             if (sync.provideControlMode != provideControlMode) {
                                 deviceManager.provideControlMode = sync.provideControlMode
                             }
-                            if (sync.refreshToken) {
+                            // The sdk decides the refresh (SubscriptionProTracker): one per
+                            // stored jwt. The refresh renews the client token and leaves the
+                            // stored jwt, and its stale claim, as it was, so asking whenever
+                            // the two disagreed refreshed on every poll (support inbox 8211).
+                            if (jwtManager.proTracker.balanceLoaded(serverIsPro)) {
                                 deviceManager.device?.refreshToken(0)
                             }
 
@@ -611,7 +612,10 @@ class SubscriptionBalanceViewModel @Inject constructor(
     }
 
     private val isSupporterWithBalance: () -> Boolean = {
-        val currentIsPro = jwtManager.jwtFlow.value?.pro == true
+        // the sdk's Pro: the server's answer once a balance loaded. The stored
+        // jwt's claim stays stale until that jwt renews, which kept the poll
+        // running after an upgrade.
+        val currentIsPro = jwtManager.proTracker.isPro
 
         currentIsPro && _availableBalanceByteCount.value > 0
     }

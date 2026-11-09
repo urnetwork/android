@@ -127,6 +127,16 @@ class DeviceManager @Inject constructor(
     /** The signed-in jwt as it changes (network id and name); null when signed out. */
     val jwtFlow: kotlinx.coroutines.flow.StateFlow<com.bringyour.sdk.ByJwt?>
         get() = jwtManager.jwtFlow
+
+    /**
+     * The plan state the sdk decides (JwtManager.proTracker): the stored jwt's
+     * `pro` claim until a balance loads, then the server's answer. The claim
+     * goes stale on an upgrade and a lapse until the stored jwt renews, and
+     * never overrides the server's answer.
+     */
+    val isPro: Boolean
+        get() = jwtManager.proTracker.isPro
+
     private var authLogoutSub: Sub? = null
     private var provideSecretKeysSub: Sub? = null
     private val localStateChangeSubs = mutableListOf<Sub>()
@@ -503,9 +513,12 @@ class DeviceManager @Inject constructor(
                     runCatching {
                         localState.parseByJwt()
                     }.getOrNull()?.let { byJwt ->
-                        jwtManager.updateJwt(byJwt)
+                        jwtManager.updateJwt(byJwt, runCatching { localState.byJwt }.getOrNull())
                     } ?: jwtManager.clearJwt()
 
+                    // the refresh renews the client token: the stored jwt read
+                    // here is usually the one read before, and the sdk's Pro
+                    // decision (JwtManager.proTracker) asks for nothing more
                     jwtRefreshSub = newDevice.addJwtRefreshListener { _ ->
 
                         val localState = newDevice.networkSpace?.asyncLocalState?.localState
@@ -513,7 +526,7 @@ class DeviceManager @Inject constructor(
                         runCatching {
                             localState.parseByJwt()
                         }.getOrNull()?.let { byJwt ->
-                            jwtManager.updateJwt(byJwt)
+                            jwtManager.updateJwt(byJwt, runCatching { localState.byJwt }.getOrNull())
                         } ?: jwtManager.clearJwt()
                     }
 

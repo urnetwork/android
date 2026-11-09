@@ -582,7 +582,10 @@ class MainApplication : Application() {
      */
     fun checkStartConnect(onResult: (blocked: Boolean) -> Unit) {
         com.bringyour.network.ui.connect.checkStartConnect(
-            isProKnown = { uiIsPro || deviceManager.jwtFlow.value?.pro == true },
+            // the sdk's Pro, not the stored jwt's claim alone: once a balance
+            // loaded it is the server's, and the claim stays stale after a
+            // lapse until the stored jwt renews
+            isProKnown = { uiIsPro || deviceManager.isPro },
             isPollingSubscriptionBalance = { uiPollingSubscriptionBalance },
             contractInsufficientBalance = { device?.contractStatus?.insufficientBalance == true },
             cached = com.bringyour.network.widgets.WidgetSnapshotStore.loadBalance(this),
