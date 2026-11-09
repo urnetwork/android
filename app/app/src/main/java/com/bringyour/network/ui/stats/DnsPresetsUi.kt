@@ -107,10 +107,37 @@ data class DnsStatusUi(
     val verificationLinkKey: String = "",
     val showUseDefault: Boolean = false,
     val showChangeLocation: Boolean = false,
-    val showBlockedCount: Boolean = false,
-    // this connection's blocked lookups, a floor
-    val blockedCount: Long = 0L,
+    // the selected preset filters, so its blocked lookups are counted and the
+    // screen reads the count again while it shows (sdk ShowBlockedCount)
+    val countsBlocked: Boolean = false,
+    // this connection's blocked lookups as shown, a floor; null shows none
+    // (dnsShownBlockedCount)
+    val blockedCount: Long? = null,
 )
+
+/**
+ * This connection's blocked count as the DNS screen shows it, or null to show
+ * none: only while the sdk counts for the selection in force and the device's
+ * status describes that same preset. Right after the selection changes the
+ * status can still name the previous preset, whose count is not the new one's,
+ * and without a status (no device) there is nothing to count; both show
+ * nothing rather than a stale number.
+ */
+fun dnsShownBlockedCount(
+    // DnsStatusSummary.ShowBlockedCount and BlockedCount
+    countsBlocked: Boolean,
+    blockedCount: Long,
+    // the preset the device's status describes (DnsResolverStatus.PresetId),
+    // null without a status
+    statusPresetId: String?,
+    // the preset in force (DnsSelectionSummary.PresetId), null while unknown
+    selectionPresetId: String?,
+): Long? {
+    if (!countsBlocked || statusPresetId == null || statusPresetId != selectionPresetId) {
+        return null
+    }
+    return blockedCount.coerceAtLeast(0L)
+}
 
 /** A card of the picker: a preset group under its heading, or one pick with no group. */
 data class DnsPickerSection(

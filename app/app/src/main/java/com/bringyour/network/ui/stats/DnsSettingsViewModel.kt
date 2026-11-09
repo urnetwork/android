@@ -279,11 +279,18 @@ class DnsSettingsViewModel @Inject constructor(
         }
         picks = nextPicks
 
-        status = statusUi(sdkSettings, device?.dnsResolverStatus)
+        status = statusUi(sdkSettings, device?.dnsResolverStatus, nextSelection?.presetId)
     }
 
-    // what the sdk shows for the settings in force and the device's resolver status
-    private fun statusUi(sdkSettings: DnsResolverSettings?, resolverStatus: DnsResolverStatus?): DnsStatusUi {
+    // what the sdk shows for the settings in force and the device's resolver
+    // status. The blocked count shows only while the status describes the
+    // preset in force (dnsShownBlockedCount): never another preset's count
+    // after a change, and nothing without a device
+    private fun statusUi(
+        sdkSettings: DnsResolverSettings?,
+        resolverStatus: DnsResolverStatus?,
+        selectionPresetId: String?,
+    ): DnsStatusUi {
         val summary = sdkSettings?.let { Sdk.describeDnsResolverStatus(it, resolverStatus) }
             ?: return DnsStatusUi()
         return DnsStatusUi(
@@ -295,20 +302,25 @@ class DnsSettingsViewModel @Inject constructor(
             verificationLinkKey = summary.verificationLinkKey.orEmpty(),
             showUseDefault = summary.showUseDefault,
             showChangeLocation = summary.showChangeLocation,
-            showBlockedCount = summary.showBlockedCount,
-            blockedCount = summary.blockedCount,
+            countsBlocked = summary.showBlockedCount,
+            blockedCount = dnsShownBlockedCount(
+                countsBlocked = summary.showBlockedCount,
+                blockedCount = summary.blockedCount,
+                statusPresetId = resolverStatus?.presetId,
+                selectionPresetId = selectionPresetId,
+            ),
         )
     }
 
     /**
-     * Reads this connection's blocked count again, for the screen that shows
-     * it: the count changes without a status callback.
+     * Reads the status again, with this connection's blocked count, for the
+     * screen that shows the count: the count changes without a status
+     * callback. The status names the preset it counts for, so a count of
+     * another preset never shows under the selected one.
      */
     fun refreshBlockedCount() {
-        val blockedCount = deviceManager.device?.dnsBlockedCount ?: 0L
-        if (status.blockedCount != blockedCount) {
-            status = status.copy(blockedCount = blockedCount)
-        }
+        val device = deviceManager.device
+        status = statusUi(currentSdkSettings(), device?.dnsResolverStatus, selection?.presetId)
     }
 
     /**

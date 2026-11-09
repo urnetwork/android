@@ -129,11 +129,11 @@ fun DnsSettingsScreen(
     }
 
     // this connection's blocked count changes without a status callback, so
-    // it is read again while the screen shows it
-    val showBlockedCount = dnsSettingsViewModel.status.showBlockedCount
+    // it is read again, with the status, while the screen shows it
+    val countsBlocked = dnsSettingsViewModel.status.countsBlocked
     val lifecycleOwner = LocalLifecycleOwner.current
-    LaunchedEffect(showBlockedCount, lifecycleOwner) {
-        if (showBlockedCount) {
+    LaunchedEffect(countsBlocked, lifecycleOwner) {
+        if (countsBlocked) {
             lifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 while (isActive) {
                     dnsSettingsViewModel.refreshBlockedCount()
@@ -566,13 +566,15 @@ private fun DnsSelectionPanel(
             }
         }
 
-        if (status.showBlockedCount) {
+        // none while the status describes another preset, or without a device
+        val blockedCount = status.blockedCount
+        if (blockedCount != null) {
             Spacer(modifier = Modifier.height(8.dp))
             Text(
                 pluralStringResource(
                     id = R.plurals.dns_blocked_count,
-                    count = status.blockedCount.coerceIn(0L, Int.MAX_VALUE.toLong()).toInt(),
-                    status.blockedCount,
+                    count = blockedCount.coerceIn(0L, Int.MAX_VALUE.toLong()).toInt(),
+                    blockedCount,
                     status.providerName,
                 ),
                 style = MaterialTheme.typography.bodyMedium,

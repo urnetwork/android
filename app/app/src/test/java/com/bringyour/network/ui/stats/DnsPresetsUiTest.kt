@@ -12,7 +12,8 @@ import org.junit.Test
  * The DNS provider picker's plain rules (DnsPresetsUi): every localization key
  * id the sdk hands the screens (sdk dns_presets_ui.go, ADBLOCK3RD G1) shows
  * the string of the same name, the picker groups the sdk's picks without
- * reordering them, and the pick in force is the summary's. Synthetic presets
+ * reordering them, the pick in force is the summary's, and the blocked count
+ * shows only for the preset the device's status names. Synthetic presets
  * stand in for the catalog, which only the sdk's tests read.
  */
 class DnsPresetsUiTest {
@@ -198,5 +199,53 @@ class DnsPresetsUiTest {
         for (pick in picks) {
             assertFalse(dnsPickSelected(pick, null))
         }
+    }
+
+    /**
+     * The blocked count belongs to the preset the device's status names. The
+     * count showed whatever the device last counted under the selected
+     * provider's name, so right after a change it could show the previous
+     * preset's count, and with no device a 0 that counted nothing.
+     */
+    @Test
+    fun theBlockedCountShowsOnlyForTheStatusOfThePresetInForce() {
+        // the status describes the preset in force
+        assertEquals(12L, dnsShownBlockedCount(countsBlocked = true, blockedCount = 12L, statusPresetId = "alpha", selectionPresetId = "alpha"))
+        // right after a change the status still names the previous preset:
+        // none, never its count
+        assertNull(dnsShownBlockedCount(countsBlocked = true, blockedCount = 12L, statusPresetId = "alpha", selectionPresetId = "beta"))
+        // once the status names the new preset, its own count, from zero
+        assertEquals(0L, dnsShownBlockedCount(countsBlocked = true, blockedCount = 0L, statusPresetId = "beta", selectionPresetId = "beta"))
+        // no status, as without a device: none rather than a 0
+        assertNull(dnsShownBlockedCount(countsBlocked = true, blockedCount = 0L, statusPresetId = null, selectionPresetId = "alpha"))
+        // settings not known yet
+        assertNull(dnsShownBlockedCount(countsBlocked = true, blockedCount = 5L, statusPresetId = "alpha", selectionPresetId = null))
+        // a selection that counts nothing: a no-filtering preset, Custom
+        assertNull(dnsShownBlockedCount(countsBlocked = false, blockedCount = 3L, statusPresetId = "gamma", selectionPresetId = "gamma"))
+        assertNull(dnsShownBlockedCount(countsBlocked = false, blockedCount = 0L, statusPresetId = "", selectionPresetId = ""))
+    }
+
+    private fun source(name: String): String {
+        val file = listOf("", "app/", "app/app/")
+            .map { java.io.File(it + "src/main/java/com/bringyour/network/ui/stats/$name") }
+            .firstOrNull { it.isFile }
+        assertNotNull(name, file)
+        return file!!.readText()
+    }
+
+    /**
+     * The view model gates the count by the preset the status itself names,
+     * and its poll reads the whole status again, never the bare count, which
+     * does not say whose it is.
+     */
+    @Test
+    fun theViewModelCountsFromTheStatusOfThePresetInForce() {
+        val viewModel = source("DnsSettingsViewModel.kt")
+        assertTrue(viewModel, viewModel.contains("statusPresetId = resolverStatus?.presetId,"))
+        assertTrue(viewModel, viewModel.contains("status = statusUi(sdkSettings, device?.dnsResolverStatus, nextSelection?.presetId)"))
+        val poll = viewModel.substring(viewModel.indexOf("    fun refreshBlockedCount() {"))
+            .substringBefore("\n    }\n")
+        assertTrue(poll, poll.contains("statusUi(currentSdkSettings(), device?.dnsResolverStatus, selection?.presetId)"))
+        assertFalse(viewModel, viewModel.contains(".dnsBlockedCount"))
     }
 }
