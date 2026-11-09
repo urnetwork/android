@@ -585,7 +585,7 @@
     <string name="dns_preset_dropped_custom">Iweke mwenyewe chini ya Maalum</string>
     <string name="dns_preset_error_personal_id_invalid">Kitambulisho hiki hakiko katika muundo sahihi.</string>
     <string name="dns_preset_error_personal_id_not_accepted">Mpangilio huu uliowekwa tayari hautumii kitambulisho cha wasifu.</string>
-    <string name="dns_preset_error_personal_id_other_provider">Anwani hii ni ya mtoa huduma mwingine wa DNS. Chagua mtoa huduma huyo badala yake.</string>
+    <string name="dns_preset_error_personal_id_other_provider">Anwani hii ni ya mtoa huduma mwingine wa kuzuia matangazo. Chagua mtoa huduma huyo wa kuzuia matangazo badala yake.</string>
     <string name="dns_preset_error_personal_id_required">Weka kitambulisho cha wasifu wako.</string>
     <string name="dns_preset_error_unknown">Mpangilio huu uliowekwa tayari haupatikani. Chagua mwingine.</string>
     <string name="dns_preset_fast_dns_note">Wakati wa kuunganisha, hoja hutumia DNS ya URnetwork, kwa hiyo %1$s haizichuji.</string>
@@ -603,10 +603,10 @@
     <string name="dns_status_change_location">Badilisha eneo</string>
     <string name="dns_status_fallback">%1$s haijibu. Inatumia DNS ya URnetwork.</string>
     <string name="dns_status_paused">Uzuiaji wa matangazo umesitishwa: %1$s haijibu</string>
-    <string name="dns_status_paused_detail">Inatumia DNS ya URnetwork hadi mtoa huduma ajibu. Uzuiaji wa matangazo utarudi wenyewe.</string>
+    <string name="dns_status_paused_detail">Inatumia DNS ya URnetwork hadi mtoa huduma wa kuzuia matangazo ajibu. Uzuiaji wa matangazo utarudi wenyewe.</string>
     <string name="dns_status_provider">DNS: %1$s</string>
     <string name="dns_status_unreachable">%1$s haijibu</string>
-    <string name="dns_status_unreachable_detail">Ili uchujaji uendelee, URnetwork haibadilishi DNS yenyewe. Huenda tovuti zisipakie hadi mtoa huduma ajibu.</string>
+    <string name="dns_status_unreachable_detail">Ili uchujaji uendelee, URnetwork haibadilishi DNS yenyewe. Huenda tovuti zisipakie hadi mtoa huduma wa kuzuia matangazo ajibu.</string>
     <string name="dns_status_use_default">Tumia DNS ya URnetwork</string>
     <string name="dns_summary_ad_blocking">DNS: %1$s · Uzuiaji wa matangazo</string>
     <string name="dns_summary_custom">DNS: Maalum</string>

@@ -585,7 +585,7 @@
     <string name="dns_preset_dropped_custom">Zadat ho sami v části Vlastní</string>
     <string name="dns_preset_error_personal_id_invalid">Toto ID nemá správný formát.</string>
     <string name="dns_preset_error_personal_id_not_accepted">Tato předvolba nepoužívá ID profilu.</string>
-    <string name="dns_preset_error_personal_id_other_provider">Tato adresa patří jinému poskytovateli DNS. Vyberte místo toho jeho.</string>
+    <string name="dns_preset_error_personal_id_other_provider">Tato adresa patří jiné službě blokování reklam. Vyberte místo toho tu službu blokování reklam.</string>
     <string name="dns_preset_error_personal_id_required">Zadejte ID svého profilu.</string>
     <string name="dns_preset_error_unknown">Tato předvolba není k dispozici. Vyberte jinou.</string>
     <string name="dns_preset_fast_dns_note">Během připojování se dotazy překládají přes DNS od URnetwork, takže je %1$s nefiltruje.</string>

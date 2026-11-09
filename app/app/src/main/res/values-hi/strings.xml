@@ -585,7 +585,7 @@
     <string name="dns_preset_dropped_custom">इसे कस्टम में खुद दर्ज करें</string>
     <string name="dns_preset_error_personal_id_invalid">यह ID सही फ़ॉर्मैट में नहीं है।</string>
     <string name="dns_preset_error_personal_id_not_accepted">यह प्रीसेट प्रोफ़ाइल ID का इस्तेमाल नहीं करता।</string>
-    <string name="dns_preset_error_personal_id_other_provider">यह पता किसी दूसरे DNS प्रदाता का है। इसके बजाय वह प्रदाता चुनें।</string>
+    <string name="dns_preset_error_personal_id_other_provider">यह पता किसी दूसरे विज्ञापन ब्लॉकिंग प्रदाता का है। इसके बजाय वह विज्ञापन ब्लॉकिंग प्रदाता चुनें।</string>
     <string name="dns_preset_error_personal_id_required">अपनी प्रोफ़ाइल ID दर्ज करें।</string>
     <string name="dns_preset_error_unknown">यह प्रीसेट उपलब्ध नहीं है। कोई दूसरा चुनें।</string>
     <string name="dns_preset_fast_dns_note">कनेक्ट होते समय लुकअप URnetwork DNS से होते हैं, इसलिए %1$s उन्हें फ़िल्टर नहीं करता।</string>
@@ -603,10 +603,10 @@
     <string name="dns_status_change_location">स्थान बदलें</string>
     <string name="dns_status_fallback">%1$s जवाब नहीं दे रहा। URnetwork DNS इस्तेमाल हो रहा है।</string>
     <string name="dns_status_paused">विज्ञापन ब्लॉकिंग रुकी है: %1$s जवाब नहीं दे रहा</string>
-    <string name="dns_status_paused_detail">प्रदाता के जवाब देने तक URnetwork DNS इस्तेमाल हो रहा है। विज्ञापन ब्लॉकिंग अपने-आप फिर शुरू हो जाएगी।</string>
+    <string name="dns_status_paused_detail">विज्ञापन ब्लॉकिंग प्रदाता के जवाब देने तक URnetwork DNS इस्तेमाल हो रहा है। विज्ञापन ब्लॉकिंग अपने-आप फिर शुरू हो जाएगी।</string>
     <string name="dns_status_provider">DNS: %1$s</string>
     <string name="dns_status_unreachable">%1$s जवाब नहीं दे रहा</string>
-    <string name="dns_status_unreachable_detail">फ़िल्टरिंग चालू रखने के लिए URnetwork अपने-आप DNS नहीं बदलता। प्रदाता के जवाब देने तक साइटें शायद लोड न हों।</string>
+    <string name="dns_status_unreachable_detail">फ़िल्टरिंग चालू रखने के लिए URnetwork अपने-आप DNS नहीं बदलता। विज्ञापन ब्लॉकिंग प्रदाता के जवाब देने तक साइटें शायद लोड न हों।</string>
     <string name="dns_status_use_default">URnetwork DNS इस्तेमाल करें</string>
     <string name="dns_summary_ad_blocking">DNS: %1$s · विज्ञापन ब्लॉकिंग</string>
     <string name="dns_summary_custom">DNS: कस्टम</string>

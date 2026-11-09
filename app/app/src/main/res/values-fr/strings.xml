@@ -585,7 +585,7 @@
     <string name="dns_preset_dropped_custom">Le saisir vous-même dans Personnalisé</string>
     <string name="dns_preset_error_personal_id_invalid">Cet ID n\'est pas au bon format.</string>
     <string name="dns_preset_error_personal_id_not_accepted">Ce préréglage n\'utilise pas d\'ID de profil.</string>
-    <string name="dns_preset_error_personal_id_other_provider">Cette adresse appartient à un autre fournisseur DNS. Choisissez plutôt ce fournisseur.</string>
+    <string name="dns_preset_error_personal_id_other_provider">Cette adresse appartient à un autre fournisseur de blocage des publicités. Choisissez plutôt ce fournisseur de blocage des publicités.</string>
     <string name="dns_preset_error_personal_id_required">Saisissez votre ID de profil.</string>
     <string name="dns_preset_error_unknown">Ce préréglage n\'est pas disponible. Choisissez-en un autre.</string>
     <string name="dns_preset_fast_dns_note">Pendant la connexion, les requêtes passent par le DNS d\'URnetwork : %1$s ne les filtre donc pas.</string>
@@ -603,10 +603,10 @@
     <string name="dns_status_change_location">Changer d\'emplacement</string>
     <string name="dns_status_fallback">%1$s ne répond pas. Le DNS d\'URnetwork est utilisé.</string>
     <string name="dns_status_paused">Blocage des publicités en pause : %1$s ne répond pas</string>
-    <string name="dns_status_paused_detail">Le DNS d\'URnetwork prend le relais jusqu\'à ce que le fournisseur réponde. Le blocage des publicités reprendra tout seul.</string>
+    <string name="dns_status_paused_detail">Le DNS d\'URnetwork prend le relais jusqu\'à ce que le fournisseur de blocage des publicités réponde. Le blocage des publicités reprendra tout seul.</string>
     <string name="dns_status_provider">DNS : %1$s</string>
     <string name="dns_status_unreachable">%1$s ne répond pas</string>
-    <string name="dns_status_unreachable_detail">Pour garder le filtrage actif, URnetwork ne change pas de DNS de lui-même. Les sites peuvent ne pas se charger tant que le fournisseur ne répond pas.</string>
+    <string name="dns_status_unreachable_detail">Pour garder le filtrage actif, URnetwork ne change pas de DNS de lui-même. Les sites peuvent ne pas se charger tant que le fournisseur de blocage des publicités ne répond pas.</string>
     <string name="dns_status_use_default">Utiliser le DNS d\'URnetwork</string>
     <string name="dns_summary_ad_blocking">DNS : %1$s · Blocage des publicités</string>
     <string name="dns_summary_custom">DNS : Personnalisé</string>

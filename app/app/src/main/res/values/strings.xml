@@ -590,7 +590,7 @@
     <string name="dns_preset_dropped_custom">Enter it yourself under Custom</string>
     <string name="dns_preset_error_personal_id_invalid">This ID isn\'t in the right format.</string>
     <string name="dns_preset_error_personal_id_not_accepted">This preset doesn\'t use a profile ID.</string>
-    <string name="dns_preset_error_personal_id_other_provider">This address belongs to another provider. Choose that provider instead.</string>
+    <string name="dns_preset_error_personal_id_other_provider">This address belongs to another adblock provider. Choose that adblock provider instead.</string>
     <string name="dns_preset_error_personal_id_required">Enter your profile ID.</string>
     <string name="dns_preset_error_unknown">This preset isn\'t available. Choose another one.</string>
     <string name="dns_preset_fast_dns_note">While connecting, lookups use URnetwork DNS, so %1$s doesn\'t filter them.</string>

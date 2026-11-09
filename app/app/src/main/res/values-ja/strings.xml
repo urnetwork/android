@@ -585,7 +585,7 @@
     <string name="dns_preset_dropped_custom">カスタムから自分で入力</string>
     <string name="dns_preset_error_personal_id_invalid">このIDの形式が正しくありません。</string>
     <string name="dns_preset_error_personal_id_not_accepted">このプリセットではプロファイルIDを使用しません。</string>
-    <string name="dns_preset_error_personal_id_other_provider">このアドレスは別のDNSプロバイダーのものです。そのプロバイダーを選択してください。</string>
+    <string name="dns_preset_error_personal_id_other_provider">このアドレスは別の広告ブロックサービスのものです。その広告ブロックサービスを選択してください。</string>
     <string name="dns_preset_error_personal_id_required">プロファイルIDを入力してください。</string>
     <string name="dns_preset_error_unknown">このプリセットは利用できません。別のプリセットを選んでください。</string>
     <string name="dns_preset_fast_dns_note">接続中の問い合わせはURnetworkのDNSを使用するため、%1$sによるフィルタリングは行われません。</string>
@@ -603,10 +603,10 @@
     <string name="dns_status_change_location">場所を変更</string>
     <string name="dns_status_fallback">%1$sが応答していません。URnetworkのDNSを使用しています。</string>
     <string name="dns_status_paused">広告ブロックを一時停止中: %1$sが応答していません</string>
-    <string name="dns_status_paused_detail">プロバイダーが応答するまでURnetworkのDNSを使用します。広告ブロックは自動的に再開されます。</string>
+    <string name="dns_status_paused_detail">広告ブロックサービスが応答するまでURnetworkのDNSを使用します。広告ブロックは自動的に再開されます。</string>
     <string name="dns_status_provider">DNS: %1$s</string>
     <string name="dns_status_unreachable">%1$sが応答していません</string>
-    <string name="dns_status_unreachable_detail">フィルタリングを維持するため、URnetworkはDNSを自動で切り替えません。プロバイダーが応答するまでサイトが読み込めない場合があります。</string>
+    <string name="dns_status_unreachable_detail">フィルタリングを維持するため、URnetworkはDNSを自動で切り替えません。広告ブロックサービスが応答するまでサイトが読み込めない場合があります。</string>
     <string name="dns_status_use_default">URnetworkのDNSを使用</string>
     <string name="dns_summary_ad_blocking">DNS: %1$s · 広告ブロック</string>
     <string name="dns_summary_custom">DNS: カスタム</string>

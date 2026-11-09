@@ -585,7 +585,7 @@
     <string name="dns_preset_dropped_custom">Ввести вручную в разделе «Пользовательский»</string>
     <string name="dns_preset_error_personal_id_invalid">Неверный формат ID.</string>
     <string name="dns_preset_error_personal_id_not_accepted">Эта предустановка не использует ID профиля.</string>
-    <string name="dns_preset_error_personal_id_other_provider">Этот адрес принадлежит другому DNS-провайдеру. Выберите этого провайдера.</string>
+    <string name="dns_preset_error_personal_id_other_provider">Этот адрес принадлежит другому сервису блокировки рекламы. Выберите тот сервис блокировки рекламы.</string>
     <string name="dns_preset_error_personal_id_required">Введите ID профиля.</string>
     <string name="dns_preset_error_unknown">Эта предустановка недоступна. Выберите другую.</string>
     <string name="dns_preset_fast_dns_note">Во время подключения запросы идут через DNS URnetwork, поэтому %1$s их не фильтрует.</string>
