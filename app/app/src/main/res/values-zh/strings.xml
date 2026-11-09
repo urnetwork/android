@@ -599,7 +599,6 @@
     <string name="dns_provider_default_copy">通过隧道的加密 DNS，不做过滤</string>
     <string name="dns_provider_regional">地区（%1$s），未加密</string>
     <string name="dns_recommendation_message">已知最严格的安全规则在%1$s无法正常工作。可改用推荐的 DNS 设置，安全性稍低但更好用。</string>
-    <string name="dns_restore_secure_message">恢复最安全的设置：通过隧道使用加密的 DNS over HTTPS。</string>
     <string name="dns_settings_unavailable">DNS 设置不可用</string>
     <string name="dns_status_change_location">更改位置</string>
     <string name="dns_status_fallback">%1$s 无响应。正在使用 URnetwork DNS。</string>
@@ -618,8 +617,6 @@
     <string name="dns_summary_no_filtering">DNS：%1$s · 不过滤</string>
     <string name="dns_summary_personal">DNS：%1$s · 您的配置文件</string>
     <string name="dns_summary_regional">DNS：地区（未加密）</string>
-    <string name="dns_using_recommended">正在使用推荐的地区设置</string>
-    <string name="dns_using_secure">正在使用最安全的默认设置</string>
     <string name="dns_verify_malformed_adguard">%1$s 拒绝了此设备 ID</string>
     <string name="dns_verify_not_filtering">%1$s 在此位置未进行过滤</string>
     <string name="dns_verify_rejected_controld">%1$s 无法识别此解析器 ID</string>
@@ -1170,7 +1167,6 @@
     <string name="reset_password_email_sent">重置密码邮件已发送至 %1$s</string>
     <string name="resolvers">解析器</string>
     <string name="restore_default_transports">恢复默认传输方式</string>
-    <string name="restore_most_secure_settings">恢复最安全设置</string>
     <string name="retry">重试</string>
     <string name="review_our_app">您愿意评价我们的应用吗？</string>
     <string name="route_internet">互联网</string>
@@ -1470,7 +1466,6 @@
     <string name="usdc_wallet_address">USDC 钱包地址</string>
     <string name="use_extender_settings">使用扩展器设置</string>
     <string name="use_most_stable_provider">使用最稳定的提供商</string>
-    <string name="use_recommended_settings">使用推荐设置</string>
     <string name="use_wireguard_socks_https_proxy">使用 WireGuard / SOCKS / HTTPS 代理</string>
     <string name="use_wireguard_socks_https_proxy_note">在浏览器中打开 ur.io。SOCKS 和 WireGuard 需要 Pro。</string>
     <string name="used_data_key">已用</string>

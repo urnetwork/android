@@ -599,7 +599,6 @@
     <string name="dns_provider_default_copy">터널을 통한 암호화 DNS, 필터링 없음</string>
     <string name="dns_provider_regional">지역(%1$s), 암호화되지 않음</string>
     <string name="dns_recommendation_message">가장 강력한 보안 규칙은 %1$s에서 작동하지 않는 것으로 알려져 있습니다. 보안 수준은 낮지만 더 잘 작동하는 권장 DNS 설정이 있습니다.</string>
-    <string name="dns_restore_secure_message">가장 안전한 설정으로 복원합니다: 터널을 통한 암호화된 DNS over HTTPS.</string>
     <string name="dns_settings_unavailable">DNS 설정을 사용할 수 없습니다</string>
     <string name="dns_status_change_location">위치 변경</string>
     <string name="dns_status_fallback">%1$s 응답 없음. URnetwork DNS를 사용 중입니다.</string>
@@ -618,8 +617,6 @@
     <string name="dns_summary_no_filtering">DNS: %1$s · 필터링 없음</string>
     <string name="dns_summary_personal">DNS: %1$s · 내 프로필</string>
     <string name="dns_summary_regional">DNS: 지역(암호화되지 않음)</string>
-    <string name="dns_using_recommended">지역 권장 설정 사용 중</string>
-    <string name="dns_using_secure">가장 안전한 기본 설정 사용 중</string>
     <string name="dns_verify_malformed_adguard">%1$s에서 이 기기 ID를 거부했습니다</string>
     <string name="dns_verify_not_filtering">이 위치에서는 %1$s 필터링이 작동하지 않습니다</string>
     <string name="dns_verify_rejected_controld">%1$s에서 이 리졸버 ID를 인식하지 못합니다</string>
@@ -1170,7 +1167,6 @@
     <string name="reset_password_email_sent">비밀번호 재설정 이메일이 %1$s로 전송되었습니다</string>
     <string name="resolvers">리졸버</string>
     <string name="restore_default_transports">기본 전송 방식 복원</string>
-    <string name="restore_most_secure_settings">가장 안전한 설정으로 복원</string>
     <string name="retry">다시 시도</string>
     <string name="review_our_app">저희 앱을 리뷰하시겠어요?</string>
     <string name="route_internet">인터넷</string>
@@ -1470,7 +1466,6 @@
     <string name="usdc_wallet_address">USDC 월렛 주소</string>
     <string name="use_extender_settings">익스텐더 설정 사용</string>
     <string name="use_most_stable_provider">가장 안정적인 제공업체를 사용합니다</string>
-    <string name="use_recommended_settings">권장 설정 사용</string>
     <string name="use_wireguard_socks_https_proxy">WireGuard / SOCKS / HTTPS 프록시 사용</string>
     <string name="use_wireguard_socks_https_proxy_note">브라우저에서 ur.io를 엽니다. SOCKS와 WireGuard는 Pro가 필요합니다.</string>
     <string name="used_data_key">사용됨</string>

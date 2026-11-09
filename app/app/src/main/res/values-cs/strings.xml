@@ -599,7 +599,6 @@
     <string name="dns_provider_default_copy">Šifrované DNS přes tunel, bez filtrování</string>
     <string name="dns_provider_regional">Regionální (%1$s), nešifrované</string>
     <string name="dns_recommendation_message">Nejpřísnější bezpečnostní pravidla v %1$s nefungují. Existuje méně bezpečné doporučené nastavení DNS, které funguje lépe.</string>
-    <string name="dns_restore_secure_message">Obnovte nejbezpečnější nastavení: šifrovaný DNS přes HTTPS v tunelu.</string>
     <string name="dns_settings_unavailable">Nastavení DNS není k dispozici</string>
     <string name="dns_status_change_location">Změnit umístění</string>
     <string name="dns_status_fallback">%1$s neodpovídá. Používá se DNS od URnetwork.</string>
@@ -618,8 +617,6 @@
     <string name="dns_summary_no_filtering">DNS: %1$s · Bez filtrování</string>
     <string name="dns_summary_personal">DNS: %1$s · váš profil</string>
     <string name="dns_summary_regional">DNS: Regionální (nešifrované)</string>
-    <string name="dns_using_recommended">Používáte doporučené regionální nastavení</string>
-    <string name="dns_using_secure">Používáte nejbezpečnější výchozí nastavení</string>
     <string name="dns_verify_malformed_adguard">%1$s: toto ID zařízení bylo odmítnuto</string>
     <string name="dns_verify_not_filtering">%1$s z tohoto umístění nefiltruje</string>
     <string name="dns_verify_rejected_controld">%1$s toto ID resolveru nezná</string>
@@ -1170,7 +1167,6 @@
     <string name="reset_password_email_sent">E-mail pro reset hesla byl odeslán na %1$s</string>
     <string name="resolvers">Resolvery</string>
     <string name="restore_default_transports">Obnovit výchozí transporty</string>
-    <string name="restore_most_secure_settings">Obnovit nejbezpečnější nastavení</string>
     <string name="retry">Zkusit znovu</string>
     <string name="review_our_app">Chcete naši aplikaci zrecenzovat?</string>
     <string name="route_internet">Internet</string>
@@ -1470,7 +1466,6 @@
     <string name="usdc_wallet_address">Adresa peněženky USDC</string>
     <string name="use_extender_settings">Použít nastavení extenderu</string>
     <string name="use_most_stable_provider">Používá nejstabilnějšího poskytovatele</string>
-    <string name="use_recommended_settings">Použít doporučené nastavení</string>
     <string name="use_wireguard_socks_https_proxy">Použít proxy WireGuard / SOCKS / HTTPS</string>
     <string name="use_wireguard_socks_https_proxy_note">Otevře ur.io v prohlížeči. SOCKS a WireGuard vyžadují Pro.</string>
     <string name="used_data_key">Použité</string>

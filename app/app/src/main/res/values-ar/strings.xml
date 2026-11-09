@@ -599,7 +599,6 @@
     <string name="dns_provider_default_copy">DNS مشفّر عبر النفق، دون أي تصفية</string>
     <string name="dns_provider_regional">إقليمي (%1$s)، غير مشفر</string>
     <string name="dns_recommendation_message">من المعروف أن أقوى قواعد الأمان لا تعمل في %1$s. هناك إعدادات DNS موصى بها أقل أمانًا تعمل بشكل أفضل.</string>
-    <string name="dns_restore_secure_message">استعادة أكثر الإعدادات أمانًا: DNS مشفر عبر HTTPS من خلال النفق.</string>
     <string name="dns_settings_unavailable">إعدادات DNS غير متاحة</string>
     <string name="dns_status_change_location">تغيير الموقع</string>
     <string name="dns_status_fallback">%1$s لا يستجيب. يتم استخدام DNS الخاص بـ URnetwork.</string>
@@ -618,8 +617,6 @@
     <string name="dns_summary_no_filtering">DNS: %1$s · بدون تصفية</string>
     <string name="dns_summary_personal">DNS: %1$s · ملفك الشخصي</string>
     <string name="dns_summary_regional">DNS: إقليمي (غير مشفر)</string>
-    <string name="dns_using_recommended">استخدام الإعدادات الإقليمية الموصى بها</string>
-    <string name="dns_using_secure">استخدام الإعدادات الافتراضية الأكثر أمانًا</string>
     <string name="dns_verify_malformed_adguard">رفض %1$s معرّف الجهاز هذا</string>
     <string name="dns_verify_not_filtering">%1$s لا يقوم بالتصفية من هذا الموقع</string>
     <string name="dns_verify_rejected_controld">%1$s لا يتعرّف على معرّف المحلّل هذا</string>
@@ -1170,7 +1167,6 @@
     <string name="reset_password_email_sent">تم إرسال بريد إعادة تعيين كلمة المرور إلى %1$s</string>
     <string name="resolvers">محلّلات DNS</string>
     <string name="restore_default_transports">استعادة بروتوكولات النقل الافتراضية</string>
-    <string name="restore_most_secure_settings">استعادة أكثر الإعدادات أمانًا</string>
     <string name="retry">إعادة المحاولة</string>
     <string name="review_our_app">هل ترغب في مراجعة تطبيقنا؟</string>
     <string name="route_internet">الإنترنت</string>
@@ -1470,7 +1466,6 @@
     <string name="usdc_wallet_address">عنوان محفظة USDC</string>
     <string name="use_extender_settings">استخدام إعدادات الموسّع</string>
     <string name="use_most_stable_provider">استخدام مزود الخدمة الأكثر استقرارًا</string>
-    <string name="use_recommended_settings">استخدام الإعدادات الموصى بها</string>
     <string name="use_wireguard_socks_https_proxy">استخدام وكيل WireGuard / SOCKS / HTTPS</string>
     <string name="use_wireguard_socks_https_proxy_note">يفتح ur.io في متصفحك. يتطلب SOCKS وWireGuard اشتراك Pro.</string>
     <string name="used_data_key">مستخدم</string>

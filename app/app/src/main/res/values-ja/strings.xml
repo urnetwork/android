@@ -599,7 +599,6 @@
     <string name="dns_provider_default_copy">トンネル経由の暗号化DNS。フィルタリングなし</string>
     <string name="dns_provider_regional">地域（%1$s）、暗号化なし</string>
     <string name="dns_recommendation_message">最も強力なセキュリティルールは%1$sでは機能しないことが知られています。安全性は下がりますが、より確実に動作する推奨DNS設定があります。</string>
-    <string name="dns_restore_secure_message">最も安全な設定に戻します：トンネル経由の暗号化されたDNS over HTTPS。</string>
     <string name="dns_settings_unavailable">DNS設定は利用できません</string>
     <string name="dns_status_change_location">場所を変更</string>
     <string name="dns_status_fallback">%1$sが応答していません。URnetworkのDNSを使用しています。</string>
@@ -618,8 +617,6 @@
     <string name="dns_summary_no_filtering">DNS: %1$s · フィルタリングなし</string>
     <string name="dns_summary_personal">DNS: %1$s · あなたのプロファイル</string>
     <string name="dns_summary_regional">DNS: 地域（暗号化なし）</string>
-    <string name="dns_using_recommended">地域の推奨設定を使用中</string>
-    <string name="dns_using_secure">最も安全なデフォルト設定を使用中</string>
     <string name="dns_verify_malformed_adguard">%1$sがこのデバイスIDを拒否しました</string>
     <string name="dns_verify_not_filtering">%1$sはこの場所からはフィルタリングしていません</string>
     <string name="dns_verify_rejected_controld">%1$sはこのリゾルバーIDを認識しません</string>
@@ -1170,7 +1167,6 @@
     <string name="reset_password_email_sent">パスワードリセットのメールが %1$s に送信されました</string>
     <string name="resolvers">リゾルバー</string>
     <string name="restore_default_transports">デフォルトのトランスポートに戻す</string>
-    <string name="restore_most_secure_settings">最も安全な設定に戻す</string>
     <string name="retry">再試行</string>
     <string name="review_our_app">私たちのアプリをレビューしていただけますか？</string>
     <string name="route_internet">インターネット</string>
@@ -1470,7 +1466,6 @@
     <string name="usdc_wallet_address">USDCウォレットアドレス</string>
     <string name="use_extender_settings">エクステンダー設定を使う</string>
     <string name="use_most_stable_provider">最も安定したプロバイダーを使用します</string>
-    <string name="use_recommended_settings">推奨設定を使用</string>
     <string name="use_wireguard_socks_https_proxy">WireGuard / SOCKS / HTTPS プロキシを使う</string>
     <string name="use_wireguard_socks_https_proxy_note">ブラウザで ur.io を開きます。SOCKS と WireGuard には Pro が必要です。</string>
     <string name="used_data_key">使用済み</string>

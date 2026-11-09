@@ -66,4 +66,35 @@ class FastDnsOnConnectToggleTest {
         assertFalse(off.enableFallback)
         assertEquals(base, off)
     }
+
+    private fun source(name: String): String {
+        val file = listOf("", "app/", "app/app/")
+            .map { File(it + "src/main/java/com/bringyour/network/ui/stats/$name") }
+            .firstOrNull { it.isFile }
+        assertTrue(name, file != null)
+        return file!!.readText()
+    }
+
+    /**
+     * With a DNS preset selected (connect ADBLOCK3RD E2), the toggle applies on
+     * its own, at once, through the sdk's DnsResolverSettingsWithFallback,
+     * which keeps the selection. In Custom's editor, whose Update saves custom
+     * settings, it would turn the preset into custom lists; so it sits outside
+     * the editor, and the editor's save keeps the fallback in force.
+     */
+    @Test
+    fun toggleAppliesOnItsOwnAndKeepsTheSelection() {
+        val screen = source("DnsSettingsScreen.kt")
+        val toggle = screen.substring(screen.indexOf("checked = FastDnsOnConnectToggle.isOn(dnsSettingsViewModel.settings),"))
+        assertTrue(toggle, toggle.contains("val enabled = FastDnsOnConnectToggle.toggled(inForce).enableFallback"))
+        assertTrue(toggle, toggle.contains("if (dnsSettingsViewModel.setFastDnsOnConnect(enabled)) {"))
+        val editor = screen.substring(screen.indexOf("private fun DnsCustomEditor("))
+            .substringBefore("\n}\n")
+        assertFalse(editor, editor.contains("FastDnsOnConnectToggle"))
+
+        val viewModel = source("DnsSettingsViewModel.kt")
+        val apply = viewModel.substring(viewModel.indexOf("    fun apply(newSettings: DnsSettingsUi, original: DnsSettingsUi): Boolean {"))
+            .substringBefore("\n    }\n")
+        assertFalse(apply, apply.contains("enableFallback = newSettings.enableFallback"))
+    }
 }

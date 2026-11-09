@@ -599,7 +599,6 @@
     <string name="dns_provider_default_copy">Κρυπτογραφημένο DNS μέσω του τούνελ, χωρίς φιλτράρισμα</string>
     <string name="dns_provider_regional">Περιφερειακό (%1$s), μη κρυπτογραφημένο</string>
     <string name="dns_recommendation_message">%1$s: οι πιο ισχυροί κανόνες ασφαλείας είναι γνωστό ότι δεν λειτουργούν εδώ. Υπάρχουν λιγότερο ασφαλείς προτεινόμενες ρυθμίσεις DNS που λειτουργούν καλύτερα.</string>
-    <string name="dns_restore_secure_message">Επαναφέρετε τις πιο ασφαλείς ρυθμίσεις: κρυπτογραφημένο DNS μέσω HTTPS μέσα από το τούνελ.</string>
     <string name="dns_settings_unavailable">Οι ρυθμίσεις DNS δεν είναι διαθέσιμες</string>
     <string name="dns_status_change_location">Αλλαγή τοποθεσίας</string>
     <string name="dns_status_fallback">%1$s δεν απαντά. Χρησιμοποιείται το DNS του URnetwork.</string>
@@ -618,8 +617,6 @@
     <string name="dns_summary_no_filtering">DNS: %1$s · Χωρίς φιλτράρισμα</string>
     <string name="dns_summary_personal">DNS: %1$s · το προφίλ σας</string>
     <string name="dns_summary_regional">DNS: Περιφερειακό (μη κρυπτογραφημένο)</string>
-    <string name="dns_using_recommended">Χρήση προτεινόμενων ρυθμίσεων περιοχής</string>
-    <string name="dns_using_secure">Χρήση των πιο ασφαλών προεπιλογών</string>
     <string name="dns_verify_malformed_adguard">%1$s απέρριψε αυτό το αναγνωριστικό συσκευής</string>
     <string name="dns_verify_not_filtering">%1$s δεν φιλτράρει από αυτήν την τοποθεσία</string>
     <string name="dns_verify_rejected_controld">%1$s δεν αναγνωρίζει αυτό το αναγνωριστικό επιλυτή</string>
@@ -1170,7 +1167,6 @@
     <string name="reset_password_email_sent">Το email επαναφοράς κωδικού στάλθηκε στο %1$s</string>
     <string name="resolvers">Επιλυτές</string>
     <string name="restore_default_transports">Επαναφορά προεπιλεγμένων μεταφορών</string>
-    <string name="restore_most_secure_settings">Επαναφορά στις πιο ασφαλείς ρυθμίσεις</string>
     <string name="retry">Προσπαθήστε ξανά</string>
     <string name="review_our_app">Θα θέλατε να αξιολογήσετε την εφαρμογή μας;</string>
     <string name="route_internet">Διαδίκτυο</string>
@@ -1470,7 +1466,6 @@
     <string name="usdc_wallet_address">Διεύθυνση πορτοφολιού USDC</string>
     <string name="use_extender_settings">Χρήση ρυθμίσεων επεκτατή</string>
     <string name="use_most_stable_provider">Χρησιμοποιεί τον πιο σταθερό πάροχο</string>
-    <string name="use_recommended_settings">Χρήση προτεινόμενων ρυθμίσεων</string>
     <string name="use_wireguard_socks_https_proxy">Χρήση διακομιστή μεσολάβησης WireGuard / SOCKS / HTTPS</string>
     <string name="use_wireguard_socks_https_proxy_note">Ανοίγει το ur.io στο πρόγραμμα περιήγησης. Τα SOCKS και WireGuard απαιτούν Pro.</string>
     <string name="used_data_key">Χρησιμοποιημένα</string>

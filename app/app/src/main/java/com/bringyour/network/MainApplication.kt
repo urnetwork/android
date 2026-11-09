@@ -1193,6 +1193,13 @@ class MainApplication : Application() {
         Sdk.setMemoryLimit(sdkMemoryMib * 1024 * 1024)
         SDK_EFFECTIVE_PROCESS_MEMORY_LIMIT_MIB = sdkMemoryMib
 
+        // The DNS preset catalog of this flavor (connect ADBLOCK3RD O15, H4):
+        // every flavor offers every preset, and the play flavor's switch hides
+        // the ones that block ads if Play review objects. Process-wide, and set
+        // before any device is built, so a stored selection it hides applies as
+        // URnetwork's DNS with the notice that the preset is gone.
+        Sdk.setDnsPresetsHideAdBlocking(BuildConfig.BRINGYOUR_BUNDLE_DNS_PRESETS_HIDE_AD_BLOCKING)
+
         // Nothing removes location test providers when a process dies — not a
         // crash, not force-stop, not uninstall. Start the controller here (not
         // from the feature UI) so a previous process's leftovers are cleared

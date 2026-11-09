@@ -599,7 +599,6 @@
     <string name="dns_provider_default_copy">DNS chiffré à travers le tunnel, sans filtrage</string>
     <string name="dns_provider_regional">Régional (%1$s), non chiffré</string>
     <string name="dns_recommendation_message">%1$s — les règles de sécurité les plus strictes n\'y fonctionnent pas. Des paramètres DNS recommandés, moins sécurisés, fonctionnent mieux.</string>
-    <string name="dns_restore_secure_message">Rétablir les paramètres les plus sécurisés : DNS chiffré via HTTPS à travers le tunnel.</string>
     <string name="dns_settings_unavailable">Paramètres DNS indisponibles</string>
     <string name="dns_status_change_location">Changer d\'emplacement</string>
     <string name="dns_status_fallback">%1$s ne répond pas. Le DNS d\'URnetwork est utilisé.</string>
@@ -618,8 +617,6 @@
     <string name="dns_summary_no_filtering">DNS : %1$s · Sans filtrage</string>
     <string name="dns_summary_personal">DNS : %1$s · votre profil</string>
     <string name="dns_summary_regional">DNS : Régional (non chiffré)</string>
-    <string name="dns_using_recommended">Utilisation des paramètres régionaux recommandés</string>
-    <string name="dns_using_secure">Utilisation des paramètres par défaut les plus sécurisés</string>
     <string name="dns_verify_malformed_adguard">%1$s a refusé cet ID d\'appareil</string>
     <string name="dns_verify_not_filtering">%1$s ne filtre pas depuis cet emplacement</string>
     <string name="dns_verify_rejected_controld">%1$s ne reconnaît pas cet ID de résolveur</string>
@@ -1170,7 +1167,6 @@
     <string name="reset_password_email_sent">E-mail de réinitialisation du mot de passe envoyé à %1$s</string>
     <string name="resolvers">Résolveurs</string>
     <string name="restore_default_transports">Rétablir les transports par défaut</string>
-    <string name="restore_most_secure_settings">Rétablir les paramètres les plus sécurisés</string>
     <string name="retry">Réessayer</string>
     <string name="review_our_app">Souhaitez-vous évaluer notre application ?</string>
     <string name="route_internet">Internet</string>
@@ -1470,7 +1466,6 @@
     <string name="usdc_wallet_address">Adresse du portefeuille USDC</string>
     <string name="use_extender_settings">Utiliser les paramètres de l’extendeur</string>
     <string name="use_most_stable_provider">Utilise le fournisseur le plus stable</string>
-    <string name="use_recommended_settings">Utiliser les paramètres recommandés</string>
     <string name="use_wireguard_socks_https_proxy">Utiliser un proxy WireGuard / SOCKS / HTTPS</string>
     <string name="use_wireguard_socks_https_proxy_note">Ouvre ur.io dans votre navigateur. SOCKS et WireGuard nécessitent Pro.</string>
     <string name="used_data_key">Utilisé</string>

@@ -604,7 +604,6 @@
     <string name="dns_provider_default_copy">Encrypted DNS through the tunnel, with no filtering</string>
     <string name="dns_provider_regional">Regional (%1$s), unencrypted</string>
     <string name="dns_recommendation_message">The strongest security rules are known not to work in %1$s. There are less secure recommended DNS settings that work better.</string>
-    <string name="dns_restore_secure_message">Restore the most secure settings: encrypted DNS over HTTPS through the tunnel.</string>
     <string name="dns_settings_unavailable">DNS settings unavailable</string>
     <string name="dns_status_change_location">Change location</string>
     <string name="dns_status_fallback">%1$s isn\'t answering. Using URnetwork DNS.</string>
@@ -623,8 +622,6 @@
     <string name="dns_summary_no_filtering">DNS: %1$s · No filtering</string>
     <string name="dns_summary_personal">DNS: %1$s · your profile</string>
     <string name="dns_summary_regional">DNS: Regional (unencrypted)</string>
-    <string name="dns_using_recommended">Using recommended regional settings</string>
-    <string name="dns_using_secure">Using most secure default settings</string>
     <string name="dns_verify_malformed_adguard">%1$s rejected this device ID</string>
     <string name="dns_verify_not_filtering">%1$s isn\'t filtering from this location</string>
     <string name="dns_verify_rejected_controld">%1$s doesn\'t recognize this resolver ID</string>
@@ -1181,7 +1178,6 @@
     <string name="reset_password_email_sent">Reset password email sent to %1$s</string>
     <string name="resolvers">Resolvers</string>
     <string name="restore_default_transports">Restore default transports</string>
-    <string name="restore_most_secure_settings">Restore to most secure settings</string>
     <string name="retry">Retry</string>
     <string name="review_our_app">Would you like to review our app?</string>
     <string name="route_internet">Internet</string>
@@ -1485,7 +1481,6 @@
     <string name="usdc_wallet_address">USDC wallet address</string>
     <string name="use_extender_settings">Use extender settings</string>
     <string name="use_most_stable_provider">Use most stable provider</string>
-    <string name="use_recommended_settings">Use recommended settings</string>
     <string name="use_wireguard_socks_https_proxy">Use WireGuard / SOCKS / HTTPS proxy</string>
     <string name="use_wireguard_socks_https_proxy_note">Opens ur.io in your browser. SOCKS and WireGuard need Pro.</string>
     <string name="used_data_key">Used</string>

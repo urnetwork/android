@@ -599,7 +599,6 @@
     <string name="dns_provider_default_copy">Зашифрованный DNS через туннель, без фильтрации</string>
     <string name="dns_provider_regional">Региональный (%1$s), без шифрования</string>
     <string name="dns_recommendation_message">%1$s: известно, что здесь самые строгие правила безопасности не работают. Есть менее безопасные рекомендуемые настройки DNS, которые работают лучше.</string>
-    <string name="dns_restore_secure_message">Восстановите самые безопасные настройки: шифрованный DNS через HTTPS в туннеле.</string>
     <string name="dns_settings_unavailable">Настройки DNS недоступны</string>
     <string name="dns_status_change_location">Сменить локацию</string>
     <string name="dns_status_fallback">%1$s не отвечает. Используется DNS URnetwork.</string>
@@ -618,8 +617,6 @@
     <string name="dns_summary_no_filtering">DNS: %1$s · Без фильтрации</string>
     <string name="dns_summary_personal">DNS: %1$s · ваш профиль</string>
     <string name="dns_summary_regional">DNS: Региональный (без шифрования)</string>
-    <string name="dns_using_recommended">Используются рекомендованные региональные настройки</string>
-    <string name="dns_using_secure">Используются самые безопасные настройки по умолчанию</string>
     <string name="dns_verify_malformed_adguard">%1$s: этот ID устройства отклонён</string>
     <string name="dns_verify_not_filtering">%1$s не фильтрует из этой локации</string>
     <string name="dns_verify_rejected_controld">%1$s не распознаёт этот ID резолвера</string>
@@ -1170,7 +1167,6 @@
     <string name="reset_password_email_sent">Письмо для сброса пароля отправлено на %1$s</string>
     <string name="resolvers">Резолверы</string>
     <string name="restore_default_transports">Восстановить транспорты по умолчанию</string>
-    <string name="restore_most_secure_settings">Вернуть самые безопасные настройки</string>
     <string name="retry">Повторить попытку</string>
     <string name="review_our_app">Хотели бы вы оставить отзыв о нашем приложении?</string>
     <string name="route_internet">Интернет</string>
@@ -1470,7 +1466,6 @@
     <string name="usdc_wallet_address">Адрес кошелька USDC</string>
     <string name="use_extender_settings">Использовать настройки экстендера</string>
     <string name="use_most_stable_provider">Используется самый стабильный провайдер</string>
-    <string name="use_recommended_settings">Использовать рекомендованные настройки</string>
     <string name="use_wireguard_socks_https_proxy">Использовать прокси WireGuard / SOCKS / HTTPS</string>
     <string name="use_wireguard_socks_https_proxy_note">Открывает ur.io в браузере. Для SOCKS и WireGuard нужен Pro.</string>
     <string name="used_data_key">Использовано</string>

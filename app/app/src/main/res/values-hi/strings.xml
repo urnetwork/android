@@ -599,7 +599,6 @@
     <string name="dns_provider_default_copy">टनल के ज़रिए एन्क्रिप्टेड DNS, बिना फ़िल्टरिंग के</string>
     <string name="dns_provider_regional">क्षेत्रीय (%1$s), अनएन्क्रिप्टेड</string>
     <string name="dns_recommendation_message">%1$s में सबसे मज़बूत सुरक्षा नियम काम नहीं करते। कुछ कम सुरक्षित अनुशंसित DNS सेटिंग्स हैं जो बेहतर काम करती हैं।</string>
-    <string name="dns_restore_secure_message">सबसे सुरक्षित सेटिंग्स बहाल करें: टनल के ज़रिए HTTPS पर एन्क्रिप्टेड DNS।</string>
     <string name="dns_settings_unavailable">DNS सेटिंग्स उपलब्ध नहीं</string>
     <string name="dns_status_change_location">स्थान बदलें</string>
     <string name="dns_status_fallback">%1$s जवाब नहीं दे रहा। URnetwork DNS इस्तेमाल हो रहा है।</string>
@@ -618,8 +617,6 @@
     <string name="dns_summary_no_filtering">DNS: %1$s · बिना फ़िल्टरिंग</string>
     <string name="dns_summary_personal">DNS: %1$s · आपकी प्रोफ़ाइल</string>
     <string name="dns_summary_regional">DNS: क्षेत्रीय (अनएन्क्रिप्टेड)</string>
-    <string name="dns_using_recommended">अनुशंसित क्षेत्रीय सेटिंग्स का उपयोग हो रहा है</string>
-    <string name="dns_using_secure">सबसे सुरक्षित डिफ़ॉल्ट सेटिंग्स का उपयोग हो रहा है</string>
     <string name="dns_verify_malformed_adguard">%1$s ने यह डिवाइस ID अस्वीकार कर दी</string>
     <string name="dns_verify_not_filtering">%1$s इस स्थान से फ़िल्टर नहीं कर रहा</string>
     <string name="dns_verify_rejected_controld">%1$s इस रिज़ॉल्वर ID को नहीं पहचानता</string>
@@ -1170,7 +1167,6 @@
     <string name="reset_password_email_sent">पासवर्ड रीसेट ईमेल %1$s पर भेजा गया है</string>
     <string name="resolvers">रिज़ॉल्वर</string>
     <string name="restore_default_transports">डिफ़ॉल्ट ट्रांसपोर्ट बहाल करें</string>
-    <string name="restore_most_secure_settings">सबसे सुरक्षित सेटिंग्स बहाल करें</string>
     <string name="retry">पुनः प्रयास करें</string>
     <string name="review_our_app">क्या आप हमारे ऐप की समीक्षा करना चाहेंगे?</string>
     <string name="route_internet">इंटरनेट</string>
@@ -1470,7 +1466,6 @@
     <string name="usdc_wallet_address">USDC वॉलेट पता</string>
     <string name="use_extender_settings">एक्सटेंडर सेटिंग इस्तेमाल करें</string>
     <string name="use_most_stable_provider">सबसे स्थिर प्रदाता का उपयोग करता है</string>
-    <string name="use_recommended_settings">अनुशंसित सेटिंग्स का उपयोग करें</string>
     <string name="use_wireguard_socks_https_proxy">WireGuard / SOCKS / HTTPS प्रॉक्सी का उपयोग करें</string>
     <string name="use_wireguard_socks_https_proxy_note">आपके ब्राउज़र में ur.io खोलता है। SOCKS और WireGuard के लिए Pro ज़रूरी है।</string>
     <string name="used_data_key">उपयोग किया गया</string>

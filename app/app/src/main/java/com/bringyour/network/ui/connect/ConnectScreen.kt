@@ -416,6 +416,7 @@ fun ConnectScreen(
                 balanceRecovery = balanceRecoveryState,
                 cancelBalanceRecovery = { application?.clearBalanceRecovery() },
                 privateDnsStrictHost = privateDnsStrictHost,
+                privateDnsPresetName = dnsSettingsViewModel.selectedPresetProviderName,
                 showDataInfo = { dataInfoPresented = true },
             )
             // the network's client limit holds the device off: what to do

@@ -599,7 +599,6 @@
     <string name="dns_provider_default_copy">DNS ที่เข้ารหัสผ่านอุโมงค์ ไม่มีการกรอง</string>
     <string name="dns_provider_regional">ระดับภูมิภาค (%1$s) ไม่เข้ารหัส</string>
     <string name="dns_recommendation_message">เป็นที่ทราบกันว่ากฎความปลอดภัยที่เข้มงวดที่สุดใช้งานไม่ได้ใน %1$s มีการตั้งค่า DNS ที่แนะนำซึ่งปลอดภัยน้อยกว่าแต่ใช้งานได้ดีกว่า</string>
-    <string name="dns_restore_secure_message">คืนค่าการตั้งค่าที่ปลอดภัยที่สุด: DNS ที่เข้ารหัสผ่าน HTTPS ผ่านอุโมงค์</string>
     <string name="dns_settings_unavailable">ไม่สามารถตั้งค่า DNS ได้</string>
     <string name="dns_status_change_location">เปลี่ยนตำแหน่ง</string>
     <string name="dns_status_fallback">%1$s ไม่ตอบสนอง กำลังใช้ DNS ของ URnetwork</string>
@@ -618,8 +617,6 @@
     <string name="dns_summary_no_filtering">DNS: %1$s · ไม่มีการกรอง</string>
     <string name="dns_summary_personal">DNS: %1$s · โปรไฟล์ของคุณ</string>
     <string name="dns_summary_regional">DNS: ระดับภูมิภาค (ไม่เข้ารหัส)</string>
-    <string name="dns_using_recommended">กำลังใช้การตั้งค่าที่แนะนำสำหรับภูมิภาค</string>
-    <string name="dns_using_secure">กำลังใช้การตั้งค่าเริ่มต้นที่ปลอดภัยที่สุด</string>
     <string name="dns_verify_malformed_adguard">%1$s ปฏิเสธรหัสอุปกรณ์นี้</string>
     <string name="dns_verify_not_filtering">%1$s ไม่ได้กรองจากตำแหน่งนี้</string>
     <string name="dns_verify_rejected_controld">%1$s ไม่รู้จักรหัสรีโซลเวอร์นี้</string>
@@ -1170,7 +1167,6 @@
     <string name="reset_password_email_sent">อีเมลรีเซ็ตรหัสผ่านถูกส่งไปที่ %1$s</string>
     <string name="resolvers">รีโซลเวอร์</string>
     <string name="restore_default_transports">คืนค่าทรานสปอร์ตเริ่มต้น</string>
-    <string name="restore_most_secure_settings">คืนค่าเป็นการตั้งค่าที่ปลอดภัยที่สุด</string>
     <string name="retry">ลองอีกครั้ง</string>
     <string name="review_our_app">ช่วยรีวิวแอปของพวกเราได้หรือเปล่า?</string>
     <string name="route_internet">อินเทอร์เน็ต</string>
@@ -1470,7 +1466,6 @@
     <string name="usdc_wallet_address">ที่อยู่กระเป๋าเงิน USDC</string>
     <string name="use_extender_settings">ใช้การตั้งค่าตัวขยาย</string>
     <string name="use_most_stable_provider">ใช้ผู้ให้บริการที่เสถียรที่สุด</string>
-    <string name="use_recommended_settings">ใช้การตั้งค่าที่แนะนำ</string>
     <string name="use_wireguard_socks_https_proxy">ใช้พร็อกซี WireGuard / SOCKS / HTTPS</string>
     <string name="use_wireguard_socks_https_proxy_note">เปิด ur.io ในเบราว์เซอร์ของคุณ SOCKS และ WireGuard ต้องใช้ Pro</string>
     <string name="used_data_key">ใช้แล้ว</string>

@@ -599,7 +599,6 @@
     <string name="dns_provider_default_copy">Versleutelde DNS via de tunnel, zonder filtering</string>
     <string name="dns_provider_regional">Regionaal (%1$s), onversleuteld</string>
     <string name="dns_recommendation_message">Het is bekend dat de strengste beveiligingsregels niet werken in %1$s. Er zijn minder veilige aanbevolen DNS-instellingen die beter werken.</string>
-    <string name="dns_restore_secure_message">Herstel de veiligste instellingen: versleutelde DNS over HTTPS via de tunnel.</string>
     <string name="dns_settings_unavailable">DNS-instellingen niet beschikbaar</string>
     <string name="dns_status_change_location">Locatie wijzigen</string>
     <string name="dns_status_fallback">%1$s reageert niet. URnetwork-DNS wordt gebruikt.</string>
@@ -618,8 +617,6 @@
     <string name="dns_summary_no_filtering">DNS: %1$s · Geen filtering</string>
     <string name="dns_summary_personal">DNS: %1$s · je profiel</string>
     <string name="dns_summary_regional">DNS: Regionaal (onversleuteld)</string>
-    <string name="dns_using_recommended">Aanbevolen regionale instellingen actief</string>
-    <string name="dns_using_secure">Veiligste standaardinstellingen actief</string>
     <string name="dns_verify_malformed_adguard">%1$s heeft deze apparaat-ID geweigerd</string>
     <string name="dns_verify_not_filtering">%1$s filtert niet vanaf deze locatie</string>
     <string name="dns_verify_rejected_controld">%1$s herkent deze resolver-ID niet</string>
@@ -1170,7 +1167,6 @@
     <string name="reset_password_email_sent">E-mail voor wachtwoordherstel verzonden naar %1$s</string>
     <string name="resolvers">Resolvers</string>
     <string name="restore_default_transports">Standaardtransports herstellen</string>
-    <string name="restore_most_secure_settings">Veiligste instellingen herstellen</string>
     <string name="retry">Opnieuw proberen</string>
     <string name="review_our_app">Wil je onze app beoordelen?</string>
     <string name="route_internet">Internet</string>
@@ -1470,7 +1466,6 @@
     <string name="usdc_wallet_address">USDC wallet address</string>
     <string name="use_extender_settings">Extender-instellingen gebruiken</string>
     <string name="use_most_stable_provider">Gebruikt de stabielste provider</string>
-    <string name="use_recommended_settings">Aanbevolen instellingen gebruiken</string>
     <string name="use_wireguard_socks_https_proxy">WireGuard- / SOCKS- / HTTPS-proxy gebruiken</string>
     <string name="use_wireguard_socks_https_proxy_note">Opent ur.io in je browser. Voor SOCKS en WireGuard heb je Pro nodig.</string>
     <string name="used_data_key">Gebruikt</string>
