@@ -64,6 +64,7 @@ import com.bringyour.network.ui.stats.ConnectStatsSections
 import com.bringyour.network.ui.stats.IpFamilyPoint
 import com.bringyour.network.ui.stats.DnsSettingsViewModel
 import com.bringyour.network.ui.stats.ThroughputViewModel
+import com.bringyour.network.ui.stats.dnsPresetName
 import com.bringyour.network.ui.theme.Green
 import com.bringyour.network.ui.theme.MainTintedBackgroundBase
 import com.bringyour.network.ui.theme.Pink
@@ -239,7 +240,7 @@ internal fun ConnectActions(
                     balanceRecovery = balanceRecovery,
                     cancelBalanceRecovery = cancelBalanceRecovery,
                     privateDnsStrictHost = privateDnsStrictHost,
-                    privateDnsPresetName = dnsSettingsViewModel.selectedPresetProviderName,
+                    privateDnsPresetName = dnsSettingsViewModel.selectedPresetName?.let { dnsPresetName(it) },
                     showDataInfo = showDataInfo,
                 )
 
@@ -490,8 +491,8 @@ internal fun ConnectActionNotices(
     balanceRecovery: BalanceRecoveryState,
     cancelBalanceRecovery: () -> Unit,
     privateDnsStrictHost: String?,
-    // the selected DNS preset's provider, which strict Private DNS overrides,
-    // or null when no preset is selected (DnsSettingsViewModel)
+    // the selected DNS preset's name, which strict Private DNS overrides, or
+    // null when no preset is selected (DnsSettingsViewModel)
     privateDnsPresetName: String?,
     showDataInfo: () -> Unit,
 ) {

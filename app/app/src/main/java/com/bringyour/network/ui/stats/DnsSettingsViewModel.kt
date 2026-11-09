@@ -108,11 +108,12 @@ class DnsSettingsViewModel @Inject constructor(
         get() = deviceManager.device?.connectLocation?.country?.ifEmpty { null }
 
     /**
-     * the selected preset's provider, which strict Private DNS overrides;
-     * null unless a preset is selected
+     * the selected preset's name, which the Fast DNS note says doesn't filter
+     * while connecting and strict Private DNS overrides (dnsPresetName); null
+     * unless a preset is selected
      */
-    val selectedPresetProviderName: String?
-        get() = selection?.takeIf { it.kind == DNS_PICK_KIND_PRESET }?.providerName?.ifEmpty { null }
+    val selectedPresetName: DnsPresetNameUi?
+        get() = selection?.takeIf { it.kind == DNS_PICK_KIND_PRESET }?.name?.takeIf { it.key.isNotEmpty() }
 
     private fun toUi(settings: DnsResolverSettings): DnsSettingsUi {
         return DnsSettingsUi(
@@ -136,6 +137,7 @@ class DnsSettingsViewModel @Inject constructor(
         return DnsPresetUi(
             presetId = preset.presetId.orEmpty(),
             providerName = preset.providerName.orEmpty(),
+            name = DnsPresetNameUi(key = preset.nameKey.orEmpty(), provider = preset.nameProvider.orEmpty()),
             jurisdiction = preset.jurisdiction.orEmpty(),
             privacyUrl = preset.privacyUrl.orEmpty(),
             helpUrl = preset.helpUrl.orEmpty(),
@@ -244,10 +246,11 @@ class DnsSettingsViewModel @Inject constructor(
             DnsSelectionUi(
                 kind = it.kind.orEmpty(),
                 presetId = it.presetId.orEmpty(),
+                name = DnsPresetNameUi(key = it.nameKey.orEmpty(), provider = it.nameProvider.orEmpty()),
                 providerName = it.providerName.orEmpty(),
                 summaryKey = it.summaryKey.orEmpty(),
                 dropped = it.dropped,
-                droppedProviderName = it.droppedProviderName.orEmpty(),
+                droppedName = DnsPresetNameUi(key = it.droppedNameKey.orEmpty(), provider = it.droppedNameProvider.orEmpty()),
                 pillKey = it.pillKey.orEmpty(),
                 pillCountryCode = it.pillCountryCode.orEmpty(),
             )
@@ -295,6 +298,7 @@ class DnsSettingsViewModel @Inject constructor(
             ?: return DnsStatusUi()
         return DnsStatusUi(
             statusKey = summary.statusKey.orEmpty(),
+            name = DnsPresetNameUi(key = summary.nameKey.orEmpty(), provider = summary.nameProvider.orEmpty()),
             providerName = summary.providerName.orEmpty(),
             statusDetailKey = summary.statusDetailKey.orEmpty(),
             verificationKey = summary.verificationKey.orEmpty(),

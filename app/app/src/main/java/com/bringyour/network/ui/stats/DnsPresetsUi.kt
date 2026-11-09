@@ -15,7 +15,11 @@ import com.bringyour.network.R
  * lines and when the blocked count shows. What lives here is what the screens
  * do with its answers, kept off the gomobile classes so it runs in a JVM test.
  * Provider names, jurisdictions and urls are shown as the sdk has them, never
- * translated; a string that names the provider takes it as an argument.
+ * translated; a string that names the provider takes it as an argument. Each
+ * preset has a name of its own (owner, 2026-11-09), a key with the adblock
+ * provider's short name (dnsPresetName): the lines that name the selected
+ * preset take that name, and the lines that name the adblock provider (the
+ * disclosure, the personal id field, the verification line) take its name.
  */
 
 // The sdk's pick kinds (Sdk.DnsPickKind*) and its selection of URnetwork's own
@@ -38,10 +42,26 @@ const val DNS_PROVIDERS_HELP_URL = "https://ur.io/docs/faq#dns-providers"
 /** The section of that help on where each provider shows the profile ID, and the block response to keep. */
 const val DNS_PERSONAL_IDS_HELP_URL = "https://ur.io/docs/faq#dns-personal-ids"
 
+/**
+ * A preset's name as the sdk gives it (DnsPreset.NameKey and NameProvider),
+ * shown by dnsPresetName: "AdGuard Family". Empty when there is none, as for
+ * a dropped preset this release never knew.
+ */
+data class DnsPresetNameUi(
+    // a dns_preset_name_* key, which takes the adblock provider's name
+    val key: String = "",
+    // the adblock provider's short name, as it is ("AdGuard" for AdGuard DNS)
+    val provider: String = "",
+)
+
 /** One preset (sdk DnsPreset). */
 data class DnsPresetUi(
     val presetId: String,
+    // the adblock provider's name, for the lines that name it rather than the
+    // preset: the disclosure, the personal id field and its copy line
     val providerName: String,
+    // the preset's name, the row's label
+    val name: DnsPresetNameUi = DnsPresetNameUi(),
     val jurisdiction: String,
     val privacyUrl: String,
     val helpUrl: String,
@@ -67,7 +87,7 @@ data class DnsPickUi(
     val presetId: String,
     // the heading of a preset's group, empty for the other picks
     val groupKey: String = "",
-    // the label of the default, custom and regional picks; a preset shows its provider's name
+    // the label of the default, custom and regional picks; a preset shows its name
     val labelKey: String = "",
     // the line under the label
     val copyKey: String = "",
@@ -83,13 +103,17 @@ data class DnsSelectionUi(
     val kind: String,
     // the pick in force; empty for Custom
     val presetId: String,
-    // the selected preset's provider, empty for the other kinds
+    // the selected preset's name, for the summary row, the Fast DNS note and
+    // the Private DNS line, and its adblock provider's name, for the
+    // disclosure; empty for the other kinds
+    val name: DnsPresetNameUi = DnsPresetNameUi(),
     val providerName: String = "",
+    // a preset's summary row takes its name
     val summaryKey: String = "",
-    // the notice of a preset this release no longer offers, naming its provider
-    // (empty for an id this release never knew)
+    // the notice of a preset this release no longer offers, naming it as it
+    // showed (empty for an id this release never knew)
     val dropped: Boolean = false,
-    val droppedProviderName: String = "",
+    val droppedName: DnsPresetNameUi = DnsPresetNameUi(),
     // the pill over the summary, or empty, and the country it names
     val pillKey: String = "",
     val pillCountryCode: String = "",
@@ -99,6 +123,9 @@ data class DnsSelectionUi(
 data class DnsStatusUi(
     // empty unless a preset is selected
     val statusKey: String = "",
+    // the selected preset's name, for the status line and the blocked count
+    val name: DnsPresetNameUi = DnsPresetNameUi(),
+    // its adblock provider's name, for the verification line and its link
     val providerName: String = "",
     val statusDetailKey: String = "",
     val verificationKey: String = "",
@@ -200,6 +227,14 @@ fun dnsKeyResId(keyId: String): Int? = when (keyId) {
     "dns_provider_custom_copy" -> R.string.dns_provider_custom_copy
     "dns_provider_regional" -> R.string.dns_provider_regional
     "dns_recommendation_message" -> R.string.dns_recommendation_message
+    // each preset's name
+    "dns_preset_name_ad_blocking" -> R.string.dns_preset_name_ad_blocking
+    "dns_preset_name_malware_blocking" -> R.string.dns_preset_name_malware_blocking
+    "dns_preset_name_family" -> R.string.dns_preset_name_family
+    "dns_preset_name_child" -> R.string.dns_preset_name_child
+    "dns_preset_name_child_ads" -> R.string.dns_preset_name_child_ads
+    "dns_preset_name_no_filtering" -> R.string.dns_preset_name_no_filtering
+    "dns_preset_name_personal" -> R.string.dns_preset_name_personal
     // what each preset blocks
     "dns_preset_copy_ads_phishing" -> R.string.dns_preset_copy_ads_phishing
     "dns_preset_copy_ads_malware" -> R.string.dns_preset_copy_ads_malware
@@ -214,13 +249,9 @@ fun dnsKeyResId(keyId: String): Int? = when (keyId) {
     "dns_preset_copy_nothing" -> R.string.dns_preset_copy_nothing
     "dns_preset_copy_court_orders" -> R.string.dns_preset_copy_court_orders
     "dns_preset_copy_personal" -> R.string.dns_preset_copy_personal
-    // the summary row
+    // the summary row; a selected preset's is dns_status_provider, with its
+    // name
     "dns_summary_default" -> R.string.dns_summary_default
-    "dns_summary_ad_blocking" -> R.string.dns_summary_ad_blocking
-    "dns_summary_malware_blocking" -> R.string.dns_summary_malware_blocking
-    "dns_summary_family" -> R.string.dns_summary_family
-    "dns_summary_no_filtering" -> R.string.dns_summary_no_filtering
-    "dns_summary_personal" -> R.string.dns_summary_personal
     "dns_summary_custom" -> R.string.dns_summary_custom
     "dns_summary_custom_unencrypted" -> R.string.dns_summary_custom_unencrypted
     "dns_summary_regional" -> R.string.dns_summary_regional
@@ -274,3 +305,12 @@ internal fun dnsKeyText(keyId: String, vararg formatArgs: Any): String? {
     }
     return stringResource(resId, *formatArgs)
 }
+
+/**
+ * A preset's name (owner, 2026-11-09): its key with the adblock provider's
+ * short name, as it is, "AdGuard Family". A key this build does not know
+ * shows the adblock provider's name alone; an empty name, nothing.
+ */
+@Composable
+internal fun dnsPresetName(name: DnsPresetNameUi): String =
+    dnsKeyText(name.key, name.provider) ?: name.provider
