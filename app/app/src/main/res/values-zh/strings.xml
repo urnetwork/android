@@ -704,7 +704,7 @@
     <string name="fixed_ip_subtitle">在整个会话中保持同一个出口；仅当该提供商离线时才会更换。</string>
     <string name="forget_password">忘记密码？</string>
     <string name="forgot_password">忘记密码？</string>
-    <string name="free">自由</string>
+    <string name="free">免费</string>
     <string name="friends_save_too">你的朋友也能省钱——人人受益。</string>
     <string name="gas_key">Gas 密钥</string>
     <string name="general">常规</string>
