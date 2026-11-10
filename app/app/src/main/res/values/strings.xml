@@ -317,8 +317,12 @@
     <string name="crypto_does_not_renew">Does not renew. Pay again when it ends.</string>
     <string name="crypto_fine_print_data">A one-time payment. The data stays valid for a year.</string>
     <string name="crypto_fine_print_yearly">A one-time payment for a year of Pro. It doesn\'t renew, and there\'s no free trial.</string>
+    <string name="crypto_invoice_bitcoin_network_only">Send only Bitcoin on the Bitcoin network to this address. Bitcoin sent on any other network won\'t be credited.</string>
     <string name="crypto_invoice_copied">Copied</string>
     <string name="crypto_invoice_copy">Copy</string>
+    <string name="crypto_invoice_copy_address">Copy address</string>
+    <string name="crypto_invoice_copy_amount">Copy amount</string>
+    <string name="crypto_invoice_eth_network_only">Send only ETH on Ethereum mainnet to this address. Tokens and ETH on other networks, such as Base or Arbitrum, won\'t be credited.</string>
     <string name="crypto_invoice_expires_in">Quote expires in %1$s</string>
     <string name="crypto_invoice_memo">Memo, if you send by hand</string>
     <string name="crypto_invoice_open_wallet">Open in wallet</string>
@@ -327,11 +331,19 @@
     <string name="crypto_invoice_refresh_quote">Refresh quote</string>
     <string name="crypto_invoice_remaining">%1$s more to send</string>
     <string name="crypto_invoice_send_exactly">Send exactly</string>
+    <string name="crypto_invoice_send_exactly_to_address">Send exactly this amount to this address.</string>
+    <string name="crypto_invoice_sol_network_only">Send only SOL on the Solana network to this address. Tokens, including USDC, won\'t be credited.</string>
+    <string name="crypto_invoice_tao_network_only">Send only TAO on the Bittensor network to this address. TAO sent on any other network won\'t be credited.</string>
+    <string name="crypto_invoice_tao_no_payment_link">TAO has no payment link, so this QR code holds only the address. Enter the exact amount in your wallet.</string>
     <string name="crypto_invoice_to_address">To this address</string>
     <string name="crypto_invoice_unavailable">Paying with %1$s is temporarily unavailable. Try again later, or pay another way.</string>
     <string name="crypto_invoice_wallets">Wallets that work: %1$s</string>
     <string name="crypto_invoice_zcash_exchange_note">Exchanges such as Coinbase and Robinhood can\'t send to this shielded address. Send from a shielded wallet.</string>
+    <string name="crypto_network_bitcoin">Bitcoin network</string>
+    <string name="crypto_network_eth">Ethereum mainnet</string>
     <string name="crypto_network_monero" translatable="false">Monero</string>
+    <string name="crypto_network_sol">Solana (native SOL)</string>
+    <string name="crypto_network_tao">Bittensor network</string>
     <string name="crypto_network_usdc">USDC on Solana</string>
     <string name="crypto_network_zcash">Zcash, shielded</string>
     <string name="crypto_pay_button">Pay with %1$s</string>
@@ -981,12 +993,19 @@
     <string name="password_label">Password</string>
     <string name="password_support_txt">Password must be at least 12 characters</string>
     <string name="paste_share_text">Paste share text</string>
+    <string name="pay_method_bitcoin" translatable="false">Bitcoin</string>
     <string name="pay_method_card">Card</string>
     <string name="pay_method_card_only_monthly">Monthly is card only</string>
+    <string name="pay_method_eth" translatable="false">ETH</string>
     <string name="pay_method_label">Pay with</string>
     <string name="pay_method_monero" translatable="false">Monero</string>
+    <string name="pay_method_more_coins">More coins</string>
+    <string name="pay_method_more_coins_a11y">More coins: %1$s</string>
+    <string name="pay_method_sol" translatable="false">SOL</string>
+    <string name="pay_method_tao" translatable="false">TAO</string>
     <string name="pay_method_unavailable">Temporarily unavailable</string>
     <string name="pay_method_usdc" translatable="false">USDC</string>
+    <string name="pay_method_usdc_solana">USDC on Solana</string>
     <string name="pay_method_zcash" translatable="false">Zcash</string>
     <string name="pay_with_solana_wallet">Pay with Solana Wallet</string>
     <string name="pay_with_stripe">Join with Stripe</string>
