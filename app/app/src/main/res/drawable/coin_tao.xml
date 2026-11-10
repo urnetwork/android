@@ -1,0 +1,14 @@
+<!-- TAO: the Bittensor logo (the TAO symbol) from the Opentensor Foundation's
+     media kit, Bittensor_symbol_black_AF_RGB.svg
+     (https://github.com/latent-to/developer-docs/tree/main/static/bittensor-media-assets).
+     Show it in black or white only (Opentensor graphic standards). One path,
+     filled nonzero, fitted to a 24x24 box. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+  <path
+      android:fillColor="#FFFFFFFF"
+      android:pathData="M14.38 18.415V8.577C14.38 6.119 12.351 4.116 9.893 4.116V19.839C9.893 22.966 12.546 24 14.185 24C15.544 24 16.311 23.766 17.234 23.116C14.646 22.843 14.38 21.282 14.38 18.415ZM4.893 0C2.637 0 0.803 1.866 0.803 4.122H19.107C21.363 4.122 23.197 2.256 23.197 0Z"/>
+</vector>

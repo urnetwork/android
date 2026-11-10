@@ -1,0 +1,14 @@
+<!-- ETH: the ETH diamond from https://ethereum.org/en/assets/ ("ETH diamond
+     (gray)"), by the Ethereum Foundation, CC BY 4.0
+     (https://creativecommons.org/licenses/by/4.0/). Changed: its five facets
+     filled in one flat colour, as the site's "ETH diamond (glyph)", and fitted
+     to a 24x24 box. One path, filled nonzero. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+  <path
+      android:fillColor="#FFFFFFFF"
+      android:pathData="M11.997 8.874L4.631 12.222L11.997 16.577L19.365 12.222ZM4.634 12.222L12 16.577V8.874V0ZM12 0V8.874V16.577L19.366 12.222ZM4.631 13.62L11.997 24V17.971ZM11.997 17.971V24L19.369 13.62Z"/>
+</vector>
