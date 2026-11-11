@@ -1318,8 +1318,8 @@
     <string name="slow_internet_recovered_detail">ไม่มีความล่าช้าแล้ว</string>
     <string name="slow_internet_still_connected">URnetwork ยังเชื่อมต่ออยู่</string>
     <string name="slow_internet_upload_delay">ความล่าช้าในการอัปโหลด</string>
-    <string name="sn_claim_relay_again_on">“รับตอนนี้” จะใช้ได้อีกครั้งในวันที่ %1$s</string>
-    <string name="sn_claim_relay_cap">งบประมาณสำหรับการรับของวันนี้หมดแล้ว รายการนี้จึงรอถึงวันถัดไป ไม่มีอะไรสูญหาย ยอดนี้ไม่มีวันหมดอายุ</string>
+    <string name="sn_claim_relay_again_on">“รับตอนนี้” ครั้งถัดไปจะใช้ได้ในวันที่ %1$s</string>
+    <string name="sn_claim_relay_cap">งบประมาณสำหรับการรับของวันนี้หมดแล้ว รายการนี้จึงต้องรอ งบประมาณจะเริ่มใหม่ทุกวันเวลา 00:00 UTC ไม่มีอะไรสูญหาย ยอดนี้ไม่มีวันหมดอายุ</string>
     <string name="sn_claim_relay_claim_now">รับตอนนี้</string>
     <string name="sn_claim_relay_claimed">URnetwork รับให้แล้ว %1$s SN25α อยู่ในคีย์ของคุณ %2$s</string>
     <string name="sn_claim_relay_for_you">URnetwork ดำเนินการรับให้คุณ</string>
@@ -1329,7 +1329,7 @@
     <string name="sn_claim_relay_queued">URnetwork จะดำเนินการรับในไม่ช้า</string>
     <string name="sn_claim_relay_queued_button">อยู่ในคิว</string>
     <string name="sn_claim_relay_refused">คำขอรับครั้งล่าสุดไม่สำเร็จ URnetwork จะลองอีกครั้งในภายหลัง</string>
-    <string name="sn_claim_relay_requested">“รับตอนนี้” อยู่ในคิวแล้ว URnetwork จะส่งรายการนี้ก่อน ภายในงบประมาณของวันนี้</string>
+    <string name="sn_claim_relay_requested">“รับตอนนี้” อยู่ในคิวแล้ว รายการนี้จะถูกส่งก่อนการรับอัตโนมัติ ตามลำดับคำขอที่เข้ามา ภายในงบประมาณของแต่ละวัน</string>
     <string name="sn_claim_relay_self_claim">รับเองด้วยคีย์ gas ของคุณ</string>
     <string name="sn_claim_relay_under_floor">“รับตอนนี้” ต้องมียอดคงเหลือมูลค่าอย่างน้อย %1$s TAO</string>
     <string name="sn_claim_relay_under_threshold">ต่ำกว่าเกณฑ์การรับอัตโนมัติ</string>
@@ -1671,6 +1671,9 @@
     </plurals>
     <plurals name="sn_claim_relay_claim_now_paid_each">
         <item quantity="other">ออกค่าใช้จ่ายโดย URnetwork ใช้ได้ %1$d วันต่อครั้งสำหรับแต่ละ coldkey</item>
+    </plurals>
+    <plurals name="sn_claim_relay_requested_period">
+        <item quantity="other">“รับตอนนี้” ครั้งถัดไปจะใช้ได้ %1$d วันหลังจากการรับครั้งนี้สำเร็จ</item>
     </plurals>
     <plurals name="split_rule_count">
         <item quantity="other">กฎแยกเส้นทาง %1$d ข้อ</item>

@@ -1318,8 +1318,8 @@
     <string name="slow_internet_recovered_detail">Plus aucun retard</string>
     <string name="slow_internet_still_connected">URnetwork est toujours connecté</string>
     <string name="slow_internet_upload_delay">Retard d’envoi</string>
-    <string name="sn_claim_relay_again_on">« Réclamer maintenant » sera de nouveau disponible le %1$s.</string>
-    <string name="sn_claim_relay_cap">Le budget de réclamations du jour est épuisé, donc cela attendra le lendemain. Rien n’est perdu : ce crédit n’expire jamais.</string>
+    <string name="sn_claim_relay_again_on">Votre prochain « Réclamer maintenant » sera disponible le %1$s.</string>
+    <string name="sn_claim_relay_cap">Le budget de réclamations du jour est épuisé, donc cela attend. Le budget se renouvelle chaque jour à 00:00 UTC. Rien n’est perdu : ce crédit n’expire jamais.</string>
     <string name="sn_claim_relay_claim_now">Réclamer maintenant</string>
     <string name="sn_claim_relay_claimed">Réclamé par URnetwork. %1$s SN25α sont sur votre clé, %2$s.</string>
     <string name="sn_claim_relay_for_you">URnetwork le réclame pour vous</string>
@@ -1329,7 +1329,7 @@
     <string name="sn_claim_relay_queued">URnetwork le réclamera bientôt.</string>
     <string name="sn_claim_relay_queued_button">En file d’attente</string>
     <string name="sn_claim_relay_refused">La dernière réclamation n’a pas abouti. URnetwork réessaiera plus tard.</string>
-    <string name="sn_claim_relay_requested">« Réclamer maintenant » est en file d’attente. URnetwork l’envoie en premier, dans la limite du budget du jour.</string>
+    <string name="sn_claim_relay_requested">« Réclamer maintenant » est en file d’attente. La réclamation part avant les réclamations automatiques, dans l’ordre d’arrivée des demandes, dans la limite du budget de chaque jour.</string>
     <string name="sn_claim_relay_self_claim">Réclamez-le vous-même avec votre clé de gas</string>
     <string name="sn_claim_relay_under_floor">« Réclamer maintenant » nécessite un solde d’une valeur d’au moins %1$s TAO.</string>
     <string name="sn_claim_relay_under_threshold">Sous le seuil de réclamation automatique.</string>
@@ -1700,6 +1700,10 @@
     <plurals name="sn_claim_relay_claim_now_paid_each">
         <item quantity="one">Payé par URnetwork, une fois par jour pour chaque coldkey.</item>
         <item quantity="other">Payé par URnetwork, une fois tous les %1$d jours pour chaque coldkey.</item>
+    </plurals>
+    <plurals name="sn_claim_relay_requested_period">
+        <item quantity="one">Votre prochain « Réclamer maintenant » sera disponible un jour après l’aboutissement de cette réclamation.</item>
+        <item quantity="other">Votre prochain « Réclamer maintenant » sera disponible %1$d jours après l’aboutissement de cette réclamation.</item>
     </plurals>
     <plurals name="split_rule_count">
         <item quantity="one">%1$d règle de séparation</item>

@@ -1318,8 +1318,8 @@
     <string name="slow_internet_recovered_detail">Opóźnienia ustąpiły</string>
     <string name="slow_internet_still_connected">URnetwork jest nadal połączony</string>
     <string name="slow_internet_upload_delay">Opóźnienie wysyłania</string>
-    <string name="sn_claim_relay_again_on">„Odbierz teraz” będzie znowu dostępne %1$s.</string>
-    <string name="sn_claim_relay_cap">Dzisiejszy budżet na odbiory się wyczerpał, więc to poczeka do następnego dnia. Nic nie przepada: te środki nigdy nie wygasają.</string>
+    <string name="sn_claim_relay_again_on">Następne „Odbierz teraz” będzie dostępne %1$s.</string>
+    <string name="sn_claim_relay_cap">Dzisiejszy budżet na odbiory się wyczerpał, więc to poczeka. Budżet odnawia się codziennie o 00:00 UTC. Nic nie przepada: te środki nigdy nie wygasają.</string>
     <string name="sn_claim_relay_claim_now">Odbierz teraz</string>
     <string name="sn_claim_relay_claimed">Odebrano przez URnetwork. %1$s SN25α jest na twoim kluczu %2$s.</string>
     <string name="sn_claim_relay_for_you">URnetwork przeprowadza odbiór w twoim imieniu</string>
@@ -1329,7 +1329,7 @@
     <string name="sn_claim_relay_queued">URnetwork wkrótce przeprowadzi odbiór.</string>
     <string name="sn_claim_relay_queued_button">W kolejce</string>
     <string name="sn_claim_relay_refused">Ostatni odbiór się nie powiódł. URnetwork spróbuje ponownie później.</string>
-    <string name="sn_claim_relay_requested">„Odbierz teraz” jest w kolejce. URnetwork wyśle to jako pierwsze, w ramach dzisiejszego budżetu.</string>
+    <string name="sn_claim_relay_requested">„Odbierz teraz” jest w kolejce. Zostanie wysłane przed automatycznymi odbiorami, w kolejności zgłoszeń, w ramach budżetu każdego dnia.</string>
     <string name="sn_claim_relay_self_claim">Odbierz samodzielnie za pomocą swojego klucza gas</string>
     <string name="sn_claim_relay_under_floor">„Odbierz teraz” wymaga salda o wartości co najmniej %1$s TAO.</string>
     <string name="sn_claim_relay_under_threshold">Poniżej progu automatycznego odbioru.</string>
@@ -1758,6 +1758,12 @@
         <item quantity="few">Płaci URnetwork, raz na %1$d dni dla każdego coldkeya.</item>
         <item quantity="many">Płaci URnetwork, raz na %1$d dni dla każdego coldkeya.</item>
         <item quantity="other">Płaci URnetwork, raz na %1$d dnia dla każdego coldkeya.</item>
+    </plurals>
+    <plurals name="sn_claim_relay_requested_period">
+        <item quantity="one">Następne „Odbierz teraz” będzie dostępne dzień po tym, jak ten odbiór się powiedzie.</item>
+        <item quantity="few">Następne „Odbierz teraz” będzie dostępne %1$d dni po tym, jak ten odbiór się powiedzie.</item>
+        <item quantity="many">Następne „Odbierz teraz” będzie dostępne %1$d dni po tym, jak ten odbiór się powiedzie.</item>
+        <item quantity="other">Następne „Odbierz teraz” będzie dostępne %1$d dnia po tym, jak ten odbiór się powiedzie.</item>
     </plurals>
     <plurals name="split_rule_count">
         <item quantity="one">%1$d reguła podziału</item>

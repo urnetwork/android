@@ -1318,8 +1318,8 @@
     <string name="slow_internet_recovered_detail">Zpoždění odezněla</string>
     <string name="slow_internet_still_connected">URnetwork je stále připojen</string>
     <string name="slow_internet_upload_delay">Zpoždění nahrávání</string>
-    <string name="sn_claim_relay_again_on">„Vyzvednout hned“ bude znovu k dispozici %1$s.</string>
-    <string name="sn_claim_relay_cap">Dnešní rozpočet na vyzvedávání je vyčerpaný, takže to počká do dalšího dne. Nic se neztratí: tento kredit nikdy nevyprší.</string>
+    <string name="sn_claim_relay_again_on">Další „Vyzvednout hned“ bude k dispozici %1$s.</string>
+    <string name="sn_claim_relay_cap">Dnešní rozpočet na vyzvedávání je vyčerpaný, takže to počká. Rozpočet se obnovuje každý den v 00:00 UTC. Nic se neztratí: tento kredit nikdy nevyprší.</string>
     <string name="sn_claim_relay_claim_now">Vyzvednout hned</string>
     <string name="sn_claim_relay_claimed">Vyzvednuto přes URnetwork. %1$s SN25α je na vašem klíči %2$s.</string>
     <string name="sn_claim_relay_for_you">URnetwork za vás odešle nárok</string>
@@ -1329,7 +1329,7 @@
     <string name="sn_claim_relay_queued">URnetwork brzy odešle nárok.</string>
     <string name="sn_claim_relay_queued_button">Ve frontě</string>
     <string name="sn_claim_relay_refused">Poslední nárok neprošel. URnetwork to zkusí znovu později.</string>
-    <string name="sn_claim_relay_requested">„Vyzvednout hned“ je ve frontě. URnetwork ho odešle jako první, v rámci dnešního rozpočtu.</string>
+    <string name="sn_claim_relay_requested">„Vyzvednout hned“ je ve frontě. Odešle se před automatickým vyzvedáváním, v pořadí, v jakém žádosti přišly, v rámci rozpočtu každého dne.</string>
     <string name="sn_claim_relay_self_claim">Vyzvedněte si to sami pomocí svého klíče pro gas</string>
     <string name="sn_claim_relay_under_floor">„Vyzvednout hned“ vyžaduje zůstatek v hodnotě alespoň %1$s TAO.</string>
     <string name="sn_claim_relay_under_threshold">Pod prahem pro automatické vyzvednutí.</string>
@@ -1758,6 +1758,12 @@
         <item quantity="few">Hradí URnetwork, jednou za %1$d dny pro každý coldkey.</item>
         <item quantity="many">Hradí URnetwork, jednou za %1$d dne pro každý coldkey.</item>
         <item quantity="other">Hradí URnetwork, jednou za %1$d dní pro každý coldkey.</item>
+    </plurals>
+    <plurals name="sn_claim_relay_requested_period">
+        <item quantity="one">Další „Vyzvednout hned“ bude k dispozici den poté, co tento nárok projde.</item>
+        <item quantity="few">Další „Vyzvednout hned“ bude k dispozici %1$d dny poté, co tento nárok projde.</item>
+        <item quantity="many">Další „Vyzvednout hned“ bude k dispozici %1$d dne poté, co tento nárok projde.</item>
+        <item quantity="other">Další „Vyzvednout hned“ bude k dispozici %1$d dní poté, co tento nárok projde.</item>
     </plurals>
     <plurals name="split_rule_count">
         <item quantity="one">%1$d pravidlo rozdělení</item>

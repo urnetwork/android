@@ -1318,8 +1318,8 @@
     <string name="slow_internet_recovered_detail">延迟已消除</string>
     <string name="slow_internet_still_connected">URnetwork 仍保持连接</string>
     <string name="slow_internet_upload_delay">上传延迟</string>
-    <string name="sn_claim_relay_again_on">“立即领取”将于 %1$s 再次可用。</string>
-    <string name="sn_claim_relay_cap">今日的领取预算已用完，因此将等到次日。不会有任何损失：这笔余额永不过期。</string>
+    <string name="sn_claim_relay_again_on">下一次“立即领取”将于 %1$s 可用。</string>
+    <string name="sn_claim_relay_cap">今日的领取预算已用完，因此需要等待。预算每天在 UTC 时间 00:00 重置。不会有任何损失：这笔余额永不过期。</string>
     <string name="sn_claim_relay_claim_now">立即领取</string>
     <string name="sn_claim_relay_claimed">已由 URnetwork 领取。%1$s SN25α 已在您的密钥 %2$s 上。</string>
     <string name="sn_claim_relay_for_you">URnetwork 代您发起领取</string>
@@ -1329,7 +1329,7 @@
     <string name="sn_claim_relay_queued">URnetwork 即将发起领取。</string>
     <string name="sn_claim_relay_queued_button">已排队</string>
     <string name="sn_claim_relay_refused">上一次领取未成功。URnetwork 稍后会重试。</string>
-    <string name="sn_claim_relay_requested">“立即领取”已排队。URnetwork 会在今日预算内优先发送。</string>
+    <string name="sn_claim_relay_requested">“立即领取”已排队。它排在自动领取之前，按请求到达的先后顺序，在每天的预算允许时发送。</string>
     <string name="sn_claim_relay_self_claim">使用您的 Gas 密钥自行领取</string>
     <string name="sn_claim_relay_under_floor">“立即领取”需要价值至少 %1$s TAO 的余额。</string>
     <string name="sn_claim_relay_under_threshold">低于自动领取门槛。</string>
@@ -1671,6 +1671,9 @@
     </plurals>
     <plurals name="sn_claim_relay_claim_now_paid_each">
         <item quantity="other">由 URnetwork 支付费用，每个 coldkey 每 %1$d 天一次。</item>
+    </plurals>
+    <plurals name="sn_claim_relay_requested_period">
+        <item quantity="other">下一次“立即领取”将在本次领取完成 %1$d 天后可用。</item>
     </plurals>
     <plurals name="split_rule_count">
         <item quantity="other">%1$d 条分流规则</item>
