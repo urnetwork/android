@@ -754,7 +754,7 @@
     <string name="includes_free_trial_days">يتضمن تجربة مجانية لمدة %1$d يومًا</string>
     <string name="instant_account_no_email_password">لا حاجة إلى بريد إلكتروني أو كلمة مرور. حسابك محمي بعبارة الاسترداد.</string>
     <string name="insufficient_balance">رصيد غير كافٍ</string>
-    <string name="insufficient_balance_disconnect_first_kill_switch">للترقية، اختر «قطع الاتصال» أولًا، وأوقف «مفتاح القتل» إن كان مفعّلًا. لا يمكن إتمام الدفع قبل ذلك.</string>
+    <string name="insufficient_balance_disconnect_first_kill_switch">للترقية، اختر «قطع الاتصال» أولًا، وعطّل «مفتاح الإيقاف» إن كان مفعّلًا. لا يمكن إتمام الدفع قبل ذلك.</string>
     <string name="insufficient_balance_exhausted">نفدت بياناتك حتى التجديد المجاني أو الترقية.</string>
     <string name="insufficient_balance_held_notice">تبقى حركة بياناتك محتجزة داخل النفق حتى تقوم بالترقية أو قطع الاتصال.</string>
     <string name="insufficient_balance_reconnecting">البيانات متاحة مجددًا. جارٍ إعادة الاتصال…</string>
@@ -784,10 +784,10 @@
     <string name="join_community_discord">انضم إلى المجتمع على</string>
     <string name="join_solana_wallet">انضم باستخدام محفظة Solana</string>
     <string name="join_urnetwork">انضم إلى URnetwork</string>
-    <string name="kill_switch">مفتاح القتل</string>
-    <string name="kill_switch_exception">استثناء مفتاح القتل</string>
-    <string name="kill_switch_exception_smtp_detail">أثناء اتصال VPN، يُوجَّه IPv6 عبر URnetwork مثل IPv4. يتجاوز SMTP الصادر عبر منفذ TCP رقم 25 شبكة VPN، حتى عند تشغيل مفتاح القتل، وقد يكشف ذلك عنوان IP العام المحلي لديك لخوادم البريد تلك. يبقى SMTP على المنفذين 465 و587 داخل VPN ويجب أن يُنشئ اتصال TLS.</string>
-    <string name="kill_switch_exception_unrecognized_encrypted">عند إيقاف مفتاح القتل، تتجاوز حركة المرور التي تُبقيها قواعد أمان URnetwork خارج الشبكة، مثل البروتوكولات المشفرة غير المعروفة، شبكة VPN وتستخدم عنوان IP العام المحلي لديك. عند تشغيل مفتاح القتل، تُحظر حركة المرور هذه.</string>
+    <string name="kill_switch">مفتاح الإيقاف</string>
+    <string name="kill_switch_exception">استثناء مفتاح الإيقاف</string>
+    <string name="kill_switch_exception_smtp_detail">أثناء اتصال VPN، يُوجَّه IPv6 عبر URnetwork مثل IPv4. يتجاوز SMTP الصادر عبر منفذ TCP رقم 25 شبكة VPN، حتى عند تشغيل مفتاح الإيقاف، وقد يكشف ذلك عنوان IP العام المحلي لديك لخوادم البريد تلك. يبقى SMTP على المنفذين 465 و587 داخل VPN ويجب أن يُنشئ اتصال TLS.</string>
+    <string name="kill_switch_exception_unrecognized_encrypted">عند تعطيل مفتاح الإيقاف، تتجاوز حركة المرور التي تُبقيها قواعد أمان URnetwork خارج الشبكة، مثل البروتوكولات المشفرة غير المعروفة، شبكة VPN وتستخدم عنوان IP العام المحلي لديك. عند تشغيل مفتاح الإيقاف، تُحظر حركة المرور هذه.</string>
     <string name="launch">تشغيل</string>
     <string name="leaderboard">لوحة الصدارة</string>
     <string name="leaderboard_description">لوحة الصدارة هي مجموع آخر 4 دفعات. يتم تحديثها كل دورة دفع.</string>
@@ -1282,7 +1282,7 @@
     <string name="shortcut_connect_long">الاتصال بـ URnetwork</string>
     <string name="shortcut_disconnect_long">قطع الاتصال بـ URnetwork</string>
     <string name="show_icon_when_connected">عرض أيقونة UR عند الاتصال</string>
-    <string name="show_kill_switch_exception">عرض استثناء مفتاح القتل</string>
+    <string name="show_kill_switch_exception">عرض استثناء مفتاح الإيقاف</string>
     <string name="show_on_points_leaderboard">إظهار اسم شبكتي</string>
     <string name="sign_in">تسجيل الدخول</string>
     <string name="sign_in_dgen1">تسجيل الدخول باستخدام dGEN1</string>
