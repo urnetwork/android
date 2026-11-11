@@ -209,6 +209,7 @@ fun rememberPlanMethodSlot(
                 selected = method,
                 selectedTabId = selectedTabId,
                 onSelect = cryptoPay::selectMethod,
+                tabCoin = cryptoPay::tabCoin,
                 unavailable = method in unavailable,
             )
         },
