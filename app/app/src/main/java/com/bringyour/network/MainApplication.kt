@@ -247,6 +247,18 @@ class MainApplication : Application() {
         Sdk.newClientLimitNoticeTracker()
     }
 
+    /**
+     * The main screen's notice of the network's Pro features in use
+     * (ProFeaturesNotice): the sdk's ProFeaturesSnapshot.mainPrompt, a
+     * Sdk.ProFeaturesPrompt constant, empty (ProFeaturesPromptNone) while there
+     * is none or the user closed it. Set on the main thread.
+     */
+    val proFeaturesMainPrompt = kotlinx.coroutines.flow.MutableStateFlow("")
+    // main-looper confined: the signed-in network's Pro features in use, one
+    // controller per sign-in (openProFeatures), and its listener
+    private var proFeaturesController: com.bringyour.sdk.ProFeaturesViewController? = null
+    private var proFeaturesSub: Sub? = null
+
     var networkCallback: ConnectivityManager.NetworkCallback? = null
     var offlineCallback: ConnectivityManager.NetworkCallback? = null
     var defaultNetworkCallback: ConnectivityManager.NetworkCallback? = null
@@ -558,14 +570,22 @@ class MainApplication : Application() {
      * The plan turning Pro, as after a purchase from the client limit
      * prompt, lets a device the limit holds off dial again at once instead of
      * waiting out the hold (retryClientLimitAfterUpgrade).
+     *
+     * Any change of the plan, a purchase or a lapse, reads the network's
+     * proxies again for the Pro features notice, whose prompt follows the
+     * server's live plan (refreshProFeatures).
      */
     @Volatile
     internal var uiIsPro: Boolean = false
         set(value) {
+            val changed = value != field
             val upgraded = value && !field
             field = value
             if (upgraded) {
                 retryClientLimitAfterUpgrade()
+            }
+            if (changed) {
+                refreshProFeatures()
             }
         }
     @Volatile
@@ -1361,6 +1381,10 @@ class MainApplication : Application() {
                 if (0L < backgroundedAt && CLIENT_EVENT_SESSION_GAP_MILLIS < System.currentTimeMillis() - backgroundedAt) {
                     clientEventQueue?.newSession()
                 }
+                // the network's proxies or plan may have changed while the
+                // app was away (ur.io, the extension, the api): the Pro
+                // features notice reads them again
+                refreshProFeatures()
             }
 
             override fun onStop(owner: LifecycleOwner) {
@@ -2595,6 +2619,9 @@ class MainApplication : Application() {
         contractStatusChangeSub = null
         lastLoggedContractStatus = null
         clearClientLimit()
+        // the sign-in ends (sign out, account switch, another network space):
+        // its Pro features notice, and the user's close of it, end with it
+        closeProFeatures()
 
 //        provideEnabled = false
 //        connectEnabled = false
@@ -2754,6 +2781,8 @@ class MainApplication : Application() {
         evaluateClientLimit()
         // signed in: a refused sign-in's offer is over
         dismissSignInClientLimit()
+        // and the network's Pro features in use are read for this sign-in
+        openProFeatures()
         service?.get()?.onDeviceAvailable()
         updateVpnService()
 
@@ -3489,6 +3518,75 @@ class MainApplication : Application() {
         }.onFailure {
             Log.i(TAG, "Client limit notice failed: ${it.message}")
         }
+    }
+
+    /**
+     * Opens the network's Pro features in use for this sign-in, on the
+     * device's api, which keeps the network credential beside the client
+     * token: the sdk reads the network's proxies now, every hour while it is
+     * open, and at each refresh, and decides the main screen's notice
+     * (ProFeaturesViewController). One controller per sign-in, closed at sign
+     * out (closeProFeatures), so each sign-in starts the notice over and the
+     * user's close of it ends with the sign-in. Main thread.
+     */
+    private fun openProFeatures() {
+        closeProFeatures()
+        val signedInApi = device?.api ?: return
+        val controller = signedInApi.openProFeaturesViewController()
+        proFeaturesController = controller
+        proFeaturesSub = controller.addProFeaturesListener(com.bringyour.sdk.ProFeaturesListener {
+            Handler(mainLooper).post { updateProFeatures(controller) }
+        })
+        controller.start()
+    }
+
+    /**
+     * Publishes the controller's newest snapshot rather than the one a
+     * listener was handed, so a late delivery never replaces a newer one, and
+     * nothing of a controller a sign out closed. Main thread.
+     */
+    private fun updateProFeatures(controller: com.bringyour.sdk.ProFeaturesViewController) {
+        if (controller !== proFeaturesController) return
+        proFeaturesMainPrompt.value = controller.snapshot?.mainPrompt.orEmpty()
+    }
+
+    /**
+     * The sign-in ended: drops the listener, then closes the controller, and
+     * withdraws the notice. Main thread.
+     */
+    private fun closeProFeatures() {
+        proFeaturesSub?.close()
+        proFeaturesSub = null
+        proFeaturesController?.close()
+        proFeaturesController = null
+        proFeaturesMainPrompt.value = ""
+    }
+
+    /**
+     * Reads the network's proxies again for the Pro features notice: the app
+     * came to the front, the plan changed (a purchase, a lapse), or the device
+     * list removed a proxy or closed. A read in flight is replaced. Signed out,
+     * nothing to read. Any thread.
+     */
+    fun refreshProFeatures() {
+        if (android.os.Looper.myLooper() != mainLooper) {
+            mainHandler.post { refreshProFeatures() }
+            return
+        }
+        proFeaturesController?.refresh()
+    }
+
+    /**
+     * The user closed the main screen's notice: the sdk keeps it closed while
+     * its prompt stays the same. A new prompt (the server enforcing Pro), one
+     * that ends and returns, and the next sign-in show it again. The device
+     * list keeps showing the prompt. Main thread.
+     */
+    fun dismissProFeaturesNotice() {
+        val controller = proFeaturesController ?: return
+        controller.dismissMainNotice()
+        // gone at once, not on the listener's post
+        updateProFeatures(controller)
     }
 
     /**

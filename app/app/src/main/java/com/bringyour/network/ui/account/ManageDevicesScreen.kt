@@ -56,12 +56,15 @@ import androidx.navigation.NavController
 import com.bringyour.network.LoginActivity
 import com.bringyour.network.MainApplication
 import com.bringyour.network.R
+import com.bringyour.network.ui.Route
 import com.bringyour.network.ui.components.ButtonStyle
 import com.bringyour.network.ui.components.FoldSafeBasicAlertDialog
 import com.bringyour.network.ui.components.FoldSafeDialog
 import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.components.tabletReadableColumn
 import com.bringyour.network.ui.connect.clientLimitMessageId
+import com.bringyour.network.ui.connect.proFeaturesMessageId
+import com.bringyour.network.ui.connect.proFeaturesTitleId
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.Red
 import com.bringyour.network.ui.theme.TextFaint
@@ -74,18 +77,27 @@ import kotlinx.coroutines.delay
 private const val MANAGE_DEVICES_CLOCK_MILLIS = 30_000L
 
 /**
- * Settings -> Manage devices, and the client limit notice's Manage devices:
- * the network's devices and hosted proxies, this device first, each other one
- * removable after a confirmation. A removal frees its slot of the plan's
- * devices connected at once, and the sdk then ends this device's client limit
- * hold so it connects (ManageDevicesStore).
+ * Settings -> Manage devices, and the Manage devices of the client limit and
+ * Pro features notices: the network's devices and hosted proxies, this device
+ * first, each other one removable after a confirmation. A removal frees its
+ * slot of the plan's devices connected at once, and the sdk then ends this
+ * device's client limit hold so it connects (ManageDevicesStore). Above the
+ * list, the network's Pro features in use, with Get Pro. A proxy removed, and
+ * the list closing, read the proxies again for the main screen's notice.
  */
 @Composable
 fun ManageDevicesScreen(navController: NavController) {
     val application = LocalContext.current.applicationContext as? MainApplication
     val device = application?.device
     // one controller per device; a replaced device closes the former one's
-    val store = remember(device) { device?.let { ManageDevicesStore.forDevice(it) } }
+    val store = remember(device) {
+        device?.let {
+            ManageDevicesStore.forDevice(
+                it,
+                proxiesMayHaveChanged = { application?.refreshProFeatures() },
+            )
+        }
+    }
     DisposableEffect(store) {
         store?.start()
         onDispose {
@@ -110,7 +122,13 @@ fun ManageDevicesScreen(navController: NavController) {
                 modifier = modifier,
             )
         } else {
-            ManageDevicesList(store = store, message = null, modifier = modifier)
+            ManageDevicesList(
+                store = store,
+                message = null,
+                // the upgrade screen every Get Pro opens
+                onUpgrade = { navController.navigate(Route.Upgrade) },
+                modifier = modifier,
+            )
         }
     }
 }
@@ -153,7 +171,8 @@ fun SignInManageDevicesDialog(
                 }
             },
         ) { modifier ->
-            ManageDevicesList(store = store, message = message, modifier = modifier)
+            // no Get Pro: the purchase needs a signed-in device (SignInClientLimitDialog)
+            ManageDevicesList(store = store, message = message, onUpgrade = null, modifier = modifier)
         }
     }
 }
@@ -298,6 +317,8 @@ private fun ManageDevicesScaffold(
 private fun ManageDevicesList(
     store: ManageDevicesStore,
     message: String?,
+    // the Pro features notice's Get Pro; null offers none
+    onUpgrade: (() -> Unit)?,
     modifier: Modifier,
 ) {
     val ui = store.ui
@@ -332,6 +353,13 @@ private fun ManageDevicesList(
                     style = MaterialTheme.typography.bodySmall,
                     color = TextMuted,
                 )
+            }
+        }
+
+        // the network's Pro features in use, from the proxies listed below
+        if (ui.proFeaturesPrompt.isNotEmpty()) {
+            item(key = "pro-features") {
+                ManageDevicesProFeaturesNotice(prompt = ui.proFeaturesPrompt, onUpgrade = onUpgrade)
             }
         }
 
@@ -443,6 +471,50 @@ private fun ManageDevicesList(
             onDismiss = store::cancelRemove,
             onConfirm = { store.confirmRemove(device) },
         )
+    }
+}
+
+/**
+ * The prompt above the list: the main screen notice's title and words, with
+ * Get Pro when [onUpgrade] is given. No close: the list says it for as long as
+ * the prompt lasts; only the main screen's notice can be closed.
+ */
+@Composable
+private fun ManageDevicesProFeaturesNotice(prompt: String, onUpgrade: (() -> Unit)?) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+    ) {
+        Text(
+            stringResource(id = proFeaturesTitleId(prompt)),
+            style = MaterialTheme.typography.bodyLarge,
+            modifier = Modifier.testTag("acceptance.manage_devices_pro_features_title")
+        )
+        Spacer(modifier = Modifier.height(4.dp))
+        Text(
+            stringResource(id = proFeaturesMessageId(prompt)),
+            style = MaterialTheme.typography.bodyMedium,
+            color = TextMuted,
+            modifier = Modifier.testTag("acceptance.manage_devices_pro_features_notice")
+        )
+        onUpgrade?.let { upgrade ->
+            Spacer(modifier = Modifier.height(8.dp))
+            URButton(
+                onClick = upgrade,
+                style = ButtonStyle.OUTLINE,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .testTag("acceptance.manage_devices_pro_features_upgrade")
+            ) { buttonTextStyle ->
+                Text(
+                    stringResource(id = R.string.get_pro),
+                    style = buttonTextStyle,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
+        }
     }
 }
 

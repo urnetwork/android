@@ -422,6 +422,8 @@ fun ConnectScreen(
             )
             // the network's client limit holds the device off: what to do
             ClientLimitNotice(navController = navController)
+            // the network's proxies use Pro features it does not have
+            ProFeaturesNotice(navController = navController)
             Spacer(modifier = Modifier.height(12.dp))
             ConnectActionButtonRow(
                 actionButtons = actionButtons,
