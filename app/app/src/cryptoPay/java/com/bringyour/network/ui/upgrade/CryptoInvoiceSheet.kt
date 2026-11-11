@@ -53,6 +53,7 @@ import com.bringyour.network.ui.theme.BlueMedium
 import com.bringyour.network.ui.theme.MainTextBase
 import com.bringyour.network.ui.theme.TextFaint
 import com.bringyour.network.ui.theme.TextMuted
+import com.bringyour.sdk.Sdk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
@@ -158,10 +159,10 @@ fun CryptoInvoiceSheet(
                 PaymentQrImage(text = text)
                 // a coin without a payment link: the code holds the address alone
                 if (view.noPaymentLink) {
-                    cryptoNoPaymentLinkNote(invoice.asset)?.let { note ->
+                    cryptoNoPaymentLinkNoteText(invoice.asset)?.let { note ->
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
-                            stringResource(id = note),
+                            note,
                             style = MaterialTheme.typography.bodySmall,
                             color = TextMuted
                         )
@@ -213,10 +214,10 @@ fun CryptoInvoiceSheet(
             }
             if (view.address) {
                 // scanning the QR picks the chain; a transfer sent by hand from an exchange does not
-                cryptoNetworkWarning(invoice.asset)?.let { warning ->
+                cryptoNetworkWarningText(invoice.asset)?.let { warning ->
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        stringResource(id = warning),
+                        warning,
                         style = MaterialTheme.typography.bodySmall,
                         color = TextMuted
                     )
@@ -257,12 +258,7 @@ fun CryptoInvoiceSheet(
             // 5. where the payment is
             if (view.steps.isNotEmpty()) {
                 Spacer(modifier = Modifier.height(24.dp))
-                InvoiceSteps(
-                    steps = view.steps,
-                    currentStep = view.currentStep,
-                    confirmations = invoice.confirmations,
-                    confirmationsRequired = invoice.confirmationsRequired,
-                )
+                InvoiceSteps(steps = view.steps)
             }
             view.remaining?.let { remaining ->
                 Spacer(modifier = Modifier.height(8.dp))
@@ -417,31 +413,26 @@ private fun InvoiceCopyField(
 
 private const val COPIED_MILLIS = 2_000L
 
-/** The status steps, the current one marked: waiting → payment seen → confirming n of N → paid. */
+/**
+ * The status steps as the sdk lays them out (CryptoPaymentSteps): waiting →
+ * payment seen → confirming n of N → paid, or for USDC waiting → paid, the
+ * current one marked and the ones the payment is past (or skipped) done.
+ */
 @Composable
-private fun InvoiceSteps(
-    steps: List<CryptoInvoiceStep>,
-    currentStep: Int,
-    confirmations: Long,
-    confirmationsRequired: Long,
-) {
+private fun InvoiceSteps(steps: List<CryptoInvoiceStep>) {
     Column {
-        steps.forEachIndexed { index, step ->
-            val current = index == currentStep
-            val reached = index <= currentStep
-            val text = when (step) {
-                CryptoInvoiceStep.WAITING -> stringResource(id = R.string.crypto_status_waiting)
-                CryptoInvoiceStep.SEEN -> stringResource(id = R.string.crypto_status_seen)
-                CryptoInvoiceStep.CONFIRMING -> stringResource(
+        steps.forEach { step ->
+            val current = step.progress == Sdk.CryptoPaymentStepCurrent
+            val reached = current || step.progress == Sdk.CryptoPaymentStepDone
+            val text = when (step.status) {
+                Sdk.CryptoPaymentStatusSeen -> stringResource(id = R.string.crypto_status_seen)
+                Sdk.CryptoPaymentStatusConfirming -> stringResource(
                     id = R.string.crypto_status_confirming,
-                    when {
-                        index < currentStep -> confirmationsRequired
-                        current -> confirmations.coerceAtMost(confirmationsRequired)
-                        else -> 0L
-                    },
-                    confirmationsRequired
+                    step.confirmations,
+                    step.confirmationsRequired
                 )
-                CryptoInvoiceStep.PAID -> stringResource(id = R.string.crypto_status_paid)
+                Sdk.CryptoPaymentStatusPaid -> stringResource(id = R.string.crypto_status_paid)
+                else -> stringResource(id = R.string.crypto_status_waiting)
             }
             Row(
                 modifier = Modifier.padding(vertical = 4.dp),

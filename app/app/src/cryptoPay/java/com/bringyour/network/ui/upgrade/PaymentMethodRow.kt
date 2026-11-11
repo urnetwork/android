@@ -54,7 +54,9 @@ import com.bringyour.sdk.Sdk
  * does not hold them. A tab of several coins ("More coins") opens a list of
  * them under the row, each with the network it is sent on. The chosen
  * method's tab is the sdk's CryptoPaymentTabId of it ([selectedTabId]: "" for
- * the card).
+ * the card), and what a tap on a tab chooses is the sdk's CryptoPaymentTabCoin
+ * ([tabCoin]: the coin last chosen in the tab, else the remembered method's,
+ * else its first that can be paid with; null for none).
  *
  * A tab or a coin that cannot be paid with now stays in its place, its label
  * greyed with "Temporarily unavailable", and cannot be chosen; its marks are
@@ -67,6 +69,7 @@ fun PaymentMethodRow(
     selected: String,
     selectedTabId: String,
     onSelect: (String) -> Unit,
+    tabCoin: (CryptoPayTab) -> String?,
     unavailable: Boolean,
 ) {
     val rowLabel = stringResource(id = R.string.pay_method_label)
@@ -99,7 +102,7 @@ fun PaymentMethodRow(
                 MethodTab(
                     selected = tab.id == selectedTabId,
                     available = tab.available,
-                    onClick = { CryptoPayment.tabChoice(tab, selected)?.let(onSelect) },
+                    onClick = { tabCoin(tab)?.let(onSelect) },
                     modifier = if (description != null) Modifier.semantics { contentDescription = description } else Modifier,
                 ) {
                     // each mark on its own, with clear space around it; none for a coin this app bundles no mark for
@@ -301,49 +304,67 @@ fun cryptoAssetName(asset: String): String {
 }
 
 /**
- * The invoice's first line, the network the coin is sent on ("USDC on Solana",
- * "Zcash, shielded", "Monero", "Bittensor network", "Bitcoin network",
- * "Ethereum mainnet", "Solana (native SOL)"), also under each coin of the
- * More coins list; null for a coin this app has no line for.
+ * A coin's line by its string id in the shared localizations (the sdk's
+ * CryptoAssetLinesFor hands out each line's id with its English), or the
+ * sdk's English for an id this app has no string for; null for a line the
+ * coin does not have (an empty id).
  */
+@Composable
+private fun cryptoLine(key: String?, english: String?): String? {
+    if (key.isNullOrEmpty()) {
+        return null
+    }
+    return cryptoLineRes(key)?.let { stringResource(id = it) } ?: english?.takeIf { it.isNotEmpty() }
+}
+
 @StringRes
-fun cryptoNetworkLine(asset: String): Int? = when (asset) {
-    Sdk.CryptoAssetUsdcSolana -> R.string.crypto_network_usdc
-    Sdk.CryptoAssetZec -> R.string.crypto_network_zcash
-    Sdk.CryptoAssetXmr -> R.string.crypto_network_monero
-    Sdk.CryptoAssetTao -> R.string.crypto_network_tao
-    Sdk.CryptoAssetBtc -> R.string.crypto_network_bitcoin
-    Sdk.CryptoAssetEth -> R.string.crypto_network_eth
-    Sdk.CryptoAssetSol -> R.string.crypto_network_sol
+private fun cryptoLineRes(key: String): Int? = when (key) {
+    "crypto_network_usdc" -> R.string.crypto_network_usdc
+    "crypto_network_zcash" -> R.string.crypto_network_zcash
+    "crypto_network_monero" -> R.string.crypto_network_monero
+    "crypto_network_tao" -> R.string.crypto_network_tao
+    "crypto_network_bitcoin" -> R.string.crypto_network_bitcoin
+    "crypto_network_eth" -> R.string.crypto_network_eth
+    "crypto_network_sol" -> R.string.crypto_network_sol
+    "usdc_solana_network_only" -> R.string.usdc_solana_network_only
+    "crypto_invoice_tao_network_only" -> R.string.crypto_invoice_tao_network_only
+    "crypto_invoice_bitcoin_network_only" -> R.string.crypto_invoice_bitcoin_network_only
+    "crypto_invoice_eth_network_only" -> R.string.crypto_invoice_eth_network_only
+    "crypto_invoice_sol_network_only" -> R.string.crypto_invoice_sol_network_only
+    "crypto_invoice_tao_no_payment_link" -> R.string.crypto_invoice_tao_no_payment_link
     else -> null
 }
 
-/** The coin's network line, or its name for a coin this app has no line for (never another coin's network). */
+/**
+ * The invoice's first line, the network the coin is sent on ("USDC on Solana",
+ * "Zcash, shielded", "Monero", "Bittensor network", "Bitcoin network",
+ * "Ethereum mainnet", "Solana (native SOL)": the sdk's network line), also
+ * under each coin of the More coins list; the coin's name for a coin with no
+ * line (never another coin's network).
+ */
 @Composable
-fun cryptoNetworkLineText(asset: String): String =
-    cryptoNetworkLine(asset)?.let { stringResource(id = it) } ?: cryptoAssetName(asset)
+fun cryptoNetworkLineText(asset: String): String {
+    val lines = remember(asset) { Sdk.cryptoAssetLinesFor(asset) }
+    return cryptoLine(lines?.networkLineKey, lines?.networkLine) ?: cryptoAssetName(asset)
+}
 
 /**
- * The coin's network-only warning, shown with the address: a transfer on
- * another network, or of another token, is not credited. Null for Zcash and
- * Monero, which have none.
+ * The coin's network-only warning, shown with the address (the sdk's): a
+ * transfer on another network, or of another token, is not credited. Null for
+ * Zcash and Monero, which have none.
  */
-@StringRes
-fun cryptoNetworkWarning(asset: String): Int? = when (asset) {
-    Sdk.CryptoAssetUsdcSolana -> R.string.usdc_solana_network_only
-    Sdk.CryptoAssetTao -> R.string.crypto_invoice_tao_network_only
-    Sdk.CryptoAssetBtc -> R.string.crypto_invoice_bitcoin_network_only
-    Sdk.CryptoAssetEth -> R.string.crypto_invoice_eth_network_only
-    Sdk.CryptoAssetSol -> R.string.crypto_invoice_sol_network_only
-    else -> null
+@Composable
+fun cryptoNetworkWarningText(asset: String): String? {
+    val lines = remember(asset) { Sdk.cryptoAssetLinesFor(asset) }
+    return cryptoLine(lines?.networkWarningKey, lines?.networkWarning)
 }
 
 /**
  * Why a coin without a payment link has no Open in wallet, and what its QR
- * code holds: TAO's note. Null for any other coin.
+ * code holds (the sdk's note: TAO's). Null for any other coin.
  */
-@StringRes
-fun cryptoNoPaymentLinkNote(asset: String): Int? = when (asset) {
-    Sdk.CryptoAssetTao -> R.string.crypto_invoice_tao_no_payment_link
-    else -> null
+@Composable
+fun cryptoNoPaymentLinkNoteText(asset: String): String? {
+    val lines = remember(asset) { Sdk.cryptoAssetLinesFor(asset) }
+    return cryptoLine(lines?.noPaymentLinkNoteKey, lines?.noPaymentLinkNote)
 }

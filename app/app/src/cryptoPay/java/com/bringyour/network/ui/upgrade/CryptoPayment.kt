@@ -14,12 +14,15 @@ import java.util.Locale
  * the unit tests run without the native sdk. The sdk owns what is decided
  * once for every app -- the coin selector's tabs, their order, labels, marks
  * and availability (CryptoPaymentTabs), the tab a method sits in
- * (CryptoPaymentTabId), the invoice state machine
- * (CryptoInvoiceViewController), the payment uri check (CheckCryptoPaymentUri)
- * and the QR code's text (CryptoPaymentQrText), the events' store
- * (CryptoAssetMarket), the crypto term notice (CryptoTermNoticeDue) -- and
- * CryptoPayViewModel hands its answers to these rules. Only the sdk's string
- * constants are read here, which the compiler inlines.
+ * (CryptoPaymentTabId) and the coin a tap on a tab chooses
+ * (CryptoPaymentTabCoin), each coin's lines (CryptoAssetLinesFor), the
+ * invoice state machine (CryptoInvoiceViewController) with its status steps
+ * (CryptoPaymentSteps), the payment uri check (CheckCryptoPaymentUri) and the
+ * QR code's text (CryptoPaymentQrText), when the memo shows
+ * (CryptoPaymentShowsMemo), the events' store and product (CryptoAssetMarket,
+ * CryptoPaymentEventProduct), the crypto term notice (CryptoTermNoticeDue) --
+ * and CryptoPayViewModel hands its answers to these rules. Only the sdk's
+ * string constants are read here, which the compiler inlines.
  */
 object CryptoPayment {
 
@@ -43,16 +46,6 @@ object CryptoPayment {
      */
     fun chosenMethod(remembered: String?, tabs: List<CryptoPayTab>): String =
         remembered?.takeIf { isCoin(it) && isAvailable(it, tabs) } ?: Sdk.PaymentMethodCard
-
-    /**
-     * What a tap on [tab] chooses: the [chosen] coin while it sits in the tab,
-     * else the tab's first coin that can be paid with now (TAO first in "More
-     * coins"); null for a tab none of whose coins can be, which cannot be
-     * chosen.
-     */
-    fun tabChoice(tab: CryptoPayTab, chosen: String): String? =
-        tab.coins.firstOrNull { it.asset == chosen && it.available }?.asset
-            ?: tab.coins.firstOrNull { it.available }?.asset
 
     /** What a coin buys on a plan surface: the welcome offer while it is active, else the yearly plan. */
     fun coinPlan(offerActive: Boolean): String =
@@ -85,16 +78,6 @@ object CryptoPayment {
         GuestAccount.purchaseRefusal(code) == PurchaseRefusal.AddSignInMethod -> CryptoStartRefusal.AddSignInMethod
         else -> CryptoStartRefusal.Refused(code = code, words = words)
     }
-
-    /**
-     * The product a coin's purchase events name: one year of Pro, by the
-     * coin's ticker (the sdk's CryptoAssetTicker): pro_yearly_usdc,
-     * pro_yearly_zec, pro_yearly_xmr, pro_yearly_tao, pro_yearly_btc,
-     * pro_yearly_eth, pro_yearly_sol. Null without a ticker (not a coin). The
-     * events' store is the coin's market (CryptoPayViewModel.eventStore).
-     */
-    fun eventProduct(ticker: String): String? =
-        ticker.trim().takeIf { it.isNotEmpty() }?.let { "pro_yearly_" + it.lowercase(Locale.ROOT) }
 
     /**
      * The plan an offer or purchase event names. The events know yearly and
@@ -178,6 +161,12 @@ object CryptoPayment {
      * a stale one. The address stays for a top-up. A resumed invoice shows
      * nothing to pay until its first status answers. Review shows its copy and
      * nothing to do.
+     *
+     * The memo shows when the sdk says so ([CryptoInvoiceSnapshot.showsMemo],
+     * CryptoPaymentShowsMemo: only a memo the server sent, which only USDC
+     * has), and the status steps are the sdk's for the state
+     * ([CryptoInvoiceSnapshot.steps], CryptoPaymentSteps: USDC's two, four for
+     * every other coin, a step the payment skipped drawn done).
      */
     fun view(snapshot: CryptoInvoiceSnapshot, uriPasses: Boolean, hasPaymentLink: Boolean = true): CryptoInvoiceView {
         val open = snapshot.phase == Sdk.CryptoInvoicePhaseOpen
@@ -191,11 +180,7 @@ object CryptoPayment {
         // payable: open, pending, and time left on the quote
         val pending = open && status == Sdk.CryptoPaymentStatusPending && !expired
         val seen = open && status == Sdk.CryptoPaymentStatusSeen
-        val confirming = open && status == Sdk.CryptoPaymentStatusConfirming
         val paid = isPaid(snapshot)
-        val usdc = snapshot.asset == Sdk.CryptoAssetUsdcSolana
-        // the coins on Solana, whose invoices may carry a memo for a transfer sent by hand
-        val solana = usdc || snapshot.asset == Sdk.CryptoAssetSol
         // what a requote can change: a quote nothing was paid to
         val requotable = open && (status == Sdk.CryptoPaymentStatusPending || status == Sdk.CryptoPaymentStatusExpired)
 
@@ -208,19 +193,9 @@ object CryptoPayment {
             paymentRequest && it.isNotEmpty() && (it == snapshot.address || (it == snapshot.uri && payUri != null))
         }
 
-        val steps = when {
-            !open && !paid -> emptyList()
-            checking || review -> emptyList()
-            // USDC reports no seen or confirming step: it is waiting until it is paid
-            usdc -> listOf(CryptoInvoiceStep.WAITING, CryptoInvoiceStep.PAID)
-            else -> listOf(CryptoInvoiceStep.WAITING, CryptoInvoiceStep.SEEN, CryptoInvoiceStep.CONFIRMING, CryptoInvoiceStep.PAID)
-        }
-        val atStep = when {
-            paid -> CryptoInvoiceStep.PAID
-            confirming -> CryptoInvoiceStep.CONFIRMING
-            seen -> CryptoInvoiceStep.SEEN
-            else -> CryptoInvoiceStep.WAITING
-        }
+        // the sdk's steps for the state (none before the first status, in
+        // review or once unknown), for an open or a paid invoice only
+        val steps = if ((open || paid) && !checking && !review) snapshot.steps else emptyList()
 
         return CryptoInvoiceView(
             loading = snapshot.phase == Sdk.CryptoInvoicePhaseStarting || checking,
@@ -229,14 +204,13 @@ object CryptoPayment {
             qrText = qrText,
             amount = paymentRequest && snapshot.amount.isNotEmpty(),
             address = address,
-            memo = paymentRequest && solana && snapshot.memo.isNotEmpty(),
+            memo = paymentRequest && snapshot.showsMemo,
             noPaymentLink = !hasPaymentLink,
             countdown = if (pending) countdown(snapshot.secondsLeft) else null,
             expired = expired,
             refresh = pending || expired,
             refreshing = snapshot.refreshing,
             steps = steps,
-            currentStep = steps.indexOf(atStep).coerceAtLeast(0),
             remaining = if (seen && isPositive(snapshot.remaining)) snapshot.remaining else null,
             review = review,
             unavailable = requotable && snapshot.errorCode == Sdk.PurchaseErrorCodeAssetUnavailable,
@@ -270,8 +244,9 @@ sealed interface CryptoStartRefusal {
 }
 
 /**
- * The sdk's CryptoInvoiceState as plain values (CONTRACT §4.4), or a test's.
- * Amounts are the server's exact decimal strings; the countdown is the sdk's
+ * The sdk's CryptoInvoiceState as plain values (CONTRACT §4.4), or a test's,
+ * with the sdk's decisions on it ([qrText], [showsMemo], [steps]). Amounts
+ * are the server's exact decimal strings; the countdown is the sdk's
  * ([secondsLeft]). [status] is "" for a resumed invoice until its first poll
  * answers.
  */
@@ -287,6 +262,8 @@ data class CryptoInvoiceSnapshot(
     /** what the QR code encodes (the sdk's CryptoPaymentQrText): [uri], or for TAO the address alone; "" for no QR code */
     val qrText: String = "",
     val memo: String = "",
+    /** the sdk's CryptoPaymentShowsMemo(asset, memo): only a memo the server sent, which only USDC has */
+    val showsMemo: Boolean = false,
     val priceUsd: Double = 0.0,
     val secondsLeft: Long = 0L,
     val status: String = "",
@@ -294,6 +271,8 @@ data class CryptoInvoiceSnapshot(
     val remaining: String = "",
     val confirmations: Long = 0L,
     val confirmationsRequired: Long = 0L,
+    /** the sdk's status steps for the state (CryptoInvoiceState.Steps); none before the first status, in review or once unknown */
+    val steps: List<CryptoInvoiceStep> = emptyList(),
     val refreshing: Boolean = false,
     val errorCode: String = "",
     val errorMessage: String = "",
@@ -308,13 +287,24 @@ enum class CoinTap {
     ShowHeld,
 }
 
-/** The invoice's status steps: waiting → payment seen → confirming n of N → paid. */
-enum class CryptoInvoiceStep {
-    WAITING,
-    SEEN,
-    CONFIRMING,
-    PAID,
-}
+/**
+ * One of the invoice's status steps, the sdk's CryptoPaymentStep as plain
+ * values: waiting → payment seen → confirming n of N → paid, or for USDC
+ * waiting → paid.
+ */
+data class CryptoInvoiceStep(
+    /** the status the step stands for: the sdk's CryptoPaymentStatusPending, Seen, Confirming or Paid */
+    val status: String,
+    /**
+     * the sdk's CryptoPaymentStepDone, Current or Upcoming. A step the payment
+     * skipped (a whole payment never reports seen; SOL and TAO usually go from
+     * pending straight to paid) is done, and once paid every step is.
+     */
+    val progress: String,
+    /** the confirming step's "Confirming: n of N", the sdk's counts for it (its full count once done); 0 for the others */
+    val confirmations: Long = 0L,
+    val confirmationsRequired: Long = 0L,
+)
 
 /** What the invoice sheet shows (CryptoPayment.view). */
 data class CryptoInvoiceView(
@@ -330,7 +320,7 @@ data class CryptoInvoiceView(
     val amount: Boolean,
     /** "To this address" and the address, with Copy, and the coin's network-only warning beside it */
     val address: Boolean,
-    /** USDC and SOL: the memo, with Copy, while payable */
+    /** the memo, with Copy, while payable and when the sdk shows it (only a memo the server sent: USDC's) */
     val memo: Boolean,
     /**
      * a coin without a payment link (TAO): "Send exactly this amount to this
@@ -347,9 +337,8 @@ data class CryptoInvoiceView(
     val refresh: Boolean,
     /** a requote is in flight */
     val refreshing: Boolean,
+    /** the sdk's status steps, each drawn by its progress; none while there are none to show */
     val steps: List<CryptoInvoiceStep>,
-    /** the index in [steps] the payment is at */
-    val currentStep: Int,
     /** seen with more to send: the exact amount still to send */
     val remaining: String?,
     /** a receipt needs an operator: the review copy and nothing else to do */

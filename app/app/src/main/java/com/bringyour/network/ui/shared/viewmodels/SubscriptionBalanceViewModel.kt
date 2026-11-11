@@ -543,9 +543,10 @@ class SubscriptionBalanceViewModel @Inject constructor(
                             if (serverIsPro) {
                                 pendingSolanaPurchase?.let { (plan, amountUsd) ->
                                     pendingSolanaPurchase = null
+                                    // a USDC year: the sdk's product for the coin (pro_yearly_usdc)
                                     com.bringyour.network.analytics.ClientEvents.purchaseCompleted(
                                         Sdk.EventStoreSolana,
-                                        com.bringyour.network.analytics.ClientEvents.PRODUCT_SOLANA_PRO_YEARLY,
+                                        Sdk.cryptoPaymentEventProduct(Sdk.CryptoAssetUsdcSolana),
                                         plan, false, amountUsd, "USD",
                                     )
                                 }
