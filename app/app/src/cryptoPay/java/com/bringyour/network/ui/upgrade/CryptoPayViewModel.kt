@@ -78,6 +78,9 @@ class CryptoPayViewModel @Inject constructor(
      * The coin last chosen in each tab, by tab id, while the activity lives:
      * what a tap on the tab chooses first (the sdk's CryptoPaymentTabCoin), so
      * More coins gets back the coin chosen there after a tap on another tab.
+     * The remembered method the row opens on counts as chosen in its tab, as
+     * every pick does: remembered SOL, a tap on Zcash, then More coins is SOL
+     * again, not its first coin (the same on every platform).
      */
     private val lastTabCoins = mutableMapOf<String, String>()
 
@@ -123,6 +126,7 @@ class CryptoPayViewModel @Inject constructor(
             viewModelScope.launch(Dispatchers.Main) { refresh() }
         })
         _rememberedMethod.value = opened.paymentMethod.ifEmpty { Sdk.PaymentMethodCard }
+        noteTabCoin(_rememberedMethod.value)
         if (started) {
             opened.start()
         }
@@ -154,6 +158,11 @@ class CryptoPayViewModel @Inject constructor(
     fun selectMethod(method: String) {
         _rememberedMethod.value = method
         controller?.paymentMethod = method
+        noteTabCoin(method)
+    }
+
+    /** [method], when a coin, is now the coin chosen last in its tab; card changes nothing. */
+    private fun noteTabCoin(method: String) {
         if (CryptoPayment.isCoin(method)) {
             tabId(method).takeIf { it.isNotEmpty() }?.let { lastTabCoins[it] = method }
         }
