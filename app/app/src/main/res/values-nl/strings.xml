@@ -1314,8 +1314,8 @@
     <string name="slow_internet_recovered_detail">Geen vertragingen meer</string>
     <string name="slow_internet_still_connected">URnetwork is nog steeds verbonden</string>
     <string name="slow_internet_upload_delay">Uploadvertraging</string>
-    <string name="sn_claim_relay_again_on">‘Nu opeisen’ is weer beschikbaar op %1$s.</string>
-    <string name="sn_claim_relay_cap">Het claimbudget van vandaag is op, dus dit wacht tot de volgende dag. Er gaat niets verloren: dit tegoed verloopt nooit.</string>
+    <string name="sn_claim_relay_again_on">Je kunt ‘Nu opeisen’ weer gebruiken op %1$s.</string>
+    <string name="sn_claim_relay_cap">Het claimbudget van vandaag is op, dus dit wacht. Het budget wordt elke dag om 00:00 UTC vernieuwd. Er gaat niets verloren: dit tegoed verloopt nooit.</string>
     <string name="sn_claim_relay_claim_now">Nu opeisen</string>
     <string name="sn_claim_relay_claimed">Opgeëist door URnetwork. %1$s SN25α staat op je sleutel, %2$s.</string>
     <string name="sn_claim_relay_for_you">URnetwork eist dit voor je op</string>
@@ -1325,7 +1325,7 @@
     <string name="sn_claim_relay_queued">URnetwork eist dit binnenkort op.</string>
     <string name="sn_claim_relay_queued_button">In wachtrij</string>
     <string name="sn_claim_relay_refused">De laatste claim is niet gelukt. URnetwork probeert het later opnieuw.</string>
-    <string name="sn_claim_relay_requested">‘Nu opeisen’ staat in de wachtrij. URnetwork verstuurt het als eerste, binnen het budget van vandaag.</string>
+    <string name="sn_claim_relay_requested">‘Nu opeisen’ staat in de wachtrij. Het wordt vóór de automatische claims verstuurd, in de volgorde waarin de verzoeken binnenkwamen, voor zover het budget van elke dag het toelaat.</string>
     <string name="sn_claim_relay_self_claim">Eis het zelf op met je gas key</string>
     <string name="sn_claim_relay_under_floor">‘Nu opeisen’ vereist een saldo ter waarde van minstens %1$s TAO.</string>
     <string name="sn_claim_relay_under_threshold">Onder de drempel voor automatisch opeisen.</string>
@@ -1696,6 +1696,10 @@
     <plurals name="sn_claim_relay_claim_now_paid_each">
         <item quantity="one">Betaald door URnetwork, één keer per dag per coldkey.</item>
         <item quantity="other">Betaald door URnetwork, één keer per %1$d dagen per coldkey.</item>
+    </plurals>
+    <plurals name="sn_claim_relay_requested_period">
+        <item quantity="one">Je kunt ‘Nu opeisen’ weer gebruiken een dag nadat deze claim is gelukt.</item>
+        <item quantity="other">Je kunt ‘Nu opeisen’ weer gebruiken %1$d dagen nadat deze claim is gelukt.</item>
     </plurals>
     <plurals name="split_rule_count">
         <item quantity="one">%1$d splitsregel</item>

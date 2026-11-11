@@ -1314,8 +1314,8 @@
     <string name="slow_internet_recovered_detail">देरी दूर हो गई</string>
     <string name="slow_internet_still_connected">URnetwork अब भी कनेक्टेड है</string>
     <string name="slow_internet_upload_delay">अपलोड में देरी</string>
-    <string name="sn_claim_relay_again_on">“अभी दावा करें” %1$s को फिर से उपलब्ध होगा।</string>
-    <string name="sn_claim_relay_cap">दावों के लिए आज का बजट खत्म हो गया है, इसलिए यह अगले दिन तक प्रतीक्षा करेगा। कुछ भी खोया नहीं जाता: यह क्रेडिट कभी समाप्त नहीं होता।</string>
+    <string name="sn_claim_relay_again_on">अगला “अभी दावा करें” %1$s को उपलब्ध होगा।</string>
+    <string name="sn_claim_relay_cap">दावों के लिए आज का बजट खत्म हो गया है, इसलिए यह प्रतीक्षा करेगा। बजट हर दिन 00:00 UTC पर नया होता है। कुछ भी खोया नहीं जाता: यह क्रेडिट कभी समाप्त नहीं होता।</string>
     <string name="sn_claim_relay_claim_now">अभी दावा करें</string>
     <string name="sn_claim_relay_claimed">URnetwork ने दावा किया। %1$s SN25α आपकी कुंजी %2$s पर है।</string>
     <string name="sn_claim_relay_for_you">URnetwork आपकी ओर से इसका दावा करता है</string>
@@ -1325,7 +1325,7 @@
     <string name="sn_claim_relay_queued">URnetwork जल्द ही इसका दावा करेगा।</string>
     <string name="sn_claim_relay_queued_button">कतार में</string>
     <string name="sn_claim_relay_refused">पिछला दावा पूरा नहीं हुआ। URnetwork बाद में दोबारा कोशिश करेगा।</string>
-    <string name="sn_claim_relay_requested">“अभी दावा करें” कतार में है। URnetwork इसे आज के बजट के भीतर सबसे पहले भेजता है।</string>
+    <string name="sn_claim_relay_requested">“अभी दावा करें” कतार में है। इसे स्वचालित दावों से पहले, अनुरोध आने के क्रम में, हर दिन के बजट के भीतर भेजा जाता है।</string>
     <string name="sn_claim_relay_self_claim">अपनी गैस कुंजी से खुद दावा करें</string>
     <string name="sn_claim_relay_under_floor">“अभी दावा करें” के लिए कम से कम %1$s TAO मूल्य का बैलेंस चाहिए।</string>
     <string name="sn_claim_relay_under_threshold">स्वचालित दावे की सीमा से कम।</string>
@@ -1696,6 +1696,10 @@
     <plurals name="sn_claim_relay_claim_now_paid_each">
         <item quantity="one">भुगतान URnetwork करता है, हर coldkey के लिए दिन में एक बार।</item>
         <item quantity="other">भुगतान URnetwork करता है, हर coldkey के लिए हर %1$d दिन में एक बार।</item>
+    </plurals>
+    <plurals name="sn_claim_relay_requested_period">
+        <item quantity="one">अगला “अभी दावा करें” इस दावे के पूरा होने के एक दिन बाद उपलब्ध होगा।</item>
+        <item quantity="other">अगला “अभी दावा करें” इस दावे के पूरा होने के %1$d दिन बाद उपलब्ध होगा।</item>
     </plurals>
     <plurals name="split_rule_count">
         <item quantity="one">%1$d स्प्लिट नियम</item>

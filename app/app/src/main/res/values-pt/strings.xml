@@ -1314,8 +1314,8 @@
     <string name="slow_internet_recovered_detail">Já não há atrasos</string>
     <string name="slow_internet_still_connected">A URnetwork continua ligada</string>
     <string name="slow_internet_upload_delay">Atraso no envio</string>
-    <string name="sn_claim_relay_again_on">«Reivindicar agora» volta a estar disponível a %1$s.</string>
-    <string name="sn_claim_relay_cap">O orçamento de reivindicações de hoje esgotou-se, por isso isto fica à espera do dia seguinte. Nada se perde: este saldo nunca expira.</string>
+    <string name="sn_claim_relay_again_on">O próximo «Reivindicar agora» fica disponível a %1$s.</string>
+    <string name="sn_claim_relay_cap">O orçamento de reivindicações de hoje esgotou-se, por isso isto fica à espera. O orçamento renova-se todos os dias às 00:00 UTC. Nada se perde: este saldo nunca expira.</string>
     <string name="sn_claim_relay_claim_now">Reivindicar agora</string>
     <string name="sn_claim_relay_claimed">Reivindicado pelo URnetwork. %1$s SN25α estão na sua chave, %2$s.</string>
     <string name="sn_claim_relay_for_you">O URnetwork reivindica-o em seu nome</string>
@@ -1325,7 +1325,7 @@
     <string name="sn_claim_relay_queued">O URnetwork vai reivindicá-lo em breve.</string>
     <string name="sn_claim_relay_queued_button">Na fila</string>
     <string name="sn_claim_relay_refused">A última reivindicação não foi concluída. O URnetwork volta a tentar mais tarde.</string>
-    <string name="sn_claim_relay_requested">«Reivindicar agora» está na fila. O URnetwork envia-o primeiro, dentro do orçamento de hoje.</string>
+    <string name="sn_claim_relay_requested">«Reivindicar agora» está na fila. É enviado antes das reivindicações automáticas, pela ordem de chegada dos pedidos, dentro do orçamento de cada dia.</string>
     <string name="sn_claim_relay_self_claim">Reivindique-o por conta própria com a sua chave de gás</string>
     <string name="sn_claim_relay_under_floor">«Reivindicar agora» requer um saldo com um valor de, pelo menos, %1$s TAO.</string>
     <string name="sn_claim_relay_under_threshold">Abaixo do limite de reivindicação automática.</string>
@@ -1696,6 +1696,10 @@
     <plurals name="sn_claim_relay_claim_now_paid_each">
         <item quantity="one">Pago pelo URnetwork, uma vez por dia por cada coldkey.</item>
         <item quantity="other">Pago pelo URnetwork, uma vez a cada %1$d dias por cada coldkey.</item>
+    </plurals>
+    <plurals name="sn_claim_relay_requested_period">
+        <item quantity="one">O próximo «Reivindicar agora» fica disponível um dia depois de esta reivindicação ser concluída.</item>
+        <item quantity="other">O próximo «Reivindicar agora» fica disponível %1$d dias depois de esta reivindicação ser concluída.</item>
     </plurals>
     <plurals name="split_rule_count">
         <item quantity="one">%1$d regra de divisão</item>

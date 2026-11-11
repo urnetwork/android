@@ -860,3 +860,97 @@ func TestBittensorKeyClaimNowPeriodTakesThePluralForm(t *testing.T) {
 		t.Fatalf("CONTROL FAILED: read %d catalogs", read)
 	}
 }
+
+// Claim now queued (4c) says what the relay does, as the owner decided on 2026-11-11
+// (BTEASY.md, Claim now and the daily cap): taps go out ahead of the automatic claims,
+// the oldest first, as each day's budget allows, and the coldkey's limit starts when this
+// claim goes through, not at the tap. The tile's note and the dialog after the tap say it
+// with the relay's period, a count in its plural form; the limit's date reads as the same
+// limit. Before, the note said "within today's budget" beside a line saying the claim
+// waits for the next day, and nothing said when the 30 days start.
+func TestBittensorKeyClaimNowQueuedSaysWhatHappens(t *testing.T) {
+	relay := bittensorKeyCode(bittensorKeyWallet(t, "ClaimRelayDialog.kt"))
+	queued := bittensorKeyBlock(t, relay, "fun snClaimNowQueuedText(")
+	bittensorKeyContainsAll(t, "the queued note", queued,
+		"stringResource(id = R.string.sn_claim_relay_requested)",
+		"if (status.claimNowPeriodDays <= 0) return queued",
+		"pluralStringResource(id = R.plurals.sn_claim_relay_requested_period, count = status.claimNowPeriodDays.toInt(), status.claimNowPeriodDays)",
+	)
+	bittensorKeyContainsAll(t, "the tile's note", bittensorKeyBlock(t, relay, "fun SnClaimNowNote("),
+		"Sdk.SnClaimNowReasonRequested -> snClaimNowQueuedText(status)",
+		"stringResource(id = R.string.sn_claim_relay_again_on, snClaimNowDate(status.claimNowNextAtMillis))",
+	)
+	dialog := bittensorKeyBlock(t, relay, "fun ClaimRelayDialog(")
+	if !regexp.MustCompile(`SnClaimNowOutcome\.Requested -> \{\s*Text\(\s*snClaimNowQueuedText\(status\),`).MatchString(dialog) {
+		t.Error("the dialog's answer to the tap is not the queued note")
+	}
+	if regexp.MustCompile(`R\.string\.sn_claim_relay_requested_period\b`).MatchString(relay) {
+		t.Error("the period is looked up as one sentence")
+	}
+
+	read := 0
+	res := filepath.Join(bittensorKeyRoot(t), "app/app/src/main/res")
+	entries, err := os.ReadDir(res)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, entry := range entries {
+		if !entry.IsDir() || (entry.Name() != "values" && !strings.HasPrefix(entry.Name(), "values-")) {
+			continue
+		}
+		data, err := os.ReadFile(filepath.Join(res, entry.Name(), "strings.xml"))
+		if err != nil {
+			continue
+		}
+		var parsed struct {
+			Strings []struct {
+				Name  string `xml:"name,attr"`
+				Value string `xml:",chardata"`
+			} `xml:"string"`
+			Plurals []struct {
+				Name  string `xml:"name,attr"`
+				Items []struct {
+					Quantity string `xml:"quantity,attr"`
+					Value    string `xml:",chardata"`
+				} `xml:"item"`
+			} `xml:"plurals"`
+		}
+		if err := xml.Unmarshal(data, &parsed); err != nil {
+			t.Fatalf("%s: %v", entry.Name(), err)
+		}
+		read++
+		strs := map[string]string{}
+		for _, s := range parsed.Strings {
+			strs[s.Name] = strings.ReplaceAll(s.Value, `\'`, "'")
+		}
+		forms := map[string]string{}
+		for _, plural := range parsed.Plurals {
+			if plural.Name == "sn_claim_relay_requested_period" {
+				for _, item := range plural.Items {
+					forms[item.Quantity] = item.Value
+				}
+			}
+		}
+		if !strings.Contains(forms["other"], "%1$d") {
+			t.Errorf("%s: the period has no other form with the count: %q", entry.Name(), forms["other"])
+		}
+		if entry.Name() != "values" {
+			continue
+		}
+		for id, english := range map[string]string{
+			"sn_claim_relay_requested": "Claim now is queued. It goes out ahead of automatic claims, in the order requests came in, as each day's budget allows.",
+			"sn_claim_relay_cap":       "Today's claim budget is used up, so this waits. The budget renews each day at 00:00 UTC. Nothing is lost: this credit never expires.",
+			"sn_claim_relay_again_on":  "Your next Claim now opens on %1$s.",
+		} {
+			if strs[id] != english {
+				t.Errorf("%s reads %q", id, strs[id])
+			}
+		}
+		if forms["other"] != "Your next Claim now opens %1$d days after this claim goes through." {
+			t.Errorf("the period reads %q", forms["other"])
+		}
+	}
+	if read < 19 {
+		t.Fatalf("CONTROL FAILED: read %d catalogs", read)
+	}
+}

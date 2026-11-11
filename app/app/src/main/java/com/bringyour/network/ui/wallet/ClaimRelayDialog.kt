@@ -218,7 +218,7 @@ fun SnClaimNowNote(status: SnClaimStatusState, eachColdkey: Boolean) {
                 } else {
                     null
                 }
-            Sdk.SnClaimNowReasonRequested -> stringResource(id = R.string.sn_claim_relay_requested)
+            Sdk.SnClaimNowReasonRequested -> snClaimNowQueuedText(status)
             Sdk.SnClaimNowReasonLimit ->
                 if (0 < status.claimNowNextAtMillis) {
                     stringResource(id = R.string.sn_claim_relay_again_on, snClaimNowDate(status.claimNowNextAtMillis))
@@ -229,6 +229,22 @@ fun SnClaimNowNote(status: SnClaimStatusState, eachColdkey: Boolean) {
         }
     }
     text?.let { SnClaimRelayNote(it) }
+}
+
+/**
+ * Claim now queued (the mocks' 4c), as the relay runs it (owner, 2026-11-11; BTEASY.md,
+ * Claim now and the daily cap): taps go out ahead of the automatic claims, the oldest
+ * first, as each day's budget allows, so no day is promised; and the coldkey's limit
+ * starts when URnetwork pays this claim, not at the tap, so the next Claim now opens the
+ * relay's period after it goes through. No period, no second line.
+ */
+@Composable
+fun snClaimNowQueuedText(status: SnClaimStatusState): String {
+    val queued = stringResource(id = R.string.sn_claim_relay_requested)
+    if (status.claimNowPeriodDays <= 0) return queued
+    // the period is a count: each language reads it in its own plural form
+    val period = pluralStringResource(id = R.plurals.sn_claim_relay_requested_period, count = status.claimNowPeriodDays.toInt(), status.claimNowPeriodDays)
+    return "$queued\n$period"
 }
 
 /** In the claimed state: the day Claim now is available again, while its limit holds. */
@@ -532,7 +548,7 @@ fun ClaimRelayDialog(
                     when (outcome) {
                         SnClaimNowOutcome.Requested -> {
                             Text(
-                                stringResource(id = R.string.sn_claim_relay_requested),
+                                snClaimNowQueuedText(status),
                                 style = MaterialTheme.typography.bodyMedium,
                             )
                             Spacer(modifier = Modifier.height(12.dp))

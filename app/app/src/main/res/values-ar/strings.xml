@@ -1314,8 +1314,8 @@
     <string name="slow_internet_recovered_detail">زال التأخير</string>
     <string name="slow_internet_still_connected">لا يزال URnetwork متصلًا</string>
     <string name="slow_internet_upload_delay">تأخير الرفع</string>
-    <string name="sn_claim_relay_again_on">ستتوفر «المطالبة الآن» مجددًا في %1$s.</string>
-    <string name="sn_claim_relay_cap">نفدت ميزانية المطالبات لهذا اليوم، لذا سينتظر هذا حتى اليوم التالي. لا يضيع شيء: هذا الرصيد لا تنتهي صلاحيته أبدًا.</string>
+    <string name="sn_claim_relay_again_on">يمكنك استخدام «المطالبة الآن» مرة أخرى في %1$s.</string>
+    <string name="sn_claim_relay_cap">نفدت ميزانية المطالبات لهذا اليوم، لذا ينتظر هذا. تتجدد الميزانية كل يوم عند الساعة 00:00 بتوقيت UTC. لا يضيع شيء: هذا الرصيد لا تنتهي صلاحيته أبدًا.</string>
     <string name="sn_claim_relay_claim_now">المطالبة الآن</string>
     <string name="sn_claim_relay_claimed">تمت المطالبة بواسطة URnetwork. أصبح %1$s SN25α على مفتاحك، %2$s.</string>
     <string name="sn_claim_relay_for_you">يطالب URnetwork بهذا نيابةً عنك</string>
@@ -1325,7 +1325,7 @@
     <string name="sn_claim_relay_queued">سيطالب URnetwork بهذا قريبًا.</string>
     <string name="sn_claim_relay_queued_button">في قائمة الانتظار</string>
     <string name="sn_claim_relay_refused">لم تنجح المطالبة الأخيرة. سيحاول URnetwork مرة أخرى لاحقًا.</string>
-    <string name="sn_claim_relay_requested">«المطالبة الآن» في قائمة الانتظار. سيرسلها URnetwork أولًا، ضمن ميزانية اليوم.</string>
+    <string name="sn_claim_relay_requested">«المطالبة الآن» في قائمة الانتظار. تُرسَل قبل المطالبات التلقائية، حسب ترتيب وصول الطلبات، ضمن ميزانية كل يوم.</string>
     <string name="sn_claim_relay_self_claim">طالِب به بنفسك باستخدام مفتاح الغاز الخاص بك</string>
     <string name="sn_claim_relay_under_floor">تتطلب «المطالبة الآن» رصيدًا لا تقل قيمته عن %1$s TAO.</string>
     <string name="sn_claim_relay_under_threshold">أقل من حد المطالبة التلقائية.</string>
@@ -1812,6 +1812,14 @@
         <item quantity="few">على حساب URnetwork، مرة كل %1$d أيام لكل coldkey.</item>
         <item quantity="many">على حساب URnetwork، مرة كل %1$d يومًا لكل coldkey.</item>
         <item quantity="other">على حساب URnetwork، مرة كل %1$d يوم لكل coldkey.</item>
+    </plurals>
+    <plurals name="sn_claim_relay_requested_period">
+        <item quantity="zero">يمكنك استخدام «المطالبة الآن» مرة أخرى بعد %1$d يوم من إتمام هذه المطالبة.</item>
+        <item quantity="one">يمكنك استخدام «المطالبة الآن» مرة أخرى بعد يوم واحد من إتمام هذه المطالبة.</item>
+        <item quantity="two">يمكنك استخدام «المطالبة الآن» مرة أخرى بعد يومين من إتمام هذه المطالبة.</item>
+        <item quantity="few">يمكنك استخدام «المطالبة الآن» مرة أخرى بعد %1$d أيام من إتمام هذه المطالبة.</item>
+        <item quantity="many">يمكنك استخدام «المطالبة الآن» مرة أخرى بعد %1$d يومًا من إتمام هذه المطالبة.</item>
+        <item quantity="other">يمكنك استخدام «المطالبة الآن» مرة أخرى بعد %1$d يوم من إتمام هذه المطالبة.</item>
     </plurals>
     <plurals name="split_rule_count">
         <item quantity="zero">%1$d قاعدة تقسيم</item>
