@@ -1037,6 +1037,10 @@
     <string name="private_extender_secret">सीक्रेट</string>
     <string name="private_network">निजी नेटवर्क</string>
     <string name="pro_benefits_simple">URnetwork का सबसे बेहतरीन संस्करण।</string>
+    <string name="pro_features_in_use">Pro सुविधाएँ इस्तेमाल में हैं</string>
+    <string name="pro_features_stopped">SOCKS और WireGuard ने काम करना बंद कर दिया</string>
+    <string name="pro_features_stopped_message">SOCKS और WireGuard Pro का हिस्सा हैं, इसलिए ये अब आपकी प्रॉक्सी पर काम नहीं करते। HTTP और HTTPS अब भी काम करते हैं। इन्हें फिर से चालू करने के लिए अपग्रेड करें। WireGuard को फिर से कनेक्ट होने में 30 मिनट तक लग सकते हैं।</string>
+    <string name="pro_features_upgrade_message">SOCKS और WireGuard प्रॉक्सी Pro का हिस्सा हैं। इन्हें इस्तेमाल करते रहने के लिए अपग्रेड करें।</string>
     <string name="processing_payment">भुगतान संसाधित हो रहा है</string>
     <string name="processing_subscription_balance">सदस्यता बैलेंस संसाधित किया जा रहा है...</string>
     <string name="profile">प्रोफ़ाइल</string>

@@ -1037,6 +1037,10 @@
     <string name="private_extender_secret">Siri</string>
     <string name="private_network">Mtandao wa kibinafsi</string>
     <string name="pro_benefits_simple">Toleo bora zaidi la URnetwork.</string>
+    <string name="pro_features_in_use">Vipengele vya Pro vinatumika</string>
+    <string name="pro_features_stopped">SOCKS na WireGuard zimeacha kufanya kazi</string>
+    <string name="pro_features_stopped_message">SOCKS na WireGuard ni sehemu ya Pro, kwa hiyo hazifanyi kazi tena kwenye proksi zako. HTTP na HTTPS bado zinafanya kazi. Pandisha daraja ili kuziwasha tena. WireGuard inaweza kuchukua hadi dakika 30 kuunganika tena.</string>
+    <string name="pro_features_upgrade_message">Proksi za SOCKS na WireGuard ni sehemu ya Pro. Pandisha daraja ili uendelee kuzitumia.</string>
     <string name="processing_payment">Inashughulikia malipo</string>
     <string name="processing_subscription_balance">Inachakata salio la usajili...</string>
     <string name="profile">Wasifu</string>

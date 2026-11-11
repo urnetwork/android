@@ -1037,6 +1037,10 @@
     <string name="private_extender_secret">รหัสลับ</string>
     <string name="private_network">เครือข่ายส่วนตัว</string>
     <string name="pro_benefits_simple">URnetwork เวอร์ชันที่ดีที่สุด</string>
+    <string name="pro_features_in_use">กำลังใช้ฟีเจอร์ Pro</string>
+    <string name="pro_features_stopped">SOCKS และ WireGuard หยุดทำงานแล้ว</string>
+    <string name="pro_features_stopped_message">SOCKS และ WireGuard เป็นส่วนหนึ่งของ Pro จึงใช้กับพร็อกซีของคุณไม่ได้อีกต่อไป HTTP และ HTTPS ยังใช้งานได้ อัปเกรดเพื่อเปิดใช้งานอีกครั้ง WireGuard อาจใช้เวลาถึง 30 นาทีในการเชื่อมต่อใหม่</string>
+    <string name="pro_features_upgrade_message">พร็อกซี SOCKS และ WireGuard เป็นส่วนหนึ่งของ Pro อัปเกรดเพื่อใช้งานต่อ</string>
     <string name="processing_payment">กำลังดำเนินการชำระเงิน</string>
     <string name="processing_subscription_balance">กำลังประมวลผลยอดเงินสำหรับการสมัครสมาชิก...</string>
     <string name="profile">โปรไฟล์</string>

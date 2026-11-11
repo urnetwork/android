@@ -1037,6 +1037,10 @@
     <string name="private_extender_secret">密钥</string>
     <string name="private_network">私有网络</string>
     <string name="pro_benefits_simple">URnetwork 的最佳版本。</string>
+    <string name="pro_features_in_use">正在使用 Pro 功能</string>
+    <string name="pro_features_stopped">SOCKS 和 WireGuard 已停止工作</string>
+    <string name="pro_features_stopped_message">SOCKS 和 WireGuard 属于 Pro 功能，因此已无法在您的代理上使用。HTTP 和 HTTPS 仍可正常使用。升级即可重新启用。WireGuard 最多可能需要 30 分钟才能重新连接。</string>
+    <string name="pro_features_upgrade_message">SOCKS 和 WireGuard 代理属于 Pro 功能。升级即可继续使用。</string>
     <string name="processing_payment">正在处理付款</string>
     <string name="processing_subscription_balance">正在处理订阅余额...</string>
     <string name="profile">个人资料</string>
