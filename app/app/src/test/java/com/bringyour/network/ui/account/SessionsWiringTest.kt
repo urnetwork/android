@@ -1,5 +1,6 @@
 package com.bringyour.network.ui.account
 
+import com.bringyour.network.BuildConfig
 import com.bringyour.network.MainApplication
 import com.bringyour.network.ui.Route
 import java.io.File
@@ -134,7 +135,7 @@ class SessionsWiringTest {
         assertEquals("android", MainApplication.CLIENT_INFO_DEVICE_TYPE)
         val update = between(application, "private fun updateActiveNetworkSpace(networkSpace: NetworkSpace) {", "\n    }\n")
         val clientInfo = update.indexOf(
-            "networkSpace.api?.setClientInfo(Sdk.newClientInfo(CLIENT_INFO_DEVICE_TYPE, BuildConfig.VERSION_NAME))"
+            "networkSpace.api?.setClientInfo(Sdk.newClientInfoWithDistribution(CLIENT_INFO_DEVICE_TYPE, BuildConfig.VERSION_NAME, BuildConfig.BRINGYOUR_BUNDLE_DISTRIBUTION))"
         )
         assertTrue("updateActiveNetworkSpace sets no client info", 0 <= clientInfo)
         // after the space (and so its api) is active, before anything sends
@@ -144,6 +145,36 @@ class SessionsWiringTest {
             assertTrue("missing: $request", 0 <= at)
             assertTrue("$request comes before the client info", clientInfo < at)
         }
+    }
+
+    // Each flavor reports its own distribution (sdk ClientDistribution*), which
+    // the server reads for who bills the build: Google Play for play, Stripe for
+    // the flavors outside it. A flavor without one, or with a value the sdk
+    // does not pair with android, would report an unknown distribution.
+    @Test
+    fun everyFlavorReportsItsDistribution() {
+        // the module's build.gradle, not the root project's beside it
+        val module = moduleFile("src/main/AndroidManifest.xml").absoluteFile.parentFile!!.parentFile!!.parentFile!!
+        val gradle = File(module, "build.gradle").readText()
+        val flavors = between(gradle, "productFlavors {", "\n    sourceSets {")
+        val want = mapOf(
+            "github" to "android_direct",
+            "play" to "play",
+            "solana_dapp" to "solana_dapp",
+            "ethos_dapp" to "ethos_dapp",
+        )
+        val field = Regex("""buildConfigField "String", "BRINGYOUR_BUNDLE_DISTRIBUTION", '"([a-z_]+)"'""")
+        for ((flavor, distribution) in want) {
+            val start = flavors.indexOf("\n        $flavor {")
+            assertTrue("no $flavor flavor", 0 <= start)
+            val next = want.keys.filter { it != flavor }
+                .map { flavors.indexOf("\n        $it {", start + 1) }
+                .filter { start < it }
+                .minOrNull() ?: flavors.length
+            val values = field.findAll(flavors.substring(start, next)).map { it.groupValues[1] }.toList()
+            assertEquals(flavor, listOf(distribution), values)
+        }
+        assertTrue(BuildConfig.BRINGYOUR_BUNDLE_DISTRIBUTION in want.values)
     }
 
     @Test
