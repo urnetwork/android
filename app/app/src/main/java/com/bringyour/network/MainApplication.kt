@@ -1520,8 +1520,10 @@ class MainApplication : Application() {
 
         // the space's api is the api this app's requests go out on: before any
         // of them, it reports the device type and this build's version, which
-        // the server keeps for each sign-in (Account -> Sessions)
-        networkSpace.api?.setClientInfo(Sdk.newClientInfo(CLIENT_INFO_DEVICE_TYPE, BuildConfig.VERSION_NAME))
+        // the server keeps for each sign-in (Account -> Sessions), and the
+        // flavor's distribution (BRINGYOUR_BUNDLE_DISTRIBUTION), which tells the
+        // server who bills this build: Google Play, or Stripe outside it
+        networkSpace.api?.setClientInfo(Sdk.newClientInfoWithDistribution(CLIENT_INFO_DEVICE_TYPE, BuildConfig.VERSION_NAME, BuildConfig.BRINGYOUR_BUNDLE_DISTRIBUTION))
 
         // the product-event queue follows the active network space: its api sends
         // and its local state dir persists the pending batch across process death

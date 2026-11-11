@@ -109,11 +109,14 @@ internal class ClientEventQueue {
     fun close() {}
     fun flushAndWait(millis: Long) {}
 }
-internal object BuildConfig { const val VERSION_NAME = "synthetic-test-build" }
+internal object BuildConfig {
+    const val VERSION_NAME = "synthetic-test-build"
+    const val BRINGYOUR_BUNDLE_DISTRIBUTION = "android_direct"
+}
 internal object Log { fun w(tag: String, message: String) {} }
 internal object Sdk {
     const val EventPlatformAndroid = 0
-    fun newClientInfo(type: String, version: String): Any = Any()
+    fun newClientInfoWithDistribution(type: String, version: String, distribution: String): Any = Any()
     fun newClientEventQueue(space: NetworkSpace, platform: Int, version: String, language: String) = ClientEventQueue()
     fun newLoginViewController(api: Api?): Any = Any()
 }

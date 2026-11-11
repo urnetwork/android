@@ -295,6 +295,12 @@ android {
             // the migration host name, when set, is used for services instead of the host name
             buildConfigField "String", "BRINGYOUR_BUNDLE_MIGRATION_HOST_NAME", '""'
             buildConfigField "String", "BRINGYOUR_BUNDLE_STORE", 'null'
+            // the distribution the app reports in its client info (sdk
+            // ClientDistribution*): the server reads it for the account's
+            // onboarding platform, where it tells who bills the purchases. This
+            // flavor is the GitHub APK and the F-Droid build, without Play
+            // services, billed by Stripe
+            buildConfigField "String", "BRINGYOUR_BUNDLE_DISTRIBUTION", '"android_direct"'
             // hard coded initial extender networks
             // this can avoid the need for an initial doh query
             // json string array
@@ -343,6 +349,8 @@ android {
             buildConfigField "String", "BRINGYOUR_BUNDLE_LINK_HOST_NAME", '"ur.io"'
             buildConfigField "String", "BRINGYOUR_BUNDLE_MIGRATION_HOST_NAME", '""'
             buildConfigField "String", "BRINGYOUR_BUNDLE_STORE", '"play"'
+            // the client info's distribution (see github): Google Play bills
+            buildConfigField "String", "BRINGYOUR_BUNDLE_DISTRIBUTION", '"play"'
             buildConfigField "String[]", "BRINGYOUR_BUNDLE_NET_EXTENDER_NETWORKS", 'new String[]{}'
             buildConfigField "boolean", "BRINGYOUR_BUNDLE_SSO_GOOGLE", 'true'
             buildConfigField "String", "BRINGYOUR_BUNDLE_WALLET", '"solana"'
@@ -376,6 +384,9 @@ android {
             buildConfigField "String", "BRINGYOUR_BUNDLE_LINK_HOST_NAME", '"ur.io"'
             buildConfigField "String", "BRINGYOUR_BUNDLE_MIGRATION_HOST_NAME", '""'
             buildConfigField "String", "BRINGYOUR_BUNDLE_STORE", '"solana_dapp"'
+            // the client info's distribution (see github): the Solana dApp
+            // Store, billed by Stripe
+            buildConfigField "String", "BRINGYOUR_BUNDLE_DISTRIBUTION", '"solana_dapp"'
             buildConfigField "String", "BRINGYOUR_BUNDLE_WALLET", '"solana"'
             buildConfigField "String[]", "BRINGYOUR_BUNDLE_NET_EXTENDER_NETWORKS", 'new String[]{}'
             buildConfigField "boolean", "BRINGYOUR_BUNDLE_SSO_GOOGLE", 'true'
@@ -416,6 +427,9 @@ android {
             buildConfigField "String", "BRINGYOUR_BUNDLE_LINK_HOST_NAME", '"ur.io"'
             buildConfigField "String", "BRINGYOUR_BUNDLE_MIGRATION_HOST_NAME", '""'
             buildConfigField "String", "BRINGYOUR_BUNDLE_STORE", '"ethos_dapp"'
+            // the client info's distribution (see github): the Ethos dApp
+            // store, billed by Stripe
+            buildConfigField "String", "BRINGYOUR_BUNDLE_DISTRIBUTION", '"ethos_dapp"'
             buildConfigField "String", "BRINGYOUR_BUNDLE_WALLET", '"ethos"'
             buildConfigField "String[]", "BRINGYOUR_BUNDLE_NET_EXTENDER_NETWORKS", 'new String[]{}'
             buildConfigField "boolean", "BRINGYOUR_BUNDLE_SSO_GOOGLE", 'true'
