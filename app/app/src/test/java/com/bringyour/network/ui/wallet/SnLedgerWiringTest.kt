@@ -99,7 +99,10 @@ class SnLedgerWiringTest {
         val screen = source("EarningsScreen.kt")
         assertTrue(screen.contains("val ctfWin by earningsViewModel.ctfWin.collectAsState()"))
         assertTrue(between(screen, "SnLedgerTileBlock(", "\n                    )").contains("ctfWin = ctfWin,"))
-        assertTrue(between(screen, "SnLedgerClaimDialog(", "BittensorProofSheets(").contains("pools = snLedgerPools(ledgerLoad),"))
+        val dialog = between(screen, "SnLedgerClaimDialog(", "BittensorProofSheets(")
+        assertTrue(dialog.contains("pools = snLedgerPools(ledgerLoad),"))
+        // and marks what waits under the transfer floor as the tile does
+        assertTrue(dialog.contains("transferFloorRao = claimStatus?.takeIf { !it.unavailable }?.transferFloorRao ?: 0,"))
     }
 
     @Test
@@ -117,7 +120,8 @@ class SnLedgerWiringTest {
         assertEquals(2, Regex("snLedgerPoolNameText\\(snLedgerPoolName\\(").findAll(relay).count())
         // Claim both on the tile and in the dialog
         assertTrue(tile.contains("stringResource(id = if (tile.claimBoth) R.string.sn_ledger_claim_both else R.string.claim)"))
-        assertTrue(tile.contains("primary = if (snLedgerClaimsBoth(state.accounts.map { it.pool })) {"))
+        assertTrue(tile.contains("primary = if (snLedgerClaimsBoth(takes.map { it.pool })) {"))
+        assertTrue(tile.contains("val takes = snLedgerClaimTakes(state.accounts, transferFloorRao)"))
     }
 
     @Test

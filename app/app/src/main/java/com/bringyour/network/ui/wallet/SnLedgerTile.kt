@@ -283,6 +283,8 @@ fun SnLedgerClaimDialog(
     explorerTxUrl: (String) -> String,
     // every pool of the latest read (snLedgerPools), which names the rows as the tile does
     pools: List<SnLedgerPool> = emptyList(),
+    // the claim relay's transfer floor in rao of α, 0 without one: an account under it waits
+    transferFloorRao: Long = 0,
 ) {
     URDialog(
         visible = state != null,
@@ -307,6 +309,7 @@ fun SnLedgerClaimDialog(
                 is SnLedgerClaimDialogState.Ready -> LedgerReadyContent(
                     state = state,
                     pools = pools,
+                    transferFloorRao = transferFloorRao,
                     onDismiss = onDismiss,
                     onClaim = onClaim,
                     formatAlpha = formatAlpha,
@@ -357,12 +360,15 @@ fun SnLedgerClaimDialog(
 private fun LedgerReadyContent(
     state: SnLedgerClaimDialogState.Ready,
     pools: List<SnLedgerPool>,
+    transferFloorRao: Long,
     onDismiss: () -> Unit,
     onClaim: () -> Unit,
     formatAlpha: (Long) -> String,
     shortSs58: (String) -> String,
 ) {
     val inView = (pools + state.accounts.map { it.pool } + state.unavailablePools).distinct()
+    // what the claim can move now; an account under the transfer floor waits
+    val takes = snLedgerClaimTakes(state.accounts, transferFloorRao)
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(
             formatAlpha(state.totalRao),
@@ -374,9 +380,10 @@ private fun LedgerReadyContent(
             )
         )
 
-        if (state.accounts.isEmpty()) {
-            if (state.unavailablePools.isNotEmpty()) {
+        if (takes.isEmpty()) {
+            if (state.accounts.isNotEmpty() || state.unavailablePools.isNotEmpty()) {
                 Spacer(modifier = Modifier.height(12.dp))
+                LedgerAccountRows(state.accounts, takes, inView, formatAlpha)
                 LedgerUnavailableRows(state.unavailablePools, inView)
             }
             Spacer(modifier = Modifier.height(16.dp))
@@ -386,12 +393,7 @@ private fun LedgerReadyContent(
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        state.accounts.forEach { account ->
-            LedgerAmountRow(
-                snLedgerPoolNameText(snLedgerPoolName(account.pool, inView)),
-                formatAlpha(account.claimableRao)
-            )
-        }
+        LedgerAccountRows(state.accounts, takes, inView, formatAlpha)
         // the total leaves out the pools that could not be read
         LedgerUnavailableRows(state.unavailablePools, inView)
 
@@ -420,15 +422,38 @@ private fun LedgerReadyContent(
 
         DialogButtons(
             // one claim, one transaction, for the pool's account and capture the flag's
-            primary = if (snLedgerClaimsBoth(state.accounts.map { it.pool })) {
+            primary = if (snLedgerClaimsBoth(takes.map { it.pool })) {
                 stringResource(id = R.string.sn_ledger_claim_both)
             } else {
-                stringResource(id = R.string.claim_amount_button, formatAlpha(state.totalRao))
+                stringResource(id = R.string.claim_amount_button, formatAlpha(takes.sumOf { it.claimableRao }))
             },
             onPrimary = onClaim,
             secondary = stringResource(id = R.string.cancel),
             onSecondary = onDismiss
         )
+    }
+}
+
+/** Each account with what it holds to claim; one the claim cannot move yet says it waits under the floor. */
+@Composable
+private fun LedgerAccountRows(
+    accounts: List<SnLedgerAccountState>,
+    takes: List<SnLedgerAccountState>,
+    inView: List<SnLedgerPool>,
+    formatAlpha: (Long) -> String,
+) {
+    accounts.forEach { account ->
+        LedgerAmountRow(
+            snLedgerPoolNameText(snLedgerPoolName(account.pool, inView)),
+            formatAlpha(account.claimableRao)
+        )
+        if (account !in takes) {
+            Text(
+                stringResource(id = R.string.sn_ledger_pool_under_floor),
+                style = MaterialTheme.typography.bodySmall,
+                color = TextMuted
+            )
+        }
     }
 }
 

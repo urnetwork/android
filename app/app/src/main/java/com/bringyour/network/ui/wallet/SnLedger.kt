@@ -132,6 +132,15 @@ fun snLedgerNamesPools(pools: Collection<SnLedgerPool>): Boolean =
 fun snLedgerClaimsBoth(claimable: Collection<SnLedgerPool>): Boolean =
     claimable.size == 2 && claimable.count { it.isCtf } == 1
 
+/**
+ * The accounts a claim can move now: those with something to claim at or
+ * above the claim relay's transfer floor, in rao of α at its last price (0
+ * without one, when the claim's own preflight decides). One under it waits
+ * in vault2, Below the claim minimum.
+ */
+fun snLedgerClaimTakes(accounts: List<SnLedgerAccountState>, transferFloorRao: Long): List<SnLedgerAccountState> =
+    accounts.filter { 0 < it.claimableRao && (transferFloorRao <= 0 || transferFloorRao <= it.claimableRao) }
+
 // ---- the tile
 
 /** One account in the Settlement v2 tile: Claimable first, then Paid and Earned. */

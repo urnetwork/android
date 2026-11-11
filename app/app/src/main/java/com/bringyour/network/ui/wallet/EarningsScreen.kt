@@ -353,6 +353,8 @@ fun EarningsScreen(
         explorerTxUrl = earningsViewModel::explorerTxUrl,
         // the rows are named as the tile names them
         pools = snLedgerPools(ledgerLoad),
+        // what the claim can move now, as the tile marks it
+        transferFloorRao = claimStatus?.takeIf { !it.unavailable }?.transferFloorRao ?: 0,
     )
 
     // Claim now, through URnetwork's claim relay: a screen of its own, with the

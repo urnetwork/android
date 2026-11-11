@@ -569,6 +569,22 @@ class SnLedgerClaimTest {
     }
 
     @Test
+    fun `the claim takes what clears the relay's transfer floor, and Claim both needs both`() {
+        // the dialog's Claim: Claim both only while both accounts can move now
+        assertEquals(listOf(pool1, ctf), snLedgerClaimTakes(listOf(pool1, ctf), 0))
+        assertTrue(snLedgerClaimsBoth(snLedgerClaimTakes(listOf(pool1, ctf), 0).map { it.pool }))
+        assertEquals(listOf(pool1, ctf), snLedgerClaimTakes(listOf(pool1, ctf), ctf.claimableRao))
+        // capture the flag's account under the floor waits: the claim is the pool's alone
+        val takes = snLedgerClaimTakes(listOf(pool1, ctf), ctf.claimableRao + 1)
+        assertEquals(listOf(pool1), takes)
+        assertFalse(snLedgerClaimsBoth(takes.map { it.pool }))
+        // nothing above the floor: nothing to take
+        assertEquals(emptyList<SnLedgerAccountState>(), snLedgerClaimTakes(listOf(ctf), ctf.claimableRao + 1))
+        // nothing to claim is never taken
+        assertEquals(emptyList<SnLedgerAccountState>(), snLedgerClaimTakes(listOf(paidUp), 0))
+    }
+
+    @Test
     fun `done with the accounts it could take short of gas is the top-up, whatever waits`() = runBlocking {
         val short = pending(pool1).copy(status = SnLedgerClaimStatus.FAILED, message = "needs_gas: balance 0")
         val floor = pending(ctf).copy(status = SnLedgerClaimStatus.UNDER_FLOOR, message = "not_claimable: AmountTooLow: x")
