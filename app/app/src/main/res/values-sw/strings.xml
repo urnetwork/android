@@ -1314,8 +1314,8 @@
     <string name="slow_internet_recovered_detail">Ucheleweshaji umeisha</string>
     <string name="slow_internet_still_connected">URnetwork bado imeunganishwa</string>
     <string name="slow_internet_upload_delay">Ucheleweshaji wa kupakia</string>
-    <string name="sn_claim_relay_again_on">“Dai sasa” litapatikana tena tarehe %1$s.</string>
-    <string name="sn_claim_relay_cap">Bajeti ya madai ya leo imekwisha, kwa hivyo hili linasubiri siku inayofuata. Hakuna kinachopotea: salio hili halitaisha muda kamwe.</string>
+    <string name="sn_claim_relay_again_on">“Dai sasa” linalofuata litapatikana tarehe %1$s.</string>
+    <string name="sn_claim_relay_cap">Bajeti ya madai ya leo imekwisha, kwa hivyo hili linasubiri. Bajeti hujazwa upya kila siku saa 00:00 UTC. Hakuna kinachopotea: salio hili halitaisha muda kamwe.</string>
     <string name="sn_claim_relay_claim_now">Dai sasa</string>
     <string name="sn_claim_relay_claimed">Imedaiwa na URnetwork. %1$s SN25α ziko kwenye ufunguo wako, %2$s.</string>
     <string name="sn_claim_relay_for_you">URnetwork inadai hili kwa niaba yako</string>
@@ -1325,7 +1325,7 @@
     <string name="sn_claim_relay_queued">URnetwork itadai hili hivi karibuni.</string>
     <string name="sn_claim_relay_queued_button">Kwenye foleni</string>
     <string name="sn_claim_relay_refused">Dai la mwisho halikufanikiwa. URnetwork itajaribu tena baadaye.</string>
-    <string name="sn_claim_relay_requested">“Dai sasa” liko kwenye foleni. URnetwork italituma kwanza, ndani ya bajeti ya leo.</string>
+    <string name="sn_claim_relay_requested">“Dai sasa” liko kwenye foleni. Litatumwa kabla ya madai ya kiotomatiki, kwa mpangilio ambao maombi yalifika, ndani ya bajeti ya kila siku.</string>
     <string name="sn_claim_relay_self_claim">Lidai mwenyewe kwa ufunguo wako wa gas</string>
     <string name="sn_claim_relay_under_floor">“Dai sasa” linahitaji salio lenye thamani ya angalau %1$s TAO.</string>
     <string name="sn_claim_relay_under_threshold">Chini ya kiwango cha kudai kiotomatiki.</string>
@@ -1696,6 +1696,10 @@
     <plurals name="sn_claim_relay_claim_now_paid_each">
         <item quantity="one">Linalipiwa na URnetwork, mara moja kila siku kwa kila coldkey.</item>
         <item quantity="other">Linalipiwa na URnetwork, mara moja kila siku %1$d kwa kila coldkey.</item>
+    </plurals>
+    <plurals name="sn_claim_relay_requested_period">
+        <item quantity="one">“Dai sasa” linalofuata litapatikana siku moja baada ya dai hili kufanikiwa.</item>
+        <item quantity="other">“Dai sasa” linalofuata litapatikana siku %1$d baada ya dai hili kufanikiwa.</item>
     </plurals>
     <plurals name="split_rule_count">
         <item quantity="one">%1$d sheria ya mgawanyo</item>

@@ -1314,8 +1314,8 @@
     <string name="slow_internet_recovered_detail">遅延は解消されました</string>
     <string name="slow_internet_still_connected">URnetwork は引き続き接続されています</string>
     <string name="slow_internet_upload_delay">アップロードの遅延</string>
-    <string name="sn_claim_relay_again_on">「今すぐ受け取る」は %1$s に再び利用できるようになります。</string>
-    <string name="sn_claim_relay_cap">本日の受け取り予算が尽きたため、翌日まで待機します。失われるものはありません。この残高に有効期限はありません。</string>
+    <string name="sn_claim_relay_again_on">次の「今すぐ受け取る」は %1$s に利用できるようになります。</string>
+    <string name="sn_claim_relay_cap">本日の受け取り予算が尽きたため、待機します。予算は毎日 00:00 UTC に更新されます。失われるものはありません。この残高に有効期限はありません。</string>
     <string name="sn_claim_relay_claim_now">今すぐ受け取る</string>
     <string name="sn_claim_relay_claimed">URnetwork が受け取りました。%1$s SN25α があなたのキー %2$s にあります。</string>
     <string name="sn_claim_relay_for_you">URnetwork が受け取りの手続きを代行します</string>
@@ -1325,7 +1325,7 @@
     <string name="sn_claim_relay_queued">まもなく URnetwork が受け取りの手続きを行います。</string>
     <string name="sn_claim_relay_queued_button">順番待ち</string>
     <string name="sn_claim_relay_refused">前回の受け取りは完了しませんでした。URnetwork が後ほど再試行します。</string>
-    <string name="sn_claim_relay_requested">「今すぐ受け取る」は順番待ちです。URnetwork が本日の予算の範囲内で優先して送信します。</string>
+    <string name="sn_claim_relay_requested">「今すぐ受け取る」は順番待ちです。自動受け取りより先に、リクエストを受け付けた順に、各日の予算の範囲内で送信されます。</string>
     <string name="sn_claim_relay_self_claim">ガスキーを使って自分で受け取る</string>
     <string name="sn_claim_relay_under_floor">「今すぐ受け取る」には、%1$s TAO 以上相当の残高が必要です。</string>
     <string name="sn_claim_relay_under_threshold">自動受け取りのしきい値未満です。</string>
@@ -1667,6 +1667,9 @@
     </plurals>
     <plurals name="sn_claim_relay_claim_now_paid_each">
         <item quantity="other">URnetwork の負担で、coldkey ごとに %1$d 日に 1 回利用できます。</item>
+    </plurals>
+    <plurals name="sn_claim_relay_requested_period">
+        <item quantity="other">次の「今すぐ受け取る」は、この受け取りが完了してから %1$d 日後に利用できます。</item>
     </plurals>
     <plurals name="split_rule_count">
         <item quantity="other">%1$d件の分割ルール</item>

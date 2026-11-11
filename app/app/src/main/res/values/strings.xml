@@ -1330,8 +1330,8 @@
     <string name="slow_internet_still_connected">URnetwork is still connected</string>
     <string name="slow_internet_upload_delay">Upload delay</string>
     <string name="sn_alpha_symbol" translatable="false">SN25α</string>
-    <string name="sn_claim_relay_again_on">Claim now is available again on %1$s.</string>
-    <string name="sn_claim_relay_cap">Today\'s claim budget is used up, so this waits for the next day. Nothing is lost: this credit never expires.</string>
+    <string name="sn_claim_relay_again_on">Your next Claim now opens on %1$s.</string>
+    <string name="sn_claim_relay_cap">Today\'s claim budget is used up, so this waits. The budget renews each day at 00:00 UTC. Nothing is lost: this credit never expires.</string>
     <string name="sn_claim_relay_claim_now">Claim now</string>
     <string name="sn_claim_relay_claimed">Claimed by URnetwork. %1$s SN25α is on your key, %2$s.</string>
     <string name="sn_claim_relay_for_you">URnetwork claims this for you</string>
@@ -1341,7 +1341,7 @@
     <string name="sn_claim_relay_queued">URnetwork claims this soon.</string>
     <string name="sn_claim_relay_queued_button">Queued</string>
     <string name="sn_claim_relay_refused">The last claim didn\'t go through. URnetwork tries again later.</string>
-    <string name="sn_claim_relay_requested">Claim now is queued. URnetwork sends it first, within today\'s budget.</string>
+    <string name="sn_claim_relay_requested">Claim now is queued. It goes out ahead of automatic claims, in the order requests came in, as each day\'s budget allows.</string>
     <string name="sn_claim_relay_self_claim">Claim it yourself with your gas key</string>
     <string name="sn_claim_relay_under_floor">Claim now needs a balance worth at least %1$s TAO.</string>
     <string name="sn_claim_relay_under_threshold">Below the automatic threshold.</string>
@@ -1723,6 +1723,10 @@
     <plurals name="sn_claim_relay_claim_now_paid_each">
         <item quantity="one">Paid by URnetwork, once a day for each coldkey.</item>
         <item quantity="other">Paid by URnetwork, once every %1$d days for each coldkey.</item>
+    </plurals>
+    <plurals name="sn_claim_relay_requested_period">
+        <item quantity="one">Your next Claim now opens a day after this claim goes through.</item>
+        <item quantity="other">Your next Claim now opens %1$d days after this claim goes through.</item>
     </plurals>
     <plurals name="split_rule_count">
         <item quantity="one">%1$d split rule</item>

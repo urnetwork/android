@@ -1314,8 +1314,8 @@
     <string name="slow_internet_recovered_detail">Os atrasos acabaram</string>
     <string name="slow_internet_still_connected">A URnetwork continua conectada</string>
     <string name="slow_internet_upload_delay">Atraso no upload</string>
-    <string name="sn_claim_relay_again_on">“Resgatar agora” estará disponível novamente em %1$s.</string>
-    <string name="sn_claim_relay_cap">O orçamento de resgates de hoje se esgotou, então isso aguarda o dia seguinte. Nada se perde: este saldo nunca expira.</string>
+    <string name="sn_claim_relay_again_on">O próximo “Resgatar agora” fica disponível em %1$s.</string>
+    <string name="sn_claim_relay_cap">O orçamento de resgates de hoje se esgotou, então isso aguarda. O orçamento se renova todos os dias às 00:00 UTC. Nada se perde: este saldo nunca expira.</string>
     <string name="sn_claim_relay_claim_now">Resgatar agora</string>
     <string name="sn_claim_relay_claimed">Resgatado pelo URnetwork. %1$s SN25α estão na sua chave, %2$s.</string>
     <string name="sn_claim_relay_for_you">O URnetwork resgata isso para você</string>
@@ -1325,7 +1325,7 @@
     <string name="sn_claim_relay_queued">O URnetwork vai resgatar isso em breve.</string>
     <string name="sn_claim_relay_queued_button">Na fila</string>
     <string name="sn_claim_relay_refused">O último resgate não foi concluído. O URnetwork vai tentar de novo mais tarde.</string>
-    <string name="sn_claim_relay_requested">“Resgatar agora” está na fila. O URnetwork o envia primeiro, dentro do orçamento de hoje.</string>
+    <string name="sn_claim_relay_requested">“Resgatar agora” está na fila. Ele é enviado antes dos resgates automáticos, na ordem em que os pedidos chegaram, dentro do orçamento de cada dia.</string>
     <string name="sn_claim_relay_self_claim">Resgate você mesmo com sua chave de gás</string>
     <string name="sn_claim_relay_under_floor">“Resgatar agora” requer um saldo no valor de pelo menos %1$s TAO.</string>
     <string name="sn_claim_relay_under_threshold">Abaixo do limite de resgate automático.</string>
@@ -1696,6 +1696,10 @@
     <plurals name="sn_claim_relay_claim_now_paid_each">
         <item quantity="one">Pago pelo URnetwork, uma vez por dia para cada coldkey.</item>
         <item quantity="other">Pago pelo URnetwork, uma vez a cada %1$d dias para cada coldkey.</item>
+    </plurals>
+    <plurals name="sn_claim_relay_requested_period">
+        <item quantity="one">O próximo “Resgatar agora” fica disponível um dia depois que este resgate for concluído.</item>
+        <item quantity="other">O próximo “Resgatar agora” fica disponível %1$d dias depois que este resgate for concluído.</item>
     </plurals>
     <plurals name="split_rule_count">
         <item quantity="one">%1$d regra de divisão</item>

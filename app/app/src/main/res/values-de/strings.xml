@@ -1314,8 +1314,8 @@
     <string name="slow_internet_recovered_detail">Keine Verzögerungen mehr</string>
     <string name="slow_internet_still_connected">URnetwork ist weiterhin verbunden</string>
     <string name="slow_internet_upload_delay">Upload-Verzögerung</string>
-    <string name="sn_claim_relay_again_on">„Jetzt einlösen“ ist am %1$s wieder verfügbar.</string>
-    <string name="sn_claim_relay_cap">Das heutige Einlösebudget ist aufgebraucht, daher wartet das bis zum nächsten Tag. Nichts geht verloren: Dieses Guthaben verfällt nie.</string>
+    <string name="sn_claim_relay_again_on">Dein nächstes „Jetzt einlösen“ ist ab dem %1$s möglich.</string>
+    <string name="sn_claim_relay_cap">Das heutige Einlösebudget ist aufgebraucht, daher wartet das. Das Budget erneuert sich jeden Tag um 00:00 UTC. Nichts geht verloren: Dieses Guthaben verfällt nie.</string>
     <string name="sn_claim_relay_claim_now">Jetzt einlösen</string>
     <string name="sn_claim_relay_claimed">Von URnetwork eingelöst. %1$s SN25α sind auf deinem Schlüssel %2$s.</string>
     <string name="sn_claim_relay_for_you">URnetwork löst das für dich ein</string>
@@ -1325,7 +1325,7 @@
     <string name="sn_claim_relay_queued">URnetwork löst das bald ein.</string>
     <string name="sn_claim_relay_queued_button">In Warteschlange</string>
     <string name="sn_claim_relay_refused">Die letzte Einlösung ist nicht durchgegangen. URnetwork versucht es später erneut.</string>
-    <string name="sn_claim_relay_requested">„Jetzt einlösen“ ist in der Warteschlange. URnetwork sendet es zuerst, im Rahmen des heutigen Budgets.</string>
+    <string name="sn_claim_relay_requested">„Jetzt einlösen“ ist in der Warteschlange. Es wird vor den automatischen Einlösungen gesendet, in der Reihenfolge der Anfragen, soweit das Budget des jeweiligen Tages reicht.</string>
     <string name="sn_claim_relay_self_claim">Löse es selbst mit deinem Gas-Schlüssel ein</string>
     <string name="sn_claim_relay_under_floor">„Jetzt einlösen“ braucht ein Guthaben im Wert von mindestens %1$s TAO.</string>
     <string name="sn_claim_relay_under_threshold">Unter der Schwelle für die automatische Einlösung.</string>
@@ -1696,6 +1696,10 @@
     <plurals name="sn_claim_relay_claim_now_paid_each">
         <item quantity="one">Bezahlt von URnetwork, einmal täglich für jeden Coldkey.</item>
         <item quantity="other">Bezahlt von URnetwork, einmal alle %1$d Tage für jeden Coldkey.</item>
+    </plurals>
+    <plurals name="sn_claim_relay_requested_period">
+        <item quantity="one">Dein nächstes „Jetzt einlösen“ ist einen Tag nach Abschluss dieser Einlösung möglich.</item>
+        <item quantity="other">Dein nächstes „Jetzt einlösen“ ist %1$d Tage nach Abschluss dieser Einlösung möglich.</item>
     </plurals>
     <plurals name="split_rule_count">
         <item quantity="one">%1$d Split-Regel</item>

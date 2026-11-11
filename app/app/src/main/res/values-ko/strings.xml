@@ -1314,8 +1314,8 @@
     <string name="slow_internet_recovered_detail">지연이 해소되었습니다</string>
     <string name="slow_internet_still_connected">URnetwork는 계속 연결되어 있습니다</string>
     <string name="slow_internet_upload_delay">업로드 지연</string>
-    <string name="sn_claim_relay_again_on">“지금 받기”는 %1$s에 다시 사용할 수 있습니다.</string>
-    <string name="sn_claim_relay_cap">오늘의 받기 예산이 소진되어 다음 날까지 기다립니다. 잃는 것은 없습니다. 이 잔액은 절대 만료되지 않습니다.</string>
+    <string name="sn_claim_relay_again_on">다음 “지금 받기”는 %1$s에 사용할 수 있습니다.</string>
+    <string name="sn_claim_relay_cap">오늘의 받기 예산이 소진되어 기다립니다. 예산은 매일 00:00 UTC에 새로 채워집니다. 잃는 것은 없습니다. 이 잔액은 절대 만료되지 않습니다.</string>
     <string name="sn_claim_relay_claim_now">지금 받기</string>
     <string name="sn_claim_relay_claimed">URnetwork가 받았습니다. %1$s SN25α가 내 키 %2$s에 있습니다.</string>
     <string name="sn_claim_relay_for_you">URnetwork가 받기를 대신 처리합니다</string>
@@ -1325,7 +1325,7 @@
     <string name="sn_claim_relay_queued">곧 URnetwork가 받기를 처리합니다.</string>
     <string name="sn_claim_relay_queued_button">대기열에 추가됨</string>
     <string name="sn_claim_relay_refused">최근 받기가 처리되지 않았습니다. URnetwork가 나중에 다시 시도합니다.</string>
-    <string name="sn_claim_relay_requested">“지금 받기”가 대기열에 있습니다. URnetwork가 오늘 예산 범위 안에서 먼저 보냅니다.</string>
+    <string name="sn_claim_relay_requested">“지금 받기”가 대기열에 있습니다. 자동 받기보다 먼저, 요청이 들어온 순서대로, 날마다 예산이 허용하는 만큼 보내집니다.</string>
     <string name="sn_claim_relay_self_claim">가스 키로 직접 받기</string>
     <string name="sn_claim_relay_under_floor">“지금 받기”를 사용하려면 %1$s TAO 이상의 가치가 있는 잔액이 필요합니다.</string>
     <string name="sn_claim_relay_under_threshold">자동 받기 기준 금액 미만입니다.</string>
@@ -1667,6 +1667,9 @@
     </plurals>
     <plurals name="sn_claim_relay_claim_now_paid_each">
         <item quantity="other">URnetwork가 비용을 부담하며, coldkey마다 %1$d일에 한 번 사용할 수 있습니다.</item>
+    </plurals>
+    <plurals name="sn_claim_relay_requested_period">
+        <item quantity="other">다음 “지금 받기”는 이번 받기가 완료된 뒤 %1$d일 후에 사용할 수 있습니다.</item>
     </plurals>
     <plurals name="split_rule_count">
         <item quantity="other">분할 규칙 %1$d개</item>

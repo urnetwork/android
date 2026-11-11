@@ -1314,8 +1314,8 @@
     <string name="slow_internet_recovered_detail">Задержек больше нет</string>
     <string name="slow_internet_still_connected">URnetwork по-прежнему подключён</string>
     <string name="slow_internet_upload_delay">Задержка отправки</string>
-    <string name="sn_claim_relay_again_on">«Получить сейчас» снова будет доступно %1$s.</string>
-    <string name="sn_claim_relay_cap">Бюджет на получение на сегодня исчерпан, поэтому это подождёт до следующего дня. Ничего не теряется: у этого начисления нет срока действия.</string>
+    <string name="sn_claim_relay_again_on">Следующее «Получить сейчас» будет доступно %1$s.</string>
+    <string name="sn_claim_relay_cap">Бюджет на получение на сегодня исчерпан, поэтому это подождёт. Бюджет обновляется каждый день в 00:00 UTC. Ничего не теряется: у этого начисления нет срока действия.</string>
     <string name="sn_claim_relay_claim_now">Получить сейчас</string>
     <string name="sn_claim_relay_claimed">Получено через URnetwork. %1$s SN25α на вашем ключе %2$s.</string>
     <string name="sn_claim_relay_for_you">URnetwork отправляет запрос на получение за вас</string>
@@ -1325,7 +1325,7 @@
     <string name="sn_claim_relay_queued">URnetwork скоро отправит запрос на получение.</string>
     <string name="sn_claim_relay_queued_button">В очереди</string>
     <string name="sn_claim_relay_refused">Последний запрос на получение не прошёл. URnetwork повторит попытку позже.</string>
-    <string name="sn_claim_relay_requested">«Получить сейчас» в очереди. URnetwork отправит этот запрос первым, в пределах сегодняшнего бюджета.</string>
+    <string name="sn_claim_relay_requested">«Получить сейчас» в очереди. Этот запрос будет отправлен раньше автоматических, в порядке поступления запросов, в пределах бюджета каждого дня.</string>
     <string name="sn_claim_relay_self_claim">Получите сами с помощью своего ключа для оплаты газа</string>
     <string name="sn_claim_relay_under_floor">Для «Получить сейчас» нужен баланс стоимостью не менее %1$s TAO.</string>
     <string name="sn_claim_relay_under_threshold">Ниже порога автоматического получения.</string>
@@ -1754,6 +1754,12 @@
         <item quantity="few">Оплачивается URnetwork, раз в %1$d дня для каждого coldkey.</item>
         <item quantity="many">Оплачивается URnetwork, раз в %1$d дней для каждого coldkey.</item>
         <item quantity="other">Оплачивается URnetwork, раз в %1$d дня для каждого coldkey.</item>
+    </plurals>
+    <plurals name="sn_claim_relay_requested_period">
+        <item quantity="one">Следующее «Получить сейчас» будет доступно через %1$d день после того, как этот запрос пройдёт.</item>
+        <item quantity="few">Следующее «Получить сейчас» будет доступно через %1$d дня после того, как этот запрос пройдёт.</item>
+        <item quantity="many">Следующее «Получить сейчас» будет доступно через %1$d дней после того, как этот запрос пройдёт.</item>
+        <item quantity="other">Следующее «Получить сейчас» будет доступно через %1$d дня после того, как этот запрос пройдёт.</item>
     </plurals>
     <plurals name="split_rule_count">
         <item quantity="one">%1$d правило разделения</item>

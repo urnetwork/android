@@ -1314,8 +1314,8 @@
     <string name="slow_internet_recovered_detail">Οι καθυστερήσεις υποχώρησαν</string>
     <string name="slow_internet_still_connected">Το URnetwork παραμένει συνδεδεμένο</string>
     <string name="slow_internet_upload_delay">Καθυστέρηση αποστολής</string>
-    <string name="sn_claim_relay_again_on">Το «Διεκδίκηση τώρα» θα είναι ξανά διαθέσιμο στις %1$s.</string>
-    <string name="sn_claim_relay_cap">Ο σημερινός προϋπολογισμός διεκδικήσεων εξαντλήθηκε, οπότε αυτό θα περιμένει την επόμενη ημέρα. Δεν χάνεται τίποτα: αυτή η πίστωση δεν λήγει ποτέ.</string>
+    <string name="sn_claim_relay_again_on">Το επόμενο «Διεκδίκηση τώρα» θα είναι διαθέσιμο στις %1$s.</string>
+    <string name="sn_claim_relay_cap">Ο σημερινός προϋπολογισμός διεκδικήσεων εξαντλήθηκε, οπότε αυτό περιμένει. Ο προϋπολογισμός ανανεώνεται κάθε μέρα στις 00:00 UTC. Δεν χάνεται τίποτα: αυτή η πίστωση δεν λήγει ποτέ.</string>
     <string name="sn_claim_relay_claim_now">Διεκδίκηση τώρα</string>
     <string name="sn_claim_relay_claimed">Διεκδικήθηκε από το URnetwork. %1$s SN25α βρίσκονται στο κλειδί σας, %2$s.</string>
     <string name="sn_claim_relay_for_you">Το URnetwork το διεκδικεί για εσάς</string>
@@ -1325,7 +1325,7 @@
     <string name="sn_claim_relay_queued">Το URnetwork θα το διεκδικήσει σύντομα.</string>
     <string name="sn_claim_relay_queued_button">Στην ουρά</string>
     <string name="sn_claim_relay_refused">Η τελευταία διεκδίκηση δεν ολοκληρώθηκε. Το URnetwork θα δοκιμάσει ξανά αργότερα.</string>
-    <string name="sn_claim_relay_requested">Το «Διεκδίκηση τώρα» είναι στην ουρά. Το URnetwork θα το στείλει πρώτο, εντός του σημερινού προϋπολογισμού.</string>
+    <string name="sn_claim_relay_requested">Το «Διεκδίκηση τώρα» είναι στην ουρά. Θα σταλεί πριν από τις αυτόματες διεκδικήσεις, με τη σειρά που ήρθαν τα αιτήματα, εντός του προϋπολογισμού κάθε ημέρας.</string>
     <string name="sn_claim_relay_self_claim">Διεκδικήστε το μόνοι σας με το κλειδί gas σας</string>
     <string name="sn_claim_relay_under_floor">Το «Διεκδίκηση τώρα» απαιτεί υπόλοιπο αξίας τουλάχιστον %1$s TAO.</string>
     <string name="sn_claim_relay_under_threshold">Κάτω από το όριο αυτόματης διεκδίκησης.</string>
@@ -1696,6 +1696,10 @@
     <plurals name="sn_claim_relay_claim_now_paid_each">
         <item quantity="one">Πληρώνεται από το URnetwork, μία φορά την ημέρα για κάθε coldkey.</item>
         <item quantity="other">Πληρώνεται από το URnetwork, μία φορά κάθε %1$d ημέρες για κάθε coldkey.</item>
+    </plurals>
+    <plurals name="sn_claim_relay_requested_period">
+        <item quantity="one">Το επόμενο «Διεκδίκηση τώρα» θα είναι διαθέσιμο μία ημέρα αφού ολοκληρωθεί αυτή η διεκδίκηση.</item>
+        <item quantity="other">Το επόμενο «Διεκδίκηση τώρα» θα είναι διαθέσιμο %1$d ημέρες αφού ολοκληρωθεί αυτή η διεκδίκηση.</item>
     </plurals>
     <plurals name="split_rule_count">
         <item quantity="one">%1$d κανόνας διαχωρισμού</item>
