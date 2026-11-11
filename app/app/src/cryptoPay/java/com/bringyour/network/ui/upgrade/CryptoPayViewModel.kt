@@ -7,6 +7,7 @@ import com.bringyour.network.analytics.ClientEvents
 import com.bringyour.sdk.CryptoInvoiceListener
 import com.bringyour.sdk.CryptoInvoiceState
 import com.bringyour.sdk.CryptoInvoiceViewController
+import com.bringyour.sdk.CryptoPaymentTabList
 import com.bringyour.sdk.DeviceLocal
 import com.bringyour.sdk.Sdk
 import com.bringyour.sdk.StringList
@@ -215,9 +216,7 @@ class CryptoPayViewModel @Inject constructor(
             return
         }
         if (current.phase == Sdk.CryptoInvoicePhaseOpen) {
-            val store = CryptoPayment.eventStore(current.asset)
-            val product = CryptoPayment.eventProduct(current.asset)
-            if (store != null && product != null) {
+            purchaseEvent(current.asset)?.let { (store, product) ->
                 ClientEvents.purchaseCancelled(store, product, CryptoPayment.eventPlan(current.plan), false, current.priceUsd, USD)
             }
         }
@@ -273,12 +272,45 @@ class CryptoPayViewModel @Inject constructor(
         return true
     }
 
-    /** The row's methods for a plan surface selling [plan], from the server's last balance answer. */
-    fun paymentMethods(result: SubscriptionBalanceResult?, plan: String): List<String> {
-        val assets = result?.cryptoAssets ?: return listOf(Sdk.PaymentMethodCard)
+    /**
+     * The coin selector's tabs for a plan surface selling [plan], from the
+     * server's last balance answer: the sdk's CryptoPaymentTabs over the
+     * balance's coins, which are the ones that can be paid with now (so there
+     * is no list of unavailable ones). None without a balance or without a
+     * coin that sells [plan]: the row is not shown then.
+     */
+    fun paymentTabs(result: SubscriptionBalanceResult?, plan: String): List<CryptoPayTab> {
+        val assets = result?.cryptoAssets ?: return emptyList()
         val items = Sdk.newStringList()
         items.add(plan)
-        return CryptoPayment.rowMethods(Sdk.paymentMethods(assets, items).toKotlinList())
+        return Sdk.cryptoPaymentTabs(assets, null, items)?.toCryptoPayTabs() ?: emptyList()
+    }
+
+    /**
+     * The tab a method sits in (the sdk's CryptoPaymentTabId): the coin's own
+     * for USDC, Zcash and Monero, "More coins" for TAO, Bitcoin, ETH and SOL,
+     * and "" for the card.
+     */
+    fun tabId(method: String): String = Sdk.cryptoPaymentTabId(method) ?: ""
+
+    /**
+     * The store a coin's offer and purchase events name: its market (the sdk's
+     * CryptoAssetMarket), null for anything that is not a coin.
+     */
+    fun eventStore(asset: String): String? = Sdk.cryptoAssetMarket(asset)?.takeIf { it.isNotEmpty() }
+
+    /**
+     * Whether a coin has a payment uri (the sdk's CryptoPaymentUriScheme). TAO
+     * has none: its invoice shows the address and the amount to send by hand,
+     * and a QR code of the address alone.
+     */
+    fun hasPaymentLink(asset: String): Boolean = !Sdk.cryptoPaymentUriScheme(asset).isNullOrEmpty()
+
+    /** The store and the product a coin's purchase events name; null for anything that is not a coin. */
+    private fun purchaseEvent(asset: String): Pair<String, String>? {
+        val store = eventStore(asset) ?: return null
+        val product = CryptoPayment.eventProduct(Sdk.cryptoAssetTicker(asset) ?: "") ?: return null
+        return store to product
     }
 
     /**
@@ -317,9 +349,7 @@ class CryptoPayViewModel @Inject constructor(
                 Sdk.CryptoInvoicePhaseOpen, Sdk.CryptoInvoicePhasePaid -> {
                     startRequest = null
                     _unavailable.update { it - request.asset }
-                    val store = CryptoPayment.eventStore(next.asset)
-                    val product = CryptoPayment.eventProduct(next.asset)
-                    if (store != null && product != null) {
+                    purchaseEvent(next.asset)?.let { (store, product) ->
                         ClientEvents.purchaseStarted(store, product, CryptoPayment.eventPlan(next.plan), false, next.priceUsd, USD)
                     }
                 }
@@ -329,9 +359,7 @@ class CryptoPayViewModel @Inject constructor(
                     if (refusal == CryptoStartRefusal.Unavailable) {
                         _unavailable.update { it + request.asset }
                     }
-                    val store = CryptoPayment.eventStore(request.asset)
-                    val product = CryptoPayment.eventProduct(request.asset)
-                    if (store != null && product != null) {
+                    purchaseEvent(request.asset)?.let { (store, product) ->
                         ClientEvents.purchaseFailed(store, product, CryptoPayment.eventPlan(request.plan), false, 0.0, USD, next.errorCode.ifEmpty { START_FAILED })
                     }
                     _sheetVisible.value = false
@@ -349,9 +377,7 @@ class CryptoPayViewModel @Inject constructor(
 
         if (CryptoPayment.isPaid(next) && next.intentId.isNotEmpty() && next.intentId != paidIntentId) {
             paidIntentId = next.intentId
-            val store = CryptoPayment.eventStore(next.asset)
-            val product = CryptoPayment.eventProduct(next.asset)
-            if (store != null && product != null) {
+            purchaseEvent(next.asset)?.let { (store, product) ->
                 ClientEvents.purchaseCompleted(store, product, CryptoPayment.eventPlan(next.plan), false, next.priceUsd, USD)
             }
             _sheetVisible.value = false
@@ -394,6 +420,7 @@ internal fun snapshotOf(state: CryptoInvoiceState): CryptoInvoiceSnapshot = Cryp
     amount = state.amount ?: "",
     ticker = state.ticker ?: "",
     uri = state.uri ?: "",
+    qrText = state.qrText ?: "",
     memo = state.memo ?: "",
     priceUsd = state.priceUsd,
     secondsLeft = state.secondsLeft,
@@ -408,3 +435,29 @@ internal fun snapshotOf(state: CryptoInvoiceState): CryptoInvoiceSnapshot = Cryp
 )
 
 internal fun StringList.toKotlinList(): List<String> = (0L until len()).map { get(it) }
+
+/** The sdk's coin selector (CryptoPaymentTabs) as plain values, in its order. */
+internal fun CryptoPaymentTabList.toCryptoPayTabs(): List<CryptoPayTab> =
+    (0L until len()).mapNotNull { get(it) }.map { tab ->
+        val coins = tab.coins
+        CryptoPayTab(
+            id = tab.id ?: "",
+            label = tab.label ?: "",
+            labelKey = tab.labelKey ?: "",
+            iconKeys = tab.iconKeys?.toKotlinList() ?: emptyList(),
+            coins = if (coins == null) {
+                emptyList()
+            } else {
+                (0L until coins.len()).mapNotNull { coins.get(it) }.map { coin ->
+                    CryptoPayCoin(
+                        asset = coin.asset ?: "",
+                        label = coin.label ?: "",
+                        labelKey = coin.labelKey ?: "",
+                        iconKey = coin.iconKey ?: "",
+                        available = coin.available,
+                    )
+                }
+            },
+            available = tab.available,
+        )
+    }

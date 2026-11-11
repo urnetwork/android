@@ -1,6 +1,5 @@
 package com.bringyour.network.ui.upgrade
 
-import com.bringyour.network.analytics.ClientEvents
 import com.bringyour.network.ui.account.GuestAccount
 import com.bringyour.network.ui.account.PurchaseRefusal
 import com.bringyour.network.ui.shared.enums.PlanType
@@ -11,43 +10,49 @@ import java.util.Locale
 
 /**
  * The payment method row and the crypto invoice as plain values and rules
- * (mmm/ZCASH-CONTRACT.md §6.1, §6.2), so the unit tests run without the native
- * sdk. The sdk owns what is decided once for every app -- the methods the
- * server enables (PaymentMethods), the invoice state machine
- * (CryptoInvoiceViewController), the payment uri check (CheckCryptoPaymentUri),
- * the crypto term notice (CryptoTermNoticeDue) -- and CryptoPayViewModel hands
- * its answers to these rules. Only the sdk's string constants are read here,
- * which the compiler inlines.
+ * (mmm/ZCASH-CONTRACT.md §6.1, §6.2; the coin tabs, mmm/BTCPAY.md §17.6), so
+ * the unit tests run without the native sdk. The sdk owns what is decided
+ * once for every app -- the coin selector's tabs, their order, labels, marks
+ * and availability (CryptoPaymentTabs), the tab a method sits in
+ * (CryptoPaymentTabId), the invoice state machine
+ * (CryptoInvoiceViewController), the payment uri check (CheckCryptoPaymentUri)
+ * and the QR code's text (CryptoPaymentQrText), the events' store
+ * (CryptoAssetMarket), the crypto term notice (CryptoTermNoticeDue) -- and
+ * CryptoPayViewModel hands its answers to these rules. Only the sdk's string
+ * constants are read here, which the compiler inlines.
  */
 object CryptoPayment {
 
-    /** Every method the app can show, in the one order every UI uses: Card · USDC · Zcash · Monero. */
-    val METHOD_ORDER: List<String> = listOf(
-        Sdk.PaymentMethodCard,
-        Sdk.CryptoAssetUsdcSolana,
-        Sdk.CryptoAssetZec,
-        Sdk.CryptoAssetXmr,
-    )
-
     /**
-     * The row's methods from the sdk's PaymentMethods: the card first, then
-     * each coin the server listed, in the row's order. A method the app has no
-     * label for is left out rather than shown blank.
+     * With no tab the row is not shown at all: the sdk's CryptoPaymentTabs
+     * lists none when no coin sells what the surface sells, and the surface
+     * looks as it did.
      */
-    fun rowMethods(listed: List<String>): List<String> =
-        METHOD_ORDER.filter { it == Sdk.PaymentMethodCard || it in listed }
-
-    /** With no coin listed the row is not shown at all, and the surface looks as it did. */
-    fun showsRow(methods: List<String>): Boolean = methods.any { isCoin(it) }
+    fun showsRow(tabs: List<CryptoPayTab>): Boolean = tabs.isNotEmpty()
 
     fun isCoin(method: String): Boolean = method != Sdk.PaymentMethodCard
 
+    /** Whether [asset] is a coin of [tabs] that can be paid with now. */
+    fun isAvailable(asset: String, tabs: List<CryptoPayTab>): Boolean =
+        tabs.any { tab -> tab.coins.any { it.asset == asset && it.available } }
+
     /**
-     * The chosen method: the one remembered on this device while the row lists
-     * it, else the card ("" when none was remembered).
+     * The chosen method: the one remembered on this device while it can be
+     * paid with, else the card ("" when none was remembered). A coin that is
+     * greyed out ("Temporarily unavailable") cannot be the chosen one.
      */
-    fun chosenMethod(remembered: String?, methods: List<String>): String =
-        remembered?.takeIf { isCoin(it) && it in methods } ?: Sdk.PaymentMethodCard
+    fun chosenMethod(remembered: String?, tabs: List<CryptoPayTab>): String =
+        remembered?.takeIf { isCoin(it) && isAvailable(it, tabs) } ?: Sdk.PaymentMethodCard
+
+    /**
+     * What a tap on [tab] chooses: the [chosen] coin while it sits in the tab,
+     * else the tab's first coin that can be paid with now (TAO first in "More
+     * coins"); null for a tab none of whose coins can be, which cannot be
+     * chosen.
+     */
+    fun tabChoice(tab: CryptoPayTab, chosen: String): String? =
+        tab.coins.firstOrNull { it.asset == chosen && it.available }?.asset
+            ?: tab.coins.firstOrNull { it.available }?.asset
 
     /** What a coin buys on a plan surface: the welcome offer while it is active, else the yearly plan. */
     fun coinPlan(offerActive: Boolean): String =
@@ -81,24 +86,15 @@ object CryptoPayment {
         else -> CryptoStartRefusal.Refused(code = code, words = words)
     }
 
-    /** The store a coin's purchase events name (EventStore*); null for a method that is not a coin. */
-    fun eventStore(asset: String): String? = when (asset) {
-        Sdk.CryptoAssetUsdcSolana -> Sdk.EventStoreSolana
-        Sdk.CryptoAssetZec -> Sdk.EventStoreZcash
-        Sdk.CryptoAssetXmr -> Sdk.EventStoreMonero
-        else -> null
-    }
-
-    /** The product a coin's purchase events name: one year of Pro, by the coin it was paid in. */
-    fun eventProduct(asset: String): String? = when (asset) {
-        Sdk.CryptoAssetUsdcSolana -> ClientEvents.PRODUCT_SOLANA_PRO_YEARLY
-        Sdk.CryptoAssetZec -> PRODUCT_ZCASH_PRO_YEARLY
-        Sdk.CryptoAssetXmr -> PRODUCT_MONERO_PRO_YEARLY
-        else -> null
-    }
-
-    const val PRODUCT_ZCASH_PRO_YEARLY = "pro_yearly_zec"
-    const val PRODUCT_MONERO_PRO_YEARLY = "pro_yearly_xmr"
+    /**
+     * The product a coin's purchase events name: one year of Pro, by the
+     * coin's ticker (the sdk's CryptoAssetTicker): pro_yearly_usdc,
+     * pro_yearly_zec, pro_yearly_xmr, pro_yearly_tao, pro_yearly_btc,
+     * pro_yearly_eth, pro_yearly_sol. Null without a ticker (not a coin). The
+     * events' store is the coin's market (CryptoPayViewModel.eventStore).
+     */
+    fun eventProduct(ticker: String): String? =
+        ticker.trim().takeIf { it.isNotEmpty() }?.let { "pro_yearly_" + it.lowercase(Locale.ROOT) }
 
     /**
      * The plan an offer or purchase event names. The events know yearly and
@@ -168,18 +164,22 @@ object CryptoPayment {
      * What the invoice sheet shows for a [snapshot], top to bottom (CONTRACT
      * §6.2, and what each state shows, §6.2.1). [uriPasses] is the sdk's
      * CheckCryptoPaymentUri(asset, uri, address): a uri that fails it is never
-     * shown as a QR or opened.
+     * shown as a QR or opened. The QR code shows the sdk's QR text
+     * ([CryptoInvoiceSnapshot.qrText]), and Open in wallet only a uri.
+     * [hasPaymentLink] is false for a coin without a payment uri (the sdk's
+     * CryptoPaymentUriScheme is empty: TAO), whose QR code holds the address
+     * alone and whose amount and address are sent by hand.
      *
      * Only a payable invoice (open, pending, time left) shows "Send exactly"
-     * and the amount, the QR, Open in wallet, the USDC memo and the
-     * countdown, and the payment request also waits out a requote in flight:
-     * the uri carries the full amount, so once part of a payment arrived it
-     * would ask for that amount again, and once the quote expired, or while it
-     * is refreshed, for a stale one. The address stays for a top-up. A resumed
-     * invoice shows nothing to pay until its first status answers. Review
-     * shows its copy and nothing to do.
+     * and the amount, the QR, Open in wallet, the memo and the countdown, and
+     * the payment request also waits out a requote in flight: the uri carries
+     * the full amount, so once part of a payment arrived it would ask for that
+     * amount again, and once the quote expired, or while it is refreshed, for
+     * a stale one. The address stays for a top-up. A resumed invoice shows
+     * nothing to pay until its first status answers. Review shows its copy and
+     * nothing to do.
      */
-    fun view(snapshot: CryptoInvoiceSnapshot, uriPasses: Boolean): CryptoInvoiceView {
+    fun view(snapshot: CryptoInvoiceSnapshot, uriPasses: Boolean, hasPaymentLink: Boolean = true): CryptoInvoiceView {
         val open = snapshot.phase == Sdk.CryptoInvoicePhaseOpen
         val status = snapshot.status
         val checking = open && status.isEmpty()
@@ -194,11 +194,19 @@ object CryptoPayment {
         val confirming = open && status == Sdk.CryptoPaymentStatusConfirming
         val paid = isPaid(snapshot)
         val usdc = snapshot.asset == Sdk.CryptoAssetUsdcSolana
+        // the coins on Solana, whose invoices may carry a memo for a transfer sent by hand
+        val solana = usdc || snapshot.asset == Sdk.CryptoAssetSol
         // what a requote can change: a quote nothing was paid to
         val requotable = open && (status == Sdk.CryptoPaymentStatusPending || status == Sdk.CryptoPaymentStatusExpired)
 
         val paymentRequest = pending && !snapshot.refreshing
         val address = (pending || seen) && snapshot.address.isNotEmpty()
+        val payUri = snapshot.uri.takeIf { paymentRequest && uriPasses && it.isNotEmpty() }
+        // the code never pays anything but what the screen shows: the uri that
+        // passed the check, or the address itself (a coin without a payment uri)
+        val qrText = snapshot.qrText.takeIf {
+            paymentRequest && it.isNotEmpty() && (it == snapshot.address || (it == snapshot.uri && payUri != null))
+        }
 
         val steps = when {
             !open && !paid -> emptyList()
@@ -217,11 +225,12 @@ object CryptoPayment {
         return CryptoInvoiceView(
             loading = snapshot.phase == Sdk.CryptoInvoicePhaseStarting || checking,
             paymentRequest = paymentRequest,
-            payUri = snapshot.uri.takeIf { paymentRequest && uriPasses && it.isNotEmpty() },
+            payUri = payUri,
+            qrText = qrText,
             amount = paymentRequest && snapshot.amount.isNotEmpty(),
             address = address,
-            memo = paymentRequest && usdc && snapshot.memo.isNotEmpty(),
-            usdcNetworkWarning = address && usdc,
+            memo = paymentRequest && solana && snapshot.memo.isNotEmpty(),
+            noPaymentLink = !hasPaymentLink,
             countdown = if (pending) countdown(snapshot.secondsLeft) else null,
             expired = expired,
             refresh = pending || expired,
@@ -275,6 +284,8 @@ data class CryptoInvoiceSnapshot(
     val amount: String = "",
     val ticker: String = "",
     val uri: String = "",
+    /** what the QR code encodes (the sdk's CryptoPaymentQrText): [uri], or for TAO the address alone; "" for no QR code */
+    val qrText: String = "",
     val memo: String = "",
     val priceUsd: Double = 0.0,
     val secondsLeft: Long = 0L,
@@ -311,16 +322,23 @@ data class CryptoInvoiceView(
     val loading: Boolean,
     /** the quote is current and nothing has arrived: the QR, Open in wallet and "Send exactly" */
     val paymentRequest: Boolean,
-    /** the uri to show as a QR and open in a wallet; null when it failed the check or there is no request */
+    /** the uri to open in a wallet (Open in wallet); null when it failed the check, the coin has none (TAO), or there is no request */
     val payUri: String?,
+    /** what the QR code shows: the payment uri, or for a coin without one (TAO) the address alone; null when there is no request */
+    val qrText: String?,
     /** "Send exactly" and the amount with its ticker, with Copy */
     val amount: Boolean,
-    /** "To this address" and the address, with Copy */
+    /** "To this address" and the address, with Copy, and the coin's network-only warning beside it */
     val address: Boolean,
-    /** USDC: the memo, with Copy, while payable */
+    /** USDC and SOL: the memo, with Copy, while payable */
     val memo: Boolean,
-    /** USDC: the network-only warning */
-    val usdcNetworkWarning: Boolean,
+    /**
+     * a coin without a payment link (TAO): "Send exactly this amount to this
+     * address." stands where Open in wallet would, the amount and the address
+     * each have their own copy button (Copy amount, Copy address), and a note
+     * says the QR code holds the address alone
+     */
+    val noPaymentLink: Boolean,
     /** "Quote expires in m:ss" while payable, or null */
     val countdown: String?,
     /** the quote expired with nothing received */
@@ -346,4 +364,42 @@ data class CryptoInvoiceView(
     val zcashExchangeNote: Boolean,
     /** "Pay another way": while nothing was received, or for a failed or unknown invoice; else only Close */
     val payAnotherWay: Boolean,
+)
+
+/**
+ * A coin of the payment widget, the sdk's CryptoPaymentCoin as plain values.
+ * An unavailable coin stays in its place and cannot be chosen: its label is
+ * greyed, with "Temporarily unavailable" beside it, and its mark is never
+ * dimmed (Solana's and Bittensor's marks are shown only at full contrast).
+ */
+data class CryptoPayCoin(
+    /** one of the sdk's CryptoAsset* values */
+    val asset: String,
+    /** in English (the sdk's Label), shown when the app has no string for [labelKey] */
+    val label: String,
+    /** the label's string id in the shared localizations */
+    val labelKey: String,
+    /** the coin's mark, one of the sdk's CryptoIconKey* values */
+    val iconKey: String,
+    /** payable now, for one of the surface's items */
+    val available: Boolean,
+)
+
+/**
+ * A tab of the coin selector, the sdk's CryptoPaymentTab as plain values: a
+ * tab of one coin (its id is the coin's asset), or "More coins"
+ * (CryptoPaymentTabMoreCoins), which shows its coins' marks as separate marks
+ * with space between them and opens a list of its coins.
+ */
+data class CryptoPayTab(
+    val id: String,
+    /** in English (the sdk's Label), shown when the app has no string for [labelKey] */
+    val label: String,
+    val labelKey: String,
+    /** the marks the tab shows, in order, each at full contrast */
+    val iconKeys: List<String>,
+    /** its coins, in order: one, or TAO, Bitcoin, ETH and SOL */
+    val coins: List<CryptoPayCoin>,
+    /** one of its coins can be paid with now; a tab with none is greyed and cannot be chosen */
+    val available: Boolean,
 )

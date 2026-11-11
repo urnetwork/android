@@ -3,6 +3,7 @@ package com.bringyour.network.ui.upgrade
 import com.bringyour.network.ui.components.FoldSafeModalBottomSheet
 import com.bringyour.network.ui.components.rememberFoldSafeSheetState
 import android.graphics.Bitmap
+import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -57,13 +58,18 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 
 /**
- * The crypto invoice (mmm/ZCASH-CONTRACT.md §6.2), rendered from the sdk's
- * state ([CryptoPayment.view] decides what shows), top to bottom: the network
- * the coin is sent on; the QR code of the server's payment uri and Open in
- * wallet, only when the uri pays the address shown; the exact amount and the
- * address with Copy (the memo and the network-only warning for USDC); the
- * quote's countdown with Refresh quote; the status steps; the wallets that
- * work; Pay another way and Close.
+ * The crypto invoice (mmm/ZCASH-CONTRACT.md §6.2, mmm/BTCPAY.md §17.6),
+ * rendered from the sdk's state ([CryptoPayment.view] decides what shows), top
+ * to bottom: the network the coin is sent on; the QR code of the sdk's QR text
+ * and Open in wallet, only for a uri that pays the address shown; the exact
+ * amount and the address with Copy, the memo, and the coin's network-only
+ * warning; the quote's countdown with Refresh quote; the status steps; the
+ * wallets that work; Pay another way and Close.
+ *
+ * A coin without a payment link (TAO) has no Open in wallet: its QR code
+ * holds the address alone, with a note that says so, and "Send exactly this
+ * amount to this address." stands in its place, over the amount and the
+ * address with their own Copy amount and Copy address.
  *
  * Hosted above the screen that opened it (CryptoInvoiceHost), so leaving that
  * screen doesn't end a payment. The controller polls and counts down only
@@ -76,6 +82,8 @@ fun CryptoInvoiceSheet(
     invoice: CryptoInvoiceSnapshot,
     // the sdk's CheckCryptoPaymentUri(asset, uri, address)
     uriPasses: Boolean,
+    // the coin has a payment uri scheme (the sdk's CryptoPaymentUriScheme): TAO has none
+    hasPaymentLink: Boolean,
     // the sdk's CryptoWalletSuggestions(asset)
     wallets: List<String>,
     setActive: (Boolean) -> Unit,
@@ -83,7 +91,7 @@ fun CryptoInvoiceSheet(
     payAnotherWay: () -> Unit,
     close: () -> Unit,
 ) {
-    val view = remember(invoice, uriPasses) { CryptoPayment.view(invoice, uriPasses) }
+    val view = remember(invoice, uriPasses, hasPaymentLink) { CryptoPayment.view(invoice, uriPasses, hasPaymentLink) }
     val sheetState = rememberFoldSafeSheetState()
 
     LifecycleResumeEffect(Unit) {
@@ -104,7 +112,7 @@ fun CryptoInvoiceSheet(
         ) {
             // 1. the network first: USDC is on a dozen chains, and only this one arrives
             Text(
-                stringResource(id = cryptoNetworkLine(invoice.asset)),
+                cryptoNetworkLineText(invoice.asset),
                 style = MaterialTheme.typography.headlineSmall
             )
 
@@ -124,7 +132,7 @@ fun CryptoInvoiceSheet(
                 Text(
                     stringResource(
                         id = R.string.crypto_invoice_unavailable,
-                        stringResource(id = paymentMethodLabel(invoice.asset))
+                        cryptoAssetName(invoice.asset)
                     ),
                     style = MaterialTheme.typography.bodyMedium
                 )
@@ -144,12 +152,33 @@ fun CryptoInvoiceSheet(
                 )
             }
 
-            // 2. the QR code and the wallet on this device, for a uri that pays the address below
-            view.payUri?.let { uri ->
+            // 2. the QR code, and the wallet on this device for a uri that pays the address below
+            view.qrText?.let { text ->
                 Spacer(modifier = Modifier.height(24.dp))
-                PaymentQrImage(uri = uri)
+                PaymentQrImage(text = text)
+                // a coin without a payment link: the code holds the address alone
+                if (view.noPaymentLink) {
+                    cryptoNoPaymentLinkNote(invoice.asset)?.let { note ->
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            stringResource(id = note),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = TextMuted
+                        )
+                    }
+                }
+            }
+            view.payUri?.let { uri ->
                 Spacer(modifier = Modifier.height(16.dp))
                 OpenInWalletButton(uri = uri)
+            }
+            if (view.noPaymentLink && view.amount) {
+                // where Open in wallet would be: the amount and the address go into the wallet by hand
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    stringResource(id = R.string.crypto_invoice_send_exactly_to_address),
+                    style = MaterialTheme.typography.bodyMedium
+                )
             }
 
             // 3. what to send, and where
@@ -160,6 +189,7 @@ fun CryptoInvoiceSheet(
                     // the exact decimal string with its ticker ("0.072387 XMR"); Copy takes the number
                     shown = "${invoice.amount} ${invoice.ticker}",
                     copied = invoice.amount,
+                    copyLabel = if (view.noPaymentLink) R.string.crypto_invoice_copy_amount else R.string.crypto_invoice_copy,
                 )
             }
             if (view.address) {
@@ -169,6 +199,7 @@ fun CryptoInvoiceSheet(
                     shown = invoice.address,
                     copied = invoice.address,
                     monospace = true,
+                    copyLabel = if (view.noPaymentLink) R.string.crypto_invoice_copy_address else R.string.crypto_invoice_copy,
                 )
             }
             if (view.memo) {
@@ -180,14 +211,16 @@ fun CryptoInvoiceSheet(
                     monospace = true,
                 )
             }
-            if (view.usdcNetworkWarning) {
-                Spacer(modifier = Modifier.height(8.dp))
+            if (view.address) {
                 // scanning the QR picks the chain; a transfer sent by hand from an exchange does not
-                Text(
-                    stringResource(id = R.string.usdc_solana_network_only),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = TextMuted
-                )
+                cryptoNetworkWarning(invoice.asset)?.let { warning ->
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        stringResource(id = warning),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = TextMuted
+                    )
+                }
             }
 
             // 4. the quote's time, and a new one
@@ -278,12 +311,12 @@ fun CryptoInvoiceSheet(
 
 private val QR_SIZE = 220.dp
 
-/** The payment uri as a QR code on white, encoded off the main thread. */
+/** The invoice's QR text (the payment uri, or a TAO address) as a QR code on white, encoded off the main thread. */
 @Composable
-private fun PaymentQrImage(uri: String) {
+private fun PaymentQrImage(text: String) {
     val sizePx = with(LocalDensity.current) { QR_SIZE.roundToPx() }
-    val qr by produceState<Bitmap?>(initialValue = null, uri, sizePx) {
-        value = withContext(Dispatchers.Default) { paymentQrBitmap(uri, sizePx) }
+    val qr by produceState<Bitmap?>(initialValue = null, text, sizePx) {
+        value = withContext(Dispatchers.Default) { paymentQrBitmap(text, sizePx) }
     }
     Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
         Box(
@@ -327,13 +360,18 @@ private fun OpenInWalletButton(uri: String) {
     }
 }
 
-/** A labelled value with Copy, which reads Copied for a moment after a tap. */
+/**
+ * A labelled value with its copy button ([copyLabel]: Copy, or Copy amount and
+ * Copy address on an invoice that has both), which reads Copied for a moment
+ * after a tap.
+ */
 @Composable
 private fun InvoiceCopyField(
     label: String,
     shown: String,
     copied: String,
     monospace: Boolean = false,
+    @StringRes copyLabel: Int = R.string.crypto_invoice_copy,
 ) {
     val clipboardManager = LocalClipboardManager.current
     var justCopied by remember(copied) { mutableStateOf(false) }
@@ -370,7 +408,7 @@ private fun InvoiceCopyField(
                 }
             ) {
                 Text(
-                    stringResource(id = if (justCopied) R.string.crypto_invoice_copied else R.string.crypto_invoice_copy)
+                    stringResource(id = if (justCopied) R.string.crypto_invoice_copied else copyLabel)
                 )
             }
         }

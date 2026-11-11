@@ -30,6 +30,8 @@ class CryptoInvoiceViewTest {
         amount = "0.072387",
         ticker = "XMR",
         uri = xmrUri,
+        // the sdk's CryptoPaymentQrText: the uri, which passes its check
+        qrText = xmrUri,
         priceUsd = 40.0,
         secondsLeft = 1799,
         status = Sdk.CryptoPaymentStatusPending,
@@ -42,10 +44,11 @@ class CryptoInvoiceViewTest {
         assertFalse(view.loading)
         assertTrue(view.paymentRequest)
         assertEquals(xmrUri, view.payUri)
+        assertEquals(xmrUri, view.qrText)
+        assertFalse(view.noPaymentLink)
         assertTrue(view.amount)
         assertTrue(view.address)
         assertFalse(view.memo)
-        assertFalse(view.usdcNetworkWarning)
         assertEquals("29:59", view.countdown)
         assertFalse(view.expired)
         assertTrue(view.refresh)
@@ -65,6 +68,7 @@ class CryptoInvoiceViewTest {
     fun aUriThatFailsTheCheckIsNeitherShownNorOpened() {
         val view = CryptoPayment.view(pending, uriPasses = false)
         assertNull(view.payUri)
+        assertNull(view.qrText)
         // the amount and the address still let a wallet pay by hand
         assertTrue(view.paymentRequest)
         assertTrue(view.amount)
@@ -76,8 +80,90 @@ class CryptoInvoiceViewTest {
         // the controller blanks a uri that fails the check, or one a requote elsewhere made stale
         val view = CryptoPayment.view(pending.copy(uri = ""), uriPasses = true)
         assertNull(view.payUri)
+        // a QR text left over from the uri is not drawn either
+        assertNull(view.qrText)
         assertTrue(view.amount)
         assertTrue(view.address)
+    }
+
+    @Test
+    fun theQrCodeShowsOnlyTheCheckedUriOrTheAddressOnScreen() {
+        // a QR text that is neither (the sdk never hands one out) shows no code
+        assertNull(CryptoPayment.view(pending.copy(qrText = "monero:SomewhereElse"), uriPasses = true).qrText)
+        assertNull(CryptoPayment.view(pending.copy(qrText = ""), uriPasses = true).qrText)
+        // no code once nothing is payable
+        assertNull(CryptoPayment.view(pending.copy(refreshing = true), uriPasses = true).qrText)
+        assertNull(CryptoPayment.view(pending.copy(status = Sdk.CryptoPaymentStatusSeen, remaining = "0.01"), uriPasses = true).qrText)
+    }
+
+    // TAO has no payment uri (mmm/BTCPAY.md §17.6): a QR code of the address
+    // alone, no Open in wallet, and the amount and the address to send by hand
+    @Test
+    fun aTaoInvoiceShowsTheAddressAsItsQrCodeAndNoOpenInWallet() {
+        val address = "5FixtureBittensorColdkeyForTheAppTestsOnlyNotAWallet"
+        val tao = CryptoInvoiceSnapshot(
+            phase = Sdk.CryptoInvoicePhaseOpen,
+            intentId = "intent-3",
+            asset = Sdk.CryptoAssetTao,
+            plan = Sdk.PlanYearly,
+            address = address,
+            amount = "0.123457",
+            ticker = "TAO",
+            uri = "",
+            // the sdk's CryptoPaymentQrText for a coin without a payment uri
+            qrText = address,
+            priceUsd = 40.0,
+            secondsLeft = 1799,
+            status = Sdk.CryptoPaymentStatusPending,
+            confirmationsRequired = 1,
+        )
+        val view = CryptoPayment.view(tao, uriPasses = false, hasPaymentLink = false)
+        assertTrue(view.paymentRequest)
+        assertNull(view.payUri)
+        assertEquals(address, view.qrText)
+        assertTrue(view.noPaymentLink)
+        assertTrue(view.amount)
+        assertTrue(view.address)
+        assertFalse(view.memo)
+        assertEquals("29:59", view.countdown)
+        assertTrue(view.wallets)
+
+        // the quote ran out: no amount, and no code of the address either
+        val expired = CryptoPayment.view(tao.copy(status = Sdk.CryptoPaymentStatusExpired, secondsLeft = 0), uriPasses = false, hasPaymentLink = false)
+        assertNull(expired.qrText)
+        assertFalse(expired.amount)
+        // part of it arrived: the address stays for the rest
+        val seen = CryptoPayment.view(tao.copy(status = Sdk.CryptoPaymentStatusSeen, remaining = "0.023457"), uriPasses = false, hasPaymentLink = false)
+        assertNull(seen.qrText)
+        assertTrue(seen.address)
+        assertEquals("0.023457", seen.remaining)
+    }
+
+    @Test
+    fun aSolInvoiceCarriesItsMemoAsUsdcDoes() {
+        val address = "FixtureSolanaRecipientForTheAppTests"
+        val uri = "solana:$address?amount=0.204517"
+        val sol = CryptoInvoiceSnapshot(
+            phase = Sdk.CryptoInvoicePhaseOpen,
+            intentId = "intent-4",
+            asset = Sdk.CryptoAssetSol,
+            plan = Sdk.PlanYearly,
+            address = address,
+            amount = "0.204517",
+            ticker = "SOL",
+            uri = uri,
+            qrText = uri,
+            memo = "FixtureReference",
+            secondsLeft = 1800,
+            status = Sdk.CryptoPaymentStatusPending,
+        )
+        val view = CryptoPayment.view(sol, uriPasses = true)
+        assertTrue(view.memo)
+        assertFalse(view.noPaymentLink)
+        assertEquals(uri, view.payUri)
+        assertEquals(uri, view.qrText)
+        // a memo on a coin that is not on Solana is not shown
+        assertFalse(CryptoPayment.view(pending.copy(memo = "stray"), uriPasses = true).memo)
     }
 
     @Test
@@ -190,7 +276,7 @@ class CryptoInvoiceViewTest {
     }
 
     @Test
-    fun usdcHasAMemoTheNetworkWarningAndTwoSteps() {
+    fun usdcHasAMemoTheAddressForItsNetworkWarningAndTwoSteps() {
         val address = "FixtureSolanaRecipientForTheAppTests"
         val usdc = CryptoInvoiceSnapshot(
             phase = Sdk.CryptoInvoicePhaseOpen,
@@ -201,13 +287,15 @@ class CryptoInvoiceViewTest {
             amount = "29.990417",
             ticker = "USDC",
             uri = "solana:$address?amount=29.990417",
+            qrText = "solana:$address?amount=29.990417",
             memo = "FixtureReference",
             secondsLeft = 3600,
             status = Sdk.CryptoPaymentStatusPending,
         )
         val view = CryptoPayment.view(usdc, uriPasses = true)
         assertTrue(view.memo)
-        assertTrue(view.usdcNetworkWarning)
+        // the network-only warning shows with the address (cryptoNetworkWarning)
+        assertTrue(view.address)
         assertEquals(listOf(CryptoInvoiceStep.WAITING, CryptoInvoiceStep.PAID), view.steps)
         assertEquals("60:00", view.countdown)
         assertFalse(view.zcashExchangeNote)

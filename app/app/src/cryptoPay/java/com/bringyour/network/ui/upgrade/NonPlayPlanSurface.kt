@@ -12,8 +12,10 @@ import com.bringyour.network.ui.shared.viewmodels.SubscriptionBalanceViewModel
  * The plan surface on the flavors without Play Billing (Get Pro and the
  * onboarding plan step): the shared card picker, sold by the flavor's
  * [PlanPurchaser], with the payment method row directly above its button --
- * Card · USDC · Zcash · Monero, the coins the server enables (crypto-pay
- * mmm/ZCASH-CONTRACT.md §6.1). A coin's button opens the crypto invoice
+ * Card, then the sdk's coin tabs (USDC on Solana, Zcash, Monero and More
+ * coins: TAO, Bitcoin, ETH and SOL) for the coins the server enables
+ * (crypto-pay mmm/ZCASH-CONTRACT.md §6.1, mmm/BTCPAY.md §17.6). A coin's
+ * button opens the crypto invoice
  * (CryptoInvoiceHost), above this screen, for the yearly plan or the welcome
  * offer while it is active; the server quotes it. With no coin enabled the
  * row is not there and this is the card picker alone.

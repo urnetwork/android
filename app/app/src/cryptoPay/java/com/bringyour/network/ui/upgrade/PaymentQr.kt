@@ -8,13 +8,14 @@ import com.google.zxing.qrcode.QRCodeWriter
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel
 
 /**
- * The QR code of a crypto invoice's payment uri, for a wallet on another
- * device, or null when it cannot be encoded. Only a uri that passed the sdk's
- * CheckCryptoPaymentUri gets here (CryptoPayment.view). Level M: a wallet's
- * camera reads it from a phone screen, and the payment uris (a 95 character
- * Monero address, a 140 character Zcash unified address, and their query) stay
- * a small code at that level. Called off the main thread: a code this size is
- * hundreds of thousands of pixels.
+ * The QR code of a crypto invoice's QR text, for a wallet on another device,
+ * or null when it cannot be encoded: the payment uri, or for a coin without
+ * one (TAO) the address alone (the sdk's CryptoPaymentQrText). Only a uri that
+ * passed the sdk's CheckCryptoPaymentUri gets here (CryptoPayment.view).
+ * Level M: a wallet's camera reads it from a phone screen, and the payment
+ * uris (a 95 character Monero address, a 140 character Zcash unified address,
+ * and their query) stay a small code at that level. Called off the main
+ * thread: a code this size is hundreds of thousands of pixels.
  */
 fun paymentQrBitmap(uri: String, sizePx: Int): Bitmap? {
     if (uri.isEmpty() || sizePx <= 0) {

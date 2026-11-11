@@ -147,8 +147,8 @@ class GuestAccountTest {
     /**
      * Every purchase the server can refuse this way carries the refusal to the
      * guest state instead of the error line: the inline payment sheet (the dapp
-     * flavors), the pay page (F-Droid) and the crypto invoice (USDC, Zcash and
-     * Monero on the flavors that sell outside a store). The sdk results are
+     * flavors), the pay page (F-Droid) and the crypto invoice (every coin, on
+     * the flavors that sell outside a store). The sdk results are
      * native gomobile classes, so the sources are read as text.
      */
     @Test
