@@ -1052,6 +1052,10 @@
     <string name="private_extender_secret">Secret</string>
     <string name="private_network">Private Network</string>
     <string name="pro_benefits_simple">The best version of URnetwork.</string>
+    <string name="pro_features_in_use">Pro features in use</string>
+    <string name="pro_features_stopped">SOCKS and WireGuard stopped working</string>
+    <string name="pro_features_stopped_message">SOCKS and WireGuard are part of Pro, so they no longer work on your proxies. HTTP and HTTPS still work. Upgrade to turn them back on. WireGuard can take up to 30 minutes to reconnect.</string>
+    <string name="pro_features_upgrade_message">SOCKS and WireGuard proxies are part of Pro. Upgrade to keep using them.</string>
     <string name="processing_payment">Processing payment</string>
     <string name="processing_subscription_balance">Processing subscription balance...</string>
     <string name="profile">Profile</string>

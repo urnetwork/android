@@ -1037,6 +1037,10 @@
     <string name="private_extender_secret">シークレット</string>
     <string name="private_network">プライベートネットワーク</string>
     <string name="pro_benefits_simple">URnetworkの最高のバージョン。</string>
+    <string name="pro_features_in_use">Pro の機能を使用中</string>
+    <string name="pro_features_stopped">SOCKS と WireGuard が使えなくなりました</string>
+    <string name="pro_features_stopped_message">SOCKS と WireGuard は Pro の機能のため、お使いのプロキシでは使えなくなりました。HTTP と HTTPS は引き続き使えます。再び使うにはアップグレードしてください。WireGuard の再接続には最大 30 分かかることがあります。</string>
+    <string name="pro_features_upgrade_message">SOCKS と WireGuard のプロキシは Pro の機能です。引き続き使うにはアップグレードしてください。</string>
     <string name="processing_payment">支払いを処理中</string>
     <string name="processing_subscription_balance">サブスクリプション残高を処理中...</string>
     <string name="profile">プロフィール</string>

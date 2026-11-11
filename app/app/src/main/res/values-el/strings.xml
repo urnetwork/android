@@ -1037,6 +1037,10 @@
     <string name="private_extender_secret">Μυστικό</string>
     <string name="private_network">Ιδιωτικό δίκτυο</string>
     <string name="pro_benefits_simple">Η καλύτερη έκδοση του URnetwork.</string>
+    <string name="pro_features_in_use">Χρησιμοποιούνται λειτουργίες Pro</string>
+    <string name="pro_features_stopped">Τα SOCKS και WireGuard σταμάτησαν να λειτουργούν</string>
+    <string name="pro_features_stopped_message">Τα SOCKS και WireGuard είναι μέρος του Pro, οπότε δεν λειτουργούν πια στους διακομιστές μεσολάβησής σας. Τα HTTP και HTTPS εξακολουθούν να λειτουργούν. Αναβαθμίστε για να τα ενεργοποιήσετε ξανά. Η επανασύνδεση του WireGuard μπορεί να διαρκέσει έως 30 λεπτά.</string>
+    <string name="pro_features_upgrade_message">Οι διακομιστές μεσολάβησης SOCKS και WireGuard είναι μέρος του Pro. Αναβαθμίστε για να συνεχίσετε να τους χρησιμοποιείτε.</string>
     <string name="processing_payment">Επεξεργασία πληρωμής</string>
     <string name="processing_subscription_balance">Επεξεργασία υπολοίπου συνδρομής...</string>
     <string name="profile">Προφίλ</string>

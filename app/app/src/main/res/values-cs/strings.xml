@@ -1037,6 +1037,10 @@
     <string name="private_extender_secret">Tajný klíč</string>
     <string name="private_network">Soukromá síť</string>
     <string name="pro_benefits_simple">Nejlepší verze URnetwork.</string>
+    <string name="pro_features_in_use">Používáte funkce Pro</string>
+    <string name="pro_features_stopped">SOCKS a WireGuard přestaly fungovat</string>
+    <string name="pro_features_stopped_message">SOCKS a WireGuard jsou součástí Pro, takže na vašich proxy už nefungují. HTTP a HTTPS fungují dál. Přejděte na Pro a znovu je zapněte. Opětovné připojení WireGuard může trvat až 30 minut.</string>
+    <string name="pro_features_upgrade_message">Proxy SOCKS a WireGuard jsou součástí Pro. Přejděte na Pro, abyste je mohli dál používat.</string>
     <string name="processing_payment">Zpracovává se platba</string>
     <string name="processing_subscription_balance">Zpracování zůstatku předplatného...</string>
     <string name="profile">Profil</string>

@@ -1037,6 +1037,10 @@
     <string name="private_extender_secret">비밀 키</string>
     <string name="private_network">프라이빗 네트워크</string>
     <string name="pro_benefits_simple">URnetwork의 최고의 버전.</string>
+    <string name="pro_features_in_use">Pro 기능 사용 중</string>
+    <string name="pro_features_stopped">SOCKS와 WireGuard가 더 이상 작동하지 않습니다</string>
+    <string name="pro_features_stopped_message">SOCKS와 WireGuard는 Pro에 포함된 기능이므로 이제 프록시에서 작동하지 않습니다. HTTP와 HTTPS는 계속 작동합니다. 다시 사용하려면 업그레이드하세요. WireGuard가 다시 연결되기까지 최대 30분이 걸릴 수 있습니다.</string>
+    <string name="pro_features_upgrade_message">SOCKS 및 WireGuard 프록시는 Pro에 포함된 기능입니다. 계속 사용하려면 업그레이드하세요.</string>
     <string name="processing_payment">결제 처리 중</string>
     <string name="processing_subscription_balance">구독 잔액 처리 중...</string>
     <string name="profile">프로필</string>

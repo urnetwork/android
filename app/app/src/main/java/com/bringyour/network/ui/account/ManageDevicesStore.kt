@@ -64,6 +64,9 @@ data class ManageDevicesUi(
     val errorId: String = "",
     // the removals that freed a slot and added this device again
     val addRetryCount: Long = 0,
+    // the network's Pro features in use, from the same proxies: a
+    // Sdk.ProFeaturesPrompt constant, empty for none
+    val proFeaturesPrompt: String = "",
 ) {
     val signInRequired: Boolean get() = errorId == Sdk.ManageDevicesErrorSignInRequired
     val loadFailed: Boolean get() = errorId == Sdk.ManageDevicesErrorLoadFailed
@@ -78,15 +81,20 @@ data class ManageDevicesUi(
  *
  * The sdk's ManageDevicesViewController decides everything: what the list
  * holds and its order, the network credential every request carries (never a
- * client token), and adding this device again after a removal (it ends the
- * device's client limit hold, or calls the sign-in's retry). This store only
- * mirrors the controller's snapshots into compose state on the main thread,
- * forwards the screen's intents, and holds the confirmation a removal waits
- * for. Main thread; the controller's listener posts to it.
+ * client token), adding this device again after a removal (it ends the
+ * device's client limit hold, or calls the sign-in's retry), and the network's
+ * Pro features in use that the list shows, from the proxies it reads. This
+ * store only mirrors the controller's snapshots into compose state on the main
+ * thread, forwards the screen's intents, holds the confirmation a removal
+ * waits for, and says when the network's proxies may have changed. Main
+ * thread; the controller's listener posts to it.
  */
 class ManageDevicesStore private constructor(
     private val open: () -> ManageDevicesViewController?,
     private val release: (ManageDevicesViewController) -> Unit,
+    // the network's proxies may have changed: the list removed a hosted
+    // proxy, or closed. Main thread.
+    private val proxiesMayHaveChanged: () -> Unit,
 ) {
     var ui by mutableStateOf(ManageDevicesUi())
         private set
@@ -151,7 +159,10 @@ class ManageDevicesStore private constructor(
         confirmation = null
     }
 
-    /** Drops the listener, then closes the controller. Final. */
+    /**
+     * Drops the listener, then closes the controller. Final. Whatever the
+     * list changed, the network's proxies are read again beside it.
+     */
     fun close() {
         if (closed) return
         closed = true
@@ -161,6 +172,7 @@ class ManageDevicesStore private constructor(
         controller = null
         confirmation = null
         mainHandler.removeCallbacks(clearConnecting)
+        proxiesMayHaveChanged()
     }
 
     /**
@@ -176,8 +188,18 @@ class ManageDevicesStore private constructor(
             mainHandler.removeCallbacks(clearConnecting)
             mainHandler.postDelayed(clearConnecting, CONNECTING_MILLIS)
         }
+        // a hosted proxy this list removed: the network's Pro features in use
+        // may have gone with it. A failed removal leaves it listed.
+        val removedProxy = ui.removingClientId?.let { removing ->
+            next.removingClientId == null &&
+                ui.devices.any { it.clientId == removing && it.proxy } &&
+                next.devices.none { it.clientId == removing }
+        } == true
         if (next != ui) {
             ui = next
+        }
+        if (removedProxy) {
+            proxiesMayHaveChanged()
         }
     }
 
@@ -185,16 +207,20 @@ class ManageDevicesStore private constructor(
         /**
          * Opened from the signed-in device, which owns the controller: after a
          * removal it ends this device's client limit hold.
+         * [proxiesMayHaveChanged] runs after a hosted proxy's removal and when
+         * the list closes, on the main thread.
          */
-        fun forDevice(device: DeviceLocal): ManageDevicesStore = ManageDevicesStore(
+        fun forDevice(device: DeviceLocal, proxiesMayHaveChanged: () -> Unit): ManageDevicesStore = ManageDevicesStore(
             open = { device.openManageDevicesViewController() },
             release = { device.closeManageDevicesViewController(it) },
+            proxiesMayHaveChanged = proxiesMayHaveChanged,
         )
 
         /**
          * Opened for a sign-in the client limit refused: there is no device
          * yet, so every request carries the sign-in's network token, and after
-         * a removal [retry] runs the sign-in again, on the main thread.
+         * a removal [retry] runs the sign-in again, on the main thread. Nothing
+         * else reads the network's proxies before the sign-in completes.
          */
         fun forSignIn(api: Api, networkJwt: String, retry: () -> Unit): ManageDevicesStore {
             val mainHandler = Handler(Looper.getMainLooper())
@@ -207,6 +233,7 @@ class ManageDevicesStore private constructor(
                     )
                 },
                 release = { it.close() },
+                proxiesMayHaveChanged = {},
             )
         }
     }
@@ -241,5 +268,6 @@ private fun manageDevicesUiFromSdk(snapshot: ManageDevicesSnapshot?): ManageDevi
         removingClientId = snapshot.removingClientId?.toString(),
         errorId = snapshot.errorId.orEmpty(),
         addRetryCount = snapshot.addRetryCount,
+        proFeaturesPrompt = snapshot.proFeatures?.prompt.orEmpty(),
     )
 }

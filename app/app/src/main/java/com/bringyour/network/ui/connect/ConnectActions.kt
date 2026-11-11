@@ -247,6 +247,9 @@ internal fun ConnectActions(
                 // the network's client limit holds the device off: what to
                 // do, above the fold with the other alerts
                 ClientLimitNotice(navController = navController)
+                // the network's proxies use Pro features it does not have,
+                // under the client limit's when both show
+                ProFeaturesNotice(navController = navController)
 
                 // the fold marker: a zero-height anchor at the bottom of the
                 // location + connect block. positionInParent is relative to the

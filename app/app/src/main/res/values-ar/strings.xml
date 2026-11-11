@@ -1037,6 +1037,10 @@
     <string name="private_extender_secret">السر</string>
     <string name="private_network">شبكة خاصة</string>
     <string name="pro_benefits_simple">أفضل نسخة من URnetwork.</string>
+    <string name="pro_features_in_use">ميزات Pro قيد الاستخدام</string>
+    <string name="pro_features_stopped">توقف SOCKS وWireGuard عن العمل</string>
+    <string name="pro_features_stopped_message">SOCKS وWireGuard جزء من Pro، لذا لم يعودا يعملان على وكلائك. لا يزال HTTP وHTTPS يعملان. قم بالترقية لتشغيلهما من جديد. قد يستغرق WireGuard ما يصل إلى 30 دقيقة لإعادة الاتصال.</string>
+    <string name="pro_features_upgrade_message">وكلاء SOCKS وWireGuard جزء من Pro. قم بالترقية لمواصلة استخدامها.</string>
     <string name="processing_payment">جارٍ معالجة الدفع</string>
     <string name="processing_subscription_balance">جارٍ معالجة رصيد الاشتراك...</string>
     <string name="profile">الملف الشخصي</string>
