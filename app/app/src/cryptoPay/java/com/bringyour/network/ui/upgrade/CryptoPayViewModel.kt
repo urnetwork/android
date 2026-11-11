@@ -475,6 +475,7 @@ internal fun snapshotOf(state: CryptoInvoiceState): CryptoInvoiceSnapshot = Cryp
     showsMemo = Sdk.cryptoPaymentShowsMemo(state.asset ?: "", state.memo ?: ""),
     priceUsd = state.priceUsd,
     secondsLeft = state.secondsLeft,
+    awaitingConfirmation = state.awaitingConfirmation,
     status = state.status ?: "",
     reviewReason = state.reviewReason ?: "",
     remaining = state.remaining ?: "",

@@ -314,6 +314,8 @@
     <string name="crypto_does_not_renew">Ne se renouvelle pas. Payez à nouveau à la fin.</string>
     <string name="crypto_fine_print_data">Un paiement unique. Les données restent valables un an.</string>
     <string name="crypto_fine_print_yearly">Un paiement unique pour un an de Pro. Il ne se renouvelle pas et il n’y a pas d’essai gratuit.</string>
+    <string name="crypto_invoice_bitcoin_awaiting_confirmation">Cette cotation a expiré. Un paiement envoyé avant son expiration est crédité à ce prix dès qu\'il est confirmé, ce qui peut prendre jusqu\'à 3 heures. Si vous n\'en avez pas envoyé, payez autrement.</string>
+    <string name="crypto_invoice_bitcoin_confirmation_time">Les paiements en Bitcoin peuvent prendre jusqu\'à 3 heures pour être confirmés. Un paiement envoyé avant l\'expiration de la cotation est crédité à ce prix.</string>
     <string name="crypto_invoice_bitcoin_network_only">Envoyez uniquement du Bitcoin sur le réseau Bitcoin à cette adresse. Le Bitcoin envoyé sur un autre réseau ne sera pas crédité.</string>
     <string name="crypto_invoice_copied">Copié</string>
     <string name="crypto_invoice_copy">Copier</string>

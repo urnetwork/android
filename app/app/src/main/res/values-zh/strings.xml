@@ -314,6 +314,8 @@
     <string name="crypto_does_not_renew">不会自动续订。到期后请再次支付。</string>
     <string name="crypto_fine_print_data">一次性支付。数据一年内有效。</string>
     <string name="crypto_fine_print_yearly">一次性支付一年 Pro 费用。不会自动续订，也不含免费试用。</string>
+    <string name="crypto_invoice_bitcoin_awaiting_confirmation">此报价已过期。在过期前发送的付款将在确认后按此价格入账，确认最多可能需要 3 小时。如果你尚未付款，请使用其他方式支付。</string>
+    <string name="crypto_invoice_bitcoin_confirmation_time">Bitcoin 付款最多可能需要 3 小时才能确认。在报价过期前发送的付款将按此价格入账。</string>
     <string name="crypto_invoice_bitcoin_network_only">请仅向此地址发送 Bitcoin 网络上的 Bitcoin。通过其他网络发送的 Bitcoin 将不会入账。</string>
     <string name="crypto_invoice_copied">已复制</string>
     <string name="crypto_invoice_copy">复制</string>

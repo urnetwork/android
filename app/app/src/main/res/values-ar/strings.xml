@@ -314,6 +314,8 @@
     <string name="crypto_does_not_renew">لا يتجدد. ادفع مجددًا عند انتهائه.</string>
     <string name="crypto_fine_print_data">دفعة لمرة واحدة. تبقى البيانات صالحة لمدة عام.</string>
     <string name="crypto_fine_print_yearly">دفعة لمرة واحدة مقابل عام من Pro. لا تتجدد تلقائيًا، ولا تتضمن تجربة مجانية.</string>
+    <string name="crypto_invoice_bitcoin_awaiting_confirmation">انتهت صلاحية عرض السعر هذا. يُحتسب الدفع الذي أرسلته قبل انتهائه بهذا السعر بعد تأكيده، وقد يستغرق ذلك ما يصل إلى 3 ساعات. إذا لم ترسل دفعة، فادفع بطريقة أخرى.</string>
+    <string name="crypto_invoice_bitcoin_confirmation_time">قد يستغرق تأكيد مدفوعات Bitcoin ما يصل إلى 3 ساعات. يُحتسب الدفع المُرسَل قبل انتهاء صلاحية عرض السعر بهذا السعر.</string>
     <string name="crypto_invoice_bitcoin_network_only">أرسل Bitcoin على شبكة Bitcoin فقط إلى هذا العنوان. لن تُحتسب عملات Bitcoin المُرسَلة عبر أي شبكة أخرى.</string>
     <string name="crypto_invoice_copied">تم النسخ</string>
     <string name="crypto_invoice_copy">نسخ</string>

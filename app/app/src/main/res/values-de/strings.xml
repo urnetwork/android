@@ -314,6 +314,8 @@
     <string name="crypto_does_not_renew">Verlängert sich nicht. Bezahle nach Ablauf erneut.</string>
     <string name="crypto_fine_print_data">Eine einmalige Zahlung. Die Daten bleiben ein Jahr lang gültig.</string>
     <string name="crypto_fine_print_yearly">Eine einmalige Zahlung für ein Jahr Pro. Sie verlängert sich nicht, und es gibt keine kostenlose Testphase.</string>
+    <string name="crypto_invoice_bitcoin_awaiting_confirmation">Dieser Kurs ist abgelaufen. Eine Zahlung, die du vor seinem Ablauf gesendet hast, wird nach der Bestätigung zu diesem Preis gutgeschrieben. Das kann bis zu 3 Stunden dauern. Wenn du keine gesendet hast, bezahle anders.</string>
+    <string name="crypto_invoice_bitcoin_confirmation_time">Bitcoin-Zahlungen können bis zu 3 Stunden für die Bestätigung brauchen. Eine Zahlung, die vor Ablauf des Kurses gesendet wurde, wird zu diesem Preis gutgeschrieben.</string>
     <string name="crypto_invoice_bitcoin_network_only">Sende an diese Adresse nur Bitcoin über das Bitcoin-Netzwerk. Bitcoin, die über ein anderes Netzwerk gesendet werden, werden nicht gutgeschrieben.</string>
     <string name="crypto_invoice_copied">Kopiert</string>
     <string name="crypto_invoice_copy">Kopieren</string>

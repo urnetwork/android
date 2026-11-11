@@ -314,6 +314,8 @@
     <string name="crypto_does_not_renew">Nie odnawia się. Po zakończeniu zapłać ponownie.</string>
     <string name="crypto_fine_print_data">Jednorazowa płatność. Dane są ważne przez rok.</string>
     <string name="crypto_fine_print_yearly">Jednorazowa płatność za rok Pro. Nie odnawia się i nie obejmuje bezpłatnego okresu próbnego.</string>
+    <string name="crypto_invoice_bitcoin_awaiting_confirmation">Ten kurs wygasł. Płatność wysłana przed jego wygaśnięciem zostanie zaksięgowana po tej cenie po potwierdzeniu, co może potrwać do 3 godzin. Jeśli nie wysłano płatności, zapłać w inny sposób.</string>
+    <string name="crypto_invoice_bitcoin_confirmation_time">Potwierdzenie płatności w Bitcoin może potrwać do 3 godzin. Płatność wysłana przed wygaśnięciem kursu zostanie zaksięgowana po tej cenie.</string>
     <string name="crypto_invoice_bitcoin_network_only">Na ten adres wysyłaj wyłącznie Bitcoin w sieci Bitcoin. Bitcoin wysłany w innej sieci nie zostanie zaksięgowany.</string>
     <string name="crypto_invoice_copied">Skopiowano</string>
     <string name="crypto_invoice_copy">Kopiuj</string>
