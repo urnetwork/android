@@ -31,6 +31,8 @@ class PaymentMethodFlavorsTest {
     // what only the crypto source set may name: its copy, its sdk calls and its own types
     private val cryptoOnly = listOf(
         Regex("""\bR\.string\.(crypto_|pay_method_)\w*"""),
+        // the coins' marks (the More coins tab)
+        Regex("""\bR\.drawable\.coin_\w*"""),
         Regex("""\bCryptoInvoice\w*"""),
         Regex("""\bCryptoPay\w*"""),
         Regex("""\bCryptoStartRefusal\b"""),
@@ -41,7 +43,8 @@ class PaymentMethodFlavorsTest {
         Regex("""\.cryptoAssets\b"""),
         Regex("""\.cryptoTerm\b"""),
         Regex("""\bSdk\.(paymentMethods|cryptoAssetSells|paymentMethodAllowsPlan|cryptoAssetTicker|cryptoWalletSuggestions|checkCryptoPaymentUri|cryptoTermNoticeDue)\b"""),
-        Regex("""\bSdk\.(CryptoAsset\w*|CryptoPayment\w*|CryptoInvoice\w*|PaymentMethodCard|EventStoreZcash|EventStoreMonero|SubscriptionStoreCrypto)\b"""),
+        Regex("""\bSdk\.(cryptoPaymentTabs|cryptoPaymentTabId|cryptoPaymentQrText|cryptoPaymentUriScheme|cryptoAssetMarket|cryptoAssetLabel|cryptoAssetLabelKey|cryptoAssetIconKey)\b"""),
+        Regex("""\bSdk\.(CryptoAsset\w*|CryptoPayment\w*|CryptoInvoice\w*|CryptoIconKey\w*|PaymentMethodCard|EventStoreZcash|EventStoreMonero|EventStoreBittensor|EventStoreBitcoin|EventStoreEthereum|SubscriptionStoreCrypto)\b"""),
     )
 
     private fun src(path: String) = File("src/$path")
