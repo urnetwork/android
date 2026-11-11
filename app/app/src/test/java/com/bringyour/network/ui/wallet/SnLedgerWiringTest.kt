@@ -33,9 +33,15 @@ class SnLedgerWiringTest {
         assertTrue(accounts.contains("ensureChainSettings()"))
         assertTrue(accounts.contains("device.snLedgerAccounts {"))
         assertTrue(accounts.contains("result.error != null -> continuation.resume(Result.failure(result.error.toException()!!))"))
-        for (field in listOf("noId", "index", "finalizedRao", "claimableRao", "paidRao", "pending", "pendingRao")) {
+        // and the kind each pool is named by (capture the flag's, sdk SnLedgerPoolKind*)
+        for (field in listOf("noId", "index", "finalizedRao", "claimableRao", "paidRao", "pending", "pendingRao", "kind")) {
             assertTrue(field, accounts.contains("$field = a.$field,"))
         }
+        // a partial answer's pools that could not be read, beside the accounts, never dropped
+        assertTrue(accounts.contains("unavailablePools = snLedgerUnavailablePoolsOf(result.unavailablePools),"))
+        val pools = between(sdk, "private fun snLedgerUnavailablePoolsOf(", "override val available")
+        assertTrue(pools.contains("noId = p.noId,"))
+        assertTrue(pools.contains("kind = p.kind,"))
         // UX-5: Vault2Address configured
         assertTrue(sdk.contains("override fun ledgerClaimConfigured(): Boolean = !device.snChainSettings?.vault2Address.isNullOrBlank()"))
         // UX-4: SnLedgerClaim, each callback as its event
@@ -69,6 +75,49 @@ class SnLedgerWiringTest {
         assertTrue(dialog.contains("explorerTxUrl = earningsViewModel::explorerTxUrl,"))
         // the v1 dialog still claims through SnClaim
         assertTrue(between(screen, "    ClaimDialog(", "SnLedgerClaimDialog(").contains("onClaim = { earningsViewModel.claimAll() },"))
+    }
+
+    @Test
+    fun `the relay's pools, its floor and the device's capture the flag win are read from the sdk`() {
+        val sdk = source("SdkProtocolSource.kt")
+        // each relay account's kind names its row; the pools it could not read and its
+        // transfer floor in α (Below the claim minimum)
+        val status = between(sdk, "private fun snClaimStatusOf(", "private fun snLedgerUnavailablePoolsOf(")
+        assertTrue(status.contains("transferFloorRao = result.transferFloorRao,"))
+        assertTrue(status.contains("unavailablePools = snLedgerUnavailablePoolsOf(result.unavailablePools),"))
+        assertTrue(status.contains("kind = a.kind,"))
+        // GET /sn/ctf/client's latest win, copied off the gomobile objects; an error draws no line
+        val win = between(sdk, "override suspend fun ctfWin()", "override suspend fun accountEpochs()")
+        assertTrue(win.contains("device.snCtfClient {"))
+        assertTrue(win.contains("result?.takeIf { it.error == null }?.latestWin?.let { SnCtfWinState(it.role, it.country) }"))
+        assertTrue(win.contains("runCatching {"))
+        // read with the rest of Earnings, dropped with the device
+        val model = source("EarningsViewModel.kt")
+        assertTrue(between(model, "private suspend fun refreshAll(", "val retryWallet").contains("launch { refreshCtfWin() }"))
+        assertTrue(between(model, "private fun setupDevice(", "private fun createProtocolSource(").contains("_ctfWin.value = null"))
+        // the tile shows it, and the claim dialog names its rows from the same read as the tile
+        val screen = source("EarningsScreen.kt")
+        assertTrue(screen.contains("val ctfWin by earningsViewModel.ctfWin.collectAsState()"))
+        assertTrue(between(screen, "SnLedgerTileBlock(", "\n                    )").contains("ctfWin = ctfWin,"))
+        assertTrue(between(screen, "SnLedgerClaimDialog(", "BittensorProofSheets(").contains("pools = snLedgerPools(ledgerLoad),"))
+    }
+
+    @Test
+    fun `the tile and the dialogs name each pool by its kind`() {
+        // the store's sn_ctf_pool and sn_ledger_provider_pool, Pool {no_id} otherwise
+        val tile = source("SnLedgerTile.kt")
+        val names = between(tile, "fun snLedgerPoolNameText(", "private fun LedgerAmountRow(")
+        assertTrue(names.contains("is SnLedgerPoolName.Pool -> stringResource(id = R.string.sn_ledger_pool, name.noId)"))
+        assertTrue(names.contains("SnLedgerPoolName.ProviderPool -> stringResource(id = R.string.sn_ledger_provider_pool)"))
+        assertTrue(names.contains("SnLedgerPoolName.CaptureTheFlag -> stringResource(id = R.string.sn_ctf_pool)"))
+        // no row names a pool by its number alone any more
+        assertEquals(1, Regex("R\\.string\\.sn_ledger_pool,").findAll(tile).count())
+        val relay = source("ClaimRelayDialog.kt")
+        assertEquals(0, Regex("R\\.string\\.sn_ledger_pool,").findAll(relay).count())
+        assertEquals(2, Regex("snLedgerPoolNameText\\(snLedgerPoolName\\(").findAll(relay).count())
+        // Claim both on the tile and in the dialog
+        assertTrue(tile.contains("stringResource(id = if (tile.claimBoth) R.string.sn_ledger_claim_both else R.string.claim)"))
+        assertTrue(tile.contains("primary = if (snLedgerClaimsBoth(state.accounts.map { it.pool })) {"))
     }
 
     @Test

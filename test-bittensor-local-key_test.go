@@ -556,7 +556,12 @@ func TestBittensorKeyClaimsThroughTheRelay(t *testing.T) {
 	bittensorKeyContainsAll(t, "the claim dialog", bittensorKeyBlock(t, relay, "fun ClaimRelayDialog("),
 		"val claimed = status != null && !status.unavailable && status.showsClaimed",
 		"val rows = snClaimRelayRows(status)",
-		"SnClaimRelayRows(rows = rows, formatAlpha = formatAlpha, shortSs58 = shortSs58)",
+		// each pool's row, named by its kind, Below the claim minimum under the floor, and
+		// the pools the relay could not read (capture the flag, sn CAPTURETHEFLAG.md §10)
+		"SnClaimRelayRows(\n                        rows = rows,\n                        formatAlpha = formatAlpha,\n                        shortSs58 = shortSs58,",
+		"transferFloorRao = status.transferFloorRao,",
+		"unavailablePools = status.unavailablePools,",
+		"pools = snClaimRelayPools(status),",
 		`txUrl = if (rows.any { it.showsClaimed && it.claimTxUrl.isNotEmpty() }) "" else status.claimTxUrl,`,
 		"R.string.done",
 		"SnClaimRelayAgainOn(status = status, centered = true)",
