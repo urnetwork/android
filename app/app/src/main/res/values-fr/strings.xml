@@ -1680,6 +1680,14 @@
         <item quantity="one">%1$d fois au cours de la dernière heure</item>
         <item quantity="other">%1$d fois au cours de la dernière heure</item>
     </plurals>
+    <plurals name="provider_status_reason_line_ipv4">
+        <item quantity="one">%1$d de ces vérifications a échoué uniquement via IPv6, donc cet appareil n\'est proposé que pour le trafic IPv4.</item>
+        <item quantity="other">%1$d de ces vérifications ont échoué uniquement via IPv6, donc cet appareil n\'est proposé que pour le trafic IPv4.</item>
+    </plurals>
+    <plurals name="provider_status_reason_line_tcp">
+        <item quantity="one">%1$d de ces vérifications a échoué uniquement via HTTP/3 (UDP), donc cet appareil n\'est proposé que pour le trafic TCP. Certaines versions de l\'application et certains réseaux n\'acheminent pas l\'UDP.</item>
+        <item quantity="other">%1$d de ces vérifications ont échoué uniquement via HTTP/3 (UDP), donc cet appareil n\'est proposé que pour le trafic TCP. Certaines versions de l\'application et certains réseaux n\'acheminent pas l\'UDP.</item>
+    </plurals>
     <plurals name="referral_celebration_detail">
         <item quantity="one">Un ami vient de rejoindre URnetwork avec votre code. Vous gagnez tous les deux +%2$d GiB de données gratuites par jour — à vie.</item>
         <item quantity="other">%1$d amis viennent de rejoindre URnetwork avec votre code. Chacun vous rapporte +%2$d GiB de données gratuites par jour — à vie.</item>

@@ -1707,6 +1707,14 @@
         <item quantity="one">%1$d time in the last hour</item>
         <item quantity="other">%1$d times in the last hour</item>
     </plurals>
+    <plurals name="provider_status_reason_line_ipv4">
+        <item quantity="one">%1$d of these checks failed only over IPv6, so this device is offered for IPv4 traffic only.</item>
+        <item quantity="other">%1$d of these checks failed only over IPv6, so this device is offered for IPv4 traffic only.</item>
+    </plurals>
+    <plurals name="provider_status_reason_line_tcp">
+        <item quantity="one">%1$d of these checks failed only over HTTP/3 (UDP), so this device is offered for TCP traffic only. Some app builds and some networks do not route UDP.</item>
+        <item quantity="other">%1$d of these checks failed only over HTTP/3 (UDP), so this device is offered for TCP traffic only. Some app builds and some networks do not route UDP.</item>
+    </plurals>
     <plurals name="referral_celebration_detail">
         <item quantity="one">A friend just joined URnetwork with your code. You\'re both earning +%2$d GiB a day of free data — for life.</item>
         <item quantity="other">%1$d friends just joined URnetwork with your code. Each one earns you +%2$d GiB a day of free data — for life.</item>

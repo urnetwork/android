@@ -1658,6 +1658,12 @@
     <plurals name="provider_status_histogram_total">
         <item quantity="other">%1$d ครั้งในชั่วโมงที่ผ่านมา</item>
     </plurals>
+    <plurals name="provider_status_reason_line_ipv4">
+        <item quantity="other">การตรวจสอบเหล่านี้ %1$d รายการล้มเหลวเฉพาะผ่าน IPv6 อุปกรณ์นี้จึงถูกเสนอสำหรับการรับส่งข้อมูล IPv4 เท่านั้น</item>
+    </plurals>
+    <plurals name="provider_status_reason_line_tcp">
+        <item quantity="other">การตรวจสอบเหล่านี้ %1$d รายการล้มเหลวเฉพาะผ่าน HTTP/3 (UDP) อุปกรณ์นี้จึงถูกเสนอสำหรับการรับส่งข้อมูล TCP เท่านั้น แอปบางเวอร์ชันและเครือข่ายบางแห่งไม่กำหนดเส้นทาง UDP</item>
+    </plurals>
     <plurals name="referral_celebration_detail">
         <item quantity="other">เพื่อน %1$d คนเพิ่งเข้าร่วม URnetwork ด้วยโค้ดของคุณ แต่ละคนทำให้คุณได้รับข้อมูลฟรี +%2$d GiB ต่อวัน — ตลอดชีวิต</item>
     </plurals>

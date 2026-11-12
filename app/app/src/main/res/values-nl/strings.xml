@@ -1680,6 +1680,14 @@
         <item quantity="one">%1$d keer in het afgelopen uur</item>
         <item quantity="other">%1$d keer in het afgelopen uur</item>
     </plurals>
+    <plurals name="provider_status_reason_line_ipv4">
+        <item quantity="one">%1$d van deze controles mislukte alleen via IPv6, dus dit apparaat wordt alleen aangeboden voor IPv4-verkeer.</item>
+        <item quantity="other">%1$d van deze controles mislukten alleen via IPv6, dus dit apparaat wordt alleen aangeboden voor IPv4-verkeer.</item>
+    </plurals>
+    <plurals name="provider_status_reason_line_tcp">
+        <item quantity="one">%1$d van deze controles mislukte alleen via HTTP/3 (UDP), dus dit apparaat wordt alleen aangeboden voor TCP-verkeer. Sommige app-versies en sommige netwerken routeren geen UDP.</item>
+        <item quantity="other">%1$d van deze controles mislukten alleen via HTTP/3 (UDP), dus dit apparaat wordt alleen aangeboden voor TCP-verkeer. Sommige app-versies en sommige netwerken routeren geen UDP.</item>
+    </plurals>
     <plurals name="referral_celebration_detail">
         <item quantity="one">Er is zojuist een vriend via jouw code lid geworden van URnetwork. Jullie verdienen allebei +%2$d GiB gratis data per dag — levenslang.</item>
         <item quantity="other">Er zijn zojuist %1$d vrienden via jouw code lid geworden van URnetwork. Elk levert je +%2$d GiB gratis data per dag op — levenslang.</item>

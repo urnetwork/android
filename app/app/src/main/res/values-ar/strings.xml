@@ -1768,6 +1768,22 @@
         <item quantity="many">%1$d مرة خلال الساعة الأخيرة</item>
         <item quantity="other">%1$d مرة خلال الساعة الأخيرة</item>
     </plurals>
+    <plurals name="provider_status_reason_line_ipv4">
+        <item quantity="zero">فشل %1$d من هذه الفحوصات عبر IPv6 فقط، لذا يُعرض هذا الجهاز لحركة مرور IPv4 فقط.</item>
+        <item quantity="one">فشل فحص واحد من هذه الفحوصات عبر IPv6 فقط، لذا يُعرض هذا الجهاز لحركة مرور IPv4 فقط.</item>
+        <item quantity="two">فشل فحصان من هذه الفحوصات عبر IPv6 فقط، لذا يُعرض هذا الجهاز لحركة مرور IPv4 فقط.</item>
+        <item quantity="few">فشلت %1$d من هذه الفحوصات عبر IPv6 فقط، لذا يُعرض هذا الجهاز لحركة مرور IPv4 فقط.</item>
+        <item quantity="many">فشل %1$d من هذه الفحوصات عبر IPv6 فقط، لذا يُعرض هذا الجهاز لحركة مرور IPv4 فقط.</item>
+        <item quantity="other">فشل %1$d من هذه الفحوصات عبر IPv6 فقط، لذا يُعرض هذا الجهاز لحركة مرور IPv4 فقط.</item>
+    </plurals>
+    <plurals name="provider_status_reason_line_tcp">
+        <item quantity="zero">فشل %1$d من هذه الفحوصات عبر HTTP/3 (UDP) فقط، لذا يُعرض هذا الجهاز لحركة مرور TCP فقط. بعض إصدارات التطبيق وبعض الشبكات لا توجّه UDP.</item>
+        <item quantity="one">فشل فحص واحد من هذه الفحوصات عبر HTTP/3 (UDP) فقط، لذا يُعرض هذا الجهاز لحركة مرور TCP فقط. بعض إصدارات التطبيق وبعض الشبكات لا توجّه UDP.</item>
+        <item quantity="two">فشل فحصان من هذه الفحوصات عبر HTTP/3 (UDP) فقط، لذا يُعرض هذا الجهاز لحركة مرور TCP فقط. بعض إصدارات التطبيق وبعض الشبكات لا توجّه UDP.</item>
+        <item quantity="few">فشلت %1$d من هذه الفحوصات عبر HTTP/3 (UDP) فقط، لذا يُعرض هذا الجهاز لحركة مرور TCP فقط. بعض إصدارات التطبيق وبعض الشبكات لا توجّه UDP.</item>
+        <item quantity="many">فشل %1$d من هذه الفحوصات عبر HTTP/3 (UDP) فقط، لذا يُعرض هذا الجهاز لحركة مرور TCP فقط. بعض إصدارات التطبيق وبعض الشبكات لا توجّه UDP.</item>
+        <item quantity="other">فشل %1$d من هذه الفحوصات عبر HTTP/3 (UDP) فقط، لذا يُعرض هذا الجهاز لحركة مرور TCP فقط. بعض إصدارات التطبيق وبعض الشبكات لا توجّه UDP.</item>
+    </plurals>
     <plurals name="referral_celebration_detail">
         <item quantity="zero">انضم %1$d من الأصدقاء للتو إلى URnetwork برمزك. كل واحد يمنحك +%2$d GiB يوميًا من البيانات المجانية — مدى الحياة.</item>
         <item quantity="one">انضم صديق للتو إلى URnetwork برمزك. كلاكما يكسب +%2$d GiB يوميًا من البيانات المجانية — مدى الحياة.</item>

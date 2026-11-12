@@ -1724,6 +1724,18 @@
         <item quantity="many">%1$d razy w ciągu ostatniej godziny</item>
         <item quantity="other">%1$d razy w ciągu ostatniej godziny</item>
     </plurals>
+    <plurals name="provider_status_reason_line_ipv4">
+        <item quantity="one">%1$d z tych kontroli nie powiodła się tylko przez IPv6, więc to urządzenie jest proponowane tylko dla ruchu IPv4.</item>
+        <item quantity="few">%1$d z tych kontroli nie powiodły się tylko przez IPv6, więc to urządzenie jest proponowane tylko dla ruchu IPv4.</item>
+        <item quantity="many">%1$d z tych kontroli nie powiodło się tylko przez IPv6, więc to urządzenie jest proponowane tylko dla ruchu IPv4.</item>
+        <item quantity="other">%1$d z tych kontroli nie powiodło się tylko przez IPv6, więc to urządzenie jest proponowane tylko dla ruchu IPv4.</item>
+    </plurals>
+    <plurals name="provider_status_reason_line_tcp">
+        <item quantity="one">%1$d z tych kontroli nie powiodła się tylko przez HTTP/3 (UDP), więc to urządzenie jest proponowane tylko dla ruchu TCP. Niektóre wersje aplikacji i niektóre sieci nie przekazują UDP.</item>
+        <item quantity="few">%1$d z tych kontroli nie powiodły się tylko przez HTTP/3 (UDP), więc to urządzenie jest proponowane tylko dla ruchu TCP. Niektóre wersje aplikacji i niektóre sieci nie przekazują UDP.</item>
+        <item quantity="many">%1$d z tych kontroli nie powiodło się tylko przez HTTP/3 (UDP), więc to urządzenie jest proponowane tylko dla ruchu TCP. Niektóre wersje aplikacji i niektóre sieci nie przekazują UDP.</item>
+        <item quantity="other">%1$d z tych kontroli nie powiodło się tylko przez HTTP/3 (UDP), więc to urządzenie jest proponowane tylko dla ruchu TCP. Niektóre wersje aplikacji i niektóre sieci nie przekazują UDP.</item>
+    </plurals>
     <plurals name="referral_celebration_detail">
         <item quantity="one">Znajomy właśnie dołączył do URnetwork z twoim kodem. Oboje zyskujecie +%2$d GiB darmowych danych dziennie — na całe życie.</item>
         <item quantity="few">%1$d znajomych właśnie dołączyło do URnetwork z twoim kodem. Każdy przynosi ci +%2$d GiB darmowych danych dziennie — na całe życie.</item>

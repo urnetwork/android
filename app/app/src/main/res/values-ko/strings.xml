@@ -1658,6 +1658,12 @@
     <plurals name="provider_status_histogram_total">
         <item quantity="other">최근 1시간 동안 %1$d회</item>
     </plurals>
+    <plurals name="provider_status_reason_line_ipv4">
+        <item quantity="other">이 검사 중 %1$d개가 IPv6에서만 실패하여 이 기기는 IPv4 트래픽 전용으로 제시됩니다.</item>
+    </plurals>
+    <plurals name="provider_status_reason_line_tcp">
+        <item quantity="other">이 검사 중 %1$d개가 HTTP/3(UDP)에서만 실패하여 이 기기는 TCP 트래픽 전용으로 제시됩니다. 일부 앱 버전과 일부 네트워크는 UDP를 라우팅하지 않습니다.</item>
+    </plurals>
     <plurals name="referral_celebration_detail">
         <item quantity="other">친구 %1$d명이 내 코드로 URnetwork에 가입했습니다. 한 명당 평생 매일 +%2$d GiB의 무료 데이터를 받습니다.</item>
     </plurals>

@@ -1680,6 +1680,14 @@
         <item quantity="one">%1$d-mal in der letzten Stunde</item>
         <item quantity="other">%1$d-mal in der letzten Stunde</item>
     </plurals>
+    <plurals name="provider_status_reason_line_ipv4">
+        <item quantity="one">%1$d dieser Prüfungen ist nur über IPv6 fehlgeschlagen, daher wird dieses Gerät nur für IPv4-Verkehr angeboten.</item>
+        <item quantity="other">%1$d dieser Prüfungen sind nur über IPv6 fehlgeschlagen, daher wird dieses Gerät nur für IPv4-Verkehr angeboten.</item>
+    </plurals>
+    <plurals name="provider_status_reason_line_tcp">
+        <item quantity="one">%1$d dieser Prüfungen ist nur über HTTP/3 (UDP) fehlgeschlagen, daher wird dieses Gerät nur für TCP-Verkehr angeboten. Manche App-Versionen und manche Netzwerke leiten kein UDP weiter.</item>
+        <item quantity="other">%1$d dieser Prüfungen sind nur über HTTP/3 (UDP) fehlgeschlagen, daher wird dieses Gerät nur für TCP-Verkehr angeboten. Manche App-Versionen und manche Netzwerke leiten kein UDP weiter.</item>
+    </plurals>
     <plurals name="referral_celebration_detail">
         <item quantity="one">Ein Freund ist gerade mit deinem Code URnetwork beigetreten. Ihr beide erhaltet +%2$d GiB kostenlose Daten pro Tag – ein Leben lang.</item>
         <item quantity="other">%1$d Freunde sind gerade mit deinem Code URnetwork beigetreten. Jeder bringt dir +%2$d GiB kostenlose Daten pro Tag – ein Leben lang.</item>

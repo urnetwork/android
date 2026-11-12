@@ -1724,6 +1724,18 @@
         <item quantity="many">%1$dkrát za poslední hodinu</item>
         <item quantity="other">%1$dkrát za poslední hodinu</item>
     </plurals>
+    <plurals name="provider_status_reason_line_ipv4">
+        <item quantity="one">%1$d z těchto kontrol selhala jen přes IPv6, takže se toto zařízení nabízí jen pro provoz IPv4.</item>
+        <item quantity="few">%1$d z těchto kontrol selhaly jen přes IPv6, takže se toto zařízení nabízí jen pro provoz IPv4.</item>
+        <item quantity="many">%1$d z těchto kontrol selhalo jen přes IPv6, takže se toto zařízení nabízí jen pro provoz IPv4.</item>
+        <item quantity="other">%1$d z těchto kontrol selhalo jen přes IPv6, takže se toto zařízení nabízí jen pro provoz IPv4.</item>
+    </plurals>
+    <plurals name="provider_status_reason_line_tcp">
+        <item quantity="one">%1$d z těchto kontrol selhala jen přes HTTP/3 (UDP), takže se toto zařízení nabízí jen pro provoz TCP. Některé verze aplikace a některé sítě UDP nesměrují.</item>
+        <item quantity="few">%1$d z těchto kontrol selhaly jen přes HTTP/3 (UDP), takže se toto zařízení nabízí jen pro provoz TCP. Některé verze aplikace a některé sítě UDP nesměrují.</item>
+        <item quantity="many">%1$d z těchto kontrol selhalo jen přes HTTP/3 (UDP), takže se toto zařízení nabízí jen pro provoz TCP. Některé verze aplikace a některé sítě UDP nesměrují.</item>
+        <item quantity="other">%1$d z těchto kontrol selhalo jen přes HTTP/3 (UDP), takže se toto zařízení nabízí jen pro provoz TCP. Některé verze aplikace a některé sítě UDP nesměrují.</item>
+    </plurals>
     <plurals name="referral_celebration_detail">
         <item quantity="one">Právě se přes váš kód připojil k URnetwork přítel. Oba získáváte +%2$d GiB dat zdarma denně — na celý život.</item>
         <item quantity="few">Právě se přes váš kód připojili k URnetwork %1$d přátelé. Každý z nich vám vynáší +%2$d GiB dat zdarma denně — na celý život.</item>

@@ -1680,6 +1680,14 @@
         <item quantity="one">mara %1$d katika saa iliyopita</item>
         <item quantity="other">mara %1$d katika saa iliyopita</item>
     </plurals>
+    <plurals name="provider_status_reason_line_ipv4">
+        <item quantity="one">%1$d kati ya ukaguzi huu ulishindwa kupitia IPv6 pekee, kwa hivyo kifaa hiki hupendekezwa kwa trafiki ya IPv4 pekee.</item>
+        <item quantity="other">%1$d kati ya ukaguzi huu ulishindwa kupitia IPv6 pekee, kwa hivyo kifaa hiki hupendekezwa kwa trafiki ya IPv4 pekee.</item>
+    </plurals>
+    <plurals name="provider_status_reason_line_tcp">
+        <item quantity="one">%1$d kati ya ukaguzi huu ulishindwa kupitia HTTP/3 (UDP) pekee, kwa hivyo kifaa hiki hupendekezwa kwa trafiki ya TCP pekee. Baadhi ya matoleo ya programu na baadhi ya mitandao haipitishi UDP.</item>
+        <item quantity="other">%1$d kati ya ukaguzi huu ulishindwa kupitia HTTP/3 (UDP) pekee, kwa hivyo kifaa hiki hupendekezwa kwa trafiki ya TCP pekee. Baadhi ya matoleo ya programu na baadhi ya mitandao haipitishi UDP.</item>
+    </plurals>
     <plurals name="referral_celebration_detail">
         <item quantity="one">Rafiki amejiunga sasa hivi na URnetwork kwa msimbo wako. Nyote wawili mnapata +%2$d GiB za data bila malipo kwa siku — maisha yote.</item>
         <item quantity="other">Marafiki %1$d wamejiunga sasa hivi na URnetwork kwa msimbo wako. Kila mmoja anakuletea +%2$d GiB za data bila malipo kwa siku — maisha yote.</item>
