@@ -62,6 +62,7 @@ import com.bringyour.network.ui.Route
 import com.bringyour.network.ui.components.URNavListItem
 import com.bringyour.network.ui.components.AccountSwitcher
 import com.bringyour.network.ui.components.LoginMode
+import com.bringyour.network.ui.components.PlanAccountNameLine
 import com.bringyour.network.ui.components.UsageBar
 import com.bringyour.network.ui.components.dataInfoShowsFreeRefresh
 import com.bringyour.network.ui.components.overlays.OverlayMode
@@ -81,6 +82,7 @@ import com.bringyour.network.ui.theme.URNetworkTheme
 import com.bringyour.network.ui.upgrade.AccountPaymentNotices
 import com.bringyour.network.ui.upgrade.PaymentPastDueNotice
 import com.bringyour.network.utils.formatDecimalString
+import com.bringyour.sdk.Sdk
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -130,6 +132,12 @@ fun AccountScreen(
     val dailyBalanceBytes by subscriptionBalanceViewModel.startBalanceByteCount.collectAsState()
     // the sdk's plan: never Free before the server answered (support inbox 4074)
     val shownPlan by subscriptionBalanceViewModel.shownPlan.collectAsState()
+    // the account the plan is on, by the name the account switcher shows; none for a guest
+    val planAccountNetworkName = networkUser?.networkName ?: ""
+    val planAccountGuest = accountViewModel.loginMode == LoginMode.Guest
+    val planAccountName = remember(planAccountNetworkName, planAccountGuest) {
+        Sdk.planAccountName(planAccountNetworkName, planAccountGuest)
+    }
 
     val refreshState = rememberPullToRefreshState()
 
@@ -168,6 +176,7 @@ fun AccountScreen(
                         chosenRoute = chosenRoute,
                         scope = scope,
                         networkName = networkUser?.networkName,
+                        planAccountName = planAccountName,
                         totalAccountPoints = totalAccountPoints,
                         accountPointsLoaded = accountPointsLoaded,
                         accountPointsFailed = accountPointsFailed,
@@ -234,6 +243,8 @@ fun AccountScreenContent(
     // the screen open beside the list, highlighted in it
     chosenRoute: Route? = null,
     networkName: String?,
+    // the account the plan is on (Sdk.planAccountName), under the plan; empty shows none
+    planAccountName: String = "",
     totalAccountPoints: Double,
     accountPointsLoaded: Boolean,
     currentPlan: Plan,
@@ -326,6 +337,9 @@ fun AccountScreenContent(
                     isCheckingSolanaTransaction = isCheckingSolanaTransaction,
                     navController = navController
                 )
+
+                // which account the plan is on, under every flavor's plan row
+                PlanAccountNameLine(name = planAccountName)
 
                 planNotices()
 

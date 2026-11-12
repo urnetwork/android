@@ -1026,6 +1026,7 @@
     <string name="pin_app_description">Keeps all of this app\'s connections on a single provider, so its API and images share one IP address. Use for apps whose content fails to load through the VPN</string>
     <string name="pinned">Pinned</string>
     <string name="plan">Plan</string>
+    <string name="plan_account_name">Account: %1$s</string>
     <string name="plan_billed_monthly_cancel_anytime">Billed monthly · cancel anytime</string>
     <string name="plan_billed_yearly_price_for_country">Billed once a year · price for %1$s</string>
     <string name="plan_monthly_equivalent_line">≈ %1$s/month · billed once a year</string>

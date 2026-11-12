@@ -106,6 +106,9 @@ import com.bringyour.network.ui.theme.URNetworkTheme
 import com.bringyour.network.R
 import com.bringyour.network.ShownPlan
 import com.bringyour.network.ui.components.ShownPlanName
+import com.bringyour.network.ui.components.LoginMode
+import com.bringyour.network.ui.components.PlanAccountNameLine
+import com.bringyour.sdk.Sdk
 import com.bringyour.network.TAG
 import com.bringyour.network.ui.Route
 import com.bringyour.network.ui.components.ButtonStyle
@@ -206,6 +209,12 @@ fun SettingsScreen(
     val authCode = settingsViewModel.authCode.collectAsState().value
 
     val networkUser = accountViewModel.networkUser.collectAsState().value
+    // the account the plan is on, as the Account screen names it; none for a guest
+    val planAccountNetworkName = networkUser?.networkName ?: ""
+    val planAccountGuest = accountViewModel.loginMode == LoginMode.Guest
+    val planAccountName = remember(planAccountNetworkName, planAccountGuest) {
+        Sdk.planAccountName(planAccountNetworkName, planAccountGuest)
+    }
     val authMethods = remember(networkUser) { networkUser?.let { parseAuthMethods(it) } ?: emptyList() }
     val isAddingAuth = settingsViewModel.isAddingAuth.collectAsState().value
     val isRemovingAuth = settingsViewModel.isRemovingAuth.collectAsState().value
@@ -343,6 +352,7 @@ fun SettingsScreen(
             isPresentingRenameDevice = true
         },
         networkName = networkUser?.networkName,
+        planAccountName = planAccountName,
         showDeleteAccountDialog = showDeleteAccountDialog,
         setShowDeleteAccountDialog = settingsViewModel.setShowDeleteAccountDialog,
         deleteAccount = settingsViewModel.deleteAccount,
@@ -605,6 +615,8 @@ private fun SettingsScreen(
     deviceSpec: String = "",
     onEditDeviceName: () -> Unit = {},
     networkName: String? = null,
+    // the account the plan is on (Sdk.planAccountName), under the plan; empty shows none
+    planAccountName: String = "",
     setShowDeleteAccountDialog: (Boolean) -> Unit = {},
     showDeleteAccountDialog: Boolean,
     deleteAccount: (onSuccess: (signedOutDevice: com.bringyour.sdk.DeviceLocal) -> Unit, onFailure: (DeleteAccountOutcome.Failed) -> Unit) -> Unit,
@@ -1527,6 +1539,9 @@ private fun SettingsScreen(
 
                 }
             }
+
+            // which account the plan is on (support inbox 6546)
+            PlanAccountNameLine(name = planAccountName)
 
             // a renewal whose payment did not go through, under the manage line
             planNotices()

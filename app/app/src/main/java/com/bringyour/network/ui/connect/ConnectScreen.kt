@@ -314,6 +314,8 @@ fun ConnectScreen(
     val currentPlan = if (isPro) Plan.Supporter else Plan.Basic
     // the plan card's plan: never Free before the server answered (support inbox 4074)
     val shownPlan by subscriptionBalanceViewModel.shownPlan.collectAsState()
+    // and which account it is on (support inbox 6546)
+    val planAccountName by subscriptionBalanceViewModel.planAccountName.collectAsState()
 
     // Above the arrangements, so a fold, an unfold or a resize keeps them: the
     // "About your data" sheet (Why? under the out-of-balance notice), the
@@ -465,6 +467,7 @@ fun ConnectScreen(
                 currentPlan = currentPlan,
                 shownPlan = shownPlan,
                 retryPlan = subscriptionBalanceViewModel.refreshSubscriptionBalance,
+                planAccountName = planAccountName,
                 connect = connect,
                 disconnect = connectViewModel.disconnect,
                 reconnectTunnel = reconnectTunnel,
@@ -691,6 +694,7 @@ fun ConnectScreen(
                                 currentPlan = currentPlan,
                                 shownPlan = shownPlan,
                                 retryPlan = subscriptionBalanceViewModel.refreshSubscriptionBalance,
+                                planAccountName = planAccountName,
                                 isPollingSubscriptionBalance = subscriptionBalanceViewModel.isPollingSubscriptionBalance,
                                 usedBytes = subscriptionBalanceViewModel.usedBalanceByteCount,
                                 availableBytes = availableBytes,

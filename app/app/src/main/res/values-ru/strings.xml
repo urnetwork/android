@@ -1011,6 +1011,7 @@
     <string name="pin_app_description">Удерживает все соединения этого приложения на одном провайдере, чтобы его API и изображения использовали один IP-адрес. Подходит для приложений, содержимое которых не загружается через VPN</string>
     <string name="pinned">Закреплено</string>
     <string name="plan">Тариф</string>
+    <string name="plan_account_name">Аккаунт: %1$s</string>
     <string name="plan_billed_monthly_cancel_anytime">Списание ежемесячно · отмена в любой момент</string>
     <string name="plan_billed_yearly_price_for_country">Списание раз в год · цена для страны %1$s</string>
     <string name="plan_monthly_equivalent_line">≈ %1$s/мес · списание раз в год</string>

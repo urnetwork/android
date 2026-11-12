@@ -1011,6 +1011,7 @@
     <string name="pin_app_description">Mantém todas as conexões deste app em um único provedor, para que a API e as imagens compartilhem o mesmo endereço IP. Use em apps cujo conteúdo não carrega pela VPN</string>
     <string name="pinned">Fixado</string>
     <string name="plan">Plano</string>
+    <string name="plan_account_name">Conta: %1$s</string>
     <string name="plan_billed_monthly_cancel_anytime">Cobrado mensalmente · cancele quando quiser</string>
     <string name="plan_billed_yearly_price_for_country">Cobrado uma vez por ano · preço para %1$s</string>
     <string name="plan_monthly_equivalent_line">≈ %1$s/mês · cobrado uma vez por ano</string>

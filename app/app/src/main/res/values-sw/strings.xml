@@ -1011,6 +1011,7 @@
     <string name="pin_app_description">Huweka miunganisho yote ya programu hii kwa mtoa huduma mmoja, ili API na picha zake zitumie anwani moja ya IP. Tumia kwa programu ambazo maudhui yake hayapakii kupitia VPN</string>
     <string name="pinned">Imebandikwa</string>
     <string name="plan">Mpango</string>
+    <string name="plan_account_name">Akaunti: %1$s</string>
     <string name="plan_billed_monthly_cancel_anytime">Hulipwa kila mwezi · ghairi wakati wowote</string>
     <string name="plan_billed_yearly_price_for_country">Hulipwa mara moja kwa mwaka · bei ya %1$s</string>
     <string name="plan_monthly_equivalent_line">≈ %1$s/mwezi · hulipwa mara moja kwa mwaka</string>

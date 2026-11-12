@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -14,6 +15,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.bringyour.network.R
 import com.bringyour.network.ui.components.ButtonStyle
+import com.bringyour.network.ui.components.PlanAccountNameLine
 import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.Green100
@@ -31,11 +33,16 @@ import com.bringyour.network.ui.theme.URNetworkTheme
  *    payment was received and confirmation is in progress. The confirmation poll runs
  *    behind this; when the server confirms, recomposition flips the copy to premium.
  *  - `confirmed = true`: the server says the subscription is active -- celebrate.
+ *
+ * Under either headline, the account the purchase is on (PlanAccountNameLine,
+ * support inbox 6546), so a customer with several accounts sees which one paid.
  */
 @Composable
 fun PlanUpgradedOverlay(
     confirmed: Boolean,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    // the account the plan is on (Sdk.planAccountName); empty shows none
+    planAccountName: String = "",
 ) {
     OverlayBackground(
         onDismiss = onDismiss,
@@ -50,6 +57,12 @@ fun PlanUpgradedOverlay(
                     style = MaterialTheme.typography.headlineMedium,
                     color = Black
                 )
+                PlanAccountNameLine(
+                    name = planAccountName,
+                    modifier = Modifier.padding(top = 8.dp),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = Black,
+                )
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Text(
@@ -62,6 +75,12 @@ fun PlanUpgradedOverlay(
                     stringResource(id = R.string.payment_received_title),
                     style = MaterialTheme.typography.headlineMedium,
                     color = Black
+                )
+                PlanAccountNameLine(
+                    name = planAccountName,
+                    modifier = Modifier.padding(top = 8.dp),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = Black,
                 )
                 Spacer(modifier = Modifier.height(16.dp))
 

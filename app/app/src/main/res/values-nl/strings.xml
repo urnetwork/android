@@ -1011,6 +1011,7 @@
     <string name="pin_app_description">Houdt alle verbindingen van deze app bij één provider, zodat de API en de afbeeldingen hetzelfde IP-adres delen. Gebruik dit voor apps waarvan de inhoud niet laadt via de VPN</string>
     <string name="pinned">Vastgezet</string>
     <string name="plan">Plan</string>
+    <string name="plan_account_name">Account: %1$s</string>
     <string name="plan_billed_monthly_cancel_anytime">Maandelijks gefactureerd · altijd opzegbaar</string>
     <string name="plan_billed_yearly_price_for_country">Eenmaal per jaar gefactureerd · prijs voor %1$s</string>
     <string name="plan_monthly_equivalent_line">≈ %1$s/maand · eenmaal per jaar gefactureerd</string>
