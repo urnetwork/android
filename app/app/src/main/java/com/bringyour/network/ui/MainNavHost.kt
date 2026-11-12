@@ -195,6 +195,7 @@ import com.bringyour.network.ui.stats.TransportSettingsKind
 import com.bringyour.network.ui.stats.TransportSettingsScreen
 import com.bringyour.network.ui.stats.SplitRulesScreen
 import com.bringyour.network.ui.theme.Pink
+import com.bringyour.network.ui.upgrade.UpgradeGuestStatusPending
 import com.bringyour.network.ui.upgrade.UpgradeScreen
 import com.bringyour.sdk.ReliabilityWindow
 import kotlinx.coroutines.delay
@@ -1331,6 +1332,8 @@ fun MainNavContent(
     LaunchedEffect(isGuestNetwork) {
         accountViewModel.setGuestNetwork(isGuestNetwork)
     }
+    // a refreshed guest is a guest only once the balance has loaded
+    val guestStatusKnown by subscriptionBalanceViewModel.guestStatusKnown.collectAsState()
 
     val localDensityCurrent = LocalDensity.current
     val canvasSizePx =
@@ -1625,16 +1628,29 @@ fun MainNavContent(
                 popExitTransition = NavigationAnimations.popExitTransition()
             ) { backStackEntry ->
                 // every upgrade entry lands here; a guest network has no login to
-                // come back to, so it adds a sign-in method first and is not sold a plan
-                if (GuestAccount.upgradeEntry(isGuestNetwork) == UpgradeEntry.AddSignInMethod) {
-                    GuestConversionSheet(
-                        settingsViewModel = settingsViewModel,
-                        activityResultSender = activityResultSender,
-                        refreshJwt = subscriptionBalanceViewModel.refreshJwt,
-                        onAdded = { subscriptionBalanceViewModel.fetchSubscriptionBalance() },
-                        onDismiss = { navController.popBackStack() }
-                    )
-                    return@composable
+                // come back to, so it adds a sign-in method first and is not sold a
+                // plan, and nothing is sold until the server says whether it is one
+                when (GuestAccount.upgradeEntry(isGuest = isGuestNetwork, guestStatusKnown = guestStatusKnown)) {
+                    UpgradeEntry.AddSignInMethod -> {
+                        GuestConversionSheet(
+                            settingsViewModel = settingsViewModel,
+                            activityResultSender = activityResultSender,
+                            refreshJwt = subscriptionBalanceViewModel.refreshJwt,
+                            onAdded = { subscriptionBalanceViewModel.fetchSubscriptionBalance() },
+                            onDismiss = { navController.popBackStack() }
+                        )
+                        return@composable
+                    }
+                    UpgradeEntry.WaitForGuestStatus -> {
+                        val balanceReadFailed by subscriptionBalanceViewModel.errorFetchingSubscriptionBalance.collectAsState()
+                        UpgradeGuestStatusPending(
+                            readFailed = balanceReadFailed && !subscriptionBalanceViewModel.isRefreshingSubscriptionBalance,
+                            readBalance = subscriptionBalanceViewModel.refreshSubscriptionBalance,
+                            onBack = { navController.popBackStack() },
+                        )
+                        return@composable
+                    }
+                    UpgradeEntry.Checkout -> Unit
                 }
                 // opened by a blocked start connect: the header leads with when the
                 // free data refreshes and offers Wait for refresh, which closes it
