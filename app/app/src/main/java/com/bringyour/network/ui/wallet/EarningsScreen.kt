@@ -347,6 +347,8 @@ fun EarningsScreen(
         formatAlpha = earningsViewModel::formatAlpha,
         shortSs58 = earningsViewModel::shortSs58,
         explorerTxUrl = earningsViewModel::explorerTxUrl,
+        // the gas key sends one claim at a time: Claim waits for the session's v2 claim
+        claimHeld = ledgerClaimInFlight,
     )
 
     SnLedgerClaimDialog(
@@ -359,6 +361,8 @@ fun EarningsScreen(
         explorerTxUrl = earningsViewModel::explorerTxUrl,
         // the rows are named as the tile names them
         pools = snLedgerPools(ledgerLoad),
+        // the gas key sends one claim at a time: Claim waits for the session's v1 claim
+        claimHeld = epochClaimInFlight,
     )
 
     // Claim now, through URnetwork's claim relay: a screen of its own, with the

@@ -1876,6 +1876,76 @@ class SnLedgerClaimTest {
         assertEquals(listOf(claimProgressSettled(rows)), ear.done)
     }
 
+    // ---- one claim at a time: the gas key sends one claim at a time, so neither kind starts while
+    // the other is in flight and each dialog's Claim waits for it, as on Apple, Windows and Linux
+
+    @Test
+    fun `a v1 and a v2 claim of the session never run at once`() {
+        val claims = SnClaimHolder(CoroutineScope(Dispatchers.Unconfined))
+        val device = Any()
+        val source = sourceWith(pool1, ctf)
+        val rows = listOf(ClaimProgress(1_218, 3_241_000_000, ClaimProgressStatus.PENDING, null, null))
+        val ledgerRows = snLedgerClaimStart(listOf(pool1, ctf))
+        assertFalse(claims.claiming(device))
+        // a v2 claim in flight holds the v1 claim until its Done
+        assertTrue(claims.start(device, source, ledgerRows, 0))
+        assertTrue(claims.claiming(device))
+        assertFalse(claims.startEpochClaim(device, source, listOf(1_218), rows))
+        source.onEvent(SnLedgerClaimEvent.Sent(1, 42, txHash1))
+        assertFalse(claims.startEpochClaim(device, source, listOf(1_218), rows))
+        assertEquals(0, source.epochClaims)
+        assertNull(claims.epochClaimInFlight(device))
+        source.onEvent(SnLedgerClaimEvent.Done)
+        assertFalse(claims.claiming(device))
+        // a v1 claim in flight holds the v2 claim until its Done
+        assertTrue(claims.startEpochClaim(device, source, listOf(1_218), rows))
+        assertTrue(claims.claiming(device))
+        assertFalse(claims.start(device, source, ledgerRows, 0))
+        source.onEpochEvent(ClaimEvent.Sent(1_218, txHash2))
+        assertFalse(claims.start(device, source, ledgerRows, 0))
+        assertEquals(1, source.claims)
+        assertNull(claims.inFlight(device))
+        source.onEpochEvent(ClaimEvent.Done)
+        assertFalse(claims.claiming(device))
+        assertTrue(claims.start(device, source, ledgerRows, 0))
+        assertEquals(2, source.claims)
+        // no one signed in, or another session, has nothing in flight
+        assertFalse(claims.claiming(null))
+        assertFalse(claims.claiming(Any()))
+    }
+
+    @Test
+    fun `the v2 dialog's Claim starts nothing while the session's v1 claim is in flight`() {
+        val claims = SnClaimHolder(CoroutineScope(Dispatchers.Unconfined))
+        val device = Any()
+        val source = sourceWith(pool1, ctf)
+        val flow = SnLedgerFlow(CoroutineScope(Dispatchers.Unconfined), { true }, { 0 }, claims).also { it.reset(source, device) }
+        val rows = listOf(ClaimProgress(1_218, 3_241_000_000, ClaimProgressStatus.PENDING, null, null))
+        assertTrue(claims.startEpochClaim(device, source, listOf(1_218), rows))
+        // the tile's Claim opens the dialog on the accounts as read: no v2 claim is in flight
+        flow.open()
+        val ready = flow.dialog.value
+        assertTrue(ready is SnLedgerClaimDialogState.Ready)
+        // its Claim waits: the dialog stays as it is, and nothing is asked of the sdk
+        flow.claim()
+        assertEquals(ready, flow.dialog.value)
+        assertEquals(0, source.claims)
+        assertFalse(flow.claimInFlight.value)
+        assertNull(claims.inFlight(device))
+        // the v1 claim's Done frees it: the same Claim claims
+        source.onEpochEvent(ClaimEvent.Done)
+        flow.claim()
+        assertEquals(1, source.claims)
+        assertEquals(
+            SnLedgerClaimDialogState.Sending(snLedgerClaimStart(listOf(pool1, ctf)), pool1.claimableRao + ctf.claimableRao),
+            flow.dialog.value
+        )
+        assertTrue(flow.claimInFlight.value)
+        // and the v1 claim waits for it in turn
+        assertFalse(claims.startEpochClaim(device, source, listOf(1_218), rows))
+        assertEquals(1, source.epochClaims)
+    }
+
     @Test
     fun `a v1 claim's rows follow its events, and an epoch never reported on fails at Done`() {
         val row = ClaimProgress(1_218, 3_241_000_000, ClaimProgressStatus.PENDING, null, null)

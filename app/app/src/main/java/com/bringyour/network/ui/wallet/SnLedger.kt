@@ -881,12 +881,23 @@ class SnClaimHolder internal constructor(
         epochClaim?.takeIf { session != null && it.session === session }?.rows
 
     /**
+     * A claim of either kind of [session] is in flight. The gas key sends one
+     * claim at a time, as on Apple, Windows and Linux: neither kind starts
+     * while one is in flight, and each dialog's Claim waits for the other
+     * kind's. The SDK checks each claim's gas against the gas key's balance on
+     * its own, not less what a claim in flight may spend, and an SDK from
+     * before the gas key's turns reads each claim's nonce without waiting for
+     * the other's broadcast, so two claims at once could take the same nonce.
+     */
+    fun claiming(session: Any?): Boolean = inFlight(session) != null || epochClaimInFlight(session) != null
+
+    /**
      * Claims [epochs] for [session] with [source] (SnClaim), from the rows it
-     * starts with. False, and no claim, while a v1 claim of the session is in
-     * flight.
+     * starts with. False, and no claim, while a claim of either kind of the
+     * session is in flight (claiming).
      */
     fun startEpochClaim(session: Any, source: EarningsProtocolSource, epochs: List<Long>, rows: List<ClaimProgress>): Boolean {
-        if (epochClaim?.session === session) {
+        if (claiming(session)) {
             return false
         }
         val started = EpochClaim(session, rows)
@@ -914,12 +925,12 @@ class SnClaimHolder internal constructor(
     /**
      * Claims every v2 account for [session] with [source] (SnLedgerClaim),
      * from the rows it starts with ([rows], snLedgerClaimStart) and the
-     * transfer floor they were listed by. False, and no claim, while a v2
-     * claim of the session is in flight: one at a time, as the gas key sends
-     * one.
+     * transfer floor they were listed by. False, and no claim, while a claim
+     * of either kind of the session is in flight: one at a time, as the gas
+     * key sends one (claiming).
      */
     fun start(session: Any, source: EarningsProtocolSource, rows: List<SnLedgerClaimProgress>, transferFloorRao: Long): Boolean {
-        if (claim?.session === session) {
+        if (claiming(session)) {
             return false
         }
         val started = Claim(session, transferFloorRao, snLedgerClaimMovingRao(rows, transferFloorRao), rows)
@@ -1162,13 +1173,15 @@ class SnLedgerFlow(
      * The dialog's Claim: the SDK claims every account with something to
      * claim, the pool's and capture the flag's in one transaction. Only while
      * an account can move: with every one under the transfer floor there is
-     * no claim the runtime would take. Never while the session's claim is in
-     * flight, whichever dialog started it.
+     * no claim the runtime would take. Never while a claim of the session is
+     * in flight, whichever dialog started it, nor while its v1 claim is: the
+     * gas key sends one claim at a time, and the dialog's Claim waits for it
+     * (SnClaimHolder.claiming).
      */
     fun claim() {
         val ready = _dialog.value as? SnLedgerClaimDialogState.Ready ?: return
         val owner = session ?: return
-        if (ready.takes.isEmpty() || claims.inFlight(owner) != null) {
+        if (ready.takes.isEmpty() || claims.claiming(owner)) {
             return
         }
         val floorRao = ready.transferFloorRao
