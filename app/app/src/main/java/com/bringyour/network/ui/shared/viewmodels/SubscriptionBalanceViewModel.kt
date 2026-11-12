@@ -346,6 +346,14 @@ class SubscriptionBalanceViewModel @Inject constructor(
     val errorFetchingSubscriptionBalance: StateFlow<Boolean> = _errorFetchingSubscriptionBalance
 
     /**
+     * The plan the plan cards show (JwtManager.plan, the sdk's decision): Pro or
+     * Free as the server answered, else Loading, or Unreachable with a retry
+     * (refreshSubscriptionBalance) once a read failed. Never Free before the
+     * server said so (support inbox 4074).
+     */
+    val shownPlan: StateFlow<com.bringyour.network.ShownPlan> = jwtManager.plan
+
+    /**
      * True exactly when the server reports an active subscription
      * (`currentSubscription != null`). This -- not payment evidence, not the jwt's
      * baked-in `pro` claim -- is what the post-purchase overlay is allowed to
@@ -514,12 +522,16 @@ class SubscriptionBalanceViewModel @Inject constructor(
                             _isLoading.value = false
                             isRefreshingSubscriptionBalance = false
                             _errorFetchingSubscriptionBalance.value = true
+                            // the plan stays the server's last answer, or shows the
+                            // failure with a retry: never Free (support inbox 4074)
+                            jwtManager.balanceFailed()
 
                         } else {
 
                             if (result == null) {
                                 _isLoading.value = false
                                 isRefreshingSubscriptionBalance = false
+                                jwtManager.balanceFailed()
                                 return@launch
                             }
 

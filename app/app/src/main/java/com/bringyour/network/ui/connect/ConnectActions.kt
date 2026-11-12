@@ -46,6 +46,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.bringyour.network.R
+import com.bringyour.network.ShownPlan
+import com.bringyour.network.ui.components.ShownPlanName
 import com.bringyour.network.ui.Route
 import com.bringyour.network.ui.components.ButtonStyle
 import com.bringyour.network.ui.components.outOfBalanceKindText
@@ -90,6 +92,11 @@ internal fun ConnectActions(
     getLocationColor: (String) -> Color,
     minHeight: Dp,
     currentPlan: Plan,
+    // the sdk's plan for the plan card (support inbox 4074): Loading or
+    // Unreachable until the server answers, never Free; retryPlan reads the
+    // balance again
+    shownPlan: ShownPlan = if (currentPlan == Plan.Supporter) ShownPlan.Pro else ShownPlan.Free,
+    retryPlan: () -> Unit = {},
     connect: () -> Unit,
     disconnect: () -> Unit,
     reconnectTunnel: () -> Unit,
@@ -323,6 +330,8 @@ internal fun ConnectActions(
         ConnectPlanCard(
             navController = navController,
             currentPlan = currentPlan,
+            shownPlan = shownPlan,
+            retryPlan = retryPlan,
             isPollingSubscriptionBalance = isPollingSubscriptionBalance,
             usedBytes = usedBytes,
             availableBytes = availableBytes,
@@ -852,6 +861,10 @@ internal fun ConnectOptions(
 internal fun ConnectPlanCard(
     navController: NavController,
     currentPlan: Plan,
+    // the sdk's plan (support inbox 4074): Loading or Unreachable until the
+    // server answers, never Free; retryPlan reads the balance again
+    shownPlan: ShownPlan = if (currentPlan == Plan.Supporter) ShownPlan.Pro else ShownPlan.Free,
+    retryPlan: () -> Unit = {},
     isPollingSubscriptionBalance: Boolean,
     usedBytes: Long,
     availableBytes: Long,
@@ -915,18 +928,12 @@ internal fun ConnectPlanCard(
 
                 } else {
 
-                    if (currentPlan == Plan.Supporter) {
-                        Text(stringResource(id = R.string.supporter),
-                            style = MaterialTheme.typography.headlineMedium
-                        )
-                    } else {
-                        Text(stringResource(id = R.string.free),
-                            style = MaterialTheme.typography.headlineMedium
-                        )
-                    }
+                    // before the server answers, a spinner or the read's retry,
+                    // never Free
+                    ShownPlanName(shownPlan = shownPlan, retryPlan = retryPlan)
                 }
 
-                if (currentPlan != Plan.Supporter) {
+                if (shownPlan.sellsPro) {
 
                     TextButton(onClick = {
                         // the same upgrade flow Account's "Change" opens; this used to
@@ -955,7 +962,8 @@ internal fun ConnectPlanCard(
             totalReferrals = totalReferrals,
             dailyByteCount = dailyByteCount,
             onReferralClick = onReferralClick,
-            showFreeRefresh = dataInfoShowsFreeRefresh(currentPlan),
+            // the free plan's refresh, once the server said Free
+            showFreeRefresh = shownPlan == ShownPlan.Free && dataInfoShowsFreeRefresh(currentPlan),
         )
 
     }
