@@ -1041,6 +1041,63 @@ class SnLedgerClaimTest {
     }
 
     @Test
+    fun `a claim that paid nothing leaves the reads an earlier claim that paid is owed`() {
+        // a second claim 10 s after one that paid, failing before it reaches any account
+        val source = sourceWith(pool1, ctf)
+        source.winAnswers = listOf(listOf(win), listOf(win), listOf(win), emptyList())
+        val clock = Clock()
+        val flow = flowFor(source, clock = clock)
+        claimBothConfirmed(source, flow)
+        source.onEvent(SnLedgerClaimEvent.Done)
+        assertEquals(1, source.winReads)
+        flow.open()
+        flow.claim()
+        source.onEvent(SnLedgerClaimEvent.Failed(0, 0, "chain_rpc_unreachable: dial tcp: i/o timeout"))
+        source.onEvent(SnLedgerClaimEvent.Done)
+        // its own read at Done, and no schedule of its own
+        assertEquals(2, source.winReads)
+        assertEquals(listOf(30_000L), clock.waits)
+        // the first claim's reads at 30, 60 and 120 s go on: the line goes at 60 s
+        clock.next()
+        assertEquals(3, source.winReads)
+        assertEquals(listOf(win), flow.wins.value)
+        clock.next()
+        assertEquals(4, source.winReads)
+        assertEquals(emptyList<SnCtfWinState>(), flow.wins.value)
+        clock.next()
+        assertEquals(5, source.winReads)
+        assertEquals(listOf(30_000L, 30_000L, 60_000L), clock.waits)
+    }
+
+    @Test
+    fun `a slow read moves none of the reads after a claim`() {
+        // the route's answer can take up to the sdk's 60 s timeout: the reads stay 30, 60 and
+        // 120 s after Done, each on its own
+        val source = sourceWith(pool1, ctf)
+        source.winAnswers = listOf(listOf(win), emptyList())
+        val clock = Clock()
+        val flow = flowFor(source, clock = clock)
+        claimBothConfirmed(source, flow)
+        val gate = CompletableDeferred<Unit>()
+        source.winGate = gate
+        source.onEvent(SnLedgerClaimEvent.Done)
+        // the read at Done is still out, and the wait for the read at 30 s has begun
+        assertEquals(0, source.winReads)
+        assertEquals(listOf(30_000L), clock.waits)
+        clock.next()
+        assertEquals(0, source.winReads)
+        assertEquals(listOf(30_000L, 30_000L), clock.waits)
+        // both answer, the later one finding the win claimed
+        gate.complete(Unit)
+        assertEquals(2, source.winReads)
+        assertEquals(emptyList<SnCtfWinState>(), flow.wins.value)
+        clock.next()
+        clock.next()
+        assertEquals(4, source.winReads)
+        assertEquals(listOf(30_000L, 30_000L, 60_000L), clock.waits)
+    }
+
+    @Test
     fun `signing out or another device stops the reads after a claim`() {
         val source = sourceWith(pool1, ctf)
         source.winAnswers = listOf(listOf(win))

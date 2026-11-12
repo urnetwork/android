@@ -684,25 +684,28 @@ class SnLedgerFlow(
     }
 
     /**
-     * After a claim's Done the wins are read at once, on their own, and, when
-     * the claim paid an account, again at each of
-     * [SN_CTF_WINS_READS_AFTER_CLAIM_MS] after Done: the read at Done can
-     * still list a win the claim paid. The next claim's Done starts over; a
-     * new device or a sign-out (reset) stops the reads, and so does the end
-     * of the scope, the view model's.
+     * After a claim's Done the wins are read at once, on their own. When the
+     * claim paid an account they are read again at each of
+     * [SN_CTF_WINS_READS_AFTER_CLAIM_MS] after Done, since the read at Done
+     * can still list a win the claim paid; each read goes on its own, so a
+     * slow answer moves none of the later reads. The next claim that paid
+     * starts the reads over, and one that paid nothing leaves them to run. A
+     * new device or a sign-out (reset) stops them, and so does the end of the
+     * scope, the view model's.
      */
     private fun readWinsAfterClaim(paid: Boolean) {
+        if (!paid) {
+            scope.launch { refreshWins() }
+            return
+        }
         winsAfterClaim?.cancel()
         winsAfterClaim = scope.launch {
-            refreshWins()
-            if (!paid) {
-                return@launch
-            }
+            launch { refreshWins() }
             var afterDone = 0L
             for (at in SN_CTF_WINS_READS_AFTER_CLAIM_MS) {
                 sleep(at - afterDone)
                 afterDone = at
-                refreshWins()
+                launch { refreshWins() }
             }
         }
     }
