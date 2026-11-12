@@ -36,6 +36,30 @@ data class ProviderRankingNumberUi(
      * the UI; this is a debug and accessibility fallback only
      */
     val explanation: String = "",
+    /**
+     * the sdk's lines for why the network checks downgraded this device, in
+     * the order they show (url_checks only, server FP2-PROTOCOL.md §5.5)
+     */
+    val reasonLines: List<ProviderStatusReasonLineUi> = listOf(),
+)
+
+/**
+ * One line the sdk derived from a number's reason, a mirror of its
+ * `ProviderStatusReasonLine`.
+ */
+data class ProviderStatusReasonLineUi(
+    /**
+     * one of the `Sdk.ProviderStatusReasonLine*` labels
+     */
+    val label: String,
+    /**
+     * the checks a tcp or ipv4 line counts
+     */
+    val count: Long = 0,
+    /**
+     * the server's English, for a reason this app has no string for
+     */
+    val text: String = "",
 )
 
 /**
@@ -106,6 +130,20 @@ data class ProviderStatusUi(
                 val n = list.len()
                 for (i in 0 until n) {
                     val number = list.get(i) ?: continue
+                    val reasonLines = mutableListOf<ProviderStatusReasonLineUi>()
+                    number.reasonLines?.let { lines ->
+                        val lineCount = lines.len()
+                        for (j in 0 until lineCount) {
+                            val line = lines.get(j) ?: continue
+                            reasonLines.add(
+                                ProviderStatusReasonLineUi(
+                                    label = line.label ?: "",
+                                    count = line.count,
+                                    text = line.text ?: "",
+                                )
+                            )
+                        }
+                    }
                     rankingNumbers.add(
                         ProviderRankingNumberUi(
                             name = number.name ?: "",
@@ -119,6 +157,7 @@ data class ProviderStatusUi(
                             count = number.count,
                             total = number.total,
                             explanation = number.explanation ?: "",
+                            reasonLines = reasonLines,
                         )
                     )
                 }
@@ -345,14 +384,44 @@ sealed interface ProviderStatusValue {
 
 /**
  * One row of the "Why?": a label, the value (tinted when it does not pass)
- * and a muted help line under it.
+ * and a muted help line under it, then the lines of the reason the network
+ * checks downgraded the device, when there is one.
  */
 data class ProviderStatusRow(
     val labelResourceId: Int,
     val value: ProviderStatusValue,
     val helpResourceId: Int,
     val passes: Boolean,
+    val reasons: List<ProviderStatusReason> = listOf(),
 )
+
+/**
+ * A line of a row's reason, before it is localized.
+ */
+sealed interface ProviderStatusReason {
+    /** A line this app knows, as its plural resource and the count it shows. */
+    data class Plural(val id: Int, val count: Long) : ProviderStatusReason
+
+    /** A line this app has no string for, as the server's English. */
+    data class Text(val text: String) : ProviderStatusReason
+}
+
+/**
+ * The sdk's reason lines as this app shows them, in the sdk's order: tcp and
+ * ipv4 by their plural resources, any other label by the server's English,
+ * and a line with neither is left out.
+ */
+fun providerStatusReasons(lines: List<ProviderStatusReasonLineUi>): List<ProviderStatusReason> {
+    return lines.mapNotNull { line ->
+        when (line.label) {
+            Sdk.ProviderStatusReasonLineTcp ->
+                ProviderStatusReason.Plural(R.plurals.provider_status_reason_line_tcp, line.count)
+            Sdk.ProviderStatusReasonLineIpv4 ->
+                ProviderStatusReason.Plural(R.plurals.provider_status_reason_line_ipv4, line.count)
+            else -> line.text.takeIf { it.isNotEmpty() }?.let { ProviderStatusReason.Text(it) }
+        }
+    }
+}
 
 private const val RELIABILITY_LOOKBACK_PREFIX = "reliability_lookback_"
 
@@ -464,6 +533,7 @@ fun providerStatusRow(number: ProviderRankingNumberUi): ProviderStatusRow? {
         value = value,
         helpResourceId = helpResourceId,
         passes = number.passes,
+        reasons = providerStatusReasons(number.reasonLines),
     )
 }
 
