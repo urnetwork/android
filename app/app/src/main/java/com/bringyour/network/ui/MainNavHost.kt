@@ -1729,6 +1729,8 @@ fun MainNavContent(
                     planNotices = {
                         PaymentPastDueNotice(subscriptionBalanceViewModel = subscriptionBalanceViewModel)
                     },
+                    shownPlan = subscriptionBalanceViewModel.shownPlan.collectAsState().value,
+                    retryPlan = subscriptionBalanceViewModel.refreshSubscriptionBalance,
                 ) }
 
                 composable<Route.Vless>(
