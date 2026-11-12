@@ -44,7 +44,8 @@ import com.bringyour.sdk.Sdk
  * Services), so a card purchase hosts the ur.io pay page in an in-app web
  * view: the server prepares the intent (StripeSheetRequest), the page mounts
  * Stripe's Payment Element on it, and navigates to the `return` url when the
- * purchase is done, which the web view intercepts. Never an external browser.
+ * purchase is done, which the web view intercepts; the purchase is then reported
+ * to the server (StripePurchaseReport). Never an external browser.
  */
 @Composable
 fun rememberPlanPurchaser(
@@ -67,6 +68,13 @@ fun rememberPlanPurchaser(
                 planViewModel.setInProgress(false)
                 ClientEvents.purchaseCompleted(Sdk.EventStoreStripe, ClientEvents.PRODUCT_STRIPE_PRO, page.plan, page.trial, page.price, page.currency)
                 onPurchaseSuccess()
+                // the server credits it now, not when Stripe's webhook arrives; after
+                // onPurchaseSuccess, so the confirmation's baseline predates the credit
+                StripePurchaseReport.report(
+                    api = planViewModel.api,
+                    subscriptionId = page.subscriptionId,
+                    onCredited = subscriptionBalanceViewModel.fetchSubscriptionBalance,
+                )
             },
             onDismiss = {
                 payPage = null
@@ -136,6 +144,7 @@ fun rememberPlanPurchaser(
                     trial = 0 < result.trialDays,
                     price = result.amountFirstPeriodUsd,
                     currency = result.currency.ifEmpty { "USD" },
+                    subscriptionId = result.subscriptionId,
                 )
             }
         }
@@ -145,13 +154,30 @@ fun rememberPlanPurchaser(
 private const val PAY_SHEET_URL = "https://ur.io/app/pay-sheet"
 private const val PAY_RETURN_URL = "urnetwork://pay/done"
 
-private class PayPage(val url: String, val plan: String, val trial: Boolean, val price: Double, val currency: String)
+/** The open pay page, for its events and its report (StripePurchaseReport). */
+private class PayPage(
+    val url: String,
+    val plan: String,
+    val trial: Boolean,
+    val price: Double,
+    val currency: String,
+    // the server's id for the subscription the page pays; "" from an older server
+    val subscriptionId: String,
+)
 
 private val PayPageSaver = listSaver<PayPage?, Any>(
-    save = { page -> page?.let { listOf(it.url, it.plan, it.trial, it.price, it.currency) } ?: emptyList() },
+    save = { page -> page?.let { listOf(it.url, it.plan, it.trial, it.price, it.currency, it.subscriptionId) } ?: emptyList() },
     restore = { values ->
         if (values.size < 5) null
-        else PayPage(values[0] as String, values[1] as String, values[2] as Boolean, values[3] as Double, values[4] as String)
+        else PayPage(
+            url = values[0] as String,
+            plan = values[1] as String,
+            trial = values[2] as Boolean,
+            price = values[3] as Double,
+            currency = values[4] as String,
+            // a page saved without the id reports nothing
+            subscriptionId = values.getOrNull(5) as? String ?: "",
+        )
     },
 )
 
