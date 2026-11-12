@@ -101,10 +101,11 @@ class SdkProtocolSource private constructor(
             }
         }
 
-        // the wins of a GET /sn/ctf/client answer, in the sdk's order: never nil from the sdk
+        // the wins of a GET /sn/ctf/client answer, in the sdk's order: never nil
+        // from the sdk, so an answer without them could not be read
         private fun snCtfWinsOf(list: SnCtfWinList?): List<SnCtfWinState> {
             if (list == null) {
-                return emptyList()
+                throw IllegalStateException("a capture the flag answer without its unclaimed wins")
             }
             return (0 until list.len()).map { i ->
                 val w = list.get(i)
@@ -440,17 +441,23 @@ class SdkProtocolSource private constructor(
             }
         }
 
-    override suspend fun ctfWins(): List<SnCtfWinState> =
+    override suspend fun ctfWins(): Result<List<SnCtfWinState>> =
         suspendCancellableCoroutine { continuation ->
             // the sdk sends the client token, else the network's, on a transport
             // whose 401 never signs the user out; an older server's 401 is no wins
-            device.snCtfClient { result, _ ->
+            device.snCtfClient { result, err ->
                 // copied off the gomobile objects here: an exception thrown out
                 // of the callback cannot cross JNI and aborts the process. An
-                // error (a read that failed) draws no line
-                val wins = runCatching {
-                    snCtfWinsOf(result?.takeIf { it.error == null }?.unclaimedWins)
-                }.getOrDefault(emptyList())
+                // error (ctf_unavailable: a read that failed) or an answer that
+                // cannot be read is a failure, which keeps the lines drawn
+                val wins: Result<List<SnCtfWinState>> = runCatching {
+                    when {
+                        err != null -> throw err
+                        result == null -> throw IllegalStateException("no capture the flag answer")
+                        result.error != null -> throw result.error.toException()!!
+                        else -> snCtfWinsOf(result.unclaimedWins)
+                    }
+                }
                 if (continuation.isActive) {
                     continuation.resume(wins)
                 }
