@@ -15,16 +15,29 @@ import javax.inject.Singleton
  * jvm unit tests do not have, so they hand JwtManager their own.
  */
 interface ProTracker {
+    /** Takes the stored jwt; returns whether the plan changed. */
     fun setJwt(byJwt: String): Boolean
+
+    /** Takes a loaded balance's plan; returns whether to refresh the jwt now. */
     fun balanceLoaded(serverIsPro: Boolean): Boolean
+
+    /** Takes a failed balance read; returns whether the read state changed. */
     fun balanceFailed(): Boolean
+
+    /** The plan is Pro. */
     val isPro: Boolean
+
     /** One of the sdk's ShownPlan* values ("pro", "free", "unknown"). */
     val shownPlan: String
+
+    /** The last balance read failed, and none has loaded since. */
     val lastReadFailed: Boolean
+
+    /** Forgets the jwt, the server's answer and a failed read, for a sign out. */
     fun reset()
 }
 
+/** The sdk's own tracker, as the app runs it. */
 private class SdkProTracker(private val tracker: SubscriptionProTracker) : ProTracker {
     override fun setJwt(byJwt: String): Boolean = tracker.setJwt(byJwt)
     override fun balanceLoaded(serverIsPro: Boolean): Boolean = tracker.balanceLoaded(serverIsPro)
@@ -35,12 +48,21 @@ private class SdkProTracker(private val tracker: SubscriptionProTracker) : ProTr
     override fun reset() = tracker.reset()
 }
 
+/**
+ * The signed-in jwt and the plan every screen shows, for the life of the
+ * process. Every input of the sdk's decision goes through here (the stored
+ * jwt, each balance read, a sign out), so the published plan follows it. Safe
+ * to call from any thread: the jwt refresh listener runs on an sdk thread, the
+ * balance reads on the main thread.
+ */
 @Singleton
 class JwtManager internal constructor(newProTracker: () -> ProTracker) {
 
-    @Inject constructor() : this({ SdkProTracker(Sdk.newSubscriptionProTracker()) })
+    @Inject constructor() : this({ SdkProTracker(tracker = Sdk.newSubscriptionProTracker()) })
 
     private val _jwtFlow = MutableStateFlow<ByJwt?>(null)
+
+    /** The parsed signed-in jwt; null when signed out. */
     val jwtFlow: StateFlow<ByJwt?> = _jwtFlow.asStateFlow()
 
     /**
@@ -58,7 +80,7 @@ class JwtManager internal constructor(newProTracker: () -> ProTracker) {
     val proTracker: ProTracker by proTrackerLazy
 
     // each change of the decision and the plan it publishes, in one order
-    private val proLock = Any()
+    private val stateLock = Any()
     private val _isPro = MutableStateFlow(false)
     private val _plan = MutableStateFlow(ShownPlan.Loading)
 
@@ -79,7 +101,10 @@ class JwtManager internal constructor(newProTracker: () -> ProTracker) {
      */
     val plan: StateFlow<ShownPlan> = _plan.asStateFlow()
 
-    /** `storedByJwt` is the stored jwt `newJwt` was parsed from. */
+    /**
+     * Takes a parsed jwt, at sign in and after every refresh, with the stored
+     * jwt it was parsed from (`storedByJwt`), which the decision reads.
+     */
     fun updateJwt(newJwt: ByJwt, storedByJwt: String?) {
         trackStoredJwt(storedByJwt)
         _jwtFlow.value = newJwt
@@ -90,9 +115,9 @@ class JwtManager internal constructor(newProTracker: () -> ProTracker) {
         if (storedByJwt.isNullOrEmpty()) {
             return
         }
-        synchronized(proLock) {
+        synchronized(stateLock) {
             proTracker.setJwt(storedByJwt)
-            publishLocked()
+            publishWithLock()
         }
     }
 
@@ -101,9 +126,9 @@ class JwtManager internal constructor(newProTracker: () -> ProTracker) {
      * subscription. The plan is the server's from here on. Returns whether to
      * refresh the jwt now (one refresh per stored jwt).
      */
-    fun balanceLoaded(serverIsPro: Boolean): Boolean = synchronized(proLock) {
+    fun balanceLoaded(serverIsPro: Boolean): Boolean = synchronized(stateLock) {
         val refreshJwt = proTracker.balanceLoaded(serverIsPro)
-        publishLocked()
+        publishWithLock()
         refreshJwt
     }
 
@@ -113,14 +138,15 @@ class JwtManager internal constructor(newProTracker: () -> ProTracker) {
      * Unreachable: never Free. Asks for no jwt refresh.
      */
     fun balanceFailed() {
-        synchronized(proLock) {
+        synchronized(stateLock) {
             proTracker.balanceFailed()
-            publishLocked()
+            publishWithLock()
         }
     }
 
+    /** A sign out: no jwt, and the decision forgets the session. */
     fun clearJwt() {
-        synchronized(proLock) {
+        synchronized(stateLock) {
             if (proTrackerLazy.isInitialized()) {
                 proTracker.reset()
             }
@@ -130,10 +156,10 @@ class JwtManager internal constructor(newProTracker: () -> ProTracker) {
         _jwtFlow.value = null
     }
 
-    // caller holds proLock
-    private fun publishLocked() {
+    /** Publishes the decision's Pro and plan. The caller holds stateLock. */
+    private fun publishWithLock() {
         _isPro.value = proTracker.isPro
-        _plan.value = ShownPlan.of(proTracker.shownPlan, proTracker.lastReadFailed)
+        _plan.value = ShownPlan.of(sdkPlan = proTracker.shownPlan, lastReadFailed = proTracker.lastReadFailed)
     }
 
 }

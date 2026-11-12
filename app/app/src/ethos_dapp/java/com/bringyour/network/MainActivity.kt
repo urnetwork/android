@@ -125,9 +125,8 @@ class MainActivity: AppCompatActivity() {
 
         setContent {
 
-            // the sdk's Pro (JwtManager.isPro): the server's once a balance has
-            // loaded. The stored jwt's claim stays Free after a purchase until
-            // the network token renews (support inbox 8259).
+            // the sdk's Pro, the server's once a balance loads; the stored jwt's
+            // claim stays Free after a purchase (support inbox 8259)
             val isPro by jwtManager.isPro.collectAsState()
 
             URNetworkTheme {
