@@ -210,14 +210,22 @@ class EarningsViewModel @Inject constructor(
     // dialog's: its events and its Done reach this view model while it lives,
     // whether its dialog shows it or not
     private var detachEpochClaim: (() -> Unit)? = null
+
+    // the session's v1 claim is in flight: the tile's Claim opens it whatever
+    // the claims read says, as the v2 tile's does its claim
+    private val _epochClaimInFlight = MutableStateFlow(false)
+    val epochClaimInFlight: StateFlow<Boolean> = _epochClaimInFlight.asStateFlow()
+
     private val epochClaimListener = object : SnClaimHolder.Listener {
         override fun epochClaimMoved(rows: List<ClaimProgress>) {
+            _epochClaimInFlight.value = true
             if (_claimDialog.value is ClaimDialogState.Sending) {
                 _claimDialog.value = ClaimDialogState.Sending(rows)
             }
         }
 
         override fun epochClaimDone(settled: List<ClaimProgress>) {
+            _epochClaimInFlight.value = false
             viewModelScope.launch { finishEpochClaim(settled) }
         }
     }
@@ -262,9 +270,10 @@ class EarningsViewModel @Inject constructor(
     val isClaimingNow: StateFlow<Boolean> = _isClaimingNow.asStateFlow()
 
     // the capture the flag slots won and not claimed yet (GET /sn/ctf/client),
-    // newest first, a line each on the Settlement v2 tile, as the last read that
-    // answered listed them: a read that failed keeps them, and they are dropped
-    // with the device (ledgerFlow.reset)
+    // newest first, a line each on the Settlement v2 tile, as the newest good
+    // read listed them, a network's answer over a client's: the session's
+    // (ledgerClaims), so a read that failed keeps them, a view model of a new
+    // activity finds them, and another device or a sign-out drops them
     val ctfWins: StateFlow<List<SnCtfWinState>> = ledgerFlow.wins
 
     var isRefreshing by mutableStateOf(false)
@@ -762,6 +771,7 @@ class EarningsViewModel @Inject constructor(
         }
         // the dialog shows the claim before the SDK's first event, which may come at once
         _claimDialog.value = ClaimDialogState.Sending(progress)
+        _epochClaimInFlight.value = true
         ledgerClaims.startEpochClaim(device, source, ready.claims.map { it.epoch }, progress)
     }
 
@@ -885,6 +895,7 @@ class EarningsViewModel @Inject constructor(
         ledgerFlow.reset(source, device)
         detachEpochClaim?.invoke()
         detachEpochClaim = ledgerClaims.attach(epochClaimListener, device)
+        _epochClaimInFlight.value = ledgerClaims.epochClaimInFlight(device) != null
         consentFlow.reset(source)
         resetKeyModel(device)
         _claimStatus.value = null

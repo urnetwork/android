@@ -110,9 +110,16 @@ class SnLedgerWiringTest {
         // the flow shows the newest read's good answer, by the order the reads started, a
         // network's over a client's, and keeps the lines through a failure (SnCtfWinsLines,
         // SnLedgerClaimTest)
-        val read = between(source("SnLedger.kt"), "suspend fun refreshWins() {", "\n    }\n")
-        assertTrue(read.contains("val read = winsLines.start()\n        val answer = s.ctfWins()"))
-        assertTrue(read.contains("if (winsLines.apply(read, answer.getOrNull())) {\n            _wins.value = winsLines.wins"))
+        val ledgerSource = source("SnLedger.kt")
+        val read = between(ledgerSource, "suspend fun refreshWins() {", "\n    }\n")
+        assertTrue(read.contains("val owner = session\n        val read = claims.startWinsRead()\n        val answer = s.ctfWins()"))
+        assertTrue(read.contains("claims.applyWins(owner, read, answer.getOrNull())"))
+        // the lines are the session's, in the holder: a sign-in or another device drops them
+        assertTrue(ledgerSource.contains("    val wins: StateFlow<List<SnCtfWinState>> = claims.wins\n"))
+        val apply = between(ledgerSource, "    fun applyWins(session: Any?, read: Long, answer: SnCtfWinsAnswer?) {", "\n    }\n")
+        assertTrue(apply.contains("if (session !== linesSession) {\n            return\n        }"))
+        assertTrue(between(ledgerSource, "fun attach(listener: Listener, session: Any?): () -> Unit {", "\n    }\n")
+            .contains("if (linesSession !== session) {\n            // a sign-in, or another device: no lines, and no read from before shows\n            linesSession = session\n            winsLines.reset()"))
         // the latest win alone is no longer the line
         assertFalse(sdk.contains("latestWin"))
         // read with each refresh of Earnings, on its own: the route's answer, or its 60 s
@@ -334,6 +341,19 @@ class SnLedgerWiringTest {
             .contains("if (epochClaim !== of) {\n            return\n        }"))
         assertTrue(between(ledger, "fun attach(listener: Listener, session: Any?): () -> Unit {", "\n    }\n")
             .contains("if (epochClaim?.session !== session) {\n            epochClaim = null"))
+        // the tile's Claim opens it while it is in flight, whatever the claims read says, as the
+        // v2 tile's does its claim (the in-flight state follows the holder: set at the claim and
+        // by its events, cleared at its Done, found again by a new view model)
+        assertTrue(model.contains("val epochClaimInFlight: StateFlow<Boolean> = _epochClaimInFlight.asStateFlow()"))
+        assertTrue(ear.contains("override fun epochClaimMoved(rows: List<ClaimProgress>) {\n            _epochClaimInFlight.value = true"))
+        assertTrue(ear.contains("override fun epochClaimDone(settled: List<ClaimProgress>) {\n            _epochClaimInFlight.value = false"))
+        assertTrue(claimAll.indexOf("_epochClaimInFlight.value = true") < claimAll.indexOf("ledgerClaims.startEpochClaim("))
+        assertTrue(setup.contains("detachEpochClaim = ledgerClaims.attach(epochClaimListener, device)\n        _epochClaimInFlight.value = ledgerClaims.epochClaimInFlight(device) != null"))
+        val screen = source("EarningsScreen.kt")
+        assertTrue(screen.contains("val epochClaimInFlight by earningsViewModel.epochClaimInFlight.collectAsState()"))
+        assertTrue(screen.contains("onOpenClaim = { earningsViewModel.openClaimDialog() },\n        // while the session's v1 claim is in flight, Claim opens it whatever the read says\n        claimInFlight = epochClaimInFlight,"))
+        assertTrue(between(screen, "UnclaimedTile(\n", "\n                    )").contains("claimInFlight = claimInFlight,"))
+        assertTrue(between(screen, "private fun UnclaimedTile(", "@Preview").contains("enabled = 0 < totalClaimableRao || claimInFlight"))
         // its dialog's figure while it runs: what it moves, never a zero (every app, 2026-11-12)
         val progress = between(source("ClaimDialog.kt"), "private fun ProgressContent(", "\n}\n")
         assertTrue(progress.contains("val movingRao = progress.sumOf { it.amountRao }\n        if (!finished && 0 < movingRao) {\n            Text(\n                formatAlpha(movingRao),"))

@@ -748,10 +748,16 @@ fun snLedgerClaimFailureDetail(message: String): String =
  * finds the claim still in flight, never starts a second one of its kind
  * while the SDK still claims, and gets its Done and what follows it.
  *
+ * It keeps the session's won lines too (SnCtfWinsLines): a network's answer
+ * beats a client's since the sign-in, and a read that fails keeps them, so an
+ * activity that comes back during the sign-in finds them as the last good
+ * read left them.
+ *
  * A view model, and its v2 flow (SnLedgerFlow), attach for their session, the
  * signed-in device, and draw what this holds. One that attaches for another
- * session (a sign-out, or another device) ends the claims and the reads of the
- * one before: none of those claims' events counts any more. Main thread.
+ * session (a sign-out, or another device) ends the claims, the reads and the
+ * won lines of the one before: none of those claims' events, nor any read's
+ * answer, counts any more. Main thread.
  */
 @Singleton
 class SnClaimHolder internal constructor(
@@ -811,6 +817,14 @@ class SnClaimHolder internal constructor(
     private var winsAfterClaim: Job? = null
     private var winsSession: Any? = null
 
+    // the won lines (GET /sn/ctf/client), newest first, of the session they are for
+    private val winsLines = SnCtfWinsLines()
+    private var linesSession: Any? = null
+    private val _wins = MutableStateFlow<List<SnCtfWinState>>(emptyList())
+
+    /** The won lines of the session last attached: empty after a sign-in until a read answers. */
+    val wins: StateFlow<List<SnCtfWinState>> = _wins.asStateFlow()
+
     /**
      * [listener], of [session] (null: no one signed in), hears of the
      * session's claims from now on. The claims, or reads after one, of
@@ -830,9 +844,32 @@ class SnClaimHolder internal constructor(
             winsAfterClaim = null
             winsSession = null
         }
+        if (linesSession !== session) {
+            // a sign-in, or another device: no lines, and no read from before shows
+            linesSession = session
+            winsLines.reset()
+            _wins.value = emptyList()
+        }
         val entry = Attached(listener, session)
         attached += entry
         return { attached.remove(entry) }
+    }
+
+    /** A read of the won lines starts: its number, which its answer carries (applyWins). */
+    fun startWinsRead(): Long = winsLines.start()
+
+    /**
+     * The answer of read [read] for [session], null for a read that failed:
+     * the lines take it by SnCtfWinsLines' rules, and only while [session] is
+     * still the one they are for.
+     */
+    fun applyWins(session: Any?, read: Long, answer: SnCtfWinsAnswer?) {
+        if (session !== linesSession) {
+            return
+        }
+        if (winsLines.apply(read, answer)) {
+            _wins.value = winsLines.wins
+        }
     }
 
     /** The v2 claim of [session] in flight; null between claims. */
@@ -985,16 +1022,11 @@ class SnLedgerFlow(
     val load: StateFlow<SnLedgerLoad> = _load.asStateFlow()
 
     // the capture the flag slots won and not claimed yet (GET /sn/ctf/client),
-    // newest first, a line each on the tile, as the newest read's good answer
-    // listed them (winsLines); empty without one, and until the first answer
-    // after reset
-    private val _wins = MutableStateFlow<List<SnCtfWinState>>(emptyList())
-    val wins: StateFlow<List<SnCtfWinState>> = _wins.asStateFlow()
-
-    // which read's answer the lines show: reads overlap, a refresh's beside a
-    // claim's, their answers land in any order, and a network's answer beats
-    // a client's
-    private val winsLines = SnCtfWinsLines()
+    // newest first, a line each on the tile: the session's (the holder's), as
+    // the newest read's good answer listed them, a network's over a client's,
+    // so a view model of a new activity finds them; empty after a sign-in or
+    // another device until the first answer
+    val wins: StateFlow<List<SnCtfWinState>> = claims.wins
 
     private val _claimConfigured = MutableStateFlow(false)
     val claimConfigured: StateFlow<Boolean> = _claimConfigured.asStateFlow()
@@ -1037,8 +1069,8 @@ class SnLedgerFlow(
      * A new device (or none: signed out), or this flow's first: drop what the
      * last one read, and hear of [session]'s claims. A claim in flight of the
      * same session (the device, which a view model of a new activity finds
-     * again) goes on; one of another session ends, with the reads of the wins
-     * after it.
+     * again) goes on, and so do its won lines; one of another session ends,
+     * with the reads of the wins after it and its lines.
      */
     fun reset(source: EarningsProtocolSource, session: Any? = source) {
         this.source = source
@@ -1046,8 +1078,6 @@ class SnLedgerFlow(
         _load.value = SnLedgerLoad.Loading
         _claimConfigured.value = false
         _dialog.value = null
-        winsLines.reset()
-        _wins.value = emptyList()
         detach?.invoke()
         detach = claims.attach(listener, session)
         _claimInFlight.value = claims.inFlight(session) != null
@@ -1065,14 +1095,13 @@ class SnLedgerFlow(
      */
     suspend fun refreshWins() {
         val s = source
-        val read = winsLines.start()
+        val owner = session
+        val read = claims.startWinsRead()
         val answer = s.ctfWins()
         if (s !== source) {
             return
         }
-        if (winsLines.apply(read, answer.getOrNull())) {
-            _wins.value = winsLines.wins
-        }
+        claims.applyWins(owner, read, answer.getOrNull())
     }
 
     /** Reads the accounts; without a wallet there are none to read. */

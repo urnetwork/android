@@ -1337,11 +1337,12 @@ class SnLedgerClaimTest {
         assertEquals(listOf(win), flow.wins.value)
         source.winGateFor.getValue(2).complete(Unit)
         assertEquals(emptyList<SnCtfWinState>(), flow.wins.value)
-        // a read from before a sign-out or another device shows nowhere after it
+        // a read from before a sign-out or another device shows nowhere after it: here a sign-in
+        // on the same source, which is another session
         source.winGateFor[4] = CompletableDeferred()
         source.winAnswerFor[4] = listOf(kenya)
         scope.launch { flow.refreshWins() }
-        flow.reset(source)
+        flow.reset(source, Any())
         source.winGateFor.getValue(4).complete(Unit)
         assertEquals(emptyList<SnCtfWinState>(), flow.wins.value)
         assertEquals(5, source.winReads)
@@ -1928,5 +1929,48 @@ class SnLedgerClaimTest {
         flow.open()
         flow.reset(NoProtocolSource)
         assertFalse(flow.claimInFlight.value)
+    }
+
+    @Test
+    fun `an activity that comes back during the sign-in keeps the session's won lines`() {
+        // the lines are the session's: a view model of a new activity finds them as the last good
+        // read left them, a network's answer shown before still beats a client's, and a read that
+        // fails keeps them (every app, 2026-11-12)
+        val kenya = SnCtfWinState(Sdk.SnCtfRoleExtender, "ke")
+        val claims = SnClaimHolder(CoroutineScope(Dispatchers.Unconfined))
+        val device = Any()
+        val source = sourceWith(pool1, ctf)
+        source.winAnswers = listOf(listOf(win, kenya))
+        val firstScope = CoroutineScope(Dispatchers.Unconfined)
+        val first = SnLedgerFlow(firstScope, { true }, { 0 }, claims).also { it.reset(source, device) }
+        runBlocking { first.refreshWins() }
+        assertEquals(listOf(win, kenya), first.wins.value)
+        firstScope.cancel()
+        // the new activity's view model: the lines are there before it reads
+        val next = sourceWith(pool1, ctf)
+        next.winAnswers = listOf(listOf(win), null, emptyList())
+        next.winClientFor[0] = "client-a"
+        val second = SnLedgerFlow(CoroutineScope(Dispatchers.Unconfined), { true }, { 0 }, claims).also { it.reset(next, device) }
+        assertEquals(listOf(win, kenya), second.wins.value)
+        // its first read fell back to the client token: the network's lines stay
+        runBlocking { second.refreshWins() }
+        assertEquals(listOf(win, kenya), second.wins.value)
+        // a read that fails keeps them, and the network's next answer replaces them
+        runBlocking { second.refreshWins() }
+        assertEquals(listOf(win, kenya), second.wins.value)
+        runBlocking { second.refreshWins() }
+        assertEquals(emptyList<SnCtfWinState>(), second.wins.value)
+        // a sign-out drops them, and a read from before it shows nowhere after it, though the
+        // next sign-in reads through the same source
+        val gate = CompletableDeferred<Unit>()
+        next.winGate = gate
+        next.winAnswerFor[3] = listOf(kenya)
+        CoroutineScope(Dispatchers.Unconfined).launch { second.refreshWins() }
+        second.reset(NoProtocolSource, null)
+        assertEquals(emptyList<SnCtfWinState>(), second.wins.value)
+        second.reset(next, Any())
+        gate.complete(Unit)
+        assertEquals(4, next.winReads)
+        assertEquals(emptyList<SnCtfWinState>(), second.wins.value)
     }
 }
