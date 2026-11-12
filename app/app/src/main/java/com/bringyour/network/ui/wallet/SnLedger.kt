@@ -3,7 +3,9 @@ package com.bringyour.network.ui.wallet
 import com.bringyour.network.R
 import com.bringyour.sdk.Sdk
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -237,7 +239,10 @@ fun snLedgerTile(load: SnLedgerLoad, claimConfigured: Boolean): SnLedgerTile? = 
  * price (0 without one): each account with something to claim under it reads
  * Below the claim minimum, whatever pools are in view. Claim is offered only
  * while an account can move, so never for a claim the runtime refuses, and
- * Claim both needs both accounts at or above the floor.
+ * reads Claim both while the accounts that can move are exactly the pool's and
+ * capture the flag's, as the dialog decides it from the same accounts
+ * (Ready.takes): a second operator pool's account under the floor leaves Claim
+ * both to the other two.
  */
 fun SnLedgerTile.withTransferFloor(transferFloorRao: Long): SnLedgerTile {
     if (transferFloorRao <= 0 || accounts == null) {
@@ -248,7 +253,7 @@ fun SnLedgerTile.withTransferFloor(transferFloorRao: Long): SnLedgerTile {
     return copy(
         accounts = lines,
         claimEnabled = claimEnabled && moves.isNotEmpty(),
-        claimBoth = claimBoth && snLedgerClaimsBoth(moves.map { it.pool }),
+        claimBoth = showClaim && snLedgerClaimsBoth(moves.map { it.pool }),
     )
 }
 
@@ -283,6 +288,15 @@ fun snCtfWonRes(win: SnCtfWinState): Int? = when {
  */
 fun snCtfWonLines(wins: List<SnCtfWinState>): List<Pair<Int, String>> =
     wins.mapNotNull { win -> snCtfWonRes(win)?.let { res -> res to win.country } }
+
+/**
+ * When the wins are read again after a claim that paid an account, in ms
+ * after its Done, beside the read at Done (every app's schedule). The SDK's
+ * Done comes once the claim is in a block, but the server says a win is
+ * claimed only once vault2's claimed at the finalized head covers it, so the
+ * read at Done can still list it.
+ */
+val SN_CTF_WINS_READS_AFTER_CLAIM_MS: List<Long> = listOf(30_000, 60_000, 120_000)
 
 // ---- claim
 
@@ -521,6 +535,14 @@ fun snLedgerClaimSettled(progress: List<SnLedgerClaimProgress>, ledgerRead: Bool
     if (!ledgerRead) progress else progress.filterNot { it.status == SnLedgerClaimStatus.POOL_UNAVAILABLE && it.message == null }
 
 /**
+ * The claim paid an account: confirmed, or claimed already by a third party,
+ * whose claim vault2 paid to the same coldkey. Capture the flag's wins it paid
+ * read as claimed once the finalized head covers it.
+ */
+fun snLedgerClaimPaid(progress: List<SnLedgerClaimProgress>): Boolean =
+    progress.any { it.status == SnLedgerClaimStatus.CONFIRMED || it.status == SnLedgerClaimStatus.ALREADY_CLAIMED }
+
+/**
  * The SDK's refusal of an account under the runtime's transfer floor:
  * "not_claimable: AmountTooLow: …", the runtime's error for it.
  */
@@ -595,11 +617,11 @@ fun snLedgerClaimFailureDetail(message: String): String =
 // ---- the tile and its dialog
 
 /**
- * The Settlement v2 tile's accounts and its claim dialog. The earnings view
- * model owns one and points it at the device's protocol source; the SDK reads
- * and claims, this keeps where that stands. A claim in flight outlives its
- * dialog: reopening shows it rather than starting another, and the accounts
- * are read again after its Done.
+ * The Settlement v2 tile's accounts, its won lines and its claim dialog. The
+ * earnings view model owns one and points it at the device's protocol source;
+ * the SDK reads and claims, this keeps where that stands. A claim in flight
+ * outlives its dialog: reopening shows it rather than starting another, and
+ * the accounts and the wins are read again after its Done.
  */
 class SnLedgerFlow(
     private val scope: CoroutineScope,
@@ -607,14 +629,22 @@ class SnLedgerFlow(
     // the claim relay's transfer floor in rao of α at its last price, 0
     // without an answer: the dialog offers no claim for an account under it
     private val transferFloorRao: () -> Long = { 0 },
-    // after a claim's Done, with the accounts read again: a claim may have
-    // paid capture the flag's wins, whose lines are then read again too
-    private val onClaimDone: () -> Unit = {},
+    // the wait between the reads of the wins after a claim (the tests' clock)
+    private val sleep: suspend (Long) -> Unit = { delay(it) },
 ) {
     private var source: EarningsProtocolSource = NoProtocolSource
 
     private val _load = MutableStateFlow<SnLedgerLoad>(SnLedgerLoad.Loading)
     val load: StateFlow<SnLedgerLoad> = _load.asStateFlow()
+
+    // the capture the flag slots won and not claimed yet (GET /sn/ctf/client),
+    // newest first, a line each on the tile; empty without one or without an
+    // answer
+    private val _wins = MutableStateFlow<List<SnCtfWinState>>(emptyList())
+    val wins: StateFlow<List<SnCtfWinState>> = _wins.asStateFlow()
+
+    // the reads of the wins after the last claim's Done (readWinsAfterClaim)
+    private var winsAfterClaim: Job? = null
 
     private val _claimConfigured = MutableStateFlow(false)
     val claimConfigured: StateFlow<Boolean> = _claimConfigured.asStateFlow()
@@ -628,7 +658,7 @@ class SnLedgerFlow(
     // the SDK's own read of the ledger answered (snLedgerClaimReadLedger)
     private var claimingRead = false
 
-    /** A new device (or none): drop what the last one read. */
+    /** A new device (or none: signed out): drop what the last one read, and stop reading its wins. */
     fun reset(source: EarningsProtocolSource) {
         this.source = source
         _load.value = SnLedgerLoad.Loading
@@ -636,6 +666,48 @@ class SnLedgerFlow(
         _dialog.value = null
         claiming = null
         claimingRead = false
+        winsAfterClaim?.cancel()
+        winsAfterClaim = null
+        _wins.value = emptyList()
+    }
+
+    /**
+     * Reads the wins not claimed yet, with or without a wallet: they are the
+     * network's. Each read replaces the lines; one that failed draws none.
+     */
+    suspend fun refreshWins() {
+        val s = source
+        val wins = s.ctfWins()
+        if (s === source) {
+            _wins.value = wins
+        }
+    }
+
+    /**
+     * After a claim's Done the wins are read at once, on their own. When the
+     * claim paid an account they are read again at each of
+     * [SN_CTF_WINS_READS_AFTER_CLAIM_MS] after Done, since the read at Done
+     * can still list a win the claim paid; each read goes on its own, so a
+     * slow answer moves none of the later reads. The next claim that paid
+     * starts the reads over, and one that paid nothing leaves them to run. A
+     * new device or a sign-out (reset) stops them, and so does the end of the
+     * scope, the view model's.
+     */
+    private fun readWinsAfterClaim(paid: Boolean) {
+        if (!paid) {
+            scope.launch { refreshWins() }
+            return
+        }
+        winsAfterClaim?.cancel()
+        winsAfterClaim = scope.launch {
+            launch { refreshWins() }
+            var afterDone = 0L
+            for (at in SN_CTF_WINS_READS_AFTER_CLAIM_MS) {
+                sleep(at - afterDone)
+                afterDone = at
+                launch { refreshWins() }
+            }
+        }
     }
 
     /** Reads the accounts; without a wallet there are none to read. */
@@ -734,7 +806,9 @@ class SnLedgerFlow(
             _dialog.value = finished
         }
         if (s === source) {
-            onClaimDone()
+            // a claim may have paid capture the flag's wins, whose lines go
+            // once the server reads them claimed
+            readWinsAfterClaim(snLedgerClaimPaid(settled))
         }
         refresh()
     }

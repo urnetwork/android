@@ -213,15 +213,14 @@ class EarningsViewModel @Inject constructor(
     private val _claimDialog = MutableStateFlow<ClaimDialogState?>(null)
     val claimDialog: StateFlow<ClaimDialogState?> = _claimDialog.asStateFlow()
 
-    // settlement v2: its tile beside the v1 claims, and its claim dialog, which
-    // offers a claim only for what the claim relay's transfer floor lets move
+    // settlement v2: its tile beside the v1 claims, with capture the flag's won
+    // lines, and its claim dialog, which offers a claim only for what the claim
+    // relay's transfer floor lets move. After a claim's Done it reads the wins
+    // again on their own, on the apps' shared schedule (SnLedgerFlow)
     val ledgerFlow = SnLedgerFlow(
         scope = viewModelScope,
         hasWallet = { _wallet.value != null },
         transferFloorRao = { _claimStatus.value?.takeIf { !it.unavailable }?.transferFloorRao ?: 0 },
-        // a claim may have paid capture the flag's wins: their lines are read again,
-        // on their own, as Apple, Linux and Windows read them after a claim
-        onClaimDone = { viewModelScope.launch { refreshCtfWins() } },
     )
 
     // the network's payout consent beside the v2 tile, signed through its own wallet sheets
@@ -252,9 +251,8 @@ class EarningsViewModel @Inject constructor(
 
     // the capture the flag slots won and not claimed yet (GET /sn/ctf/client),
     // newest first, a line each on the Settlement v2 tile; empty without one or
-    // without an answer
-    private val _ctfWins = MutableStateFlow<List<SnCtfWinState>>(emptyList())
-    val ctfWins: StateFlow<List<SnCtfWinState>> = _ctfWins.asStateFlow()
+    // without an answer, and dropped with the device (ledgerFlow.reset)
+    val ctfWins: StateFlow<List<SnCtfWinState>> = ledgerFlow.wins
 
     var isRefreshing by mutableStateOf(false)
         private set
@@ -325,7 +323,7 @@ class EarningsViewModel @Inject constructor(
             isRefreshing = true
         }
         // the optional capture the flag lines hold up neither the claims nor the refresh
-        viewModelScope.launch { refreshCtfWins() }
+        viewModelScope.launch { ledgerFlow.refreshWins() }
         try {
             coroutineScope {
                 launch { refreshWallet() }
@@ -418,15 +416,6 @@ class EarningsViewModel @Inject constructor(
         val status = s.claimStatus()
         if (s === source) {
             _claimStatus.value = status
-        }
-    }
-
-    // the capture the flag wins not claimed yet; an unread answer draws no line
-    private suspend fun refreshCtfWins() {
-        val s = source
-        val wins = s.ctfWins()
-        if (s === source) {
-            _ctfWins.value = wins
         }
     }
 
@@ -897,7 +886,6 @@ class EarningsViewModel @Inject constructor(
         _claimNowOutcome.value = null
         _isClaimingNow.value = false
         isPresentedRelayClaimDialog = false
-        _ctfWins.value = emptyList()
 
         _wallet.value = null
         _walletLoaded.value = false

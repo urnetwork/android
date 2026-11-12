@@ -258,6 +258,32 @@ class SnLedgerTileTest {
     }
 
     @Test
+    fun `the tile and its dialog agree on Claim both beside a second operator pool`() {
+        // CTF-3, CTF-6: two operator pools and capture the flag's. With the second pool's account
+        // under the floor the claim moves the first pool's and capture the flag's: Claim both, on
+        // the tile as in the dialog, which decides it from the accounts that move (Ready.takes)
+        val small = account.copy(noId = 2, index = 7, claimableRao = 48_025_660)
+        val load = SnLedgerLoad.Loaded(listOf(account, small, ctf))
+        fun tileAt(floor: Long) =
+            snLedgerTileWithRelay(true, snLedgerTile(load, claimConfigured = true), SnClaimStatusState(transferFloorRao = floor, showsTile = true))!!
+        fun dialogAt(floor: Long) = snLedgerClaimDialog(load, gasKey = null, gasTao = 0.124, transferFloorRao = floor) as SnLedgerClaimDialogState.Ready
+        val tile = tileAt(90_000_000)
+        assertEquals(listOf(false, true, false), tile.accounts!!.map { it.underFloor })
+        assertTrue(tile.claimBoth)
+        assertTrue(snLedgerClaimsBoth(dialogAt(90_000_000).takes.map { it.pool }))
+        // the same at every floor: three that move, the pool's alone, or none
+        for (floor in listOf<Long>(0, 48_025_660, 48_025_661, 96_051_320, 96_051_321, 4_120_000_000, 4_120_000_001)) {
+            assertEquals(floor.toString(), snLedgerClaimsBoth(dialogAt(floor).takes.map { it.pool }), tileAt(floor).claimBoth)
+        }
+        assertFalse(tileAt(0).claimBoth)
+        assertFalse(tileAt(96_051_321).claimBoth)
+        // no Claim before vault2 is configured, so no Claim both either
+        val unconfigured = snLedgerTile(load, claimConfigured = false)!!.withTransferFloor(90_000_000)
+        assertFalse(unconfigured.showClaim)
+        assertFalse(unconfigured.claimBoth)
+    }
+
+    @Test
     fun `with every account under the floor no claim is offered`() {
         // CTF-6: the runtime refuses each (AmountTooLow), so Claim is not offered for them
         val small = account.copy(claimableRao = 48_025_660)

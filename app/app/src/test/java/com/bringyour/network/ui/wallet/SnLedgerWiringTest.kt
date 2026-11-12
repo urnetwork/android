@@ -104,11 +104,14 @@ class SnLedgerWiringTest {
         // timeout, holds up neither the claims after it nor the refresh's spinner
         val model = source("EarningsViewModel.kt")
         val refresh = between(model, "private suspend fun refreshAll(", "val retryWallet")
-        assertTrue(refresh.contains("viewModelScope.launch { refreshCtfWins() }"))
-        assertTrue(refresh.indexOf("viewModelScope.launch { refreshCtfWins() }") < refresh.indexOf("coroutineScope {"))
-        assertEquals(1, Regex("refreshCtfWins\\(\\)").findAll(refresh).count())
-        // dropped with the device
-        assertTrue(between(model, "private fun setupDevice(", "private fun createProtocolSource(").contains("_ctfWins.value = emptyList()"))
+        assertTrue(refresh.contains("viewModelScope.launch { ledgerFlow.refreshWins() }"))
+        assertTrue(refresh.indexOf("viewModelScope.launch { ledgerFlow.refreshWins() }") < refresh.indexOf("coroutineScope {"))
+        assertEquals(1, Regex("refreshWins\\(\\)").findAll(refresh).count())
+        // the lines are the ledger flow's, dropped with the device (ledgerFlow.reset, which
+        // SnLedgerClaimTest covers) and read again after a claim on the apps' schedule
+        assertTrue(model.contains("val ctfWins: StateFlow<List<SnCtfWinState>> = ledgerFlow.wins"))
+        assertTrue(between(model, "private fun setupDevice(", "private fun createProtocolSource(").contains("ledgerFlow.reset(source)"))
+        assertFalse(model.contains("_ctfWins"))
         // the tile shows them, and the claim dialog names its rows from the same read as the tile
         val screen = source("EarningsScreen.kt")
         assertTrue(screen.contains("val ctfWins by earningsViewModel.ctfWins.collectAsState()"))
@@ -119,9 +122,15 @@ class SnLedgerWiringTest {
         assertFalse(dialog.contains("transferFloorRao"))
         val flow = between(model, "val ledgerFlow = SnLedgerFlow(", "\n    )")
         assertTrue(flow.contains("transferFloorRao = { _claimStatus.value?.takeIf { !it.unavailable }?.transferFloorRao ?: 0 },"))
-        // and a claim's Done reads the wins again, on their own: it may have paid them
-        assertTrue(flow.contains("onClaimDone = { viewModelScope.launch { refreshCtfWins() } },"))
+        // and a claim's Done reads the wins again, on their own and on the apps' schedule, in
+        // the flow's scope, the view model's: it may have paid them
+        assertTrue(flow.contains("scope = viewModelScope,"))
+        assertFalse(flow.contains("sleep"))
         val ledger = source("SnLedger.kt")
+        val done = between(ledger, "claiming = null\n        val settled = snLedgerClaimSettled(progress, claimingRead)", "\n    }\n}")
+        assertTrue(done.contains("if (s === source) {\n            // a claim may have paid capture the flag's wins"))
+        assertTrue(done.contains("readWinsAfterClaim(snLedgerClaimPaid(settled))"))
+        assertTrue(ledger.contains("private val sleep: suspend (Long) -> Unit = { delay(it) },"))
         assertTrue(ledger.contains("_dialog.value = snLedgerClaimDialog(_load.value, s.gasKey(), gasTao, transferFloorRao())"))
         assertTrue(ledger.contains("if (ready.takes.isEmpty() || claiming != null) {"))
     }

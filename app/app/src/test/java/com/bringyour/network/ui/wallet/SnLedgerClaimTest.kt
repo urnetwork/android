@@ -56,6 +56,12 @@ class SnLedgerClaimTest {
         var onEvent: (SnLedgerClaimEvent) -> Unit = {}
         // when set, the next ledger read waits for it
         var readGate: CompletableDeferred<Unit>? = null
+        // GET /sn/ctf/client's unclaimed wins, one answer per read in turn; the
+        // last one answers every read after it
+        var winAnswers: List<List<SnCtfWinState>> = listOf(emptyList())
+        var winReads = 0
+        // when set, the next read of the wins waits for it
+        var winGate: CompletableDeferred<Unit>? = null
 
         override val available: Boolean = true
         override suspend fun ledgerAccounts(): Result<SnLedgerAccounts> {
@@ -71,6 +77,33 @@ class SnLedgerClaimTest {
         override fun gasKey(): SnGasKeyState? = key
         override suspend fun gasBalance(): Result<SnGasBalanceState> =
             Result.success(SnGasBalanceState("0", gasTao))
+        override suspend fun ctfWins(): List<SnCtfWinState> {
+            winGate?.await()
+            val answer = winAnswers[minOf(winReads, winAnswers.size - 1)]
+            winReads += 1
+            return answer
+        }
+    }
+
+    /**
+     * The flow's waits between the reads of the wins: each one is kept, and
+     * the flow waits until the test moves the clock past it.
+     */
+    private class Clock {
+        val waits = mutableListOf<Long>()
+        private var tick = CompletableDeferred<Unit>()
+
+        suspend fun sleep(ms: Long) {
+            waits += ms
+            tick.await()
+        }
+
+        /** Past the wait the flow is in, if any. */
+        fun next() {
+            val passed = tick
+            tick = CompletableDeferred()
+            passed.complete(Unit)
+        }
     }
 
     private fun sourceWith(vararg accounts: SnLedgerAccountState) =
@@ -80,9 +113,9 @@ class SnLedgerClaimTest {
         source: FakeSource,
         hasWallet: Boolean = true,
         transferFloorRao: Long = 0,
-        onClaimDone: () -> Unit = {},
+        clock: Clock = Clock(),
     ): SnLedgerFlow =
-        SnLedgerFlow(CoroutineScope(Dispatchers.Unconfined), { hasWallet }, { transferFloorRao }, onClaimDone).also { it.reset(source) }
+        SnLedgerFlow(CoroutineScope(Dispatchers.Unconfined), { hasWallet }, { transferFloorRao }, clock::sleep).also { it.reset(source) }
 
     private fun pending(account: SnLedgerAccountState) =
         SnLedgerClaimProgress(account.noId, account.index, account.claimableRao, SnLedgerClaimStatus.PENDING, null, null)
@@ -911,35 +944,232 @@ class SnLedgerClaimTest {
         assertTrue(snLedgerTile(flow.load.value, claimConfigured = true)!!.claimEnabled)
     }
 
-    @Test
-    fun `a claim's done reads the wins again, once, for the device that claimed`() {
-        // a claim may have paid capture the flag's wins, whose lines then go (Apple, Linux and
-        // Windows read them again after a claim too)
-        var winReads = 0
-        val source = sourceWith(pool1, ctf)
-        val flow = flowFor(source, onClaimDone = { winReads += 1 })
+    // ---- capture the flag's wins after a claim: every app reads them at Done and again
+    // about 30 s, 60 s and 120 s after it, when the claim paid an account
+
+    // a provider slot won in Iceland, which capture the flag's account holds
+    private val win = SnCtfWinState(Sdk.SnCtfRoleProvider, "is")
+
+    /** Claims the pool's account and capture the flag's in one batch, both confirmed; Done is the test's. */
+    private fun claimBothConfirmed(source: FakeSource, flow: SnLedgerFlow) {
         flow.open()
         flow.claim()
         source.onEvent(SnLedgerClaimEvent.Sent(1, 42, txHash1))
         source.onEvent(SnLedgerClaimEvent.Sent(ctfNoId, 3, txHash1))
         source.onEvent(SnLedgerClaimEvent.Confirmed(1, 42, txHash1, pool1.claimableRao))
         source.onEvent(SnLedgerClaimEvent.Confirmed(ctfNoId, 3, txHash1, ctf.claimableRao))
-        assertEquals(0, winReads)
+    }
+
+    @Test
+    fun `the wins a claim paid are read again until the server reads them claimed`() {
+        // the sdk's Done comes once the claim is in a block, but the server says a win is claimed
+        // only once vault2's claimed at the finalized head covers it: its first answers after the
+        // claim still list the win, and the line stays until a later read
+        assertEquals(listOf(30_000L, 60_000L, 120_000L), SN_CTF_WINS_READS_AFTER_CLAIM_MS)
+        val source = sourceWith(pool1, ctf)
+        source.winAnswers = listOf(listOf(win), listOf(win), listOf(win), emptyList())
+        val clock = Clock()
+        val flow = flowFor(source, clock = clock)
+        // the page's read, before the claim
+        runBlocking { flow.refreshWins() }
+        assertEquals(listOf(win), flow.wins.value)
+        claimBothConfirmed(source, flow)
+        assertEquals(1, source.winReads)
+        // at Done: still unclaimed at the finalized head
         source.onEvent(SnLedgerClaimEvent.Done)
-        assertEquals(1, winReads)
-        assertTrue(flow.dialog.value is SnLedgerClaimDialogState.Finished)
-        // a closed dialog's claim reads them too
+        assertEquals(2, source.winReads)
+        assertEquals(listOf(win), flow.wins.value)
+        assertEquals(listOf(30_000L), clock.waits)
+        // 30 s after Done: still unclaimed
+        clock.next()
+        assertEquals(3, source.winReads)
+        assertEquals(listOf(win), flow.wins.value)
+        // 60 s: the finalized head covers the claim, and the line goes
+        clock.next()
+        assertEquals(4, source.winReads)
+        assertEquals(emptyList<SnCtfWinState>(), flow.wins.value)
+        // 120 s: the last read
+        clock.next()
+        assertEquals(5, source.winReads)
+        assertEquals(emptyList<SnCtfWinState>(), flow.wins.value)
+        assertEquals(SN_CTF_WINS_READS_AFTER_CLAIM_MS, clock.waits.runningReduce { at, wait -> at + wait })
+        // and none after it
+        clock.next()
+        assertEquals(5, source.winReads)
+        assertEquals(3, clock.waits.size)
+    }
+
+    @Test
+    fun `an account another claim paid first counts as paid too`() {
+        // already_claimed: vault2 paid the same coldkey, maybe just now, so its wins may lag too
+        val source = sourceWith(pool1, ctf)
+        source.winAnswers = listOf(listOf(win), emptyList())
+        val clock = Clock()
+        val flow = flowFor(source, clock = clock)
         flow.open()
         flow.claim()
+        source.onEvent(SnLedgerClaimEvent.Failed(ctfNoId, 3, "already_claimed: NothingToClaim: another claim paid this account first"))
+        source.onEvent(SnLedgerClaimEvent.Failed(1, 42, "claim_failed: the claim transaction reverted"))
+        source.onEvent(SnLedgerClaimEvent.Done)
+        assertEquals(listOf(win), flow.wins.value)
+        clock.next()
+        assertEquals(emptyList<SnCtfWinState>(), flow.wins.value)
+        assertEquals(2, source.winReads)
+        // what counts as paid
+        val row = pending(pool1)
+        assertTrue(snLedgerClaimPaid(listOf(row.copy(status = SnLedgerClaimStatus.FAILED), row.copy(status = SnLedgerClaimStatus.CONFIRMED))))
+        assertTrue(snLedgerClaimPaid(listOf(row.copy(status = SnLedgerClaimStatus.ALREADY_CLAIMED))))
+        for (status in SnLedgerClaimStatus.values().toList() - SnLedgerClaimStatus.CONFIRMED - SnLedgerClaimStatus.ALREADY_CLAIMED) {
+            assertFalse(status.name, snLedgerClaimPaid(listOf(row.copy(status = status))))
+        }
+        assertFalse(snLedgerClaimPaid(emptyList()))
+    }
+
+    @Test
+    fun `a claim that paid nothing reads the wins once, at Done`() {
+        val source = sourceWith(pool1, ctf)
+        source.winAnswers = listOf(listOf(win))
+        val clock = Clock()
+        val flow = flowFor(source, clock = clock)
+        flow.open()
+        flow.claim()
+        source.onEvent(SnLedgerClaimEvent.Failed(0, 0, "needs_gas: this claim needs up to 0.0143 TAO of gas"))
+        source.onEvent(SnLedgerClaimEvent.Done)
+        assertEquals(1, source.winReads)
+        assertEquals(listOf(win), flow.wins.value)
+        assertEquals(emptyList<Long>(), clock.waits)
+    }
+
+    @Test
+    fun `a claim that paid nothing leaves the reads an earlier claim that paid is owed`() {
+        // a second claim 10 s after one that paid, failing before it reaches any account
+        val source = sourceWith(pool1, ctf)
+        source.winAnswers = listOf(listOf(win), listOf(win), listOf(win), emptyList())
+        val clock = Clock()
+        val flow = flowFor(source, clock = clock)
+        claimBothConfirmed(source, flow)
+        source.onEvent(SnLedgerClaimEvent.Done)
+        assertEquals(1, source.winReads)
+        flow.open()
+        flow.claim()
+        source.onEvent(SnLedgerClaimEvent.Failed(0, 0, "chain_rpc_unreachable: dial tcp: i/o timeout"))
+        source.onEvent(SnLedgerClaimEvent.Done)
+        // its own read at Done, and no schedule of its own
+        assertEquals(2, source.winReads)
+        assertEquals(listOf(30_000L), clock.waits)
+        // the first claim's reads at 30, 60 and 120 s go on: the line goes at 60 s
+        clock.next()
+        assertEquals(3, source.winReads)
+        assertEquals(listOf(win), flow.wins.value)
+        clock.next()
+        assertEquals(4, source.winReads)
+        assertEquals(emptyList<SnCtfWinState>(), flow.wins.value)
+        clock.next()
+        assertEquals(5, source.winReads)
+        assertEquals(listOf(30_000L, 30_000L, 60_000L), clock.waits)
+    }
+
+    @Test
+    fun `a slow read moves none of the reads after a claim`() {
+        // the route's answer can take up to the sdk's 60 s timeout: the reads stay 30, 60 and
+        // 120 s after Done, each on its own
+        val source = sourceWith(pool1, ctf)
+        source.winAnswers = listOf(listOf(win), emptyList())
+        val clock = Clock()
+        val flow = flowFor(source, clock = clock)
+        claimBothConfirmed(source, flow)
+        val gate = CompletableDeferred<Unit>()
+        source.winGate = gate
+        source.onEvent(SnLedgerClaimEvent.Done)
+        // the read at Done is still out, and the wait for the read at 30 s has begun
+        assertEquals(0, source.winReads)
+        assertEquals(listOf(30_000L), clock.waits)
+        clock.next()
+        assertEquals(0, source.winReads)
+        assertEquals(listOf(30_000L, 30_000L), clock.waits)
+        // both answer, the later one finding the win claimed
+        gate.complete(Unit)
+        assertEquals(2, source.winReads)
+        assertEquals(emptyList<SnCtfWinState>(), flow.wins.value)
+        clock.next()
+        clock.next()
+        assertEquals(4, source.winReads)
+        assertEquals(listOf(30_000L, 30_000L, 60_000L), clock.waits)
+    }
+
+    @Test
+    fun `signing out or another device stops the reads after a claim`() {
+        val source = sourceWith(pool1, ctf)
+        source.winAnswers = listOf(listOf(win))
+        val clock = Clock()
+        val flow = flowFor(source, clock = clock)
+        claimBothConfirmed(source, flow)
+        source.onEvent(SnLedgerClaimEvent.Done)
+        assertEquals(1, source.winReads)
+        assertEquals(listOf(win), flow.wins.value)
+        // signed out: no lines, and the departed device's wins are not read again
+        flow.reset(NoProtocolSource)
+        assertEquals(emptyList<SnCtfWinState>(), flow.wins.value)
+        repeat(3) { clock.next() }
+        assertEquals(1, source.winReads)
+        assertEquals(emptyList<SnCtfWinState>(), flow.wins.value)
+        // signed in again and claimed, then another device: the claiming device's wins are not
+        // read again, and the other's are read only by its own refresh
+        flow.reset(source)
+        claimBothConfirmed(source, flow)
+        source.onEvent(SnLedgerClaimEvent.Done)
+        assertEquals(2, source.winReads)
+        val other = sourceWith(pool2)
+        flow.reset(other)
+        repeat(3) { clock.next() }
+        assertEquals(2, source.winReads)
+        assertEquals(0, other.winReads)
+        assertEquals(emptyList<SnCtfWinState>(), flow.wins.value)
+    }
+
+    @Test
+    fun `a read of the wins that answers after the device changed draws no line`() {
+        // the page's read, still out when the user signs out
+        val source = sourceWith(pool1)
+        source.winAnswers = listOf(listOf(win))
+        val gate = CompletableDeferred<Unit>()
+        source.winGate = gate
+        val flow = flowFor(source)
+        CoroutineScope(Dispatchers.Unconfined).launch { flow.refreshWins() }
+        flow.reset(NoProtocolSource)
+        gate.complete(Unit)
+        assertEquals(1, source.winReads)
+        assertEquals(emptyList<SnCtfWinState>(), flow.wins.value)
+    }
+
+    @Test
+    fun `a claim's Done reads the wins of the device that claimed, the dialog closed or not, and the next Done starts over`() {
+        val source = sourceWith(pool1, ctf)
+        val clock = Clock()
+        val flow = flowFor(source, clock = clock)
+        claimBothConfirmed(source, flow)
+        assertEquals(0, source.winReads)
+        source.onEvent(SnLedgerClaimEvent.Done)
+        assertEquals(1, source.winReads)
+        assertTrue(flow.dialog.value is SnLedgerClaimDialogState.Finished)
+        // a closed dialog's claim reads them too, and its Done starts the reads over: the first
+        // claim's stop, and the second's run in full
+        claimBothConfirmed(source, flow)
         flow.close()
         source.onEvent(SnLedgerClaimEvent.Done)
-        assertEquals(2, winReads)
+        assertEquals(2, source.winReads)
+        clock.next()
+        assertEquals(3, source.winReads)
+        clock.next()
+        clock.next()
+        assertEquals(5, source.winReads)
+        assertEquals(listOf(30_000L, 30_000L, 30_000L, 60_000L), clock.waits)
         // the last device's claim does not
         flow.open()
         flow.claim()
         flow.reset(sourceWith(pool2))
         source.onEvent(SnLedgerClaimEvent.Done)
-        assertEquals(2, winReads)
+        assertEquals(5, source.winReads)
     }
 
     @Test
