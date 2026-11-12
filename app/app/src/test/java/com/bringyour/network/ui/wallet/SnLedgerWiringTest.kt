@@ -156,7 +156,7 @@ class SnLedgerWiringTest {
         assertTrue(ledger.contains("private val sleep: suspend (Long) -> Unit = { delay(it) },"))
         assertTrue(ledger.contains("override fun readWins() {\n            scope.launch { refreshWins() }"))
         assertTrue(ledger.contains("_dialog.value = snLedgerClaimDialog(_load.value, s.gasKey(), gasTao, transferFloorRao())"))
-        assertTrue(ledger.contains("if (ready.takes.isEmpty() || claims.inFlight(owner) != null) {"))
+        assertTrue(ledger.contains("if (ready.takes.isEmpty() || claims.claiming(owner)) {"))
     }
 
     @Test
@@ -314,7 +314,7 @@ class SnLedgerWiringTest {
         assertTrue(open.indexOf("ledgerClaims.epochClaimInFlight(byDevice)") < open.indexOf("ClaimDialogState.NoWallet"))
         assertTrue(between(model, "    fun retryClaimDialog() {", "\n    }\n").contains("ledgerClaims.epochClaimInFlight(byDevice) != null"))
         val claimAll = between(model, "    fun claimAll() {", "\n    }\n")
-        assertTrue(claimAll.contains("if (ready.claims.isEmpty() || ledgerClaims.epochClaimInFlight(device) != null) {"))
+        assertTrue(claimAll.contains("if (ready.claims.isEmpty() || ledgerClaims.claiming(device)) {"))
         val sending = claimAll.indexOf("_claimDialog.value = ClaimDialogState.Sending(progress)")
         assertTrue(0 <= sending && sending < claimAll.indexOf("ledgerClaims.startEpochClaim(device, source, ready.claims.map { it.epoch }, progress)"))
         // the dialog no longer keeps the claim: nothing asks the sdk but the holder
@@ -357,5 +357,46 @@ class SnLedgerWiringTest {
         // its dialog's figure while it runs: what it moves, never a zero (every app, 2026-11-12)
         val progress = between(source("ClaimDialog.kt"), "private fun ProgressContent(", "\n}\n")
         assertTrue(progress.contains("val movingRao = progress.sumOf { it.amountRao }\n        if (!finished && 0 < movingRao) {\n            Text(\n                formatAlpha(movingRao),"))
+    }
+
+    @Test
+    fun `a v1 and a v2 claim never run at once, and each dialog's Claim waits for the other`() {
+        // the gas key sends one claim at a time, as on Apple, Windows and Linux (SnLedgerClaimTest:
+        // a v1 and a v2 claim of the session never run at once)
+        val ledger = source("SnLedger.kt")
+        assertTrue(ledger.contains("fun claiming(session: Any?): Boolean = inFlight(session) != null || epochClaimInFlight(session) != null"))
+        for (start in listOf("    fun startEpochClaim(", "    fun start(session: Any,")) {
+            val body = between(ledger, start, "\n    }\n")
+            assertTrue(start, body.contains("): Boolean {\n        if (claiming(session)) {\n            return false\n        }"))
+        }
+        // the dialogs' Claim asks nothing of the holder while either kind is in flight, before it
+        // shows the claim
+        val claim = between(ledger, "    fun claim() {", "\n    }\n")
+        val v2Held = claim.indexOf("if (ready.takes.isEmpty() || claims.claiming(owner)) {\n            return\n        }")
+        assertTrue(0 <= v2Held && v2Held < claim.indexOf("_dialog.value = SnLedgerClaimDialogState.Sending("))
+        val model = source("EarningsViewModel.kt")
+        val claimAll = between(model, "    fun claimAll() {", "\n    }\n")
+        val v1Held = claimAll.indexOf("if (ready.claims.isEmpty() || ledgerClaims.claiming(device)) {\n            return\n        }")
+        assertTrue(0 <= v1Held && v1Held < claimAll.indexOf("_claimDialog.value = ClaimDialogState.Sending(progress)"))
+        // each dialog's Claim waits for the other kind's claim: disabled, with nothing new said
+        val screen = source("EarningsScreen.kt")
+        assertTrue(between(screen, "    ClaimDialog(\n", "\n    )\n").contains("claimHeld = ledgerClaimInFlight,"))
+        assertTrue(between(screen, "    SnLedgerClaimDialog(\n", "\n    )\n").contains("claimHeld = epochClaimInFlight,"))
+        val dialog = source("ClaimDialog.kt")
+        assertTrue(between(dialog, "fun ClaimDialog(", "private fun ReadyContent(").contains("claimHeld = claimHeld"))
+        val ready = between(dialog, "private fun ReadyContent(", "internal fun NeedsGasContent(")
+        assertTrue(between(ready, "DialogButtons(\n            primary = stringResource(id = R.string.claim_amount_button", "\n        )")
+            .contains("primaryEnabled = !claimHeld"))
+        assertEquals(1, Regex("primaryEnabled = !claimHeld").findAll(ready).count())
+        val buttons = between(dialog, "internal fun DialogButtons(", "\n}\n")
+        assertTrue(buttons.contains("primaryEnabled: Boolean = true,"))
+        assertTrue(buttons.contains("URButton(onClick = onPrimary, enabled = primaryEnabled) {"))
+        val tile = source("SnLedgerTile.kt")
+        assertTrue(between(tile, "fun SnLedgerClaimDialog(", "private fun LedgerReadyContent(").contains("claimHeld = claimHeld"))
+        val ledgerReady = between(tile, "private fun LedgerReadyContent(", "private fun LedgerAccountRows(")
+        // the Claim, never the Close of a dialog with nothing that can move
+        assertFalse(between(ledgerReady, "if (takes.isEmpty()) {", "return@Column").contains("primaryEnabled"))
+        assertTrue(between(ledgerReady, "primary = if (snLedgerClaimsBoth(", "\n        )").contains("primaryEnabled = !claimHeld"))
+        assertEquals(1, Regex("primaryEnabled = !claimHeld").findAll(ledgerReady).count())
     }
 }

@@ -758,12 +758,14 @@ class EarningsViewModel @Inject constructor(
      * session's from here (ledgerClaims): closing the dialog, or this view
      * model's end with its activity's, loses none of its events nor its
      * Done, a dialog opened during it shows it, and no second claim starts
-     * while it is in flight.
+     * while it is in flight. Nor does it start while the session's v2 claim
+     * is in flight: the gas key sends one claim at a time, and the dialog's
+     * Claim waits for it (SnClaimHolder.claiming).
      */
     fun claimAll() {
         val ready = _claimDialog.value as? ClaimDialogState.Ready ?: return
         val device = byDevice ?: return
-        if (ready.claims.isEmpty() || ledgerClaims.epochClaimInFlight(device) != null) {
+        if (ready.claims.isEmpty() || ledgerClaims.claiming(device)) {
             return
         }
         val progress = ready.claims.map {

@@ -296,6 +296,9 @@ fun SnLedgerClaimDialog(
     explorerTxUrl: (String) -> String,
     // every pool of the latest read (snLedgerPools), which names the rows as the tile does
     pools: List<SnLedgerPool> = emptyList(),
+    // the session's v1 claim is in flight: Claim waits for it, as the gas key sends one
+    // claim at a time (SnClaimHolder.claiming), as on Apple, Windows and Linux
+    claimHeld: Boolean = false,
 ) {
     URDialog(
         visible = state != null,
@@ -323,7 +326,8 @@ fun SnLedgerClaimDialog(
                     onDismiss = onDismiss,
                     onClaim = onClaim,
                     formatAlpha = formatAlpha,
-                    shortSs58 = shortSs58
+                    shortSs58 = shortSs58,
+                    claimHeld = claimHeld
                 )
                 is SnLedgerClaimDialogState.NeedsGas -> NeedsGasContent(
                     state = ClaimDialogState.NeedsGas(state.gasKey, state.gasTao, state.totalRao),
@@ -376,6 +380,7 @@ private fun LedgerReadyContent(
     onClaim: () -> Unit,
     formatAlpha: (Long) -> String,
     shortSs58: (String) -> String,
+    claimHeld: Boolean,
 ) {
     val inView = (pools + state.accounts.map { it.pool } + state.unavailablePools).distinct()
     // the accounts the claim moves: one under the transfer floor asks for no claim
@@ -445,7 +450,9 @@ private fun LedgerReadyContent(
             },
             onPrimary = onClaim,
             secondary = stringResource(id = R.string.cancel),
-            onSecondary = onDismiss
+            onSecondary = onDismiss,
+            // a v1 claim in flight holds it: the gas key sends one claim at a time
+            primaryEnabled = !claimHeld
         )
     }
 }
