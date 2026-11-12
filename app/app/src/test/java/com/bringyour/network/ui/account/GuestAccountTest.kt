@@ -35,7 +35,8 @@ class GuestAccountTest {
         val isGuest = GuestAccount.isGuest(guestModeClaim = false, serverGuest = true)
         assertTrue("refreshed legacy guest not detected", isGuest)
         assertEquals(LoginMode.Guest, GuestAccount.loginMode(jwtParsed = true, isGuest = isGuest))
-        assertEquals(UpgradeEntry.AddSignInMethod, GuestAccount.upgradeEntry(isGuest))
+        val known = GuestAccount.guestStatusKnown(guestModeClaim = false, serverGuestLoaded = true)
+        assertEquals(UpgradeEntry.AddSignInMethod, GuestAccount.upgradeEntry(isGuest = isGuest, guestStatusKnown = known))
     }
 
     @Test
@@ -50,7 +51,44 @@ class GuestAccountTest {
         val isGuest = GuestAccount.isGuest(guestModeClaim = false, serverGuest = false)
         assertFalse(isGuest)
         assertEquals(LoginMode.Authenticated, GuestAccount.loginMode(jwtParsed = true, isGuest = isGuest))
-        assertEquals(UpgradeEntry.Checkout, GuestAccount.upgradeEntry(isGuest))
+        val known = GuestAccount.guestStatusKnown(guestModeClaim = false, serverGuestLoaded = true)
+        assertEquals(UpgradeEntry.Checkout, GuestAccount.upgradeEntry(isGuest = isGuest, guestStatusKnown = known))
+    }
+
+    /**
+     * A Play purchase is paid before the server sees it and cannot be refused
+     * (support inbox 7334). A refreshed legacy guest has no guest_mode claim,
+     * so until the server's `guest` loads, or when that read failed, it reads
+     * as an account: no entry may lead to checkout then.
+     */
+    @Test
+    fun upgradeEntryWaitsForTheGuestStatus() {
+        // a refreshed legacy guest before its first balance load
+        val isGuest = GuestAccount.isGuest(guestModeClaim = false, serverGuest = false)
+        val known = GuestAccount.guestStatusKnown(guestModeClaim = false, serverGuestLoaded = false)
+        assertFalse(isGuest)
+        assertEquals(
+            "checkout opened before the guest status is known",
+            UpgradeEntry.WaitForGuestStatus,
+            GuestAccount.upgradeEntry(isGuest = isGuest, guestStatusKnown = known),
+        )
+        // the balance loaded: the guest adds a sign-in method, an account checks out
+        assertEquals(UpgradeEntry.AddSignInMethod, GuestAccount.upgradeEntry(isGuest = true, guestStatusKnown = true))
+        assertEquals(UpgradeEntry.Checkout, GuestAccount.upgradeEntry(isGuest = false, guestStatusKnown = true))
+    }
+
+    /**
+     * Every Play billing launch, a purchase or the error dialog's Try again,
+     * passes the guest gate right before it opens. The activity is not
+     * constructible in a jvm test, so the source is read as text.
+     */
+    @Test
+    fun playBillingLaunchesOnlyPastTheGuestGate() {
+        val activity = java.io.File("src/google/java/com/bringyour/network/MainActivity.kt").readText()
+        val gate = activity.indexOf("GuestAccount.upgradeEntry(")
+        val launch = activity.indexOf("launchBillingFlow(")
+        assertTrue("the Play billing launch has no guest gate", 0 <= gate)
+        assertTrue("the guest gate is not before the Play billing launch", gate < launch)
     }
 
     @Test

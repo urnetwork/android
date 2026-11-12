@@ -28,6 +28,8 @@ import com.android.billingclient.api.ProductDetailsResult
 import com.android.billingclient.api.QueryProductDetailsParams
 import com.android.billingclient.api.queryProductDetails
 import com.bringyour.network.ui.MainNavHost
+import com.bringyour.network.ui.account.GuestAccount
+import com.bringyour.network.ui.account.UpgradeEntry
 import com.bringyour.network.ui.settings.SettingsViewModel
 import com.bringyour.network.ui.shared.models.BundleStore
 import com.bringyour.network.ui.shared.viewmodels.OverlayViewModel
@@ -366,6 +368,41 @@ class MainActivity: AppCompatActivity() {
         buildingFlowParamsBuilder.setObfuscatedAccountId(networkId)
 
         val billingFlowParams = buildingFlowParamsBuilder.build()
+
+        // Play takes the money before the server sees the purchase, and the server
+        // cannot refuse it (support inbox 7334): billing opens only for a network
+        // known not to be a guest. Every launch passes here, a purchase or Try again.
+        val endPurchase = { errorClass: String ->
+            planViewModel.pendingPurchaseEvent?.let {
+                planViewModel.pendingPurchaseEvent = null
+                com.bringyour.network.analytics.ClientEvents.purchaseFailed(
+                    com.bringyour.sdk.Sdk.EventStorePlay,
+                    com.bringyour.network.analytics.ClientEvents.PRODUCT_PLAY_SUPPORTER,
+                    it.plan, it.trial, it.price, it.currency,
+                    errorClass,
+                )
+            }
+            planViewModel.setInProgress(false)
+        }
+        when (GuestAccount.upgradeEntry(
+            isGuest = subscriptionBalanceViewModel.isGuestNetwork.value,
+            guestStatusKnown = subscriptionBalanceViewModel.guestStatusKnown.value,
+        )) {
+            UpgradeEntry.Checkout -> Unit
+            UpgradeEntry.AddSignInMethod -> {
+                endPurchase(GuestAccount.PURCHASE_ERROR_GUEST_SIGN_IN_REQUIRED)
+                // the add-sign-in sheet, as a refused card purchase opens it
+                subscriptionBalanceViewModel.guestSignInRequired()
+                return
+            }
+            UpgradeEntry.WaitForGuestStatus -> {
+                endPurchase("guest_status_unknown")
+                // the balance read settles it; Try again buys once it has
+                subscriptionBalanceViewModel.refreshSubscriptionBalance()
+                planViewModel.setChangePlanError(getString(R.string.account_isn_t_ready_for_purchases))
+                return
+            }
+        }
 
         activity.let { a ->
             val billingResult = billingClient?.launchBillingFlow(a, billingFlowParams)

@@ -38,10 +38,18 @@ object GuestAccount {
     }
 
     /**
-     * Where an upgrade or "create an account" entry leads.
+     * Where an upgrade or "create an account" entry leads, and whether a store
+     * checkout may open. A guest adds a sign-in method first. A refreshed guest
+     * reads as an account until the server's `guest` has loaded
+     * ([guestStatusKnown]), so until then nothing is sold: a Play purchase is
+     * paid before the server sees it and cannot be refused (support inbox 7334).
      */
-    fun upgradeEntry(isGuest: Boolean): UpgradeEntry {
-        return if (isGuest) UpgradeEntry.AddSignInMethod else UpgradeEntry.Checkout
+    fun upgradeEntry(isGuest: Boolean, guestStatusKnown: Boolean): UpgradeEntry {
+        return when {
+            isGuest -> UpgradeEntry.AddSignInMethod
+            !guestStatusKnown -> UpgradeEntry.WaitForGuestStatus
+            else -> UpgradeEntry.Checkout
+        }
     }
 
     /**
@@ -91,7 +99,7 @@ object GuestAccount {
     ): IntroFunnel {
         return when {
             isPro -> IntroFunnel.Hide
-            !guestStatusKnown || upgradeEntry(isGuest) == UpgradeEntry.AddSignInMethod -> IntroFunnel.Hide
+            upgradeEntry(isGuest = isGuest, guestStatusKnown = guestStatusKnown) != UpgradeEntry.Checkout -> IntroFunnel.Hide
             allowPrompt -> IntroFunnel.Show
             else -> IntroFunnel.Unchanged
         }
@@ -111,6 +119,8 @@ enum class UpgradeEntry {
     Checkout,
     // add a sign-in method to the current network first; no checkout
     AddSignInMethod,
+    // the guest status is not known yet: the balance is read, and no checkout opens
+    WaitForGuestStatus,
 }
 
 /** What a refused purchase leads to (GuestAccount.purchaseRefusal). */
