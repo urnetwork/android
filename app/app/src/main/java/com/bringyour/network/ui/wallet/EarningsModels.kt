@@ -112,6 +112,39 @@ sealed class ClaimEvent {
     object Done : ClaimEvent()
 }
 
+enum class ClaimProgressStatus { PENDING, SENT, CONFIRMED, FAILED }
+
+/** One epoch of a v1 claim (SnClaim): its amount, and where its claim stands. */
+data class ClaimProgress(
+    val epoch: Long,
+    val amountRao: Long,
+    val status: ClaimProgressStatus,
+    val txHash: String?,
+    val message: String?,
+)
+
+/** A v1 claim's rows after one of SnClaim's events; Done leaves them as they are (claimProgressSettled). */
+fun claimProgressAfter(progress: List<ClaimProgress>, event: ClaimEvent): List<ClaimProgress> = when (event) {
+    is ClaimEvent.Sent -> progress.map {
+        if (it.epoch == event.epoch) it.copy(status = ClaimProgressStatus.SENT, txHash = event.txHash) else it
+    }
+    is ClaimEvent.Confirmed -> progress.map {
+        if (it.epoch == event.epoch) {
+            it.copy(status = ClaimProgressStatus.CONFIRMED, txHash = event.txHash, amountRao = event.amountRao)
+        } else {
+            it
+        }
+    }
+    is ClaimEvent.Failed -> progress.map {
+        if (it.epoch == event.epoch) it.copy(status = ClaimProgressStatus.FAILED, message = event.message) else it
+    }
+    ClaimEvent.Done -> progress
+}
+
+/** A v1 claim's rows at its Done: an epoch the SDK never reported on was not sent, and failed. */
+fun claimProgressSettled(progress: List<ClaimProgress>): List<ClaimProgress> =
+    progress.map { if (it.status == ClaimProgressStatus.PENDING) it.copy(status = ClaimProgressStatus.FAILED) else it }
+
 class EarningsUnavailableException(message: String = "The UR protocol is not available in this build yet") :
     Exception(message)
 
@@ -196,11 +229,12 @@ interface EarningsProtocolSource {
 
     /**
      * the capture the flag slots won and not claimed yet (SnCtfClient's
-     * UnclaimedWins), newest first; empty without one. A read that failed or
-     * could not be read is a failure, never "no win": the lines the last read
-     * that answered drew stay
+     * UnclaimedWins), newest first, empty without one, and the client the
+     * answer is for ("" for the network's). A read that failed or could not
+     * be read is a failure, never "no win": the lines the last read that
+     * answered drew stay
      */
-    suspend fun ctfWins(): Result<List<SnCtfWinState>> = Result.success(emptyList())
+    suspend fun ctfWins(): Result<SnCtfWinsAnswer> = Result.success(SnCtfWinsAnswer(emptyList()))
 
     suspend fun accountEpochs(): Result<List<AccountEpoch>>
 
@@ -487,15 +521,17 @@ class SampleProtocolSource(
 
     // the two slots capture the flag's account holds, newest first: a provider
     // slot in Iceland's latest draw and an extender slot in Kenya's before it
-    override suspend fun ctfWins(): Result<List<SnCtfWinState>> {
+    override suspend fun ctfWins(): Result<SnCtfWinsAnswer> {
         delay(300)
         if (ledgerAccounts.value.none { it.kind == Sdk.SnLedgerPoolKindCtf && 0 < it.claimableRao }) {
-            return Result.success(emptyList())
+            return Result.success(SnCtfWinsAnswer(emptyList()))
         }
         return Result.success(
-            listOf(
-                SnCtfWinState(Sdk.SnCtfRoleProvider, "is"),
-                SnCtfWinState(Sdk.SnCtfRoleExtender, "ke"),
+            SnCtfWinsAnswer(
+                listOf(
+                    SnCtfWinState(Sdk.SnCtfRoleProvider, "is"),
+                    SnCtfWinState(Sdk.SnCtfRoleExtender, "ke"),
+                )
             )
         )
     }

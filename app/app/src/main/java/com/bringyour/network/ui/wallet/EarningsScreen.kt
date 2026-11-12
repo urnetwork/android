@@ -153,10 +153,12 @@ fun EarningsScreen(
     }
     val isSeekerHolder by earningsViewModel.isSeekerHolder.collectAsState()
     val claimDialog by earningsViewModel.claimDialog.collectAsState()
+    val epochClaimInFlight by earningsViewModel.epochClaimInFlight.collectAsState()
     val manualValidation by earningsViewModel.manualValidation.collectAsState()
     val ledgerLoad by earningsViewModel.ledgerFlow.load.collectAsState()
     val ledgerClaimConfigured by earningsViewModel.ledgerFlow.claimConfigured.collectAsState()
     val ledgerClaimDialog by earningsViewModel.ledgerFlow.dialog.collectAsState()
+    val ledgerClaimInFlight by earningsViewModel.ledgerFlow.claimInFlight.collectAsState()
     val consentState by earningsViewModel.consentFlow.state.collectAsState()
     val consentStage by earningsViewModel.consentFlow.proofFlow.stage.collectAsState()
 
@@ -293,6 +295,8 @@ fun EarningsScreen(
         totalClaimableRao = totalClaimableRao,
         claimsError = claimsError,
         onOpenClaim = { earningsViewModel.openClaimDialog() },
+        // while the session's v1 claim is in flight, Claim opens it whatever the read says
+        claimInFlight = epochClaimInFlight,
         epochs = epochs,
         epochsLoaded = epochsLoaded,
         top200 = top200TileState(top),
@@ -307,7 +311,9 @@ fun EarningsScreen(
         onSetColdkey = { earningsViewModel.connectWithBridge() },
         // the device wallet's v2 ledger, or what the claim relay says is claimable
         // for a network with no wallet on this device
-        ledgerTile = snLedgerTileWithRelay(wallet != null, snLedgerTile(ledgerLoad, ledgerClaimConfigured), claimStatus),
+        // while the session's v2 claim is in flight, Claim opens it whatever the read says
+        ledgerTile = snLedgerTileWithRelay(wallet != null, snLedgerTile(ledgerLoad, ledgerClaimConfigured), claimStatus)
+            ?.withClaimInFlight(ledgerClaimInFlight),
         onOpenLedgerClaim = { earningsViewModel.ledgerFlow.open() },
         claimStatus = claimStatus,
         onOpenRelayClaim = { earningsViewModel.openRelayClaimDialog() },
@@ -511,6 +517,8 @@ fun EarningsScreenContent(
     totalClaimableRao: Long,
     claimsError: String?,
     onOpenClaim: () -> Unit,
+    // the session's v1 claim is in flight: Claim opens it
+    claimInFlight: Boolean = false,
     epochs: List<AccountEpoch>,
     epochsLoaded: Boolean,
     top200: Top200TileState,
@@ -678,6 +686,7 @@ fun EarningsScreenContent(
                         totalClaimableRao = totalClaimableRao,
                         claimsError = claimsError,
                         onOpenClaim = onOpenClaim,
+                        claimInFlight = claimInFlight,
                         formatAlpha = formatAlpha,
                         fundsDisclaimer = keyCard.claimFundsDisclaimer,
                     )
@@ -1228,6 +1237,8 @@ private fun UnclaimedTile(
     totalClaimableRao: Long,
     claimsError: String?,
     onOpenClaim: () -> Unit,
+    // the session's v1 claim is in flight: Claim opens it whatever the read says
+    claimInFlight: Boolean = false,
     formatAlpha: (Long) -> String,
     // the claim card's disclaimer (a BittensorFundsDisclaimer*): Earnings shows
     // it once, here only while the payout card has none
@@ -1274,7 +1285,7 @@ private fun UnclaimedTile(
 
         URButton(
             onClick = onOpenClaim,
-            enabled = 0 < totalClaimableRao
+            enabled = 0 < totalClaimableRao || claimInFlight
         ) { buttonTextStyle ->
             Text(stringResource(id = R.string.claim), style = buttonTextStyle)
         }

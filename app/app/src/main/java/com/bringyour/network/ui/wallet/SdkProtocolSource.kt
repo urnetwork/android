@@ -441,21 +441,24 @@ class SdkProtocolSource private constructor(
             }
         }
 
-    override suspend fun ctfWins(): Result<List<SnCtfWinState>> =
+    override suspend fun ctfWins(): Result<SnCtfWinsAnswer> =
         suspendCancellableCoroutine { continuation ->
-            // the sdk sends the client token, else the network's, on a transport
-            // whose 401 never signs the user out; an older server's 401 is no wins
+            // the sdk asks with the network's credential, and with the client
+            // token when that read fails, on a transport whose 401 never signs
+            // the user out; an older server's 401 is no wins
             device.snCtfClient { result, err ->
                 // copied off the gomobile objects here: an exception thrown out
                 // of the callback cannot cross JNI and aborts the process. An
                 // error (ctf_unavailable: a read that failed) or an answer that
-                // cannot be read is a failure, which keeps the lines drawn
-                val wins: Result<List<SnCtfWinState>> = runCatching {
+                // cannot be read is a failure, which keeps the lines drawn. The
+                // answer's client is "" for the network's answer, set for one
+                // client's (SnCtfWinsLines: a network's answer beats a client's)
+                val wins: Result<SnCtfWinsAnswer> = runCatching {
                     when {
                         err != null -> throw err
                         result == null -> throw IllegalStateException("no capture the flag answer")
                         result.error != null -> throw result.error.toException()!!
-                        else -> snCtfWinsOf(result.unclaimedWins)
+                        else -> SnCtfWinsAnswer(snCtfWinsOf(result.unclaimedWins), result.clientId.orEmpty())
                     }
                 }
                 if (continuation.isActive) {
