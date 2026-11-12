@@ -24,7 +24,8 @@ import com.stripe.android.paymentsheet.PaymentSheetResult
  * (StripeSheetRequest), the sheet confirms it in the app -- a SetupIntent for
  * the yearly plan (card saved, 14-day trial, the welcome coupon when the offer
  * is active), a PaymentIntent for the monthly plan -- and on completion the
- * balance is polled until Pro lands.
+ * purchase is reported to the server (StripePurchaseReport) and the balance is
+ * polled until Pro lands.
  */
 @Composable
 fun rememberPlanPurchaser(
@@ -47,6 +48,13 @@ fun rememberPlanPurchaser(
                 is PaymentSheetResult.Completed -> {
                     inFlight?.let { ClientEvents.purchaseCompleted(Sdk.EventStoreStripe, ClientEvents.PRODUCT_STRIPE_PRO, it.plan, it.trial, it.price, it.currency) }
                     onPurchaseSuccess()
+                    // the server credits it now, not when Stripe's webhook arrives; after
+                    // onPurchaseSuccess, so the confirmation's baseline predates the credit
+                    StripePurchaseReport.report(
+                        api = planViewModel.api,
+                        subscriptionId = inFlight?.subscriptionId,
+                        onCredited = subscriptionBalanceViewModel.fetchSubscriptionBalance,
+                    )
                 }
                 is PaymentSheetResult.Canceled -> {
                     subscriptionBalanceViewModel.cancelPurchaseConfirmation()
@@ -102,7 +110,13 @@ fun rememberPlanPurchaser(
                     )
                     return@request
                 }
-                pending[0] = PurchaseInFlight(planName, 0 < result.trialDays, result.amountFirstPeriodUsd, result.currency.ifEmpty { "USD" })
+                pending[0] = PurchaseInFlight(
+                    plan = planName,
+                    trial = 0 < result.trialDays,
+                    price = result.amountFirstPeriodUsd,
+                    currency = result.currency.ifEmpty { "USD" },
+                    subscriptionId = result.subscriptionId,
+                )
                 PaymentConfiguration.init(context, result.publishableKey)
                 val configuration = PaymentSheet.Configuration.Builder(merchantDisplayName = merchantName)
                     .customer(PaymentSheet.CustomerConfiguration(id = result.customerId, ephemeralKeySecret = result.ephemeralKeySecret))
@@ -130,7 +144,15 @@ fun rememberPlanPurchaser(
     }
 }
 
-private class PurchaseInFlight(val plan: String, val trial: Boolean, val price: Double, val currency: String)
+/** The sheet's purchase, for its events and its report (StripePurchaseReport). */
+private class PurchaseInFlight(
+    val plan: String,
+    val trial: Boolean,
+    val price: Double,
+    val currency: String,
+    // the server's id for the subscription the sheet pays; "" from an older server
+    val subscriptionId: String,
+)
 
 /**
  * The Stripe sheet runs in this app, and the tunnel leaves this app out (MainService),
