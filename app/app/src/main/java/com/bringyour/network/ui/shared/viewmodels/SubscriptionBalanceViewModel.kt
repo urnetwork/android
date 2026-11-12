@@ -560,7 +560,9 @@ class SubscriptionBalanceViewModel @Inject constructor(
                             // stored jwt. The refresh renews the client token and leaves the
                             // stored jwt, and its stale claim, as it was, so asking whenever
                             // the two disagreed refreshed on every poll (support inbox 8211).
-                            if (jwtManager.proTracker.balanceLoaded(serverIsPro)) {
+                            // Through JwtManager, so the Pro the screens show follows the
+                            // server's answer (support inbox 8259).
+                            if (jwtManager.balanceLoaded(serverIsPro)) {
                                 deviceManager.device?.refreshToken(0)
                             }
 
