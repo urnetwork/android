@@ -8,6 +8,7 @@ import com.bringyour.sdk.Sdk
 import com.bringyour.sdk.SnClaimCallback
 import com.bringyour.sdk.SnClaimRelayAccountList
 import com.bringyour.sdk.SnClaimStatusResult
+import com.bringyour.sdk.SnCtfWinList
 import com.bringyour.sdk.SnError
 import com.bringyour.sdk.SnLedgerClaimCallback
 import com.bringyour.sdk.SnLedgerUnavailablePoolList
@@ -96,6 +97,20 @@ class SdkProtocolSource private constructor(
                 SnLedgerPool(
                     noId = p.noId,
                     kind = p.kind,
+                )
+            }
+        }
+
+        // the wins of a GET /sn/ctf/client answer, in the sdk's order: never nil from the sdk
+        private fun snCtfWinsOf(list: SnCtfWinList?): List<SnCtfWinState> {
+            if (list == null) {
+                return emptyList()
+            }
+            return (0 until list.len()).map { i ->
+                val w = list.get(i)
+                SnCtfWinState(
+                    role = w.role,
+                    country = w.country,
                 )
             }
         }
@@ -425,17 +440,19 @@ class SdkProtocolSource private constructor(
             }
         }
 
-    override suspend fun ctfWin(): SnCtfWinState? =
+    override suspend fun ctfWins(): List<SnCtfWinState> =
         suspendCancellableCoroutine { continuation ->
+            // the sdk sends the client token, else the network's, on a transport
+            // whose 401 never signs the user out; an older server's 401 is no wins
             device.snCtfClient { result, _ ->
                 // copied off the gomobile objects here: an exception thrown out
                 // of the callback cannot cross JNI and aborts the process. An
-                // error (a read that failed, a network jwt) draws no line
-                val win = runCatching {
-                    result?.takeIf { it.error == null }?.latestWin?.let { SnCtfWinState(it.role, it.country) }
-                }.getOrNull()
+                // error (a read that failed) draws no line
+                val wins = runCatching {
+                    snCtfWinsOf(result?.takeIf { it.error == null }?.unclaimedWins)
+                }.getOrDefault(emptyList())
                 if (continuation.isActive) {
-                    continuation.resume(win)
+                    continuation.resume(wins)
                 }
             }
         }

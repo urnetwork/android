@@ -15,7 +15,9 @@ import org.junit.Test
  * UX-5 before activation). CTF-n names the rule of capture the flag's claim
  * flow (sn CAPTURETHEFLAG.md §10): CTF-1 its account is its own row, named by
  * its kind; CTF-2 an unavailable pool never hides the others; CTF-3 one action
- * claims both pools; CTF-4 old servers read as before; CTF-5 the won line.
+ * claims both pools; CTF-4 old servers read as before; CTF-5 a line for each
+ * unclaimed win; CTF-6 Below the claim minimum for any pool's account under
+ * the floor, alone or not, and no claim offered for it (owner, 2026-11-11).
  *
  * Sdk's constants are compile-time constants, which kotlin inlines: these
  * tests need no native library.
@@ -239,7 +241,7 @@ class SnLedgerTileTest {
 
     @Test
     fun `an account under the relay's transfer floor says so, and Claim both needs both above it`() {
-        // sn_ledger_pool_under_floor: ClaimableRao < TransferFloorRao
+        // CTF-6, sn_ledger_pool_under_floor: ClaimableRao < TransferFloorRao
         val tile = snLedgerTile(SnLedgerLoad.Loaded(listOf(account, ctf)), claimConfigured = true)!!
         val floored = tile.withTransferFloor(100_000_000)
         assertEquals(listOf(false, true), floored.accounts!!.map { it.underFloor })
@@ -248,10 +250,30 @@ class SnLedgerTileTest {
         assertTrue(floored.claimEnabled)
         // at or above the floor, and nothing to claim, is not under it
         assertEquals(listOf(false, false), tile.withTransferFloor(96_051_320).accounts!!.map { it.underFloor })
+        assertTrue(tile.withTransferFloor(96_051_320).claimBoth)
         assertFalse(snLedgerTile(SnLedgerLoad.Loaded(listOf(account, ctf.copy(claimableRao = 0))), claimConfigured = true)!!
             .withTransferFloor(100_000_000).accounts!![1].underFloor)
         // no price, no floor
         assertEquals(tile, tile.withTransferFloor(0))
+    }
+
+    @Test
+    fun `with every account under the floor no claim is offered`() {
+        // CTF-6: the runtime refuses each (AmountTooLow), so Claim is not offered for them
+        val small = account.copy(claimableRao = 48_025_660)
+        val floored = snLedgerTile(SnLedgerLoad.Loaded(listOf(small, ctf)), claimConfigured = true)!!.withTransferFloor(100_000_000)
+        assertEquals(listOf(true, true), floored.accounts!!.map { it.underFloor })
+        assertTrue(floored.showClaim)
+        assertFalse(floored.claimEnabled)
+        assertFalse(floored.claimBoth)
+        // a pool unread beside them changes nothing: no account can move
+        val partial = snLedgerTile(SnLedgerLoad.Loaded(listOf(small), unavailablePools = listOf(ctfPool)), claimConfigured = true)!!
+        assertFalse(partial.withTransferFloor(100_000_000).claimEnabled)
+        // without the relay's price the claim's own preflight decides, as before
+        assertTrue(snLedgerTileWithRelay(true, partial, null)!!.claimEnabled)
+        // the floor never turns on a Claim the tile did not offer
+        val before = snLedgerTile(SnLedgerLoad.Loaded(listOf(account)), claimConfigured = false)!!
+        assertFalse(before.withTransferFloor(100_000_000).claimEnabled)
     }
 
     @Test
@@ -265,32 +287,42 @@ class SnLedgerTileTest {
     }
 
     @Test
-    fun `without capture the flag in view the relay's floor changes nothing`() {
-        // CTF-4: today's relay already sends transfer_floor_rao; a server without capture the
-        // flag shows its pool's tile, sheet and Claim as before, under the floor or not
+    fun `a lone pool's account under the floor says so on any server, and offers no claim`() {
+        // CTF-6 (owner, 2026-11-11): Below the claim minimum is not capture the flag's alone.
+        // Today's relay already sends transfer_floor_rao, and the runtime refuses a claim under
+        // it on any server, so a lone pool's account says so as one beside capture the flag does
         val small = account.copy(claimableRao = 48_025_660)
         val tile = snLedgerTile(SnLedgerLoad.Loaded(listOf(small)), claimConfigured = true)!!
         val relay = SnClaimStatusState(transferFloorRao = 100_000_000, showsTile = true)
-        assertEquals(tile, snLedgerTileWithRelay(true, tile, relay))
-        assertEquals(tile, tile.withTransferFloor(100_000_000))
-        assertTrue(tile.claimEnabled)
-        assertEquals(0L, snLedgerTransferFloor(listOf(pool1, SnLedgerPool(2)), 100_000_000))
-        // the claim sheet's rows read Pending
+        val floored = snLedgerTileWithRelay(true, tile, relay)!!
+        assertEquals(tile.withTransferFloor(100_000_000), floored)
+        assertEquals(listOf(true), floored.accounts!!.map { it.underFloor })
+        assertFalse(floored.claimEnabled)
+        // two operator pools, no capture the flag: the same
+        val two = snLedgerTile(SnLedgerLoad.Loaded(listOf(small, account.copy(noId = 2, index = 7))), claimConfigured = true)!!
+            .withTransferFloor(100_000_000)
+        assertEquals(listOf(true, false), two.accounts!!.map { it.underFloor })
+        assertTrue(two.claimEnabled)
+        assertFalse(two.claimBoth)
+        // the claim sheet's row says it too
         val row = SnClaimRelayAccountState(coldkeySs58 = "5Ab", noId = 1, claimableRao = 48_025_660)
         val status = relay.copy(coldkeySs58 = "5Ab", accounts = listOf(row))
-        assertEquals(0L, snClaimRelayTransferFloor(status))
-        assertEquals(SnClaimRelayRowStatus.PENDING, snClaimRelayRowStatus(row, snClaimRelayTransferFloor(status)))
-        // with capture the flag in view, the floor applies to each pool's row
-        assertEquals(100_000_000L, snLedgerTransferFloor(listOf(pool1, ctfPool), 100_000_000))
-        assertEquals(100_000_000L, snClaimRelayTransferFloor(status.copy(unavailablePools = listOf(ctfPool))))
+        assertEquals(SnClaimRelayRowStatus.UNDER_FLOOR, snClaimRelayRowStatus(row, status.transferFloorRao))
+        // at or above the floor it is the relay's Pending, as before
+        assertEquals(SnClaimRelayRowStatus.PENDING, snClaimRelayRowStatus(row.copy(claimableRao = 100_000_000), status.transferFloorRao))
+        // with no price there is no floor, and the tile reads as before
+        assertEquals(tile, snLedgerTileWithRelay(true, tile, relay.copy(transferFloorRao = 0)))
+        assertTrue(snLedgerUnderFloor(1, 2))
+        assertFalse(snLedgerUnderFloor(2, 2))
+        assertFalse(snLedgerUnderFloor(0, 2))
+        assertFalse(snLedgerUnderFloor(1, 0))
     }
 
     @Test
     fun `the claim sheet's rows say Below the claim minimum under the floor`() {
         val row = SnClaimRelayAccountState(coldkeySs58 = "5Ab", noId = ctfNoId, claimableRao = 48_025_660, kind = Sdk.SnLedgerPoolKindCtf)
         val status = SnClaimStatusState(coldkeySs58 = "5Ab", transferFloorRao = 100_000_000, accounts = listOf(row))
-        assertEquals(100_000_000L, snClaimRelayTransferFloor(status))
-        assertEquals(SnClaimRelayRowStatus.UNDER_FLOOR, snClaimRelayRowStatus(row, snClaimRelayTransferFloor(status)))
+        assertEquals(SnClaimRelayRowStatus.UNDER_FLOOR, snClaimRelayRowStatus(row, status.transferFloorRao))
         assertEquals(SnClaimRelayRowStatus.PENDING, snClaimRelayRowStatus(row, 48_025_660))
         // no price, no floor
         assertEquals(SnClaimRelayRowStatus.PENDING, snClaimRelayRowStatus(row, 0))
@@ -352,5 +384,34 @@ class SnLedgerTileTest {
         assertEquals(R.string.sn_ctf_won_extender_slot, snCtfWonRes(SnCtfWinState(Sdk.SnCtfRoleExtender, "ke")))
         assertNull(snCtfWonRes(SnCtfWinState("validator", "is")))
         assertNull(snCtfWonRes(SnCtfWinState(Sdk.SnCtfRoleProvider, "")))
+    }
+
+    @Test
+    fun `every unclaimed win is a line of its own, newest first`() {
+        // CTF-5 (owner, 2026-11-11): one line per win in the sdk's UnclaimedWins, in its order,
+        // newest first and providers before extenders within an epoch, the same slot of an
+        // earlier epoch included
+        val wins = listOf(
+            SnCtfWinState(Sdk.SnCtfRoleProvider, "is"),
+            SnCtfWinState(Sdk.SnCtfRoleExtender, "is"),
+            SnCtfWinState(Sdk.SnCtfRoleProvider, "ke"),
+            SnCtfWinState(Sdk.SnCtfRoleProvider, "is"),
+        )
+        assertEquals(
+            listOf(
+                R.string.sn_ctf_won_provider_slot to "is",
+                R.string.sn_ctf_won_extender_slot to "is",
+                R.string.sn_ctf_won_provider_slot to "ke",
+                R.string.sn_ctf_won_provider_slot to "is",
+            ),
+            snCtfWonLines(wins)
+        )
+        // a win with no line is left out, and the others keep their order
+        assertEquals(
+            listOf(R.string.sn_ctf_won_extender_slot to "ke"),
+            snCtfWonLines(listOf(SnCtfWinState("validator", "is"), SnCtfWinState(Sdk.SnCtfRoleExtender, "ke")))
+        )
+        // none: no line
+        assertEquals(emptyList<Pair<Int, String>>(), snCtfWonLines(emptyList()))
     }
 }

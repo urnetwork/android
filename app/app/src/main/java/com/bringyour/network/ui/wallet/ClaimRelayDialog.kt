@@ -415,7 +415,7 @@ private fun SnClaimRelayRows(
     rows: List<SnClaimRelayAccountState>,
     formatAlpha: (Long) -> String,
     shortSs58: (String) -> String,
-    // the relay's transfer floor as snClaimRelayTransferFloor applies it, 0 for none
+    // the relay's transfer floor, 0 for none: any pool's account under it is Below the claim minimum
     transferFloorRao: Long,
     unavailablePools: List<SnLedgerPool>,
     // every pool of the relay's answer, which names the rows (snClaimRelayPools)
@@ -504,7 +504,7 @@ internal fun SnClaimRelayTilePools(
         rows = rows,
         formatAlpha = formatAlpha,
         shortSs58 = shortSs58,
-        transferFloorRao = snClaimRelayTransferFloor(status),
+        transferFloorRao = status.transferFloorRao,
         unavailablePools = status.unavailablePools,
         pools = snClaimRelayPools(status),
         pendingPill = false,
@@ -586,7 +586,7 @@ fun ClaimRelayDialog(
                         rows = rows,
                         formatAlpha = formatAlpha,
                         shortSs58 = shortSs58,
-                        transferFloorRao = snClaimRelayTransferFloor(status),
+                        transferFloorRao = status.transferFloorRao,
                         unavailablePools = status.unavailablePools,
                         pools = snClaimRelayPools(status),
                     )

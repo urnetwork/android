@@ -169,8 +169,8 @@ fun EarningsScreen(
     val claimStatus by earningsViewModel.claimStatus.collectAsState()
     val claimNowOutcome by earningsViewModel.claimNowOutcome.collectAsState()
     val isClaimingNow by earningsViewModel.isClaimingNow.collectAsState()
-    // the capture the flag slot this device won last
-    val ctfWin by earningsViewModel.ctfWin.collectAsState()
+    // the capture the flag slots won and not claimed yet
+    val ctfWins by earningsViewModel.ctfWins.collectAsState()
     // Change wallet offers a key on this device above the wallets; Use a wallet
     // I already have opens the same chooser without it
     var consentOffersKey by remember { mutableStateOf(false) }
@@ -311,7 +311,7 @@ fun EarningsScreen(
         onOpenLedgerClaim = { earningsViewModel.ledgerFlow.open() },
         claimStatus = claimStatus,
         onOpenRelayClaim = { earningsViewModel.openRelayClaimDialog() },
-        ctfWin = ctfWin,
+        ctfWins = ctfWins,
         consentTile = if (earningsViewModel.protocolAvailable) snConsentTile(consentState, consentStage) else null,
         onSignConsent = {
             consentOffersKey = true
@@ -353,8 +353,6 @@ fun EarningsScreen(
         explorerTxUrl = earningsViewModel::explorerTxUrl,
         // the rows are named as the tile names them
         pools = snLedgerPools(ledgerLoad),
-        // what the claim can move now, as the tile marks it
-        transferFloorRao = claimStatus?.takeIf { !it.unavailable }?.transferFloorRao ?: 0,
     )
 
     // Claim now, through URnetwork's claim relay: a screen of its own, with the
@@ -531,8 +529,8 @@ fun EarningsScreenContent(
     // what URnetwork's claim relay says, and its Claim now
     claimStatus: SnClaimStatusState? = null,
     onOpenRelayClaim: () -> Unit = {},
-    // the capture the flag slot this device won last, a line on the Settlement v2 tile
-    ctfWin: SnCtfWinState? = null,
+    // the capture the flag slots won and not claimed yet, a line each on the Settlement v2 tile
+    ctfWins: List<SnCtfWinState> = emptyList(),
     consentTile: SnConsentTile? = null,
     onSignConsent: () -> Unit = {},
     onRetryConsent: () -> Unit = {},
@@ -699,7 +697,7 @@ fun EarningsScreenContent(
                         onClaimNow = onOpenRelayClaim,
                         onSelfClaim = onOpenLedgerClaim,
                         fundsDisclaimer = if (wallet != null) Sdk.BittensorFundsDisclaimerNone else keyCard.claimFundsDisclaimer,
-                        ctfWin = ctfWin,
+                        ctfWins = ctfWins,
                     )
                 }
 

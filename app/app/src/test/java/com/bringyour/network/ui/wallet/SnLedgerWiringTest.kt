@@ -2,6 +2,7 @@ package com.bringyour.network.ui.wallet
 
 import java.io.File
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -78,7 +79,7 @@ class SnLedgerWiringTest {
     }
 
     @Test
-    fun `the relay's pools, its floor and the device's capture the flag win are read from the sdk`() {
+    fun `the relay's pools, its floor and the capture the flag wins are read from the sdk`() {
         val sdk = source("SdkProtocolSource.kt")
         // each relay account's kind names its row; the pools it could not read and its
         // transfer floor in α (Below the claim minimum)
@@ -86,28 +87,49 @@ class SnLedgerWiringTest {
         assertTrue(status.contains("transferFloorRao = result.transferFloorRao,"))
         assertTrue(status.contains("unavailablePools = snLedgerUnavailablePoolsOf(result.unavailablePools),"))
         assertTrue(status.contains("kind = a.kind,"))
-        // GET /sn/ctf/client's latest win, copied off the gomobile objects; an error draws no line
-        val win = between(sdk, "override suspend fun ctfWin()", "override suspend fun accountEpochs()")
-        assertTrue(win.contains("device.snCtfClient {"))
-        assertTrue(win.contains("result?.takeIf { it.error == null }?.latestWin?.let { SnCtfWinState(it.role, it.country) }"))
-        assertTrue(win.contains("runCatching {"))
+        // GET /sn/ctf/client's unclaimed wins, every one in the sdk's order, copied off the
+        // gomobile objects; an error draws no line
+        val wins = between(sdk, "override suspend fun ctfWins()", "override suspend fun accountEpochs()")
+        assertTrue(wins.contains("device.snCtfClient {"))
+        assertTrue(wins.contains("val list = result?.takeIf { it.error == null }?.unclaimedWins"))
+        assertTrue(wins.contains("SnCtfWinState(w.role, w.country)"))
+        assertTrue(wins.contains("runCatching {"))
+        assertTrue(wins.contains("}.getOrDefault(emptyList())"))
+        // the latest win alone is no longer the line
+        assertFalse(sdk.contains("latestWin"))
         // read with each refresh of Earnings, on its own: the route's answer, or its 60 s
         // timeout, holds up neither the claims after it nor the refresh's spinner
         val model = source("EarningsViewModel.kt")
         val refresh = between(model, "private suspend fun refreshAll(", "val retryWallet")
-        assertTrue(refresh.contains("viewModelScope.launch { refreshCtfWin() }"))
-        assertTrue(refresh.indexOf("viewModelScope.launch { refreshCtfWin() }") < refresh.indexOf("coroutineScope {"))
-        assertEquals(1, Regex("refreshCtfWin\\(\\)").findAll(refresh).count())
+        assertTrue(refresh.contains("viewModelScope.launch { refreshCtfWins() }"))
+        assertTrue(refresh.indexOf("viewModelScope.launch { refreshCtfWins() }") < refresh.indexOf("coroutineScope {"))
+        assertEquals(1, Regex("refreshCtfWins\\(\\)").findAll(refresh).count())
         // dropped with the device
-        assertTrue(between(model, "private fun setupDevice(", "private fun createProtocolSource(").contains("_ctfWin.value = null"))
-        // the tile shows it, and the claim dialog names its rows from the same read as the tile
+        assertTrue(between(model, "private fun setupDevice(", "private fun createProtocolSource(").contains("_ctfWins.value = emptyList()"))
+        // the tile shows them, and the claim dialog names its rows from the same read as the tile
         val screen = source("EarningsScreen.kt")
-        assertTrue(screen.contains("val ctfWin by earningsViewModel.ctfWin.collectAsState()"))
-        assertTrue(between(screen, "SnLedgerTileBlock(", "\n                    )").contains("ctfWin = ctfWin,"))
+        assertTrue(screen.contains("val ctfWins by earningsViewModel.ctfWins.collectAsState()"))
+        assertTrue(between(screen, "SnLedgerTileBlock(", "\n                    )").contains("ctfWins = ctfWins,"))
         val dialog = between(screen, "SnLedgerClaimDialog(", "BittensorProofSheets(")
         assertTrue(dialog.contains("pools = snLedgerPools(ledgerLoad),"))
-        // and marks what waits under the transfer floor as the tile does
-        assertTrue(dialog.contains("transferFloorRao = claimStatus?.takeIf { !it.unavailable }?.transferFloorRao ?: 0,"))
+        // the claim offers what the relay's floor lets move, read when the dialog opens
+        assertFalse(dialog.contains("transferFloorRao"))
+        val flow = between(model, "val ledgerFlow = SnLedgerFlow(", "\n    )")
+        assertTrue(flow.contains("transferFloorRao = { _claimStatus.value?.takeIf { !it.unavailable }?.transferFloorRao ?: 0 },"))
+        val ledger = source("SnLedger.kt")
+        assertTrue(ledger.contains("_dialog.value = snLedgerClaimDialog(_load.value, s.gasKey(), gasTao, transferFloorRao())"))
+        assertTrue(ledger.contains("if (ready.takes.isEmpty() || claiming != null) {"))
+    }
+
+    @Test
+    fun `the tile draws a line for each unclaimed win`() {
+        // owner, 2026-11-11: every unclaimed win, newest first, each in the store's words
+        val tile = source("SnLedgerTile.kt")
+        val block = between(tile, "fun SnLedgerTileBlock(", "fun snLedgerPoolNameText(")
+        assertTrue(block.contains("ctfWins: List<SnCtfWinState> = emptyList(),"))
+        assertTrue(block.contains("val wonLines = snCtfWonLines(ctfWins)"))
+        assertTrue(block.contains("wonLines.forEachIndexed { i, (res, country) ->"))
+        assertTrue(block.contains("stringResource(id = res, localizedCountryName(country)),"))
     }
 
     @Test
@@ -123,16 +145,25 @@ class SnLedgerWiringTest {
         val relay = source("ClaimRelayDialog.kt")
         assertEquals(0, Regex("R\\.string\\.sn_ledger_pool,").findAll(relay).count())
         assertEquals(2, Regex("snLedgerPoolNameText\\(snLedgerPoolName\\(").findAll(relay).count())
-        // Claim both on the tile and in the dialog; the dialog's floor applies while capture
-        // the flag is in view, and its Claim names the whole claimable, as before
+        // Claim both on the tile and in the dialog; the dialog's Claim names and takes what
+        // can move (Ready.takes), and with nothing that can move offers only Close
         assertTrue(tile.contains("stringResource(id = if (tile.claimBoth) R.string.sn_ledger_claim_both else R.string.claim)"))
-        assertTrue(tile.contains("primary = if (snLedgerClaimsBoth(above.map { it.pool })) {"))
-        assertTrue(tile.contains("val above = snLedgerClaimTakes(state.accounts, snLedgerTransferFloor(inView, transferFloorRao))"))
+        assertTrue(tile.contains("primary = if (snLedgerClaimsBoth(takes.map { it.pool })) {"))
+        assertTrue(tile.contains("val takes = state.takes"))
         assertTrue(tile.contains("stringResource(id = R.string.claim_amount_button, formatAlpha(state.totalRao))"))
-        // the relay's rows take its floor the same way
+        val ready = between(tile, "private fun LedgerReadyContent(", "private fun LedgerAccountRows(")
+        val closeOnly = between(ready, "if (takes.isEmpty()) {", "return@Column")
+        assertTrue(closeOnly.contains("DialogButtons(primary = stringResource(id = R.string.close), onPrimary = onDismiss)"))
+        assertFalse(closeOnly.contains("onClaim"))
+        // a row the claim did not move says what it is, and a still claimable one the top-up
+        val progress = between(tile, "private fun LedgerProgressContent(", "@Preview")
+        assertTrue(progress.contains("snLedgerClaimRowNoteRes(p.status)?.let { res ->"))
+        assertTrue(progress.contains("if (p.status == SnLedgerClaimStatus.STILL_CLAIMABLE) {"))
+        assertTrue(progress.contains("stringResource(id = R.string.add_tao_for_gas),"))
+        // the relay's rows take its floor for every pool, alone or not
         val sheet = between(relay, "fun ClaimRelayDialog(", "BittensorFundsDisclaimerText(disclaimer = fundsDisclaimer, boxed = true)")
-        assertTrue(sheet.contains("transferFloorRao = snClaimRelayTransferFloor(status),"))
-        assertTrue(between(relay, "internal fun SnClaimRelayTilePools(", "fun ClaimRelayDialog(").contains("transferFloorRao = snClaimRelayTransferFloor(status),"))
+        assertTrue(sheet.contains("transferFloorRao = status.transferFloorRao,"))
+        assertTrue(between(relay, "internal fun SnClaimRelayTilePools(", "fun ClaimRelayDialog(").contains("transferFloorRao = status.transferFloorRao,"))
         // no total where nothing could be read: the unavailable rows say it
         assertTrue(sheet.contains("if (snClaimRelayTotalKnown(status)) {"))
         assertTrue(tile.contains("if (relay == null || snClaimRelayTotalKnown(relay)) {"))
