@@ -415,7 +415,7 @@ private fun SnClaimRelayRows(
     rows: List<SnClaimRelayAccountState>,
     formatAlpha: (Long) -> String,
     shortSs58: (String) -> String,
-    // the relay's transfer floor at its last price, 0 without one
+    // the relay's transfer floor as snClaimRelayTransferFloor applies it, 0 for none
     transferFloorRao: Long,
     unavailablePools: List<SnLedgerPool>,
     // every pool of the relay's answer, which names the rows (snClaimRelayPools)
@@ -504,7 +504,7 @@ internal fun SnClaimRelayTilePools(
         rows = rows,
         formatAlpha = formatAlpha,
         shortSs58 = shortSs58,
-        transferFloorRao = status.transferFloorRao,
+        transferFloorRao = snClaimRelayTransferFloor(status),
         unavailablePools = status.unavailablePools,
         pools = snClaimRelayPools(status),
         pendingPill = false,
@@ -555,20 +555,23 @@ fun ClaimRelayDialog(
             Spacer(modifier = Modifier.height(16.dp))
 
             if (status != null && !status.unavailable) {
-                Text(
-                    stringResource(id = R.string.sn_ledger_claimable),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = TextMuted
-                )
-                Text(
-                    formatAlpha(status.claimableRao),
-                    style = TextStyle(
-                        fontFamily = gravityCondensedFamily,
-                        fontWeight = FontWeight(900),
-                        fontSize = 40.sp,
-                        color = Color.White
+                // with none of the coldkey's pools read there is no total, only the unavailable rows
+                if (snClaimRelayTotalKnown(status)) {
+                    Text(
+                        stringResource(id = R.string.sn_ledger_claimable),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = TextMuted
                     )
-                )
+                    Text(
+                        formatAlpha(status.claimableRao),
+                        style = TextStyle(
+                            fontFamily = gravityCondensedFamily,
+                            fontWeight = FontWeight(900),
+                            fontSize = 40.sp,
+                            color = Color.White
+                        )
+                    )
+                }
                 if (status.coldkeySs58.isNotEmpty()) {
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
@@ -583,7 +586,7 @@ fun ClaimRelayDialog(
                         rows = rows,
                         formatAlpha = formatAlpha,
                         shortSs58 = shortSs58,
-                        transferFloorRao = status.transferFloorRao,
+                        transferFloorRao = snClaimRelayTransferFloor(status),
                         unavailablePools = status.unavailablePools,
                         pools = snClaimRelayPools(status),
                     )

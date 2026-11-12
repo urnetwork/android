@@ -524,6 +524,9 @@ class SnLedgerClaimTest {
             flow.dialog.value
         )
         flow.claim()
+        // the claim keeps the pool the dialog listed as unavailable
+        val unread = SnLedgerClaimProgress(ctfNoId, 0, 0, SnLedgerClaimStatus.POOL_UNAVAILABLE, null, null)
+        assertEquals(SnLedgerClaimDialogState.Sending(listOf(pending(pool1), unread)), flow.dialog.value)
         source.onEvent(SnLedgerClaimEvent.Failed(ctfNoId, 0, "ledger_unavailable: 502"))
         source.onEvent(SnLedgerClaimEvent.Sent(1, 42, txHash1))
         source.onEvent(SnLedgerClaimEvent.Confirmed(1, 42, txHash1, pool1.claimableRao))
@@ -532,12 +535,42 @@ class SnLedgerClaimTest {
             SnLedgerClaimDialogState.Finished(
                 listOf(
                     pending(pool1).copy(status = SnLedgerClaimStatus.CONFIRMED, txHash = txHash1),
-                    SnLedgerClaimProgress(ctfNoId, 0, 0, SnLedgerClaimStatus.POOL_UNAVAILABLE, null, "ledger_unavailable: 502"),
+                    unread.copy(message = "ledger_unavailable: 502"),
                 ),
                 pool1.claimableRao,
             ),
             flow.dialog.value
         )
+    }
+
+    @Test
+    fun `a claim that fails before the sdk reads keeps the unavailable pool's row`() {
+        // CTF-2: a failure about no one account fails the rows not sent, and the pool the dialog
+        // could not read stays unavailable rather than vanishing
+        val rows = snLedgerClaimStart(listOf(pool1), listOf(SnLedgerPool(ctfNoId)))
+        assertEquals(
+            listOf(
+                pending(pool1).copy(status = SnLedgerClaimStatus.FAILED, message = "chain_not_configured: vault2 address: not set"),
+                SnLedgerClaimProgress(ctfNoId, 0, 0, SnLedgerClaimStatus.POOL_UNAVAILABLE, null, null),
+            ),
+            snLedgerClaimProgressAfter(rows, SnLedgerClaimEvent.Failed(0, 0, "chain_not_configured: vault2 address: not set"))
+        )
+    }
+
+    @Test
+    fun `a pool the dialog could not read but the sdk could takes its row`() {
+        // the sdk reads the ledger again: an account of a pool unavailable at the dialog's read
+        // replaces that pool's row, with no second row and no amount until vault2 names it
+        val start = snLedgerClaimStart(listOf(pool1), listOf(SnLedgerPool(ctfNoId, Sdk.SnLedgerPoolKindCtf)))
+        val sent = snLedgerClaimProgressAfter(start, SnLedgerClaimEvent.Sent(ctfNoId, 3, txHash1))
+        val unknown = SnLedgerClaimProgress(ctfNoId, 3, 0, SnLedgerClaimStatus.SENT, txHash1, null, Sdk.SnLedgerPoolKindCtf)
+        assertEquals(listOf(pending(pool1), unknown), sent)
+        assertFalse(sent[1].amountKnown)
+        assertEquals(
+            listOf(pending(pool1), unknown.copy(status = SnLedgerClaimStatus.CONFIRMED, amountRao = ctf.claimableRao)),
+            snLedgerClaimProgressAfter(sent, SnLedgerClaimEvent.Confirmed(ctfNoId, 3, txHash1, ctf.claimableRao))
+        )
+        assertTrue(pending(pool1).amountKnown)
     }
 
     @Test
@@ -566,22 +599,41 @@ class SnLedgerClaimTest {
             listOf(pending(ctf).copy(status = SnLedgerClaimStatus.UNDER_FLOOR, message = message)),
             snLedgerClaimProgressAfter(listOf(pending(ctf)), SnLedgerClaimEvent.Failed(ctfNoId, 3, message))
         )
+        // a pool's account beside capture the flag's waits the same way
+        assertEquals(
+            listOf(pending(pool1).copy(status = SnLedgerClaimStatus.UNDER_FLOOR, message = message), pending(ctf)),
+            snLedgerClaimProgressAfter(listOf(pending(pool1), pending(ctf)), SnLedgerClaimEvent.Failed(1, 42, message))
+        )
     }
 
     @Test
-    fun `the claim takes what clears the relay's transfer floor, and Claim both needs both`() {
-        // the dialog's Claim: Claim both only while both accounts can move now
+    fun `without capture the flag an account under the floor fails as before`() {
+        // CTF-4: sdk main already sends not_claimable AmountTooLow; a server without capture the
+        // flag shows it Failed with the sdk's detail, as before
+        val message = "not_claimable: AmountTooLow: the claim is below the runtime's transfer floor"
+        assertEquals(
+            listOf(pending(pool1).copy(status = SnLedgerClaimStatus.FAILED, message = message), pending(pool2)),
+            snLedgerClaimProgressAfter(listOf(pending(pool1), pending(pool2)), SnLedgerClaimEvent.Failed(1, 42, message))
+        )
+    }
+
+    @Test
+    fun `Claim both counts what clears the relay's transfer floor`() {
+        // the floor is an estimate: it names Claim both and a status, never what the claim sends
         assertEquals(listOf(pool1, ctf), snLedgerClaimTakes(listOf(pool1, ctf), 0))
         assertTrue(snLedgerClaimsBoth(snLedgerClaimTakes(listOf(pool1, ctf), 0).map { it.pool }))
         assertEquals(listOf(pool1, ctf), snLedgerClaimTakes(listOf(pool1, ctf), ctf.claimableRao))
-        // capture the flag's account under the floor waits: the claim is the pool's alone
-        val takes = snLedgerClaimTakes(listOf(pool1, ctf), ctf.claimableRao + 1)
-        assertEquals(listOf(pool1), takes)
-        assertFalse(snLedgerClaimsBoth(takes.map { it.pool }))
-        // nothing above the floor: nothing to take
+        // capture the flag's account under the floor: Claim, not Claim both
+        val above = snLedgerClaimTakes(listOf(pool1, ctf), ctf.claimableRao + 1)
+        assertEquals(listOf(pool1), above)
+        assertFalse(snLedgerClaimsBoth(above.map { it.pool }))
+        // nothing above the floor
         assertEquals(emptyList<SnLedgerAccountState>(), snLedgerClaimTakes(listOf(ctf), ctf.claimableRao + 1))
-        // nothing to claim is never taken
+        // nothing to claim is never counted
         assertEquals(emptyList<SnLedgerAccountState>(), snLedgerClaimTakes(listOf(paidUp), 0))
+        // the dialog applies the floor only while capture the flag is in view
+        assertEquals(0L, snLedgerTransferFloor(listOf(pool1.pool, pool2.pool), ctf.claimableRao + 1))
+        assertEquals(ctf.claimableRao + 1, snLedgerTransferFloor(listOf(pool1.pool, ctf.pool), ctf.claimableRao + 1))
     }
 
     @Test

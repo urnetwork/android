@@ -315,6 +315,8 @@ class EarningsViewModel @Inject constructor(
         if (userInitiated) {
             isRefreshing = true
         }
+        // the optional capture the flag line holds up neither the claims nor the refresh
+        viewModelScope.launch { refreshCtfWin() }
         try {
             coroutineScope {
                 launch { refreshWallet() }
@@ -322,7 +324,6 @@ class EarningsViewModel @Inject constructor(
                 launch { refreshTop() }
                 // the network's consent, read with or without a wallet entry
                 launch { consentFlow.refresh() }
-                launch { refreshCtfWin() }
             }
             if (_wallet.value != null) {
                 refreshSettlements()

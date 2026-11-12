@@ -265,9 +265,32 @@ class SnLedgerTileTest {
     }
 
     @Test
+    fun `without capture the flag in view the relay's floor changes nothing`() {
+        // CTF-4: today's relay already sends transfer_floor_rao; a server without capture the
+        // flag shows its pool's tile, sheet and Claim as before, under the floor or not
+        val small = account.copy(claimableRao = 48_025_660)
+        val tile = snLedgerTile(SnLedgerLoad.Loaded(listOf(small)), claimConfigured = true)!!
+        val relay = SnClaimStatusState(transferFloorRao = 100_000_000, showsTile = true)
+        assertEquals(tile, snLedgerTileWithRelay(true, tile, relay))
+        assertEquals(tile, tile.withTransferFloor(100_000_000))
+        assertTrue(tile.claimEnabled)
+        assertEquals(0L, snLedgerTransferFloor(listOf(pool1, SnLedgerPool(2)), 100_000_000))
+        // the claim sheet's rows read Pending
+        val row = SnClaimRelayAccountState(coldkeySs58 = "5Ab", noId = 1, claimableRao = 48_025_660)
+        val status = relay.copy(coldkeySs58 = "5Ab", accounts = listOf(row))
+        assertEquals(0L, snClaimRelayTransferFloor(status))
+        assertEquals(SnClaimRelayRowStatus.PENDING, snClaimRelayRowStatus(row, snClaimRelayTransferFloor(status)))
+        // with capture the flag in view, the floor applies to each pool's row
+        assertEquals(100_000_000L, snLedgerTransferFloor(listOf(pool1, ctfPool), 100_000_000))
+        assertEquals(100_000_000L, snClaimRelayTransferFloor(status.copy(unavailablePools = listOf(ctfPool))))
+    }
+
+    @Test
     fun `the claim sheet's rows say Below the claim minimum under the floor`() {
         val row = SnClaimRelayAccountState(coldkeySs58 = "5Ab", noId = ctfNoId, claimableRao = 48_025_660, kind = Sdk.SnLedgerPoolKindCtf)
-        assertEquals(SnClaimRelayRowStatus.UNDER_FLOOR, snClaimRelayRowStatus(row, 100_000_000))
+        val status = SnClaimStatusState(coldkeySs58 = "5Ab", transferFloorRao = 100_000_000, accounts = listOf(row))
+        assertEquals(100_000_000L, snClaimRelayTransferFloor(status))
+        assertEquals(SnClaimRelayRowStatus.UNDER_FLOOR, snClaimRelayRowStatus(row, snClaimRelayTransferFloor(status)))
         assertEquals(SnClaimRelayRowStatus.PENDING, snClaimRelayRowStatus(row, 48_025_660))
         // no price, no floor
         assertEquals(SnClaimRelayRowStatus.PENDING, snClaimRelayRowStatus(row, 0))
@@ -275,6 +298,33 @@ class SnLedgerTileTest {
         assertEquals(SnClaimRelayRowStatus.CLAIMED, snClaimRelayRowStatus(claimed, 100_000_000))
         // its pool is capture the flag's
         assertEquals(ctfPool, row.pool)
+    }
+
+    @Test
+    fun `the relay's claimable is no total while none of the coldkey's pools could be read`() {
+        // never a zero for balances that could not be read: the unavailable rows say it
+        val pool = SnClaimRelayAccountState(coldkeySs58 = "5Ab", noId = 1, claimableRao = 4_120_000_000)
+        val status = SnClaimStatusState(coldkeySs58 = "5Ab", claimableRao = 4_120_000_000, accounts = listOf(pool), showsTile = true)
+        assertTrue(snClaimRelayTotalKnown(status))
+        // a pool unread beside a read one: the total of the read one, with the unread one's row
+        assertTrue(snClaimRelayTotalKnown(status.copy(unavailablePools = listOf(ctfPool))))
+        // nothing of the coldkey's read
+        assertFalse(snClaimRelayTotalKnown(status.copy(claimableRao = 0, accounts = emptyList(), unavailablePools = listOf(pool1, ctfPool))))
+        // another coldkey's account is not the coldkey's total
+        val other = pool.copy(coldkeySs58 = "5Cd")
+        assertFalse(snClaimRelayTotalKnown(status.copy(claimableRao = 0, accounts = listOf(other), unavailablePools = listOf(ctfPool))))
+        // a whole answer, even an empty one, is a total, as before
+        assertTrue(snClaimRelayTotalKnown(status.copy(claimableRao = 0, accounts = emptyList())))
+    }
+
+    @Test
+    fun `before vault2 is configured an unavailable pool alone hides the tile`() {
+        // UX-5: before activation the tile shows only balances the ledger returned, as a read
+        // that failed whole hides it; with an account, the unavailable row shows beside it
+        assertNull(snLedgerTile(SnLedgerLoad.Loaded(emptyList(), unavailablePools = listOf(ctfPool)), claimConfigured = false))
+        val tile = snLedgerTile(SnLedgerLoad.Loaded(listOf(account), unavailablePools = listOf(ctfPool)), claimConfigured = false)!!
+        assertEquals(listOf(ctfPool), tile.unavailablePools)
+        assertFalse(tile.showClaim)
     }
 
     @Test

@@ -133,10 +133,20 @@ fun snLedgerClaimsBoth(claimable: Collection<SnLedgerPool>): Boolean =
     claimable.size == 2 && claimable.count { it.isCtf } == 1
 
 /**
- * The accounts a claim can move now: those with something to claim at or
- * above the claim relay's transfer floor, in rao of α at its last price (0
- * without one, when the claim's own preflight decides). One under it waits
- * in vault2, Below the claim minimum.
+ * The claim relay's transfer floor, in rao of α at its last price (0 without
+ * one), as the screens apply it. Below the claim minimum is capture the flag's
+ * status, for accounts often that small: it shows while a capture the flag
+ * pool is in view, and a server without one reads as before. The floor is an
+ * estimate at the relay's last price, so it names a status and the Claim both
+ * label and never stops a claim, whose own preflight decides.
+ */
+fun snLedgerTransferFloor(pools: Collection<SnLedgerPool>, transferFloorRao: Long): Long =
+    if (pools.any { it.isCtf }) transferFloorRao else 0
+
+/**
+ * The accounts with something to claim at or above the transfer floor
+ * (snLedgerTransferFloor, 0 for none): what Claim both counts. One under it
+ * reads Below the claim minimum.
  */
 fun snLedgerClaimTakes(accounts: List<SnLedgerAccountState>, transferFloorRao: Long): List<SnLedgerAccountState> =
     accounts.filter { 0 < it.claimableRao && (transferFloorRao <= 0 || transferFloorRao <= it.claimableRao) }
@@ -222,15 +232,17 @@ fun snLedgerTile(load: SnLedgerLoad, claimConfigured: Boolean): SnLedgerTile? = 
 
 /**
  * The tile with the claim relay's transfer floor, in rao of α at its last
- * price (0 without one): an account with something to claim under it reads
- * Below the claim minimum, since no claim can move it yet, and Claim both
- * needs both accounts above it.
+ * price (0 without one), while a capture the flag pool is in view
+ * (snLedgerTransferFloor): an account with something to claim under it reads
+ * Below the claim minimum, and Claim both needs both accounts above it.
+ * Claim itself stays: the claim's own preflight decides.
  */
 fun SnLedgerTile.withTransferFloor(transferFloorRao: Long): SnLedgerTile {
-    if (transferFloorRao <= 0 || accounts == null) {
+    val floor = snLedgerTransferFloor(pools, transferFloorRao)
+    if (floor <= 0 || accounts == null) {
         return this
     }
-    val lines = accounts.map { it.copy(underFloor = 0 < it.claimableRao && it.claimableRao < transferFloorRao) }
+    val lines = accounts.map { it.copy(underFloor = 0 < it.claimableRao && it.claimableRao < floor) }
     return copy(
         accounts = lines,
         claimBoth = claimBoth && snLedgerClaimsBoth(lines.filter { 0 < it.claimableRao && !it.underFloor }.map { it.pool }),
@@ -304,6 +316,14 @@ data class SnLedgerClaimProgress(
 ) {
     val pool: SnLedgerPool
         get() = SnLedgerPool(noId, kind)
+
+    /**
+     * The row has an amount to show: the claimable it started with, or the
+     * vault's once confirmed. A row the SDK added, or a pool that could not
+     * be read, has none, and shows none rather than a zero.
+     */
+    val amountKnown: Boolean
+        get() = 0 < amountRao
 }
 
 /** The claim dialog of settlement v2. */
@@ -347,10 +367,20 @@ fun snLedgerClaimDialog(load: SnLedgerLoad, gasKey: SnGasKeyState?, gasTao: Doub
     }
 }
 
-/** A claim starts with a pending row for each account it claims. */
-fun snLedgerClaimStart(accounts: List<SnLedgerAccountState>): List<SnLedgerClaimProgress> =
+/**
+ * A claim starts with a pending row for each account it claims, and an
+ * unavailable row for each pool the dialog's read could not read, so none of
+ * them leaves the dialog; the SDK reads the ledger again and says what it
+ * finds there.
+ */
+fun snLedgerClaimStart(
+    accounts: List<SnLedgerAccountState>,
+    unavailablePools: List<SnLedgerPool> = emptyList(),
+): List<SnLedgerClaimProgress> =
     accounts.filter { 0 < it.claimableRao }.map {
         SnLedgerClaimProgress(it.noId, it.index, it.claimableRao, SnLedgerClaimStatus.PENDING, null, null, it.kind)
+    } + unavailablePools.map {
+        SnLedgerClaimProgress(it.noId, 0, 0, SnLedgerClaimStatus.POOL_UNAVAILABLE, null, null, it.kind)
     }
 
 /**
@@ -360,9 +390,11 @@ fun snLedgerClaimStart(accounts: List<SnLedgerAccountState>): List<SnLedgerClaim
  * unreachable) comes with pool 0 and fails every row not sent. A pool the
  * ledger could not read comes as ledger_unavailable with its pool and index 0
  * (its account is unknown): that pool's rows not sent are unavailable, the
- * others claim on. An account under the transfer floor is not a failure
+ * others claim on. While a capture the flag pool is in the claim, an account
+ * under the transfer floor (not_claimable, AmountTooLow) is not a failure
  * either: it waits. An event for an account without a row (the SDK reads the
- * accounts again) adds its row.
+ * accounts again) takes the row of its pool that was unavailable at the
+ * dialog's read, else adds its own.
  */
 fun snLedgerClaimProgressAfter(
     progress: List<SnLedgerClaimProgress>,
@@ -380,7 +412,9 @@ fun snLedgerClaimProgressAfter(
             return progress + SnLedgerClaimProgress(event.noId, 0, 0, SnLedgerClaimStatus.POOL_UNAVAILABLE, null, event.message)
         }
         return progress.map {
-            if (it.noId == event.noId && it.status == SnLedgerClaimStatus.PENDING) {
+            if (it.noId == event.noId &&
+                (it.status == SnLedgerClaimStatus.PENDING || it.status == SnLedgerClaimStatus.POOL_UNAVAILABLE)
+            ) {
                 it.copy(status = SnLedgerClaimStatus.POOL_UNAVAILABLE, message = event.message)
             } else {
                 it
@@ -393,8 +427,12 @@ fun snLedgerClaimProgressAfter(
         is SnLedgerClaimEvent.Failed -> event.noId to event.index
         SnLedgerClaimEvent.Done -> return progress
     }
-    val i = progress.indexOfFirst { it.noId == noId && it.index == index }
-    val row = progress.getOrNull(i) ?: SnLedgerClaimProgress(noId, index, 0, SnLedgerClaimStatus.PENDING, null, null)
+    // the row of the account, else its pool's that the dialog's read could not read
+    val i = progress.indexOfFirst { it.noId == noId && it.index == index }.takeIf { 0 <= it }
+        ?: progress.indexOfFirst { it.noId == noId && it.status == SnLedgerClaimStatus.POOL_UNAVAILABLE && it.txHash == null }
+    val row = progress.getOrNull(i)?.copy(index = index)
+        ?: SnLedgerClaimProgress(noId, index, 0, SnLedgerClaimStatus.PENDING, null, null)
+    val ctfInClaim = (progress.map { it.pool } + row.pool).any { it.isCtf }
     val updated = when (event) {
         is SnLedgerClaimEvent.Sent -> row.copy(status = SnLedgerClaimStatus.SENT, txHash = event.txHash)
         is SnLedgerClaimEvent.Confirmed ->
@@ -403,7 +441,7 @@ fun snLedgerClaimProgressAfter(
             status = when {
                 EarningsViewModel.claimFailureCode(event.message) == EarningsViewModel.SN_CODE_ALREADY_CLAIMED ->
                     SnLedgerClaimStatus.ALREADY_CLAIMED
-                snLedgerClaimUnderFloor(event.message) -> SnLedgerClaimStatus.UNDER_FLOOR
+                ctfInClaim && snLedgerClaimUnderFloor(event.message) -> SnLedgerClaimStatus.UNDER_FLOOR
                 else -> SnLedgerClaimStatus.FAILED
             },
             message = event.message,
@@ -567,7 +605,7 @@ class SnLedgerFlow(
             return
         }
         val s = source
-        val progress = snLedgerClaimStart(ready.accounts)
+        val progress = snLedgerClaimStart(ready.accounts, ready.unavailablePools)
         claiming = progress
         _dialog.value = SnLedgerClaimDialogState.Sending(progress)
         s.ledgerClaim { event ->

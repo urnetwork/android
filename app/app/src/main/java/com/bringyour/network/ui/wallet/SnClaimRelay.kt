@@ -115,6 +115,22 @@ fun snClaimRelayRows(status: SnClaimStatusState): List<SnClaimRelayAccountState>
 fun snClaimRelayPools(status: SnClaimStatusState): List<SnLedgerPool> =
     status.accounts.map { it.pool } + status.unavailablePools
 
+/**
+ * The relay's transfer floor as its rows apply it: while a capture the flag
+ * pool is in its answer (snLedgerTransferFloor), else none, as before.
+ */
+fun snClaimRelayTransferFloor(status: SnClaimStatusState): Long =
+    snLedgerTransferFloor(snClaimRelayPools(status), status.transferFloorRao)
+
+/**
+ * The relay's claimable is a total to show: it adds up the primary coldkey's
+ * accounts, leaving out the pools that could not be read. With none of its
+ * pools read there is nothing to add up, and the unavailable rows say so
+ * rather than a zero.
+ */
+fun snClaimRelayTotalKnown(status: SnClaimStatusState): Boolean =
+    status.unavailablePools.isEmpty() || status.accounts.any { it.coldkeySs58 == status.coldkeySs58 }
+
 /** What a row of the relay's pools says where its pill sits. */
 enum class SnClaimRelayRowStatus {
     PENDING,
@@ -124,6 +140,7 @@ enum class SnClaimRelayRowStatus {
     CLAIMED,
 }
 
+/** A row's status; transferFloorRao as snClaimRelayTransferFloor gives it, 0 for none. */
 fun snClaimRelayRowStatus(row: SnClaimRelayAccountState, transferFloorRao: Long): SnClaimRelayRowStatus = when {
     row.showsClaimed -> SnClaimRelayRowStatus.CLAIMED
     0 < transferFloorRao && 0 < row.claimableRao && row.claimableRao < transferFloorRao -> SnClaimRelayRowStatus.UNDER_FLOOR

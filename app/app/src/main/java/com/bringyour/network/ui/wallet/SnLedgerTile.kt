@@ -98,21 +98,24 @@ fun SnLedgerTileBlock(
                 )
             }
             tile.relayClaimableRao != null -> {
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    stringResource(id = R.string.sn_ledger_claimable),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = TextMuted
-                )
-                Text(
-                    formatAlpha(tile.relayClaimableRao),
-                    style = TextStyle(
-                        fontFamily = gravityCondensedFamily,
-                        fontWeight = FontWeight(900),
-                        fontSize = 40.sp,
-                        color = Color.White
+                // with none of the coldkey's pools read there is no total, only the unavailable rows
+                if (relay == null || snClaimRelayTotalKnown(relay)) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        stringResource(id = R.string.sn_ledger_claimable),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = TextMuted
                     )
-                )
+                    Text(
+                        formatAlpha(tile.relayClaimableRao),
+                        style = TextStyle(
+                            fontFamily = gravityCondensedFamily,
+                            fontWeight = FontWeight(900),
+                            fontSize = 40.sp,
+                            color = Color.White
+                        )
+                    )
+                }
                 relay?.let {
                     SnClaimRelayTilePools(status = it, formatAlpha = formatAlpha, shortSs58 = shortSs58)
                 }
@@ -367,23 +370,26 @@ private fun LedgerReadyContent(
     shortSs58: (String) -> String,
 ) {
     val inView = (pools + state.accounts.map { it.pool } + state.unavailablePools).distinct()
-    // what the claim can move now; an account under the transfer floor waits
-    val takes = snLedgerClaimTakes(state.accounts, transferFloorRao)
+    // the accounts above the transfer floor, while capture the flag is in view; an estimate
+    // that names a status and Claim both, and never stops the claim, whose preflight decides
+    val above = snLedgerClaimTakes(state.accounts, snLedgerTransferFloor(inView, transferFloorRao))
     Column(modifier = Modifier.fillMaxWidth()) {
-        Text(
-            formatAlpha(state.totalRao),
-            style = TextStyle(
-                fontFamily = gravityCondensedFamily,
-                fontWeight = FontWeight(900),
-                fontSize = 40.sp,
-                color = Color.White
+        // with nothing read to claim and a pool unread there is no total, only its row
+        if (state.accounts.isNotEmpty() || state.unavailablePools.isEmpty()) {
+            Text(
+                formatAlpha(state.totalRao),
+                style = TextStyle(
+                    fontFamily = gravityCondensedFamily,
+                    fontWeight = FontWeight(900),
+                    fontSize = 40.sp,
+                    color = Color.White
+                )
             )
-        )
+        }
 
-        if (takes.isEmpty()) {
-            if (state.accounts.isNotEmpty() || state.unavailablePools.isNotEmpty()) {
+        if (state.accounts.isEmpty()) {
+            if (state.unavailablePools.isNotEmpty()) {
                 Spacer(modifier = Modifier.height(12.dp))
-                LedgerAccountRows(state.accounts, takes, inView, formatAlpha)
                 LedgerUnavailableRows(state.unavailablePools, inView)
             }
             Spacer(modifier = Modifier.height(16.dp))
@@ -393,7 +399,7 @@ private fun LedgerReadyContent(
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        LedgerAccountRows(state.accounts, takes, inView, formatAlpha)
+        LedgerAccountRows(state.accounts, above, inView, formatAlpha)
         // the total leaves out the pools that could not be read
         LedgerUnavailableRows(state.unavailablePools, inView)
 
@@ -422,10 +428,10 @@ private fun LedgerReadyContent(
 
         DialogButtons(
             // one claim, one transaction, for the pool's account and capture the flag's
-            primary = if (snLedgerClaimsBoth(takes.map { it.pool })) {
+            primary = if (snLedgerClaimsBoth(above.map { it.pool })) {
                 stringResource(id = R.string.sn_ledger_claim_both)
             } else {
-                stringResource(id = R.string.claim_amount_button, formatAlpha(takes.sumOf { it.claimableRao }))
+                stringResource(id = R.string.claim_amount_button, formatAlpha(state.totalRao))
             },
             onPrimary = onClaim,
             secondary = stringResource(id = R.string.cancel),
@@ -434,11 +440,11 @@ private fun LedgerReadyContent(
     }
 }
 
-/** Each account with what it holds to claim; one the claim cannot move yet says it waits under the floor. */
+/** Each account with what it holds to claim; one under the transfer floor says Below the claim minimum. */
 @Composable
 private fun LedgerAccountRows(
     accounts: List<SnLedgerAccountState>,
-    takes: List<SnLedgerAccountState>,
+    above: List<SnLedgerAccountState>,
     inView: List<SnLedgerPool>,
     formatAlpha: (Long) -> String,
 ) {
@@ -447,7 +453,7 @@ private fun LedgerAccountRows(
             snLedgerPoolNameText(snLedgerPoolName(account.pool, inView)),
             formatAlpha(account.claimableRao)
         )
-        if (account !in takes) {
+        if (account !in above) {
             Text(
                 stringResource(id = R.string.sn_ledger_pool_under_floor),
                 style = MaterialTheme.typography.bodySmall,
@@ -494,8 +500,8 @@ private fun LedgerProgressContent(
                         snLedgerPoolNameText(snLedgerPoolName(p.pool, inView)),
                         style = MaterialTheme.typography.bodyMedium
                     )
-                    // a pool that could not be read has no amount to show, never a zero
-                    if (p.status != SnLedgerClaimStatus.POOL_UNAVAILABLE || 0 < p.amountRao) {
+                    // a row the sdk added, or a pool that could not be read, has no amount to show, never a zero
+                    if (p.amountKnown) {
                         Text(
                             formatAlpha(p.amountRao),
                             style = MaterialTheme.typography.bodySmall,
