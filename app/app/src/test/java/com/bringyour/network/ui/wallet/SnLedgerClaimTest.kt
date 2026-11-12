@@ -5,6 +5,7 @@ import com.bringyour.sdk.Sdk
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
@@ -54,6 +55,9 @@ class SnLedgerClaimTest {
         var reads = 0
         var claims = 0
         var onEvent: (SnLedgerClaimEvent) -> Unit = {}
+        // the v1 claims asked for (SnClaim), and the last one's callback
+        var epochClaims = 0
+        var onEpochEvent: (ClaimEvent) -> Unit = {}
         // when set, the next ledger read waits for it
         var readGate: CompletableDeferred<Unit>? = null
         // GET /sn/ctf/client's unclaimed wins, one answer per read in turn, null
@@ -69,6 +73,10 @@ class SnLedgerClaimTest {
         var winStarts = 0
         val winGateFor = mutableMapOf<Int, CompletableDeferred<Unit>>()
         val winAnswerFor = mutableMapOf<Int, List<SnCtfWinState>?>()
+        // the client read n's answer is for, by the order the reads started: one client's
+        // answer (the sdk's fallback to the client token, or a server before the network's
+        // answer); unset, the network's ("")
+        val winClientFor = mutableMapOf<Int, String>()
 
         override val available: Boolean = true
         override suspend fun ledgerAccounts(): Result<SnLedgerAccounts> {
@@ -77,6 +85,10 @@ class SnLedgerClaimTest {
             return accounts.map { SnLedgerAccounts(it, unavailablePools) }
         }
         override fun ledgerClaimConfigured(): Boolean = true
+        override fun claim(epochs: List<Long>, onEvent: (ClaimEvent) -> Unit) {
+            epochClaims += 1
+            onEpochEvent = onEvent
+        }
         override fun ledgerClaim(onEvent: (SnLedgerClaimEvent) -> Unit) {
             claims += 1
             this.onEvent = onEvent
@@ -84,13 +96,13 @@ class SnLedgerClaimTest {
         override fun gasKey(): SnGasKeyState? = key
         override suspend fun gasBalance(): Result<SnGasBalanceState> =
             Result.success(SnGasBalanceState("0", gasTao))
-        override suspend fun ctfWins(): Result<List<SnCtfWinState>> {
+        override suspend fun ctfWins(): Result<SnCtfWinsAnswer> {
             val started = winStarts++
             winGate?.await()
             winGateFor[started]?.await()
             val answer = if (started in winAnswerFor) winAnswerFor[started] else winAnswers[minOf(winReads, winAnswers.size - 1)]
             winReads += 1
-            return answer?.let { Result.success(it) }
+            return answer?.let { Result.success(SnCtfWinsAnswer(it, winClientFor[started] ?: "")) }
                 ?: Result.failure(SnProtocolException("ctf_unavailable", "the capture the flag route answered 503"))
         }
     }
@@ -125,7 +137,9 @@ class SnLedgerClaimTest {
         transferFloorRao: Long = 0,
         clock: Clock = Clock(),
     ): SnLedgerFlow =
-        SnLedgerFlow(CoroutineScope(Dispatchers.Unconfined), { hasWallet }, { transferFloorRao }, clock::sleep).also { it.reset(source) }
+        CoroutineScope(Dispatchers.Unconfined).let { scope ->
+            SnLedgerFlow(scope, { hasWallet }, { transferFloorRao }, SnClaimHolder(scope, clock::sleep)).also { it.reset(source) }
+        }
 
     private fun pending(account: SnLedgerAccountState) =
         SnLedgerClaimProgress(account.noId, account.index, account.claimableRao, SnLedgerClaimStatus.PENDING, null, null)
@@ -375,7 +389,9 @@ class SnLedgerClaimTest {
         )
         flow.claim()
         assertEquals(1, source.claims)
-        assertEquals(SnLedgerClaimDialogState.Sending(listOf(pending(pool1), pending(pool2))), flow.dialog.value)
+        // with what it moves, as its Claim named it
+        val moving = pool1.claimableRao + pool2.claimableRao
+        assertEquals(SnLedgerClaimDialogState.Sending(listOf(pending(pool1), pending(pool2)), moving), flow.dialog.value)
 
         source.onEvent(SnLedgerClaimEvent.Sent(1, 42, txHash1))
         source.onEvent(SnLedgerClaimEvent.Confirmed(1, 42, txHash1, 4_120_000_000))
@@ -385,7 +401,7 @@ class SnLedgerClaimTest {
             pending(pool1).copy(status = SnLedgerClaimStatus.CONFIRMED, txHash = txHash1),
             pending(pool2).copy(status = SnLedgerClaimStatus.FAILED, txHash = txHash2, message = "claim_failed: TooManyStakingHotkeys"),
         )
-        assertEquals(SnLedgerClaimDialogState.Sending(rows), flow.dialog.value)
+        assertEquals(SnLedgerClaimDialogState.Sending(rows, moving), flow.dialog.value)
 
         // the account the runtime refused stays claimable
         source.accounts = Result.success(listOf(pool1.copy(claimableRao = 0, paidRao = 5_120_000_000), pool2))
@@ -461,7 +477,7 @@ class SnLedgerClaimTest {
         val readsBefore = source.reads
         flow.open()
         assertEquals(
-            SnLedgerClaimDialogState.Sending(listOf(pending(pool1).copy(status = SnLedgerClaimStatus.SENT, txHash = txHash1))),
+            SnLedgerClaimDialogState.Sending(listOf(pending(pool1).copy(status = SnLedgerClaimStatus.SENT, txHash = txHash1)), pool1.claimableRao),
             flow.dialog.value
         )
         assertEquals(readsBefore, source.reads)
@@ -472,9 +488,9 @@ class SnLedgerClaimTest {
 
     @Test
     fun `a screen left during a claim and shown again shows it and gets its Done`() {
-        // the flow is the activity's view model's: leaving Earnings closes the dialog, and a visit
-        // touches none of the flow (onScreenResumed); a refresh while there (refreshAll) reads
-        // the accounts and the wins again, which leaves the claim be too
+        // leaving Earnings closes the dialog, and a visit touches none of the flow
+        // (onScreenResumed), nor the claim, the session's; a refresh while there (refreshAll)
+        // reads the accounts and the wins again, which leaves the claim be too
         val source = sourceWith(pool1, ctf)
         // the refresh's read, the read at Done, and the read 30 s after it, which finds the win claimed
         source.winAnswers = listOf(listOf(win), listOf(win), emptyList())
@@ -498,7 +514,7 @@ class SnLedgerClaimTest {
             pending(pool1).copy(status = SnLedgerClaimStatus.CONFIRMED, txHash = txHash1),
             pending(ctf).copy(status = SnLedgerClaimStatus.SENT, txHash = txHash1),
         )
-        assertEquals(SnLedgerClaimDialogState.Sending(inFlight), flow.dialog.value)
+        assertEquals(SnLedgerClaimDialogState.Sending(inFlight, pool1.claimableRao + ctf.claimableRao), flow.dialog.value)
         // its last event and its Done land: the rows, the accounts read again, and the wins on
         // the apps' schedule
         source.onEvent(SnLedgerClaimEvent.Confirmed(ctfNoId, 3, txHash1, ctf.claimableRao))
@@ -594,7 +610,7 @@ class SnLedgerClaimTest {
         assertTrue(snLedgerClaimsBoth(ready.accounts.map { it.pool }))
         flow.claim()
         assertEquals(1, source.claims)
-        assertEquals(SnLedgerClaimDialogState.Sending(listOf(pending(pool1), pending(ctf))), flow.dialog.value)
+        assertEquals(SnLedgerClaimDialogState.Sending(listOf(pending(pool1), pending(ctf)), pool1.claimableRao + ctf.claimableRao), flow.dialog.value)
 
         source.onEvent(SnLedgerClaimEvent.Sent(1, 42, txHash1))
         source.onEvent(SnLedgerClaimEvent.Sent(ctfNoId, 3, txHash1))
@@ -627,7 +643,8 @@ class SnLedgerClaimTest {
         flow.claim()
         // the claim keeps the pool the dialog listed as unavailable
         val unread = SnLedgerClaimProgress(ctfNoId, 0, 0, SnLedgerClaimStatus.POOL_UNAVAILABLE, null, null)
-        assertEquals(SnLedgerClaimDialogState.Sending(listOf(pending(pool1), unread)), flow.dialog.value)
+        // the figure leaves out the pool that could not be read
+        assertEquals(SnLedgerClaimDialogState.Sending(listOf(pending(pool1), unread), pool1.claimableRao), flow.dialog.value)
         source.onEvent(SnLedgerClaimEvent.Failed(ctfNoId, 0, "ledger_unavailable: 502"))
         source.onEvent(SnLedgerClaimEvent.Sent(1, 42, txHash1))
         source.onEvent(SnLedgerClaimEvent.Confirmed(1, 42, txHash1, pool1.claimableRao))
@@ -890,7 +907,8 @@ class SnLedgerClaimTest {
         flow.open()
         flow.claim()
         assertEquals(1, source.claims)
-        assertEquals(SnLedgerClaimDialogState.Sending(rows), flow.dialog.value)
+        // the figure leaves out the account under the floor
+        assertEquals(SnLedgerClaimDialogState.Sending(rows, pool1.claimableRao), flow.dialog.value)
         source.onEvent(SnLedgerClaimEvent.Sent(1, 42, txHash1))
         source.onEvent(SnLedgerClaimEvent.Confirmed(1, 42, txHash1, pool1.claimableRao))
         source.onEvent(SnLedgerClaimEvent.Failed(ctfNoId, 3, message))
@@ -1392,14 +1410,15 @@ class SnLedgerClaimTest {
         // through the flow, while the relay's floor moves after the claim starts
         var relayFloor = floor
         val source = sourceWith(pool1, ctf)
-        val flow = SnLedgerFlow(CoroutineScope(Dispatchers.Unconfined), { true }, { relayFloor }, Clock()::sleep)
-            .also { it.reset(source) }
+        val flow = CoroutineScope(Dispatchers.Unconfined).let { scope ->
+            SnLedgerFlow(scope, { true }, { relayFloor }, SnClaimHolder(scope, Clock()::sleep)).also { it.reset(source) }
+        }
         flow.open()
         val ready = flow.dialog.value as SnLedgerClaimDialogState.Ready
         assertEquals(pool1.claimableRao, ready.totalRao)
         flow.claim()
         assertEquals(
-            SnLedgerClaimDialogState.Sending(listOf(pending(pool1), pending(ctf).copy(status = SnLedgerClaimStatus.UNDER_FLOOR))),
+            SnLedgerClaimDialogState.Sending(listOf(pending(pool1), pending(ctf).copy(status = SnLedgerClaimStatus.UNDER_FLOOR)), pool1.claimableRao),
             flow.dialog.value
         )
         relayFloor = 0
@@ -1464,5 +1483,414 @@ class SnLedgerClaimTest {
             SnLedgerClaimDialogState.NeedsGas(gasKey, 0.004, 0),
             runBlocking { snLedgerClaimFinished(after, gasKey) { 0.004 } }
         )
+    }
+
+    // ---- a network's answer beats a client's (every app, 2026-11-12): the sdk reads with the
+    // client token when the network's read fails, and a server before the network's answer
+    // answers the client token alone; such an answer lists one client's wins
+
+    @Test
+    fun `the won lines take the newest good answer, and a network's over a client's`() {
+        val kenya = SnCtfWinState(Sdk.SnCtfRoleExtender, "ke")
+        val network = { wins: List<SnCtfWinState> -> SnCtfWinsAnswer(wins) }
+        val client = { wins: List<SnCtfWinState> -> SnCtfWinsAnswer(wins, "client-a") }
+        assertTrue(network(emptyList()).network)
+        assertFalse(client(emptyList()).network)
+        val lines = SnCtfWinsLines()
+        val r1 = lines.start()
+        val r2 = lines.start()
+        val r3 = lines.start()
+        // a client's answer shows while no network's has, and an older client's then does not
+        assertTrue(lines.apply(r2, client(listOf(win))))
+        assertEquals(listOf(win), lines.wins)
+        assertFalse(lines.apply(r1, client(listOf(kenya))))
+        // a network's answer replaces it, though its read started first
+        assertTrue(lines.apply(r1, network(listOf(win, kenya))))
+        assertEquals(listOf(win, kenya), lines.wins)
+        // from then on a client's answer is a read that failed, newer or not
+        assertFalse(lines.apply(r3, client(emptyList())))
+        assertFalse(lines.apply(r3, null))
+        assertEquals(listOf(win, kenya), lines.wins)
+        // a newer network's answer replaces it, and an older one after it does not
+        val r4 = lines.start()
+        val r5 = lines.start()
+        assertTrue(lines.apply(r5, network(listOf(kenya))))
+        assertFalse(lines.apply(r4, network(emptyList())))
+        assertEquals(listOf(kenya), lines.wins)
+        // a reset: no lines, no answer of a read from before it, and a client's answer shows
+        // again until a network's does
+        val r6 = lines.start()
+        lines.reset()
+        assertEquals(emptyList<SnCtfWinState>(), lines.wins)
+        assertFalse(lines.apply(r6, network(listOf(win))))
+        assertTrue(lines.apply(lines.start(), client(listOf(win))))
+        assertEquals(listOf(win), lines.wins)
+        assertTrue(lines.apply(lines.start(), network(emptyList())))
+        assertFalse(lines.apply(lines.start(), client(listOf(kenya))))
+        assertEquals(emptyList<SnCtfWinState>(), lines.wins)
+    }
+
+    @Test
+    fun `a client's answer after a network's leaves the network's lines alone`() = runBlocking {
+        val kenya = SnCtfWinState(Sdk.SnCtfRoleExtender, "ke")
+        val source = sourceWith(pool1, ctf)
+        // the network's answer, with two of its clients' wins; then two reads the sdk answered
+        // with this client's token, this client's win alone, then none; then the network's again
+        source.winAnswers = listOf(listOf(win, kenya), listOf(win), emptyList(), listOf(kenya))
+        source.winClientFor[1] = "client-a"
+        source.winClientFor[2] = "client-a"
+        val flow = flowFor(source)
+        flow.refreshWins()
+        assertEquals(listOf(win, kenya), flow.wins.value)
+        flow.refreshWins()
+        assertEquals(listOf(win, kenya), flow.wins.value)
+        flow.refreshWins()
+        assertEquals(listOf(win, kenya), flow.wins.value)
+        // the network's next answer replaces its last
+        flow.refreshWins()
+        assertEquals(listOf(kenya), flow.wins.value)
+        assertEquals(4, source.winReads)
+    }
+
+    @Test
+    fun `a client's answer alone, as from a server before the network's answer, shows its lines`() = runBlocking {
+        val kenya = SnCtfWinState(Sdk.SnCtfRoleExtender, "ke")
+        val source = sourceWith(pool1, ctf)
+        source.winAnswers = listOf(listOf(win, kenya), null, listOf(win))
+        source.winClientFor[0] = "client-a"
+        source.winClientFor[2] = "client-a"
+        val flow = flowFor(source)
+        flow.refreshWins()
+        assertEquals(listOf(win, kenya), flow.wins.value)
+        // a read that fails keeps them, and the client's next answer replaces them
+        flow.refreshWins()
+        assertEquals(listOf(win, kenya), flow.wins.value)
+        flow.refreshWins()
+        assertEquals(listOf(win), flow.wins.value)
+    }
+
+    @Test
+    fun `a network's answer replaces a client's whichever read started first, and a sign-in starts over`() {
+        val kenya = SnCtfWinState(Sdk.SnCtfRoleExtender, "ke")
+        val source = sourceWith(pool1, ctf)
+        val flow = flowFor(source)
+        val scope = CoroutineScope(Dispatchers.Unconfined)
+        // the network's read is slow; a newer read fell back to the client token and answers first
+        source.winGateFor[0] = CompletableDeferred()
+        source.winAnswerFor[0] = listOf(win, kenya)
+        source.winAnswerFor[1] = listOf(win)
+        source.winClientFor[1] = "client-a"
+        scope.launch { flow.refreshWins() }
+        scope.launch { flow.refreshWins() }
+        assertEquals(listOf(win), flow.wins.value)
+        // the network's answer lands, with every client's wins
+        source.winGateFor.getValue(0).complete(Unit)
+        assertEquals(listOf(win, kenya), flow.wins.value)
+        // signed out and in again: the first answer, a client's, shows until a network's does
+        flow.reset(NoProtocolSource)
+        flow.reset(source)
+        source.winAnswerFor[2] = listOf(kenya)
+        source.winClientFor[2] = "client-a"
+        runBlocking { flow.refreshWins() }
+        assertEquals(listOf(kenya), flow.wins.value)
+    }
+
+    // ---- a claim in flight is the signed-in session's (every app, 2026-11-12): the activity can
+    // end while the process lives (Back from the root on Android 8 to 11, a swipe-away while the
+    // VPN service keeps the process), and its view model with it
+
+    @Test
+    fun `an activity that ends during a claim and comes back keeps the claim and gets its Done`() {
+        val clock = Clock()
+        val claims = SnClaimHolder(CoroutineScope(Dispatchers.Unconfined), clock::sleep)
+        val device = Any()
+        val source = sourceWith(pool1, ctf)
+        val firstScope = CoroutineScope(Dispatchers.Unconfined)
+        val first = SnLedgerFlow(firstScope, { true }, { 0 }, claims).also { it.reset(source, device) }
+        first.open()
+        first.claim()
+        assertEquals(1, source.claims)
+        source.onEvent(SnLedgerClaimEvent.Sent(1, 42, txHash1))
+        // the activity ends, its view model with it; the claim goes on
+        firstScope.cancel()
+        source.onEvent(SnLedgerClaimEvent.Sent(ctfNoId, 3, txHash1))
+        source.onEvent(SnLedgerClaimEvent.Confirmed(1, 42, txHash1, pool1.claimableRao))
+        // the activity comes back: a new view model, a new source on the same device, and its
+        // refresh's reads, which still list the win (the read at Done too; the read 30 s after it
+        // finds it claimed)
+        val next = sourceWith(pool1, ctf)
+        next.winAnswers = listOf(listOf(win), listOf(win), emptyList())
+        val second = SnLedgerFlow(CoroutineScope(Dispatchers.Unconfined), { true }, { 0 }, claims).also { it.reset(next, device) }
+        runBlocking {
+            second.refresh()
+            second.refreshWins()
+        }
+        assertEquals(listOf(win), second.wins.value)
+        // its Claim shows the claim in flight, with what it moves, and starts no other
+        val inFlight = listOf(
+            pending(pool1).copy(status = SnLedgerClaimStatus.CONFIRMED, txHash = txHash1),
+            pending(ctf).copy(status = SnLedgerClaimStatus.SENT, txHash = txHash1),
+        )
+        val moving = pool1.claimableRao + ctf.claimableRao
+        second.open()
+        assertEquals(SnLedgerClaimDialogState.Sending(inFlight, moving), second.dialog.value)
+        second.claim()
+        second.retry()
+        second.close()
+        second.open()
+        assertEquals(SnLedgerClaimDialogState.Sending(inFlight, moving), second.dialog.value)
+        // the holder itself starts no second claim of the session
+        assertFalse(claims.start(device, next, snLedgerClaimStart(listOf(pool1, ctf)), 0))
+        assertEquals(1, source.claims)
+        assertEquals(0, next.claims)
+        // its last event and its Done land in the new view model: the rows, the accounts read
+        // again, and the wins at Done and on the apps' schedule
+        source.onEvent(SnLedgerClaimEvent.Confirmed(ctfNoId, 3, txHash1, ctf.claimableRao))
+        next.accounts = Result.success(
+            listOf(pool1.copy(claimableRao = 0, paidRao = 5_120_000_000), ctf.copy(claimableRao = 0, paidRao = ctf.finalizedRao))
+        )
+        val readsBefore = next.reads
+        source.onEvent(SnLedgerClaimEvent.Done)
+        assertEquals(
+            SnLedgerClaimDialogState.Finished(
+                listOf(inFlight[0], pending(ctf).copy(status = SnLedgerClaimStatus.CONFIRMED, txHash = txHash1)),
+                moving,
+            ),
+            second.dialog.value
+        )
+        assertEquals(readsBefore + 1, next.reads)
+        assertEquals(SnLedgerLoad.Loaded(next.accounts.getOrThrow()), second.load.value)
+        assertEquals(2, next.winReads)
+        assertEquals(listOf(30_000L), clock.waits)
+        clock.next()
+        assertEquals(3, next.winReads)
+        assertEquals(emptyList<SnCtfWinState>(), second.wins.value)
+        // the ended view model heard nothing after its end and read nothing
+        assertEquals(0, source.winReads)
+        assertTrue(first.dialog.value is SnLedgerClaimDialogState.Sending)
+        // and the next claim is a claim of its own
+        next.accounts = Result.success(listOf(pool2))
+        second.open()
+        second.claim()
+        assertEquals(1, next.claims)
+    }
+
+    @Test
+    fun `a claim done while no activity is there is over, and the reads after it reach the next one`() {
+        val clock = Clock()
+        val claims = SnClaimHolder(CoroutineScope(Dispatchers.Unconfined), clock::sleep)
+        val device = Any()
+        val source = sourceWith(pool1, ctf)
+        val firstScope = CoroutineScope(Dispatchers.Unconfined)
+        val first = SnLedgerFlow(firstScope, { true }, { 0 }, claims).also { it.reset(source, device) }
+        claimBothConfirmed(source, first)
+        firstScope.cancel()
+        // its Done while no activity is there: the claim is over, and the reads at Done and 30 s
+        // after it find no one to read for
+        source.onEvent(SnLedgerClaimEvent.Done)
+        assertNull(claims.inFlight(device))
+        clock.next()
+        assertEquals(0, source.winReads)
+        // an activity comes back 40 s after Done: its refresh reads the wins, still listing the
+        // win the claim paid, and the reads 60 and 120 s after Done are its own
+        val next = sourceWith(pool1.copy(claimableRao = 0, paidRao = 5_120_000_000), ctf.copy(claimableRao = 0, paidRao = ctf.finalizedRao))
+        next.winAnswers = listOf(listOf(win), emptyList())
+        val second = SnLedgerFlow(CoroutineScope(Dispatchers.Unconfined), { true }, { 0 }, claims).also { it.reset(next, device) }
+        runBlocking { second.refreshWins() }
+        assertEquals(listOf(win), second.wins.value)
+        clock.next()
+        assertEquals(2, next.winReads)
+        assertEquals(emptyList<SnCtfWinState>(), second.wins.value)
+        clock.next()
+        assertEquals(3, next.winReads)
+        assertEquals(listOf(30_000L, 30_000L, 60_000L), clock.waits)
+        // its Claim opens on the accounts as read now: no claim is in flight
+        second.open()
+        assertEquals(SnLedgerClaimDialogState.Ready(emptyList(), 0, gasKey, 0.124), second.dialog.value)
+    }
+
+    @Test
+    fun `a sign-out ends the claim of an activity that is gone`() {
+        val clock = Clock()
+        val claims = SnClaimHolder(CoroutineScope(Dispatchers.Unconfined), clock::sleep)
+        val device = Any()
+        val source = sourceWith(pool1, ctf)
+        val firstScope = CoroutineScope(Dispatchers.Unconfined)
+        val first = SnLedgerFlow(firstScope, { true }, { 0 }, claims).also { it.reset(source, device) }
+        first.open()
+        first.claim()
+        firstScope.cancel()
+        // the next activity finds no one signed in, then another account's device
+        val second = SnLedgerFlow(CoroutineScope(Dispatchers.Unconfined), { true }, { 0 }, claims)
+        second.reset(NoProtocolSource, null)
+        assertNull(claims.inFlight(device))
+        val next = sourceWith(pool2)
+        val other = Any()
+        second.reset(next, other)
+        // the departed claim's events count for nothing; the next account claims afresh
+        source.onEvent(SnLedgerClaimEvent.Sent(1, 42, txHash1))
+        second.open()
+        assertEquals(SnLedgerClaimDialogState.Ready(listOf(pool2), pool2.claimableRao, gasKey, 0.124), second.dialog.value)
+        second.claim()
+        assertEquals(1, next.claims)
+        // and the departed claim's late Done ends nothing of the next account's claim, nor reads
+        // its wins
+        source.onEvent(SnLedgerClaimEvent.Done)
+        assertTrue(claims.inFlight(other) != null)
+        assertEquals(SnLedgerClaimDialogState.Sending(listOf(pending(pool2)), pool2.claimableRao), second.dialog.value)
+        assertEquals(0, next.winReads)
+        assertEquals(emptyList<Long>(), clock.waits)
+    }
+
+    // ---- the figure while a claim runs (every app, 2026-11-12): what the claim is moving
+
+    @Test
+    fun `the figure during a claim is what it moves, never an account under the floor or unknown`() {
+        val floor = 100_000_000L
+        assertTrue(snLedgerUnderFloor(ctf.claimableRao, floor))
+        val start = snLedgerClaimStart(listOf(pool1, ctf, pool2), listOf(SnLedgerPool(5)), floor)
+        assertEquals(pool1.claimableRao + pool2.claimableRao, snLedgerClaimMovingRao(start, floor))
+        // without a floor the small account moves too
+        assertEquals(
+            pool1.claimableRao + ctf.claimableRao + pool2.claimableRao,
+            snLedgerClaimMovingRao(snLedgerClaimStart(listOf(pool1, ctf, pool2)), 0)
+        )
+        // an account of no known amount is no part of it, nor a pool that could not be read
+        assertEquals(0, snLedgerClaimMovingRao(listOf(SnLedgerClaimProgress(9, 1, 0, SnLedgerClaimStatus.PENDING, null, null)), 0))
+        assertEquals(0, snLedgerClaimMovingRao(snLedgerClaimStart(emptyList(), listOf(SnLedgerPool(5))), 0))
+        // nothing it moves: no figure, never a zero
+        assertEquals(0, snLedgerClaimMovingRao(snLedgerClaimStart(listOf(ctf), emptyList(), floor), floor))
+        // through the flow: the claim shows what its Claim named while it runs, whatever its
+        // events say of an account, and a dialog opened again shows it too
+        val source = sourceWith(pool1, ctf)
+        val flow = flowFor(source, transferFloorRao = floor)
+        flow.open()
+        val ready = flow.dialog.value as SnLedgerClaimDialogState.Ready
+        flow.claim()
+        assertEquals(ready.totalRao, (flow.dialog.value as SnLedgerClaimDialogState.Sending).movingRao)
+        assertEquals(pool1.claimableRao, ready.totalRao)
+        source.onEvent(SnLedgerClaimEvent.Sent(1, 42, txHash1))
+        source.onEvent(SnLedgerClaimEvent.Sent(ctfNoId, 3, txHash1))
+        source.onEvent(SnLedgerClaimEvent.Failed(1, 42, "claim_failed: the claim transaction reverted"))
+        assertEquals(pool1.claimableRao, (flow.dialog.value as SnLedgerClaimDialogState.Sending).movingRao)
+        flow.close()
+        flow.open()
+        assertEquals(pool1.claimableRao, (flow.dialog.value as SnLedgerClaimDialogState.Sending).movingRao)
+        source.onEvent(SnLedgerClaimEvent.Done)
+        assertTrue(flow.dialog.value is SnLedgerClaimDialogState.Finished)
+    }
+
+    // ---- the v1 claim is the session's too (every app, 2026-11-12): its dialog, dismissed and
+    // opened again, and its view model, ended with its activity, lose none of it
+
+    /** A view model's ear for the v1 claim, as EarningsViewModel's epochClaimListener. */
+    private class EpochClaimEar : SnClaimHolder.Listener {
+        val moved = mutableListOf<List<ClaimProgress>>()
+        val done = mutableListOf<List<ClaimProgress>>()
+
+        override fun epochClaimMoved(rows: List<ClaimProgress>) {
+            moved += rows
+        }
+
+        override fun epochClaimDone(settled: List<ClaimProgress>) {
+            done += settled
+        }
+    }
+
+    @Test
+    fun `a v1 claim's rows and its Done outlive its dialog and its view model`() {
+        val claims = SnClaimHolder(CoroutineScope(Dispatchers.Unconfined))
+        val device = Any()
+        val source = sourceWith(pool1)
+        val first = EpochClaimEar()
+        val detachFirst = claims.attach(first, device)
+        val rows = listOf(
+            ClaimProgress(1_218, 3_241_000_000, ClaimProgressStatus.PENDING, null, null),
+            ClaimProgress(1_217, 2_905_500_000, ClaimProgressStatus.PENDING, null, null),
+        )
+        assertTrue(claims.startEpochClaim(device, source, listOf(1_218, 1_217), rows))
+        assertEquals(1, source.epochClaims)
+        // a dialog opened again shows it, and starts no second claim while it is in flight
+        assertEquals(rows, claims.epochClaimInFlight(device))
+        assertFalse(claims.startEpochClaim(device, source, listOf(1_218), rows))
+        assertEquals(1, source.epochClaims)
+        source.onEpochEvent(ClaimEvent.Sent(1_218, txHash1))
+        val sent = listOf(rows[0].copy(status = ClaimProgressStatus.SENT, txHash = txHash1), rows[1])
+        assertEquals(listOf(sent), first.moved)
+        assertEquals(sent, claims.epochClaimInFlight(device))
+        // the activity ends, its view model with it; the claim goes on
+        detachFirst()
+        val message = "needs_gas: this claim needs up to 0.0149 TAO of gas"
+        source.onEpochEvent(ClaimEvent.Confirmed(1_218, txHash1, 3_241_000_000))
+        source.onEpochEvent(ClaimEvent.Failed(1_217, message))
+        // a new activity's view model, of the same session, finds it in flight and hears its Done
+        val second = EpochClaimEar()
+        claims.attach(second, device)
+        val inFlight = listOf(
+            rows[0].copy(status = ClaimProgressStatus.CONFIRMED, txHash = txHash1),
+            rows[1].copy(status = ClaimProgressStatus.FAILED, message = message),
+        )
+        assertEquals(inFlight, claims.epochClaimInFlight(device))
+        source.onEpochEvent(ClaimEvent.Done)
+        assertEquals(listOf(inFlight), second.done)
+        assertNull(claims.epochClaimInFlight(device))
+        // the ended view model heard nothing after its end
+        assertEquals(1, first.moved.size)
+        assertTrue(first.done.isEmpty())
+        // the next claim is a claim of its own
+        assertTrue(claims.startEpochClaim(device, source, listOf(1_217), listOf(rows[1])))
+        assertEquals(2, source.epochClaims)
+    }
+
+    @Test
+    fun `a sign-out or another device ends the v1 claim in flight`() {
+        val claims = SnClaimHolder(CoroutineScope(Dispatchers.Unconfined))
+        val device = Any()
+        val source = sourceWith(pool1)
+        val rows = listOf(ClaimProgress(1_218, 3_241_000_000, ClaimProgressStatus.PENDING, null, null))
+        claims.startEpochClaim(device, source, listOf(1_218), rows)
+        // the next view model finds no one signed in: the claim ends, and its events count for nothing
+        val ear = EpochClaimEar()
+        claims.attach(ear, null)
+        assertNull(claims.epochClaimInFlight(device))
+        claims.attach(ear, device)
+        source.onEpochEvent(ClaimEvent.Sent(1_218, txHash1))
+        source.onEpochEvent(ClaimEvent.Done)
+        assertTrue(ear.moved.isEmpty() && ear.done.isEmpty())
+        // another device's claim is its own, and its ear hears it; a late Done of the departed
+        // claim ends nothing of it
+        val departed = sourceWith(pool1)
+        claims.startEpochClaim(device, departed, listOf(1_218), rows)
+        val other = Any()
+        claims.attach(ear, other)
+        assertTrue(claims.startEpochClaim(other, source, listOf(1_218), rows))
+        departed.onEpochEvent(ClaimEvent.Done)
+        assertEquals(rows, claims.epochClaimInFlight(other))
+        assertTrue(ear.done.isEmpty())
+        source.onEpochEvent(ClaimEvent.Done)
+        assertEquals(listOf(claimProgressSettled(rows)), ear.done)
+    }
+
+    @Test
+    fun `a v1 claim's rows follow its events, and an epoch never reported on fails at Done`() {
+        val row = ClaimProgress(1_218, 3_241_000_000, ClaimProgressStatus.PENDING, null, null)
+        val other = ClaimProgress(1_217, 2_905_500_000, ClaimProgressStatus.PENDING, null, null)
+        val rows = listOf(row, other)
+        assertEquals(
+            listOf(row.copy(status = ClaimProgressStatus.SENT, txHash = txHash1), other),
+            claimProgressAfter(rows, ClaimEvent.Sent(1_218, txHash1))
+        )
+        // the vault's amount once confirmed
+        assertEquals(
+            listOf(row.copy(status = ClaimProgressStatus.CONFIRMED, txHash = txHash1, amountRao = 3_240_999_999), other),
+            claimProgressAfter(rows, ClaimEvent.Confirmed(1_218, txHash1, 3_240_999_999))
+        )
+        assertEquals(
+            listOf(row, other.copy(status = ClaimProgressStatus.FAILED, message = "claims_for_epoch_expired: ClaimExpired")),
+            claimProgressAfter(rows, ClaimEvent.Failed(1_217, "claims_for_epoch_expired: ClaimExpired"))
+        )
+        assertEquals(rows, claimProgressAfter(rows, ClaimEvent.Done))
+        val sent = row.copy(status = ClaimProgressStatus.SENT, txHash = txHash1)
+        assertEquals(listOf(sent, other.copy(status = ClaimProgressStatus.FAILED)), claimProgressSettled(listOf(sent, other)))
     }
 }

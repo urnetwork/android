@@ -89,26 +89,28 @@ class SnLedgerWiringTest {
         assertTrue(status.contains("kind = a.kind,"))
         // GET /sn/ctf/client's unclaimed wins, every one in the sdk's order, copied off the
         // gomobile objects; an error, or an answer that cannot be read, is a failure, which keeps
-        // the lines drawn (every app, 2026-11-12), never an empty list
+        // the lines drawn (every app, 2026-11-12), never an empty list. With them the client the
+        // answer is for, "" for the network's: a network's answer beats a client's
         val wins = between(sdk, "override suspend fun ctfWins()", "override suspend fun accountEpochs()")
-        assertTrue(wins.contains("override suspend fun ctfWins(): Result<List<SnCtfWinState>> ="))
+        assertTrue(wins.contains("override suspend fun ctfWins(): Result<SnCtfWinsAnswer> ="))
         assertTrue(wins.contains("device.snCtfClient { result, err ->"))
-        assertTrue(wins.contains("val wins: Result<List<SnCtfWinState>> = runCatching {"))
+        assertTrue(wins.contains("val wins: Result<SnCtfWinsAnswer> = runCatching {"))
         assertTrue(wins.contains("err != null -> throw err"))
         assertTrue(wins.contains("result == null -> throw IllegalStateException("))
         assertTrue(wins.contains("result.error != null -> throw result.error.toException()!!"))
-        assertTrue(wins.contains("else -> snCtfWinsOf(result.unclaimedWins)"))
+        assertTrue(wins.contains("else -> SnCtfWinsAnswer(snCtfWinsOf(result.unclaimedWins), result.clientId.orEmpty())"))
         assertFalse(wins.contains("getOrDefault"))
         val each = between(sdk, "private fun snCtfWinsOf(", "override val available")
         assertTrue(each.contains("if (list == null) {\n                throw IllegalStateException("))
         assertTrue(each.contains("return (0 until list.len()).map { i ->"))
         assertTrue(each.contains("role = w.role,"))
         assertTrue(each.contains("country = w.country,"))
-        // the flow shows the newest read's good answer, by the order the reads started, and keeps
-        // the lines through a failure (SnLedgerClaimTest)
+        // the flow shows the newest read's good answer, by the order the reads started, a
+        // network's over a client's, and keeps the lines through a failure (SnCtfWinsLines,
+        // SnLedgerClaimTest)
         val read = between(source("SnLedger.kt"), "suspend fun refreshWins() {", "\n    }\n")
-        assertTrue(read.contains("val read = ++winsReadsStarted\n        val wins = s.ctfWins()"))
-        assertTrue(read.contains("wins.onSuccess {\n            if (winsReadShown < read) {\n                winsReadShown = read\n                _wins.value = it"))
+        assertTrue(read.contains("val read = winsLines.start()\n        val answer = s.ctfWins()"))
+        assertTrue(read.contains("if (winsLines.apply(read, answer.getOrNull())) {\n            _wins.value = winsLines.wins"))
         // the latest win alone is no longer the line
         assertFalse(sdk.contains("latestWin"))
         // read with each refresh of Earnings, on its own: the route's answer, or its 60 s
@@ -121,7 +123,7 @@ class SnLedgerWiringTest {
         // the lines are the ledger flow's, dropped with the device (ledgerFlow.reset, which
         // SnLedgerClaimTest covers) and read again after a claim on the apps' schedule
         assertTrue(model.contains("val ctfWins: StateFlow<List<SnCtfWinState>> = ledgerFlow.wins"))
-        assertTrue(between(model, "private fun setupDevice(", "private fun createProtocolSource(").contains("ledgerFlow.reset(source)"))
+        assertTrue(between(model, "private fun setupDevice(", "private fun createProtocolSource(").contains("ledgerFlow.reset(source, device)"))
         assertFalse(model.contains("_ctfWins"))
         // the tile shows them, and the claim dialog names its rows from the same read as the tile
         val screen = source("EarningsScreen.kt")
@@ -133,17 +135,19 @@ class SnLedgerWiringTest {
         assertFalse(dialog.contains("transferFloorRao"))
         val flow = between(model, "val ledgerFlow = SnLedgerFlow(", "\n    )")
         assertTrue(flow.contains("transferFloorRao = { _claimStatus.value?.takeIf { !it.unavailable }?.transferFloorRao ?: 0 },"))
-        // and a claim's Done reads the wins again, on their own and on the apps' schedule, in
-        // the flow's scope, the view model's: it may have paid them
+        // and a claim's Done reads the wins again, on their own and on the apps' schedule, through
+        // the flows of the session there at their times: it may have paid them. The schedule is
+        // the session's holder's (the app's), each read the flow's, in its view model's scope
         assertTrue(flow.contains("scope = viewModelScope,"))
         assertFalse(flow.contains("sleep"))
         val ledger = source("SnLedger.kt")
-        val done = between(ledger, "claiming = null\n        val settled = snLedgerClaimSettled(progress, claimingRead)", "\n    }\n}")
-        assertTrue(done.contains("if (s === source) {\n            // a claim may have paid capture the flag's wins"))
-        assertTrue(done.contains("readWinsAfterClaim(snLedgerClaimPaid(settled))"))
+        val done = between(ledger, "claim = null\n        val settled = snLedgerClaimSettled(of.rows, of.read)", "\n    }\n")
+        assertTrue(done.contains("listeners(of.session).forEach { it.claimDone(settled, of.transferFloorRao) }"))
+        assertTrue(done.contains("readWinsAfterClaim(of.session, snLedgerClaimPaid(settled))"))
         assertTrue(ledger.contains("private val sleep: suspend (Long) -> Unit = { delay(it) },"))
+        assertTrue(ledger.contains("override fun readWins() {\n            scope.launch { refreshWins() }"))
         assertTrue(ledger.contains("_dialog.value = snLedgerClaimDialog(_load.value, s.gasKey(), gasTao, transferFloorRao())"))
-        assertTrue(ledger.contains("if (ready.takes.isEmpty() || claiming != null) {"))
+        assertTrue(ledger.contains("if (ready.takes.isEmpty() || claims.inFlight(owner) != null) {"))
     }
 
     @Test
@@ -208,23 +212,44 @@ class SnLedgerWiringTest {
     }
 
     @Test
-    fun `the v2 claim lives as long as the activity, not the screen`() {
-        // the ledger flow, which holds the claim in flight, its rows and its Done, is the earnings
-        // view model's, and every flavor's activity holds that view model: leaving Earnings and
-        // coming back keeps the claim (SnLedgerClaimTest: a screen left during a claim)
+    fun `the v2 claim lives as long as the session, not the activity or the screen`() {
+        // the claim in flight, its rows, its events, its Done and the reads after it are the
+        // process's holder's, a Hilt singleton on the process's own scope, which the earnings view
+        // model of each flavor's activity hands its flow: an activity that ends and comes back
+        // keeps the claim (SnLedgerClaimTest: an activity that ends during a claim)
         for (flavor in listOf("google", "ungoogle", "solana_dapp", "ethos_dapp")) {
             val activity = File("src/$flavor/java/com/bringyour/network/MainActivity.kt").readText()
             assertTrue(flavor, activity.contains("private val earningsViewModel: EarningsViewModel by viewModels()"))
         }
+        val ledger = source("SnLedger.kt")
+        assertTrue(ledger.contains("@Singleton\nclass SnClaimHolder internal constructor("))
+        assertTrue(ledger.contains("@Inject\n    constructor() : this(CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate))"))
         val model = source("EarningsViewModel.kt")
-        assertTrue(between(model, "val ledgerFlow = SnLedgerFlow(", "\n    )").contains("scope = viewModelScope,"))
-        // a visit reads again; only another device or a sign-out (setupDevice) resets the flow
+        assertTrue(between(model, "class EarningsViewModel @Inject constructor(", ") : ViewModel() {").contains("private val ledgerClaims: SnClaimHolder,"))
+        val flow = between(model, "val ledgerFlow = SnLedgerFlow(", "\n    )")
+        assertTrue(flow.contains("scope = viewModelScope,"))
+        assertTrue(flow.contains("claims = ledgerClaims,"))
+        // the flow hears no more once its view model ends
+        assertTrue(ledger.contains("scope.coroutineContext.job.invokeOnCompletion {\n            detach?.invoke()"))
+        // a visit reads again; only another device or a sign-out (setupDevice) resets the flow,
+        // for the device, the session: the view model of a new activity finds its claim again
         assertFalse(between(model, "fun onScreenResumed() {", "\n    }").contains("ledgerFlow"))
         assertEquals(1, Regex("ledgerFlow\\.reset\\(").findAll(model).count())
-        assertTrue(between(model, "private fun setupDevice(", "private fun createProtocolSource(").contains("ledgerFlow.reset(source)"))
-        // the claim's events are kept by the device that claimed, never by a refresh
-        val ledger = source("SnLedger.kt")
-        assertTrue(between(ledger, "private suspend fun onEvent(", "\n    }\n}").contains("if (s !== source || progress == null) {"))
+        assertTrue(between(model, "private fun setupDevice(", "private fun createProtocolSource(").contains("ledgerFlow.reset(source, device)"))
+        // the claim's events count only while it is the claim in flight: never after its Done,
+        // nor once a flow of another session (a sign-out, another device) has attached
+        val event = between(ledger, "private fun onEvent(of: Claim, event: SnLedgerClaimEvent) {", "\n    }\n")
+        assertTrue(event.contains("if (claim !== of) {\n            return\n        }"))
+        val attach = between(ledger, "fun attach(listener: Listener, session: Any?): () -> Unit {", "\n    }\n")
+        assertTrue(attach.contains("if (claim?.session !== session) {\n            claim = null"))
+        assertTrue(attach.contains("if (winsSession !== session) {\n            winsAfterClaim?.cancel()"))
+        // the dialog shows the claim before the sdk's first event, which may come at once, and
+        // the holder keeps it before it asks the sdk
+        val claim = between(ledger, "    fun claim() {", "\n    }\n")
+        assertTrue(claim.indexOf("_dialog.value = SnLedgerClaimDialogState.Sending(progress, snLedgerClaimMovingRao(progress, floorRao))") <
+            claim.indexOf("claims.start(owner, source, progress, floorRao)"))
+        val start = between(ledger, "    fun start(session: Any,", "\n    }\n")
+        assertTrue(start.indexOf("claim = started") < start.indexOf("source.ledgerClaim { event ->"))
     }
 
     @Test
@@ -239,8 +264,17 @@ class SnLedgerWiringTest {
         val closeOnly = between(ready, "if (takes.isEmpty()) {", "return@Column")
         assertFalse(closeOnly.contains("claim_amount_button"))
         assertTrue(ready.contains("stringResource(id = R.string.claim_amount_button, formatAlpha(state.totalRao))"))
-        // while a claim runs and after it: the rows, and Claimed's total once confirmed
+        // while a claim runs, what it moves over its rows (every app, 2026-11-12), never a zero;
+        // after it, the rows and Claimed's total once confirmed (SnLedgerClaimTest: the figure
+        // during a claim)
         val progress = between(tile, "private fun LedgerProgressContent(", "@Preview")
+        assertTrue(progress.contains("if (0 < movingRao) {\n            Text(\n                formatAlpha(movingRao),"))
+        assertEquals(1, Regex("formatAlpha\\(movingRao\\)").findAll(progress).count())
+        val dialog = between(tile, "fun SnLedgerClaimDialog(", "private fun LedgerReadyContent(")
+        assertTrue(between(dialog, "is SnLedgerClaimDialogState.Sending -> LedgerProgressContent(", "explorerTxUrl = explorerTxUrl")
+            .contains("movingRao = state.movingRao,"))
+        assertTrue(between(dialog, "is SnLedgerClaimDialogState.Finished -> LedgerProgressContent(", "explorerTxUrl = explorerTxUrl")
+            .contains("movingRao = 0,"))
         assertFalse(progress.contains("claim_amount_button"))
         assertFalse(progress.contains("R.string.unclaimed"))
         // the top-up names no figure for accounts of unknown amount, never a zero
@@ -252,12 +286,54 @@ class SnLedgerWiringTest {
     @Test
     fun `the accounts are read with the v1 claims, and v1 reads alone`() {
         val model = source("EarningsViewModel.kt")
-        assertTrue(model.contains("ledgerFlow.reset(source)"))
+        assertTrue(model.contains("ledgerFlow.reset(source, device)"))
         assertTrue(model.contains("launch { ledgerFlow.refresh() }"))
         // wallet read, retry, connect and the wallet listener read both
         assertEquals(4, Regex("refreshSettlements\\(\\)\\n").findAll(model).count())
         // the v1 claim dialog and its Done read only the v1 claims
         assertTrue(between(model, "private suspend fun loadClaimDialog()", "fun claimAll()").contains("refreshClaims()"))
-        assertTrue(between(model, "ClaimEvent.Done -> {", "// ---- seeker").contains("refreshClaims()"))
+        assertTrue(between(model, "private suspend fun finishEpochClaim(", "// ---- seeker").contains("refreshClaims()"))
+    }
+
+    @Test
+    fun `the v1 claim is the session's too, not its dialog's`() {
+        // its rows, its events and its Done are the process's holder's (SnLedgerClaimTest: a v1
+        // claim's rows and its Done outlive its dialog and its view model)
+        val model = source("EarningsViewModel.kt")
+        val open = between(model, "    fun openClaimDialog() {", "\n    }\n")
+        assertTrue(open.contains("ledgerClaims.epochClaimInFlight(byDevice)?.let {\n            _claimDialog.value = ClaimDialogState.Sending(it)\n            return"))
+        assertTrue(open.indexOf("ledgerClaims.epochClaimInFlight(byDevice)") < open.indexOf("ClaimDialogState.NoWallet"))
+        assertTrue(between(model, "    fun retryClaimDialog() {", "\n    }\n").contains("ledgerClaims.epochClaimInFlight(byDevice) != null"))
+        val claimAll = between(model, "    fun claimAll() {", "\n    }\n")
+        assertTrue(claimAll.contains("if (ready.claims.isEmpty() || ledgerClaims.epochClaimInFlight(device) != null) {"))
+        val sending = claimAll.indexOf("_claimDialog.value = ClaimDialogState.Sending(progress)")
+        assertTrue(0 <= sending && sending < claimAll.indexOf("ledgerClaims.startEpochClaim(device, source, ready.claims.map { it.epoch }, progress)"))
+        // the dialog no longer keeps the claim: nothing asks the sdk but the holder
+        assertFalse(model.contains("source.claim("))
+        assertFalse(model.contains("onClaimEvent"))
+        // the view model hears the session's v1 claim while it lives, its dialog open or not
+        val ear = between(model, "private val epochClaimListener = object : SnClaimHolder.Listener {", "\n    }\n")
+        assertTrue(ear.contains("if (_claimDialog.value is ClaimDialogState.Sending) {\n                _claimDialog.value = ClaimDialogState.Sending(rows)"))
+        assertTrue(ear.contains("viewModelScope.launch { finishEpochClaim(settled) }"))
+        val setup = between(model, "private fun setupDevice(", "private fun createProtocolSource(")
+        assertTrue(setup.contains("detachEpochClaim?.invoke()\n        detachEpochClaim = ledgerClaims.attach(epochClaimListener, device)"))
+        assertTrue(between(model, "override fun onCleared() {", "\n    }\n").contains("detachEpochClaim?.invoke()"))
+        // its Done: the dialog's top-up or rows only while the dialog shows the claim, and the
+        // v1 claims read again whatever the dialog
+        val finish = between(model, "private suspend fun finishEpochClaim(", "\n    }\n")
+        assertEquals(2, Regex("_claimDialog\\.value is ClaimDialogState\\.Sending").findAll(finish).count())
+        assertFalse(finish.contains("as? ClaimDialogState.Sending ?: return"))
+        assertTrue(finish.trimEnd().endsWith("refreshClaims()"))
+        // and the holder is the same that keeps the v2 claim (SnLedger.kt)
+        val ledger = source("SnLedger.kt")
+        val start = between(ledger, "    fun startEpochClaim(", "\n    }\n")
+        assertTrue(start.indexOf("epochClaim = started") < start.indexOf("source.claim(epochs) { event ->"))
+        assertTrue(between(ledger, "private fun onEpochEvent(of: EpochClaim, event: ClaimEvent) {", "\n    }\n")
+            .contains("if (epochClaim !== of) {\n            return\n        }"))
+        assertTrue(between(ledger, "fun attach(listener: Listener, session: Any?): () -> Unit {", "\n    }\n")
+            .contains("if (epochClaim?.session !== session) {\n            epochClaim = null"))
+        // its dialog's figure while it runs: what it moves, never a zero (every app, 2026-11-12)
+        val progress = between(source("ClaimDialog.kt"), "private fun ProgressContent(", "\n}\n")
+        assertTrue(progress.contains("val movingRao = progress.sumOf { it.amountRao }\n        if (!finished && 0 < movingRao) {\n            Text(\n                formatAlpha(movingRao),"))
     }
 }

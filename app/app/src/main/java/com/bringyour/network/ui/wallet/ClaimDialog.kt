@@ -352,6 +352,21 @@ private fun ProgressContent(
     explorerTxUrl: (String) -> String,
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
+        // while the claim runs, the amount it is moving, the epochs it sends, as
+        // Claim named them (every app, 2026-11-12): never a zero
+        val movingRao = progress.sumOf { it.amountRao }
+        if (!finished && 0 < movingRao) {
+            Text(
+                formatAlpha(movingRao),
+                style = TextStyle(
+                    fontFamily = gravityCondensedFamily,
+                    fontWeight = FontWeight(900),
+                    fontSize = 40.sp,
+                    color = Color.White
+                )
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+        }
         progress.forEach { p ->
             Row(
                 modifier = Modifier

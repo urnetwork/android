@@ -2,13 +2,18 @@ package com.bringyour.network.ui.wallet
 
 import com.bringyour.network.R
 import com.bringyour.sdk.Sdk
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
 
 /*
@@ -290,6 +295,84 @@ fun snCtfWonLines(wins: List<SnCtfWinState>): List<Pair<Int, String>> =
     wins.mapNotNull { win -> snCtfWonRes(win)?.let { res -> res to win.country } }
 
 /**
+ * One good answer of GET /sn/ctf/client (sdk SnCtfClientResult): the wins not
+ * claimed yet, newest first, and the client it answered for (ClientId). That
+ * is "" for the network's answer, whose wins span all of the network's
+ * clients, and set for one client's answer: the sdk's fallback to the client
+ * token after the network's read failed, or a server before the network's
+ * answer, which lists that client's wins alone.
+ */
+data class SnCtfWinsAnswer(
+    val wins: List<SnCtfWinState>,
+    val clientId: String = "",
+) {
+    /** the network's answer, which lists every one of its clients' wins */
+    val network: Boolean
+        get() = clientId.isEmpty()
+}
+
+/**
+ * The wins the won lines are drawn from (every app, 2026-11-12). Reads
+ * overlap (a refresh's beside a claim's), and their answers land in any
+ * order. The lines show the newest read's good answer, by the order the reads
+ * started: an answer replaces them unless they already show a newer read's,
+ * so an older answer that lands late never replaces a newer one. A read that
+ * failed or could not be read (null) changes nothing, so it never blanks the
+ * lines, nor keeps an older read's good answer still to land from showing.
+ *
+ * A network's answer beats a client's (every app, 2026-11-12): a client's
+ * answer lists one client's wins, so once a network's answer has shown since
+ * the last reset (a sign-in, or another device), a client's answer is a read
+ * that failed and replaces nothing. It shows only while no network's answer
+ * has, and a network's answer replaces it, whichever read started first.
+ * Only a good answer that no longer lists a win, or a reset, takes a line
+ * away; after a reset no answer of a read from before it shows, and there are
+ * no lines until the first answer. As Linux's snledger::WinsLines.
+ */
+class SnCtfWinsLines {
+    // the newest read's number
+    private var started = 0L
+
+    // the reads up to this one started before the last reset
+    private var resetAt = 0L
+
+    // the read whose good answer the lines show
+    private var shown = 0L
+
+    // the lines are a network's answer
+    private var network = false
+
+    var wins: List<SnCtfWinState> = emptyList()
+        private set
+
+    /** A read starts: its number, which its answer carries. */
+    fun start(): Long = ++started
+
+    /** The answer of read [read], null for a read that failed: true when the lines are now its. */
+    fun apply(read: Long, answer: SnCtfWinsAnswer?): Boolean {
+        if (answer == null || read <= resetAt) {
+            return false
+        }
+        val replaces = if (answer.network) !network || shown < read else !network && shown < read
+        if (!replaces) {
+            return false
+        }
+        shown = read
+        network = answer.network
+        wins = answer.wins
+        return true
+    }
+
+    /** A sign-in or another device: no lines, and no answer of a read from before shows. */
+    fun reset() {
+        resetAt = started
+        shown = started
+        network = false
+        wins = emptyList()
+    }
+}
+
+/**
  * When the wins are read again after a claim that paid an account, in ms
  * after its Done, beside the read at Done (every app's schedule). The SDK's
  * Done comes once the claim is in a block, but the server says a win is
@@ -383,7 +466,11 @@ sealed class SnLedgerClaimDialogState {
         val gasTao: Double,
         val totalRao: Long,
     ) : SnLedgerClaimDialogState()
-    data class Sending(val progress: List<SnLedgerClaimProgress>) : SnLedgerClaimDialogState()
+    /**
+     * A claim in flight: its rows, and the figure, what the claim is moving
+     * (snLedgerClaimMovingRao); 0 for none, never a zero
+     */
+    data class Sending(val progress: List<SnLedgerClaimProgress>, val movingRao: Long = 0) : SnLedgerClaimDialogState()
     data class Finished(val progress: List<SnLedgerClaimProgress>, val confirmedRao: Long) : SnLedgerClaimDialogState()
     object Unavailable : SnLedgerClaimDialogState()
 }
@@ -438,6 +525,20 @@ fun snLedgerClaimStart(
     } + unavailablePools.map {
         SnLedgerClaimProgress(it.noId, 0, 0, SnLedgerClaimStatus.POOL_UNAVAILABLE, null, null, it.kind)
     }
+
+/**
+ * The figure while a claim runs (every app, 2026-11-12): what the claim is
+ * moving, the sum of the accounts it sends whose amount is known and not
+ * under the transfer floor it started with ([transferFloorRao], 0 for none),
+ * the amount its Claim named. An account under the floor, one in a pool that
+ * could not be read and one whose amount is not known are no part of it; 0,
+ * which shows no figure, never a zero, with none of them. [start] is the
+ * claim's rows when it starts (snLedgerClaimStart).
+ */
+fun snLedgerClaimMovingRao(start: List<SnLedgerClaimProgress>, transferFloorRao: Long): Long =
+    start.filter {
+        it.status == SnLedgerClaimStatus.PENDING && it.amountKnown && !snLedgerUnderFloor(it.amountRao, transferFloorRao)
+    }.sumOf { it.amountRao }
 
 /**
  * The rows after one event. `already_claimed` is not a failure: a third
@@ -623,19 +724,234 @@ fun snLedgerClaimFailureRes(message: String?): Int? = when (EarningsViewModel.cl
 fun snLedgerClaimFailureDetail(message: String): String =
     message.substringAfter(':').trim().ifEmpty { message }
 
+// ---- the claims in flight, the session's
+
+/**
+ * The claims in flight, the v2 claim (SnLedgerClaim) and the v1 claim
+ * (SnClaim), and the reads of the wins after a v2 claim's Done: the signed-in
+ * session's, not a screen's, a dialog's or a view model's (every app,
+ * 2026-11-12). The app holds one for the process, on the process's own scope,
+ * so the SDK's events and their Done land here whatever became of the dialog
+ * or the activity. A dialog dismissed during a claim and opened again shows
+ * it; an activity that ends during a claim (Back from the root on Android 8 to
+ * 11, a swipe-away while the VPN service keeps the process) and comes back
+ * finds the claim still in flight, never starts a second one of its kind
+ * while the SDK still claims, and gets its Done and what follows it.
+ *
+ * A view model, and its v2 flow (SnLedgerFlow), attach for their session, the
+ * signed-in device, and draw what this holds. One that attaches for another
+ * session (a sign-out, or another device) ends the claims and the reads of the
+ * one before: none of those claims' events counts any more. Main thread.
+ */
+@Singleton
+class SnClaimHolder internal constructor(
+    private val scope: CoroutineScope,
+    // the wait between the reads of the wins after a claim (the tests' clock)
+    private val sleep: suspend (Long) -> Unit = { delay(it) },
+) {
+    @Inject
+    constructor() : this(CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate))
+
+    /** What a listener attached for the claims' session hears, on the main thread; each hears its part. */
+    interface Listener {
+        /** the v2 claim's rows moved; [movingRao] is its figure */
+        fun claimMoved(rows: List<SnLedgerClaimProgress>, movingRao: Long) {}
+
+        /** its Done: the rows settled (snLedgerClaimSettled), and the transfer floor the claim started with */
+        fun claimDone(settled: List<SnLedgerClaimProgress>, transferFloorRao: Long) {}
+
+        /** a read of the wins: at a v2 claim's Done, and on the apps' schedule after one that paid */
+        fun readWins() {}
+
+        /** the v1 claim's rows moved */
+        fun epochClaimMoved(rows: List<ClaimProgress>) {}
+
+        /** the v1 claim's Done: its rows settled (claimProgressSettled) */
+        fun epochClaimDone(settled: List<ClaimProgress>) {}
+    }
+
+    /** The claim in flight as its dialog draws it: its rows and its figure. */
+    data class InFlight(val rows: List<SnLedgerClaimProgress>, val movingRao: Long)
+
+    private class Claim(
+        val session: Any,
+        val transferFloorRao: Long,
+        val movingRao: Long,
+        var rows: List<SnLedgerClaimProgress>,
+        // the SDK's own read of the ledger answered (snLedgerClaimReadLedger)
+        var read: Boolean = false,
+    )
+
+    private class EpochClaim(
+        val session: Any,
+        var rows: List<ClaimProgress>,
+    )
+
+    private class Attached(val listener: Listener, val session: Any?)
+
+    // the v2 claim in flight; null between claims
+    private var claim: Claim? = null
+
+    // the v1 claim in flight; null between claims
+    private var epochClaim: EpochClaim? = null
+
+    private val attached = mutableListOf<Attached>()
+
+    // the reads of the wins after the last claim that paid, and the session they are for
+    private var winsAfterClaim: Job? = null
+    private var winsSession: Any? = null
+
+    /**
+     * [listener], of [session] (null: no one signed in), hears of the
+     * session's claims from now on. The claims, or reads after one, of
+     * another session end here for good: that session signed out, or the
+     * device changed. Returns the detach, for the listener's end or its next
+     * session.
+     */
+    fun attach(listener: Listener, session: Any?): () -> Unit {
+        if (claim?.session !== session) {
+            claim = null
+        }
+        if (epochClaim?.session !== session) {
+            epochClaim = null
+        }
+        if (winsSession !== session) {
+            winsAfterClaim?.cancel()
+            winsAfterClaim = null
+            winsSession = null
+        }
+        val entry = Attached(listener, session)
+        attached += entry
+        return { attached.remove(entry) }
+    }
+
+    /** The v2 claim of [session] in flight; null between claims. */
+    fun inFlight(session: Any?): InFlight? =
+        claim?.takeIf { session != null && it.session === session }?.let { InFlight(it.rows, it.movingRao) }
+
+    /** The v1 claim of [session] in flight, its rows; null between claims. */
+    fun epochClaimInFlight(session: Any?): List<ClaimProgress>? =
+        epochClaim?.takeIf { session != null && it.session === session }?.rows
+
+    /**
+     * Claims [epochs] for [session] with [source] (SnClaim), from the rows it
+     * starts with. False, and no claim, while a v1 claim of the session is in
+     * flight.
+     */
+    fun startEpochClaim(session: Any, source: EarningsProtocolSource, epochs: List<Long>, rows: List<ClaimProgress>): Boolean {
+        if (epochClaim?.session === session) {
+            return false
+        }
+        val started = EpochClaim(session, rows)
+        epochClaim = started
+        source.claim(epochs) { event ->
+            scope.launch { onEpochEvent(started, event) }
+        }
+        return true
+    }
+
+    private fun onEpochEvent(of: EpochClaim, event: ClaimEvent) {
+        if (epochClaim !== of) {
+            return
+        }
+        if (event != ClaimEvent.Done) {
+            of.rows = claimProgressAfter(of.rows, event)
+            listeners(of.session).forEach { it.epochClaimMoved(of.rows) }
+            return
+        }
+        epochClaim = null
+        val settled = claimProgressSettled(of.rows)
+        listeners(of.session).forEach { it.epochClaimDone(settled) }
+    }
+
+    /**
+     * Claims every v2 account for [session] with [source] (SnLedgerClaim),
+     * from the rows it starts with ([rows], snLedgerClaimStart) and the
+     * transfer floor they were listed by. False, and no claim, while a v2
+     * claim of the session is in flight: one at a time, as the gas key sends
+     * one.
+     */
+    fun start(session: Any, source: EarningsProtocolSource, rows: List<SnLedgerClaimProgress>, transferFloorRao: Long): Boolean {
+        if (claim?.session === session) {
+            return false
+        }
+        val started = Claim(session, transferFloorRao, snLedgerClaimMovingRao(rows, transferFloorRao), rows)
+        claim = started
+        source.ledgerClaim { event ->
+            scope.launch { onEvent(started, event) }
+        }
+        return true
+    }
+
+    private fun onEvent(of: Claim, event: SnLedgerClaimEvent) {
+        if (claim !== of) {
+            return
+        }
+        if (event != SnLedgerClaimEvent.Done) {
+            of.read = of.read || snLedgerClaimReadLedger(event)
+            of.rows = snLedgerClaimProgressAfter(of.rows, event)
+            listeners(of.session).forEach { it.claimMoved(of.rows, of.movingRao) }
+            return
+        }
+        claim = null
+        val settled = snLedgerClaimSettled(of.rows, of.read)
+        listeners(of.session).forEach { it.claimDone(settled, of.transferFloorRao) }
+        // a claim may have paid capture the flag's wins, whose lines go once
+        // the server reads them claimed
+        readWinsAfterClaim(of.session, snLedgerClaimPaid(settled))
+    }
+
+    /**
+     * After a claim's Done the wins are read at once, on their own. When the
+     * claim paid an account they are read again at each of
+     * [SN_CTF_WINS_READS_AFTER_CLAIM_MS] after Done, since the read at Done
+     * can still list a win the claim paid; each read goes on its own, in the
+     * flow's scope, so a slow answer moves none of the later reads. The next
+     * claim that paid starts the reads over, and one that paid nothing leaves
+     * them to run. They read through the flows attached at their times: none
+     * while the activity is gone, and the flow of one that came back reads
+     * those still to come. A sign-out or another device ends them (attach).
+     */
+    private fun readWinsAfterClaim(session: Any, paid: Boolean) {
+        if (!paid) {
+            readWins(session)
+            return
+        }
+        winsAfterClaim?.cancel()
+        winsSession = session
+        winsAfterClaim = scope.launch {
+            readWins(session)
+            var afterDone = 0L
+            for (at in SN_CTF_WINS_READS_AFTER_CLAIM_MS) {
+                sleep(at - afterDone)
+                afterDone = at
+                readWins(session)
+            }
+        }
+    }
+
+    private fun readWins(session: Any) {
+        listeners(session).forEach { it.readWins() }
+    }
+
+    // a copy: a listener may detach while it hears
+    private fun listeners(session: Any): List<Listener> =
+        attached.filter { it.session === session }.map { it.listener }
+}
+
 // ---- the tile and its dialog
 
 /**
  * The Settlement v2 tile's accounts, its won lines and its claim dialog. The
- * earnings view model owns one and points it at the device's protocol source;
- * the SDK reads and claims, this keeps where that stands. A claim in flight
- * outlives its dialog: reopening shows it rather than starting another, and
- * the accounts and the wins are read again after its Done. It outlives the
- * screen too: the view model is the activity's, and a visit to Earnings
- * touches none of this (onScreenResumed reads neither the accounts nor the
- * wins), so a screen left during a claim and shown again shows it and gets
- * its Done. Only another device or a sign-out (reset) drops it, and the
- * activity's end, which ends the view model.
+ * earnings view model owns one and points it at the device's protocol source
+ * and its session (reset); the SDK reads and claims, this keeps where that
+ * stands. A claim in flight is the session's, not the flow's (the app's
+ * SnClaimHolder, [claims]): it outlives its dialog, the screen and the
+ * view model with its activity. Opening the dialog during it shows it rather
+ * than starting another, its events and its Done land in whichever flow of
+ * the session is there, and the accounts and the wins are read again after
+ * its Done. Only another device or a sign-out (a reset for another session)
+ * drops it.
  */
 class SnLedgerFlow(
     private val scope: CoroutineScope,
@@ -643,28 +959,32 @@ class SnLedgerFlow(
     // the claim relay's transfer floor in rao of α at its last price, 0
     // without an answer: the dialog offers no claim for an account under it
     private val transferFloorRao: () -> Long = { 0 },
-    // the wait between the reads of the wins after a claim (the tests' clock)
-    private val sleep: suspend (Long) -> Unit = { delay(it) },
+    // the claim in flight and the reads of the wins after its Done: the
+    // process's in the app, so that they outlive the view model
+    private val claims: SnClaimHolder = SnClaimHolder(scope),
 ) {
     private var source: EarningsProtocolSource = NoProtocolSource
+
+    // the session the flow draws, the signed-in device; null for none
+    private var session: Any? = null
+
+    // the holder's word of the session's claims, until the next reset or the flow's end
+    private var detach: (() -> Unit)? = null
 
     private val _load = MutableStateFlow<SnLedgerLoad>(SnLedgerLoad.Loading)
     val load: StateFlow<SnLedgerLoad> = _load.asStateFlow()
 
     // the capture the flag slots won and not claimed yet (GET /sn/ctf/client),
-    // newest first, a line each on the tile, as the last read that answered
-    // listed them; empty without one, and until the first answer after reset
+    // newest first, a line each on the tile, as the newest read's good answer
+    // listed them (winsLines); empty without one, and until the first answer
+    // after reset
     private val _wins = MutableStateFlow<List<SnCtfWinState>>(emptyList())
     val wins: StateFlow<List<SnCtfWinState>> = _wins.asStateFlow()
 
-    // the reads of the wins numbered as they start, and the read whose good
-    // answer the lines show (refreshWins): reads overlap, a refresh's beside
-    // a claim's, and their answers land in any order
-    private var winsReadsStarted = 0L
-    private var winsReadShown = 0L
-
-    // the reads of the wins after the last claim's Done (readWinsAfterClaim)
-    private var winsAfterClaim: Job? = null
+    // which read's answer the lines show: reads overlap, a refresh's beside a
+    // claim's, their answers land in any order, and a network's answer beats
+    // a client's
+    private val winsLines = SnCtfWinsLines()
 
     private val _claimConfigured = MutableStateFlow(false)
     val claimConfigured: StateFlow<Boolean> = _claimConfigured.asStateFlow()
@@ -672,77 +992,68 @@ class SnLedgerFlow(
     private val _dialog = MutableStateFlow<SnLedgerClaimDialogState?>(null)
     val dialog: StateFlow<SnLedgerClaimDialogState?> = _dialog.asStateFlow()
 
-    // the claim in flight; null between claims
-    private var claiming: List<SnLedgerClaimProgress>? = null
+    private val listener = object : SnClaimHolder.Listener {
+        override fun claimMoved(rows: List<SnLedgerClaimProgress>, movingRao: Long) {
+            if (_dialog.value is SnLedgerClaimDialogState.Sending) {
+                _dialog.value = SnLedgerClaimDialogState.Sending(rows, movingRao)
+            }
+        }
 
-    // the SDK's own read of the ledger answered (snLedgerClaimReadLedger)
-    private var claimingRead = false
+        override fun claimDone(settled: List<SnLedgerClaimProgress>, transferFloorRao: Long) {
+            scope.launch { finishClaim(settled, transferFloorRao) }
+        }
 
-    /** A new device (or none: signed out): drop what the last one read, and stop reading its wins. */
-    fun reset(source: EarningsProtocolSource) {
+        override fun readWins() {
+            scope.launch { refreshWins() }
+        }
+    }
+
+    init {
+        // the flow ends with its scope, the view model's: the holder tells it nothing more
+        scope.coroutineContext.job.invokeOnCompletion {
+            detach?.invoke()
+            detach = null
+        }
+    }
+
+    /**
+     * A new device (or none: signed out), or this flow's first: drop what the
+     * last one read, and hear of [session]'s claims. A claim in flight of the
+     * same session (the device, which a view model of a new activity finds
+     * again) goes on; one of another session ends, with the reads of the wins
+     * after it.
+     */
+    fun reset(source: EarningsProtocolSource, session: Any? = source) {
         this.source = source
+        this.session = session
         _load.value = SnLedgerLoad.Loading
         _claimConfigured.value = false
         _dialog.value = null
-        claiming = null
-        claimingRead = false
-        winsAfterClaim?.cancel()
-        winsAfterClaim = null
+        winsLines.reset()
         _wins.value = emptyList()
-        // no answer of a read from before shows
-        winsReadShown = winsReadsStarted
+        detach?.invoke()
+        detach = claims.attach(listener, session)
     }
 
     /**
      * Reads the wins not claimed yet, with or without a wallet: they are the
      * network's. The lines show the newest read's good answer, by the order
-     * the reads started (every app's rule, 2026-11-12): an answer replaces
-     * them unless they already show a newer read's, so an older answer that
-     * lands late never replaces a newer one. A read that failed or could not
-     * be read changes nothing, so it never blanks them, nor keeps an older
-     * read's good answer still to land from showing. Only an answer that no
-     * longer lists a win, a sign-out or another device (reset) takes a line
-     * away.
+     * the reads started, and a network's answer beats a client's (every app's
+     * rules, 2026-11-12; SnCtfWinsLines). A read that failed or could not be
+     * read changes nothing, so it never blanks them, nor keeps an older
+     * read's good answer still to land from showing; nor does a client's
+     * answer once a network's has shown. Only an answer that no longer lists
+     * a win, a sign-out or another device (reset) takes a line away.
      */
     suspend fun refreshWins() {
         val s = source
-        val read = ++winsReadsStarted
-        val wins = s.ctfWins()
+        val read = winsLines.start()
+        val answer = s.ctfWins()
         if (s !== source) {
             return
         }
-        wins.onSuccess {
-            if (winsReadShown < read) {
-                winsReadShown = read
-                _wins.value = it
-            }
-        }
-    }
-
-    /**
-     * After a claim's Done the wins are read at once, on their own. When the
-     * claim paid an account they are read again at each of
-     * [SN_CTF_WINS_READS_AFTER_CLAIM_MS] after Done, since the read at Done
-     * can still list a win the claim paid; each read goes on its own, so a
-     * slow answer moves none of the later reads. The next claim that paid
-     * starts the reads over, and one that paid nothing leaves them to run. A
-     * new device or a sign-out (reset) stops them, and so does the end of the
-     * scope, the view model's.
-     */
-    private fun readWinsAfterClaim(paid: Boolean) {
-        if (!paid) {
-            scope.launch { refreshWins() }
-            return
-        }
-        winsAfterClaim?.cancel()
-        winsAfterClaim = scope.launch {
-            launch { refreshWins() }
-            var afterDone = 0L
-            for (at in SN_CTF_WINS_READS_AFTER_CLAIM_MS) {
-                sleep(at - afterDone)
-                afterDone = at
-                launch { refreshWins() }
-            }
+        if (winsLines.apply(read, answer.getOrNull())) {
+            _wins.value = winsLines.wins
         }
     }
 
@@ -764,10 +1075,10 @@ class SnLedgerFlow(
         }
     }
 
-    /** The tile's Claim: the dialog, or the claim still in flight. */
+    /** The tile's Claim: the dialog, or the session's claim still in flight. */
     fun open() {
-        claiming?.let {
-            _dialog.value = SnLedgerClaimDialogState.Sending(it)
+        claims.inFlight(session)?.let {
+            _dialog.value = SnLedgerClaimDialogState.Sending(it.rows, it.movingRao)
             return
         }
         _dialog.value = SnLedgerClaimDialogState.Loading
@@ -780,7 +1091,7 @@ class SnLedgerFlow(
 
     /** Retry from the gas top-up or an unavailable read. */
     fun retry() {
-        if (_dialog.value == null || claiming != null) {
+        if (_dialog.value == null || claims.inFlight(session) != null) {
             return
         }
         _dialog.value = SnLedgerClaimDialogState.Loading
@@ -804,49 +1115,32 @@ class SnLedgerFlow(
      * The dialog's Claim: the SDK claims every account with something to
      * claim, the pool's and capture the flag's in one transaction. Only while
      * an account can move: with every one under the transfer floor there is
-     * no claim the runtime would take.
+     * no claim the runtime would take. Never while the session's claim is in
+     * flight, whichever dialog started it.
      */
     fun claim() {
         val ready = _dialog.value as? SnLedgerClaimDialogState.Ready ?: return
-        if (ready.takes.isEmpty() || claiming != null) {
+        val owner = session ?: return
+        if (ready.takes.isEmpty() || claims.inFlight(owner) != null) {
             return
         }
-        val s = source
         val floorRao = ready.transferFloorRao
         val progress = snLedgerClaimStart(ready.accounts, ready.unavailablePools, floorRao)
-        claiming = progress
-        claimingRead = false
-        _dialog.value = SnLedgerClaimDialogState.Sending(progress)
-        s.ledgerClaim { event ->
-            scope.launch { onEvent(s, floorRao, event) }
-        }
+        // the dialog shows the claim before the SDK's first event, which may come at once
+        _dialog.value = SnLedgerClaimDialogState.Sending(progress, snLedgerClaimMovingRao(progress, floorRao))
+        claims.start(owner, source, progress, floorRao)
     }
 
-    // [floorRao]: the transfer floor the claim started with, which its rows were listed by
-    private suspend fun onEvent(s: EarningsProtocolSource, floorRao: Long, event: SnLedgerClaimEvent) {
-        val progress = claiming
-        if (s !== source || progress == null) {
-            return
-        }
-        if (event != SnLedgerClaimEvent.Done) {
-            claimingRead = claimingRead || snLedgerClaimReadLedger(event)
-            val next = snLedgerClaimProgressAfter(progress, event)
-            claiming = next
-            if (_dialog.value is SnLedgerClaimDialogState.Sending) {
-                _dialog.value = SnLedgerClaimDialogState.Sending(next)
-            }
-            return
-        }
-        claiming = null
-        val settled = snLedgerClaimSettled(progress, claimingRead)
+    // the session's claim is done: its dialog, if it shows the claim, then the
+    // accounts read again; [floorRao] is the floor the claim started with
+    private suspend fun finishClaim(settled: List<SnLedgerClaimProgress>, floorRao: Long) {
+        val s = source
         val finished = snLedgerClaimFinished(settled, s.gasKey(), floorRao) { s.gasBalance().getOrNull()?.tao ?: 0.0 }
-        if (s === source && _dialog.value is SnLedgerClaimDialogState.Sending) {
-            _dialog.value = finished
+        if (s !== source) {
+            return
         }
-        if (s === source) {
-            // a claim may have paid capture the flag's wins, whose lines go
-            // once the server reads them claimed
-            readWinsAfterClaim(snLedgerClaimPaid(settled))
+        if (_dialog.value is SnLedgerClaimDialogState.Sending) {
+            _dialog.value = finished
         }
         refresh()
     }

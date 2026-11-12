@@ -276,9 +276,9 @@ private fun LedgerSpinner() {
 
 /**
  * The v2 claim dialog, as v1's: the accounts to claim and the gas key, the
- * gas top-up when the gas key cannot pay, then each account's transaction
- * (Sent with its explorer link, Claimed with the vault's amount, or the
- * failure) until Done. Each row is named as the tile names its pool; the
+ * gas top-up when the gas key cannot pay, then what the claim moves over each
+ * account's transaction (Sent with its explorer link, Claimed with the vault's
+ * amount, or the failure) until Done. Each row is named as the tile names its pool; the
  * pools the ledger could not read are listed as unavailable, and an account
  * the claim did not move, under the transfer floor, in a pool that could not
  * be read, or one the gas key could not pay for beside the largest, says so
@@ -334,6 +334,7 @@ fun SnLedgerClaimDialog(
                 is SnLedgerClaimDialogState.Sending -> LedgerProgressContent(
                     progress = state.progress,
                     pools = pools,
+                    movingRao = state.movingRao,
                     confirmedRao = null,
                     onDismiss = onDismiss,
                     formatAlpha = formatAlpha,
@@ -342,6 +343,7 @@ fun SnLedgerClaimDialog(
                 is SnLedgerClaimDialogState.Finished -> LedgerProgressContent(
                     progress = state.progress,
                     pools = pools,
+                    movingRao = 0,
                     confirmedRao = state.confirmedRao,
                     onDismiss = onDismiss,
                     formatAlpha = formatAlpha,
@@ -483,11 +485,16 @@ private fun LedgerUnavailableRows(unavailablePools: List<SnLedgerPool>, inView: 
     }
 }
 
-/** confirmedRao: the total once Done, null while sending. */
+/**
+ * movingRao: while sending, what the claim is moving (snLedgerClaimMovingRao),
+ * the figure over the rows; 0, no figure, once Done and for a claim of nothing
+ * known. confirmedRao: the total once Done, null while sending.
+ */
 @Composable
 private fun LedgerProgressContent(
     progress: List<SnLedgerClaimProgress>,
     pools: List<SnLedgerPool>,
+    movingRao: Long,
     confirmedRao: Long?,
     onDismiss: () -> Unit,
     formatAlpha: (Long) -> String,
@@ -495,6 +502,21 @@ private fun LedgerProgressContent(
 ) {
     val inView = (pools + progress.map { it.pool }).distinct()
     Column(modifier = Modifier.fillMaxWidth()) {
+        // the amount the claim is moving, as Claim named it (every app,
+        // 2026-11-12): never a zero, nor an account's under the floor or of an
+        // amount not known
+        if (0 < movingRao) {
+            Text(
+                formatAlpha(movingRao),
+                style = TextStyle(
+                    fontFamily = gravityCondensedFamily,
+                    fontWeight = FontWeight(900),
+                    fontSize = 40.sp,
+                    color = Color.White
+                )
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+        }
         progress.forEach { p ->
             Row(
                 modifier = Modifier
@@ -629,7 +651,9 @@ private fun SnLedgerClaimDialogSendingPreview() {
                         SnLedgerClaimProgress(1, 42, 4_120_000_000, SnLedgerClaimStatus.SENT, "0x8f1c", null),
                         SnLedgerClaimProgress(Sdk.SnLedgerCtfPoolIdBase + 1, 3, 96_051_320, SnLedgerClaimStatus.SENT, "0x8f1c", null),
                         SnLedgerClaimProgress(2, 7, 310_000_000, SnLedgerClaimStatus.FAILED, null, "claim_failed: TooManyStakingHotkeys"),
-                    )
+                    ),
+                    // what the claim moves: the three accounts it sends
+                    movingRao = 4_526_051_320,
                 ),
                 onDismiss = {},
                 onClaim = {},
