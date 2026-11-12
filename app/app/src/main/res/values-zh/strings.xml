@@ -1659,6 +1659,12 @@
     <plurals name="provider_status_histogram_total">
         <item quantity="other">过去一小时内 %1$d 次</item>
     </plurals>
+    <plurals name="provider_status_reason_line_ipv4">
+        <item quantity="other">这些检查中有 %1$d 项仅通过 IPv6 时失败，因此此设备仅推荐用于 IPv4 流量。</item>
+    </plurals>
+    <plurals name="provider_status_reason_line_tcp">
+        <item quantity="other">这些检查中有 %1$d 项仅通过 HTTP/3 (UDP) 时失败，因此此设备仅推荐用于 TCP 流量。部分应用版本和部分网络不路由 UDP。</item>
+    </plurals>
     <plurals name="referral_celebration_detail">
         <item quantity="other">%1$d 位好友刚刚通过你的推荐码加入 URnetwork。每位好友都让你终身每天多获得 +%2$d GiB 免费流量。</item>
     </plurals>

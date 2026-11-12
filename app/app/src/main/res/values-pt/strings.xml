@@ -1681,6 +1681,14 @@
         <item quantity="one">%1$d vez na última hora</item>
         <item quantity="other">%1$d vezes na última hora</item>
     </plurals>
+    <plurals name="provider_status_reason_line_ipv4">
+        <item quantity="one">%1$d destas verificações falhou apenas através de IPv6, por isso este dispositivo só é oferecido para tráfego IPv4.</item>
+        <item quantity="other">%1$d destas verificações falharam apenas através de IPv6, por isso este dispositivo só é oferecido para tráfego IPv4.</item>
+    </plurals>
+    <plurals name="provider_status_reason_line_tcp">
+        <item quantity="one">%1$d destas verificações falhou apenas através de HTTP/3 (UDP), por isso este dispositivo só é oferecido para tráfego TCP. Algumas versões da aplicação e algumas redes não encaminham UDP.</item>
+        <item quantity="other">%1$d destas verificações falharam apenas através de HTTP/3 (UDP), por isso este dispositivo só é oferecido para tráfego TCP. Algumas versões da aplicação e algumas redes não encaminham UDP.</item>
+    </plurals>
     <plurals name="referral_celebration_detail">
         <item quantity="one">Um amigo acabou de aderir à URnetwork com o seu código. Ambos ganham +%2$d GiB de dados grátis por dia — para toda a vida.</item>
         <item quantity="other">%1$d amigos acabaram de aderir à URnetwork com o seu código. Cada um rende-lhe +%2$d GiB de dados grátis por dia — para toda a vida.</item>

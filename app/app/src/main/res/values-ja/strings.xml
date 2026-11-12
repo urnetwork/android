@@ -1659,6 +1659,12 @@
     <plurals name="provider_status_histogram_total">
         <item quantity="other">過去1時間で%1$d回</item>
     </plurals>
+    <plurals name="provider_status_reason_line_ipv4">
+        <item quantity="other">これらのチェックのうち %1$d 件は IPv6 でのみ失敗したため、このデバイスは IPv4 トラフィック専用で提示されます。</item>
+    </plurals>
+    <plurals name="provider_status_reason_line_tcp">
+        <item quantity="other">これらのチェックのうち %1$d 件は HTTP/3 (UDP) でのみ失敗したため、このデバイスは TCP トラフィック専用で提示されます。一部のアプリのバージョンや一部のネットワークは UDP をルーティングしません。</item>
+    </plurals>
     <plurals name="referral_celebration_detail">
         <item quantity="other">友達%1$d人があなたのコードでURnetworkに参加しました。1人につき毎日+%2$d GiBの無料データを一生獲得できます。</item>
     </plurals>

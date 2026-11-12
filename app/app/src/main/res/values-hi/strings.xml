@@ -1681,6 +1681,14 @@
         <item quantity="one">पिछले एक घंटे में %1$d बार</item>
         <item quantity="other">पिछले एक घंटे में %1$d बार</item>
     </plurals>
+    <plurals name="provider_status_reason_line_ipv4">
+        <item quantity="one">इनमें से %1$d जाँच केवल IPv6 पर विफल हुई, इसलिए यह डिवाइस केवल IPv4 ट्रैफ़िक के लिए पेश किया जाता है।</item>
+        <item quantity="other">इनमें से %1$d जाँचें केवल IPv6 पर विफल हुईं, इसलिए यह डिवाइस केवल IPv4 ट्रैफ़िक के लिए पेश किया जाता है।</item>
+    </plurals>
+    <plurals name="provider_status_reason_line_tcp">
+        <item quantity="one">इनमें से %1$d जाँच केवल HTTP/3 (UDP) पर विफल हुई, इसलिए यह डिवाइस केवल TCP ट्रैफ़िक के लिए पेश किया जाता है। कुछ ऐप संस्करण और कुछ नेटवर्क UDP को रूट नहीं करते।</item>
+        <item quantity="other">इनमें से %1$d जाँचें केवल HTTP/3 (UDP) पर विफल हुईं, इसलिए यह डिवाइस केवल TCP ट्रैफ़िक के लिए पेश किया जाता है। कुछ ऐप संस्करण और कुछ नेटवर्क UDP को रूट नहीं करते।</item>
+    </plurals>
     <plurals name="referral_celebration_detail">
         <item quantity="one">आपके कोड से एक दोस्त अभी URnetwork से जुड़ा। आप दोनों को जीवनभर हर दिन +%2$d GiB मुफ़्त डेटा मिलेगा।</item>
         <item quantity="other">आपके कोड से %1$d दोस्त अभी URnetwork से जुड़े। हर दोस्त से आपको जीवनभर हर दिन +%2$d GiB मुफ़्त डेटा मिलेगा।</item>

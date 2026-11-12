@@ -352,6 +352,21 @@ private fun ProviderStatusWhy(rows: List<ProviderStatusRow>) {
                         style = TextStyle(fontSize = 11.sp),
                         color = TextMuted
                     )
+                    // why the network checks downgraded this device: what it
+                    // is offered for, in the reader's language
+                    row.reasons.forEach { reason ->
+                        Spacer(modifier = Modifier.height(2.dp))
+                        Text(
+                            when (reason) {
+                                is ProviderStatusReason.Plural -> {
+                                    val count = reason.count.coerceIn(0L, Int.MAX_VALUE.toLong()).toInt()
+                                    pluralStringResource(id = reason.id, count = count, count)
+                                }
+                                is ProviderStatusReason.Text -> reason.text
+                            },
+                            style = TextStyle(fontSize = 11.sp)
+                        )
+                    }
                 }
             }
         }
