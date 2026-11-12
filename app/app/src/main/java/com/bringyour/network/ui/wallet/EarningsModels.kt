@@ -9,6 +9,7 @@ import com.bringyour.network.ui.leaderboard.ProtocolRow
 import com.bringyour.network.ui.leaderboard.ProtocolSnapshot
 import com.bringyour.network.ui.leaderboard.ProtocolTopMe
 import com.bringyour.network.utils.Ss58
+import com.bringyour.sdk.Sdk
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -148,8 +149,11 @@ interface EarningsProtocolSource {
     /** events arrive on an arbitrary thread */
     fun claim(epochs: List<Long>, onEvent: (ClaimEvent) -> Unit)
 
-    /** settlement v2: the coldkey's accounts, one per pool; a failure is unavailable, never zero */
-    suspend fun ledgerAccounts(): Result<List<SnLedgerAccountState>>
+    /**
+     * settlement v2: the coldkey's accounts, one per pool, and the pools that
+     * could not be read just now; a failure is unavailable, never zero
+     */
+    suspend fun ledgerAccounts(): Result<SnLedgerAccounts>
 
     /** vault2's address is configured, so v2 accounts can be claimed */
     fun ledgerClaimConfigured(): Boolean
@@ -189,6 +193,13 @@ interface EarningsProtocolSource {
     /** asks URnetwork to claim the coldkey's balance now (SnClaimNow) */
     suspend fun claimNow(coldkeySs58: String): SnClaimNowOutcome =
         SnClaimNowOutcome.Failed(EarningsUnavailableException().message ?: "")
+
+    /**
+     * the capture the flag slot this device won last (SnCtfClient's
+     * LatestWin); null without one, and when the read failed, which draws
+     * no line rather than saying there was no win
+     */
+    suspend fun ctfWin(): SnCtfWinState? = null
 
     suspend fun accountEpochs(): Result<List<AccountEpoch>>
 
@@ -264,7 +275,7 @@ object NoProtocolSource : EarningsProtocolSource {
         epochs.forEach { onEvent(ClaimEvent.Failed(it, EarningsUnavailableException().message ?: "")) }
         onEvent(ClaimEvent.Done)
     }
-    override suspend fun ledgerAccounts(): Result<List<SnLedgerAccountState>> =
+    override suspend fun ledgerAccounts(): Result<SnLedgerAccounts> =
         Result.failure(EarningsUnavailableException())
     override fun ledgerClaimConfigured(): Boolean = false
     override fun ledgerClaim(onEvent: (SnLedgerClaimEvent) -> Unit) {
@@ -414,46 +425,69 @@ class SampleProtocolSource(
         }
     }
 
-    // settlement v2: one account in the pool, with a pending root above the finalized one
-    private val ledgerAccount = MutableStateFlow(
-        SnLedgerAccountState(
-            noId = 1,
-            index = 42,
-            finalizedRao = 5_120_000_000,
-            claimableRao = 4_120_000_000,
-            paidRao = 1_000_000_000,
-            pending = true,
-            pendingRao = 5_870_000_000,
+    // settlement v2: the pool's account, with a pending root above the finalized
+    // one, and capture the flag's, with two slots won
+    private val ledgerAccounts = MutableStateFlow(
+        listOf(
+            SnLedgerAccountState(
+                noId = 1,
+                index = 42,
+                finalizedRao = 5_120_000_000,
+                claimableRao = 4_120_000_000,
+                paidRao = 1_000_000_000,
+                pending = true,
+                pendingRao = 5_870_000_000,
+                kind = Sdk.SnLedgerPoolKindPool,
+            ),
+            SnLedgerAccountState(
+                noId = Sdk.SnLedgerCtfPoolIdBase + 1,
+                index = 3,
+                finalizedRao = 96_051_320,
+                claimableRao = 96_051_320,
+                paidRao = 0,
+                pending = false,
+                pendingRao = 0,
+                kind = Sdk.SnLedgerPoolKindCtf,
+            ),
         )
     )
 
-    override suspend fun ledgerAccounts(): Result<List<SnLedgerAccountState>> {
+    override suspend fun ledgerAccounts(): Result<SnLedgerAccounts> {
         delay(400)
-        return Result.success(if (wallet.value == null) emptyList() else listOf(ledgerAccount.value))
+        return Result.success(SnLedgerAccounts(if (wallet.value == null) emptyList() else ledgerAccounts.value))
     }
 
     override fun ledgerClaimConfigured(): Boolean = true
 
     override fun ledgerClaim(onEvent: (SnLedgerClaimEvent) -> Unit) {
         scope.launch {
-            val account = ledgerAccount.value
-            if (account.claimableRao <= 0) {
+            val claimable = ledgerAccounts.value.filter { 0 < it.claimableRao }
+            if (claimable.isEmpty()) {
                 onEvent(SnLedgerClaimEvent.Done)
                 return@launch
             }
             delay(700)
             if (gasUnfunded) {
-                onEvent(SnLedgerClaimEvent.Failed(account.noId, account.index, "needs_gas: insufficient funds"))
+                claimable.forEach { onEvent(SnLedgerClaimEvent.Failed(it.noId, it.index, "needs_gas: insufficient funds")) }
                 onEvent(SnLedgerClaimEvent.Done)
                 return@launch
             }
-            val txHash = "0x" + String.format(Locale.US, "%064x", account.index * 7_919L + 0x5a5a5bL)
-            onEvent(SnLedgerClaimEvent.Sent(account.noId, account.index, txHash))
+            // two or more accounts go in one batch transaction, as the sdk sends them
+            val txHash = "0x" + String.format(Locale.US, "%064x", claimable.first().index * 7_919L + 0x5a5a5bL)
+            claimable.forEach { onEvent(SnLedgerClaimEvent.Sent(it.noId, it.index, txHash)) }
             delay(1_600)
-            ledgerAccount.value = account.copy(claimableRao = 0, paidRao = account.finalizedRao)
-            onEvent(SnLedgerClaimEvent.Confirmed(account.noId, account.index, txHash, account.claimableRao))
+            ledgerAccounts.value = ledgerAccounts.value.map {
+                if (0 < it.claimableRao) it.copy(claimableRao = 0, paidRao = it.finalizedRao) else it
+            }
+            claimable.forEach { onEvent(SnLedgerClaimEvent.Confirmed(it.noId, it.index, txHash, it.claimableRao)) }
             onEvent(SnLedgerClaimEvent.Done)
         }
+    }
+
+    // a provider slot in Iceland's latest draw
+    override suspend fun ctfWin(): SnCtfWinState? {
+        delay(300)
+        return SnCtfWinState(Sdk.SnCtfRoleProvider, "is")
     }
 
     // the payout consent: none until the manual sheet's answer is submitted, then

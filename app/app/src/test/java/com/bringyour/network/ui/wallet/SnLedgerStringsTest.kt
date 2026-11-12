@@ -11,7 +11,9 @@ import org.w3c.dom.Element
 /**
  * The Settlement v2 strings are in every locale the app ships (APPS-SPEC.md
  * UX-6), the pending line takes the amount the app formats, and the tile and
- * its dialog look up every one of them.
+ * its dialog look up every one of them. So are capture the flag's, from the
+ * localizations store (sn CAPTURETHEFLAG.md §10), which the tile and the
+ * dialogs look up.
  *
  * Reads the module's string resources and sources; no device.
  */
@@ -27,6 +29,17 @@ class SnLedgerStringsTest {
         "sn_ledger_pool",
         "sn_ledger_title",
         "sn_ledger_unavailable",
+    )
+
+    // capture the flag's claim flow
+    private val ctfKeys = listOf(
+        "sn_ctf_pool",
+        "sn_ctf_won_extender_slot",
+        "sn_ctf_won_provider_slot",
+        "sn_ledger_claim_both",
+        "sn_ledger_pool_unavailable",
+        "sn_ledger_pool_under_floor",
+        "sn_ledger_provider_pool",
     )
 
     private fun strings(dir: File): Map<String, String> {
@@ -45,7 +58,7 @@ class SnLedgerStringsTest {
         assertEquals(18, locales.size)
 
         val missing = mutableListOf<String>()
-        for (key in keys) {
+        for (key in keys + ctfKeys) {
             assertTrue("values has no $key", !english[key].isNullOrEmpty())
             for (locale in locales) {
                 val value = strings(locale)[key]
@@ -80,6 +93,28 @@ class SnLedgerStringsTest {
     fun `the tile and its dialog look up every settlement v2 string`() {
         val source = File("src/main/java/com/bringyour/network/ui/wallet/SnLedgerTile.kt").readText()
         for (key in keys) {
+            assertTrue("$key is not shown", source.contains("R.string.$key"))
+        }
+    }
+
+    @Test
+    fun `capture the flag's strings are the store's`() {
+        assertEquals("Capture the flag", english["sn_ctf_pool"])
+        assertEquals("Provider pool", english["sn_ledger_provider_pool"])
+        assertEquals("Below the claim minimum", english["sn_ledger_pool_under_floor"])
+        assertEquals("Unavailable right now", english["sn_ledger_pool_unavailable"])
+        assertEquals("Claim both", english["sn_ledger_claim_both"])
+        // one of a country's slots, never its flag; the country's name goes in bare
+        assertEquals("You won one of the %1\$s provider slots", english["sn_ctf_won_provider_slot"])
+        assertEquals("You won one of the %1\$s extender slots", english["sn_ctf_won_extender_slot"])
+    }
+
+    @Test
+    fun `the tile and the dialogs look up every capture the flag string`() {
+        val source = listOf("SnLedgerTile.kt", "SnLedger.kt", "ClaimRelayDialog.kt").joinToString("\n") {
+            File("src/main/java/com/bringyour/network/ui/wallet/$it").readText()
+        }
+        for (key in ctfKeys) {
             assertTrue("$key is not shown", source.contains("R.string.$key"))
         }
     }

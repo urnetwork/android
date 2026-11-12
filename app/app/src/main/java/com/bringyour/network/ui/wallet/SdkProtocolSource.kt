@@ -10,6 +10,7 @@ import com.bringyour.sdk.SnClaimRelayAccountList
 import com.bringyour.sdk.SnClaimStatusResult
 import com.bringyour.sdk.SnError
 import com.bringyour.sdk.SnLedgerClaimCallback
+import com.bringyour.sdk.SnLedgerUnavailablePoolList
 import com.bringyour.sdk.SnWallet
 import com.bringyour.sdk.SnWalletChangeListener
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -53,6 +54,7 @@ class SdkProtocolSource private constructor(
             selfClaimAvailable = result.selfClaimAvailable,
             selfClaimNeedsGas = result.selfClaimNeedsGas,
             automaticThresholdRao = result.automaticThresholdRao,
+            transferFloorRao = result.transferFloorRao,
             automaticThresholdTaoRao = result.automaticThresholdTaoRao,
             transferFloorTaoRao = result.transferFloorTaoRao,
             claimNowPeriodDays = result.claimNowPeriodDays,
@@ -62,6 +64,7 @@ class SdkProtocolSource private constructor(
             claimTxUrl = result.claimTxUrl,
             claimAmountRao = result.claimAmountRao,
             accounts = snClaimRelayAccountsOf(result.accounts),
+            unavailablePools = snLedgerUnavailablePoolsOf(result.unavailablePools),
             unavailable = result.error != null,
         )
 
@@ -78,6 +81,21 @@ class SdkProtocolSource private constructor(
                     claimTxHash = a.claimTxHash,
                     claimTxUrl = a.claimTxUrl,
                     claimAmountRao = a.claimAmountRao,
+                    kind = a.kind,
+                )
+            }
+        }
+
+        // the pools a ledger or relay answer could not read: never nil from the sdk, empty for a whole answer
+        private fun snLedgerUnavailablePoolsOf(list: SnLedgerUnavailablePoolList?): List<SnLedgerPool> {
+            if (list == null) {
+                return emptyList()
+            }
+            return (0 until list.len()).map { i ->
+                val p = list.get(i)
+                SnLedgerPool(
+                    noId = p.noId,
+                    kind = p.kind,
                 )
             }
         }
@@ -262,7 +280,7 @@ class SdkProtocolSource private constructor(
         })
     }
 
-    override suspend fun ledgerAccounts(): Result<List<SnLedgerAccountState>> {
+    override suspend fun ledgerAccounts(): Result<SnLedgerAccounts> {
         ensureChainSettings()
         return suspendCancellableCoroutine { continuation ->
             device.snLedgerAccounts { result, err ->
@@ -278,18 +296,24 @@ class SdkProtocolSource private constructor(
                         val n = list?.len() ?: 0
                         continuation.resume(
                             Result.success(
-                                (0 until n).map { i ->
-                                    val a = list.get(i)
-                                    SnLedgerAccountState(
-                                        noId = a.noId,
-                                        index = a.index,
-                                        finalizedRao = a.finalizedRao,
-                                        claimableRao = a.claimableRao,
-                                        paidRao = a.paidRao,
-                                        pending = a.pending,
-                                        pendingRao = a.pendingRao,
-                                    )
-                                }
+                                SnLedgerAccounts(
+                                    accounts = (0 until n).map { i ->
+                                        val a = list.get(i)
+                                        SnLedgerAccountState(
+                                            noId = a.noId,
+                                            index = a.index,
+                                            finalizedRao = a.finalizedRao,
+                                            claimableRao = a.claimableRao,
+                                            paidRao = a.paidRao,
+                                            pending = a.pending,
+                                            pendingRao = a.pendingRao,
+                                            kind = a.kind,
+                                        )
+                                    },
+                                    // the sdk asks with partial=true: a pool it could not read is
+                                    // named here, beside the accounts of the others
+                                    unavailablePools = snLedgerUnavailablePoolsOf(result.unavailablePools),
+                                )
                             )
                         )
                     }
@@ -397,6 +421,21 @@ class SdkProtocolSource private constructor(
                 }.getOrElse { SnClaimNowOutcome.Failed(it.message ?: "") }
                 if (continuation.isActive) {
                     continuation.resume(outcome)
+                }
+            }
+        }
+
+    override suspend fun ctfWin(): SnCtfWinState? =
+        suspendCancellableCoroutine { continuation ->
+            device.snCtfClient { result, _ ->
+                // copied off the gomobile objects here: an exception thrown out
+                // of the callback cannot cross JNI and aborts the process. An
+                // error (a read that failed, a network jwt) draws no line
+                val win = runCatching {
+                    result?.takeIf { it.error == null }?.latestWin?.let { SnCtfWinState(it.role, it.country) }
+                }.getOrNull()
+                if (continuation.isActive) {
+                    continuation.resume(win)
                 }
             }
         }

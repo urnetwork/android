@@ -242,6 +242,11 @@ class EarningsViewModel @Inject constructor(
     private val _isClaimingNow = MutableStateFlow(false)
     val isClaimingNow: StateFlow<Boolean> = _isClaimingNow.asStateFlow()
 
+    // the capture the flag slot this device won last (GET /sn/ctf/client), the
+    // Settlement v2 tile's line; null without one or without an answer
+    private val _ctfWin = MutableStateFlow<SnCtfWinState?>(null)
+    val ctfWin: StateFlow<SnCtfWinState?> = _ctfWin.asStateFlow()
+
     var isRefreshing by mutableStateOf(false)
         private set
 
@@ -310,6 +315,8 @@ class EarningsViewModel @Inject constructor(
         if (userInitiated) {
             isRefreshing = true
         }
+        // the optional capture the flag line holds up neither the claims nor the refresh
+        viewModelScope.launch { refreshCtfWin() }
         try {
             coroutineScope {
                 launch { refreshWallet() }
@@ -402,6 +409,15 @@ class EarningsViewModel @Inject constructor(
         val status = s.claimStatus()
         if (s === source) {
             _claimStatus.value = status
+        }
+    }
+
+    // the device's capture the flag win; an unread one draws no line
+    private suspend fun refreshCtfWin() {
+        val s = source
+        val win = s.ctfWin()
+        if (s === source) {
+            _ctfWin.value = win
         }
     }
 
@@ -872,6 +888,7 @@ class EarningsViewModel @Inject constructor(
         _claimNowOutcome.value = null
         _isClaimingNow.value = false
         isPresentedRelayClaimDialog = false
+        _ctfWin.value = null
 
         _wallet.value = null
         _walletLoaded.value = false
@@ -940,6 +957,8 @@ class EarningsViewModel @Inject constructor(
         const val SN_CODE_CHAIN_NOT_CONFIGURED = "chain_not_configured"
         const val SN_CODE_ARTIFACT_UNAVAILABLE = "artifact_unavailable"
         const val SN_CODE_LEDGER_UNAVAILABLE = "ledger_unavailable"
+        // a v2 account no claim can take now; AmountTooLow: under the runtime's transfer floor
+        const val SN_CODE_NOT_CLAIMABLE = "not_claimable"
         const val SN_CODE_CONNECT_WALLET_FIRST = "connect_wallet_first"
         const val SN_CODE_LOCAL_STATE_UNAVAILABLE = "local_state_unavailable"
         // POST /sn/wallet: the signature is not from the entered address (bittensor_error_signature_mismatch)

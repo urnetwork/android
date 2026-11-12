@@ -37,6 +37,9 @@ data class SnClaimStatusState(
     val selfClaimNeedsGas: Boolean = false,
     // at the relay's last price, 0 without one
     val automaticThresholdRao: Long = 0,
+    // the runtime's transfer floor at the relay's last price, 0 without one: an
+    // account under it reads Below the claim minimum, since no claim can move it
+    val transferFloorRao: Long = 0,
     // rao of TAO
     val automaticThresholdTaoRao: Long = 0,
     val transferFloorTaoRao: Long = 0,
@@ -51,9 +54,14 @@ data class SnClaimStatusState(
     val claimTxHash: String = "",
     val claimTxUrl: String = "",
     val claimAmountRao: Long = 0,
-    // each of the network's accounts, including a wallet's it replaced, whose
-    // balance URnetwork keeps claiming
+    // each of the network's accounts, one per coldkey and pool, including a
+    // wallet's it replaced, whose balance URnetwork keeps claiming. The top
+    // level adds up the primary coldkey's, so Claim now claims all its pools
     val accounts: List<SnClaimRelayAccountState> = emptyList(),
+    // the pools whose balances could not be read just now (sdk
+    // UnavailablePools): a row each, unavailable, never zero; the top level
+    // leaves them out
+    val unavailablePools: List<SnLedgerPool> = emptyList(),
     // the balances could not be read: unavailable, never zero
     val unavailable: Boolean = false,
 ) {
@@ -66,8 +74,8 @@ data class SnClaimStatusState(
 }
 
 /**
- * One of the network's accounts in the operator's pool, as the relay sees it
- * (sdk SnClaimRelayAccount). Amounts are rao of SN25α.
+ * One of the network's accounts in one of the operator's pools, as the relay
+ * sees it (sdk SnClaimRelayAccount). Amounts are rao of SN25α.
  */
 data class SnClaimRelayAccountState(
     val coldkeySs58: String = "",
@@ -79,6 +87,8 @@ data class SnClaimRelayAccountState(
     val claimTxHash: String = "",
     val claimTxUrl: String = "",
     val claimAmountRao: Long = 0,
+    // sdk SnLedgerPoolKind*, which names the row
+    val kind: String = snLedgerPoolKindOf(noId),
 ) {
     /**
      * The claim sheet's row reads Claimed, with what URnetwork's claim paid
@@ -88,14 +98,66 @@ data class SnClaimRelayAccountState(
      */
     val showsClaimed: Boolean
         get() = claimTxHash.isNotEmpty() && claimableRao <= 0
+
+    val pool: SnLedgerPool
+        get() = SnLedgerPool(noId, kind)
 }
 
 /**
  * The claim sheet's rows: each account with something to claim, Pending, and
- * each URnetwork claimed with nothing claimable since, Claimed.
+ * each URnetwork claimed with nothing claimable since, Claimed. The pools the
+ * relay could not read follow them (SnClaimStatusState.unavailablePools).
  */
 fun snClaimRelayRows(status: SnClaimStatusState): List<SnClaimRelayAccountState> =
     status.accounts.filter { 0 < it.claimableRao || it.showsClaimed }
+
+/** Every pool of the relay's answer, which names its rows (snLedgerPoolName). */
+fun snClaimRelayPools(status: SnClaimStatusState): List<SnLedgerPool> =
+    status.accounts.map { it.pool } + status.unavailablePools
+
+/**
+ * The relay's transfer floor as its rows apply it: while a capture the flag
+ * pool is in its answer (snLedgerTransferFloor), else none, as before.
+ */
+fun snClaimRelayTransferFloor(status: SnClaimStatusState): Long =
+    snLedgerTransferFloor(snClaimRelayPools(status), status.transferFloorRao)
+
+/**
+ * The relay's claimable is a total to show: it adds up the primary coldkey's
+ * accounts, leaving out the pools that could not be read. With none of its
+ * pools read there is nothing to add up, and the unavailable rows say so
+ * rather than a zero.
+ */
+fun snClaimRelayTotalKnown(status: SnClaimStatusState): Boolean =
+    status.unavailablePools.isEmpty() || status.accounts.any { it.coldkeySs58 == status.coldkeySs58 }
+
+/** What a row of the relay's pools says where its pill sits. */
+enum class SnClaimRelayRowStatus {
+    PENDING,
+    // sn_ledger_pool_under_floor: under the transfer floor at the relay's last
+    // price, so no claim, URnetwork's or the device's, can move it yet
+    UNDER_FLOOR,
+    CLAIMED,
+}
+
+/** A row's status; transferFloorRao as snClaimRelayTransferFloor gives it, 0 for none. */
+fun snClaimRelayRowStatus(row: SnClaimRelayAccountState, transferFloorRao: Long): SnClaimRelayRowStatus = when {
+    row.showsClaimed -> SnClaimRelayRowStatus.CLAIMED
+    0 < transferFloorRao && 0 < row.claimableRao && row.claimableRao < transferFloorRao -> SnClaimRelayRowStatus.UNDER_FLOOR
+    else -> SnClaimRelayRowStatus.PENDING
+}
+
+/**
+ * The tile's rows for a network with no wallet on this device, under the
+ * claimable it adds up: the primary coldkey's accounts with something to
+ * claim, once there are two or one of capture the flag's, and beside any pool
+ * the relay could not read. With one operator pool and nothing unavailable the
+ * claimable says it all, as before.
+ */
+fun snClaimRelayTileRows(status: SnClaimStatusState): List<SnClaimRelayAccountState> {
+    val rows = status.accounts.filter { it.coldkeySs58 == status.coldkeySs58 && 0 < it.claimableRao }
+    return if (status.unavailablePools.isNotEmpty() || snLedgerNamesPools(rows.map { it.pool })) rows else emptyList()
+}
 
 /** The answer to a Claim now tap (sdk SnClaimNowResult). */
 sealed class SnClaimNowOutcome {
@@ -111,12 +173,13 @@ sealed class SnClaimNowOutcome {
 
 /**
  * The Settlement v2 tile with the relay: the ledger of this device's wallet
- * as before, or, for a network with no wallet on this device, the balance the
- * relay claims for its consent, while the sdk says the tile shows.
+ * as before, with the relay's transfer floor marking the accounts under it,
+ * or, for a network with no wallet on this device, the balance the relay
+ * claims for its consent, while the sdk says the tile shows.
  */
 fun snLedgerTileWithRelay(hasWallet: Boolean, ledgerTile: SnLedgerTile?, claimStatus: SnClaimStatusState?): SnLedgerTile? {
     if (hasWallet && ledgerTile != null) {
-        return ledgerTile
+        return if (claimStatus == null || claimStatus.unavailable) ledgerTile else ledgerTile.withTransferFloor(claimStatus.transferFloorRao)
     }
     if (claimStatus == null || !claimStatus.showsTile) {
         return null

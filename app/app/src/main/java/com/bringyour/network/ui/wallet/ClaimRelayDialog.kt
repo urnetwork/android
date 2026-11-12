@@ -308,7 +308,7 @@ private fun SnClaimRelayReasonDetail(text: String) {
 
 // Pending in grey, Claimed in blue, as the mocks' pills
 @Composable
-private fun SnClaimRelayPill(text: String, color: Color = TextMuted) {
+internal fun SnClaimRelayPill(text: String, color: Color = TextMuted) {
     Text(
         text,
         modifier = Modifier
@@ -403,16 +403,25 @@ private fun SnClaimRelayClaimed(
 }
 
 /**
- * The claim sheet's rows (snClaimRelayRows): each pool account, with what it
- * holds to claim, Pending, or what URnetwork's claim paid, Claimed, with that
- * claim's transaction under it. A network paid to more than one coldkey names
- * each row's.
+ * The claim sheet's rows (snClaimRelayRows): each pool account, named by its
+ * kind, with what it holds to claim, Pending, or Below the claim minimum
+ * while that is under the transfer floor, or what URnetwork's claim paid,
+ * Claimed, with that claim's transaction under it. A network paid to more
+ * than one coldkey names each row's. Each pool the relay could not read
+ * follows, unavailable, never zero.
  */
 @Composable
 private fun SnClaimRelayRows(
     rows: List<SnClaimRelayAccountState>,
     formatAlpha: (Long) -> String,
     shortSs58: (String) -> String,
+    // the relay's transfer floor as snClaimRelayTransferFloor applies it, 0 for none
+    transferFloorRao: Long,
+    unavailablePools: List<SnLedgerPool>,
+    // every pool of the relay's answer, which names the rows (snClaimRelayPools)
+    pools: List<SnLedgerPool>,
+    // the tile's rows leave Pending to the reason under them
+    pendingPill: Boolean = true,
 ) {
     val coldkeys = rows.map { it.coldkeySs58 }.distinct().size
     Column(modifier = Modifier.fillMaxWidth()) {
@@ -423,7 +432,7 @@ private fun SnClaimRelayRows(
                     .padding(vertical = 6.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                val pool = stringResource(id = R.string.sn_ledger_pool, row.noId)
+                val pool = snLedgerPoolNameText(snLedgerPoolName(row.pool, pools))
                 Text(
                     if (1 < coldkeys) "$pool · ${shortSs58(row.coldkeySs58)}" else pool,
                     modifier = Modifier.weight(1f),
@@ -437,17 +446,69 @@ private fun SnClaimRelayRows(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                 }
-                if (row.showsClaimed) {
-                    SnClaimRelayPill(stringResource(id = R.string.claim_confirmed), color = BlueMedium)
-                } else {
-                    SnClaimRelayPill(stringResource(id = R.string.pending_data_key))
+                when (snClaimRelayRowStatus(row, transferFloorRao)) {
+                    SnClaimRelayRowStatus.CLAIMED ->
+                        SnClaimRelayPill(stringResource(id = R.string.claim_confirmed), color = BlueMedium)
+                    SnClaimRelayRowStatus.UNDER_FLOOR ->
+                        SnClaimRelayPill(stringResource(id = R.string.sn_ledger_pool_under_floor))
+                    SnClaimRelayRowStatus.PENDING -> if (pendingPill) {
+                        SnClaimRelayPill(stringResource(id = R.string.pending_data_key))
+                    }
                 }
             }
             if (row.showsClaimed && row.claimTxUrl.isNotEmpty()) {
                 SnClaimRelayTransactionLink(row.claimTxUrl)
             }
         }
+        unavailablePools.forEach { pool ->
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 6.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    snLedgerPoolNameText(snLedgerPoolName(pool, pools)),
+                    modifier = Modifier.weight(1f),
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    stringResource(id = R.string.sn_ledger_pool_unavailable),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = TextMuted,
+                )
+            }
+        }
     }
+}
+
+/**
+ * Under the Settlement v2 tile's claimable for a network with no wallet on
+ * this device: the pools it adds up and the ones the relay could not read
+ * (snClaimRelayTileRows), as the claim sheet's rows; nothing while one
+ * operator pool says it all.
+ */
+@Composable
+internal fun SnClaimRelayTilePools(
+    status: SnClaimStatusState,
+    formatAlpha: (Long) -> String,
+    shortSs58: (String) -> String,
+) {
+    val rows = snClaimRelayTileRows(status)
+    if (rows.isEmpty() && status.unavailablePools.isEmpty()) {
+        return
+    }
+    Spacer(modifier = Modifier.height(8.dp))
+    SnClaimRelayRows(
+        rows = rows,
+        formatAlpha = formatAlpha,
+        shortSs58 = shortSs58,
+        transferFloorRao = snClaimRelayTransferFloor(status),
+        unavailablePools = status.unavailablePools,
+        pools = snClaimRelayPools(status),
+        pendingPill = false,
+    )
 }
 
 /**
@@ -494,20 +555,23 @@ fun ClaimRelayDialog(
             Spacer(modifier = Modifier.height(16.dp))
 
             if (status != null && !status.unavailable) {
-                Text(
-                    stringResource(id = R.string.sn_ledger_claimable),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = TextMuted
-                )
-                Text(
-                    formatAlpha(status.claimableRao),
-                    style = TextStyle(
-                        fontFamily = gravityCondensedFamily,
-                        fontWeight = FontWeight(900),
-                        fontSize = 40.sp,
-                        color = Color.White
+                // with none of the coldkey's pools read there is no total, only the unavailable rows
+                if (snClaimRelayTotalKnown(status)) {
+                    Text(
+                        stringResource(id = R.string.sn_ledger_claimable),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = TextMuted
                     )
-                )
+                    Text(
+                        formatAlpha(status.claimableRao),
+                        style = TextStyle(
+                            fontFamily = gravityCondensedFamily,
+                            fontWeight = FontWeight(900),
+                            fontSize = 40.sp,
+                            color = Color.White
+                        )
+                    )
+                }
                 if (status.coldkeySs58.isNotEmpty()) {
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
@@ -516,9 +580,16 @@ fun ClaimRelayDialog(
                     )
                 }
                 val rows = snClaimRelayRows(status)
-                if (rows.isNotEmpty()) {
+                if (rows.isNotEmpty() || status.unavailablePools.isNotEmpty()) {
                     Spacer(modifier = Modifier.height(12.dp))
-                    SnClaimRelayRows(rows = rows, formatAlpha = formatAlpha, shortSs58 = shortSs58)
+                    SnClaimRelayRows(
+                        rows = rows,
+                        formatAlpha = formatAlpha,
+                        shortSs58 = shortSs58,
+                        transferFloorRao = snClaimRelayTransferFloor(status),
+                        unavailablePools = status.unavailablePools,
+                        pools = snClaimRelayPools(status),
+                    )
                 }
                 if (claimed) {
                     // 4d: the claimed banner, its transaction where no row
