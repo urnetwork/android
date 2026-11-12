@@ -104,9 +104,11 @@ class SnLedgerWiringTest {
         assertTrue(each.contains("return (0 until list.len()).map { i ->"))
         assertTrue(each.contains("role = w.role,"))
         assertTrue(each.contains("country = w.country,"))
-        // the flow takes an answer's lines and keeps them through a failure (SnLedgerClaimTest)
-        val read = between(source("SnLedger.kt"), "suspend fun refreshWins() {", "\n    }")
-        assertTrue(read.contains("wins.onSuccess { _wins.value = it }"))
+        // the flow shows the newest read's good answer, by the order the reads started, and keeps
+        // the lines through a failure (SnLedgerClaimTest)
+        val read = between(source("SnLedger.kt"), "suspend fun refreshWins() {", "\n    }\n")
+        assertTrue(read.contains("val read = ++winsReadsStarted\n        val wins = s.ctfWins()"))
+        assertTrue(read.contains("wins.onSuccess {\n            if (winsReadShown < read) {\n                winsReadShown = read\n                _wins.value = it"))
         // the latest win alone is no longer the line
         assertFalse(sdk.contains("latestWin"))
         // read with each refresh of Earnings, on its own: the route's answer, or its 60 s
@@ -223,6 +225,28 @@ class SnLedgerWiringTest {
         // the claim's events are kept by the device that claimed, never by a refresh
         val ledger = source("SnLedger.kt")
         assertTrue(between(ledger, "private suspend fun onEvent(", "\n    }\n}").contains("if (s !== source || progress == null) {"))
+    }
+
+    @Test
+    fun `the v2 claim dialog shows no figure for nothing it can move, and never Claim 0`() {
+        // as the other apps' sheets: the dialog's figure only while an account can move (above
+        // the floor), or as a true zero with nothing at all; with nothing that can move, the rows
+        // say why and there is no Claim, only Close; Claim names what moves, never 0
+        // (SnLedgerClaimTest: the dialog's total is what the claim moves)
+        val tile = source("SnLedgerTile.kt")
+        val ready = between(tile, "private fun LedgerReadyContent(", "private fun LedgerAccountRows(")
+        assertTrue(ready.contains("if (takes.isNotEmpty() || (state.accounts.isEmpty() && state.unavailablePools.isEmpty())) {\n            Text(\n                formatAlpha(state.totalRao),"))
+        val closeOnly = between(ready, "if (takes.isEmpty()) {", "return@Column")
+        assertFalse(closeOnly.contains("claim_amount_button"))
+        assertTrue(ready.contains("stringResource(id = R.string.claim_amount_button, formatAlpha(state.totalRao))"))
+        // while a claim runs and after it: the rows, and Claimed's total once confirmed
+        val progress = between(tile, "private fun LedgerProgressContent(", "@Preview")
+        assertFalse(progress.contains("claim_amount_button"))
+        assertFalse(progress.contains("R.string.unclaimed"))
+        // the top-up names no figure for accounts of unknown amount, never a zero
+        val gas = between(source("ClaimDialog.kt"), "internal fun NeedsGasContent(", "DialogButtons(")
+        assertTrue(gas.contains("if (0 < state.totalRao) {\n            Row("))
+        assertEquals(1, Regex("R\\.string\\.unclaimed").findAll(gas).count())
     }
 
     @Test

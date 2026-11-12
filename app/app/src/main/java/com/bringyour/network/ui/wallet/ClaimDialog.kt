@@ -304,19 +304,23 @@ internal fun NeedsGasContent(
                 style = MaterialTheme.typography.bodyMedium
             )
         }
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(
-                stringResource(id = R.string.unclaimed),
-                style = MaterialTheme.typography.bodyMedium,
-                color = TextMuted
-            )
-            Text(
-                formatAlpha(state.totalRao),
-                style = MaterialTheme.typography.bodyMedium
-            )
+        // no figure, never a zero, for accounts whose amount is not known (a
+        // settlement v2 account in a pool the dialog could not read)
+        if (0 < state.totalRao) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    stringResource(id = R.string.unclaimed),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = TextMuted
+                )
+                Text(
+                    formatAlpha(state.totalRao),
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
         }
 
         Spacer(modifier = Modifier.height(12.dp))

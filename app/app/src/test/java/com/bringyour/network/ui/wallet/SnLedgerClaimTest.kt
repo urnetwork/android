@@ -63,6 +63,12 @@ class SnLedgerClaimTest {
         var winReads = 0
         // when set, the next read of the wins waits for it
         var winGate: CompletableDeferred<Unit>? = null
+        // the reads of the wins by the order they started, from 0: read n waits
+        // for winGateFor[n] when there is one, and answers winAnswerFor[n] (null:
+        // it fails) when there is one, else as winAnswers says
+        var winStarts = 0
+        val winGateFor = mutableMapOf<Int, CompletableDeferred<Unit>>()
+        val winAnswerFor = mutableMapOf<Int, List<SnCtfWinState>?>()
 
         override val available: Boolean = true
         override suspend fun ledgerAccounts(): Result<SnLedgerAccounts> {
@@ -79,8 +85,10 @@ class SnLedgerClaimTest {
         override suspend fun gasBalance(): Result<SnGasBalanceState> =
             Result.success(SnGasBalanceState("0", gasTao))
         override suspend fun ctfWins(): Result<List<SnCtfWinState>> {
+            val started = winStarts++
             winGate?.await()
-            val answer = winAnswers[minOf(winReads, winAnswers.size - 1)]
+            winGateFor[started]?.await()
+            val answer = if (started in winAnswerFor) winAnswerFor[started] else winAnswers[minOf(winReads, winAnswers.size - 1)]
             winReads += 1
             return answer?.let { Result.success(it) }
                 ?: Result.failure(SnProtocolException("ctf_unavailable", "the capture the flag route answered 503"))
@@ -464,10 +472,11 @@ class SnLedgerClaimTest {
 
     @Test
     fun `a screen left during a claim and shown again shows it and gets its Done`() {
-        // the flow is the activity's view model's: leaving Earnings closes the dialog, and coming
-        // back reads the accounts and the wins again (refreshAll), which leaves the claim be
+        // the flow is the activity's view model's: leaving Earnings closes the dialog, and a visit
+        // touches none of the flow (onScreenResumed); a refresh while there (refreshAll) reads
+        // the accounts and the wins again, which leaves the claim be too
         val source = sourceWith(pool1, ctf)
-        // the visit's read, the read at Done, and the read 30 s after it, which finds the win claimed
+        // the refresh's read, the read at Done, and the read 30 s after it, which finds the win claimed
         source.winAnswers = listOf(listOf(win), listOf(win), emptyList())
         val clock = Clock()
         val flow = flowFor(source, clock = clock)
@@ -478,7 +487,7 @@ class SnLedgerClaimTest {
         // away from Earnings, the claim goes on
         source.onEvent(SnLedgerClaimEvent.Sent(ctfNoId, 3, txHash1))
         source.onEvent(SnLedgerClaimEvent.Confirmed(1, 42, txHash1, pool1.claimableRao))
-        // back: the visit's reads, then the tile's Claim shows the claim in flight
+        // back, and a refresh's reads; then the tile's Claim shows the claim in flight
         runBlocking {
             flow.refresh()
             flow.refreshWins()
@@ -1286,6 +1295,63 @@ class SnLedgerClaimTest {
     }
 
     @Test
+    fun `overlapping reads of the wins show the newest good answer by the order they started`() {
+        // reads overlap (a refresh's beside a claim's) and their answers land in any order
+        val kenya = SnCtfWinState(Sdk.SnCtfRoleExtender, "ke")
+        val source = sourceWith(pool1, ctf)
+        val flow = flowFor(source)
+        val scope = CoroutineScope(Dispatchers.Unconfined)
+        // an older read's answer that lands after a newer one's never replaces it
+        source.winGateFor[0] = CompletableDeferred()
+        source.winAnswerFor[0] = listOf(win, kenya)
+        source.winAnswerFor[1] = listOf(win)
+        scope.launch { flow.refreshWins() }
+        scope.launch { flow.refreshWins() }
+        assertEquals(listOf(win), flow.wins.value)
+        source.winGateFor.getValue(0).complete(Unit)
+        assertEquals(listOf(win), flow.wins.value)
+        // a newer read that fails never keeps an older read's good answer, still to land, from showing
+        source.winGateFor[2] = CompletableDeferred()
+        source.winAnswerFor[2] = emptyList()
+        source.winAnswerFor[3] = null
+        scope.launch { flow.refreshWins() }
+        scope.launch { flow.refreshWins() }
+        assertEquals(listOf(win), flow.wins.value)
+        source.winGateFor.getValue(2).complete(Unit)
+        assertEquals(emptyList<SnCtfWinState>(), flow.wins.value)
+        // a read from before a sign-out or another device shows nowhere after it
+        source.winGateFor[4] = CompletableDeferred()
+        source.winAnswerFor[4] = listOf(kenya)
+        scope.launch { flow.refreshWins() }
+        flow.reset(source)
+        source.winGateFor.getValue(4).complete(Unit)
+        assertEquals(emptyList<SnCtfWinState>(), flow.wins.value)
+        assertEquals(5, source.winReads)
+    }
+
+    @Test
+    fun `a slow read at Done that still lists a paid win never brings its line back`() {
+        // the read at Done waits on a slow route; the read 30 s after Done finds the win claimed,
+        // and the read at Done's late answer, older, changes nothing
+        val source = sourceWith(pool1, ctf)
+        source.winAnswers = listOf(listOf(win))
+        val clock = Clock()
+        val flow = flowFor(source, clock = clock)
+        runBlocking { flow.refreshWins() }
+        assertEquals(listOf(win), flow.wins.value)
+        claimBothConfirmed(source, flow)
+        source.winGateFor[1] = CompletableDeferred()
+        source.winAnswerFor[1] = listOf(win)
+        source.winAnswerFor[2] = emptyList()
+        source.onEvent(SnLedgerClaimEvent.Done)
+        clock.next()
+        assertEquals(emptyList<SnCtfWinState>(), flow.wins.value)
+        source.winGateFor.getValue(1).complete(Unit)
+        assertEquals(emptyList<SnCtfWinState>(), flow.wins.value)
+        assertEquals(3, source.winReads)
+    }
+
+    @Test
     fun `the gas key paying for none of them is the top-up, whatever order the sdk tried`() = runBlocking {
         // CTF-7: the largest first, then the other: both short of gas is the top-up for both
         val rows = listOf(pending(pool1), pending(ctf))
@@ -1342,5 +1408,53 @@ class SnLedgerClaimTest {
         source.onEvent(SnLedgerClaimEvent.Failed(ctfNoId, 3, message))
         source.onEvent(SnLedgerClaimEvent.Done)
         assertEquals(SnLedgerClaimDialogState.NeedsGas(gasKey, 0.004, pool1.claimableRao), flow.dialog.value)
+    }
+
+    @Test
+    fun `no top-up at Done when the only accounts short of gas are ones the claim could not take`() {
+        // pool 1, above the floor, could not be read at the claim, or the runtime refused it under
+        // its own floor; capture the flag's account, listed under the floor, was tried and found
+        // short of gas. Nothing the claim could take is left to top up for: the rows say what each
+        // is, never a top-up of 0
+        val floor = 100_000_000L
+        val message = "needs_gas: this claim needs up to 0.0143 TAO of gas, the gas key 0xab has 0.0040; send TAO to 5F"
+        val short = pending(ctf).copy(status = SnLedgerClaimStatus.STILL_CLAIMABLE, message = message)
+        for (first in listOf(
+            pending(pool1).copy(status = SnLedgerClaimStatus.POOL_UNAVAILABLE, message = "ledger_unavailable: x"),
+            pending(pool1).copy(status = SnLedgerClaimStatus.UNDER_FLOOR, message = "not_claimable: AmountTooLow: x"),
+        )) {
+            assertEquals(
+                first.status.name,
+                SnLedgerClaimDialogState.Finished(listOf(first, short), 0),
+                runBlocking { snLedgerClaimFinished(listOf(first, short), gasKey, floor) { error("no gas read") } }
+            )
+        }
+        // an account the claim paid, even one listed under the floor, is gas the key paid for:
+        // the rows, with the one it could not pay for still claimable
+        val paid = pending(ctf).copy(status = SnLedgerClaimStatus.CONFIRMED, txHash = txHash1)
+        val stillShort = pending(pool1).copy(status = SnLedgerClaimStatus.STILL_CLAIMABLE, message = message)
+        assertEquals(
+            SnLedgerClaimDialogState.Finished(listOf(stillShort, paid), ctf.claimableRao),
+            runBlocking { snLedgerClaimFinished(listOf(stillShort, paid), gasKey, floor) { error("no gas read") } }
+        )
+    }
+
+    @Test
+    fun `the top-up for an account of unknown amount has no figure to show`() {
+        // capture the flag's pool could not be read when the dialog opened; the sdk's own read found
+        // its account and the gas key could not pay for it, and the runtime refused the pool's
+        // account under its floor: the top-up waits for an account whose amount the dialog never
+        // read, so its total is 0, which NeedsGasContent shows as no figure (SnLedgerWiringTest)
+        val message = "needs_gas: this claim needs up to 0.0143 TAO of gas"
+        val start = snLedgerClaimStart(listOf(pool1), listOf(SnLedgerPool(ctfNoId)))
+        val after = listOf(
+            SnLedgerClaimEvent.Failed(1, 42, "not_claimable: AmountTooLow: x"),
+            SnLedgerClaimEvent.Failed(ctfNoId, 3, message),
+        ).fold(start) { rows, event -> snLedgerClaimProgressAfter(rows, event) }
+        assertFalse(after.last().amountKnown)
+        assertEquals(
+            SnLedgerClaimDialogState.NeedsGas(gasKey, 0.004, 0),
+            runBlocking { snLedgerClaimFinished(after, gasKey) { 0.004 } }
+        )
     }
 }

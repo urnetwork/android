@@ -559,15 +559,16 @@ fun snLedgerClaimNeedsGas(message: String?): Boolean =
 
 /**
  * The dialog after Done: the gas top-up when the gas key could pay for none
- * of the accounts the claim could take, with its balance read again by
- * [gasTao]; else the rows with the confirmed total, where an account the gas
- * key could not pay for beside the others reads still claimable. A row the
- * SDK never reported on was not sent. An account under the floor or in a
- * pool that could not be read was never the claim's to take, so it leaves
- * the top-up to the others. The top-up's total is what the claim's amount
- * counted: an account the dialog listed under [transferFloorRao], the floor
- * the claim started with (0 for none), is not in it, even when the SDK tried
- * it and found the gas key short.
+ * of the accounts the claim could take, and paid for none at all, with its
+ * balance read again by [gasTao]; else the rows with the confirmed total,
+ * where an account the gas key could not pay for beside the others reads
+ * still claimable. A row the SDK never reported on was not sent. An account
+ * the claim could not take leaves the top-up, its total and its decision to
+ * the others: one in a pool that could not be read, one the runtime refused
+ * under its floor, and one whose amount is under [transferFloorRao], the
+ * floor the claim started with (0 for none), as the dialog listed it, even
+ * when the SDK tried it, as the claim's amount left it out. With none left to
+ * take, the rows say what each is, and there is no top-up for nothing.
  */
 suspend fun snLedgerClaimFinished(
     progress: List<SnLedgerClaimProgress>,
@@ -578,14 +579,16 @@ suspend fun snLedgerClaimFinished(
     val settled = progress.map {
         if (it.status == SnLedgerClaimStatus.PENDING) it.copy(status = SnLedgerClaimStatus.FAILED) else it
     }
+    // a row still claimable carries the claimable it started with
     val taken = settled.filter {
-        it.status != SnLedgerClaimStatus.UNDER_FLOOR && it.status != SnLedgerClaimStatus.POOL_UNAVAILABLE
+        it.status != SnLedgerClaimStatus.UNDER_FLOOR && it.status != SnLedgerClaimStatus.POOL_UNAVAILABLE &&
+            !snLedgerUnderFloor(it.amountRao, transferFloorRao)
     }
-    val allNeedGas = taken.isNotEmpty() && taken.all { it.status == SnLedgerClaimStatus.STILL_CLAIMABLE }
+    // an account the claim paid, under the floor or not, is gas the key paid for
+    val allNeedGas = taken.isNotEmpty() && taken.all { it.status == SnLedgerClaimStatus.STILL_CLAIMABLE } &&
+        settled.none { it.status == SnLedgerClaimStatus.CONFIRMED }
     if (allNeedGas) {
-        // a row still claimable carries the claimable it started with
-        val totalRao = taken.filter { !snLedgerUnderFloor(it.amountRao, transferFloorRao) }.sumOf { it.amountRao }
-        return SnLedgerClaimDialogState.NeedsGas(gasKey, gasTao(), totalRao)
+        return SnLedgerClaimDialogState.NeedsGas(gasKey, gasTao(), taken.sumOf { it.amountRao })
     }
     return SnLedgerClaimDialogState.Finished(
         settled,
@@ -628,9 +631,11 @@ fun snLedgerClaimFailureDetail(message: String): String =
  * the SDK reads and claims, this keeps where that stands. A claim in flight
  * outlives its dialog: reopening shows it rather than starting another, and
  * the accounts and the wins are read again after its Done. It outlives the
- * screen too: the view model is the activity's, and a visit to Earnings only
- * reads again, so a screen left during a claim and shown again shows it and
- * gets its Done. Only another device or a sign-out (reset) drops it.
+ * screen too: the view model is the activity's, and a visit to Earnings
+ * touches none of this (onScreenResumed reads neither the accounts nor the
+ * wins), so a screen left during a claim and shown again shows it and gets
+ * its Done. Only another device or a sign-out (reset) drops it, and the
+ * activity's end, which ends the view model.
  */
 class SnLedgerFlow(
     private val scope: CoroutineScope,
@@ -651,6 +656,12 @@ class SnLedgerFlow(
     // listed them; empty without one, and until the first answer after reset
     private val _wins = MutableStateFlow<List<SnCtfWinState>>(emptyList())
     val wins: StateFlow<List<SnCtfWinState>> = _wins.asStateFlow()
+
+    // the reads of the wins numbered as they start, and the read whose good
+    // answer the lines show (refreshWins): reads overlap, a refresh's beside
+    // a claim's, and their answers land in any order
+    private var winsReadsStarted = 0L
+    private var winsReadShown = 0L
 
     // the reads of the wins after the last claim's Done (readWinsAfterClaim)
     private var winsAfterClaim: Job? = null
@@ -678,20 +689,33 @@ class SnLedgerFlow(
         winsAfterClaim?.cancel()
         winsAfterClaim = null
         _wins.value = emptyList()
+        // no answer of a read from before shows
+        winsReadShown = winsReadsStarted
     }
 
     /**
      * Reads the wins not claimed yet, with or without a wallet: they are the
-     * network's. A read that answers replaces the lines. One that failed or
-     * could not be read keeps the lines of the last read that answered, so
-     * only an answer that no longer lists a win, a sign-out or another device
-     * (reset) takes a line away (every app's rule, 2026-11-12).
+     * network's. The lines show the newest read's good answer, by the order
+     * the reads started (every app's rule, 2026-11-12): an answer replaces
+     * them unless they already show a newer read's, so an older answer that
+     * lands late never replaces a newer one. A read that failed or could not
+     * be read changes nothing, so it never blanks them, nor keeps an older
+     * read's good answer still to land from showing. Only an answer that no
+     * longer lists a win, a sign-out or another device (reset) takes a line
+     * away.
      */
     suspend fun refreshWins() {
         val s = source
+        val read = ++winsReadsStarted
         val wins = s.ctfWins()
-        if (s === source) {
-            wins.onSuccess { _wins.value = it }
+        if (s !== source) {
+            return
+        }
+        wins.onSuccess {
+            if (winsReadShown < read) {
+                winsReadShown = read
+                _wins.value = it
+            }
         }
     }
 
