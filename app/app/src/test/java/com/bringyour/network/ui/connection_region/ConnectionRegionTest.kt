@@ -1,6 +1,7 @@
 package com.bringyour.network.ui.connection_region
 
 import java.net.ConnectException
+import java.net.NoRouteToHostException
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 import org.junit.Assert.assertEquals
@@ -120,57 +121,90 @@ class ConnectionRegionTest {
         assertEquals("", model(store).selected)
     }
 
-    @Test
-    fun networkFailuresAreUnreachable() {
-        assertTrue(isUrnetworkUnreachable(UnknownHostException("api.bringyour.com")))
-        assertTrue(isUrnetworkUnreachable(SocketTimeoutException()))
-        assertTrue(isUrnetworkUnreachable(ConnectException()))
-        assertTrue(isUrnetworkUnreachable(Exception(
-            "http request failed: Post \"https://api.bringyour.com/auth/login\": dial tcp: lookup api.bringyour.com: no such host"
-        )))
-        assertTrue(isUrnetworkUnreachable(Exception("context deadline exceeded")))
-        assertTrue(isUrnetworkUnreachable(Exception("read tcp 10.0.0.2:5000->1.2.3.4:443: i/o timeout")))
-        assertTrue(isUrnetworkUnreachable(Exception("dial tcp 1.2.3.4:443: connect: network is unreachable")))
-    }
+    // The texts of a failure are the sdk's rule (sdk cant_reach.go
+    // IsCantReachError), tested there with every app's cases, so the four apps
+    // can't drift apart again (support inbox 7956, 7973). Here a fake stands
+    // in for it: the app's own part is its transport exceptions, and asking
+    // the sdk about anything else.
 
-    // an api call that no route answered fails with this text, which names none
-    // of its causes (connect HttpRequestExhaustedError): what a mainland China
-    // sign-in reports when the default DoH servers are blocked
     @Test
-    fun attemptsExhaustedIsUnreachable() {
-        assertTrue(isUrnetworkUnreachable(Exception("http request attempts exhausted")))
-    }
-
-    // the other texts Go's http and tls clients give for a failed round trip,
-    // which Windows and Linux already treat as can't-reach
-    @Test
-    fun goTransportFailuresAreUnreachable() {
-        assertTrue(isUrnetworkUnreachable(Exception("lookup api.bringyour.com: server misbehaving")))
-        assertTrue(isUrnetworkUnreachable(Exception("connect: host is unreachable")))
-        assertTrue(isUrnetworkUnreachable(Exception("net/http: timeout awaiting response headers")))
-        assertTrue(isUrnetworkUnreachable(Exception("Post \"https://api.bringyour.com/auth/login\": EOF")))
-        assertTrue(isUrnetworkUnreachable(Exception("Post \"https://api.bringyour.com/auth/login\": unexpected EOF")))
-        assertTrue(isUrnetworkUnreachable(Exception("tls: failed to verify certificate: x509: certificate signed by unknown authority")))
+    fun androidTransportFailuresAreUnreachableWithoutAskingTheSdk() {
+        val asked = mutableListOf<String>()
+        val sdkRule = { message: String -> asked.add(message); false }
+        assertTrue(isUrnetworkUnreachable(UnknownHostException("api.bringyour.com"), sdkRule))
+        assertTrue(isUrnetworkUnreachable(SocketTimeoutException(), sdkRule))
+        assertTrue(isUrnetworkUnreachable(ConnectException(), sdkRule))
+        assertTrue(isUrnetworkUnreachable(NoRouteToHostException(), sdkRule))
+        assertEquals(listOf<String>(), asked)
     }
 
     @Test
-    fun authAndValidationErrorsAreNotUnreachable() {
-        assertFalse(isUrnetworkUnreachable(null))
-        // HttpStatusError: the platform answered
-        assertFalse(isUrnetworkUnreachable(Exception("401 Unauthorized: invalid jwt")))
-        assertFalse(isUrnetworkUnreachable(Exception("403 Forbidden: ")))
-        assertFalse(isUrnetworkUnreachable(Exception("400 Bad Request: user auth is required")))
-        // a status error whose body mentions a timeout is still a reached platform
-        assertFalse(isUrnetworkUnreachable(Exception("503 Service Unavailable: upstream i/o timeout")))
-        assertFalse(isUrnetworkUnreachable(Exception("Invalid user auth")))
-        // a status answer about attempts is still a reached platform
-        assertFalse(isUrnetworkUnreachable(Exception("429 Too Many Requests: http request attempts exhausted")))
+    fun aFailuresTextIsTheSdksCall() {
+        val asked = mutableListOf<String>()
+        assertTrue(isUrnetworkUnreachable(Exception("http request attempts exhausted")) { asked.add(it); true })
+        assertFalse(isUrnetworkUnreachable(Exception("401 Unauthorized: invalid jwt")) { asked.add(it); false })
+        assertEquals(listOf("http request attempts exhausted", "401 Unauthorized: invalid jwt"), asked)
+    }
+
+    @Test
+    fun noFailureAndNoTextAreNotUnreachable() {
+        assertFalse(isUrnetworkUnreachable(null) { true })
+        assertFalse(isUrnetworkUnreachable(Exception()) { true })
+    }
+
+    // Signed in, Windows alone raised the prompt as the window's diagnosis
+    // turned to the platform being unreachable; android now does too, by the
+    // sdk's rule (CantReachOnStall), reported by MainService's window status
+    // listener.
+    @Test
+    fun aSignedInStallRaisesThePromptByTheSdksRule() {
+        val asked = mutableListOf<Pair<String, String>>()
+        val prompt = CantReachPrompt(
+            cantReachText = { false },
+            cantReachOnStall = { previous, current ->
+                asked.add(previous to current)
+                current == "platform-unreachable" && previous != current
+            },
+        )
+
+        assertFalse(prompt.reportStall("", "evaluating"))
+        assertFalse(prompt.visible.value)
+
+        assertTrue(prompt.reportStall("evaluating", "platform-unreachable"))
+        assertTrue(prompt.visible.value)
+
+        prompt.dismiss()
+        assertFalse(prompt.reportStall("platform-unreachable", "platform-unreachable"))
+        assertFalse(prompt.visible.value)
+
+        assertEquals(
+            listOf("" to "evaluating", "evaluating" to "platform-unreachable", "platform-unreachable" to "platform-unreachable"),
+            asked,
+        )
+    }
+
+    @Test
+    fun theWindowStatusListenerReportsEveryDiagnosisToThePrompt() {
+        val file = listOf("", "app/", "app/app/")
+            .map { java.io.File(it + "src/main/java/com/bringyour/network/MainService.kt") }
+            .firstOrNull { it.isFile }
+        assertTrue("MainService.kt not found", file != null)
+        val source = file!!.readText()
+        val update = source.substring(
+            source.indexOf("fun updateWindowStatus(windowStatus: WindowStatus) {"),
+            source.indexOf("windowStatusChangeSub = currentDevice.addWindowStatusChangeListener"),
+        )
+        assertTrue(update, update.contains("CantReachPrompt.shared.reportStall(windowStallReason, stallReason)"))
+        assertTrue(update, update.contains("windowStallReason = stallReason"))
+        // a new device starts from no diagnosis
+        assertTrue(source.contains("windowStatusChangeSub = null\n        windowStallReason = \"\""))
     }
 
     @Test
     fun promptShowsOnlyForUnreachableAndNeverChangesTheRegion() {
         val store = FakeStore(setOf("cn", "ru", "tr"), value = "ru")
-        val prompt = CantReachPrompt()
+        // the sdk's rule, faked: only a resolver failure is unreachable here
+        val prompt = CantReachPrompt(cantReachText = { it.contains("no such host") })
 
         assertFalse(prompt.report(Exception("401 Unauthorized: invalid jwt")))
         assertFalse(prompt.visible.value)

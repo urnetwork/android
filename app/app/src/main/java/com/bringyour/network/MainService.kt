@@ -25,6 +25,7 @@ import androidx.core.app.ServiceCompat
 import com.bringyour.network.ui.components.tunnelLevelDepths
 import com.bringyour.network.ui.components.tunnelLevelIcon
 import com.bringyour.network.ui.connect.transportDelayUi
+import com.bringyour.network.ui.connection_region.CantReachPrompt
 import com.bringyour.network.ui.theme.Amber
 import com.bringyour.network.utils.sdkStringListToList
 import com.bringyour.sdk.DeviceLocal
@@ -154,6 +155,9 @@ import kotlin.math.roundToInt
     // the window status the notification says, with providerCount
     private var windowMinSatisfied: Boolean = false
     private var windowFailed: Boolean = false
+    // the window's last diagnosis (WindowStatus.stallReason), for the sdk's
+    // can't-reach rule on a signed-in connect (CantReachPrompt.reportStall)
+    private var windowStallReason: String = ""
     /** Refreshes the notification when the tunnel starts or stops. */
     private var tunnelChangeSub: Sub? = null
     /** Says in the notification when the connection is slow (apple/DELAY.md §7.2). */
@@ -393,6 +397,13 @@ import kotlin.math.roundToInt
             providerCount = windowStatus.providerStateAdded
             windowMinSatisfied = windowStatus.minSatisfied
             windowFailed = windowStatus.failed
+            // Signed in, a window whose diagnosis turns to the platform being
+            // unreachable offers the connection region picker, as a failed api
+            // call does and as Windows did alone (the sdk's CantReachOnStall;
+            // support inbox 7956, 7973). Once per turn, never the region itself.
+            val stallReason = windowStatus.stallReason ?: ""
+            CantReachPrompt.shared.reportStall(windowStallReason, stallReason)
+            windowStallReason = stallReason
             connected = 0 < providerCount
             updateForegroundNotification()
             reconcilePfd()
@@ -994,6 +1005,7 @@ import kotlin.math.roundToInt
         deviceOfflineSub = null
         windowStatusChangeSub?.close()
         windowStatusChangeSub = null
+        windowStallReason = ""
         blockActionOverridesSub?.close()
         blockActionOverridesSub = null
         dnsResolverSettingsSub?.close()

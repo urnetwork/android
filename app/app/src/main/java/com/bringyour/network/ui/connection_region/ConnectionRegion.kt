@@ -3,6 +3,7 @@ package com.bringyour.network.ui.connection_region
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import com.bringyour.sdk.Sdk
 import java.net.ConnectException
 import java.net.NoRouteToHostException
 import java.net.SocketTimeoutException
@@ -113,42 +114,32 @@ class ConnectionRegionModel(
     }
 }
 
-private val httpStatusPrefix = Regex("^\\d{3} ")
+/**
+ * The sdk's one rule for a failure's text (sdk cant_reach.go IsCantReachError):
+ * whether it means URnetwork could not be reached at all, as against an http
+ * status or an auth or validation answer. Every app asks the sdk, so the same
+ * failure raises the prompt on every platform (support inbox 7956, 7973).
+ */
+internal fun sdkIsCantReachError(message: String): Boolean = Sdk.isCantReachError(message)
 
-// an api call that no route answered fails as "http request attempts exhausted"
-// (connect HttpRequestExhaustedError), whose text names none of its causes; the
-// rest are Go's net, tls and http errors and the platform's own
-private val unreachableMarkers = listOf(
-    "http request attempts exhausted",
-    "http request failed",
-    "no such host",
-    "server misbehaving",
-    "dial tcp",
-    "dial udp",
-    "i/o timeout",
-    "connection refused",
-    "connection reset",
-    "network is unreachable",
-    "host is unreachable",
-    "no route to host",
-    "context deadline exceeded",
-    "tls handshake",
-    "tls: ",
-    "x509: ",
-    "timeout awaiting response headers",
-    "unexpected eof",
-    ": eof",
-    "unable to resolve host",
-    "failed to connect",
-)
+/**
+ * The sdk's one rule for a signed-in connect (sdk cant_reach.go
+ * CantReachOnStall): whether the window's diagnosis has just turned to the
+ * platform being unreachable (WindowStatus.stallReason).
+ */
+internal fun sdkCantReachOnStall(previousStallReason: String, stallReason: String): Boolean =
+    Sdk.cantReachOnStall(previousStallReason, stallReason)
 
 /**
  * Whether an api failure means the app could not reach URnetwork (a network
  * level failure), as opposed to the platform answering with an auth or
- * validation error. Validation errors come back in the result, not as the
- * error, and an http status error means the platform was reached.
+ * validation error. Android's own transport exceptions answer here; a
+ * failure's text is the sdk's call (`cantReachText`, [sdkIsCantReachError]).
  */
-fun isUrnetworkUnreachable(err: Throwable?): Boolean {
+fun isUrnetworkUnreachable(
+    err: Throwable?,
+    cantReachText: (String) -> Boolean = ::sdkIsCantReachError,
+): Boolean {
     if (err == null) {
         return false
     }
@@ -158,19 +149,20 @@ fun isUrnetworkUnreachable(err: Throwable?): Boolean {
         is ConnectException,
         is NoRouteToHostException -> return true
     }
-    val message = err.message?.trim()?.lowercase() ?: return false
-    if (httpStatusPrefix.containsMatchIn(message)) {
-        return false
-    }
-    return unreachableMarkers.any { message.contains(it) }
+    val message = err.message ?: return false
+    return cantReachText(message)
 }
 
 /**
  * "Can't reach URnetwork — choose where you're connecting from". Api call sites
- * report failures; the prompt opens the connection region picker. It never
- * changes the region itself.
+ * report failures, and a signed-in connect reports its window's diagnosis; the
+ * prompt opens the connection region picker. It never changes the region
+ * itself. The rules are the sdk's (`cantReachText`, `cantReachOnStall`).
  */
-class CantReachPrompt {
+class CantReachPrompt(
+    private val cantReachText: (String) -> Boolean = ::sdkIsCantReachError,
+    private val cantReachOnStall: (String, String) -> Boolean = ::sdkCantReachOnStall,
+) {
     private val visibleState = MutableStateFlow(false)
     val visible: StateFlow<Boolean> = visibleState.asStateFlow()
 
@@ -178,7 +170,21 @@ class CantReachPrompt {
      * Shows the prompt when `err` is a network-level failure. True when shown.
      */
     fun report(err: Throwable?): Boolean {
-        if (!isUrnetworkUnreachable(err)) {
+        if (!isUrnetworkUnreachable(err, cantReachText)) {
+            return false
+        }
+        visibleState.value = true
+        return true
+    }
+
+    /**
+     * A signed-in connect's window report: shows the prompt when its
+     * diagnosis has just turned to the platform being unreachable, once per
+     * turn, as Windows does. `previousStallReason` is the diagnosis of the
+     * report before. True when shown.
+     */
+    fun reportStall(previousStallReason: String, stallReason: String): Boolean {
+        if (!cantReachOnStall(previousStallReason, stallReason)) {
             return false
         }
         visibleState.value = true
