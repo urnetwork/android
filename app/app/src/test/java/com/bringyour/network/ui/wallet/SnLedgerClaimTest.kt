@@ -607,6 +607,92 @@ class SnLedgerClaimTest {
     }
 
     @Test
+    fun `the claim decides the floor as the dialog did, from the read's pools`() {
+        // capture the flag's account paid up, so not in the claim, but in the read the dialog
+        // showed: the pool's account under the floor waits there, and so in the claim
+        val message = "not_claimable: AmountTooLow: the claim is below the runtime's transfer floor"
+        assertEquals(
+            listOf(pending(pool1).copy(status = SnLedgerClaimStatus.UNDER_FLOOR, message = message)),
+            snLedgerClaimProgressAfter(listOf(pending(pool1)), SnLedgerClaimEvent.Failed(1, 42, message), listOf(pool1.pool, ctf.pool))
+        )
+        val source = sourceWith(pool1, ctf.copy(claimableRao = 0, paidRao = ctf.finalizedRao))
+        val flow = flowFor(source)
+        flow.open()
+        flow.claim()
+        source.onEvent(SnLedgerClaimEvent.Failed(1, 42, message))
+        source.onEvent(SnLedgerClaimEvent.Done)
+        assertEquals(
+            SnLedgerClaimDialogState.Finished(listOf(pending(pool1).copy(status = SnLedgerClaimStatus.UNDER_FLOOR, message = message)), 0),
+            flow.dialog.value
+        )
+    }
+
+    @Test
+    fun `a pool the sdk read without a word for it is no longer unavailable at done`() {
+        // the dialog's read could not read capture the flag's pool; the sdk's could, and found
+        // nothing there to claim, so it sends no event for it: the claim read it
+        val source = FakeSource(Result.success(listOf(pool1)), key = gasKey, unavailablePools = listOf(SnLedgerPool(ctfNoId)))
+        val flow = flowFor(source)
+        flow.open()
+        flow.claim()
+        source.onEvent(SnLedgerClaimEvent.Sent(1, 42, txHash1))
+        source.onEvent(SnLedgerClaimEvent.Confirmed(1, 42, txHash1, pool1.claimableRao))
+        source.onEvent(SnLedgerClaimEvent.Done)
+        assertEquals(
+            SnLedgerClaimDialogState.Finished(
+                listOf(pending(pool1).copy(status = SnLedgerClaimStatus.CONFIRMED, txHash = txHash1)),
+                pool1.claimableRao,
+            ),
+            flow.dialog.value
+        )
+    }
+
+    @Test
+    fun `a claim stopped before the sdk's read keeps the pools it could not read`() {
+        val source = FakeSource(Result.success(listOf(pool1)), key = gasKey, unavailablePools = listOf(SnLedgerPool(ctfNoId)))
+        val flow = flowFor(source)
+        flow.open()
+        flow.claim()
+        source.onEvent(SnLedgerClaimEvent.Failed(0, 0, "chain_rpc_unreachable: dial tcp"))
+        source.onEvent(SnLedgerClaimEvent.Done)
+        assertEquals(
+            SnLedgerClaimDialogState.Finished(
+                listOf(
+                    pending(pool1).copy(status = SnLedgerClaimStatus.FAILED, message = "chain_rpc_unreachable: dial tcp"),
+                    SnLedgerClaimProgress(ctfNoId, 0, 0, SnLedgerClaimStatus.POOL_UNAVAILABLE, null, null),
+                ),
+                0,
+            ),
+            flow.dialog.value
+        )
+    }
+
+    @Test
+    fun `the sdk's read answered once it says anything of an account or a pool`() {
+        assertTrue(snLedgerClaimReadLedger(SnLedgerClaimEvent.Sent(1, 42, txHash1)))
+        assertTrue(snLedgerClaimReadLedger(SnLedgerClaimEvent.Confirmed(1, 42, txHash1, 1)))
+        assertTrue(snLedgerClaimReadLedger(SnLedgerClaimEvent.Failed(ctfNoId, 0, "ledger_unavailable: 502")))
+        assertTrue(snLedgerClaimReadLedger(SnLedgerClaimEvent.Failed(1, 42, "proof_mismatch: x")))
+        // nothing to claim anywhere: never said while a pool is unavailable
+        assertTrue(snLedgerClaimReadLedger(SnLedgerClaimEvent.Failed(0, 0, "not_claimable: no settlement v2 account has anything to claim")))
+        // stopped before the read
+        for (message in listOf(
+            "chain_not_configured: vault2 address: not set",
+            "connect_wallet_first: connect a Bittensor wallet first",
+            "ledger_unavailable: 502",
+            "local_state_unavailable: x",
+        )) {
+            assertFalse(message, snLedgerClaimReadLedger(SnLedgerClaimEvent.Failed(0, 0, message)))
+        }
+        assertFalse(snLedgerClaimReadLedger(SnLedgerClaimEvent.Done))
+        // only an unavailable row the read said nothing of goes
+        val said = SnLedgerClaimProgress(2, 0, 0, SnLedgerClaimStatus.POOL_UNAVAILABLE, null, "ledger_unavailable: 502")
+        val unsaid = SnLedgerClaimProgress(ctfNoId, 0, 0, SnLedgerClaimStatus.POOL_UNAVAILABLE, null, null)
+        assertEquals(listOf(pending(pool1), said), snLedgerClaimSettled(listOf(pending(pool1), said, unsaid), ledgerRead = true))
+        assertEquals(listOf(pending(pool1), said, unsaid), snLedgerClaimSettled(listOf(pending(pool1), said, unsaid), ledgerRead = false))
+    }
+
+    @Test
     fun `without capture the flag an account under the floor fails as before`() {
         // CTF-4: sdk main already sends not_claimable AmountTooLow; a server without capture the
         // flag shows it Failed with the sdk's detail, as before

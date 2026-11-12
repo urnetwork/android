@@ -390,15 +390,17 @@ fun snLedgerClaimStart(
  * unreachable) comes with pool 0 and fails every row not sent. A pool the
  * ledger could not read comes as ledger_unavailable with its pool and index 0
  * (its account is unknown): that pool's rows not sent are unavailable, the
- * others claim on. While a capture the flag pool is in the claim, an account
- * under the transfer floor (not_claimable, AmountTooLow) is not a failure
- * either: it waits. An event for an account without a row (the SDK reads the
- * accounts again) takes the row of its pool that was unavailable at the
- * dialog's read, else adds its own.
+ * others claim on. While a capture the flag pool is in view, the read's
+ * [pools] as the dialog showed them or the claim's own rows, an account under
+ * the transfer floor (not_claimable, AmountTooLow) is not a failure either:
+ * it waits. An event for an account without a row (the SDK reads the accounts
+ * again) takes the row of its pool that was unavailable at the dialog's read,
+ * else adds its own.
  */
 fun snLedgerClaimProgressAfter(
     progress: List<SnLedgerClaimProgress>,
     event: SnLedgerClaimEvent,
+    pools: Collection<SnLedgerPool> = emptyList(),
 ): List<SnLedgerClaimProgress> {
     if (event is SnLedgerClaimEvent.Failed && event.noId == 0L) {
         return progress.map {
@@ -432,7 +434,7 @@ fun snLedgerClaimProgressAfter(
         ?: progress.indexOfFirst { it.noId == noId && it.status == SnLedgerClaimStatus.POOL_UNAVAILABLE && it.txHash == null }
     val row = progress.getOrNull(i)?.copy(index = index)
         ?: SnLedgerClaimProgress(noId, index, 0, SnLedgerClaimStatus.PENDING, null, null)
-    val ctfInClaim = (progress.map { it.pool } + row.pool).any { it.isCtf }
+    val ctfInView = (pools + progress.map { it.pool } + row.pool).any { it.isCtf }
     val updated = when (event) {
         is SnLedgerClaimEvent.Sent -> row.copy(status = SnLedgerClaimStatus.SENT, txHash = event.txHash)
         is SnLedgerClaimEvent.Confirmed ->
@@ -441,7 +443,7 @@ fun snLedgerClaimProgressAfter(
             status = when {
                 EarningsViewModel.claimFailureCode(event.message) == EarningsViewModel.SN_CODE_ALREADY_CLAIMED ->
                     SnLedgerClaimStatus.ALREADY_CLAIMED
-                ctfInClaim && snLedgerClaimUnderFloor(event.message) -> SnLedgerClaimStatus.UNDER_FLOOR
+                ctfInView && snLedgerClaimUnderFloor(event.message) -> SnLedgerClaimStatus.UNDER_FLOOR
                 else -> SnLedgerClaimStatus.FAILED
             },
             message = event.message,
@@ -450,6 +452,27 @@ fun snLedgerClaimProgressAfter(
     }
     return if (i < 0) progress + updated else progress.toMutableList().also { it[i] = updated }
 }
+
+/**
+ * The SDK's own read of the ledger answered: an event about an account or a
+ * pool, or nothing to claim in any pool, which it never says while a pool is
+ * unavailable. Its other failures with pool 0 stop the claim before the read.
+ */
+fun snLedgerClaimReadLedger(event: SnLedgerClaimEvent): Boolean = when (event) {
+    is SnLedgerClaimEvent.Sent, is SnLedgerClaimEvent.Confirmed -> true
+    is SnLedgerClaimEvent.Failed ->
+        event.noId != 0L || EarningsViewModel.claimFailureCode(event.message) == EarningsViewModel.SN_CODE_NOT_CLAIMABLE
+    SnLedgerClaimEvent.Done -> false
+}
+
+/**
+ * The rows at Done. A pool the dialog could not read keeps its unavailable
+ * row while the claim stopped before the SDK's own read; once the read
+ * answered ([ledgerRead]) and said nothing of that pool, the pool was read
+ * and held nothing to claim, and its row goes.
+ */
+fun snLedgerClaimSettled(progress: List<SnLedgerClaimProgress>, ledgerRead: Boolean): List<SnLedgerClaimProgress> =
+    if (!ledgerRead) progress else progress.filterNot { it.status == SnLedgerClaimStatus.POOL_UNAVAILABLE && it.message == null }
 
 /**
  * The SDK's refusal of an account under the runtime's transfer floor:
@@ -532,6 +555,13 @@ class SnLedgerFlow(
     // the claim in flight; null between claims
     private var claiming: List<SnLedgerClaimProgress>? = null
 
+    // the pools in view when it started, as the dialog showed them, which
+    // decide its rows' statuses as they decided the dialog's
+    private var claimingPools: List<SnLedgerPool> = emptyList()
+
+    // the SDK's own read of the ledger answered (snLedgerClaimReadLedger)
+    private var claimingRead = false
+
     /** A new device (or none): drop what the last one read. */
     fun reset(source: EarningsProtocolSource) {
         this.source = source
@@ -539,6 +569,8 @@ class SnLedgerFlow(
         _claimConfigured.value = false
         _dialog.value = null
         claiming = null
+        claimingPools = emptyList()
+        claimingRead = false
     }
 
     /** Reads the accounts; without a wallet there are none to read. */
@@ -607,6 +639,8 @@ class SnLedgerFlow(
         val s = source
         val progress = snLedgerClaimStart(ready.accounts, ready.unavailablePools)
         claiming = progress
+        claimingPools = (snLedgerPools(_load.value) + ready.accounts.map { it.pool } + ready.unavailablePools).distinct()
+        claimingRead = false
         _dialog.value = SnLedgerClaimDialogState.Sending(progress)
         s.ledgerClaim { event ->
             scope.launch { onEvent(s, event) }
@@ -619,7 +653,8 @@ class SnLedgerFlow(
             return
         }
         if (event != SnLedgerClaimEvent.Done) {
-            val next = snLedgerClaimProgressAfter(progress, event)
+            claimingRead = claimingRead || snLedgerClaimReadLedger(event)
+            val next = snLedgerClaimProgressAfter(progress, event, claimingPools)
             claiming = next
             if (_dialog.value is SnLedgerClaimDialogState.Sending) {
                 _dialog.value = SnLedgerClaimDialogState.Sending(next)
@@ -627,7 +662,8 @@ class SnLedgerFlow(
             return
         }
         claiming = null
-        val finished = snLedgerClaimFinished(progress, s.gasKey()) { s.gasBalance().getOrNull()?.tao ?: 0.0 }
+        val settled = snLedgerClaimSettled(progress, claimingRead)
+        val finished = snLedgerClaimFinished(settled, s.gasKey()) { s.gasBalance().getOrNull()?.tao ?: 0.0 }
         if (s === source && _dialog.value is SnLedgerClaimDialogState.Sending) {
             _dialog.value = finished
         }
