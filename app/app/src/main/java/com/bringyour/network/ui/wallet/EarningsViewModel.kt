@@ -250,8 +250,9 @@ class EarningsViewModel @Inject constructor(
     val isClaimingNow: StateFlow<Boolean> = _isClaimingNow.asStateFlow()
 
     // the capture the flag slots won and not claimed yet (GET /sn/ctf/client),
-    // newest first, a line each on the Settlement v2 tile; empty without one or
-    // without an answer, and dropped with the device (ledgerFlow.reset)
+    // newest first, a line each on the Settlement v2 tile, as the last read that
+    // answered listed them: a read that failed keeps them, and they are dropped
+    // with the device (ledgerFlow.reset)
     val ctfWins: StateFlow<List<SnCtfWinState>> = ledgerFlow.wins
 
     var isRefreshing by mutableStateOf(false)

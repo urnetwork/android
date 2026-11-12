@@ -564,11 +564,15 @@ fun snLedgerClaimNeedsGas(message: String?): Boolean =
  * key could not pay for beside the others reads still claimable. A row the
  * SDK never reported on was not sent. An account under the floor or in a
  * pool that could not be read was never the claim's to take, so it leaves
- * the top-up to the others.
+ * the top-up to the others. The top-up's total is what the claim's amount
+ * counted: an account the dialog listed under [transferFloorRao], the floor
+ * the claim started with (0 for none), is not in it, even when the SDK tried
+ * it and found the gas key short.
  */
 suspend fun snLedgerClaimFinished(
     progress: List<SnLedgerClaimProgress>,
     gasKey: SnGasKeyState?,
+    transferFloorRao: Long = 0,
     gasTao: suspend () -> Double,
 ): SnLedgerClaimDialogState {
     val settled = progress.map {
@@ -579,7 +583,9 @@ suspend fun snLedgerClaimFinished(
     }
     val allNeedGas = taken.isNotEmpty() && taken.all { it.status == SnLedgerClaimStatus.STILL_CLAIMABLE }
     if (allNeedGas) {
-        return SnLedgerClaimDialogState.NeedsGas(gasKey, gasTao(), taken.sumOf { it.amountRao })
+        // a row still claimable carries the claimable it started with
+        val totalRao = taken.filter { !snLedgerUnderFloor(it.amountRao, transferFloorRao) }.sumOf { it.amountRao }
+        return SnLedgerClaimDialogState.NeedsGas(gasKey, gasTao(), totalRao)
     }
     return SnLedgerClaimDialogState.Finished(
         settled,
@@ -621,7 +627,10 @@ fun snLedgerClaimFailureDetail(message: String): String =
  * earnings view model owns one and points it at the device's protocol source;
  * the SDK reads and claims, this keeps where that stands. A claim in flight
  * outlives its dialog: reopening shows it rather than starting another, and
- * the accounts and the wins are read again after its Done.
+ * the accounts and the wins are read again after its Done. It outlives the
+ * screen too: the view model is the activity's, and a visit to Earnings only
+ * reads again, so a screen left during a claim and shown again shows it and
+ * gets its Done. Only another device or a sign-out (reset) drops it.
  */
 class SnLedgerFlow(
     private val scope: CoroutineScope,
@@ -638,8 +647,8 @@ class SnLedgerFlow(
     val load: StateFlow<SnLedgerLoad> = _load.asStateFlow()
 
     // the capture the flag slots won and not claimed yet (GET /sn/ctf/client),
-    // newest first, a line each on the tile; empty without one or without an
-    // answer
+    // newest first, a line each on the tile, as the last read that answered
+    // listed them; empty without one, and until the first answer after reset
     private val _wins = MutableStateFlow<List<SnCtfWinState>>(emptyList())
     val wins: StateFlow<List<SnCtfWinState>> = _wins.asStateFlow()
 
@@ -673,13 +682,16 @@ class SnLedgerFlow(
 
     /**
      * Reads the wins not claimed yet, with or without a wallet: they are the
-     * network's. Each read replaces the lines; one that failed draws none.
+     * network's. A read that answers replaces the lines. One that failed or
+     * could not be read keeps the lines of the last read that answered, so
+     * only an answer that no longer lists a win, a sign-out or another device
+     * (reset) takes a line away (every app's rule, 2026-11-12).
      */
     suspend fun refreshWins() {
         val s = source
         val wins = s.ctfWins()
         if (s === source) {
-            _wins.value = wins
+            wins.onSuccess { _wins.value = it }
         }
     }
 
@@ -776,16 +788,18 @@ class SnLedgerFlow(
             return
         }
         val s = source
-        val progress = snLedgerClaimStart(ready.accounts, ready.unavailablePools, ready.transferFloorRao)
+        val floorRao = ready.transferFloorRao
+        val progress = snLedgerClaimStart(ready.accounts, ready.unavailablePools, floorRao)
         claiming = progress
         claimingRead = false
         _dialog.value = SnLedgerClaimDialogState.Sending(progress)
         s.ledgerClaim { event ->
-            scope.launch { onEvent(s, event) }
+            scope.launch { onEvent(s, floorRao, event) }
         }
     }
 
-    private suspend fun onEvent(s: EarningsProtocolSource, event: SnLedgerClaimEvent) {
+    // [floorRao]: the transfer floor the claim started with, which its rows were listed by
+    private suspend fun onEvent(s: EarningsProtocolSource, floorRao: Long, event: SnLedgerClaimEvent) {
         val progress = claiming
         if (s !== source || progress == null) {
             return
@@ -801,7 +815,7 @@ class SnLedgerFlow(
         }
         claiming = null
         val settled = snLedgerClaimSettled(progress, claimingRead)
-        val finished = snLedgerClaimFinished(settled, s.gasKey()) { s.gasBalance().getOrNull()?.tao ?: 0.0 }
+        val finished = snLedgerClaimFinished(settled, s.gasKey(), floorRao) { s.gasBalance().getOrNull()?.tao ?: 0.0 }
         if (s === source && _dialog.value is SnLedgerClaimDialogState.Sending) {
             _dialog.value = finished
         }

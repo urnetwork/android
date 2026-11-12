@@ -88,16 +88,25 @@ class SnLedgerWiringTest {
         assertTrue(status.contains("unavailablePools = snLedgerUnavailablePoolsOf(result.unavailablePools),"))
         assertTrue(status.contains("kind = a.kind,"))
         // GET /sn/ctf/client's unclaimed wins, every one in the sdk's order, copied off the
-        // gomobile objects; an error draws no line
+        // gomobile objects; an error, or an answer that cannot be read, is a failure, which keeps
+        // the lines drawn (every app, 2026-11-12), never an empty list
         val wins = between(sdk, "override suspend fun ctfWins()", "override suspend fun accountEpochs()")
-        assertTrue(wins.contains("device.snCtfClient {"))
-        assertTrue(wins.contains("snCtfWinsOf(result?.takeIf { it.error == null }?.unclaimedWins)"))
-        assertTrue(wins.contains("runCatching {"))
-        assertTrue(wins.contains("}.getOrDefault(emptyList())"))
+        assertTrue(wins.contains("override suspend fun ctfWins(): Result<List<SnCtfWinState>> ="))
+        assertTrue(wins.contains("device.snCtfClient { result, err ->"))
+        assertTrue(wins.contains("val wins: Result<List<SnCtfWinState>> = runCatching {"))
+        assertTrue(wins.contains("err != null -> throw err"))
+        assertTrue(wins.contains("result == null -> throw IllegalStateException("))
+        assertTrue(wins.contains("result.error != null -> throw result.error.toException()!!"))
+        assertTrue(wins.contains("else -> snCtfWinsOf(result.unclaimedWins)"))
+        assertFalse(wins.contains("getOrDefault"))
         val each = between(sdk, "private fun snCtfWinsOf(", "override val available")
+        assertTrue(each.contains("if (list == null) {\n                throw IllegalStateException("))
         assertTrue(each.contains("return (0 until list.len()).map { i ->"))
         assertTrue(each.contains("role = w.role,"))
         assertTrue(each.contains("country = w.country,"))
+        // the flow takes an answer's lines and keeps them through a failure (SnLedgerClaimTest)
+        val read = between(source("SnLedger.kt"), "suspend fun refreshWins() {", "\n    }")
+        assertTrue(read.contains("wins.onSuccess { _wins.value = it }"))
         // the latest win alone is no longer the line
         assertFalse(sdk.contains("latestWin"))
         // read with each refresh of Earnings, on its own: the route's answer, or its 60 s
@@ -194,6 +203,26 @@ class SnLedgerWiringTest {
         assertTrue(tile.contains("if (relay == null || snClaimRelayTotalKnown(relay)) {"))
         // a progress row shows an amount only when it has one
         assertTrue(between(tile, "private fun LedgerProgressContent(", "@Preview").contains("if (p.amountKnown) {"))
+    }
+
+    @Test
+    fun `the v2 claim lives as long as the activity, not the screen`() {
+        // the ledger flow, which holds the claim in flight, its rows and its Done, is the earnings
+        // view model's, and every flavor's activity holds that view model: leaving Earnings and
+        // coming back keeps the claim (SnLedgerClaimTest: a screen left during a claim)
+        for (flavor in listOf("google", "ungoogle", "solana_dapp", "ethos_dapp")) {
+            val activity = File("src/$flavor/java/com/bringyour/network/MainActivity.kt").readText()
+            assertTrue(flavor, activity.contains("private val earningsViewModel: EarningsViewModel by viewModels()"))
+        }
+        val model = source("EarningsViewModel.kt")
+        assertTrue(between(model, "val ledgerFlow = SnLedgerFlow(", "\n    )").contains("scope = viewModelScope,"))
+        // a visit reads again; only another device or a sign-out (setupDevice) resets the flow
+        assertFalse(between(model, "fun onScreenResumed() {", "\n    }").contains("ledgerFlow"))
+        assertEquals(1, Regex("ledgerFlow\\.reset\\(").findAll(model).count())
+        assertTrue(between(model, "private fun setupDevice(", "private fun createProtocolSource(").contains("ledgerFlow.reset(source)"))
+        // the claim's events are kept by the device that claimed, never by a refresh
+        val ledger = source("SnLedger.kt")
+        assertTrue(between(ledger, "private suspend fun onEvent(", "\n    }\n}").contains("if (s !== source || progress == null) {"))
     }
 
     @Test

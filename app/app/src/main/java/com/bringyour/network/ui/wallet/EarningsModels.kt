@@ -196,10 +196,11 @@ interface EarningsProtocolSource {
 
     /**
      * the capture the flag slots won and not claimed yet (SnCtfClient's
-     * UnclaimedWins), newest first; empty without one, and when the read
-     * failed, which draws no line rather than saying there was no win
+     * UnclaimedWins), newest first; empty without one. A read that failed or
+     * could not be read is a failure, never "no win": the lines the last read
+     * that answered drew stay
      */
-    suspend fun ctfWins(): List<SnCtfWinState> = emptyList()
+    suspend fun ctfWins(): Result<List<SnCtfWinState>> = Result.success(emptyList())
 
     suspend fun accountEpochs(): Result<List<AccountEpoch>>
 
@@ -486,14 +487,16 @@ class SampleProtocolSource(
 
     // the two slots capture the flag's account holds, newest first: a provider
     // slot in Iceland's latest draw and an extender slot in Kenya's before it
-    override suspend fun ctfWins(): List<SnCtfWinState> {
+    override suspend fun ctfWins(): Result<List<SnCtfWinState>> {
         delay(300)
         if (ledgerAccounts.value.none { it.kind == Sdk.SnLedgerPoolKindCtf && 0 < it.claimableRao }) {
-            return emptyList()
+            return Result.success(emptyList())
         }
-        return listOf(
-            SnCtfWinState(Sdk.SnCtfRoleProvider, "is"),
-            SnCtfWinState(Sdk.SnCtfRoleExtender, "ke"),
+        return Result.success(
+            listOf(
+                SnCtfWinState(Sdk.SnCtfRoleProvider, "is"),
+                SnCtfWinState(Sdk.SnCtfRoleExtender, "ke"),
+            )
         )
     }
 
