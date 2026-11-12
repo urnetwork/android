@@ -1429,14 +1429,22 @@ class SnLedgerClaimTest {
                 runBlocking { snLedgerClaimFinished(listOf(first, short), gasKey, floor) { error("no gas read") } }
             )
         }
-        // an account the claim paid, even one listed under the floor, is gas the key paid for:
-        // the rows, with the one it could not pay for still claimable
-        val paid = pending(ctf).copy(status = SnLedgerClaimStatus.CONFIRMED, txHash = txHash1)
+        // an account listed under the floor that came to anything but short of gas is the
+        // claim's to show beside the one it could not pay for: paid (by this claim, or already
+        // by another, as the relay's Claim now), or failed in the sdk's preflight
         val stillShort = pending(pool1).copy(status = SnLedgerClaimStatus.STILL_CLAIMABLE, message = message)
-        assertEquals(
-            SnLedgerClaimDialogState.Finished(listOf(stillShort, paid), ctf.claimableRao),
-            runBlocking { snLedgerClaimFinished(listOf(stillShort, paid), gasKey, floor) { error("no gas read") } }
-        )
+        for (other in listOf(
+            pending(ctf).copy(status = SnLedgerClaimStatus.CONFIRMED, txHash = txHash1),
+            pending(ctf).copy(status = SnLedgerClaimStatus.ALREADY_CLAIMED, message = "already_claimed: NothingToClaim: x"),
+            pending(ctf).copy(status = SnLedgerClaimStatus.FAILED, message = "chain_rpc_error: x"),
+        )) {
+            val confirmedRao = if (other.status == SnLedgerClaimStatus.CONFIRMED) ctf.claimableRao else 0
+            assertEquals(
+                other.status.name,
+                SnLedgerClaimDialogState.Finished(listOf(stillShort, other), confirmedRao),
+                runBlocking { snLedgerClaimFinished(listOf(stillShort, other), gasKey, floor) { error("no gas read") } }
+            )
+        }
     }
 
     @Test

@@ -559,16 +559,18 @@ fun snLedgerClaimNeedsGas(message: String?): Boolean =
 
 /**
  * The dialog after Done: the gas top-up when the gas key could pay for none
- * of the accounts the claim could take, and paid for none at all, with its
- * balance read again by [gasTao]; else the rows with the confirmed total,
- * where an account the gas key could not pay for beside the others reads
- * still claimable. A row the SDK never reported on was not sent. An account
- * the claim could not take leaves the top-up, its total and its decision to
- * the others: one in a pool that could not be read, one the runtime refused
- * under its floor, and one whose amount is under [transferFloorRao], the
- * floor the claim started with (0 for none), as the dialog listed it, even
- * when the SDK tried it, as the claim's amount left it out. With none left to
- * take, the rows say what each is, and there is no top-up for nothing.
+ * of the accounts the claim could take, with its balance read again by
+ * [gasTao]; else the rows with the confirmed total, where an account the gas
+ * key could not pay for beside the others reads still claimable. A row the
+ * SDK never reported on was not sent. An account the claim could not take
+ * leaves the top-up, its total and its decision to the others: one in a pool
+ * that could not be read, one the runtime refused under its floor, and one
+ * the gas key fell short for whose amount is under [transferFloorRao], the
+ * floor the claim started with (0 for none), as the dialog listed it and as
+ * the claim's amount left it out. With none left to take, the rows say what
+ * each is, and there is no top-up for nothing. An account under the floor
+ * that came to anything else (claimed, claimed already, failed) is still the
+ * claim's to show: its row, beside the others'.
  */
 suspend fun snLedgerClaimFinished(
     progress: List<SnLedgerClaimProgress>,
@@ -582,11 +584,9 @@ suspend fun snLedgerClaimFinished(
     // a row still claimable carries the claimable it started with
     val taken = settled.filter {
         it.status != SnLedgerClaimStatus.UNDER_FLOOR && it.status != SnLedgerClaimStatus.POOL_UNAVAILABLE &&
-            !snLedgerUnderFloor(it.amountRao, transferFloorRao)
+            !(it.status == SnLedgerClaimStatus.STILL_CLAIMABLE && snLedgerUnderFloor(it.amountRao, transferFloorRao))
     }
-    // an account the claim paid, under the floor or not, is gas the key paid for
-    val allNeedGas = taken.isNotEmpty() && taken.all { it.status == SnLedgerClaimStatus.STILL_CLAIMABLE } &&
-        settled.none { it.status == SnLedgerClaimStatus.CONFIRMED }
+    val allNeedGas = taken.isNotEmpty() && taken.all { it.status == SnLedgerClaimStatus.STILL_CLAIMABLE }
     if (allNeedGas) {
         return SnLedgerClaimDialogState.NeedsGas(gasKey, gasTao(), taken.sumOf { it.amountRao })
     }
