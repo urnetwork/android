@@ -157,6 +157,7 @@ fun EarningsScreen(
     val ledgerLoad by earningsViewModel.ledgerFlow.load.collectAsState()
     val ledgerClaimConfigured by earningsViewModel.ledgerFlow.claimConfigured.collectAsState()
     val ledgerClaimDialog by earningsViewModel.ledgerFlow.dialog.collectAsState()
+    val ledgerClaimInFlight by earningsViewModel.ledgerFlow.claimInFlight.collectAsState()
     val consentState by earningsViewModel.consentFlow.state.collectAsState()
     val consentStage by earningsViewModel.consentFlow.proofFlow.stage.collectAsState()
 
@@ -307,7 +308,9 @@ fun EarningsScreen(
         onSetColdkey = { earningsViewModel.connectWithBridge() },
         // the device wallet's v2 ledger, or what the claim relay says is claimable
         // for a network with no wallet on this device
-        ledgerTile = snLedgerTileWithRelay(wallet != null, snLedgerTile(ledgerLoad, ledgerClaimConfigured), claimStatus),
+        // while the session's v2 claim is in flight, Claim opens it whatever the read says
+        ledgerTile = snLedgerTileWithRelay(wallet != null, snLedgerTile(ledgerLoad, ledgerClaimConfigured), claimStatus)
+            ?.withClaimInFlight(ledgerClaimInFlight),
         onOpenLedgerClaim = { earningsViewModel.ledgerFlow.open() },
         claimStatus = claimStatus,
         onOpenRelayClaim = { earningsViewModel.openRelayClaimDialog() },

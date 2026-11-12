@@ -1632,6 +1632,8 @@ class SnLedgerClaimTest {
             pending(ctf).copy(status = SnLedgerClaimStatus.SENT, txHash = txHash1),
         )
         val moving = pool1.claimableRao + ctf.claimableRao
+        // the tile's Claim opens it whatever the new read says (here, still something to claim)
+        assertTrue(second.claimInFlight.value)
         second.open()
         assertEquals(SnLedgerClaimDialogState.Sending(inFlight, moving), second.dialog.value)
         second.claim()
@@ -1660,6 +1662,7 @@ class SnLedgerClaimTest {
         )
         assertEquals(readsBefore + 1, next.reads)
         assertEquals(SnLedgerLoad.Loaded(next.accounts.getOrThrow()), second.load.value)
+        assertFalse(second.claimInFlight.value)
         assertEquals(2, next.winReads)
         assertEquals(listOf(30_000L), clock.waits)
         clock.next()
@@ -1724,6 +1727,7 @@ class SnLedgerClaimTest {
         val second = SnLedgerFlow(CoroutineScope(Dispatchers.Unconfined), { true }, { 0 }, claims)
         second.reset(NoProtocolSource, null)
         assertNull(claims.inFlight(device))
+        assertFalse(second.claimInFlight.value)
         val next = sourceWith(pool2)
         val other = Any()
         second.reset(next, other)
@@ -1892,5 +1896,37 @@ class SnLedgerClaimTest {
         assertEquals(rows, claimProgressAfter(rows, ClaimEvent.Done))
         val sent = row.copy(status = ClaimProgressStatus.SENT, txHash = txHash1)
         assertEquals(listOf(sent, other.copy(status = ClaimProgressStatus.FAILED)), claimProgressSettled(listOf(sent, other)))
+    }
+
+    @Test
+    fun `the tile's Claim opens a claim in flight whatever the read says`() {
+        // the read during the claim finds nothing left to claim: Claim still opens the claim's
+        // progress, as on Linux, Apple and Windows, and starts no other
+        val source = sourceWith(pool1, ctf)
+        val flow = flowFor(source)
+        assertFalse(flow.claimInFlight.value)
+        flow.open()
+        flow.claim()
+        assertTrue(flow.claimInFlight.value)
+        source.onEvent(SnLedgerClaimEvent.Sent(1, 42, txHash1))
+        source.accounts = Result.success(listOf(pool1.copy(claimableRao = 0, paidRao = 5_120_000_000), ctf.copy(claimableRao = 0, paidRao = ctf.finalizedRao)))
+        runBlocking { flow.refresh() }
+        val read = snLedgerTile(flow.load.value, claimConfigured = true)!!
+        assertFalse(read.claimEnabled)
+        assertTrue(read.withClaimInFlight(flow.claimInFlight.value).claimEnabled)
+        flow.close()
+        flow.open()
+        assertTrue(flow.dialog.value is SnLedgerClaimDialogState.Sending)
+        // at its Done Claim follows the read again
+        source.onEvent(SnLedgerClaimEvent.Done)
+        assertFalse(flow.claimInFlight.value)
+        assertFalse(read.withClaimInFlight(flow.claimInFlight.value).claimEnabled)
+        // with no Claim to offer (before vault2's address) nothing changes
+        val unconfigured = snLedgerTile(SnLedgerLoad.Loaded(listOf(pool1)), claimConfigured = false)!!
+        assertEquals(unconfigured, unconfigured.withClaimInFlight(true))
+        // a sign-out: no claim in flight
+        flow.open()
+        flow.reset(NoProtocolSource)
+        assertFalse(flow.claimInFlight.value)
     }
 }

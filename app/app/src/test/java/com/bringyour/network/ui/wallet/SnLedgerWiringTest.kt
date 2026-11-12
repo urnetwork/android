@@ -68,7 +68,9 @@ class SnLedgerWiringTest {
         }
         // the device wallet's ledger, or for a network with no wallet here what the claim relay
         // says is claimable (BTEASY, sdk SnClaimStatus)
-        assertTrue(screen.contains("ledgerTile = snLedgerTileWithRelay(wallet != null, snLedgerTile(ledgerLoad, ledgerClaimConfigured), claimStatus),"))
+        assertTrue(screen.contains("ledgerTile = snLedgerTileWithRelay(wallet != null, snLedgerTile(ledgerLoad, ledgerClaimConfigured), claimStatus)\n            ?.withClaimInFlight(ledgerClaimInFlight),"))
+        // while the session's v2 claim is in flight, Claim opens it whatever the read says
+        assertTrue(screen.contains("val ledgerClaimInFlight by earningsViewModel.ledgerFlow.claimInFlight.collectAsState()"))
         assertTrue(screen.contains("onOpenLedgerClaim = { earningsViewModel.ledgerFlow.open() },"))
         val dialog = between(screen, "SnLedgerClaimDialog(", "BittensorProofSheets(")
         assertTrue(dialog.contains("onClaim = { earningsViewModel.ledgerFlow.claim() },"))

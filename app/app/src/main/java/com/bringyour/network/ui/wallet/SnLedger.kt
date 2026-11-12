@@ -263,6 +263,16 @@ fun SnLedgerTile.withTransferFloor(transferFloorRao: Long): SnLedgerTile {
 }
 
 /**
+ * The tile while the session's v2 claim is in flight: Claim opens the claim's
+ * progress (SnLedgerFlow.open) whatever the last read says, as on every app
+ * (2026-11-12), since a read during the claim may find nothing left to claim.
+ * Without Claim (before vault2's address, or the relay speaking in its place)
+ * nothing changes.
+ */
+fun SnLedgerTile.withClaimInFlight(inFlight: Boolean): SnLedgerTile =
+    if (inFlight && showClaim) copy(claimEnabled = true) else this
+
+/**
  * A capture the flag slot won and not claimed yet (sdk SnCtfWin, one of
  * SnCtfClientResult.UnclaimedWins from GET /sn/ctf/client): its role, sdk
  * SnCtfRole*, and its country, a lowercase ISO 3166-1 code. The tile draws a
@@ -992,14 +1002,21 @@ class SnLedgerFlow(
     private val _dialog = MutableStateFlow<SnLedgerClaimDialogState?>(null)
     val dialog: StateFlow<SnLedgerClaimDialogState?> = _dialog.asStateFlow()
 
+    // the session's v2 claim is in flight: the tile's Claim opens it
+    // (SnLedgerTile.withClaimInFlight)
+    private val _claimInFlight = MutableStateFlow(false)
+    val claimInFlight: StateFlow<Boolean> = _claimInFlight.asStateFlow()
+
     private val listener = object : SnClaimHolder.Listener {
         override fun claimMoved(rows: List<SnLedgerClaimProgress>, movingRao: Long) {
+            _claimInFlight.value = true
             if (_dialog.value is SnLedgerClaimDialogState.Sending) {
                 _dialog.value = SnLedgerClaimDialogState.Sending(rows, movingRao)
             }
         }
 
         override fun claimDone(settled: List<SnLedgerClaimProgress>, transferFloorRao: Long) {
+            _claimInFlight.value = false
             scope.launch { finishClaim(settled, transferFloorRao) }
         }
 
@@ -1033,6 +1050,7 @@ class SnLedgerFlow(
         _wins.value = emptyList()
         detach?.invoke()
         detach = claims.attach(listener, session)
+        _claimInFlight.value = claims.inFlight(session) != null
     }
 
     /**
@@ -1128,6 +1146,7 @@ class SnLedgerFlow(
         val progress = snLedgerClaimStart(ready.accounts, ready.unavailablePools, floorRao)
         // the dialog shows the claim before the SDK's first event, which may come at once
         _dialog.value = SnLedgerClaimDialogState.Sending(progress, snLedgerClaimMovingRao(progress, floorRao))
+        _claimInFlight.value = true
         claims.start(owner, source, progress, floorRao)
     }
 
