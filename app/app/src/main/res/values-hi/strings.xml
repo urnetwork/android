@@ -1011,6 +1011,7 @@
     <string name="pin_app_description">इस ऐप के सभी कनेक्शन एक ही प्रदाता पर रखता है, ताकि इसका API और इमेज एक ही IP पता साझा करें। उन ऐप्स के लिए उपयोग करें जिनकी सामग्री VPN के ज़रिए लोड नहीं होती</string>
     <string name="pinned">पिन किया गया</string>
     <string name="plan">योजना</string>
+    <string name="plan_account_name">खाता: %1$s</string>
     <string name="plan_billed_monthly_cancel_anytime">मासिक बिल · कभी भी रद्द करें</string>
     <string name="plan_billed_yearly_price_for_country">साल में एक बार बिल · %1$s के लिए कीमत</string>
     <string name="plan_monthly_equivalent_line">≈ %1$s/माह · साल में एक बार बिल</string>

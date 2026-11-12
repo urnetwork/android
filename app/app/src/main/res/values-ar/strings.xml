@@ -1011,6 +1011,7 @@
     <string name="pin_app_description">يُبقي جميع اتصالات هذا التطبيق على مزود واحد، بحيث تشترك واجهة API والصور في عنوان IP واحد. استخدمه للتطبيقات التي يفشل تحميل محتواها عبر VPN</string>
     <string name="pinned">مثبّت</string>
     <string name="plan">خطة</string>
+    <string name="plan_account_name">الحساب: %1$s</string>
     <string name="plan_billed_monthly_cancel_anytime">يُدفع شهريًا · يمكنك الإلغاء في أي وقت</string>
     <string name="plan_billed_yearly_price_for_country">يُدفع مرة واحدة سنويًا · السعر لـ %1$s</string>
     <string name="plan_monthly_equivalent_line">≈ %1$s/شهر · يُدفع مرة واحدة سنويًا</string>

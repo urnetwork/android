@@ -1011,6 +1011,7 @@
     <string name="pin_app_description">เก็บการเชื่อมต่อทั้งหมดของแอปนี้ไว้กับผู้ให้บริการรายเดียว เพื่อให้ API และรูปภาพใช้ที่อยู่ IP เดียวกัน ใช้กับแอปที่เนื้อหาโหลดไม่ขึ้นเมื่อผ่าน VPN</string>
     <string name="pinned">ปักหมุดแล้ว</string>
     <string name="plan">แพ็กเกจ</string>
+    <string name="plan_account_name">บัญชี: %1$s</string>
     <string name="plan_billed_monthly_cancel_anytime">เรียกเก็บรายเดือน · ยกเลิกได้ทุกเมื่อ</string>
     <string name="plan_billed_yearly_price_for_country">เรียกเก็บปีละครั้ง · ราคาสำหรับ %1$s</string>
     <string name="plan_monthly_equivalent_line">≈ %1$s/เดือน · เรียกเก็บปีละครั้ง</string>

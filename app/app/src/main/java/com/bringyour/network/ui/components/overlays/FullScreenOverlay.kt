@@ -28,6 +28,8 @@ fun FullScreenOverlay(
     // server-confirmed subscription (`currentSubscription != null`). Gates the
     // Upgrade overlay's copy: processing-shaped until the server confirms.
     planUpgradeConfirmed: Boolean = false,
+    // the account the Upgrade overlay's plan is on (Sdk.planAccountName); empty shows none
+    planAccountName: String = "",
     // how many referrals the ReferralCelebration overlay is celebrating
     referralCelebrationJoined: Long = 1L,
     onReferralCelebrationDismissed: () -> Unit = {},
@@ -102,7 +104,8 @@ fun FullScreenOverlay(
             confirmed = planUpgradeConfirmed,
             onDismiss = {
                 overlayViewModel.launch(null)
-            }
+            },
+            planAccountName = planAccountName,
         )
     }
 

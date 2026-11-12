@@ -1011,6 +1011,7 @@
     <string name="pin_app_description">이 앱의 모든 연결을 하나의 제공업체로 유지하여 API와 이미지가 같은 IP 주소를 사용하도록 합니다. VPN을 통해 콘텐츠가 로드되지 않는 앱에 사용하세요</string>
     <string name="pinned">고정됨</string>
     <string name="plan">플랜</string>
+    <string name="plan_account_name">계정: %1$s</string>
     <string name="plan_billed_monthly_cancel_anytime">매월 청구 · 언제든 취소 가능</string>
     <string name="plan_billed_yearly_price_for_country">연 1회 청구 · %1$s 가격</string>
     <string name="plan_monthly_equivalent_line">≈ %1$s/월 · 연 1회 청구</string>

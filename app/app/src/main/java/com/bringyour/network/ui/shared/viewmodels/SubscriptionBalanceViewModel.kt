@@ -393,6 +393,16 @@ class SubscriptionBalanceViewModel @Inject constructor(
     }.stateIn(viewModelScope, SharingStarted.Eagerly, false)
 
     /**
+     * The account name shown with the plan (PlanAccountNameLine, support inbox
+     * 6546): the sdk's rule (Sdk.planAccountName) over the signed-in network's
+     * name in the jwt and `isGuestNetwork`. Empty for a guest, whose name nobody
+     * signs in with, and before a jwt is read.
+     */
+    val planAccountName: StateFlow<String> = combine(jwtManager.jwtFlow, isGuestNetwork) { jwt, guest ->
+        Sdk.planAccountName(jwt?.networkName ?: "", guest)
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, "")
+
+    /**
      * The server refused a payment sheet or a Solana payment intent with
      * `guest_sign_in_required` (GuestAccount.purchaseRefusal): the network is a
      * guest the app did not know about. The refusal reads the same live auth

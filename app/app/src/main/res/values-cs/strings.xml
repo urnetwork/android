@@ -1011,6 +1011,7 @@
     <string name="pin_app_description">Udrží všechna připojení této aplikace u jednoho poskytovatele, takže její API a obrázky sdílejí jednu IP adresu. Použijte u aplikací, jejichž obsah se přes VPN nenačte</string>
     <string name="pinned">Připnuto</string>
     <string name="plan">Plán</string>
+    <string name="plan_account_name">Účet: %1$s</string>
     <string name="plan_billed_monthly_cancel_anytime">Účtováno měsíčně · zrušit lze kdykoli</string>
     <string name="plan_billed_yearly_price_for_country">Účtováno jednou ročně · cena pro %1$s</string>
     <string name="plan_monthly_equivalent_line">≈ %1$s/měsíc · účtováno jednou ročně</string>

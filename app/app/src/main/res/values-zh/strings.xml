@@ -1011,6 +1011,7 @@
     <string name="pin_app_description">将此应用的所有连接保持在同一个提供商上，使其 API 和图片共用同一个 IP 地址。适用于内容无法通过 VPN 加载的应用</string>
     <string name="pinned">已固定</string>
     <string name="plan">计划</string>
+    <string name="plan_account_name">账户：%1$s</string>
     <string name="plan_billed_monthly_cancel_anytime">按月扣费 · 可随时取消</string>
     <string name="plan_billed_yearly_price_for_country">每年扣费一次 · %1$s 价格</string>
     <string name="plan_monthly_equivalent_line">≈ %1$s/月 · 每年扣费一次</string>

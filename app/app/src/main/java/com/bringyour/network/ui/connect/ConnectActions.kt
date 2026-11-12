@@ -48,6 +48,7 @@ import androidx.navigation.NavController
 import com.bringyour.network.R
 import com.bringyour.network.ShownPlan
 import com.bringyour.network.ui.components.ShownPlanName
+import com.bringyour.network.ui.components.PlanAccountNameLine
 import com.bringyour.network.ui.Route
 import com.bringyour.network.ui.components.ButtonStyle
 import com.bringyour.network.ui.components.outOfBalanceKindText
@@ -96,6 +97,8 @@ internal fun ConnectActions(
     // answers, never Free (support inbox 4074); retryPlan reads it again
     shownPlan: ShownPlan = if (currentPlan == Plan.Supporter) ShownPlan.Pro else ShownPlan.Free,
     retryPlan: () -> Unit = {},
+    // the account the plan card's plan is on (PlanAccountNameLine); empty shows none
+    planAccountName: String = "",
     connect: () -> Unit,
     disconnect: () -> Unit,
     reconnectTunnel: () -> Unit,
@@ -331,6 +334,7 @@ internal fun ConnectActions(
             currentPlan = currentPlan,
             shownPlan = shownPlan,
             retryPlan = retryPlan,
+            planAccountName = planAccountName,
             isPollingSubscriptionBalance = isPollingSubscriptionBalance,
             usedBytes = usedBytes,
             availableBytes = availableBytes,
@@ -864,6 +868,8 @@ internal fun ConnectPlanCard(
     // server answers, never Free; retryPlan reads the balance again
     shownPlan: ShownPlan = if (currentPlan == Plan.Supporter) ShownPlan.Pro else ShownPlan.Free,
     retryPlan: () -> Unit = {},
+    // the account the plan is on, under it (PlanAccountNameLine); empty shows none
+    planAccountName: String = "",
     isPollingSubscriptionBalance: Boolean,
     usedBytes: Long,
     availableBytes: Long,
@@ -949,6 +955,9 @@ internal fun ConnectPlanCard(
 
                 }
             }
+
+            // which account the plan is on (support inbox 6546)
+            PlanAccountNameLine(name = planAccountName)
         }
 
         Spacer(modifier = Modifier.height(12.dp))

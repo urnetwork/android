@@ -1011,6 +1011,7 @@
     <string name="pin_app_description">このアプリのすべての接続を1つのプロバイダーにまとめ、APIと画像が同じIPアドレスを使うようにします。VPN経由でコンテンツが読み込めないアプリに使用してください</string>
     <string name="pinned">固定済み</string>
     <string name="plan">プラン</string>
+    <string name="plan_account_name">アカウント：%1$s</string>
     <string name="plan_billed_monthly_cancel_anytime">月ごとに請求 · いつでもキャンセル可</string>
     <string name="plan_billed_yearly_price_for_country">年1回請求 · %1$s向け価格</string>
     <string name="plan_monthly_equivalent_line">≈ %1$s/月 · 年1回請求</string>

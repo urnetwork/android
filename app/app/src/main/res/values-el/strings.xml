@@ -1011,6 +1011,7 @@
     <string name="pin_app_description">Διατηρεί όλες τις συνδέσεις αυτής της εφαρμογής σε έναν πάροχο, ώστε το API και οι εικόνες της να μοιράζονται μία διεύθυνση IP. Χρησιμοποιήστε το για εφαρμογές των οποίων το περιεχόμενο δεν φορτώνει μέσω του VPN</string>
     <string name="pinned">Καρφιτσωμένο</string>
     <string name="plan">Πρόγραμμα</string>
+    <string name="plan_account_name">Λογαριασμός: %1$s</string>
     <string name="plan_billed_monthly_cancel_anytime">Μηνιαία χρέωση · ακύρωση οποτεδήποτε</string>
     <string name="plan_billed_yearly_price_for_country">Χρέωση μία φορά τον χρόνο · τιμή για %1$s</string>
     <string name="plan_monthly_equivalent_line">≈ %1$s/μήνα · χρέωση μία φορά τον χρόνο</string>

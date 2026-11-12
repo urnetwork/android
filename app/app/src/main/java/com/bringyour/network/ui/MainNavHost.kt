@@ -307,6 +307,8 @@ private fun MainNavHostContent(
     val displayIntroFunnel by mainNavViewModel.displayIntroFunnel.collectAsState()
     val allowPromptIntroFunnel by mainNavViewModel.allowDisplayIntroFunnel.collectAsState()
     val hasActiveSubscription by subscriptionBalanceViewModel.hasActiveSubscription.collectAsState()
+    // the account the purchase overlay names (support inbox 6546)
+    val planAccountName by subscriptionBalanceViewModel.planAccountName.collectAsState()
 
     val navItemColors = NavigationSuiteDefaults.itemColors(
         navigationBarItemColors = NavigationBarItemDefaults.colors(
@@ -1053,6 +1055,7 @@ private fun MainNavHostContent(
         overlayViewModel,
         referralCode = referralCode,
         planUpgradeConfirmed = hasActiveSubscription,
+        planAccountName = planAccountName,
         referralCelebrationJoined = pendingReferralCelebration?.joined ?: 1L,
         onReferralCelebrationDismissed = {
             referralCodeViewModel.clearCelebration()
