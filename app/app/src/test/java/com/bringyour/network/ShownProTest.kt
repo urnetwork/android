@@ -17,13 +17,14 @@ import org.junit.Test
  * (SubscriptionProTracker): the claim until a balance loads, the server's
  * answer after.
  *
- * The sdk's tracker needs the native library, which these JVM tests do not
+ * The sdk's tracker needs the native library, which these jvm tests do not
  * have, so JwtManager gets a tracker with the sdk's rule (SdkRuleProTracker;
  * the rule itself is tested in the sdk, subscription_pro_tracker_test.go),
  * and the flavors are read from their source.
  */
 class ShownProTest {
 
+    /** A stale Free claim and a balance with a subscription show Pro, and keep it. */
     @Test
     fun theShownProIsTheServersOnceABalanceLoads() {
         val jwtManager = JwtManager { SdkRuleProTracker() }
@@ -45,6 +46,7 @@ class ShownProTest {
         assertTrue(jwtManager.isPro.value)
     }
 
+    /** A Pro claim shows Free once the server says so. */
     @Test
     fun aLapseShowsFreeOnceTheServerSaysSo() {
         val jwtManager = JwtManager { SdkRuleProTracker() }
@@ -54,6 +56,7 @@ class ShownProTest {
         assertFalse(jwtManager.isPro.value)
     }
 
+    /** A sign out shows Free and forgets the server's answer. */
     @Test
     fun aSignOutShowsFreeAndForgetsTheServersAnswer() {
         val jwtManager = JwtManager { SdkRuleProTracker() }
@@ -69,6 +72,7 @@ class ShownProTest {
         assertFalse(jwtManager.isPro.value)
     }
 
+    /** A read that found no stored jwt leaves the shown Pro as it was. */
     @Test
     fun noStoredJwtChangesNothing() {
         val jwtManager = JwtManager { SdkRuleProTracker() }
@@ -79,6 +83,7 @@ class ShownProTest {
         assertTrue(jwtManager.isPro.value)
     }
 
+    /** A source file of the app, from the directory the tests run in. */
     private fun source(path: String): String {
         val file = listOf("", "app/", "app/app/")
             .map { File(it + "src/$path") }
@@ -87,6 +92,7 @@ class ShownProTest {
         return file!!.readText()
     }
 
+    /** Every flavor's activity renders the decision's Pro, not the claim. */
     @Test
     fun everyFlavorShowsTheDecisionsProNotTheStoredClaim() {
         for (flavor in listOf("google", "ethos_dapp", "solana_dapp", "ungoogle")) {
@@ -97,6 +103,7 @@ class ShownProTest {
         }
     }
 
+    /** Every loaded balance goes through JwtManager, so the shown Pro follows it. */
     @Test
     fun everyLoadedBalanceReachesTheShownPro() {
         val viewModel = source("main/java/com/bringyour/network/ui/shared/viewmodels/SubscriptionBalanceViewModel.kt")

@@ -11,9 +11,16 @@ package com.bringyour.network
  * with its upgrade prompts (support inbox 4074).
  */
 enum class ShownPlan {
+    /** The server answered Pro, or before it answers, the stored jwt's claim is Pro. */
     Pro,
+
+    /** The server answered Free. */
     Free,
+
+    /** No answer yet and the claim is not Pro: the first read is on its way. */
     Loading,
+
+    /** No answer yet and the claim is not Pro: the last read failed. */
     Unreachable;
 
     /**
