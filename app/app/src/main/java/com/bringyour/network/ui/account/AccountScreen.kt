@@ -56,6 +56,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.bringyour.network.R
+import com.bringyour.network.ShownPlan
 import com.bringyour.network.ui.components.SectionLoadError
 import com.bringyour.network.ui.Route
 import com.bringyour.network.ui.components.URNavListItem
@@ -127,6 +128,8 @@ fun AccountScreen(
     val accountWinback = com.bringyour.network.ui.upgrade.rememberPlanPresentation(planViewModel, priceTier, null, winbackOffer).winback
     val availableBalanceByteCount by subscriptionBalanceViewModel.availableBalanceByteCount.collectAsState()
     val dailyBalanceBytes by subscriptionBalanceViewModel.startBalanceByteCount.collectAsState()
+    // the sdk's plan: never Free before the server answered (support inbox 4074)
+    val shownPlan by subscriptionBalanceViewModel.shownPlan.collectAsState()
 
     val refreshState = rememberPullToRefreshState()
 
@@ -175,6 +178,8 @@ fun AccountScreen(
                         accountWinback = accountWinback,
                         launchOverlay = overlayViewModel.launch,
                         onPlanLabelTap = { overlayViewModel.launchSunglassesFlight() },
+                        shownPlan = shownPlan,
+                        retryPlan = subscriptionBalanceViewModel.refreshSubscriptionBalance,
                         isProcessingUpgrade = subscriptionBalanceViewModel.isPollingSubscriptionBalance,
                         isCheckingSolanaTransaction = subscriptionBalanceViewModel.isCheckingSolanaTransaction.collectAsState().value,
                         isPollingSubscriptionBalance = subscriptionBalanceViewModel.isPolling,
@@ -242,6 +247,10 @@ fun AccountScreenContent(
     launchOverlay: (OverlayMode) -> Unit,
     // a Pro network's plan label replays the Pro celebration
     onPlanLabelTap: () -> Unit = {},
+    // the sdk's plan (support inbox 4074): Loading or Unreachable until the
+    // server answers, never Free; retryPlan reads the balance again
+    shownPlan: ShownPlan = if (currentPlan == Plan.Supporter) ShownPlan.Pro else ShownPlan.Free,
+    retryPlan: () -> Unit = {},
     isProcessingUpgrade: Boolean, // checking for Stripe, Apple, Play
     isCheckingSolanaTransaction: Boolean, // checking for potential Solana transaction
     isPollingSubscriptionBalance: Boolean,
@@ -305,6 +314,8 @@ fun AccountScreenContent(
                     loginMode = loginMode,
                     currentPlan = currentPlan,
                     onPlanLabelTap = onPlanLabelTap,
+                    shownPlan = shownPlan,
+                    retryPlan = retryPlan,
                     currentStore = currentStore,
 //                    scope = scope,
                     // never logs out: that stranded a guest's plan and balance on
@@ -318,12 +329,12 @@ fun AccountScreenContent(
 
                 planNotices()
 
-                if (currentPlan == Plan.Basic && accountOffer != null) {
+                if (shownPlan.sellsPro && accountOffer != null) {
                     AccountOfferLine(
                         offer = accountOffer,
                         openGetPro = { navController.navigate(Route.Upgrade) }
                     )
-                } else if (currentPlan == Plan.Basic && accountWinback != null) {
+                } else if (shownPlan.sellsPro && accountWinback != null) {
                     AccountWinbackLine(
                         winback = accountWinback,
                         openGetPro = { navController.navigate(Route.Upgrade) }
@@ -346,7 +357,8 @@ fun AccountScreenContent(
                             navController.navigate(Route.GuestConversion)
                         }
                     },
-                    showFreeRefresh = dataInfoShowsFreeRefresh(currentPlan),
+                    // the free plan's refresh, once the server said Free
+                    showFreeRefresh = shownPlan == ShownPlan.Free && dataInfoShowsFreeRefresh(currentPlan),
                 )
 
                 /**

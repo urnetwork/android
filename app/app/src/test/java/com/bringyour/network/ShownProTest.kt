@@ -18,47 +18,11 @@ import org.junit.Test
  * answer after.
  *
  * The sdk's tracker needs the native library, which these JVM tests do not
- * have, so JwtManager gets a tracker with the sdk's rule (the rule itself is
- * tested in the sdk, subscription_pro_tracker_test.go), and the flavors are
- * read from their source.
+ * have, so JwtManager gets a tracker with the sdk's rule (SdkRuleProTracker;
+ * the rule itself is tested in the sdk, subscription_pro_tracker_test.go),
+ * and the flavors are read from their source.
  */
 class ShownProTest {
-
-    /** The sdk tracker's rule: the claim until a balance loads, the server's answer after. */
-    private class SdkRuleProTracker : ProTracker {
-        private var claimPro = false
-        private var loaded = false
-        private var serverIsPro = false
-        private var asked = false
-
-        // test jwts are "pro-<n>" or "free-<n>"
-        override fun setJwt(byJwt: String): Boolean {
-            val before = isPro
-            claimPro = byJwt.startsWith("pro-")
-            asked = false
-            return before != isPro
-        }
-
-        override fun balanceLoaded(serverIsPro: Boolean): Boolean {
-            loaded = true
-            this.serverIsPro = serverIsPro
-            if (serverIsPro == claimPro || asked) {
-                return false
-            }
-            asked = true
-            return true
-        }
-
-        override val isPro: Boolean
-            get() = if (loaded) serverIsPro else claimPro
-
-        override fun reset() {
-            claimPro = false
-            loaded = false
-            serverIsPro = false
-            asked = false
-        }
-    }
 
     @Test
     fun theShownProIsTheServersOnceABalanceLoads() {

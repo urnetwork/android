@@ -104,6 +104,8 @@ import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.TopBarTitleTextStyle
 import com.bringyour.network.ui.theme.URNetworkTheme
 import com.bringyour.network.R
+import com.bringyour.network.ShownPlan
+import com.bringyour.network.ui.components.ShownPlanName
 import com.bringyour.network.TAG
 import com.bringyour.network.ui.Route
 import com.bringyour.network.ui.components.ButtonStyle
@@ -175,6 +177,10 @@ fun SettingsScreen(
     isPro: Boolean,
     currentStore: String? = null,
     planNotices: @Composable () -> Unit = {},
+    // the sdk's plan (support inbox 4074): Loading or Unreachable until the
+    // server answers, never Free; retryPlan reads the balance again
+    shownPlan: ShownPlan = if (isPro) ShownPlan.Pro else ShownPlan.Free,
+    retryPlan: () -> Unit = {},
     mockLocationViewModel: MockLocationViewModel = hiltViewModel(),
 ) {
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -321,6 +327,8 @@ fun SettingsScreen(
         navController,
         clientId = accountViewModel.clientId,
         currentPlan = if (isPro) Plan.Supporter else Plan.Basic,
+        shownPlan = shownPlan,
+        retryPlan = retryPlan,
         notificationsAllowed = notificationsAllowed,
         requestAllowNotifications = settingsViewModel.triggerPermissionRequest,
         notificationsPermanentlyDenied = settingsViewModel.notificationsPermanentlyDenied,
@@ -584,6 +592,8 @@ private fun SettingsScreen(
     navController: NavController,
     clientId: String,
     currentPlan: Plan,
+    shownPlan: ShownPlan = if (currentPlan == Plan.Supporter) ShownPlan.Pro else ShownPlan.Free,
+    retryPlan: () -> Unit = {},
     notificationsAllowed: Boolean,
     notificationsPermanentlyDenied: Boolean,
     requestAllowNotifications: () -> Unit,
@@ -1448,14 +1458,16 @@ private fun SettingsScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
 
-                    Text(
-                        stringResource(id = if (currentPlan == Plan.Basic) R.string.free else R.string.supporter),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = Color.White
+                    // before the server answers, a spinner or the read's retry,
+                    // never Free (support inbox 4074)
+                    ShownPlanName(
+                        shownPlan = shownPlan,
+                        retryPlan = retryPlan,
+                        style = MaterialTheme.typography.bodyMedium.copy(color = Color.White),
                     )
 
 
-                    if (currentPlan == Plan.Basic) {
+                    if (shownPlan.sellsPro) {
                         InfoIconWithOverlay() {
                             Column() {
 
@@ -1495,7 +1507,7 @@ private fun SettingsScreen(
                     }
                 }
 
-                if (currentPlan == Plan.Basic) {
+                if (shownPlan.sellsPro) {
                     Text(
                         stringResource(id = R.string.change),
                         style = TextStyle(
@@ -1521,7 +1533,7 @@ private fun SettingsScreen(
 
             // the free plan's info icon makes its row 48 dp tall, 14 dp of it
             // below the text
-            Spacer(modifier = Modifier.height(if (currentPlan == Plan.Basic) 18.dp else 32.dp))
+            Spacer(modifier = Modifier.height(if (shownPlan.sellsPro) 18.dp else 32.dp))
 
             /**
             * Version
