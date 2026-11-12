@@ -195,11 +195,11 @@ interface EarningsProtocolSource {
         SnClaimNowOutcome.Failed(EarningsUnavailableException().message ?: "")
 
     /**
-     * the capture the flag slot this device won last (SnCtfClient's
-     * LatestWin); null without one, and when the read failed, which draws
-     * no line rather than saying there was no win
+     * the capture the flag slots won and not claimed yet (SnCtfClient's
+     * UnclaimedWins), newest first; empty without one, and when the read
+     * failed, which draws no line rather than saying there was no win
      */
-    suspend fun ctfWin(): SnCtfWinState? = null
+    suspend fun ctfWins(): List<SnCtfWinState> = emptyList()
 
     suspend fun accountEpochs(): Result<List<AccountEpoch>>
 
@@ -484,10 +484,17 @@ class SampleProtocolSource(
         }
     }
 
-    // a provider slot in Iceland's latest draw
-    override suspend fun ctfWin(): SnCtfWinState? {
+    // the two slots capture the flag's account holds, newest first: a provider
+    // slot in Iceland's latest draw and an extender slot in Kenya's before it
+    override suspend fun ctfWins(): List<SnCtfWinState> {
         delay(300)
-        return SnCtfWinState(Sdk.SnCtfRoleProvider, "is")
+        if (ledgerAccounts.value.none { it.kind == Sdk.SnLedgerPoolKindCtf && 0 < it.claimableRao }) {
+            return emptyList()
+        }
+        return listOf(
+            SnCtfWinState(Sdk.SnCtfRoleProvider, "is"),
+            SnCtfWinState(Sdk.SnCtfRoleExtender, "ke"),
+        )
     }
 
     // the payout consent: none until the manual sheet's answer is submitted, then

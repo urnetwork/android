@@ -56,9 +56,9 @@ import com.bringyour.sdk.Sdk
  * why a balance waits, or what URnetwork's claim paid and where, take the
  * Claim's place, and for a network with no wallet on this device the tile
  * shows what the relay says is claimable, with the pools that make it up
- * once there is more than one. A capture the flag slot this device won
- * (`ctfWin`) is a line of its own. The first claim tile on Earnings carries
- * the claim card's disclaimer.
+ * once there is more than one. Each capture the flag slot won and not
+ * claimed yet (`ctfWins`, newest first) is a line of its own. The first claim
+ * tile on Earnings carries the claim card's disclaimer.
  */
 @Composable
 fun SnLedgerTileBlock(
@@ -74,8 +74,8 @@ fun SnLedgerTileBlock(
     onSelfClaim: () -> Unit = {},
     // a BittensorFundsDisclaimer*
     fundsDisclaimer: String = Sdk.BittensorFundsDisclaimerNone,
-    // the capture the flag slot this device won last
-    ctfWin: SnCtfWinState? = null,
+    // the capture the flag slots won and not claimed yet, newest first
+    ctfWins: List<SnCtfWinState> = emptyList(),
 ) {
     Column(
         modifier = Modifier
@@ -115,6 +115,10 @@ fun SnLedgerTileBlock(
                             color = Color.White
                         )
                     )
+                    // a total that is one account's under the floor says so, as its row would
+                    if (relay != null && snClaimRelayTileTotalUnderFloor(relay)) {
+                        SnClaimRelayPill(stringResource(id = R.string.sn_ledger_pool_under_floor))
+                    }
                 }
                 relay?.let {
                     SnClaimRelayTilePools(status = it, formatAlpha = formatAlpha, shortSs58 = shortSs58)
@@ -179,23 +183,28 @@ fun SnLedgerTileBlock(
             }
         }
 
-        ctfWin?.let { win ->
-            snCtfWonRes(win)?.let { res ->
-                Spacer(modifier = Modifier.height(12.dp))
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        Icons.Filled.Flag,
-                        contentDescription = null,
-                        tint = Green,
-                        modifier = Modifier.size(16.dp),
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    // the country's own name in the reader's language, bare, as the store's wording expects
-                    Text(
-                        stringResource(id = res, localizedCountryName(win.country)),
-                        style = MaterialTheme.typography.bodyMedium,
-                    )
-                }
+        // a line for each slot won and not claimed yet, newest first
+        val wonLines = snCtfWonLines(ctfWins)
+        if (wonLines.isNotEmpty()) {
+            Spacer(modifier = Modifier.height(12.dp))
+        }
+        wonLines.forEachIndexed { i, (res, country) ->
+            if (0 < i) {
+                Spacer(modifier = Modifier.height(4.dp))
+            }
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    Icons.Filled.Flag,
+                    contentDescription = null,
+                    tint = Green,
+                    modifier = Modifier.size(16.dp),
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                // the country's own name in the reader's language, bare, as the store's wording expects
+                Text(
+                    stringResource(id = res, localizedCountryName(country)),
+                    style = MaterialTheme.typography.bodyMedium,
+                )
             }
         }
 
@@ -271,9 +280,10 @@ private fun LedgerSpinner() {
  * (Sent with its explorer link, Claimed with the vault's amount, or the
  * failure) until Done. Each row is named as the tile names its pool; the
  * pools the ledger could not read are listed as unavailable, and an account
- * the claim could not take, under the transfer floor or in a pool that could
- * not be read, says so rather than Failed. One claim takes the pool's account
- * and capture the flag's together: Claim both.
+ * the claim did not move, under the transfer floor, in a pool that could not
+ * be read, or one the gas key could not pay for beside the largest, says so
+ * rather than Failed. Claim is offered only for what can move, and one claim
+ * takes the pool's account and capture the flag's together: Claim both.
  */
 @Composable
 fun SnLedgerClaimDialog(
@@ -286,8 +296,6 @@ fun SnLedgerClaimDialog(
     explorerTxUrl: (String) -> String,
     // every pool of the latest read (snLedgerPools), which names the rows as the tile does
     pools: List<SnLedgerPool> = emptyList(),
-    // the claim relay's transfer floor in rao of α, 0 without one: an account under it waits
-    transferFloorRao: Long = 0,
 ) {
     URDialog(
         visible = state != null,
@@ -312,7 +320,6 @@ fun SnLedgerClaimDialog(
                 is SnLedgerClaimDialogState.Ready -> LedgerReadyContent(
                     state = state,
                     pools = pools,
-                    transferFloorRao = transferFloorRao,
                     onDismiss = onDismiss,
                     onClaim = onClaim,
                     formatAlpha = formatAlpha,
@@ -363,19 +370,18 @@ fun SnLedgerClaimDialog(
 private fun LedgerReadyContent(
     state: SnLedgerClaimDialogState.Ready,
     pools: List<SnLedgerPool>,
-    transferFloorRao: Long,
     onDismiss: () -> Unit,
     onClaim: () -> Unit,
     formatAlpha: (Long) -> String,
     shortSs58: (String) -> String,
 ) {
     val inView = (pools + state.accounts.map { it.pool } + state.unavailablePools).distinct()
-    // the accounts above the transfer floor, while capture the flag is in view; an estimate
-    // that names a status and Claim both, and never stops the claim, whose preflight decides
-    val above = snLedgerClaimTakes(state.accounts, snLedgerTransferFloor(inView, transferFloorRao))
+    // the accounts the claim moves: one under the transfer floor asks for no claim
+    val takes = state.takes
     Column(modifier = Modifier.fillMaxWidth()) {
-        // with nothing read to claim and a pool unread there is no total, only its row
-        if (state.accounts.isNotEmpty() || state.unavailablePools.isEmpty()) {
+        // the total the claim moves; with nothing that can move, the rows say why (under
+        // the floor, or a pool unread) rather than a zero, and nothing at all is 0, as before
+        if (takes.isNotEmpty() || (state.accounts.isEmpty() && state.unavailablePools.isEmpty())) {
             Text(
                 formatAlpha(state.totalRao),
                 style = TextStyle(
@@ -387,9 +393,11 @@ private fun LedgerReadyContent(
             )
         }
 
-        if (state.accounts.isEmpty()) {
-            if (state.unavailablePools.isNotEmpty()) {
+        // no claim the runtime would refuse: without an account that can move, only Close
+        if (takes.isEmpty()) {
+            if (state.accounts.isNotEmpty() || state.unavailablePools.isNotEmpty()) {
                 Spacer(modifier = Modifier.height(12.dp))
+                LedgerAccountRows(state.accounts, takes, inView, formatAlpha)
                 LedgerUnavailableRows(state.unavailablePools, inView)
             }
             Spacer(modifier = Modifier.height(16.dp))
@@ -399,7 +407,7 @@ private fun LedgerReadyContent(
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        LedgerAccountRows(state.accounts, above, inView, formatAlpha)
+        LedgerAccountRows(state.accounts, takes, inView, formatAlpha)
         // the total leaves out the pools that could not be read
         LedgerUnavailableRows(state.unavailablePools, inView)
 
@@ -428,7 +436,7 @@ private fun LedgerReadyContent(
 
         DialogButtons(
             // one claim, one transaction, for the pool's account and capture the flag's
-            primary = if (snLedgerClaimsBoth(above.map { it.pool })) {
+            primary = if (snLedgerClaimsBoth(takes.map { it.pool })) {
                 stringResource(id = R.string.sn_ledger_claim_both)
             } else {
                 stringResource(id = R.string.claim_amount_button, formatAlpha(state.totalRao))
@@ -440,11 +448,11 @@ private fun LedgerReadyContent(
     }
 }
 
-/** Each account with what it holds to claim; one under the transfer floor says Below the claim minimum. */
+/** Each account with what it holds to claim; one the claim cannot move says Below the claim minimum. */
 @Composable
 private fun LedgerAccountRows(
     accounts: List<SnLedgerAccountState>,
-    above: List<SnLedgerAccountState>,
+    takes: List<SnLedgerAccountState>,
     inView: List<SnLedgerPool>,
     formatAlpha: (Long) -> String,
 ) {
@@ -453,7 +461,7 @@ private fun LedgerAccountRows(
             snLedgerPoolNameText(snLedgerPoolName(account.pool, inView)),
             formatAlpha(account.claimableRao)
         )
-        if (account !in above) {
+        if (account !in takes) {
             Text(
                 stringResource(id = R.string.sn_ledger_pool_under_floor),
                 style = MaterialTheme.typography.bodySmall,
@@ -517,15 +525,17 @@ private fun LedgerProgressContent(
                         )
                     }
                     // not a failure: what the account is, where a claim's status would be
-                    if (p.status == SnLedgerClaimStatus.UNDER_FLOOR || p.status == SnLedgerClaimStatus.POOL_UNAVAILABLE) {
+                    snLedgerClaimRowNoteRes(p.status)?.let { res ->
                         Text(
-                            stringResource(
-                                id = if (p.status == SnLedgerClaimStatus.UNDER_FLOOR) {
-                                    R.string.sn_ledger_pool_under_floor
-                                } else {
-                                    R.string.sn_ledger_pool_unavailable
-                                }
-                            ),
+                            stringResource(id = res),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = TextMuted
+                        )
+                    }
+                    // nothing was sent for it: the gas key needs topping up to claim it
+                    if (p.status == SnLedgerClaimStatus.STILL_CLAIMABLE) {
+                        Text(
+                            stringResource(id = R.string.add_tao_for_gas),
                             style = MaterialTheme.typography.bodySmall,
                             color = TextMuted
                         )
@@ -538,7 +548,9 @@ private fun LedgerProgressContent(
                     SnLedgerClaimStatus.CONFIRMED, SnLedgerClaimStatus.ALREADY_CLAIMED -> ClaimProgressStatus.CONFIRMED
                     SnLedgerClaimStatus.FAILED -> ClaimProgressStatus.FAILED
                     // said under the amount instead
-                    SnLedgerClaimStatus.UNDER_FLOOR, SnLedgerClaimStatus.POOL_UNAVAILABLE -> null
+                    SnLedgerClaimStatus.UNDER_FLOOR,
+                    SnLedgerClaimStatus.POOL_UNAVAILABLE,
+                    SnLedgerClaimStatus.STILL_CLAIMABLE -> null
                 }
                 if (status != null) {
                     ClaimStatusTrailing(
@@ -582,7 +594,7 @@ private fun SnLedgerTilePreview() {
             )!!,
             onClaim = {},
             formatAlpha = { EarningsFormat.alpha(it) },
-            ctfWin = SnCtfWinState(Sdk.SnCtfRoleProvider, "is"),
+            ctfWins = listOf(SnCtfWinState(Sdk.SnCtfRoleProvider, "is"), SnCtfWinState(Sdk.SnCtfRoleExtender, "ke")),
         )
     }
 }

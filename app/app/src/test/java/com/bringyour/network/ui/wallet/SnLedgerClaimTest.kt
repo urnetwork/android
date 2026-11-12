@@ -21,7 +21,10 @@ import org.junit.Test
  * the flag's rules (sn CAPTURETHEFLAG.md §10, the sdk's batched claim): CTF-2
  * a pool that could not be read is unavailable and the others are claimed;
  * CTF-3 one claim takes the pool's account and capture the flag's in one
- * batch transaction.
+ * batch transaction; CTF-6 an account under the transfer floor, any pool's,
+ * waits and asks for no claim; CTF-7 a gas key that can pay for one claim but
+ * not both claims the largest, and the other stays claimable (owner,
+ * 2026-11-11).
  *
  * Plain JVM: a fake protocol source in place of the SDK.
  */
@@ -73,8 +76,13 @@ class SnLedgerClaimTest {
     private fun sourceWith(vararg accounts: SnLedgerAccountState) =
         FakeSource(Result.success(accounts.toList()), key = gasKey)
 
-    private fun flowFor(source: FakeSource, hasWallet: Boolean = true): SnLedgerFlow =
-        SnLedgerFlow(CoroutineScope(Dispatchers.Unconfined)) { hasWallet }.also { it.reset(source) }
+    private fun flowFor(
+        source: FakeSource,
+        hasWallet: Boolean = true,
+        transferFloorRao: Long = 0,
+        onClaimDone: () -> Unit = {},
+    ): SnLedgerFlow =
+        SnLedgerFlow(CoroutineScope(Dispatchers.Unconfined), { hasWallet }, { transferFloorRao }, onClaimDone).also { it.reset(source) }
 
     private fun pending(account: SnLedgerAccountState) =
         SnLedgerClaimProgress(account.noId, account.index, account.claimableRao, SnLedgerClaimStatus.PENDING, null, null)
@@ -191,7 +199,7 @@ class SnLedgerClaimTest {
     fun `done with every account short of gas is the gas top-up`() = runBlocking {
         // UX-4: needs_gas goes to the existing top-up, with the gas balance read again
         val short = listOf(pending(pool1), pending(pool2)).map {
-            it.copy(status = SnLedgerClaimStatus.FAILED, message = "needs_gas: balance 0 below 0.0025 TAO")
+            it.copy(status = SnLedgerClaimStatus.STILL_CLAIMABLE, message = "needs_gas: balance 0 below 0.0025 TAO")
         }
         assertEquals(
             SnLedgerClaimDialogState.NeedsGas(gasKey, 0.0004, pool1.claimableRao + pool2.claimableRao),
@@ -607,14 +615,10 @@ class SnLedgerClaimTest {
     }
 
     @Test
-    fun `the claim decides the floor as the dialog did, from the read's pools`() {
-        // capture the flag's account paid up, so not in the claim, but in the read the dialog
-        // showed: the pool's account under the floor waits there, and so in the claim
+    fun `the runtime's refusal under its floor waits on any server`() {
+        // CTF-6: whatever pools the read showed, a lone pool's account the runtime refuses under
+        // its floor waits, as one beside capture the flag does; the relay's price was an estimate
         val message = "not_claimable: AmountTooLow: the claim is below the runtime's transfer floor"
-        assertEquals(
-            listOf(pending(pool1).copy(status = SnLedgerClaimStatus.UNDER_FLOOR, message = message)),
-            snLedgerClaimProgressAfter(listOf(pending(pool1)), SnLedgerClaimEvent.Failed(1, 42, message), listOf(pool1.pool, ctf.pool))
-        )
         val source = sourceWith(pool1, ctf.copy(claimableRao = 0, paidRao = ctf.finalizedRao))
         val flow = flowFor(source)
         flow.open()
@@ -693,19 +697,25 @@ class SnLedgerClaimTest {
     }
 
     @Test
-    fun `without capture the flag an account under the floor fails as before`() {
-        // CTF-4: sdk main already sends not_claimable AmountTooLow; a server without capture the
-        // flag shows it Failed with the sdk's detail, as before
+    fun `without capture the flag an account under the floor waits too`() {
+        // CTF-6 (owner, 2026-11-11): sdk main already sends not_claimable AmountTooLow, and a
+        // server without capture the flag shows it Below the claim minimum, not Failed
         val message = "not_claimable: AmountTooLow: the claim is below the runtime's transfer floor"
         assertEquals(
-            listOf(pending(pool1).copy(status = SnLedgerClaimStatus.FAILED, message = message), pending(pool2)),
+            listOf(pending(pool1).copy(status = SnLedgerClaimStatus.UNDER_FLOOR, message = message), pending(pool2)),
             snLedgerClaimProgressAfter(listOf(pending(pool1), pending(pool2)), SnLedgerClaimEvent.Failed(1, 42, message))
+        )
+        // any other not_claimable is still a failure
+        val other = "not_claimable: the ledger lists this account in 0x1, not in the configured vault2 0x2"
+        assertEquals(
+            listOf(pending(pool1).copy(status = SnLedgerClaimStatus.FAILED, message = other)),
+            snLedgerClaimProgressAfter(listOf(pending(pool1)), SnLedgerClaimEvent.Failed(1, 42, other))
         )
     }
 
     @Test
-    fun `Claim both counts what clears the relay's transfer floor`() {
-        // the floor is an estimate: it names Claim both and a status, never what the claim sends
+    fun `Claim and Claim both count what clears the relay's transfer floor`() {
+        // CTF-6: an account under the floor is no claim's to take
         assertEquals(listOf(pool1, ctf), snLedgerClaimTakes(listOf(pool1, ctf), 0))
         assertTrue(snLedgerClaimsBoth(snLedgerClaimTakes(listOf(pool1, ctf), 0).map { it.pool }))
         assertEquals(listOf(pool1, ctf), snLedgerClaimTakes(listOf(pool1, ctf), ctf.claimableRao))
@@ -717,14 +727,93 @@ class SnLedgerClaimTest {
         assertEquals(emptyList<SnLedgerAccountState>(), snLedgerClaimTakes(listOf(ctf), ctf.claimableRao + 1))
         // nothing to claim is never counted
         assertEquals(emptyList<SnLedgerAccountState>(), snLedgerClaimTakes(listOf(paidUp), 0))
-        // the dialog applies the floor only while capture the flag is in view
-        assertEquals(0L, snLedgerTransferFloor(listOf(pool1.pool, pool2.pool), ctf.claimableRao + 1))
-        assertEquals(ctf.claimableRao + 1, snLedgerTransferFloor(listOf(pool1.pool, ctf.pool), ctf.claimableRao + 1))
+        // two operator pools and no capture the flag: the floor applies all the same
+        assertEquals(listOf(pool1), snLedgerClaimTakes(listOf(pool1, pool2), pool2.claimableRao + 1))
+    }
+
+    @Test
+    fun `the dialog's total and gas are for what the claim moves`() {
+        // CTF-6: the account under the floor is listed, and the total leaves it out
+        val floor = ctf.claimableRao + 1
+        val ready = snLedgerClaimDialog(SnLedgerLoad.Loaded(listOf(pool1, ctf)), gasKey, 0.124, floor)
+        assertEquals(SnLedgerClaimDialogState.Ready(listOf(pool1, ctf), pool1.claimableRao, gasKey, 0.124, transferFloorRao = floor), ready)
+        assertEquals(listOf(pool1), (ready as SnLedgerClaimDialogState.Ready).takes)
+        // the gas top-up asks only for what can move
+        assertEquals(
+            SnLedgerClaimDialogState.NeedsGas(gasKey, 0.001, pool1.claimableRao),
+            snLedgerClaimDialog(SnLedgerLoad.Loaded(listOf(pool1, ctf)), gasKey, 0.001, floor)
+        )
+        // with no price, the whole claimable, as before
+        assertEquals(
+            SnLedgerClaimDialogState.Ready(listOf(pool1, ctf), pool1.claimableRao + ctf.claimableRao, gasKey, 0.124),
+            snLedgerClaimDialog(SnLedgerLoad.Loaded(listOf(pool1, ctf)), gasKey, 0.124, 0)
+        )
+    }
+
+    @Test
+    fun `with every account under the floor the dialog offers no claim and asks for no gas`() {
+        // CTF-6: no claim the runtime would refuse, alone or beside another pool
+        val small = pool1.copy(claimableRao = 48_025_660)
+        for (accounts in listOf(listOf(small), listOf(small, ctf))) {
+            val ready = snLedgerClaimDialog(SnLedgerLoad.Loaded(accounts), gasKey, 0.001, 100_000_000)
+            assertEquals(SnLedgerClaimDialogState.Ready(accounts, 0, gasKey, 0.001, transferFloorRao = 100_000_000), ready)
+            assertEquals(emptyList<SnLedgerAccountState>(), (ready as SnLedgerClaimDialogState.Ready).takes)
+        }
+        // and the flow sends nothing
+        val source = sourceWith(small, ctf)
+        val flow = flowFor(source, transferFloorRao = 100_000_000)
+        flow.open()
+        assertEquals(SnLedgerClaimDialogState.Ready(listOf(small, ctf), 0, gasKey, 0.124, transferFloorRao = 100_000_000), flow.dialog.value)
+        flow.claim()
+        assertEquals(0, source.claims)
+    }
+
+    @Test
+    fun `a claim lists the account under the floor as the dialog did`() {
+        // CTF-6: it starts Below the claim minimum, not Pending; the sdk's preflight still
+        // decides, so a price that moved lets the sdk claim it after all
+        val floor = ctf.claimableRao + 1
+        val rows = snLedgerClaimStart(listOf(pool1, ctf), transferFloorRao = floor)
+        val waiting = pending(ctf).copy(status = SnLedgerClaimStatus.UNDER_FLOOR)
+        assertEquals(listOf(pending(pool1), waiting), rows)
+        assertEquals(
+            listOf(pending(pool1), waiting.copy(status = SnLedgerClaimStatus.SENT, txHash = txHash1)),
+            snLedgerClaimProgressAfter(rows, SnLedgerClaimEvent.Sent(ctfNoId, 3, txHash1))
+        )
+        // the runtime's refusal keeps it waiting, now with the sdk's word
+        val message = "not_claimable: AmountTooLow: the claim is below the runtime's transfer floor"
+        assertEquals(
+            listOf(pending(pool1), waiting.copy(message = message)),
+            snLedgerClaimProgressAfter(rows, SnLedgerClaimEvent.Failed(ctfNoId, 3, message))
+        )
+        // its pool unreadable at the claim's read: unavailable, as a pending row would be
+        assertEquals(
+            listOf(pending(pool1), waiting.copy(status = SnLedgerClaimStatus.POOL_UNAVAILABLE, message = "ledger_unavailable: 502")),
+            snLedgerClaimProgressAfter(rows, SnLedgerClaimEvent.Failed(ctfNoId, 0, "ledger_unavailable: 502"))
+        )
+        // the flow starts its rows the same way
+        val source = sourceWith(pool1, ctf)
+        val flow = flowFor(source, transferFloorRao = floor)
+        flow.open()
+        flow.claim()
+        assertEquals(1, source.claims)
+        assertEquals(SnLedgerClaimDialogState.Sending(rows), flow.dialog.value)
+        source.onEvent(SnLedgerClaimEvent.Sent(1, 42, txHash1))
+        source.onEvent(SnLedgerClaimEvent.Confirmed(1, 42, txHash1, pool1.claimableRao))
+        source.onEvent(SnLedgerClaimEvent.Failed(ctfNoId, 3, message))
+        source.onEvent(SnLedgerClaimEvent.Done)
+        assertEquals(
+            SnLedgerClaimDialogState.Finished(
+                listOf(pending(pool1).copy(status = SnLedgerClaimStatus.CONFIRMED, txHash = txHash1), waiting.copy(message = message)),
+                pool1.claimableRao,
+            ),
+            flow.dialog.value
+        )
     }
 
     @Test
     fun `done with the accounts it could take short of gas is the top-up, whatever waits`() = runBlocking {
-        val short = pending(pool1).copy(status = SnLedgerClaimStatus.FAILED, message = "needs_gas: balance 0")
+        val short = pending(pool1).copy(status = SnLedgerClaimStatus.STILL_CLAIMABLE, message = "needs_gas: balance 0")
         val floor = pending(ctf).copy(status = SnLedgerClaimStatus.UNDER_FLOOR, message = "not_claimable: AmountTooLow: x")
         val unavailable = SnLedgerClaimProgress(2, 0, 0, SnLedgerClaimStatus.POOL_UNAVAILABLE, null, "ledger_unavailable: x")
         assertEquals(
@@ -759,5 +848,112 @@ class SnLedgerClaimTest {
         val flow = flowFor(source)
         flow.refresh()
         assertEquals(SnLedgerLoad.Loaded(listOf(pool1), listOf(SnLedgerPool(ctfNoId))), flow.load.value)
+    }
+
+    // ---- the gas key's largest-first claim
+
+    @Test
+    fun `an account the gas key cannot pay for is still claimable, not failed`() {
+        // CTF-7: the sdk says needs_gas before it sends anything, so the account keeps its balance
+        val message = "needs_gas: this claim needs up to 0.0143 TAO of gas, the gas key 0xab has 0.0040; send TAO to 5F"
+        val still = pending(ctf).copy(status = SnLedgerClaimStatus.STILL_CLAIMABLE, message = message)
+        assertEquals(listOf(still), snLedgerClaimProgressAfter(listOf(pending(ctf)), SnLedgerClaimEvent.Failed(ctfNoId, 3, message)))
+        // after a batch that did not attempt it, the claim alone it was owed was not sent either
+        val sent = pending(ctf).copy(status = SnLedgerClaimStatus.SENT, txHash = txHash1)
+        assertEquals(
+            listOf(sent.copy(status = SnLedgerClaimStatus.STILL_CLAIMABLE, message = message)),
+            snLedgerClaimProgressAfter(listOf(sent), SnLedgerClaimEvent.Failed(ctfNoId, 3, message))
+        )
+        // a needs_gas about no one account leaves every row not sent claimable too
+        assertEquals(
+            listOf(pending(pool1).copy(status = SnLedgerClaimStatus.STILL_CLAIMABLE, message = "needs_gas: x"), still),
+            snLedgerClaimProgressAfter(listOf(pending(pool1), still), SnLedgerClaimEvent.Failed(0, 0, "needs_gas: x"))
+        )
+        // it reads Claimable, with the top-up's hint under it, and no claim's status
+        assertEquals(R.string.sn_ledger_claimable, snLedgerClaimRowNoteRes(SnLedgerClaimStatus.STILL_CLAIMABLE))
+        assertEquals(R.string.sn_ledger_pool_under_floor, snLedgerClaimRowNoteRes(SnLedgerClaimStatus.UNDER_FLOOR))
+        assertEquals(R.string.sn_ledger_pool_unavailable, snLedgerClaimRowNoteRes(SnLedgerClaimStatus.POOL_UNAVAILABLE))
+        for (status in listOf(SnLedgerClaimStatus.PENDING, SnLedgerClaimStatus.SENT, SnLedgerClaimStatus.CONFIRMED,
+            SnLedgerClaimStatus.ALREADY_CLAIMED, SnLedgerClaimStatus.FAILED)) {
+            assertNull(status.name, snLedgerClaimRowNoteRes(status))
+        }
+        assertTrue(snLedgerClaimNeedsGas(message))
+        assertFalse(snLedgerClaimNeedsGas("claim_failed: needs_gas"))
+        assertFalse(snLedgerClaimNeedsGas(null))
+    }
+
+    @Test
+    fun `the largest account claimed alone leaves the other still claimable`() {
+        // CTF-7: the gas key pays for one claim but not the batch: the sdk claims the largest,
+        // the pool's account, alone, and capture the flag's waits for gas with its balance
+        val source = sourceWith(pool1, ctf)
+        val flow = flowFor(source)
+        flow.open()
+        flow.claim()
+        val message = "needs_gas: this claim needs up to 0.0143 TAO of gas, the gas key 0xab has 0.0040; send TAO to 5F"
+        source.onEvent(SnLedgerClaimEvent.Sent(1, 42, txHash1))
+        source.onEvent(SnLedgerClaimEvent.Confirmed(1, 42, txHash1, pool1.claimableRao))
+        source.onEvent(SnLedgerClaimEvent.Failed(ctfNoId, 3, message))
+        source.accounts = Result.success(listOf(pool1.copy(claimableRao = 0, paidRao = 5_120_000_000), ctf))
+        source.onEvent(SnLedgerClaimEvent.Done)
+        assertEquals(
+            SnLedgerClaimDialogState.Finished(
+                listOf(
+                    pending(pool1).copy(status = SnLedgerClaimStatus.CONFIRMED, txHash = txHash1),
+                    pending(ctf).copy(status = SnLedgerClaimStatus.STILL_CLAIMABLE, message = message),
+                ),
+                pool1.claimableRao,
+            ),
+            flow.dialog.value
+        )
+        // the tile, read again, still offers capture the flag's account
+        assertEquals(SnLedgerLoad.Loaded(source.accounts.getOrThrow()), flow.load.value)
+        assertTrue(snLedgerTile(flow.load.value, claimConfigured = true)!!.claimEnabled)
+    }
+
+    @Test
+    fun `a claim's done reads the wins again, once, for the device that claimed`() {
+        // a claim may have paid capture the flag's wins, whose lines then go (Apple, Linux and
+        // Windows read them again after a claim too)
+        var winReads = 0
+        val source = sourceWith(pool1, ctf)
+        val flow = flowFor(source, onClaimDone = { winReads += 1 })
+        flow.open()
+        flow.claim()
+        source.onEvent(SnLedgerClaimEvent.Sent(1, 42, txHash1))
+        source.onEvent(SnLedgerClaimEvent.Sent(ctfNoId, 3, txHash1))
+        source.onEvent(SnLedgerClaimEvent.Confirmed(1, 42, txHash1, pool1.claimableRao))
+        source.onEvent(SnLedgerClaimEvent.Confirmed(ctfNoId, 3, txHash1, ctf.claimableRao))
+        assertEquals(0, winReads)
+        source.onEvent(SnLedgerClaimEvent.Done)
+        assertEquals(1, winReads)
+        assertTrue(flow.dialog.value is SnLedgerClaimDialogState.Finished)
+        // a closed dialog's claim reads them too
+        flow.open()
+        flow.claim()
+        flow.close()
+        source.onEvent(SnLedgerClaimEvent.Done)
+        assertEquals(2, winReads)
+        // the last device's claim does not
+        flow.open()
+        flow.claim()
+        flow.reset(sourceWith(pool2))
+        source.onEvent(SnLedgerClaimEvent.Done)
+        assertEquals(2, winReads)
+    }
+
+    @Test
+    fun `the gas key paying for none of them is the top-up, whatever order the sdk tried`() = runBlocking {
+        // CTF-7: the largest first, then the other: both short of gas is the top-up for both
+        val rows = listOf(pending(pool1), pending(ctf))
+        val message = "needs_gas: this claim needs up to 0.0143 TAO of gas"
+        val after = snLedgerClaimProgressAfter(
+            snLedgerClaimProgressAfter(rows, SnLedgerClaimEvent.Failed(1, 42, message)),
+            SnLedgerClaimEvent.Failed(ctfNoId, 3, message),
+        )
+        assertEquals(
+            SnLedgerClaimDialogState.NeedsGas(gasKey, 0.004, pool1.claimableRao + ctf.claimableRao),
+            snLedgerClaimFinished(after, gasKey) { 0.004 }
+        )
     }
 }

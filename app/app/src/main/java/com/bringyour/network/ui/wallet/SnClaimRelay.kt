@@ -116,13 +116,6 @@ fun snClaimRelayPools(status: SnClaimStatusState): List<SnLedgerPool> =
     status.accounts.map { it.pool } + status.unavailablePools
 
 /**
- * The relay's transfer floor as its rows apply it: while a capture the flag
- * pool is in its answer (snLedgerTransferFloor), else none, as before.
- */
-fun snClaimRelayTransferFloor(status: SnClaimStatusState): Long =
-    snLedgerTransferFloor(snClaimRelayPools(status), status.transferFloorRao)
-
-/**
  * The relay's claimable is a total to show: it adds up the primary coldkey's
  * accounts, leaving out the pools that could not be read. With none of its
  * pools read there is nothing to add up, and the unavailable rows say so
@@ -140,10 +133,14 @@ enum class SnClaimRelayRowStatus {
     CLAIMED,
 }
 
-/** A row's status; transferFloorRao as snClaimRelayTransferFloor gives it, 0 for none. */
+/**
+ * A row's status; transferFloorRao is the relay's, 0 for none. Below the
+ * claim minimum holds for any pool's account, alone or beside others
+ * (snLedgerUnderFloor).
+ */
 fun snClaimRelayRowStatus(row: SnClaimRelayAccountState, transferFloorRao: Long): SnClaimRelayRowStatus = when {
     row.showsClaimed -> SnClaimRelayRowStatus.CLAIMED
-    0 < transferFloorRao && 0 < row.claimableRao && row.claimableRao < transferFloorRao -> SnClaimRelayRowStatus.UNDER_FLOOR
+    snLedgerUnderFloor(row.claimableRao, transferFloorRao) -> SnClaimRelayRowStatus.UNDER_FLOOR
     else -> SnClaimRelayRowStatus.PENDING
 }
 
@@ -157,6 +154,20 @@ fun snClaimRelayRowStatus(row: SnClaimRelayAccountState, transferFloorRao: Long)
 fun snClaimRelayTileRows(status: SnClaimStatusState): List<SnClaimRelayAccountState> {
     val rows = status.accounts.filter { it.coldkeySs58 == status.coldkeySs58 && 0 < it.claimableRao }
     return if (status.unavailablePools.isNotEmpty() || snLedgerNamesPools(rows.map { it.pool })) rows else emptyList()
+}
+
+/**
+ * The no-wallet tile's claimable is one account's, under the transfer floor,
+ * with no row under it to say so (snClaimRelayTileRows): Below the claim
+ * minimum goes under the total, as a row would say it, so a lone account
+ * says it too (owner, 2026-11-11), as Apple's, Linux's and Windows' tiles do.
+ */
+fun snClaimRelayTileTotalUnderFloor(status: SnClaimStatusState): Boolean {
+    if (status.unavailablePools.isNotEmpty() || snClaimRelayTileRows(status).isNotEmpty()) {
+        return false
+    }
+    val accounts = status.accounts.filter { it.coldkeySs58 == status.coldkeySs58 && 0 < it.claimableRao }
+    return accounts.size == 1 && snLedgerUnderFloor(accounts[0].claimableRao, status.transferFloorRao)
 }
 
 /** The answer to a Claim now tap (sdk SnClaimNowResult). */
@@ -173,9 +184,10 @@ sealed class SnClaimNowOutcome {
 
 /**
  * The Settlement v2 tile with the relay: the ledger of this device's wallet
- * as before, with the relay's transfer floor marking the accounts under it,
- * or, for a network with no wallet on this device, the balance the relay
- * claims for its consent, while the sdk says the tile shows.
+ * as before, with the relay's transfer floor marking the accounts under it
+ * and offering Claim only for what can move, or, for a network with no wallet
+ * on this device, the balance the relay claims for its consent, while the sdk
+ * says the tile shows.
  */
 fun snLedgerTileWithRelay(hasWallet: Boolean, ledgerTile: SnLedgerTile?, claimStatus: SnClaimStatusState?): SnLedgerTile? {
     if (hasWallet && ledgerTile != null) {
