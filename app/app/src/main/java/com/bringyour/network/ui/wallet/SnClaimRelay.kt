@@ -156,6 +156,20 @@ fun snClaimRelayTileRows(status: SnClaimStatusState): List<SnClaimRelayAccountSt
     return if (status.unavailablePools.isNotEmpty() || snLedgerNamesPools(rows.map { it.pool })) rows else emptyList()
 }
 
+/**
+ * The no-wallet tile's claimable is one account's, under the transfer floor,
+ * with no row under it to say so (snClaimRelayTileRows): Below the claim
+ * minimum goes under the total, as a row would say it, so a lone account
+ * says it too (owner, 2026-11-11), as Apple's, Linux's and Windows' tiles do.
+ */
+fun snClaimRelayTileTotalUnderFloor(status: SnClaimStatusState): Boolean {
+    if (status.unavailablePools.isNotEmpty() || snClaimRelayTileRows(status).isNotEmpty()) {
+        return false
+    }
+    val accounts = status.accounts.filter { it.coldkeySs58 == status.coldkeySs58 && 0 < it.claimableRao }
+    return accounts.size == 1 && snLedgerUnderFloor(accounts[0].claimableRao, status.transferFloorRao)
+}
+
 /** The answer to a Claim now tap (sdk SnClaimNowResult). */
 sealed class SnClaimNowOutcome {
     /** URnetwork sends it first, within the day's budget */

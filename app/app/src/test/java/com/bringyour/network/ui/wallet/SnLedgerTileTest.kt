@@ -378,6 +378,32 @@ class SnLedgerTileTest {
     }
 
     @Test
+    fun `the no-wallet tile's lone total under the floor says so`() {
+        // CTF-6: with no row under the total, a total that is one account's under the floor
+        // says Below the claim minimum there, as a row would (Apple, Linux and Windows alike)
+        val small = SnClaimRelayAccountState(coldkeySs58 = "5Ab", noId = 1, claimableRao = 48_025_660)
+        val status = SnClaimStatusState(
+            coldkeySs58 = "5Ab", claimableRao = 48_025_660, transferFloorRao = 100_000_000, accounts = listOf(small), showsTile = true,
+        )
+        assertEquals(emptyList<SnClaimRelayAccountState>(), snClaimRelayTileRows(status))
+        assertTrue(snClaimRelayTileTotalUnderFloor(status))
+        // at or above the floor, or with no price, it does not
+        assertFalse(snClaimRelayTileTotalUnderFloor(status.copy(transferFloorRao = 48_025_660)))
+        assertFalse(snClaimRelayTileTotalUnderFloor(status.copy(transferFloorRao = 0)))
+        // another coldkey's account (a wallet the network replaced) is not in the total
+        val replaced = SnClaimRelayAccountState(coldkeySs58 = "5Cd", noId = 1, claimableRao = 900_000_000)
+        assertTrue(snClaimRelayTileTotalUnderFloor(status.copy(accounts = listOf(small, replaced))))
+        // nothing to claim: no line
+        assertFalse(snClaimRelayTileTotalUnderFloor(status.copy(claimableRao = 0, accounts = listOf(small.copy(claimableRao = 0)))))
+        // rows under the total say it on their own: capture the flag's account, two pools,
+        // or a pool the relay could not read beside it
+        val flag = SnClaimRelayAccountState(coldkeySs58 = "5Ab", noId = ctfNoId, claimableRao = 48_025_660, kind = Sdk.SnLedgerPoolKindCtf)
+        assertFalse(snClaimRelayTileTotalUnderFloor(status.copy(accounts = listOf(flag))))
+        assertFalse(snClaimRelayTileTotalUnderFloor(status.copy(accounts = listOf(small, small.copy(noId = 2)))))
+        assertFalse(snClaimRelayTileTotalUnderFloor(status.copy(unavailablePools = listOf(ctfPool))))
+    }
+
+    @Test
     fun `a slot this device won is a line by its role`() {
         // CTF-5: the role is in the key; a role this build does not know, or no country, is no line
         assertEquals(R.string.sn_ctf_won_provider_slot, snCtfWonRes(SnCtfWinState(Sdk.SnCtfRoleProvider, "is")))

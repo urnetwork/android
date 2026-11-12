@@ -91,10 +91,13 @@ class SnLedgerWiringTest {
         // gomobile objects; an error draws no line
         val wins = between(sdk, "override suspend fun ctfWins()", "override suspend fun accountEpochs()")
         assertTrue(wins.contains("device.snCtfClient {"))
-        assertTrue(wins.contains("val list = result?.takeIf { it.error == null }?.unclaimedWins"))
-        assertTrue(wins.contains("SnCtfWinState(w.role, w.country)"))
+        assertTrue(wins.contains("snCtfWinsOf(result?.takeIf { it.error == null }?.unclaimedWins)"))
         assertTrue(wins.contains("runCatching {"))
         assertTrue(wins.contains("}.getOrDefault(emptyList())"))
+        val each = between(sdk, "private fun snCtfWinsOf(", "override val available")
+        assertTrue(each.contains("return (0 until list.len()).map { i ->"))
+        assertTrue(each.contains("role = w.role,"))
+        assertTrue(each.contains("country = w.country,"))
         // the latest win alone is no longer the line
         assertFalse(sdk.contains("latestWin"))
         // read with each refresh of Earnings, on its own: the route's answer, or its 60 s
@@ -116,9 +119,22 @@ class SnLedgerWiringTest {
         assertFalse(dialog.contains("transferFloorRao"))
         val flow = between(model, "val ledgerFlow = SnLedgerFlow(", "\n    )")
         assertTrue(flow.contains("transferFloorRao = { _claimStatus.value?.takeIf { !it.unavailable }?.transferFloorRao ?: 0 },"))
+        // and a claim's Done reads the wins again, on their own: it may have paid them
+        assertTrue(flow.contains("onClaimDone = { viewModelScope.launch { refreshCtfWins() } },"))
         val ledger = source("SnLedger.kt")
         assertTrue(ledger.contains("_dialog.value = snLedgerClaimDialog(_load.value, s.gasKey(), gasTao, transferFloorRao())"))
         assertTrue(ledger.contains("if (ready.takes.isEmpty() || claiming != null) {"))
+    }
+
+    @Test
+    fun `the no-wallet tile says a lone total is under the floor`() {
+        // Below the claim minimum under a total that is one account's, with no row to say it
+        val tile = source("SnLedgerTile.kt")
+        val relayTotal = between(tile, "tile.relayClaimableRao != null -> {", "tile.accounts == null -> LedgerSpinner()")
+        val total = relayTotal.indexOf("formatAlpha(tile.relayClaimableRao),")
+        val line = relayTotal.indexOf("if (relay != null && snClaimRelayTileTotalUnderFloor(relay)) {")
+        assertTrue(0 <= total && total < line)
+        assertTrue(relayTotal.contains("SnClaimRelayPill(stringResource(id = R.string.sn_ledger_pool_under_floor))"))
     }
 
     @Test

@@ -219,6 +219,9 @@ class EarningsViewModel @Inject constructor(
         scope = viewModelScope,
         hasWallet = { _wallet.value != null },
         transferFloorRao = { _claimStatus.value?.takeIf { !it.unavailable }?.transferFloorRao ?: 0 },
+        // a claim may have paid capture the flag's wins: their lines are read again,
+        // on their own, as Apple, Linux and Windows read them after a claim
+        onClaimDone = { viewModelScope.launch { refreshCtfWins() } },
     )
 
     // the network's payout consent beside the v2 tile, signed through its own wallet sheets

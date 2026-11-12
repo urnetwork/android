@@ -76,8 +76,13 @@ class SnLedgerClaimTest {
     private fun sourceWith(vararg accounts: SnLedgerAccountState) =
         FakeSource(Result.success(accounts.toList()), key = gasKey)
 
-    private fun flowFor(source: FakeSource, hasWallet: Boolean = true, transferFloorRao: Long = 0): SnLedgerFlow =
-        SnLedgerFlow(CoroutineScope(Dispatchers.Unconfined), { hasWallet }, { transferFloorRao }).also { it.reset(source) }
+    private fun flowFor(
+        source: FakeSource,
+        hasWallet: Boolean = true,
+        transferFloorRao: Long = 0,
+        onClaimDone: () -> Unit = {},
+    ): SnLedgerFlow =
+        SnLedgerFlow(CoroutineScope(Dispatchers.Unconfined), { hasWallet }, { transferFloorRao }, onClaimDone).also { it.reset(source) }
 
     private fun pending(account: SnLedgerAccountState) =
         SnLedgerClaimProgress(account.noId, account.index, account.claimableRao, SnLedgerClaimStatus.PENDING, null, null)
@@ -904,6 +909,37 @@ class SnLedgerClaimTest {
         // the tile, read again, still offers capture the flag's account
         assertEquals(SnLedgerLoad.Loaded(source.accounts.getOrThrow()), flow.load.value)
         assertTrue(snLedgerTile(flow.load.value, claimConfigured = true)!!.claimEnabled)
+    }
+
+    @Test
+    fun `a claim's done reads the wins again, once, for the device that claimed`() {
+        // a claim may have paid capture the flag's wins, whose lines then go (Apple, Linux and
+        // Windows read them again after a claim too)
+        var winReads = 0
+        val source = sourceWith(pool1, ctf)
+        val flow = flowFor(source, onClaimDone = { winReads += 1 })
+        flow.open()
+        flow.claim()
+        source.onEvent(SnLedgerClaimEvent.Sent(1, 42, txHash1))
+        source.onEvent(SnLedgerClaimEvent.Sent(ctfNoId, 3, txHash1))
+        source.onEvent(SnLedgerClaimEvent.Confirmed(1, 42, txHash1, pool1.claimableRao))
+        source.onEvent(SnLedgerClaimEvent.Confirmed(ctfNoId, 3, txHash1, ctf.claimableRao))
+        assertEquals(0, winReads)
+        source.onEvent(SnLedgerClaimEvent.Done)
+        assertEquals(1, winReads)
+        assertTrue(flow.dialog.value is SnLedgerClaimDialogState.Finished)
+        // a closed dialog's claim reads them too
+        flow.open()
+        flow.claim()
+        flow.close()
+        source.onEvent(SnLedgerClaimEvent.Done)
+        assertEquals(2, winReads)
+        // the last device's claim does not
+        flow.open()
+        flow.claim()
+        flow.reset(sourceWith(pool2))
+        source.onEvent(SnLedgerClaimEvent.Done)
+        assertEquals(2, winReads)
     }
 
     @Test

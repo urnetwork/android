@@ -115,6 +115,10 @@ fun SnLedgerTileBlock(
                             color = Color.White
                         )
                     )
+                    // a total that is one account's under the floor says so, as its row would
+                    if (relay != null && snClaimRelayTileTotalUnderFloor(relay)) {
+                        SnClaimRelayPill(stringResource(id = R.string.sn_ledger_pool_under_floor))
+                    }
                 }
                 relay?.let {
                     SnClaimRelayTilePools(status = it, formatAlpha = formatAlpha, shortSs58 = shortSs58)

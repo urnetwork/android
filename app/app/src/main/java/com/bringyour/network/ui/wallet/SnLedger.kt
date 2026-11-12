@@ -607,6 +607,9 @@ class SnLedgerFlow(
     // the claim relay's transfer floor in rao of α at its last price, 0
     // without an answer: the dialog offers no claim for an account under it
     private val transferFloorRao: () -> Long = { 0 },
+    // after a claim's Done, with the accounts read again: a claim may have
+    // paid capture the flag's wins, whose lines are then read again too
+    private val onClaimDone: () -> Unit = {},
 ) {
     private var source: EarningsProtocolSource = NoProtocolSource
 
@@ -729,6 +732,9 @@ class SnLedgerFlow(
         val finished = snLedgerClaimFinished(settled, s.gasKey()) { s.gasBalance().getOrNull()?.tao ?: 0.0 }
         if (s === source && _dialog.value is SnLedgerClaimDialogState.Sending) {
             _dialog.value = finished
+        }
+        if (s === source) {
+            onClaimDone()
         }
         refresh()
     }
