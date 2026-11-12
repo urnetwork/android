@@ -17,25 +17,27 @@ import org.junit.Test
  * read's error with a retry once it failed; Change, Get Pro, the upgrade tip
  * and the offer lines only on the server's Free.
  *
- * The sdk's tracker needs the native library, which these JVM tests do not
+ * The sdk's tracker needs the native library, which these jvm tests do not
  * have: JwtManager gets SdkRuleProTracker (the rule is tested in the sdk,
  * subscription_shown_plan_test.go), and the screens are read from source.
  */
 class ShownPlanTest {
 
+    /** The sdk's plan and read state, as each card state. */
     @Test
     fun theSdksPlanMapsToWhatACardShows() {
-        assertEquals(ShownPlan.Pro, ShownPlan.of("pro", false))
-        assertEquals(ShownPlan.Pro, ShownPlan.of("pro", true))
-        assertEquals(ShownPlan.Free, ShownPlan.of("free", false))
-        assertEquals(ShownPlan.Free, ShownPlan.of("free", true))
-        assertEquals(ShownPlan.Loading, ShownPlan.of("unknown", false))
-        assertEquals(ShownPlan.Unreachable, ShownPlan.of("unknown", true))
+        assertEquals(ShownPlan.Pro, ShownPlan.of(sdkPlan = "pro", lastReadFailed = false))
+        assertEquals(ShownPlan.Pro, ShownPlan.of(sdkPlan = "pro", lastReadFailed = true))
+        assertEquals(ShownPlan.Free, ShownPlan.of(sdkPlan = "free", lastReadFailed = false))
+        assertEquals(ShownPlan.Free, ShownPlan.of(sdkPlan = "free", lastReadFailed = true))
+        assertEquals(ShownPlan.Loading, ShownPlan.of(sdkPlan = "unknown", lastReadFailed = false))
+        assertEquals(ShownPlan.Unreachable, ShownPlan.of(sdkPlan = "unknown", lastReadFailed = true))
         // a value this app does not know is not Free either
-        assertEquals(ShownPlan.Loading, ShownPlan.of("", false))
+        assertEquals(ShownPlan.Loading, ShownPlan.of(sdkPlan = "", lastReadFailed = false))
         assertEquals(listOf(ShownPlan.Free), ShownPlan.values().filter { it.sellsPro })
     }
 
+    /** A paying network with a stale Free claim whose read fails: unknown, then Pro. */
     @Test
     fun aFailedReadIsNeverFree() {
         val jwtManager = JwtManager { SdkRuleProTracker() }
@@ -62,6 +64,7 @@ class ShownPlanTest {
         assertTrue(jwtManager.isPro.value)
     }
 
+    /** Free only from the server; a Pro claim stays Pro through a failed read. */
     @Test
     fun onlyTheServerSaysFree() {
         val jwtManager = JwtManager { SdkRuleProTracker() }
@@ -82,6 +85,7 @@ class ShownPlanTest {
         assertTrue(proClaim.isPro.value)
     }
 
+    /** A sign out forgets the plan and a failed read. */
     @Test
     fun aSignOutForgetsThePlanAndAFailedRead() {
         val jwtManager = JwtManager { SdkRuleProTracker() }
@@ -94,6 +98,7 @@ class ShownPlanTest {
         assertEquals(ShownPlan.Loading, jwtManager.plan.value)
     }
 
+    /** A source file of the app, from the directory the tests run in. */
     private fun source(path: String): String {
         val file = listOf("", "app/", "app/app/")
             .map { File(it + "src/$path") }
@@ -102,6 +107,7 @@ class ShownPlanTest {
         return file!!.readText()
     }
 
+    /** The text of [source] from [start] up to the next [end]. */
     private fun between(source: String, start: String, end: String): String {
         val from = source.indexOf(start)
         assertTrue("missing $start", 0 <= from)
@@ -110,6 +116,7 @@ class ShownPlanTest {
         return source.substring(from, to)
     }
 
+    /** Both failure paths of the balance read reach the plan. */
     @Test
     fun everyFailedReadReachesThePlan() {
         val viewModel = source("main/java/com/bringyour/network/ui/shared/viewmodels/SubscriptionBalanceViewModel.kt")
@@ -119,6 +126,7 @@ class ShownPlanTest {
         assertTrue(viewModel.contains("val shownPlan: StateFlow<com.bringyour.network.ShownPlan> = jwtManager.plan"))
     }
 
+    /** Every plan card shows the sdk's plan, and sells Pro only on Free. */
     @Test
     fun everyPlanCardShowsTheSdksPlan() {
         // the Account plan, in every flavor

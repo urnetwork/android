@@ -92,9 +92,8 @@ internal fun ConnectActions(
     getLocationColor: (String) -> Color,
     minHeight: Dp,
     currentPlan: Plan,
-    // the sdk's plan for the plan card (support inbox 4074): Loading or
-    // Unreachable until the server answers, never Free; retryPlan reads the
-    // balance again
+    // the plan card's sdk plan: Loading or Unreachable until the server
+    // answers, never Free (support inbox 4074); retryPlan reads it again
     shownPlan: ShownPlan = if (currentPlan == Plan.Supporter) ShownPlan.Pro else ShownPlan.Free,
     retryPlan: () -> Unit = {},
     connect: () -> Unit,

@@ -2,7 +2,7 @@ package com.bringyour.network
 
 /**
  * The sdk tracker's rule (sdk subscription_pro_tracker.go, tested there), for
- * the JVM tests, which cannot load the sdk's native library. Test jwts are
+ * the jvm tests, which cannot load the sdk's native library. Test jwts are
  * "pro-<n>" or "free-<n>": the claim, and a renewal count, of one network.
  *
  * - The plan is the server's answer once a balance has loaded; a failed read
