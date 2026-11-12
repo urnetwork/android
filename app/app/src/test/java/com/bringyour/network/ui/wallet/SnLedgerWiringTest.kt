@@ -372,11 +372,12 @@ class SnLedgerWiringTest {
         // the dialogs' Claim asks nothing of the holder while either kind is in flight, before it
         // shows the claim
         val claim = between(ledger, "    fun claim() {", "\n    }\n")
-        assertTrue(claim.contains("if (ready.takes.isEmpty() || claims.claiming(owner)) {\n            return\n        }"))
-        assertTrue(claim.indexOf("claims.claiming(owner)") < claim.indexOf("_dialog.value = SnLedgerClaimDialogState.Sending("))
+        val v2Held = claim.indexOf("if (ready.takes.isEmpty() || claims.claiming(owner)) {\n            return\n        }")
+        assertTrue(0 <= v2Held && v2Held < claim.indexOf("_dialog.value = SnLedgerClaimDialogState.Sending("))
         val model = source("EarningsViewModel.kt")
         val claimAll = between(model, "    fun claimAll() {", "\n    }\n")
-        assertTrue(claimAll.indexOf("ledgerClaims.claiming(device)") < claimAll.indexOf("_claimDialog.value = ClaimDialogState.Sending(progress)"))
+        val v1Held = claimAll.indexOf("if (ready.claims.isEmpty() || ledgerClaims.claiming(device)) {\n            return\n        }")
+        assertTrue(0 <= v1Held && v1Held < claimAll.indexOf("_claimDialog.value = ClaimDialogState.Sending(progress)"))
         // each dialog's Claim waits for the other kind's claim: disabled, with nothing new said
         val screen = source("EarningsScreen.kt")
         assertTrue(between(screen, "    ClaimDialog(\n", "\n    )\n").contains("claimHeld = ledgerClaimInFlight,"))
