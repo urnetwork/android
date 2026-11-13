@@ -261,11 +261,8 @@
     <string name="connect_bittensor_wallet_to_add_sign_in_method">Koppel een Bittensor-wallet om deze als inlogmethode toe te voegen.</string>
     <string name="connect_options">Verbindingsopties</string>
     <string name="connect_seeker_wallet">Koppel een wallet met het Saga Genesis- of Seeker Pre-Order Token</string>
-    <string name="connect_solana_wallet">Solana-wallet koppelen</string>
-    <string name="connect_solana_wallet_note">Koppel een Solana-wallet-app of voer handmatig een Solana-USDC-adres in.</string>
     <string name="connect_solana_wallet_to_add_sign_in_method">Koppel een Solana-wallet om deze als inlogmethode toe te voegen.</string>
     <string name="connect_to_location">Verbind met %1$s</string>
-    <string name="connect_wallet">Verbind Wallet</string>
     <string name="connect_wallet_first">Koppel eerst een Bittensor-wallet.</string>
     <string name="connected">Verbonden</string>
     <string name="connecting_from">Verbinden vanuit</string>
@@ -367,7 +364,6 @@
     <string name="data_limit_reached">Datalimiet bereikt</string>
     <string name="data_usage">Dataverbruik</string>
     <string name="default_daily_data">Standaard krijg je elke dag %1$s.</string>
-    <string name="default_wallet">Standaard</string>
     <string name="delete">Verwijderen</string>
     <string name="delete_account">Verwijder Account</string>
     <string name="delete_account_type_network_name">Typ %1$s om te bevestigen.</string>
@@ -666,7 +662,6 @@
     <string name="enter">Enter</string>
     <string name="enter_a_bonus_referral_code">Voer een bonusreferentiecode in</string>
     <string name="enter_a_password">Voer een wachtwoord in</string>
-    <string name="enter_a_solana_usdc_wallet_address">Voer een Solana USDC-walletadres in</string>
     <string name="enter_address_manually">Adres handmatig invoeren</string>
     <string name="enter_balance_code">Voer saldo-code in</string>
     <string name="enter_network_referral_code">Referentiecode ingeven</string>
@@ -674,14 +669,12 @@
     <string name="epoch_row_title">Epoch %1$d</string>
     <string name="epoch_share_of_block">%1$s van het blok</string>
     <string name="error_connecting_to_wallet">Fout bij verbinden met wallet</string>
-    <string name="error_connecting_wallet_with_reason">Er is een fout opgetreden bij het verbinden van je wallet: %1$s</string>
     <string name="error_deleting_account">Sorry, er is een fout opgetreden bij het verwijderen van je account.</string>
     <string name="error_loading_account_plan">Fout bij het laden van uw accountplan.</string>
     <string name="error_logging_in_please_try_again">Fout bij inloggen, probeer het opnieuw.</string>
     <string name="error_redeeming_transfer_balance_code">Fout bij het inwisselen van overdrachts-saldocode.</string>
     <string name="error_sending_password_reset_link">Fout bij het verzenden van de wachtwoordherstellink</string>
     <string name="error_sending_verification_code">Er is een fout opgetreden bij het verzenden van de verificatiecode.</string>
-    <string name="error_setting_default_wallet_with_reason">Fout bij het instellen van de standaardwallet: %1$s</string>
     <string name="error_signing_in_with_google">Fout bij inloggen met Google</string>
     <string name="error_updating_device_name">Er is een fout opgetreden bij het bijwerken van de apparaatnaam.</string>
     <string name="exclude_app">Uitsluiten van VPN</string>
@@ -771,7 +764,6 @@
     <string name="intro_widgets_tap_to_add">Tik op een widget om hem aan je startscherm toe te voegen.</string>
     <string name="invalid_input">Ongeldige invoer</string>
     <string name="invalid_referral_code">Deze code is niet geldig</string>
-    <string name="invalid_solana_address">Dat is geen geldig Solana-adres.</string>
     <string name="invalid_ss58_address">Dat is geen geldig Bittensor-adres.</string>
     <string name="ip_address">IP-adres</string>
     <string name="ip_family_both">Beide</string>
@@ -868,7 +860,6 @@
     <string name="login_verify_details">Vertel ons wie je echt bent. Voer de code in die we\nnaar je hebben gestuurd om je identiteit te verifiëren.</string>
     <string name="login_verify_header">Je hebt mail</string>
     <string name="longest_streak">Langste reeks</string>
-    <string name="make_default">Als standaard instellen</string>
     <string name="manage_devices">Apparaten beheren</string>
     <string name="manage_devices_connecting">Dit apparaat wordt verbonden…</string>
     <string name="manage_devices_help">Elk verbonden apparaat of elke proxy gebruikt een plek van je abonnement. Verwijder er een die je niet meer gebruikt om de plek vrij te maken.</string>
@@ -956,7 +947,6 @@
     <string name="no_solana_wallet_found">Geen wallet-app gevonden voor de Solana-betaling.</string>
     <string name="no_solana_wallets_found">Geen Solana wallets gevonden</string>
     <string name="no_wallets_found_alert_content">Er zijn geen Solana wallets geïnstalleerd op dit apparaat. Installeer een portemonnee en probeer het opnieuw.</string>
-    <string name="no_wallets_found_enter_address_manually">Er is geen compatibele Solana-wallet-app gevonden op dit apparaat. Kies ‘Adres handmatig invoeren’ om in plaats daarvan je walletadres te plakken.</string>
     <string name="none">Geen</string>
     <string name="notifications_label">Notificaties</string>
     <string name="of_total">van %1$s</string>
@@ -1001,8 +991,6 @@
     <string name="payment_past_due_update_payment">Betaalmethode bijwerken</string>
     <string name="payment_problem">Betalingsprobleem</string>
     <string name="payment_received_title">Betaling ontvangen</string>
-    <string name="payout_wallet_updated">Uitbetalingswallet bijgewerkt</string>
-    <string name="payouts_now_go_to">Uitbetalingen gaan nu naar %1$s.</string>
     <string name="peer_count_one">1 peer</string>
     <string name="peer_count_other">%d peers</string>
     <string name="pending_data_key">In behandeling</string>
@@ -1177,8 +1165,6 @@
     <string name="remove">Verwijderen</string>
     <string name="remove_rule">Regel verwijderen</string>
     <string name="remove_this_sign_in_method">Deze inlogmethode verwijderen?</string>
-    <string name="remove_wallet">Verwijder wallet</string>
-    <string name="remove_wallet_moves_or_holds_payouts">USDC-uitbetalingen gaan naar een van je andere Solana- of Polygon-wallets, of worden vastgehouden totdat je er een verbindt.</string>
     <string name="resend_reset_link">Link opnieuw versturen</string>
     <string name="resend_verify_code">Code opnieuw versturen</string>
     <string name="reset_extenders">Extenders resetten</string>
@@ -1489,10 +1475,7 @@
     <string name="update_referral_network">Referentienetwerk bijwerken</string>
     <string name="upgrade_now">Upgrade nu</string>
     <string name="upgrade_subscription">Abonnement upgraden</string>
-    <string name="usdc_payouts_until_migration">USDC-uitbetalingen gaan naar deze wallet tot de migratie naar Bittensor is afgerond.</string>
     <string name="usdc_solana_network_only">Stuur USDC alleen via het Solana-netwerk. USDC die via een ander netwerk wordt verstuurd, komt niet aan.</string>
-    <string name="usdc_waiting">Laatste USDC-uitbetaling: %1$s USDC in afwachting</string>
-    <string name="usdc_wallet_address">USDC wallet address</string>
     <string name="use_extender_settings">Extender-instellingen gebruiken</string>
     <string name="use_most_stable_provider">Gebruikt de stabielste provider</string>
     <string name="use_wireguard_socks_https_proxy">WireGuard- / SOCKS- / HTTPS-proxy gebruiken</string>
@@ -1549,7 +1532,6 @@
     <string name="wallet_connected_to_protocol">Verbonden met het UR-protocol. Claims komen hier terecht. Alpha bouwt zich op vanaf de epoch na het koppelen.</string>
     <string name="wallet_looks_new_warning">Dit adres heeft nog geen activiteit op de Bittensor-chain. Het lijkt een nieuwe wallet. Zorg dat hij van jou is voordat je verdergaat.</string>
     <string name="wallet_not_retroactive">Koppel een wallet om vanaf de volgende epoch SN25α te verdienen. Eerdere epochs worden niet met terugwerkende kracht afgerekend.</string>
-    <string name="wallet_options">Walletopties</string>
     <string name="wallet_sign_in_method_added">Wallet-inlogmethode toegevoegd</string>
     <string name="welcome_offer_eyebrow">Welkomstaanbieding</string>
     <string name="welcome_to_urnetwork">Welkom bij URnetwork</string>

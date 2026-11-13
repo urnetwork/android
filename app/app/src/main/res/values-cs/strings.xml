@@ -261,11 +261,8 @@
     <string name="connect_bittensor_wallet_to_add_sign_in_method">Připojte peněženku Bittensor a přidejte ji jako způsob přihlášení.</string>
     <string name="connect_options">Možnosti připojení</string>
     <string name="connect_seeker_wallet">Připojení peněženky s žetonem předobjednávky Saga Genesis nebo Seeker</string>
-    <string name="connect_solana_wallet">Připojit peněženku Solana</string>
-    <string name="connect_solana_wallet_note">Připojte aplikaci peněženky Solana, nebo ručně zadejte adresu USDC na síti Solana.</string>
     <string name="connect_solana_wallet_to_add_sign_in_method">Připojte peněženku Solana a přidejte ji jako způsob přihlášení.</string>
     <string name="connect_to_location">Připojit k %1$s</string>
-    <string name="connect_wallet">Připojit peněženku</string>
     <string name="connect_wallet_first">Nejprve připojte peněženku Bittensor.</string>
     <string name="connected">Připojeno</string>
     <string name="connecting_from">Připojení z</string>
@@ -367,7 +364,6 @@
     <string name="data_limit_reached">Dosažen limit dat</string>
     <string name="data_usage">Využití dat</string>
     <string name="default_daily_data">Ve výchozím nastavení dostáváte každý den %1$s.</string>
-    <string name="default_wallet">Výchozí</string>
     <string name="delete">Odstranit</string>
     <string name="delete_account">Odstranit účet</string>
     <string name="delete_account_type_network_name">Pro potvrzení napište %1$s.</string>
@@ -666,7 +662,6 @@
     <string name="enter">Enter</string>
     <string name="enter_a_bonus_referral_code">Vložte bonusový referální kód</string>
     <string name="enter_a_password">Zadejte heslo</string>
-    <string name="enter_a_solana_usdc_wallet_address">Zadejte adresu peněženky USDC v síti Solana</string>
     <string name="enter_address_manually">Zadat adresu ručně</string>
     <string name="enter_balance_code">Zadejte kód zůstatku</string>
     <string name="enter_network_referral_code">Zadejte síťový referenční kód</string>
@@ -674,14 +669,12 @@
     <string name="epoch_row_title">Epocha %1$d</string>
     <string name="epoch_share_of_block">%1$s bloku</string>
     <string name="error_connecting_to_wallet">Chyba při připojování k peněžence</string>
-    <string name="error_connecting_wallet_with_reason">Při připojování peněženky došlo k chybě: %1$s</string>
     <string name="error_deleting_account">Omlouváme se, při mazání účtu došlo k chybě.</string>
     <string name="error_loading_account_plan">Chyba při načítání plánu vašeho účtu.</string>
     <string name="error_logging_in_please_try_again">Chyba při přihlašování, zkuste to prosím znovu.</string>
     <string name="error_redeeming_transfer_balance_code">Chyba při uplatnění kódu převodu zůstatku.</string>
     <string name="error_sending_password_reset_link">Chyba při odesílání odkazu pro obnovení hesla</string>
     <string name="error_sending_verification_code">Při odesílání ověřovacího kódu došlo k chybě.</string>
-    <string name="error_setting_default_wallet_with_reason">Chyba při nastavování výchozí peněženky: %1$s</string>
     <string name="error_signing_in_with_google">Chyba při přihlašování přes Google</string>
     <string name="error_updating_device_name">Při aktualizaci názvu zařízení došlo k chybě.</string>
     <string name="exclude_app">Vyloučit z VPN</string>
@@ -771,7 +764,6 @@
     <string name="intro_widgets_tap_to_add">Klepnutím na widget ho přidáte na domovskou obrazovku.</string>
     <string name="invalid_input">Neplatný údaj</string>
     <string name="invalid_referral_code">Tento kód není platný</string>
-    <string name="invalid_solana_address">To není platná adresa Solana.</string>
     <string name="invalid_ss58_address">To není platná adresa Bittensor.</string>
     <string name="ip_address">IP adresa</string>
     <string name="ip_family_both">Obě</string>
@@ -868,7 +860,6 @@
     <string name="login_verify_details">"Řekněte nám, kdo doopravdy jste.\n Zadejte kód, který jsme vám zaslali, abyste ověřili svou totožnost."</string>
     <string name="login_verify_header">Máš poštu</string>
     <string name="longest_streak">Nejdelší série</string>
-    <string name="make_default">Udělat výchozí</string>
     <string name="manage_devices">Spravovat zařízení</string>
     <string name="manage_devices_connecting">Připojování tohoto zařízení…</string>
     <string name="manage_devices_help">Každé připojené zařízení nebo proxy zabírá jedno místo vašeho tarifu. Odeberte to, které už nepoužíváte, a uvolněte jeho místo.</string>
@@ -956,7 +947,6 @@
     <string name="no_solana_wallet_found">Nebyla nalezena žádná aplikace peněženky pro platbu Solana.</string>
     <string name="no_solana_wallets_found">Nebyly nalezeny žádné peněženky Solana</string>
     <string name="no_wallets_found_alert_content">V tomto zařízení nebyly nalezeny žádné peněženky Solana. Nainstalujte prosím peněženku a zkuste to znovu.</string>
-    <string name="no_wallets_found_enter_address_manually">Na tomto zařízení nebyla nalezena žádná kompatibilní aplikace peněženky Solana. Zvolte „Zadat adresu ručně“ a vložte místo toho adresu své peněženky.</string>
     <string name="none">Žádné</string>
     <string name="notifications_label">Oznámení</string>
     <string name="of_total">z %1$s</string>
@@ -1001,8 +991,6 @@
     <string name="payment_past_due_update_payment">Aktualizovat způsob platby</string>
     <string name="payment_problem">Problém s platbou</string>
     <string name="payment_received_title">Platba přijata</string>
-    <string name="payout_wallet_updated">Výplatní peněženka byla aktualizována</string>
-    <string name="payouts_now_go_to">Výplaty nyní chodí na %1$s.</string>
     <string name="peer_count_one">1 uzel</string>
     <string name="peer_count_other">%d uzlů</string>
     <string name="pending_data_key">Čekající</string>
@@ -1177,8 +1165,6 @@
     <string name="remove">Odstranit</string>
     <string name="remove_rule">Odstranit pravidlo</string>
     <string name="remove_this_sign_in_method">Odstranit tento způsob přihlášení?</string>
-    <string name="remove_wallet">Odstranit peněženku</string>
-    <string name="remove_wallet_moves_or_holds_payouts">Výplaty v USDC se přesunou na jinou vaši peněženku Solana nebo Polygon, nebo budou zadrženy, dokud nějakou nepřipojíte.</string>
     <string name="resend_reset_link">Znovu odeslat odkaz</string>
     <string name="resend_verify_code">Odeslat kód znovu</string>
     <string name="reset_extenders">Resetovat extendery</string>
@@ -1489,10 +1475,7 @@
     <string name="update_referral_network">Aktualizace referenční sítě</string>
     <string name="upgrade_now">Upgradujte nyní</string>
     <string name="upgrade_subscription">Upgradovat předplatné</string>
-    <string name="usdc_payouts_until_migration">Výplaty v USDC budou chodit do této peněženky, dokud se nedokončí přechod na Bittensor.</string>
     <string name="usdc_solana_network_only">USDC posílejte pouze v síti Solana. USDC odeslané v jiné síti nedorazí.</string>
-    <string name="usdc_waiting">Poslední výplata v USDC: %1$s USDC čeká na odeslání</string>
-    <string name="usdc_wallet_address">Adresa peněženky USDC</string>
     <string name="use_extender_settings">Použít nastavení extenderu</string>
     <string name="use_most_stable_provider">Používá nejstabilnějšího poskytovatele</string>
     <string name="use_wireguard_socks_https_proxy">Použít proxy WireGuard / SOCKS / HTTPS</string>
@@ -1549,7 +1532,6 @@
     <string name="wallet_connected_to_protocol">Připojeno k protokolu UR. Vyzvednuté nároky přicházejí sem. Alpha se připisuje od epochy následující po připojení.</string>
     <string name="wallet_looks_new_warning">Tato adresa zatím nemá na řetězci Bittensor žádnou aktivitu. Vypadá jako nová peněženka. Než budete pokračovat, ověřte, že je vaše.</string>
     <string name="wallet_not_retroactive">Připojte peněženku a vydělávejte SN25α od příští epochy. Předchozí epochy se zpětně nevypořádávají.</string>
-    <string name="wallet_options">Možnosti peněženky</string>
     <string name="wallet_sign_in_method_added">Způsob přihlášení peněženkou byl přidán</string>
     <string name="welcome_offer_eyebrow">Uvítací nabídka</string>
     <string name="welcome_to_urnetwork">Vítejte v URnetwork</string>

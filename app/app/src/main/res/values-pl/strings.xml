@@ -261,11 +261,8 @@
     <string name="connect_bittensor_wallet_to_add_sign_in_method">Połącz portfel Bittensor, aby dodać go jako metodę logowania.</string>
     <string name="connect_options">Opcje połączenia</string>
     <string name="connect_seeker_wallet">Połącz portfel z tokenem Saga Genesis lub tokenem zamówienia przedpremierowego Seeker</string>
-    <string name="connect_solana_wallet">Połącz portfel Solana</string>
-    <string name="connect_solana_wallet_note">Połącz aplikację portfela Solana albo wpisz ręcznie adres USDC w sieci Solana.</string>
     <string name="connect_solana_wallet_to_add_sign_in_method">Połącz portfel Solana, aby dodać go jako metodę logowania.</string>
     <string name="connect_to_location">Połącz z %1$s</string>
-    <string name="connect_wallet">Połącz portfel</string>
     <string name="connect_wallet_first">Najpierw połącz portfel Bittensor.</string>
     <string name="connected">Połączono</string>
     <string name="connecting_from">Łączenie z</string>
@@ -367,7 +364,6 @@
     <string name="data_limit_reached">Osiągnięto limit danych</string>
     <string name="data_usage">Zużycie danych</string>
     <string name="default_daily_data">Domyślnie dostajesz %1$s każdego dnia.</string>
-    <string name="default_wallet">Domyślny</string>
     <string name="delete">Usuń</string>
     <string name="delete_account">Usuń konto</string>
     <string name="delete_account_type_network_name">Wpisz %1$s, aby potwierdzić.</string>
@@ -666,7 +662,6 @@
     <string name="enter">Wejdź</string>
     <string name="enter_a_bonus_referral_code">Wprowadź kod polecający bonus</string>
     <string name="enter_a_password">Wprowadź hasło</string>
-    <string name="enter_a_solana_usdc_wallet_address">Wprowadź adres portfela USDC w sieci Solana</string>
     <string name="enter_address_manually">Wpisz adres ręcznie</string>
     <string name="enter_balance_code">Wpisz kod salda</string>
     <string name="enter_network_referral_code">Wprowadź kod polecenia sieci</string>
@@ -674,14 +669,12 @@
     <string name="epoch_row_title">Epoka %1$d</string>
     <string name="epoch_share_of_block">%1$s bloku</string>
     <string name="error_connecting_to_wallet">Błąd połączenia z portfelem</string>
-    <string name="error_connecting_wallet_with_reason">Wystąpił błąd podczas łączenia portfela: %1$s</string>
     <string name="error_deleting_account">Przepraszamy, wystąpił błąd podczas usuwania konta.</string>
     <string name="error_loading_account_plan">Błąd podczas ładowania planu konta.</string>
     <string name="error_logging_in_please_try_again">Błąd logowania, spróbuj ponownie.</string>
     <string name="error_redeeming_transfer_balance_code">Błąd podczas realizacji kodu transferu salda.</string>
     <string name="error_sending_password_reset_link">Błąd podczas wysyłania linku do zresetowania hasła</string>
     <string name="error_sending_verification_code">Wystąpił błąd podczas wysyłania kodu weryfikacyjnego.</string>
-    <string name="error_setting_default_wallet_with_reason">Błąd podczas ustawiania domyślnego portfela: %1$s</string>
     <string name="error_signing_in_with_google">Błąd logowania przez Google</string>
     <string name="error_updating_device_name">Wystąpił błąd podczas aktualizacji nazwy urządzenia.</string>
     <string name="exclude_app">Wyklucz z VPN</string>
@@ -771,7 +764,6 @@
     <string name="intro_widgets_tap_to_add">Dotknij widżetu, aby dodać go do ekranu głównego.</string>
     <string name="invalid_input">Nieprawidłowa wartość</string>
     <string name="invalid_referral_code">Ten kod jest nieprawidłowy</string>
-    <string name="invalid_solana_address">To nie jest prawidłowy adres Solana.</string>
     <string name="invalid_ss58_address">To nie jest prawidłowy adres Bittensor.</string>
     <string name="ip_address">Adres IP</string>
     <string name="ip_family_both">Obie</string>
@@ -868,7 +860,6 @@
     <string name="login_verify_details">Powiedz nam, kim naprawdę jesteś. Wprowadź kod,\nktóry wysłaliśmy, aby zweryfikować twoją tożsamość.</string>
     <string name="login_verify_header">Masz wiadomość</string>
     <string name="longest_streak">Najdłuższa seria</string>
-    <string name="make_default">Ustaw jako domyślny</string>
     <string name="manage_devices">Zarządzaj urządzeniami</string>
     <string name="manage_devices_connecting">Łączenie tego urządzenia…</string>
     <string name="manage_devices_help">Każde połączone urządzenie lub serwer proxy zajmuje jedno miejsce w Twoim planie. Usuń to, którego już nie używasz, aby zwolnić miejsce.</string>
@@ -956,7 +947,6 @@
     <string name="no_solana_wallet_found">Nie znaleziono aplikacji portfela do obsługi płatności Solana.</string>
     <string name="no_solana_wallets_found">Nie znaleziono portfeli Solana</string>
     <string name="no_wallets_found_alert_content">Nie znaleziono żadnych portfeli Solana zainstalowanych na tym urządzeniu. Zainstaluj portfel i spróbuj ponownie.</string>
-    <string name="no_wallets_found_enter_address_manually">Na tym urządzeniu nie znaleziono zgodnej aplikacji portfela Solana. Wybierz „Wpisz adres ręcznie”, aby zamiast tego wkleić adres swojego portfela.</string>
     <string name="none">Brak</string>
     <string name="notifications_label">Powiadomienia</string>
     <string name="of_total">z %1$s</string>
@@ -1001,8 +991,6 @@
     <string name="payment_past_due_update_payment">Zaktualizuj metodę płatności</string>
     <string name="payment_problem">Problem z płatnością</string>
     <string name="payment_received_title">Płatność otrzymana</string>
-    <string name="payout_wallet_updated">Zaktualizowano portfel wypłat</string>
-    <string name="payouts_now_go_to">Wypłaty trafiają teraz na %1$s.</string>
     <string name="peer_count_one">1 węzeł</string>
     <string name="peer_count_other">%d węzłów</string>
     <string name="pending_data_key">Oczekujące</string>
@@ -1177,8 +1165,6 @@
     <string name="remove">Usuń</string>
     <string name="remove_rule">Usuń regułę</string>
     <string name="remove_this_sign_in_method">Usunąć tę metodę logowania?</string>
-    <string name="remove_wallet">Usuń portfel</string>
-    <string name="remove_wallet_moves_or_holds_payouts">Wypłaty w USDC trafią na inny Twój portfel Solana lub Polygon albo zostaną wstrzymane, dopóki nie połączysz takiego portfela.</string>
     <string name="resend_reset_link">Wyślij link ponownie</string>
     <string name="resend_verify_code">Wyślij kod ponownie</string>
     <string name="reset_extenders">Resetuj extendery</string>
@@ -1489,10 +1475,7 @@
     <string name="update_referral_network">Zaktualizuj sieć poleceń</string>
     <string name="upgrade_now">Uaktualnij teraz</string>
     <string name="upgrade_subscription">Ulepsz subskrypcję</string>
-    <string name="usdc_payouts_until_migration">Wypłaty w USDC trafiają na ten portfel do czasu zakończenia migracji do Bittensor.</string>
     <string name="usdc_solana_network_only">Wysyłaj USDC wyłącznie w sieci Solana. USDC wysłane w innej sieci nie dotrą.</string>
-    <string name="usdc_waiting">Ostatnia wypłata w USDC: %1$s USDC oczekuje</string>
-    <string name="usdc_wallet_address">Adres portfela USDC</string>
     <string name="use_extender_settings">Użyj ustawień extendera</string>
     <string name="use_most_stable_provider">Używa najstabilniejszego dostawcy</string>
     <string name="use_wireguard_socks_https_proxy">Użyj proxy WireGuard / SOCKS / HTTPS</string>
@@ -1549,7 +1532,6 @@
     <string name="wallet_connected_to_protocol">Połączono z protokołem UR. Odbiory trafiają tutaj. Alpha nalicza się od epoki następującej po połączeniu.</string>
     <string name="wallet_looks_new_warning">Ten adres nie ma jeszcze żadnej aktywności w łańcuchu Bittensor. Wygląda na nowy portfel. Zanim przejdziesz dalej, upewnij się, że należy do ciebie.</string>
     <string name="wallet_not_retroactive">Połącz portfel, aby zarabiać SN25α od następnej epoki. Wcześniejsze epoki nie są rozliczane wstecz.</string>
-    <string name="wallet_options">Opcje portfela</string>
     <string name="wallet_sign_in_method_added">Dodano metodę logowania portfelem</string>
     <string name="welcome_offer_eyebrow">Oferta powitalna</string>
     <string name="welcome_to_urnetwork">Witaj w URnetwork</string>

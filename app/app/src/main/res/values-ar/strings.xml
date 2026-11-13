@@ -261,11 +261,8 @@
     <string name="connect_bittensor_wallet_to_add_sign_in_method">اربط محفظة Bittensor لإضافتها كطريقة لتسجيل الدخول.</string>
     <string name="connect_options">خيارات الاتصال</string>
     <string name="connect_seeker_wallet">قم بتوصيل محفظة برمز الطلب المسبق لـ Seeker</string>
-    <string name="connect_solana_wallet">ربط محفظة Solana</string>
-    <string name="connect_solana_wallet_note">اربط تطبيق محفظة Solana، أو أدخل عنوان USDC على Solana يدويًا.</string>
     <string name="connect_solana_wallet_to_add_sign_in_method">اربط محفظة Solana لإضافتها كطريقة لتسجيل الدخول.</string>
     <string name="connect_to_location">الاتصال بـ %1$s</string>
-    <string name="connect_wallet">ربط المحفظة</string>
     <string name="connect_wallet_first">اربط محفظة Bittensor أولًا.</string>
     <string name="connected">متصل</string>
     <string name="connecting_from">الاتصال من</string>
@@ -367,7 +364,6 @@
     <string name="data_limit_reached">تم بلوغ حد البيانات</string>
     <string name="data_usage">استخدام البيانات</string>
     <string name="default_daily_data">افتراضيًا، تحصل على %1$s كل يوم.</string>
-    <string name="default_wallet">الافتراضي</string>
     <string name="delete">حذف</string>
     <string name="delete_account">حذف الحساب</string>
     <string name="delete_account_type_network_name">اكتب %1$s للتأكيد.</string>
@@ -666,7 +662,6 @@
     <string name="enter">ادخل</string>
     <string name="enter_a_bonus_referral_code">أدخل رمز الإحالة المكافأة</string>
     <string name="enter_a_password">أدخل كلمة مرور</string>
-    <string name="enter_a_solana_usdc_wallet_address">أدخل عنوان محفظة USDC على Solana</string>
     <string name="enter_address_manually">إدخال العنوان يدويًا</string>
     <string name="enter_balance_code">أدخل رمز الرصيد</string>
     <string name="enter_network_referral_code">أدخل رمز الإحالة للشبكة</string>
@@ -674,14 +669,12 @@
     <string name="epoch_row_title">الفترة %1$d</string>
     <string name="epoch_share_of_block">%1$s من الكتلة</string>
     <string name="error_connecting_to_wallet">خطأ في الاتصال بالمحفظة</string>
-    <string name="error_connecting_wallet_with_reason">حدث خطأ أثناء ربط محفظتك: %1$s</string>
     <string name="error_deleting_account">عذرًا، حدث خطأ أثناء حذف حسابك.</string>
     <string name="error_loading_account_plan">حدث خطأ أثناء تحميل خطة حسابك.</string>
     <string name="error_logging_in_please_try_again">حدث خطأ أثناء تسجيل الدخول، يرجى المحاولة مرة أخرى.</string>
     <string name="error_redeeming_transfer_balance_code">حدث خطأ أثناء استرداد رمز تحويل الرصيد.</string>
     <string name="error_sending_password_reset_link">خطأ في إرسال رابط إعادة تعيين كلمة المرور</string>
     <string name="error_sending_verification_code">حدث خطأ أثناء إرسال رمز التحقق.</string>
-    <string name="error_setting_default_wallet_with_reason">خطأ في تعيين المحفظة الافتراضية: %1$s</string>
     <string name="error_signing_in_with_google">خطأ في تسجيل الدخول باستخدام Google</string>
     <string name="error_updating_device_name">حدث خطأ أثناء تحديث اسم الجهاز.</string>
     <string name="exclude_app">استثناء من VPN</string>
@@ -771,7 +764,6 @@
     <string name="intro_widgets_tap_to_add">اضغط على أداة لإضافتها إلى شاشتك الرئيسية.</string>
     <string name="invalid_input">إدخال غير صالح</string>
     <string name="invalid_referral_code">هذا الرمز غير صالح</string>
-    <string name="invalid_solana_address">هذا ليس عنوان Solana صالحًا.</string>
     <string name="invalid_ss58_address">هذا ليس عنوان Bittensor صالحًا.</string>
     <string name="ip_address">عنوان IP</string>
     <string name="ip_family_both">كلاهما</string>
@@ -868,7 +860,6 @@
     <string name="login_verify_details">أخبرنا من أنت حقًا. أدخل الرمز الذي أرسلناه إليك للتحقق من هويتك.</string>
     <string name="login_verify_header">لديك بريد إلكتروني</string>
     <string name="longest_streak">أطول سلسلة</string>
-    <string name="make_default">جعل الافتراضي</string>
     <string name="manage_devices">إدارة الأجهزة</string>
     <string name="manage_devices_connecting">جارٍ توصيل هذا الجهاز…</string>
     <string name="manage_devices_help">يستخدم كل جهاز أو وكيل متصل مكانًا من خطتك. أزل ما لم تعد تستخدمه لتحرير مكانه.</string>
@@ -956,7 +947,6 @@
     <string name="no_solana_wallet_found">لم يتم العثور على تطبيق محفظة لمعالجة الدفع عبر Solana.</string>
     <string name="no_solana_wallets_found">لم يتم العثور على محافظ Solana</string>
     <string name="no_wallets_found_alert_content">لم يتم العثور على أي محافظ Solana مثبتة على هذا الجهاز. يرجى تثبيت محفظة والمحاولة مرة أخرى.</string>
-    <string name="no_wallets_found_enter_address_manually">لم يتم العثور على تطبيق محفظة Solana متوافق على هذا الجهاز. اختر «إدخال العنوان يدويًا» للصق عنوان محفظتك بدلاً من ذلك.</string>
     <string name="none">لا يوجد</string>
     <string name="notifications_label">الإشعارات</string>
     <string name="of_total">من %1$s</string>
@@ -1001,8 +991,6 @@
     <string name="payment_past_due_update_payment">تحديث طريقة الدفع</string>
     <string name="payment_problem">مشكلة في الدفع</string>
     <string name="payment_received_title">تم استلام الدفعة</string>
-    <string name="payout_wallet_updated">تم تحديث محفظة الدفع</string>
-    <string name="payouts_now_go_to">تذهب المدفوعات الآن إلى %1$s.</string>
     <string name="peer_count_one">قرين واحد</string>
     <string name="peer_count_other">%d قرين</string>
     <string name="pending_data_key">معلّق</string>
@@ -1177,8 +1165,6 @@
     <string name="remove">أزل</string>
     <string name="remove_rule">إزالة القاعدة</string>
     <string name="remove_this_sign_in_method">إزالة طريقة تسجيل الدخول هذه؟</string>
-    <string name="remove_wallet">إزالة المحفظة</string>
-    <string name="remove_wallet_moves_or_holds_payouts">تنتقل مدفوعات USDC إلى محفظة Solana أو Polygon أخرى لديك، أو تُحتجز حتى تربط واحدة.</string>
     <string name="resend_reset_link">إعادة إرسال الرابط</string>
     <string name="resend_verify_code">إعادة إرسال الرمز</string>
     <string name="reset_extenders">إعادة ضبط الموسّعات</string>
@@ -1489,10 +1475,7 @@
     <string name="update_referral_network">تحديث شبكة الإحالة</string>
     <string name="upgrade_now">قم بالترقية الآن</string>
     <string name="upgrade_subscription">ترقية الاشتراك</string>
-    <string name="usdc_payouts_until_migration">تستمر مدفوعات USDC إلى هذه المحفظة حتى اكتمال الانتقال إلى Bittensor.</string>
     <string name="usdc_solana_network_only">أرسل USDC على شبكة Solana فقط. لن تصل عملات USDC المُرسَلة عبر أي شبكة أخرى.</string>
-    <string name="usdc_waiting">آخر دفعة USDC: %1$s USDC بانتظار الإرسال</string>
-    <string name="usdc_wallet_address">عنوان محفظة USDC</string>
     <string name="use_extender_settings">استخدام إعدادات الموسّع</string>
     <string name="use_most_stable_provider">استخدام مزود الخدمة الأكثر استقرارًا</string>
     <string name="use_wireguard_socks_https_proxy">استخدام وكيل WireGuard / SOCKS / HTTPS</string>
@@ -1549,7 +1532,6 @@
     <string name="wallet_connected_to_protocol">متصل ببروتوكول UR. يصل ما تطالب به إلى هنا. يتراكم Alpha بدءًا من الفترة التالية بعد الاتصال.</string>
     <string name="wallet_looks_new_warning">لا يوجد أي نشاط لهذا العنوان على سلسلة Bittensor بعد. يبدو أنها محفظة جديدة. تأكد من أنها ملكك قبل المتابعة.</string>
     <string name="wallet_not_retroactive">اربط محفظة لتكسب SN25α بدءًا من الفترة التالية. لا تتم تسوية الفترات السابقة بأثر رجعي.</string>
-    <string name="wallet_options">خيارات المحفظة</string>
     <string name="wallet_sign_in_method_added">تمت إضافة طريقة تسجيل الدخول عبر المحفظة</string>
     <string name="welcome_offer_eyebrow">عرض الترحيب</string>
     <string name="welcome_to_urnetwork">مرحبًا بك في URnetwork</string>

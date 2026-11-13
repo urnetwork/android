@@ -261,11 +261,8 @@
     <string name="connect_bittensor_wallet_to_add_sign_in_method">Verbinde eine Bittensor-Wallet, um sie als Anmeldemethode hinzuzufügen.</string>
     <string name="connect_options">Verbindungsoptionen</string>
     <string name="connect_seeker_wallet">Verbinde eine Wallet mit dem Saga Genesis oder Seeker Vorbestellungs-Token</string>
-    <string name="connect_solana_wallet">Solana-Wallet verbinden</string>
-    <string name="connect_solana_wallet_note">Verbinde eine Solana-Wallet-App oder gib eine Solana-USDC-Adresse manuell ein.</string>
     <string name="connect_solana_wallet_to_add_sign_in_method">Verbinde eine Solana-Wallet, um sie als Anmeldemethode hinzuzufügen.</string>
     <string name="connect_to_location">Mit %1$s verbinden</string>
-    <string name="connect_wallet">Wallet verbinden</string>
     <string name="connect_wallet_first">Verbinde zuerst eine Bittensor-Wallet.</string>
     <string name="connected">Verbunden</string>
     <string name="connecting_from">Verbindung aus</string>
@@ -367,7 +364,6 @@
     <string name="data_limit_reached">Datenlimit erreicht</string>
     <string name="data_usage">Datennutzung</string>
     <string name="default_daily_data">Standardmäßig erhältst du jeden Tag %1$s.</string>
-    <string name="default_wallet">Standard</string>
     <string name="delete">Löschen</string>
     <string name="delete_account">Konto löschen</string>
     <string name="delete_account_type_network_name">Gib zur Bestätigung %1$s ein.</string>
@@ -666,7 +662,6 @@
     <string name="enter">Rein</string>
     <string name="enter_a_bonus_referral_code">Gib einen Bonus-Empfehlungscode ein</string>
     <string name="enter_a_password">Gib ein Passwort ein</string>
-    <string name="enter_a_solana_usdc_wallet_address">Gib eine Solana USDC-Wallet-Adresse ein</string>
     <string name="enter_address_manually">Adresse manuell eingeben</string>
     <string name="enter_balance_code">Guthabencode eingeben</string>
     <string name="enter_network_referral_code">Netzwerbe-Empfehlungscode eingeben</string>
@@ -674,14 +669,12 @@
     <string name="epoch_row_title">Epoche %1$d</string>
     <string name="epoch_share_of_block">%1$s des Blocks</string>
     <string name="error_connecting_to_wallet">Fehler beim Verbinden mit der Wallet</string>
-    <string name="error_connecting_wallet_with_reason">Beim Verbinden deiner Wallet ist ein Fehler aufgetreten: %1$s</string>
     <string name="error_deleting_account">Entschuldigung, beim Löschen deines Kontos ist ein Fehler aufgetreten.</string>
     <string name="error_loading_account_plan">Fehler beim Laden deines Kontoplans.</string>
     <string name="error_logging_in_please_try_again">Fehler bei der Anmeldung, bitte versuche es erneut.</string>
     <string name="error_redeeming_transfer_balance_code">Fehler beim Einlösen des Übertragungsguthabencodes.</string>
     <string name="error_sending_password_reset_link">Fehler beim Senden des Links zum Zurücksetzen des Passworts</string>
     <string name="error_sending_verification_code">Beim Senden des Bestätigungscodes ist ein Fehler aufgetreten.</string>
-    <string name="error_setting_default_wallet_with_reason">Fehler beim Festlegen der Standard-Wallet: %1$s</string>
     <string name="error_signing_in_with_google">Fehler bei der Anmeldung mit Google</string>
     <string name="error_updating_device_name">Beim Aktualisieren des Gerätenamens ist ein Fehler aufgetreten.</string>
     <string name="exclude_app">Vom VPN ausschließen</string>
@@ -771,7 +764,6 @@
     <string name="intro_widgets_tap_to_add">Tippe auf ein Widget, um es deinem Startbildschirm hinzuzufügen.</string>
     <string name="invalid_input">Ungültige Eingabe</string>
     <string name="invalid_referral_code">Dieser Code ist ungültig</string>
-    <string name="invalid_solana_address">Das ist keine gültige Solana-Adresse.</string>
     <string name="invalid_ss58_address">Das ist keine gültige Bittensor-Adresse.</string>
     <string name="ip_address">IP-Adresse</string>
     <string name="ip_family_both">Beide</string>
@@ -868,7 +860,6 @@
     <string name="login_verify_details">Sag uns, wer du wirklich bist. Gib den Code ein, den wir dir\ngesendet haben, um deine Identität zu überprüfen.</string>
     <string name="login_verify_header">Du hast eine E-Mail</string>
     <string name="longest_streak">Längste Serie</string>
-    <string name="make_default">Als Standard festlegen</string>
     <string name="manage_devices">Geräte verwalten</string>
     <string name="manage_devices_connecting">Dieses Gerät wird verbunden …</string>
     <string name="manage_devices_help">Jedes verbundene Gerät und jeder Proxy belegt einen Platz deines Tarifs. Entferne eines, das du nicht mehr nutzt, um seinen Platz freizugeben.</string>
@@ -956,7 +947,6 @@
     <string name="no_solana_wallet_found">Keine Wallet-App gefunden, die die Solana-Zahlung verarbeiten kann.</string>
     <string name="no_solana_wallets_found">Keine Solana Wallets gefunden</string>
     <string name="no_wallets_found_alert_content">Es wurden keine Solana Wallets auf diesem Gerät gefunden. Bitte installiere eine Wallet und versuche es erneut.</string>
-    <string name="no_wallets_found_enter_address_manually">Auf diesem Gerät wurde keine kompatible Solana-Wallet-App gefunden. Wähle „Adresse manuell eingeben“, um stattdessen deine Wallet-Adresse einzufügen.</string>
     <string name="none">Keine</string>
     <string name="notifications_label">Benachrichtigungen</string>
     <string name="of_total">von %1$s</string>
@@ -1001,8 +991,6 @@
     <string name="payment_past_due_update_payment">Zahlungsmethode aktualisieren</string>
     <string name="payment_problem">Zahlungsproblem</string>
     <string name="payment_received_title">Zahlung erhalten</string>
-    <string name="payout_wallet_updated">Auszahlungs-Wallet aktualisiert</string>
-    <string name="payouts_now_go_to">Auszahlungen gehen jetzt an %1$s.</string>
     <string name="peer_count_one">1 Peer</string>
     <string name="peer_count_other">%d Peers</string>
     <string name="pending_data_key">Ausstehend</string>
@@ -1177,8 +1165,6 @@
     <string name="remove">Entferne</string>
     <string name="remove_rule">Regel entfernen</string>
     <string name="remove_this_sign_in_method">Diese Anmeldemethode entfernen?</string>
-    <string name="remove_wallet">Wallet entfernen</string>
-    <string name="remove_wallet_moves_or_holds_payouts">USDC-Auszahlungen gehen an eine andere deiner Solana- oder Polygon-Wallets oder werden zurückgehalten, bis du eine verbindest.</string>
     <string name="resend_reset_link">Link erneut senden</string>
     <string name="resend_verify_code">Code erneut senden</string>
     <string name="reset_extenders">Extender zurücksetzen</string>
@@ -1489,10 +1475,7 @@
     <string name="update_referral_network">Empfehlungsnetzwerk aktualisieren</string>
     <string name="upgrade_now">Jetzt upgraden</string>
     <string name="upgrade_subscription">Abonnement upgraden</string>
-    <string name="usdc_payouts_until_migration">USDC-Auszahlungen gehen weiterhin an diese Wallet, bis die Migration zu Bittensor abgeschlossen ist.</string>
     <string name="usdc_solana_network_only">Sende USDC nur über das Solana-Netzwerk. USDC, die über ein anderes Netzwerk gesendet werden, kommen nicht an.</string>
-    <string name="usdc_waiting">Letzte USDC-Auszahlung: %1$s USDC ausstehend</string>
-    <string name="usdc_wallet_address">USDC-Wallet-Adresse</string>
     <string name="use_extender_settings">Extender-Einstellungen verwenden</string>
     <string name="use_most_stable_provider">Verwendet den stabilsten Anbieter</string>
     <string name="use_wireguard_socks_https_proxy">WireGuard- / SOCKS- / HTTPS-Proxy verwenden</string>
@@ -1549,7 +1532,6 @@
     <string name="wallet_connected_to_protocol">Mit dem UR-Protokoll verbunden. Einlösungen landen hier. Alpha sammelt sich ab der nächsten Epoche nach dem Verbinden an.</string>
     <string name="wallet_looks_new_warning">Diese Adresse hat noch keine Aktivität auf der Bittensor-Chain. Es sieht nach einer neuen Wallet aus. Vergewissere dich, dass sie dir gehört, bevor du fortfährst.</string>
     <string name="wallet_not_retroactive">Verbinde eine Wallet, um ab der nächsten Epoche SN25α zu verdienen. Frühere Epochen werden nicht rückwirkend abgerechnet.</string>
-    <string name="wallet_options">Wallet-Optionen</string>
     <string name="wallet_sign_in_method_added">Wallet-Anmeldemethode hinzugefügt</string>
     <string name="welcome_offer_eyebrow">Willkommensangebot</string>
     <string name="welcome_to_urnetwork">Willkommen bei URnetwork</string>
