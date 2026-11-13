@@ -261,11 +261,8 @@
     <string name="connect_bittensor_wallet_to_add_sign_in_method">เชื่อมต่อกระเป๋า Bittensor เพื่อเพิ่มเป็นวิธีลงชื่อเข้าใช้</string>
     <string name="connect_options">ตัวเลือกการเชื่อมต่อ</string>
     <string name="connect_seeker_wallet">เชื่อมกระเป๋ากับ Saga Genesis หรือ Seeker Pre-Order Token</string>
-    <string name="connect_solana_wallet">เชื่อมต่อกระเป๋าเงิน Solana</string>
-    <string name="connect_solana_wallet_note">เชื่อมต่อแอปกระเป๋าเงิน Solana หรือป้อนที่อยู่ USDC บน Solana ด้วยตนเอง</string>
     <string name="connect_solana_wallet_to_add_sign_in_method">เชื่อมต่อกระเป๋า Solana เพื่อเพิ่มเป็นวิธีลงชื่อเข้าใช้</string>
     <string name="connect_to_location">เชื่อมต่อไปที่ %1$s</string>
-    <string name="connect_wallet">เชื่อมต่อกระเป๋าเงิน</string>
     <string name="connect_wallet_first">เชื่อมต่อกระเป๋าเงิน Bittensor ก่อน</string>
     <string name="connected">เชื่อมต่อแล้ว</string>
     <string name="connecting_from">เชื่อมต่อจาก</string>
@@ -367,7 +364,6 @@
     <string name="data_limit_reached">ถึงขีดจำกัดข้อมูลแล้ว</string>
     <string name="data_usage">การใช้ข้อมูล</string>
     <string name="default_daily_data">ตามค่าเริ่มต้น คุณจะได้รับ %1$s ทุกวัน</string>
-    <string name="default_wallet">ค่าเริ่มต้น</string>
     <string name="delete">ลบ</string>
     <string name="delete_account">ลบบัญชี</string>
     <string name="delete_account_type_network_name">พิมพ์ %1$s เพื่อยืนยัน</string>
@@ -666,7 +662,6 @@
     <string name="enter">เข้า</string>
     <string name="enter_a_bonus_referral_code">ป้อนรหัสอ้างอิงโบนัส</string>
     <string name="enter_a_password">กรอกรหัสผ่าน</string>
-    <string name="enter_a_solana_usdc_wallet_address">ป้อนที่อยู่กระเป๋าเงิน USDC บน Solana</string>
     <string name="enter_address_manually">ป้อนที่อยู่ด้วยตนเอง</string>
     <string name="enter_balance_code">ป้อนรหัสยอดเงิน</string>
     <string name="enter_network_referral_code">กรอกรหัสการแนะนำเครือข่าย</string>
@@ -674,14 +669,12 @@
     <string name="epoch_row_title">อีพอค %1$d</string>
     <string name="epoch_share_of_block">%1$s ของบล็อก</string>
     <string name="error_connecting_to_wallet">เกิดข้อผิดพลาดในการเชื่อมต่อกระเป๋า</string>
-    <string name="error_connecting_wallet_with_reason">เกิดข้อผิดพลาดในการเชื่อมต่อกระเป๋าเงินของคุณ: %1$s</string>
     <string name="error_deleting_account">ขออภัย เกิดข้อผิดพลาดในการลบบัญชีของคุณ</string>
     <string name="error_loading_account_plan">เกิดข้อผิดพลาดในการโหลดแผนบัญชีของคุณ</string>
     <string name="error_logging_in_please_try_again">เกิดข้อผิดพลาดในการเข้าสู่ระบบ โปรดลองอีกครั้ง</string>
     <string name="error_redeeming_transfer_balance_code">เกิดข้อผิดพลาดในการแลกรหัสยอดเงินโอน</string>
     <string name="error_sending_password_reset_link">เกิดข้อผิดพลาดในการส่งลิงก์รีเซ็ตรหัสผ่าน</string>
     <string name="error_sending_verification_code">เกิดข้อผิดพลาดในการส่งรหัสยืนยัน</string>
-    <string name="error_setting_default_wallet_with_reason">เกิดข้อผิดพลาดในการตั้งค่ากระเป๋าเงินเริ่มต้น: %1$s</string>
     <string name="error_signing_in_with_google">เกิดข้อผิดพลาดในการลงชื่อเข้าใช้ด้วย Google</string>
     <string name="error_updating_device_name">เกิดข้อผิดพลาดในการอัปเดตชื่ออุปกรณ์</string>
     <string name="exclude_app">ยกเว้นจาก VPN</string>
@@ -771,7 +764,6 @@
     <string name="intro_widgets_tap_to_add">แตะวิดเจ็ตเพื่อเพิ่มไปยังหน้าจอหลัก</string>
     <string name="invalid_input">ข้อมูลไม่ถูกต้อง</string>
     <string name="invalid_referral_code">โค้ดนี้ไม่ถูกต้อง</string>
-    <string name="invalid_solana_address">ที่อยู่ Solana นี้ไม่ถูกต้อง</string>
     <string name="invalid_ss58_address">ที่อยู่ Bittensor นี้ไม่ถูกต้อง</string>
     <string name="ip_address">ที่อยู่ IP</string>
     <string name="ip_family_both">ทั้งสองแบบ</string>
@@ -868,7 +860,6 @@
     <string name="login_verify_details">บอกเราหน่อยสิว่านี้คือคุณจริงๆ กรอกโค้ดทางเรา\nส่งให้เพื่อยืนยันตัวตน</string>
     <string name="login_verify_header">คุณได้รับอีเมลใหม่</string>
     <string name="longest_streak">ต่อเนื่องยาวนานที่สุด</string>
-    <string name="make_default">ตั้งเป็นกระเป๋ารับยอด</string>
     <string name="manage_devices">จัดการอุปกรณ์</string>
     <string name="manage_devices_connecting">กำลังเชื่อมต่ออุปกรณ์นี้…</string>
     <string name="manage_devices_help">อุปกรณ์หรือพร็อกซีที่เชื่อมต่ออยู่แต่ละรายการใช้ช่องหนึ่งในแพ็กเกจของคุณ นำรายการที่ไม่ได้ใช้แล้วออกเพื่อเพิ่มช่องว่าง</string>
@@ -956,7 +947,6 @@
     <string name="no_solana_wallet_found">ไม่พบแอปกระเป๋าเงินสำหรับการชำระเงินด้วย Solana</string>
     <string name="no_solana_wallets_found">ไม่พบกระเป๋า Solana</string>
     <string name="no_wallets_found_alert_content">ไม่พบการติดตั้งแอพกระเป๋า Solana บนเครื่องนี้ โปรดติดตั้ง</string>
-    <string name="no_wallets_found_enter_address_manually">ไม่พบแอปกระเป๋าเงิน Solana ที่รองรับบนอุปกรณ์นี้ เลือก “ป้อนที่อยู่ด้วยตนเอง” เพื่อวางที่อยู่กระเป๋าเงินของคุณแทน</string>
     <string name="none">ไม่มี</string>
     <string name="notifications_label">การแจ้งเตือน</string>
     <string name="of_total">จาก %1$s</string>
@@ -1001,8 +991,6 @@
     <string name="payment_past_due_update_payment">อัปเดตวิธีการชำระเงิน</string>
     <string name="payment_problem">ปัญหาการชำระเงิน</string>
     <string name="payment_received_title">ได้รับการชำระเงินแล้ว</string>
-    <string name="payout_wallet_updated">อัปเดตกระเป๋ารับยอดจ่ายแล้ว</string>
-    <string name="payouts_now_go_to">การจ่ายจะส่งไปที่ %1$s แล้ว</string>
     <string name="peer_count_one">1 เพียร์</string>
     <string name="peer_count_other">%d เพียร์</string>
     <string name="pending_data_key">รอดำเนินการ</string>
@@ -1177,8 +1165,6 @@
     <string name="remove">ลบ</string>
     <string name="remove_rule">ลบกฎ</string>
     <string name="remove_this_sign_in_method">ลบวิธีลงชื่อเข้าใช้นี้หรือไม่</string>
-    <string name="remove_wallet">ลบกระเป๋าเงิน</string>
-    <string name="remove_wallet_moves_or_holds_payouts">การจ่าย USDC จะย้ายไปยังกระเป๋าเงิน Solana หรือ Polygon อื่นของคุณ หรือจะถูกพักไว้จนกว่าคุณจะเชื่อมต่อกระเป๋าเงิน</string>
     <string name="resend_reset_link">ส่งลิงก์ใหม่อีกครั้ง</string>
     <string name="resend_verify_code">ส่งโค้ดใหม่</string>
     <string name="reset_extenders">รีเซ็ตตัวขยาย</string>
@@ -1489,10 +1475,7 @@
     <string name="update_referral_network">อัพเดตรหัสการแนะนำเครือข่าย</string>
     <string name="upgrade_now">อัพเกรดเดี๋ยวนี้</string>
     <string name="upgrade_subscription">อัพเกรดเป็นสมัครรายเดือน</string>
-    <string name="usdc_payouts_until_migration">การจ่าย USDC จะยังเข้ากระเป๋าเงินนี้จนกว่าการย้ายไปยัง Bittensor จะเสร็จสมบูรณ์</string>
     <string name="usdc_solana_network_only">ส่ง USDC บนเครือข่าย Solana เท่านั้น USDC ที่ส่งบนเครือข่ายอื่นจะไม่เข้าบัญชี</string>
-    <string name="usdc_waiting">การจ่าย USDC ครั้งสุดท้าย: %1$s USDC รอการโอน</string>
-    <string name="usdc_wallet_address">ที่อยู่กระเป๋าเงิน USDC</string>
     <string name="use_extender_settings">ใช้การตั้งค่าตัวขยาย</string>
     <string name="use_most_stable_provider">ใช้ผู้ให้บริการที่เสถียรที่สุด</string>
     <string name="use_wireguard_socks_https_proxy">ใช้พร็อกซี WireGuard / SOCKS / HTTPS</string>
@@ -1549,7 +1532,6 @@
     <string name="wallet_connected_to_protocol">เชื่อมต่อกับโปรโตคอล UR แล้ว รายการที่รับจะเข้ามาที่นี่ Alpha เริ่มสะสมตั้งแต่อีพอคถัดจากที่เชื่อมต่อ</string>
     <string name="wallet_looks_new_warning">ที่อยู่นี้ยังไม่มีกิจกรรมบนเชน Bittensor ดูเหมือนเป็นกระเป๋าเงินใหม่ ตรวจสอบให้แน่ใจว่าเป็นของคุณก่อนดำเนินการต่อ</string>
     <string name="wallet_not_retroactive">เชื่อมต่อกระเป๋าเงินเพื่อรับ SN25α ตั้งแต่อีพอคถัดไป อีพอคก่อนหน้าจะไม่ถูกชำระย้อนหลัง</string>
-    <string name="wallet_options">ตัวเลือกกระเป๋าเงิน</string>
     <string name="wallet_sign_in_method_added">เพิ่มวิธีลงชื่อเข้าใช้ด้วยกระเป๋าเงินแล้ว</string>
     <string name="welcome_offer_eyebrow">ข้อเสนอต้อนรับ</string>
     <string name="welcome_to_urnetwork">ยินดีต้อนรับสู่ URnetwork</string>

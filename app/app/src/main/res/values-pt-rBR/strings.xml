@@ -261,11 +261,8 @@
     <string name="connect_bittensor_wallet_to_add_sign_in_method">Conecte uma carteira Bittensor para adicioná-la como método de login.</string>
     <string name="connect_options">Opções de conexão</string>
     <string name="connect_seeker_wallet">Conecte uma carteira com o token Saga Genesis ou o token de pré-venda Seeker</string>
-    <string name="connect_solana_wallet">Conectar carteira Solana</string>
-    <string name="connect_solana_wallet_note">Conecte um app de carteira Solana ou insira manualmente um endereço USDC da Solana.</string>
     <string name="connect_solana_wallet_to_add_sign_in_method">Conecte uma carteira Solana para adicioná-la como método de login.</string>
     <string name="connect_to_location">Conectar a %1$s</string>
-    <string name="connect_wallet">Conectar carteira</string>
     <string name="connect_wallet_first">Primeiro conecte uma carteira Bittensor.</string>
     <string name="connected">Conectado</string>
     <string name="connecting_from">Conectando de</string>
@@ -367,7 +364,6 @@
     <string name="data_limit_reached">Limite de dados atingido</string>
     <string name="data_usage">Uso de dados</string>
     <string name="default_daily_data">Por padrão, você recebe %1$s todos os dias.</string>
-    <string name="default_wallet">Padrão</string>
     <string name="delete">Excluir</string>
     <string name="delete_account">Excluir conta</string>
     <string name="delete_account_type_network_name">Digite %1$s para confirmar.</string>
@@ -666,7 +662,6 @@
     <string name="enter">Entra</string>
     <string name="enter_a_bonus_referral_code">Digite um código de referência bônus</string>
     <string name="enter_a_password">Digite uma senha</string>
-    <string name="enter_a_solana_usdc_wallet_address">Digite um endereço de carteira USDC na Solana</string>
     <string name="enter_address_manually">Digitar o endereço manualmente</string>
     <string name="enter_balance_code">Insira o código de saldo</string>
     <string name="enter_network_referral_code">Insira o código de indicação da rede</string>
@@ -674,14 +669,12 @@
     <string name="epoch_row_title">Época %1$d</string>
     <string name="epoch_share_of_block">%1$s do bloco</string>
     <string name="error_connecting_to_wallet">Erro ao conectar à carteira</string>
-    <string name="error_connecting_wallet_with_reason">Ocorreu um erro ao conectar sua carteira: %1$s</string>
     <string name="error_deleting_account">Desculpe, ocorreu um erro ao excluir sua conta.</string>
     <string name="error_loading_account_plan">Erro ao carregar seu plano de conta.</string>
     <string name="error_logging_in_please_try_again">Erro ao fazer login, tente novamente.</string>
     <string name="error_redeeming_transfer_balance_code">Erro ao resgatar o código de transferência de saldo.</string>
     <string name="error_sending_password_reset_link">Erro ao enviar o link de redefinição de senha</string>
     <string name="error_sending_verification_code">Ocorreu um erro ao enviar o código de verificação.</string>
-    <string name="error_setting_default_wallet_with_reason">Erro ao definir a carteira padrão: %1$s</string>
     <string name="error_signing_in_with_google">Erro ao fazer login com o Google</string>
     <string name="error_updating_device_name">Ocorreu um erro ao atualizar o nome do dispositivo.</string>
     <string name="exclude_app">Excluir da VPN</string>
@@ -771,7 +764,6 @@
     <string name="intro_widgets_tap_to_add">Toque em um widget para adicioná-lo à tela inicial.</string>
     <string name="invalid_input">Entrada inválida</string>
     <string name="invalid_referral_code">Este código não é válido</string>
-    <string name="invalid_solana_address">Esse não é um endereço Solana válido.</string>
     <string name="invalid_ss58_address">Esse não é um endereço Bittensor válido.</string>
     <string name="ip_address">Endereço IP</string>
     <string name="ip_family_both">Ambas</string>
@@ -868,7 +860,6 @@
     <string name="login_verify_details">Diga-nos quem você realmente é. Digite o código que\nenviamos para você verificar sua identidade.</string>
     <string name="login_verify_header">Você tem um e-mail</string>
     <string name="longest_streak">Maior sequência</string>
-    <string name="make_default">Tornar padrão</string>
     <string name="manage_devices">Gerenciar dispositivos</string>
     <string name="manage_devices_connecting">Conectando este dispositivo…</string>
     <string name="manage_devices_help">Cada dispositivo ou proxy conectado ocupa uma vaga do seu plano. Remova o que você não usa mais para liberar a vaga.</string>
@@ -956,7 +947,6 @@
     <string name="no_solana_wallet_found">Nenhum app de carteira encontrado para o pagamento em Solana.</string>
     <string name="no_solana_wallets_found">Nenhuma carteira Solana encontrada</string>
     <string name="no_wallets_found_alert_content">Nenhuma carteira Solana foi encontrada instalada neste dispositivo. Instale uma carteira e tente novamente.</string>
-    <string name="no_wallets_found_enter_address_manually">Nenhum app de carteira Solana compatível foi encontrado neste dispositivo. Escolha \"Digitar o endereço manualmente\" para colar o endereço da sua carteira em vez disso.</string>
     <string name="none">Nenhum</string>
     <string name="notifications_label">Notificações</string>
     <string name="of_total">de %1$s</string>
@@ -1001,8 +991,6 @@
     <string name="payment_past_due_update_payment">Atualizar forma de pagamento</string>
     <string name="payment_problem">Problema no pagamento</string>
     <string name="payment_received_title">Pagamento recebido</string>
-    <string name="payout_wallet_updated">Carteira de pagamento atualizada</string>
-    <string name="payouts_now_go_to">Os pagamentos agora vão para %1$s.</string>
     <string name="peer_count_one">1 par</string>
     <string name="peer_count_other">%d pares</string>
     <string name="pending_data_key">Pendente</string>
@@ -1177,8 +1165,6 @@
     <string name="remove">Remover</string>
     <string name="remove_rule">Remover regra</string>
     <string name="remove_this_sign_in_method">Remover este método de login?</string>
-    <string name="remove_wallet">Remover carteira</string>
-    <string name="remove_wallet_moves_or_holds_payouts">Os pagamentos em USDC passam para outra das suas carteiras Solana ou Polygon, ou ficam retidos até você conectar uma.</string>
     <string name="resend_reset_link">Reenviar link</string>
     <string name="resend_verify_code">Reenviar código</string>
     <string name="reset_extenders">Redefinir extensores</string>
@@ -1489,10 +1475,7 @@
     <string name="update_referral_network">Atualizar rede de indicações</string>
     <string name="upgrade_now">Atualize agora</string>
     <string name="upgrade_subscription">Atualizar assinatura</string>
-    <string name="usdc_payouts_until_migration">Os pagamentos em USDC continuam indo para esta carteira até a migração para a Bittensor ser concluída.</string>
     <string name="usdc_solana_network_only">Envie USDC apenas na rede Solana. Os USDC enviados em outra rede não vão chegar.</string>
-    <string name="usdc_waiting">Último pagamento em USDC: %1$s USDC pendentes</string>
-    <string name="usdc_wallet_address">Endereço da carteira USDC</string>
     <string name="use_extender_settings">Usar configurações do extensor</string>
     <string name="use_most_stable_provider">Usa o provedor mais estável</string>
     <string name="use_wireguard_socks_https_proxy">Usar proxy WireGuard / SOCKS / HTTPS</string>
@@ -1549,7 +1532,6 @@
     <string name="wallet_connected_to_protocol">Conectada ao protocolo UR. Os resgates chegam aqui. O Alpha se acumula a partir da época seguinte à conexão.</string>
     <string name="wallet_looks_new_warning">Este endereço ainda não tem atividade na cadeia Bittensor. Parece uma carteira nova. Confirme que ela é sua antes de continuar.</string>
     <string name="wallet_not_retroactive">Conecte uma carteira para ganhar SN25α a partir da próxima época. Épocas anteriores não são liquidadas retroativamente.</string>
-    <string name="wallet_options">Opções da carteira</string>
     <string name="wallet_sign_in_method_added">Método de login com carteira adicionado</string>
     <string name="welcome_offer_eyebrow">Oferta de boas-vindas</string>
     <string name="welcome_to_urnetwork">Bem-vindo ao URnetwork</string>

@@ -60,8 +60,6 @@ class LocalizedUiTextTest {
         "$ui/settings/DeveloperScreen.kt: \"Sample protocol data\"" to debugOnly,
         "$ui/settings/DeveloperScreen.kt: \"Sample gas key unfunded (v\$version)\"" to debugOnly,
         "$ui/settings/DeveloperScreen.kt: \"Sample starts without a wallet\"" to debugOnly,
-        "$ui/settings/DeveloperScreen.kt: \"Sample starts with a Solana payout wallet\"" to debugOnly,
-        "$ui/settings/DeveloperScreen.kt: \"Sample has 3.87 USDC waiting\"" to debugOnly,
         "$ui/settings/LicensesScreen.kt: \"Creative Commons Attribution-ShareAlike 4.0 International\"" to previewData,
         "$ui/settings/LicensesScreen.kt: \"Apache License\\nVersion 2.0, January 2004\\nhttp://www.apache.org/licenses/\"" to previewData,
         "$ui/stats/DnsSettingsScreen.kt: \"https://\"" to "the URL scheme the field expects, typed the same in every language",

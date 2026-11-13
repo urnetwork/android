@@ -623,7 +623,6 @@ func TestBittensorKeyWalletCardShowsTheKeyOnThisDevice(t *testing.T) {
 	keyBranch := bittensorKeyBlock(t, section, "if (localKey != null) {")
 	bittensorKeyContainsAll(t, "the key's wallet card", keyBranch,
 		"shortSs58(localKey.address)",
-		"connectSolanaOverflowItem(onConnectSolana)",
 		"if (localKey.linked) R.string.wallet_connected_to_protocol else R.string.bittensor_key_card_not_linked",
 	)
 	if strings.Contains(keyBranch, "onConnectWallet") {

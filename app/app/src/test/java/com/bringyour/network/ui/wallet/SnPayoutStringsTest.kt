@@ -10,9 +10,8 @@ import org.junit.Test
 import org.w3c.dom.Element
 
 /**
- * The SN payout line's strings are in every locale, the USDC line is labeled
- * as the final USDC payout, and no payout string fixes a duration: the times
- * come from the epoch schedule.
+ * The SN payout line's strings are in every locale, and no payout string fixes
+ * a duration: the times come from the epoch schedule.
  *
  * Reads the module's generated string resources; no device.
  */
@@ -41,7 +40,6 @@ class SnPayoutStringsTest {
             "sn_payout_schedule_times",
             "set_coldkey_to_get_paid",
             "set_coldkey",
-            "usdc_waiting",
         )) {
             assertTrue("values has no $key", !english[key].isNullOrEmpty())
             for (locale in locales) {
@@ -62,11 +60,6 @@ class SnPayoutStringsTest {
             "This epoch ends %1\$s. Claim your share from %2\$s until %3\$s.",
             english["sn_payout_schedule_times"]
         )
-    }
-
-    @Test
-    fun `the usdc line is labeled as the final USDC payout`() {
-        assertEquals("Final USDC payout: %1\$s USDC waiting", english["usdc_waiting"])
     }
 
     @Test

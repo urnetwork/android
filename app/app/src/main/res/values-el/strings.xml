@@ -261,11 +261,8 @@
     <string name="connect_bittensor_wallet_to_add_sign_in_method">Συνδέστε ένα πορτοφόλι Bittensor για να το προσθέσετε ως μέθοδο σύνδεσης.</string>
     <string name="connect_options">Επιλογές σύνδεσης</string>
     <string name="connect_seeker_wallet">Συνδέστε ένα πορτοφόλι με το Saga Genesis ή το Seeker Pre-Order Token</string>
-    <string name="connect_solana_wallet">Σύνδεση πορτοφολιού Solana</string>
-    <string name="connect_solana_wallet_note">Συνδέστε μια εφαρμογή πορτοφολιού Solana ή εισαγάγετε χειροκίνητα μια διεύθυνση USDC στο Solana.</string>
     <string name="connect_solana_wallet_to_add_sign_in_method">Συνδέστε ένα πορτοφόλι Solana για να το προσθέσετε ως μέθοδο σύνδεσης.</string>
     <string name="connect_to_location">Σύνδεση με %1$s</string>
-    <string name="connect_wallet">Σύνδεση πορτοφολιού</string>
     <string name="connect_wallet_first">Συνδέστε πρώτα ένα πορτοφόλι Bittensor.</string>
     <string name="connected">Συνδεδεμένο</string>
     <string name="connecting_from">Σύνδεση από</string>
@@ -367,7 +364,6 @@
     <string name="data_limit_reached">Συμπληρώθηκε το όριο δεδομένων</string>
     <string name="data_usage">Χρήση δεδομένων</string>
     <string name="default_daily_data">Από προεπιλογή, λαμβάνετε %1$s κάθε μέρα.</string>
-    <string name="default_wallet">Προεπιλογή</string>
     <string name="delete">Διαγραφή</string>
     <string name="delete_account">Διαγραφή λογαριασμού</string>
     <string name="delete_account_type_network_name">Πληκτρολογήστε %1$s για επιβεβαίωση.</string>
@@ -666,7 +662,6 @@
     <string name="enter">Εισαγωγή</string>
     <string name="enter_a_bonus_referral_code">Εισαγάγετε έναν κωδικό παραπομπής μπόνους</string>
     <string name="enter_a_password">Εισαγάγετε έναν κωδικό πρόσβασης</string>
-    <string name="enter_a_solana_usdc_wallet_address">Εισαγάγετε μια διεύθυνση πορτοφολιού USDC στο Solana</string>
     <string name="enter_address_manually">Χειροκίνητη εισαγωγή διεύθυνσης</string>
     <string name="enter_balance_code">Εισαγάγετε τον κωδικό υπολοίπου</string>
     <string name="enter_network_referral_code">Εισαγάγετε τον κωδικό παραπομπής δικτύου</string>
@@ -674,14 +669,12 @@
     <string name="epoch_row_title">Εποχή %1$d</string>
     <string name="epoch_share_of_block">%1$s του μπλοκ</string>
     <string name="error_connecting_to_wallet">Σφάλμα σύνδεσης με το πορτοφόλι</string>
-    <string name="error_connecting_wallet_with_reason">Παρουσιάστηκε σφάλμα κατά τη σύνδεση του πορτοφολιού σας: %1$s</string>
     <string name="error_deleting_account">Λυπούμαστε, παρουσιάστηκε σφάλμα κατά τη διαγραφή του λογαριασμού σας.</string>
     <string name="error_loading_account_plan">Σφάλμα κατά τη φόρτωση του προγράμματος λογαριασμού σας.</string>
     <string name="error_logging_in_please_try_again">Σφάλμα σύνδεσης, δοκιμάστε ξανά.</string>
     <string name="error_redeeming_transfer_balance_code">Σφάλμα κατά την εξαργύρωση του κωδικού μεταφοράς υπολοίπου.</string>
     <string name="error_sending_password_reset_link">Σφάλμα κατά την αποστολή του συνδέσμου επαναφοράς κωδικού πρόσβασης</string>
     <string name="error_sending_verification_code">Παρουσιάστηκε σφάλμα κατά την αποστολή του κωδικού επαλήθευσης.</string>
-    <string name="error_setting_default_wallet_with_reason">Σφάλμα κατά τον ορισμό του προεπιλεγμένου πορτοφολιού: %1$s</string>
     <string name="error_signing_in_with_google">Σφάλμα σύνδεσης με Google</string>
     <string name="error_updating_device_name">Παρουσιάστηκε σφάλμα κατά την ενημέρωση του ονόματος της συσκευής.</string>
     <string name="exclude_app">Εξαίρεση από το VPN</string>
@@ -771,7 +764,6 @@
     <string name="intro_widgets_tap_to_add">Πατήστε ένα γραφικό στοιχείο για να το προσθέσετε στην αρχική οθόνη σας.</string>
     <string name="invalid_input">Μη έγκυρη τιμή</string>
     <string name="invalid_referral_code">Αυτός ο κωδικός δεν είναι έγκυρος</string>
-    <string name="invalid_solana_address">Αυτή δεν είναι έγκυρη διεύθυνση Solana.</string>
     <string name="invalid_ss58_address">Αυτή δεν είναι έγκυρη διεύθυνση Bittensor.</string>
     <string name="ip_address">Διεύθυνση IP</string>
     <string name="ip_family_both">Και οι δύο</string>
@@ -868,7 +860,6 @@
     <string name="login_verify_details">Πες μας ποιος είσαι πραγματικά. Εισαγάγετε τον κωδικό που σας\nστείλαμε για να επαληθεύσετε την ταυτότητά σας.</string>
     <string name="login_verify_header">Έχετε ένα email</string>
     <string name="longest_streak">Μεγαλύτερο σερί</string>
-    <string name="make_default">Ορισμός ως προεπιλογή</string>
     <string name="manage_devices">Διαχείριση συσκευών</string>
     <string name="manage_devices_connecting">Σύνδεση αυτής της συσκευής…</string>
     <string name="manage_devices_help">Κάθε συνδεδεμένη συσκευή ή διακομιστής μεσολάβησης καταλαμβάνει μία θέση του προγράμματός σας. Αφαιρέστε όποιο δεν χρησιμοποιείτε πια για να ελευθερώσετε τη θέση του.</string>
@@ -956,7 +947,6 @@
     <string name="no_solana_wallet_found">Δεν βρέθηκε εφαρμογή πορτοφολιού για την πληρωμή Solana.</string>
     <string name="no_solana_wallets_found">Δεν βρέθηκαν πορτοφόλια Solana</string>
     <string name="no_wallets_found_alert_content">Δεν βρέθηκαν πορτοφόλια Solana εγκατεστημένα σε αυτήν τη συσκευή. Εγκαταστήστε ένα πορτοφόλι και δοκιμάστε ξανά.</string>
-    <string name="no_wallets_found_enter_address_manually">Δεν βρέθηκε συμβατή εφαρμογή πορτοφολιού Solana σε αυτήν τη συσκευή. Επιλέξτε «Χειροκίνητη εισαγωγή διεύθυνσης» για να επικολλήσετε αντί γι’ αυτό τη διεύθυνση του πορτοφολιού σας.</string>
     <string name="none">Κανένα</string>
     <string name="notifications_label">Ειδοποιήσεις</string>
     <string name="of_total">από %1$s</string>
@@ -1001,8 +991,6 @@
     <string name="payment_past_due_update_payment">Ενημέρωση τρόπου πληρωμής</string>
     <string name="payment_problem">Πρόβλημα πληρωμής</string>
     <string name="payment_received_title">Η πληρωμή ελήφθη</string>
-    <string name="payout_wallet_updated">Το πορτοφόλι πληρωμής ενημερώθηκε</string>
-    <string name="payouts_now_go_to">Οι πληρωμές πηγαίνουν πλέον στο %1$s.</string>
     <string name="peer_count_one">1 κόμβος</string>
     <string name="peer_count_other">%d κόμβοι</string>
     <string name="pending_data_key">Σε εκκρεμότητα</string>
@@ -1177,8 +1165,6 @@
     <string name="remove">Αφαίρεση</string>
     <string name="remove_rule">Αφαίρεση κανόνα</string>
     <string name="remove_this_sign_in_method">Αφαίρεση αυτής της μεθόδου σύνδεσης;</string>
-    <string name="remove_wallet">Αφαίρεση πορτοφολιού</string>
-    <string name="remove_wallet_moves_or_holds_payouts">Οι πληρωμές USDC μεταφέρονται σε άλλο πορτοφόλι σας Solana ή Polygon· αν δεν υπάρχει, παραμένουν σε αναμονή μέχρι να συνδέσετε ένα.</string>
     <string name="resend_reset_link">Επανάληψη αποστολής συνδέσμου</string>
     <string name="resend_verify_code">Επανάληψη αποστολής κωδικού</string>
     <string name="reset_extenders">Επαναφορά επεκτατών</string>
@@ -1489,10 +1475,7 @@
     <string name="update_referral_network">Ενημέρωση δικτύου παραπομπών</string>
     <string name="upgrade_now">Αναβάθμιση τώρα</string>
     <string name="upgrade_subscription">Αναβάθμιση Συνδρομής</string>
-    <string name="usdc_payouts_until_migration">Οι πληρωμές σε USDC συνεχίζουν σε αυτό το πορτοφόλι μέχρι να ολοκληρωθεί η μετάβαση στο Bittensor.</string>
     <string name="usdc_solana_network_only">Στείλτε USDC μόνο στο δίκτυο Solana. Τα USDC που στέλνονται σε άλλο δίκτυο δεν θα φτάσουν.</string>
-    <string name="usdc_waiting">Τελική πληρωμή USDC: %1$s USDC σε αναμονή</string>
-    <string name="usdc_wallet_address">Διεύθυνση πορτοφολιού USDC</string>
     <string name="use_extender_settings">Χρήση ρυθμίσεων επεκτατή</string>
     <string name="use_most_stable_provider">Χρησιμοποιεί τον πιο σταθερό πάροχο</string>
     <string name="use_wireguard_socks_https_proxy">Χρήση διακομιστή μεσολάβησης WireGuard / SOCKS / HTTPS</string>
@@ -1549,7 +1532,6 @@
     <string name="wallet_connected_to_protocol">Συνδέθηκε στο πρωτόκολλο UR. Οι διεκδικήσεις καταλήγουν εδώ. Το Alpha συσσωρεύεται από την εποχή μετά τη σύνδεση.</string>
     <string name="wallet_looks_new_warning">Αυτή η διεύθυνση δεν έχει ακόμη δραστηριότητα στην αλυσίδα Bittensor. Μοιάζει με νέο πορτοφόλι. Βεβαιωθείτε ότι είναι δικό σας πριν συνεχίσετε.</string>
     <string name="wallet_not_retroactive">Συνδέστε ένα πορτοφόλι για να κερδίζετε SN25α από την επόμενη εποχή. Οι προηγούμενες εποχές δεν εκκαθαρίζονται αναδρομικά.</string>
-    <string name="wallet_options">Επιλογές πορτοφολιού</string>
     <string name="wallet_sign_in_method_added">Η μέθοδος σύνδεσης με πορτοφόλι προστέθηκε</string>
     <string name="welcome_offer_eyebrow">Προσφορά καλωσορίσματος</string>
     <string name="welcome_to_urnetwork">Καλώς ήρθατε στο URnetwork</string>

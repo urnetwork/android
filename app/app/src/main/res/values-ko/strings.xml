@@ -261,11 +261,8 @@
     <string name="connect_bittensor_wallet_to_add_sign_in_method">Bittensor 지갑을 연결하여 로그인 방법으로 추가하세요.</string>
     <string name="connect_options">연결 옵션</string>
     <string name="connect_seeker_wallet">Saga Genesis 또는 Seeker 선주문 토큰으로 지갑을 연결하세요</string>
-    <string name="connect_solana_wallet">Solana 지갑 연결</string>
-    <string name="connect_solana_wallet_note">Solana 지갑 앱을 연결하거나 Solana USDC 주소를 직접 입력하세요.</string>
     <string name="connect_solana_wallet_to_add_sign_in_method">Solana 지갑을 연결하여 로그인 방법으로 추가하세요.</string>
     <string name="connect_to_location">%1$s에 연결</string>
-    <string name="connect_wallet">지갑 연결</string>
     <string name="connect_wallet_first">먼저 Bittensor 지갑을 연결하세요.</string>
     <string name="connected">연결됨</string>
     <string name="connecting_from">연결 위치</string>
@@ -367,7 +364,6 @@
     <string name="data_limit_reached">데이터 한도에 도달했습니다</string>
     <string name="data_usage">데이터 사용량</string>
     <string name="default_daily_data">기본적으로 매일 %1$s를 받습니다.</string>
-    <string name="default_wallet">기본값</string>
     <string name="delete">삭제</string>
     <string name="delete_account">계정 삭제</string>
     <string name="delete_account_type_network_name">확인하려면 %1$s을(를) 입력하세요.</string>
@@ -666,7 +662,6 @@
     <string name="enter">들어가기</string>
     <string name="enter_a_bonus_referral_code">보너스 추천 코드를 입력하세요</string>
     <string name="enter_a_password">비밀번호를 입력하세요</string>
-    <string name="enter_a_solana_usdc_wallet_address">Solana USDC 지갑 주소를 입력하세요</string>
     <string name="enter_address_manually">주소 직접 입력</string>
     <string name="enter_balance_code">잔액 코드를 입력하세요</string>
     <string name="enter_network_referral_code">네트워크 추천 코드를 입력하세요</string>
@@ -674,14 +669,12 @@
     <string name="epoch_row_title">에포크 %1$d</string>
     <string name="epoch_share_of_block">블록의 %1$s</string>
     <string name="error_connecting_to_wallet">지갑 연결 오류</string>
-    <string name="error_connecting_wallet_with_reason">지갑을 연결하는 중 오류가 발생했습니다: %1$s</string>
     <string name="error_deleting_account">죄송합니다. 계정을 삭제하는 중 오류가 발생했습니다.</string>
     <string name="error_loading_account_plan">계정 플랜을 불러오는 중 오류가 발생했습니다.</string>
     <string name="error_logging_in_please_try_again">로그인 중 오류가 발생했습니다. 다시 시도하세요.</string>
     <string name="error_redeeming_transfer_balance_code">이체 잔액 코드 사용 중 오류가 발생했습니다.</string>
     <string name="error_sending_password_reset_link">비밀번호 재설정 링크를 보내는 중 오류가 발생했습니다</string>
     <string name="error_sending_verification_code">인증 코드를 보내는 중 오류가 발생했습니다.</string>
-    <string name="error_setting_default_wallet_with_reason">기본 지갑을 설정하는 중 오류가 발생했습니다: %1$s</string>
     <string name="error_signing_in_with_google">Google로 로그인하는 중 오류가 발생했습니다</string>
     <string name="error_updating_device_name">기기 이름을 업데이트하는 중 오류가 발생했습니다.</string>
     <string name="exclude_app">VPN에서 제외</string>
@@ -771,7 +764,6 @@
     <string name="intro_widgets_tap_to_add">위젯을 탭하면 홈 화면에 추가됩니다.</string>
     <string name="invalid_input">잘못된 입력</string>
     <string name="invalid_referral_code">이 코드는 유효하지 않습니다</string>
-    <string name="invalid_solana_address">유효한 Solana 주소가 아닙니다.</string>
     <string name="invalid_ss58_address">유효한 Bittensor 주소가 아닙니다.</string>
     <string name="ip_address">IP 주소</string>
     <string name="ip_family_both">둘 다</string>
@@ -868,7 +860,6 @@
     <string name="login_verify_details">본인 확인을 위해 보내드린 코드를\n입력해주세요.</string>
     <string name="login_verify_header">메일을 확인해주세요</string>
     <string name="longest_streak">최장 연속</string>
-    <string name="make_default">기본값으로 설정</string>
     <string name="manage_devices">기기 관리</string>
     <string name="manage_devices_connecting">이 기기를 연결하는 중…</string>
     <string name="manage_devices_help">연결된 기기나 프록시는 각각 요금제의 자리를 하나씩 사용합니다. 더 이상 사용하지 않는 것을 제거하면 자리가 비워집니다.</string>
@@ -956,7 +947,6 @@
     <string name="no_solana_wallet_found">Solana 결제를 처리할 지갑 앱을 찾을 수 없습니다.</string>
     <string name="no_solana_wallets_found">Solana 지갑을 찾을 수 없습니다</string>
     <string name="no_wallets_found_alert_content">이 장치에 설치된 Solana 지갑이 없습니다. 지갑을 설치하고 다시 시도하십시오.</string>
-    <string name="no_wallets_found_enter_address_manually">이 기기에서 호환되는 Solana 지갑 앱을 찾을 수 없습니다. 대신 지갑 주소를 붙여 넣으려면 \'주소 직접 입력\'을 선택하세요.</string>
     <string name="none">없음</string>
     <string name="notifications_label">알림</string>
     <string name="of_total">/ %1$s</string>
@@ -1001,8 +991,6 @@
     <string name="payment_past_due_update_payment">결제 수단 업데이트</string>
     <string name="payment_problem">결제 문제</string>
     <string name="payment_received_title">결제 완료</string>
-    <string name="payout_wallet_updated">지급 지갑이 업데이트되었습니다</string>
-    <string name="payouts_now_go_to">이제 지급금은 %1$s(으)로 전송됩니다.</string>
     <string name="peer_count_one">피어 1개</string>
     <string name="peer_count_other">피어 %d개</string>
     <string name="pending_data_key">대기 중</string>
@@ -1177,8 +1165,6 @@
     <string name="remove">제거</string>
     <string name="remove_rule">규칙 제거</string>
     <string name="remove_this_sign_in_method">이 로그인 방법을 제거할까요?</string>
-    <string name="remove_wallet">지갑 제거</string>
-    <string name="remove_wallet_moves_or_holds_payouts">USDC 지급은 다른 Solana 또는 Polygon 지갑이 있으면 그 지갑으로 옮겨지고, 없으면 지갑을 연결할 때까지 보류됩니다.</string>
     <string name="resend_reset_link">링크 재전송</string>
     <string name="resend_verify_code">코드 재전송</string>
     <string name="reset_extenders">익스텐더 재설정</string>
@@ -1489,10 +1475,7 @@
     <string name="update_referral_network">추천 네트워크 업데이트</string>
     <string name="upgrade_now">지금 업그레이드하세요</string>
     <string name="upgrade_subscription">구독 업그레이드</string>
-    <string name="usdc_payouts_until_migration">Bittensor로의 이전이 완료될 때까지 USDC 지급은 계속 이 지갑으로 갑니다.</string>
     <string name="usdc_solana_network_only">USDC는 Solana 네트워크로만 보내세요. 다른 네트워크로 보낸 USDC는 도착하지 않습니다.</string>
-    <string name="usdc_waiting">마지막 USDC 지급: %1$s USDC 대기 중</string>
-    <string name="usdc_wallet_address">USDC 월렛 주소</string>
     <string name="use_extender_settings">익스텐더 설정 사용</string>
     <string name="use_most_stable_provider">가장 안정적인 제공업체를 사용합니다</string>
     <string name="use_wireguard_socks_https_proxy">WireGuard / SOCKS / HTTPS 프록시 사용</string>
@@ -1549,7 +1532,6 @@
     <string name="wallet_connected_to_protocol">UR 프로토콜에 연결되었습니다. 받은 보상은 여기로 들어옵니다. Alpha는 연결 후 다음 에포크부터 쌓입니다.</string>
     <string name="wallet_looks_new_warning">이 주소는 아직 Bittensor 체인에서 활동 기록이 없습니다. 새 지갑으로 보입니다. 계속하기 전에 내 지갑이 맞는지 확인하세요.</string>
     <string name="wallet_not_retroactive">지갑을 연결하면 다음 에포크부터 SN25α를 받습니다. 이전 에포크는 소급해서 정산되지 않습니다.</string>
-    <string name="wallet_options">지갑 옵션</string>
     <string name="wallet_sign_in_method_added">지갑 로그인 방법이 추가되었습니다</string>
     <string name="welcome_offer_eyebrow">웰컴 오퍼</string>
     <string name="welcome_to_urnetwork">URnetwork에 오신 것을 환영합니다</string>
