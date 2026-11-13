@@ -100,6 +100,7 @@
     <string name="bittensor_error_no_account">กระเป๋าเงิน %1$s ของคุณไม่มีบัญชีสำหรับลงนาม เพิ่มหรือเชื่อมต่อบัญชีในกระเป๋าเงิน แล้วลองอีกครั้ง</string>
     <string name="bittensor_error_signature_mismatch">ลายเซ็นนี้ไม่ได้มาจากที่อยู่ที่คุณป้อน ใน %1$s ให้ลงนามข้อความด้วยที่อยู่นั้น แล้ววางลายเซ็นอีกครั้ง</string>
     <string name="bittensor_error_user_rejected">คำขอถูกปฏิเสธในกระเป๋าเงินของคุณ เริ่มใหม่และอนุมัติคำขอเพื่อดำเนินการต่อ</string>
+    <string name="bittensor_error_wallet_failed">กระเป๋าเงิน %1$s ของคุณไม่สามารถดำเนินการคำขอให้เสร็จได้ ตรวจสอบกระเป๋าเงิน แล้วลองอีกครั้ง</string>
     <string name="bittensor_error_walletconnect_expired">คำขอ WalletConnect หมดอายุก่อนที่กระเป๋าเงินจะตอบกลับ เริ่มใหม่อีกครั้ง</string>
     <string name="bittensor_error_walletconnect_unavailable">WalletConnect ไม่พร้อมใช้งานในขณะนี้ ลองอีกครั้งในภายหลัง หรือป้อนที่อยู่ของคุณด้วยตนเอง</string>
     <string name="bittensor_funds_disclaimer">คีย์นี้จัดเก็บไว้ในเครื่อง ในพื้นที่จัดเก็บที่ปลอดภัยของแอป คีย์นี้จะไม่ถูกแชร์กับ URnetwork เลย URnetwork ไม่แตะต้องและไม่รับผิดชอบต่อเงินใด ๆ ของผู้ใช้</string>
@@ -300,6 +301,7 @@
     <string name="copy_extender_address">คัดลอกที่อยู่ของตัวขยาย</string>
     <string name="copy_share_text">คัดลอกข้อความแชร์</string>
     <string name="could_not_get_google_id_token">ไม่สามารถรับโทเค็น ID ของ Google ได้</string>
+    <string name="couldnt_open_wallet">ไม่สามารถเปิดกระเป๋าเงินได้ กรุณาติดตั้งแล้วลองใหม่อีกครั้ง</string>
     <string name="countries">ประเทศ</string>
     <string name="country">ประเทศ</string>
     <string name="country_multipliers">ตัวคูณตามประเทศ</string>
@@ -1356,6 +1358,7 @@
     <string name="solana_payment_still_checking">ยังคงตรวจสอบการชำระเงิน Solana ของคุณ การยืนยันบนเครือข่ายอาจใช้เวลาหนึ่งถึงสองนาที</string>
     <string name="solana_sign_in">เข้าสู่ระบบด้วยเครือข่าย Solana</string>
     <string name="solana_wallet">กระเป๋าเงิน Solana</string>
+    <string name="solana_wallet_error_session_not_found">ไม่พบการเชื่อมต่อกระเป๋าเงินในเบราว์เซอร์นี้ เริ่มใหม่เพื่อเชื่อมต่อกระเป๋าเงินของคุณอีกครั้ง</string>
     <string name="something_went_wrong">มีบางอย่างผิดปกติ</string>
     <string name="sorry_to_see_you_go">ขอบคุณที่เคยเป็นส่วนหนึ่งกับเรา เราเสียดายที่ต้องลาจากกัน</string>
     <string name="split_rule_description">โฮสต์ที่เลือกจะถูกส่งผ่านภายในเครื่องและไม่ผ่านอุโมงค์</string>

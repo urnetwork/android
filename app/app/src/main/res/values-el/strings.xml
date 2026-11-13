@@ -100,6 +100,7 @@
     <string name="bittensor_error_no_account">Το πορτοφόλι %1$s σας δεν έχει λογαριασμό για υπογραφή. Προσθέστε ή συνδέστε έναν λογαριασμό στο πορτοφόλι και δοκιμάστε ξανά.</string>
     <string name="bittensor_error_signature_mismatch">Αυτή η υπογραφή δεν προέρχεται από τη διεύθυνση που εισαγάγατε. Στο %1$s, υπογράψτε το μήνυμα με αυτήν τη διεύθυνση και, στη συνέχεια, επικολλήστε ξανά την υπογραφή.</string>
     <string name="bittensor_error_user_rejected">Το αίτημα απορρίφθηκε στο πορτοφόλι σας. Ξεκινήστε ξανά και εγκρίνετέ το για να συνεχίσετε.</string>
+    <string name="bittensor_error_wallet_failed">Το πορτοφόλι %1$s σας δεν μπόρεσε να ολοκληρώσει το αίτημα. Ελέγξτε το πορτοφόλι και δοκιμάστε ξανά.</string>
     <string name="bittensor_error_walletconnect_expired">Το αίτημα WalletConnect έληξε πριν απαντήσει το πορτοφόλι. Ξεκινήστε ξανά.</string>
     <string name="bittensor_error_walletconnect_unavailable">Το WalletConnect δεν είναι διαθέσιμο αυτή τη στιγμή. Δοκιμάστε ξανά αργότερα ή εισαγάγετε τη διεύθυνσή σας χειροκίνητα.</string>
     <string name="bittensor_funds_disclaimer">Αυτό το κλειδί αποθηκεύεται τοπικά στον ασφαλή χώρο αποθήκευσης της εφαρμογής. Δεν κοινοποιείται ποτέ στο URnetwork. Το URnetwork δεν αγγίζει κεφάλαια χρηστών και δεν φέρει καμία ευθύνη για αυτά.</string>
@@ -300,6 +301,7 @@
     <string name="copy_extender_address">Αντιγραφή διεύθυνσης επεκτατή</string>
     <string name="copy_share_text">Αντιγραφή κειμένου κοινοποίησης</string>
     <string name="could_not_get_google_id_token">Δεν ήταν δυνατή η λήψη του διακριτικού Google ID</string>
+    <string name="couldnt_open_wallet">Δεν ήταν δυνατό το άνοιγμα του πορτοφολιού. Εγκαταστήστε το και δοκιμάστε ξανά.</string>
     <string name="countries">Χώρες</string>
     <string name="country">Χώρα</string>
     <string name="country_multipliers">Πολλαπλασιαστές χώρας</string>
@@ -1356,6 +1358,7 @@
     <string name="solana_payment_still_checking">Ελέγχουμε ακόμη την πληρωμή σας στο Solana. Η επιβεβαίωση στο δίκτυο μπορεί να διαρκέσει ένα ή δύο λεπτά.</string>
     <string name="solana_sign_in">Είσοδος με Solana</string>
     <string name="solana_wallet">Πορτοφόλι Solana</string>
+    <string name="solana_wallet_error_session_not_found">Η σύνδεση του πορτοφολιού δεν βρέθηκε σε αυτό το πρόγραμμα περιήγησης. Ξεκινήστε ξανά για να συνδέσετε ξανά το πορτοφόλι σας.</string>
     <string name="something_went_wrong">Κάτι πήγε στραβά.</string>
     <string name="sorry_to_see_you_go">Λυπούμαστε που φεύγετε!</string>
     <string name="split_rule_description">Οι επιλεγμένοι hosts δρομολογούνται τοπικά και παρακάμπτουν το τούνελ.</string>

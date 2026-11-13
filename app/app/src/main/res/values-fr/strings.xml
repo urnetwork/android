@@ -100,6 +100,7 @@
     <string name="bittensor_error_no_account">Votre portefeuille %1$s n\'a aucun compte avec lequel signer. Ajoutez ou connectez un compte dans le portefeuille, puis réessayez.</string>
     <string name="bittensor_error_signature_mismatch">Cette signature ne provient pas de l\'adresse que vous avez saisie. Dans %1$s, signez le message avec cette adresse, puis collez à nouveau la signature.</string>
     <string name="bittensor_error_user_rejected">La demande a été refusée dans votre portefeuille. Recommencez et approuvez-la pour continuer.</string>
+    <string name="bittensor_error_wallet_failed">Votre portefeuille %1$s n\'a pas pu terminer la demande. Vérifiez le portefeuille, puis réessayez.</string>
     <string name="bittensor_error_walletconnect_expired">La demande WalletConnect a expiré avant que le portefeuille ne réponde. Recommencez.</string>
     <string name="bittensor_error_walletconnect_unavailable">WalletConnect n\'est pas disponible pour le moment. Réessayez plus tard ou saisissez votre adresse manuellement.</string>
     <string name="bittensor_funds_disclaimer">Cette clé est stockée localement dans le stockage sécurisé de l’application. Elle n’est jamais partagée avec URnetwork. URnetwork ne touche à aucun fonds des utilisateurs et n’en est pas responsable.</string>
@@ -300,6 +301,7 @@
     <string name="copy_extender_address">Copier l’adresse de l’extendeur</string>
     <string name="copy_share_text">Copier le texte de partage</string>
     <string name="could_not_get_google_id_token">Impossible d\'obtenir le jeton d\'identification Google</string>
+    <string name="couldnt_open_wallet">Impossible d\'ouvrir le portefeuille. Veuillez l\'installer et réessayer.</string>
     <string name="countries">Pays</string>
     <string name="country">Pays</string>
     <string name="country_multipliers">Multiplicateurs par pays</string>
@@ -1356,6 +1358,7 @@
     <string name="solana_payment_still_checking">Nous vérifions encore votre paiement Solana. La confirmation sur le réseau peut prendre une minute ou deux.</string>
     <string name="solana_sign_in">Se connecter avec Solana</string>
     <string name="solana_wallet">Portefeuille Solana</string>
+    <string name="solana_wallet_error_session_not_found">La connexion du portefeuille est introuvable dans ce navigateur. Recommencez pour reconnecter votre portefeuille.</string>
     <string name="something_went_wrong">Quelque chose s\'est mal passé.</string>
     <string name="sorry_to_see_you_go">Nous sommes désolés de vous voir partir !</string>
     <string name="split_rule_description">Les hôtes sélectionnés sont routés localement et contournent le tunnel.</string>

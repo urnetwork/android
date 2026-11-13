@@ -100,6 +100,7 @@
     <string name="bittensor_error_no_account">Pochi yako ya %1$s haina akaunti ya kutia sahihi. Ongeza au unganisha akaunti kwenye pochi, kisha ujaribu tena.</string>
     <string name="bittensor_error_signature_mismatch">Saini hii haitoki kwenye anwani uliyoweka. Katika %1$s, saini ujumbe kwa anwani hiyo, kisha ubandike saini tena.</string>
     <string name="bittensor_error_user_rejected">Ombi lilikataliwa kwenye pochi yako. Anza upya na uliidhinishe ili kuendelea.</string>
+    <string name="bittensor_error_wallet_failed">Pochi yako ya %1$s haikuweza kukamilisha ombi. Kagua pochi, kisha ujaribu tena.</string>
     <string name="bittensor_error_walletconnect_expired">Muda wa ombi la WalletConnect uliisha kabla pochi haijajibu. Anza upya.</string>
     <string name="bittensor_error_walletconnect_unavailable">WalletConnect haipatikani kwa sasa. Jaribu tena baadaye, au weka anwani yako mwenyewe.</string>
     <string name="bittensor_funds_disclaimer">Ufunguo huu umehifadhiwa ndani ya kifaa katika hifadhi salama ya programu. Haushirikiwi kamwe na URnetwork. URnetwork haigusi fedha zozote za watumiaji na haiwajibiki kwazo.</string>
@@ -300,6 +301,7 @@
     <string name="copy_extender_address">Nakili anwani ya kipanuzi</string>
     <string name="copy_share_text">Nakili maandishi ya kushiriki</string>
     <string name="could_not_get_google_id_token">Imeshindwa kupata tokeni ya kitambulisho cha Google</string>
+    <string name="couldnt_open_wallet">Imeshindwa kufungua pochi. Tafadhali isakinishe kisha ujaribu tena.</string>
     <string name="countries">Nchi</string>
     <string name="country">Nchi</string>
     <string name="country_multipliers">Vizidishi vya nchi</string>
@@ -1356,6 +1358,7 @@
     <string name="solana_payment_still_checking">Bado tunakagua malipo yako ya Solana. Uthibitishaji kwenye mtandao unaweza kuchukua dakika moja au mbili.</string>
     <string name="solana_sign_in">Ingia na Solana</string>
     <string name="solana_wallet">Pochi ya Solana</string>
+    <string name="solana_wallet_error_session_not_found">Muunganisho wa pochi haukupatikana kwenye kivinjari hiki. Anza upya ili kuunganisha pochi yako tena.</string>
     <string name="something_went_wrong">Kuna kitu kilienda vibaya.</string>
     <string name="sorry_to_see_you_go">Samahani kuona ukienda!</string>
     <string name="split_rule_description">Vikoa vilivyochaguliwa hupitishwa ndani na kuepuka tuneli.</string>

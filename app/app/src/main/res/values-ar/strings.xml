@@ -100,6 +100,7 @@
     <string name="bittensor_error_no_account">لا تحتوي محفظة %1$s لديك على حساب للتوقيع به. أضف حسابًا أو اربطه في المحفظة، ثم حاول مرة أخرى.</string>
     <string name="bittensor_error_signature_mismatch">هذا التوقيع ليس من العنوان الذي أدخلته. في %1$s، وقّع الرسالة باستخدام ذلك العنوان، ثم الصق التوقيع مرة أخرى.</string>
     <string name="bittensor_error_user_rejected">تم رفض الطلب في محفظتك. ابدأ من جديد ووافق عليه للمتابعة.</string>
+    <string name="bittensor_error_wallet_failed">تعذّر على محفظة %1$s إكمال الطلب. تحقّق من المحفظة، ثم حاول مرة أخرى.</string>
     <string name="bittensor_error_walletconnect_expired">انتهت صلاحية طلب WalletConnect قبل أن تستجيب المحفظة. ابدأ من جديد.</string>
     <string name="bittensor_error_walletconnect_unavailable">WalletConnect غير متاح حاليًا. حاول مرة أخرى لاحقًا، أو أدخل عنوانك يدويًا.</string>
     <string name="bittensor_funds_disclaimer">يُخزَّن هذا المفتاح محليًا في التخزين الآمن للتطبيق. لا تتم مشاركته مع URnetwork أبدًا. لا يلمس URnetwork أي أموال للمستخدمين ولا يتحمّل أي مسؤولية عنها.</string>
@@ -300,6 +301,7 @@
     <string name="copy_extender_address">نسخ عنوان الموسّع</string>
     <string name="copy_share_text">نسخ نص المشاركة</string>
     <string name="could_not_get_google_id_token">تعذّر الحصول على رمز معرّف Google</string>
+    <string name="couldnt_open_wallet">تعذّر فتح المحفظة. يرجى تثبيتها والمحاولة مرة أخرى.</string>
     <string name="countries">الدول</string>
     <string name="country">الدولة</string>
     <string name="country_multipliers">مضاعفات الدول</string>
@@ -1356,6 +1358,7 @@
     <string name="solana_payment_still_checking">لا نزال نتحقق من دفعتك عبر Solana. قد يستغرق التأكيد على الشبكة دقيقة أو دقيقتين.</string>
     <string name="solana_sign_in">تسجيل الدخول باستخدام Solana</string>
     <string name="solana_wallet">محفظة Solana</string>
+    <string name="solana_wallet_error_session_not_found">لم يتم العثور على اتصال المحفظة في هذا المتصفح. ابدأ من جديد لإعادة ربط محفظتك.</string>
     <string name="something_went_wrong">حدث خطأ ما.</string>
     <string name="sorry_to_see_you_go">نحن آسفون لرؤيتك تذهب!</string>
     <string name="split_rule_description">يتم توجيه المضيفين المحددين محليًا لتجاوز النفق.</string>

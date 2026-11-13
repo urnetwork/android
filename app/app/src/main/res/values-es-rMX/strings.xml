@@ -100,6 +100,7 @@
     <string name="bittensor_error_no_account">Tu cartera %1$s no tiene ninguna cuenta con la que firmar. Agrega o conecta una cuenta en la cartera y vuelve a intentarlo.</string>
     <string name="bittensor_error_signature_mismatch">Esta firma no es de la dirección que ingresaste. En %1$s, firma el mensaje con esa dirección y vuelve a pegar la firma.</string>
     <string name="bittensor_error_user_rejected">La solicitud se rechazó en tu cartera. Comienza de nuevo y apruébala para continuar.</string>
+    <string name="bittensor_error_wallet_failed">Tu cartera %1$s no pudo completar la solicitud. Revisa la cartera y vuelve a intentarlo.</string>
     <string name="bittensor_error_walletconnect_expired">La solicitud de WalletConnect venció antes de que respondiera la cartera. Comienza de nuevo.</string>
     <string name="bittensor_error_walletconnect_unavailable">WalletConnect no está disponible en este momento. Inténtalo de nuevo más tarde o ingresa tu dirección manualmente.</string>
     <string name="bittensor_funds_disclaimer">Esta clave se guarda localmente en el almacenamiento seguro de la aplicación. Nunca se comparte con URnetwork. URnetwork no toca los fondos de los usuarios ni se hace responsable de ninguno de ellos.</string>
@@ -300,6 +301,7 @@
     <string name="copy_extender_address">Copiar dirección del extensor</string>
     <string name="copy_share_text">Copiar texto para compartir</string>
     <string name="could_not_get_google_id_token">No se pudo obtener el token de ID de Google</string>
+    <string name="couldnt_open_wallet">No se pudo abrir la cartera. Instálala e inténtalo de nuevo.</string>
     <string name="countries">Países</string>
     <string name="country">País</string>
     <string name="country_multipliers">Multiplicadores por país</string>
@@ -1356,6 +1358,7 @@
     <string name="solana_payment_still_checking">Seguimos verificando tu pago de Solana. La confirmación en la red puede tardar uno o dos minutos.</string>
     <string name="solana_sign_in">Iniciar sesión con Solana</string>
     <string name="solana_wallet">Cartera de Solana</string>
+    <string name="solana_wallet_error_session_not_found">No se encontró la conexión de la cartera en este navegador. Comienza de nuevo para volver a conectar tu cartera.</string>
     <string name="something_went_wrong">Algo salió mal.</string>
     <string name="sorry_to_see_you_go">¡Lamentamos verte ir!</string>
     <string name="split_rule_description">Los hosts seleccionados se enrutan localmente y evitan el túnel.</string>
