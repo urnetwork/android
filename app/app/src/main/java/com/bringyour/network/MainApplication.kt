@@ -1534,6 +1534,20 @@ class MainApplication : Application() {
         return true
     }
 
+    // The device's languages, most preferred first, as BCP 47 tags: the
+    // user's list (Settings > System > Languages), with this app's own
+    // language first when one is set for it. Not just the first, which is
+    // all Locale.getDefault() names: a reader who lists Catalan, then
+    // Spanish, reads the Spanish emails.
+    private fun deviceLanguages(): com.bringyour.sdk.StringList {
+        val languages = Sdk.newStringList()
+        val locales = android.os.LocaleList.getDefault()
+        for (i in 0 until locales.size()) {
+            languages.add(locales.get(i).toLanguageTag())
+        }
+        return languages
+    }
+
     private fun updateActiveNetworkSpace(networkSpace: NetworkSpace) {
         // Retire held password/client replies before teardown can deliver one.
         loginStartupTracker.loggedOut()
@@ -1548,6 +1562,11 @@ class MainApplication : Application() {
         // flavor's distribution (BRINGYOUR_BUNDLE_DISTRIBUTION), which tells the
         // server who bills this build: Google Play, or Stripe outside it
         networkSpace.api?.setClientInfo(Sdk.newClientInfoWithDistribution(CLIENT_INFO_DEVICE_TYPE, BuildConfig.VERSION_NAME, BuildConfig.BRINGYOUR_BUNDLE_DISTRIBUTION))
+        // and the device's zone and languages, which the sdk sends with
+        // sign-up, sign-in and auth-client: the campaign emails are placed in
+        // the reader's day and written in their language (server
+        // controller/mail_context.go)
+        networkSpace.api?.setMailLocale(java.util.TimeZone.getDefault().id, deviceLanguages())
 
         // the product-event queue follows the active network space: its api sends
         // and its local state dir persists the pending batch across process death
