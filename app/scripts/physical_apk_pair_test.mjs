@@ -57,6 +57,19 @@ function fixture(t) {
   return f;
 }
 
+function assertCommandFailure(run, expected, privateValues = []) {
+  assert.throws(run, error => {
+    assert.match(error.message, /^apk-pair-command-failed /);
+    assert.ok(error.message.length <= 256, "command diagnostics must stay bounded");
+    assert.doesNotMatch(error.message, /[\r\n\u001b]/);
+    const fields = Object.fromEntries(error.message.split(" ").slice(1).map(field => field.split("=")));
+    assert.deepEqual(fields, { stage: "adb-get-state", status: "1", signal: "none", error: "none",
+      stderr: "other", stdout: "text", ...expected });
+    for (const value of privateValues) assert.equal(error.message.includes(value), false, "private child context must be redacted");
+    return true;
+  });
+}
+
 test("root cause: universal .530 would downgrade installed arm64 .533; compatible split replaces at equal code", () => {
   const app = appMetadata();
   assert.ok(app.elements[0].versionCode < observed().devices[0].versions.app);
@@ -116,6 +129,98 @@ test("observation only reads the two allowlisted devices and fails on unavailabl
   assert.deepEqual(new Set(f.commands.map(command => command.args[1])), new Set(SERIALS));
   assert.throws(() => observeDevices({ ...pinned, invoke: () => ({ status: 1, stdout: "", stderr: "private failure" }) }), /apk-pair-command-failed/);
   assert.throws(() => observeDevices({ ...pinned, invoke: () => ({ status: 0, stdout: "unauthorized\n" }) }), /performance-device-offline/);
+});
+
+// These public API calls still fail closed. The old implementation loses the
+// stage and process outcome, so it fails the diagnostic assertions below.
+test("command diagnostics identify the failed observation stage and stop further reads", t => {
+  for (const [commandCount, stage] of [[1, "adb-get-state"], [2, "adb-abi"], [3, "adb-package-versions"], [4, "adb-get-state"]]) {
+    const f = fixture(t); const read = f.dependencies.invoke;
+    const privateText = `token=PRIVATE_FIXTURE_TOKEN ${f.root} ${SERIALS.join(" ")} --private-argument`;
+    f.dependencies.invoke = (...args) => {
+      const result = read(...args);
+      return f.commands.length === commandCount ? { status: 1, stdout: privateText,
+        stderr: `adb: device '${args[1][1]}' not found\n${privateText}` } : result;
+    };
+    assertCommandFailure(() => observeDevices(f.dependencies), { stage, stderr: "device-not-found" },
+      [f.root, ...SERIALS, "PRIVATE_FIXTURE_TOKEN", "--private-argument"]);
+    assert.equal(f.commands.length, commandCount, "a failed observation must not continue to another read or phone");
+    assert.equal(existsSync(f.options.output), false);
+  }
+});
+
+test("command diagnostics distinguish launch errors, timeout, buffer exhaustion, signal and invalid results", () => {
+  const privateText = `/private/FIXTURE_SECRET_PATH ${SERIALS[0]} PRIVATE_FIXTURE_TOKEN\n--private-argument`;
+  for (const scenario of [
+    { result: { status: null, stdout: "", stderr: "", error: Object.assign(new Error(privateText), { code: "ENOENT" }) },
+      expected: { status: "null", error: "ENOENT", stderr: "empty" } },
+    { thrown: Object.assign(new Error(privateText), { code: "EACCES" }),
+      expected: { status: "unavailable", error: "EACCES", stderr: "unavailable", stdout: "invalid" } },
+    { result: { status: null, signal: "SIGTERM", stdout: "", stderr: privateText, error: { code: "ETIMEDOUT", message: privateText } },
+      expected: { status: "null", signal: "SIGTERM", error: "ETIMEDOUT" } },
+    { result: { status: null, signal: "SIGTERM", stdout: "", stderr: "", error: { code: "ENOBUFS", message: privateText } },
+      expected: { status: "null", signal: "SIGTERM", error: "ENOBUFS", stderr: "empty" } },
+    { result: { status: null, signal: "SIGKILL", stdout: privateText, stderr: "" },
+      expected: { status: "null", signal: "SIGKILL", stderr: "empty" } },
+    { result: { status: 0, signal: "SIGTERM", stdout: "device\n", stderr: "" },
+      expected: { status: "0", signal: "SIGTERM", stderr: "empty" } },
+    { result: { status: 0, stdout: "device\n", stderr: "", error: { code: "EIO" } },
+      expected: { status: "0", error: "EIO", stderr: "empty" } },
+    { result: { status: 0, stdout: Buffer.from(privateText), stderr: "" },
+      expected: { status: "0", stderr: "empty", stdout: "invalid" } },
+    { result: undefined,
+      expected: { status: "unavailable", stderr: "unavailable", stdout: "invalid" } },
+    { result: { status: privateText, signal: privateText, error: { code: privateText }, stdout: privateText, stderr: privateText },
+      expected: { status: "invalid", signal: "other", error: "other" } },
+    { thrown: privateText,
+      expected: { status: "unavailable", error: "other", stderr: "unavailable", stdout: "invalid" } },
+  ]) {
+    let calls = 0;
+    assertCommandFailure(() => observeDevices({ ...pinned, invoke(command, args) {
+      calls++; assert.equal(command, "adb"); assert.deepEqual(args, ["-s", SERIALS[0], "get-state"]);
+      if ("thrown" in scenario) throw scenario.thrown;
+      return scenario.result;
+    } }), scenario.expected, ["FIXTURE_SECRET_PATH", ...SERIALS, "PRIVATE_FIXTURE_TOKEN", "--private-argument"]);
+    assert.equal(calls, 1);
+  }
+});
+
+test("command diagnostics classify common ADB stderr without exposing private or unrecognized text", () => {
+  const privateText = `/private/FIXTURE_SECRET_PATH ${SERIALS[0]} PRIVATE_FIXTURE_TOKEN\u001b[31m\n--private-argument`;
+  for (const [stderr, classification] of [
+    [`adb: device '${SERIALS[0]}' not found\n${privateText}`, "device-not-found"],
+    [`error: no devices/emulators found\n${privateText}`, "device-not-found"],
+    [`error: device unauthorized.\n${privateText}`, "device-unauthorized"],
+    [`error: device offline\n${privateText}`, "device-offline"],
+    [`error: more than one device/emulator\n${privateText}`, "multiple-devices"],
+    [`error: no permissions (missing udev rules?)\n${privateText}`, "permission-denied"],
+    [`adb: failed to start daemon\n${privateText}`, "adb-server-unavailable"],
+    [`cmd: Can't find service: package\n${privateText}`, "package-service-unavailable"],
+    [`error: closed\n${privateText}`, "transport-error"],
+    [privateText.repeat(10000), "other"],
+    [" \n", "empty"],
+    [undefined, "unavailable"],
+  ]) {
+    assertCommandFailure(() => observeDevices({ ...pinned, invoke: () => ({ status: 1, stdout: privateText, stderr }) }),
+      { stderr: classification }, ["FIXTURE_SECRET_PATH", ...SERIALS, "PRIVATE_FIXTURE_TOKEN", "--private-argument"]);
+  }
+});
+
+test("manifest command diagnostics identify app or test source or retained APK without publishing a pair", t => {
+  const stages = ["aapt-app-source-manifest", "aapt-app-retained-manifest", "aapt-test-source-manifest", "aapt-test-retained-manifest"];
+  for (const [index, stage] of stages.entries()) {
+    const f = fixture(t); const read = f.dependencies.invoke;
+    f.dependencies.invoke = (...args) => {
+      const result = read(...args);
+      return f.commands.length === index + 1 ? { status: 1, stdout: `PRIVATE_FIXTURE_TOKEN ${args[1][2]}`,
+        stderr: `ERROR: dump failed because assets could not be loaded: ${args[1][2]}` } : result;
+    };
+    assertCommandFailure(() => selectAndRetainPair(f.options, f.dependencies), { stage, stderr: "apk-tool-error" },
+      [f.root, f.options.aapt, ...SERIALS, "PRIVATE_FIXTURE_TOKEN", "dump badging"]);
+    assert.equal(existsSync(f.options.output), false);
+    assert.equal(f.commands.length, index + 1);
+    assert.ok(f.commands.every(command => command.command === f.options.aapt));
+  }
 });
 
 test("selector retains exact compatible APKs mode 0600 and checks manifest codes without any device command", t => {

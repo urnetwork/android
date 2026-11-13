@@ -7,6 +7,7 @@
 // mandatory gates; Android versionCode is an installation floor, not identity.
 import { spawnSync } from "node:child_process";
 import { closeSync, constants, existsSync, lstatSync, openSync, readFileSync, readSync, writeFileSync, writeSync } from "node:fs";
+import { constants as osConstants } from "node:os";
 import { basename, dirname, isAbsolute, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { prepareArtifactDirectory, requireArtifactPaths } from "./physical_artifact_directory.mjs";
@@ -53,11 +54,42 @@ export function performanceSerials(dependencies = {}) {
   return serials;
 }
 
-function invoke(command, args, dependencies) {
+// Keep only fixed classifications, never child text, command arguments, serials
+// or paths. A bounded sample is enough to recognize common ADB/tool failures.
+function commandStderrClass(stderr) {
+  if (typeof stderr !== "string") return "unavailable";
+  const sample = stderr.slice(0, 8192);
+  if (stderr.length <= sample.length && !sample.trim()) return "empty";
+  for (const [classification, pattern] of [
+    ["device-not-found", /\bdevice\b[^\r\n]{0,256}\bnot found\b|\bno devices\/emulators found\b/i],
+    ["device-unauthorized", /\bdevice unauthorized\b|\bauthorization (?:required|failed)\b/i],
+    ["device-offline", /\bdevice offline\b/i],
+    ["multiple-devices", /\bmore than one device(?:\/emulator)?\b/i],
+    ["permission-denied", /\b(?:no permissions|permission denied|insufficient permissions)\b/i],
+    ["adb-server-unavailable", /\b(?:adb server didn't ack|cannot connect to daemon|failed to (?:start|connect to) daemon|cannot bind)\b/i],
+    ["package-service-unavailable", /\b(?:can't|cannot) find service:\s*package\b|\bpackage service (?:unavailable|not found)\b/i],
+    ["transport-error", /\b(?:protocol fault|transport error|connection (?:reset|refused)|failed to read response|device disconnected)\b|\berror:\s*closed\b/i],
+    ["apk-tool-error", /\b(?:badging failed|dump failed|failed to load apk|failed to open apk)\b/i],
+  ]) if (pattern.test(sample)) return classification;
+  return "other";
+}
+
+function commandFailed(stage, result) {
+  const status = result?.status === null ? "null" : result?.status === undefined ? "unavailable" :
+    Number.isSafeInteger(result.status) && Math.abs(result.status) <= 2147483647 ? result.status : "invalid";
+  const signal = !result?.signal ? "none" : typeof result.signal === "string" &&
+    Object.hasOwn(osConstants.signals, result.signal) ? result.signal : "other";
+  const error = !result?.error ? "none" : typeof result.error.code === "string" &&
+    Object.hasOwn(osConstants.errno, result.error.code) ? result.error.code : "other";
+  fail(`apk-pair-command-failed stage=${stage} status=${status} signal=${signal} error=${error} ` +
+    `stderr=${commandStderrClass(result?.stderr)} stdout=${typeof result?.stdout === "string" ? "text" : "invalid"}`);
+}
+
+function invoke(command, args, dependencies, stage) {
   let result;
   try { result = (dependencies.invoke ?? spawnSync)(command, args,
-    { encoding: "utf8", timeout: 15_000, maxBuffer: 1024 * 1024 }); } catch { fail("apk-pair-command-failed"); }
-  if (result?.status !== 0 || result.error || result.signal || typeof result.stdout !== "string") fail("apk-pair-command-failed");
+    { encoding: "utf8", timeout: 15_000, maxBuffer: 1024 * 1024 }); } catch (error) { commandFailed(stage, { error: error || true }); }
+  if (result?.status !== 0 || result.error || result.signal || typeof result.stdout !== "string") commandFailed(stage, result);
   return result.stdout;
 }
 
@@ -79,11 +111,11 @@ export function parseInstalledVersions(raw) {
 
 export function observeDevices(dependencies = {}) {
   const devices = performanceSerials(dependencies).map(serial => {
-    if (invoke("adb", ["-s", serial, "get-state"], dependencies).trim() !== "device") fail("performance-device-offline");
-    const abis = invoke("adb", ["-s", serial, "shell", "getprop", "ro.product.cpu.abilist"], dependencies).trim().split(",");
+    if (invoke("adb", ["-s", serial, "get-state"], dependencies, "adb-get-state").trim() !== "device") fail("performance-device-offline");
+    const abis = invoke("adb", ["-s", serial, "shell", "getprop", "ro.product.cpu.abilist"], dependencies, "adb-abi").trim().split(",");
     if (!abis.includes(ABI) || abis.some(value => !/^[a-z0-9_-]+$/.test(value))) fail("performance-device-abi-unavailable");
     const versions = parseInstalledVersions(invoke("adb", ["-s", serial, "shell", "cmd", "package", "list", "packages",
-      "--show-versioncode", APP], dependencies));
+      "--show-versioncode", APP], dependencies, "adb-package-versions"));
     return { serial, abis, versions };
   });
   return { type: "physical-apk-devices", schemaVersion: 1, observedAtUnixMs: (dependencies.now ?? Date.now)(), devices };
@@ -156,8 +188,8 @@ function publish(path, value, binding) {
   writeFileSync(path, `${JSON.stringify(value)}\n`, { flag: "wx", mode: 0o600 });
 }
 
-function verifyManifest(aapt, path, expected, packageName, dependencies) {
-  const raw = invoke(aapt, ["dump", "badging", path], dependencies);
+function verifyManifest(aapt, path, expected, packageName, dependencies, stage) {
+  const raw = invoke(aapt, ["dump", "badging", path], dependencies, stage);
   const match = /^package: name='([^']+)' versionCode='([0-9]*)'/m.exec(raw);
   if (!match || match[1] !== packageName || Number(match[2]) !== expected.versionCode) fail("apk-manifest-version-mismatch");
   // The test APK is Java-only; the application must actually package ARM64.
@@ -201,11 +233,11 @@ export function selectAndRetainPair(options, dependencies = {}) {
   for (const key of ["app", "test"]) {
     const source = join(dirname(options[`${key}-metadata`]), selected[key].outputFile);
     hashNativeInputFile(source); // Reject links/nonfiles before the manifest tool reads it.
-    verifyManifest(options.aapt, source, selected[key], key === "app" ? APP : TEST, dependencies);
+    verifyManifest(options.aapt, source, selected[key], key === "app" ? APP : TEST, dependencies, `aapt-${key}-source-manifest`);
     requireArtifactPaths(binding, destinations);
     artifacts[key] = { ...retainApk(source, options[`${key}-output`]), versionCode: selected[key].versionCode,
       packageName: key === "app" ? APP : TEST, outputType: selected[key].type };
-    verifyManifest(options.aapt, artifacts[key].path, selected[key], artifacts[key].packageName, dependencies);
+    verifyManifest(options.aapt, artifacts[key].path, selected[key], artifacts[key].packageName, dependencies, `aapt-${key}-retained-manifest`);
   }
   const report = { type: "physical-apk-pair", schemaVersion: 1, buildId: options["build-id"], abi: ABI,
     variantName: appMetadata.variantName, observed, ...artifacts };
