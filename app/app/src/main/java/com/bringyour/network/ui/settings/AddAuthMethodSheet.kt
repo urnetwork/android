@@ -2,7 +2,6 @@ package com.bringyour.network.ui.settings
 
 import com.bringyour.network.ui.components.FoldSafeModalBottomSheet
 import com.bringyour.network.ui.components.rememberFoldSafeSheetState
-import android.util.Log
 import android.util.Patterns
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
@@ -50,6 +49,7 @@ import com.bringyour.network.ui.login.VerifySendNotice
 import com.bringyour.network.ui.login.launchAppleOAuth
 import com.bringyour.network.ui.login.launchBittensorBridge
 import com.bringyour.network.ui.login.requestAndSignSolanaChallenge
+import com.bringyour.network.ui.login.solanaWalletFailureText
 import com.bringyour.network.ui.login.ssoJwtPayload
 import com.bringyour.network.ui.login.ssoOAuthAttempts
 import com.bringyour.network.ui.login.toVerifySendError
@@ -491,12 +491,14 @@ fun AddAuthMethodSheet(
                                                                 walletAuth.blockchain = "solana"
                                                                 addWallet(walletAuth, null)
                                                             }
-                                                            is SolanaChallengeSignResult.NoWalletFound -> {
-                                                                addError = context.getString(R.string.no_compatible_wallet_app_found)
+                                                            // the sdk's message for why the wallet did not
+                                                            // sign, every app's (no wallet app included)
+                                                            is SolanaChallengeSignResult.WalletFailed -> {
+                                                                addError = solanaWalletFailureText(context, result.failure)
                                                             }
-                                                            is SolanaChallengeSignResult.Failure -> {
-                                                                Log.i("AddAuthMethodSheet", "Error connecting to wallet: ${result.error}")
-                                                                addError = context.getString(R.string.error_connecting_to_wallet)
+                                                            // the server's challenge failed, not the wallet
+                                                            is SolanaChallengeSignResult.ChallengeUnavailable -> {
+                                                                addError = context.getString(R.string.login_error)
                                                             }
                                                         }
                                                         isConnectingWallet = false
