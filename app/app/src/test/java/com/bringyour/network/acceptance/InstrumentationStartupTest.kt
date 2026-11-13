@@ -15,7 +15,7 @@ class InstrumentationStartupTest {
     @Test
     fun aRunWithOtherArgumentsStartsWithTheExtenderClientOff() {
         val arguments = mapOf(
-            "class" to "com.bringyour.network.ui.wallet.WalletSectionTest",
+            "class" to "com.bringyour.network.ui.wallet.BittensorProofSheetsTest",
             "repeat" to "2",
         )
         assertFalse(keepsLiveStartup(arguments::get))

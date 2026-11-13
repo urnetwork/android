@@ -34,6 +34,7 @@ import com.bringyour.network.LoginClientCompletion
 import com.bringyour.network.LoginRequest
 import com.bringyour.network.MainApplication
 import com.bringyour.network.R
+import com.bringyour.network.ui.account.SignInClientLimitOffer
 import com.bringyour.network.ui.components.DialogAnchor
 import com.bringyour.network.ui.components.LocalDialogAnchor
 import com.bringyour.network.ui.components.LocalWindowLayout
@@ -477,6 +478,8 @@ fun LoginNavHost(
                     onDismiss = { signInNotice = null },
                 )
             }
+
+            SignInClientLimitOffer()
 
             // a network-level failure reaching URnetwork offers the connection
             // region picker; it never changes the region by itself

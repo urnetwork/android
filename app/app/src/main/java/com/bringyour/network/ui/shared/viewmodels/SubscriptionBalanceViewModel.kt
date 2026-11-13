@@ -346,6 +346,14 @@ class SubscriptionBalanceViewModel @Inject constructor(
     val errorFetchingSubscriptionBalance: StateFlow<Boolean> = _errorFetchingSubscriptionBalance
 
     /**
+     * The plan the plan cards show (JwtManager.plan, the sdk's decision): Pro or
+     * Free as the server answered, else Loading, or Unreachable with a retry
+     * (refreshSubscriptionBalance) once a read failed. Never Free before the
+     * server said so (support inbox 4074).
+     */
+    val shownPlan: StateFlow<com.bringyour.network.ShownPlan> = jwtManager.plan
+
+    /**
      * True exactly when the server reports an active subscription
      * (`currentSubscription != null`). This -- not payment evidence, not the jwt's
      * baked-in `pro` claim -- is what the post-purchase overlay is allowed to
@@ -383,6 +391,16 @@ class SubscriptionBalanceViewModel @Inject constructor(
     val guestStatusKnown: StateFlow<Boolean> = combine(jwtManager.jwtFlow, _serverGuestLoaded) { jwt, loaded ->
         GuestAccount.guestStatusKnown(guestModeClaim = jwt?.guestMode == true, serverGuestLoaded = loaded)
     }.stateIn(viewModelScope, SharingStarted.Eagerly, false)
+
+    /**
+     * The account name shown with the plan (PlanAccountNameLine, support inbox
+     * 6546): the sdk's rule (Sdk.planAccountName) over the signed-in network's
+     * name in the jwt and `isGuestNetwork`. Empty for a guest, whose name nobody
+     * signs in with, and before a jwt is read.
+     */
+    val planAccountName: StateFlow<String> = combine(jwtManager.jwtFlow, isGuestNetwork) { jwt, guest ->
+        Sdk.planAccountName(jwt?.networkName ?: "", guest)
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, "")
 
     /**
      * The server refused a payment sheet or a Solana payment intent with
@@ -514,12 +532,16 @@ class SubscriptionBalanceViewModel @Inject constructor(
                             _isLoading.value = false
                             isRefreshingSubscriptionBalance = false
                             _errorFetchingSubscriptionBalance.value = true
+                            // the plan stays the server's last answer, or shows the
+                            // failure with a retry: never Free (support inbox 4074)
+                            jwtManager.balanceFailed()
 
                         } else {
 
                             if (result == null) {
                                 _isLoading.value = false
                                 isRefreshingSubscriptionBalance = false
+                                jwtManager.balanceFailed()
                                 return@launch
                             }
 
@@ -527,9 +549,8 @@ class SubscriptionBalanceViewModel @Inject constructor(
                              * The server is the source of truth for Pro, and
                              * `currentSubscription` is non-null exactly when the network is
                              * Pro. The jwt's `pro` claim is baked in when the token is
-                             * issued, so it goes stale on both an upgrade and a lapse.
-                             * Refresh the token whenever the two disagree, in either
-                             * direction.
+                             * issued, so it goes stale on both an upgrade and a lapse. The
+                             * sdk decides when to refresh the token (below).
                              *
                              * The downgrade case used to be unreachable: it lived inside
                              * `currentSubscription?.plan?.let`, which does not run precisely
@@ -544,21 +565,26 @@ class SubscriptionBalanceViewModel @Inject constructor(
                             if (serverIsPro) {
                                 pendingSolanaPurchase?.let { (plan, amountUsd) ->
                                     pendingSolanaPurchase = null
+                                    // a USDC year: the sdk's product for the coin (pro_yearly_usdc)
                                     com.bringyour.network.analytics.ClientEvents.purchaseCompleted(
                                         Sdk.EventStoreSolana,
-                                        com.bringyour.network.analytics.ClientEvents.PRODUCT_SOLANA_PRO_YEARLY,
+                                        Sdk.cryptoPaymentEventProduct(Sdk.CryptoAssetUsdcSolana),
                                         plan, false, amountUsd, "USD",
                                     )
                                 }
                             }
-                            val jwtIsPro = jwtManager.jwtFlow.value?.pro == true
-
                             val provideControlMode = deviceManager.provideControlMode
-                            val sync = ProStatusSync.plan(serverIsPro, jwtIsPro, provideControlMode)
+                            val sync = ProStatusSync.plan(provideControlMode)
                             if (sync.provideControlMode != provideControlMode) {
                                 deviceManager.provideControlMode = sync.provideControlMode
                             }
-                            if (sync.refreshToken) {
+                            // The sdk decides the refresh (SubscriptionProTracker): one per
+                            // stored jwt. The refresh renews the client token and leaves the
+                            // stored jwt, and its stale claim, as it was, so asking whenever
+                            // the two disagreed refreshed on every poll (support inbox 8211).
+                            // Through JwtManager, so the Pro the screens show follows the
+                            // server's answer (support inbox 8259).
+                            if (jwtManager.balanceLoaded(serverIsPro)) {
                                 deviceManager.device?.refreshToken(0)
                             }
 
@@ -611,7 +637,10 @@ class SubscriptionBalanceViewModel @Inject constructor(
     }
 
     private val isSupporterWithBalance: () -> Boolean = {
-        val currentIsPro = jwtManager.jwtFlow.value?.pro == true
+        // the sdk's Pro: the server's answer once a balance loaded. The stored
+        // jwt's claim stays stale until that jwt renews, which kept the poll
+        // running after an upgrade.
+        val currentIsPro = jwtManager.proTracker.isPro
 
         currentIsPro && _availableBalanceByteCount.value > 0
     }

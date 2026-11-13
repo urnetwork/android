@@ -88,6 +88,8 @@ class MainApplication : Application() {
         const val VPN_STATE_BURST_COALESCE_MILLIS = 20L
         // distinct from MainService.NOTIFICATION_ID so it outlives the service notification
         const val INSUFFICIENT_BALANCE_NOTIFICATION_ID = 102
+        // the client limit hold's notice (ClientLimitNotice), distinct from both
+        const val CLIENT_LIMIT_NOTIFICATION_ID = 103
         // a return to the foreground after this long starts a new product-event session
         const val CLIENT_EVENT_SESSION_GAP_MILLIS = 30L * 60L * 1000L
         // how long logout waits for the pending product events to send
@@ -214,6 +216,48 @@ class MainApplication : Application() {
 //    var router: Router? = null
     var tunnelChangeSub: Sub? = null
     var contractStatusChangeSub: Sub? = null
+    var clientLimitStatusChangeSub: Sub? = null
+
+    /**
+     * The platform holds the device off for its network's client limit while
+     * a connection is requested (ClientLimitNotice): the connect screen shows
+     * what to do. Null otherwise. Set on the main thread.
+     */
+    val clientLimitHold = kotlinx.coroutines.flow.MutableStateFlow<com.bringyour.network.ui.connect.ClientLimitHold?>(null)
+    // main-looper confined: the device's last client limit status, and the
+    // sdk's decision of its notification
+    private var clientLimitStatus: com.bringyour.sdk.ClientLimitStatus? = null
+    // main-looper confined: the hold in force offered the upgrade at some
+    // point, until it ends. A purchase refreshes the client's plan, which
+    // turns the hold's prompt to remove_client, maybe before uiIsPro turns
+    // true; the plan turning Pro still ends that hold.
+    private var clientLimitHoldOfferedUpgrade = false
+
+    /**
+     * A sign-in the network's client limit refused (offerSignInClientLimit):
+     * the sign-in screens offer what to do and the device list, where a
+     * removal runs the sign-in again. Null otherwise. Set on the main thread.
+     */
+    val signInClientLimit = kotlinx.coroutines.flow.MutableStateFlow<com.bringyour.network.ui.account.SignInClientLimit?>(null)
+    // why the last retry of that sign-in failed, above the device list
+    val signInClientLimitRetryMessage = kotlinx.coroutines.flow.MutableStateFlow<String?>(null)
+    // main-looper confined: numbers the offers, so a retry answers only its own
+    private var signInClientLimitSequence = 0L
+    private val clientLimitNoticeTracker by lazy(LazyThreadSafetyMode.NONE) {
+        Sdk.newClientLimitNoticeTracker()
+    }
+
+    /**
+     * The main screen's notice of the network's Pro features in use
+     * (ProFeaturesNotice): the sdk's ProFeaturesSnapshot.mainPrompt, a
+     * Sdk.ProFeaturesPrompt constant, empty (ProFeaturesPromptNone) while there
+     * is none or the user closed it. Set on the main thread.
+     */
+    val proFeaturesMainPrompt = kotlinx.coroutines.flow.MutableStateFlow("")
+    // main-looper confined: the signed-in network's Pro features in use, one
+    // controller per sign-in (openProFeatures), and its listener
+    private var proFeaturesController: com.bringyour.sdk.ProFeaturesViewController? = null
+    private var proFeaturesSub: Sub? = null
 
     var networkCallback: ConnectivityManager.NetworkCallback? = null
     var offlineCallback: ConnectivityManager.NetworkCallback? = null
@@ -278,13 +322,25 @@ class MainApplication : Application() {
                     }
                     currentApi.authNetworkClient(args) { result, error ->
                         val resultError = result?.error
+                        // the sdk decides what a client limit refusal offers
+                        // (ClientLimitStatus.prompt): the upgrade when UR Pro
+                        // lifts it, else a freed slot. The message says what
+                        // to do, where every sign-in screen shows it; any
+                        // other refusal keeps the server's message
                         val failure = when {
-                            resultError?.clientLimitExceeded == true ->
-                                LoginStartupFailure.AUTH_CLIENT_LIMIT_EXCEEDED
-                            resultError?.upgradeRequired == true ->
+                            resultError?.clientLimitPrompt == Sdk.ClientLimitPromptUpgrade ->
                                 LoginStartupFailure.AUTH_CLIENT_UPGRADE_REQUIRED
+                            resultError?.clientLimitPrompt == Sdk.ClientLimitPromptRemoveClient ->
+                                LoginStartupFailure.AUTH_CLIENT_LIMIT_EXCEEDED
                             resultError != null -> LoginStartupFailure.AUTH_CLIENT_REJECTED
                             else -> null
+                        }
+                        val failureMessage = when (failure) {
+                            LoginStartupFailure.AUTH_CLIENT_UPGRADE_REQUIRED ->
+                                getString(com.bringyour.network.ui.connect.clientLimitMessageId(offersUpgrade = true))
+                            LoginStartupFailure.AUTH_CLIENT_LIMIT_EXCEEDED ->
+                                getString(com.bringyour.network.ui.connect.clientLimitMessageId(offersUpgrade = false))
+                            else -> resultError?.message
                         }
                         callback(
                             result?.let {
@@ -292,7 +348,7 @@ class MainApplication : Application() {
                                     clientId = it.clientId?.toString(),
                                     byClientJwt = it.byClientJwt,
                                     failure = failure,
-                                    failureMessage = resultError?.message,
+                                    failureMessage = failureMessage,
                                 )
                             },
                             error?.message,
@@ -364,7 +420,16 @@ class MainApplication : Application() {
                 if (request == null) {
                     completion(LoginClientCompletion.Failed(LoginStartupFailure.STALE_ATTEMPT))
                 } else {
-                    authenticateNetworkSession(request, byJwt, newNetwork, completion)
+                    authenticateNetworkSession(request, byJwt, newNetwork) { clientCompletion ->
+                        // the network's client limit refused the client: the
+                        // password screen shows the message, and the device
+                        // list is offered with this sign-in's network token,
+                        // which only this path holds
+                        if (clientCompletion is LoginClientCompletion.Failed && ownsLoginRequest(request)) {
+                            offerSignInClientLimit(request, byJwt, newNetwork, clientCompletion.failure)
+                        }
+                        completion(clientCompletion)
+                    }
                 }
             },
             dispatch = ::dispatchLoginAction,
@@ -501,9 +566,28 @@ class MainApplication : Application() {
      * The plan and balance poll state the connect screen shows, mirrored by
      * InsufficientBalanceNoticeEffect so the start connect gate outside the ui
      * (tile, shortcuts, widget button) matches the in-app swap. Main thread.
+     *
+     * The plan turning Pro, as after a purchase from the client limit
+     * prompt, lets a device the limit holds off dial again at once instead of
+     * waiting out the hold (retryClientLimitAfterUpgrade).
+     *
+     * Any change of the plan, a purchase or a lapse, reads the network's
+     * proxies again for the Pro features notice, whose prompt follows the
+     * server's live plan (refreshProFeatures).
      */
     @Volatile
     internal var uiIsPro: Boolean = false
+        set(value) {
+            val changed = value != field
+            val upgraded = value && !field
+            field = value
+            if (upgraded) {
+                retryClientLimitAfterUpgrade()
+            }
+            if (changed) {
+                refreshProFeatures()
+            }
+        }
     @Volatile
     internal var uiPollingSubscriptionBalance: Boolean = false
 
@@ -518,7 +602,10 @@ class MainApplication : Application() {
      */
     fun checkStartConnect(onResult: (blocked: Boolean) -> Unit) {
         com.bringyour.network.ui.connect.checkStartConnect(
-            isProKnown = { uiIsPro || deviceManager.jwtFlow.value?.pro == true },
+            // the sdk's Pro, not the stored jwt's claim alone: once a balance
+            // loaded it is the server's, and the claim stays stale after a
+            // lapse until the stored jwt renews
+            isProKnown = { uiIsPro || deviceManager.isPro },
             isPollingSubscriptionBalance = { uiPollingSubscriptionBalance },
             contractInsufficientBalance = { device?.contractStatus?.insufficientBalance == true },
             cached = com.bringyour.network.widgets.WidgetSnapshotStore.loadBalance(this),
@@ -1129,6 +1216,13 @@ class MainApplication : Application() {
         Sdk.setMemoryLimit(sdkMemoryMib * 1024 * 1024)
         SDK_EFFECTIVE_PROCESS_MEMORY_LIMIT_MIB = sdkMemoryMib
 
+        // The DNS preset catalog of this flavor (connect ADBLOCK3RD O15, H4):
+        // every flavor offers every preset, and the play flavor's switch hides
+        // the ones that block ads if Play review objects. Process-wide, and set
+        // before any device is built, so a stored selection it hides applies as
+        // URnetwork's DNS with the notice that the preset is gone.
+        Sdk.setDnsPresetsHideAdBlocking(BuildConfig.BRINGYOUR_BUNDLE_DNS_PRESETS_HIDE_AD_BLOCKING)
+
         // Nothing removes location test providers when a process dies — not a
         // crash, not force-stop, not uninstall. Start the controller here (not
         // from the feature UI) so a previous process's leftovers are cleared
@@ -1287,6 +1381,10 @@ class MainApplication : Application() {
                 if (0L < backgroundedAt && CLIENT_EVENT_SESSION_GAP_MILLIS < System.currentTimeMillis() - backgroundedAt) {
                     clientEventQueue?.newSession()
                 }
+                // the network's proxies or plan may have changed while the
+                // app was away (ur.io, the extension, the api): the Pro
+                // features notice reads them again
+                refreshProFeatures()
             }
 
             override fun onStop(owner: LifecycleOwner) {
@@ -1436,6 +1534,20 @@ class MainApplication : Application() {
         return true
     }
 
+    // The device's languages, most preferred first, as BCP 47 tags: the
+    // user's list (Settings > System > Languages), with this app's own
+    // language first when one is set for it. Not just the first, which is
+    // all Locale.getDefault() names: a reader who lists Catalan, then
+    // Spanish, reads the Spanish emails.
+    private fun deviceLanguages(): com.bringyour.sdk.StringList {
+        val languages = Sdk.newStringList()
+        val locales = android.os.LocaleList.getDefault()
+        for (i in 0 until locales.size()) {
+            languages.add(locales.get(i).toLanguageTag())
+        }
+        return languages
+    }
+
     private fun updateActiveNetworkSpace(networkSpace: NetworkSpace) {
         // Retire held password/client replies before teardown can deliver one.
         loginStartupTracker.loggedOut()
@@ -1446,8 +1558,15 @@ class MainApplication : Application() {
 
         // the space's api is the api this app's requests go out on: before any
         // of them, it reports the device type and this build's version, which
-        // the server keeps for each sign-in (Account -> Sessions)
-        networkSpace.api?.setClientInfo(Sdk.newClientInfo(CLIENT_INFO_DEVICE_TYPE, BuildConfig.VERSION_NAME))
+        // the server keeps for each sign-in (Account -> Sessions), and the
+        // flavor's distribution (BRINGYOUR_BUNDLE_DISTRIBUTION), which tells the
+        // server who bills this build: Google Play, or Stripe outside it
+        networkSpace.api?.setClientInfo(Sdk.newClientInfoWithDistribution(CLIENT_INFO_DEVICE_TYPE, BuildConfig.VERSION_NAME, BuildConfig.BRINGYOUR_BUNDLE_DISTRIBUTION))
+        // and the device's zone and languages, which the sdk sends with
+        // sign-up, sign-in and auth-client: the campaign emails are placed in
+        // the reader's day and written in their language (server
+        // controller/mail_context.go)
+        networkSpace.api?.setMailLocale(java.util.TimeZone.getDefault().id, deviceLanguages())
 
         // the product-event queue follows the active network space: its api sends
         // and its local state dir persists the pending batch across process death
@@ -2518,6 +2637,10 @@ class MainApplication : Application() {
         contractStatusChangeSub?.close()
         contractStatusChangeSub = null
         lastLoggedContractStatus = null
+        clearClientLimit()
+        // the sign-in ends (sign out, account switch, another network space):
+        // its Pro features notice, and the user's close of it, end with it
+        closeProFeatures()
 
 //        provideEnabled = false
 //        connectEnabled = false
@@ -2625,6 +2748,8 @@ class MainApplication : Application() {
                 updateVpnService()
                 // an active Quick Settings tile is only bound when the app asks
                 QuickConnectTileService.requestUpdate(this)
+                // the client limit prompt and its notice follow the request
+                evaluateClientLimit()
             }
         }
 
@@ -2645,6 +2770,17 @@ class MainApplication : Application() {
                 updateContractStatus()
             }
         }
+        // the platform's client limit hold, from the device in this process:
+        // the prompt and its notice reach the user whether or not the ui runs
+        val clientLimitDevice = device
+        clientLimitStatusChangeSub = device?.addClientLimitStatusChangeListener { status ->
+            Handler(mainLooper).post {
+                if (device === clientLimitDevice) {
+                    clientLimitStatus = status
+                    evaluateClientLimit()
+                }
+            }
+        }
 
         // one path state per device: membership and the physical default
         // decide together when the transports re-dial
@@ -2659,6 +2795,13 @@ class MainApplication : Application() {
         updateTunnelStarted()
         lastLoggedContractStatus = null
         updateContractStatus()
+        // the listener reports changes only: a hold already in force shows now
+        clientLimitStatus = device?.clientLimitStatus
+        evaluateClientLimit()
+        // signed in: a refused sign-in's offer is over
+        dismissSignInClientLimit()
+        // and the network's Pro features in use are read for this sign-in
+        openProFeatures()
         service?.get()?.onDeviceAvailable()
         updateVpnService()
 
@@ -3166,6 +3309,303 @@ class MainApplication : Application() {
         }.onFailure {
             Log.i(TAG, "Insufficient balance notice failed: ${it.message}")
         }
+    }
+
+    /**
+     * Publishes the client limit hold the connect screen shows, and applies
+     * the sdk's decision of its notification (ClientLimitNoticeTracker): the
+     * prompt shows while the device is held and a connection is requested.
+     * The user's traffic is held in the tunnel until they act; nothing here
+     * disconnects. Main thread.
+     */
+    private fun evaluateClientLimit() {
+        val connectRequested = device?.connectEnabled == true
+        val status = clientLimitStatus
+        val held = status?.status == Sdk.ClientLimitStatusExceeded
+        val hold = if (held && connectRequested) {
+            com.bringyour.network.ui.connect.ClientLimitHold(prompt = status?.prompt.orEmpty())
+        } else {
+            null
+        }
+        if (clientLimitHold.value != hold) {
+            clientLimitHold.value = hold
+        }
+        if (hold == null) {
+            clientLimitHoldOfferedUpgrade = false
+        } else if (hold.offersUpgrade) {
+            clientLimitHoldOfferedUpgrade = true
+        }
+        applyClientLimitNoticeAction(
+            clientLimitNoticeTracker.update(status, connectRequested),
+            offersUpgrade = hold?.offersUpgrade ?: true,
+        )
+    }
+
+    /**
+     * The device is gone (stop, sign out): no hold, and no notice for it.
+     * Main thread.
+     */
+    private fun clearClientLimit() {
+        clientLimitStatusChangeSub?.close()
+        clientLimitStatusChangeSub = null
+        clientLimitStatus = null
+        clientLimitHold.value = null
+        clientLimitHoldOfferedUpgrade = false
+        applyClientLimitNoticeAction(clientLimitNoticeTracker.reset(), offersUpgrade = true)
+    }
+
+    /**
+     * The plan turned Pro: ends the hold in force when it offered the
+     * upgrade, as after a purchase from the prompt. uiIsPro also turns true
+     * when a Pro account's ui starts, and no plan lifts a hold at the Pro
+     * limit, so that retry would only be refused again. The purchase is a
+     * change the server confirmed, so this is the sdk's change retry
+     * (Device.retryClientLimitAfterChange): it starts the retry floor over,
+     * and retries refused before the purchase never keep a paid plan waiting
+     * out the hold.
+     */
+    private fun retryClientLimitAfterUpgrade() {
+        if (android.os.Looper.myLooper() != mainLooper) {
+            mainHandler.post { retryClientLimitAfterUpgrade() }
+            return
+        }
+        if (clientLimitHoldOfferedUpgrade) {
+            runCatching { device?.retryClientLimitAfterChange() }
+                .onFailure { Log.i(TAG, "Client limit retry after the upgrade failed: ${it.message}") }
+        }
+    }
+
+    /**
+     * Dials again at once instead of waiting out the client limit hold, once
+     * the user has acted on the prompt: Retry, or a purchase that made the
+     * plan Pro. The sdk ends at most one hold per interval and none with no
+     * hold in force, so a repeated tap cannot storm the limit; a refusal
+     * starts a new hold and the prompt shows again.
+     */
+    fun retryClientLimit() {
+        if (android.os.Looper.myLooper() != mainLooper) {
+            mainHandler.post { retryClientLimit() }
+            return
+        }
+        runCatching { device?.retryClientLimit() }
+            .onFailure { Log.i(TAG, "Client limit retry failed: ${it.message}") }
+    }
+
+    /**
+     * A sign-in's client was refused for the network's client limit: the
+     * sign-in screens offer what to do and the device list (LoginNavHost),
+     * which lists the network's devices with the sign-in's own network token.
+     * Returns whether it offered them; any other failure offers nothing.
+     */
+    internal fun offerSignInClientLimit(
+        request: LoginRequest,
+        networkJwt: String,
+        newNetwork: Boolean,
+        failure: LoginStartupFailure,
+    ): Boolean {
+        val offersUpgrade = when (failure) {
+            LoginStartupFailure.AUTH_CLIENT_UPGRADE_REQUIRED -> true
+            LoginStartupFailure.AUTH_CLIENT_LIMIT_EXCEEDED -> false
+            else -> return false
+        }
+        if (networkJwt.isEmpty()) return false
+        dispatchLoginAction {
+            signInClientLimitSequence += 1
+            signInClientLimitRetryMessage.value = null
+            signInClientLimit.value = com.bringyour.network.ui.account.SignInClientLimit(
+                api = request.api,
+                networkJwt = networkJwt,
+                newNetwork = newNetwork,
+                offersUpgrade = offersUpgrade,
+                sequence = signInClientLimitSequence,
+            )
+        }
+        return true
+    }
+
+    /** The user closed the offer or the device list. Main thread. */
+    fun dismissSignInClientLimit() {
+        signInClientLimit.value = null
+        signInClientLimitRetryMessage.value = null
+    }
+
+    /**
+     * A removal in the device list freed a slot: the refused sign-in again,
+     * with its network token, as a new login request. Success clears the
+     * offer and hands the request to [finish], which completes the login as
+     * the sign-in screens do; another refusal keeps the list open and says
+     * why (signInClientLimitRetryMessage). Main thread.
+     */
+    internal fun retrySignInClientLimit(
+        limit: com.bringyour.network.ui.account.SignInClientLimit,
+        finish: (LoginRequest) -> Unit,
+    ) {
+        if (signInClientLimit.value?.sequence != limit.sequence) return
+        val request = beginLoginRequest() ?: return
+        authenticateNetworkSession(request, limit.networkJwt, limit.newNetwork) { completion ->
+            dispatchLoginAction {
+                if (!ownsLoginRequest(request)) return@dispatchLoginAction
+                when (completion) {
+                    is LoginClientCompletion.Ready -> {
+                        if (signInClientLimit.value?.sequence == limit.sequence) {
+                            dismissSignInClientLimit()
+                        }
+                        finish(request)
+                    }
+                    is LoginClientCompletion.Failed -> {
+                        if (signInClientLimit.value?.sequence == limit.sequence) {
+                            signInClientLimitRetryMessage.value = when (completion.failure) {
+                                LoginStartupFailure.AUTH_CLIENT_UPGRADE_REQUIRED ->
+                                    getString(com.bringyour.network.ui.connect.clientLimitMessageId(offersUpgrade = true))
+                                LoginStartupFailure.AUTH_CLIENT_LIMIT_EXCEEDED ->
+                                    getString(com.bringyour.network.ui.connect.clientLimitMessageId(offersUpgrade = false))
+                                else -> getString(R.string.something_went_wrong)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun applyClientLimitNoticeAction(action: String, offersUpgrade: Boolean) {
+        when (action) {
+            Sdk.ClientLimitNoticePost -> postClientLimitNotice(offersUpgrade, quietly = false)
+            Sdk.ClientLimitNoticeUpdate -> postClientLimitNotice(offersUpgrade, quietly = true)
+            Sdk.ClientLimitNoticeRemove -> runCatching {
+                (getSystemService(NOTIFICATION_SERVICE) as android.app.NotificationManager)
+                    .cancel(CLIENT_LIMIT_NOTIFICATION_ID)
+            }
+            else -> {}
+        }
+    }
+
+    /**
+     * Tells the user the network's client limit holds this device off and
+     * what to do, with a disconnect action, as the insufficient balance notice
+     * does. A tap opens the app, whose connect screen offers Get Pro or Retry.
+     * Without notification permission the in-app notice still explains it.
+     */
+    @android.annotation.SuppressLint("NotificationPermission")
+    private fun postClientLimitNotice(offersUpgrade: Boolean, quietly: Boolean) {
+        runCatching {
+            val notificationManager =
+                getSystemService(NOTIFICATION_SERVICE) as android.app.NotificationManager
+            // same channel as the service notification; creating it again is a no-op
+            notificationManager.createNotificationChannel(
+                android.app.NotificationChannel(
+                    MainService.NOTIFICATION_CHANNEL_ID,
+                    getString(R.string.app_name),
+                    android.app.NotificationManager.IMPORTANCE_LOW,
+                ).apply {
+                    setShowBadge(false)
+                }
+            )
+            val contentIntent = android.app.PendingIntent.getActivity(
+                this,
+                0,
+                android.content.Intent(this, MainActivity::class.java),
+                android.app.PendingIntent.FLAG_IMMUTABLE or android.app.PendingIntent.FLAG_UPDATE_CURRENT,
+            )
+            // the service notification's disconnect target
+            val disconnectIntent = android.app.PendingIntent.getBroadcast(
+                this,
+                1,
+                android.content.Intent(this, NotificationDisconnectReceiver::class.java)
+                    .setAction(NotificationDisconnectReceiver.ACTION_DISCONNECT),
+                android.app.PendingIntent.FLAG_IMMUTABLE or android.app.PendingIntent.FLAG_UPDATE_CURRENT,
+            )
+            val message = getString(com.bringyour.network.ui.connect.clientLimitMessageId(offersUpgrade))
+            val builder = androidx.core.app.NotificationCompat.Builder(
+                this,
+                MainService.NOTIFICATION_CHANNEL_ID,
+            )
+                .setSmallIcon(R.drawable.ic_status)
+                .setContentTitle(getString(R.string.client_limit_reached))
+                .setContentText(message)
+                .setStyle(androidx.core.app.NotificationCompat.BigTextStyle().bigText(message))
+                .setContentIntent(contentIntent)
+                .setAutoCancel(true)
+                // shown again for the same connection, or corrected: in place,
+                // without alerting again
+                .setOnlyAlertOnce(true)
+                .setSilent(quietly)
+            if (!systemAlwaysOnVpn) {
+                builder.addAction(R.drawable.ic_close, getString(R.string.disconnect), disconnectIntent)
+            }
+            notificationManager.notify(CLIENT_LIMIT_NOTIFICATION_ID, builder.build())
+        }.onFailure {
+            Log.i(TAG, "Client limit notice failed: ${it.message}")
+        }
+    }
+
+    /**
+     * Opens the network's Pro features in use for this sign-in, on the
+     * device's api, which keeps the network credential beside the client
+     * token: the sdk reads the network's proxies now, every hour while it is
+     * open, and at each refresh, and decides the main screen's notice
+     * (ProFeaturesViewController). One controller per sign-in, closed at sign
+     * out (closeProFeatures), so each sign-in starts the notice over and the
+     * user's close of it ends with the sign-in. Main thread.
+     */
+    private fun openProFeatures() {
+        closeProFeatures()
+        val signedInApi = device?.api ?: return
+        val controller = signedInApi.openProFeaturesViewController()
+        proFeaturesController = controller
+        proFeaturesSub = controller.addProFeaturesListener(com.bringyour.sdk.ProFeaturesListener {
+            Handler(mainLooper).post { updateProFeatures(controller) }
+        })
+        controller.start()
+    }
+
+    /**
+     * Publishes the controller's newest snapshot rather than the one a
+     * listener was handed, so a late delivery never replaces a newer one, and
+     * nothing of a controller a sign out closed. Main thread.
+     */
+    private fun updateProFeatures(controller: com.bringyour.sdk.ProFeaturesViewController) {
+        if (controller !== proFeaturesController) return
+        proFeaturesMainPrompt.value = controller.snapshot?.mainPrompt.orEmpty()
+    }
+
+    /**
+     * The sign-in ended: drops the listener, then closes the controller, and
+     * withdraws the notice. Main thread.
+     */
+    private fun closeProFeatures() {
+        proFeaturesSub?.close()
+        proFeaturesSub = null
+        proFeaturesController?.close()
+        proFeaturesController = null
+        proFeaturesMainPrompt.value = ""
+    }
+
+    /**
+     * Reads the network's proxies again for the Pro features notice: the app
+     * came to the front, the plan changed (a purchase, a lapse), or the device
+     * list removed a proxy or closed. A read in flight is replaced. Signed out,
+     * nothing to read. Any thread.
+     */
+    fun refreshProFeatures() {
+        if (android.os.Looper.myLooper() != mainLooper) {
+            mainHandler.post { refreshProFeatures() }
+            return
+        }
+        proFeaturesController?.refresh()
+    }
+
+    /**
+     * The user closed the main screen's notice: the sdk keeps it closed while
+     * its prompt stays the same. A new prompt (the server enforcing Pro), one
+     * that ends and returns, and the next sign-in show it again. The device
+     * list keeps showing the prompt. Main thread.
+     */
+    fun dismissProFeaturesNotice() {
+        val controller = proFeaturesController ?: return
+        controller.dismissMainNotice()
+        // gone at once, not on the listener's post
+        updateProFeatures(controller)
     }
 
     /**

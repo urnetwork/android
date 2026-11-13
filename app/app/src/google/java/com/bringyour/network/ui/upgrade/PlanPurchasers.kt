@@ -14,7 +14,8 @@ import com.bringyour.sdk.Sdk
  * developer-determined `onboarding25` offer: trial, then the discounted first
  * year) and, for monthly, the win-back offer's tag while that offer is active
  * (`winback-monthly-50`: the first month at half price), and launches the
- * billing flow through PlanViewModel.upgrade. The
+ * billing flow through PlanViewModel.upgrade, which opens only past the guest
+ * gate right before the launch (MainActivity.upgradePlan). The
  * success is observed where it always was (upgradeSuccessSequence in
  * MainNavHost), so [onPurchaseSuccess] is unused here.
  */

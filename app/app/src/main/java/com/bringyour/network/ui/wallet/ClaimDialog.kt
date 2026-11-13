@@ -60,7 +60,9 @@ import kotlinx.coroutines.delay
 
 /**
  * The claim dialog. The SDK builds, signs and sends the claim from the device's gas
- * key straight to the vault contract; this only shows where that stands.
+ * key straight to the vault contract; this only shows where that stands. Its Claim
+ * waits while [claimHeld]: the session's v2 claim is in flight, and the gas key sends
+ * one claim at a time (SnClaimHolder.claiming), as on Apple, Windows and Linux.
  */
 @Composable
 fun ClaimDialog(
@@ -71,6 +73,7 @@ fun ClaimDialog(
     formatAlpha: (Long) -> String,
     shortSs58: (String) -> String,
     explorerTxUrl: (String) -> String,
+    claimHeld: Boolean = false,
 ) {
     URDialog(
         visible = state != null,
@@ -116,7 +119,8 @@ fun ClaimDialog(
                     onDismiss = onDismiss,
                     onClaim = onClaim,
                     formatAlpha = formatAlpha,
-                    shortSs58 = shortSs58
+                    shortSs58 = shortSs58,
+                    claimHeld = claimHeld
                 )
                 is ClaimDialogState.NeedsGas -> NeedsGasContent(
                     state = state,
@@ -166,6 +170,7 @@ private fun ReadyContent(
     onClaim: () -> Unit,
     formatAlpha: (Long) -> String,
     shortSs58: (String) -> String,
+    claimHeld: Boolean,
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
         if (state.claims.isEmpty()) {
@@ -252,7 +257,9 @@ private fun ReadyContent(
             primary = stringResource(id = R.string.claim_amount_button, formatAlpha(state.totalRao)),
             onPrimary = onClaim,
             secondary = stringResource(id = R.string.cancel),
-            onSecondary = onDismiss
+            onSecondary = onDismiss,
+            // a v2 claim in flight holds it: the gas key sends one claim at a time
+            primaryEnabled = !claimHeld
         )
     }
 }
@@ -304,19 +311,23 @@ internal fun NeedsGasContent(
                 style = MaterialTheme.typography.bodyMedium
             )
         }
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(
-                stringResource(id = R.string.unclaimed),
-                style = MaterialTheme.typography.bodyMedium,
-                color = TextMuted
-            )
-            Text(
-                formatAlpha(state.totalRao),
-                style = MaterialTheme.typography.bodyMedium
-            )
+        // no figure, never a zero, for accounts whose amount is not known (a
+        // settlement v2 account in a pool the dialog could not read)
+        if (0 < state.totalRao) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    stringResource(id = R.string.unclaimed),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = TextMuted
+                )
+                Text(
+                    formatAlpha(state.totalRao),
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
         }
 
         Spacer(modifier = Modifier.height(12.dp))
@@ -348,6 +359,21 @@ private fun ProgressContent(
     explorerTxUrl: (String) -> String,
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
+        // while the claim runs, the amount it is moving, the epochs it sends, as
+        // Claim named them (every app, 2026-11-12): never a zero
+        val movingRao = progress.sumOf { it.amountRao }
+        if (!finished && 0 < movingRao) {
+            Text(
+                formatAlpha(movingRao),
+                style = TextStyle(
+                    fontFamily = gravityCondensedFamily,
+                    fontWeight = FontWeight(900),
+                    fontSize = 40.sp,
+                    color = Color.White
+                )
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+        }
         progress.forEach { p ->
             Row(
                 modifier = Modifier
@@ -545,9 +571,10 @@ internal fun DialogButtons(
     onPrimary: () -> Unit,
     secondary: String? = null,
     onSecondary: () -> Unit = {},
+    primaryEnabled: Boolean = true,
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
-        URButton(onClick = onPrimary) { buttonTextStyle ->
+        URButton(onClick = onPrimary, enabled = primaryEnabled) { buttonTextStyle ->
             Text(primary, style = buttonTextStyle)
         }
         if (secondary != null) {

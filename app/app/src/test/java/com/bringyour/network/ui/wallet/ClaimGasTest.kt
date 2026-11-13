@@ -1,5 +1,6 @@
 package com.bringyour.network.ui.wallet
 
+import com.bringyour.sdk.Sdk
 import java.io.File
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -11,7 +12,11 @@ import org.junit.Test
  * 2,700,000 gas (below that the v1 vault defers the payment), and every v2
  * claim with at least 2,600,000, and sends a claim only when the gas key holds
  * that limit at 1.1 × the gas price, else needs_gas. Below MIN_GAS_TAO both
- * dialogs open on the gas top-up, which suggests SUGGESTED_GAS_TAO.
+ * dialogs open on the gas top-up, which suggests SUGGESTED_GAS_TAO. Two or
+ * more v2 accounts, the pool's and capture the flag's, go in one batch
+ * transaction, or one by one, the largest first, when the gas key can pay for
+ * one claim but not the batch, so one claim's gas is still what the v2 dialog
+ * asks for. An account under the claim relay's transfer floor asks for none.
  *
  * Plain JVM: the v1 dialog's view model needs the device, so its wiring is read
  * from the sources; the v2 dialog is snLedgerClaimDialog's.
@@ -61,6 +66,33 @@ class ClaimGasTest {
         assertEquals(
             SnLedgerClaimDialogState.Ready(listOf(pool), pool.claimableRao, gasKey, 0.015),
             snLedgerClaimDialog(load, gasKey, 0.015)
+        )
+    }
+
+    @Test
+    fun `the pool's account and capture the flag's open on the same threshold`() {
+        // the batch needs no more than one claim's gas to start: the sdk falls back to one at a time
+        val pool = SnLedgerAccountState(1, 42, 5_120_000_000, 4_120_000_000, 1_000_000_000, false, 0)
+        val ctf = SnLedgerAccountState(Sdk.SnLedgerCtfPoolIdBase + 1, 3, 96_051_320, 96_051_320, 0, false, 0, kind = Sdk.SnLedgerPoolKindCtf)
+        val load = SnLedgerLoad.Loaded(listOf(pool, ctf))
+        val total = pool.claimableRao + ctf.claimableRao
+        assertEquals(SnLedgerClaimDialogState.NeedsGas(gasKey, 0.0149, total), snLedgerClaimDialog(load, gasKey, 0.0149))
+        assertEquals(SnLedgerClaimDialogState.Ready(listOf(pool, ctf), total, gasKey, 0.015), snLedgerClaimDialog(load, gasKey, 0.015))
+    }
+
+    @Test
+    fun `an account under the transfer floor asks for no gas`() {
+        // the runtime refuses its claim, so no top-up is asked for it, alone or beside another
+        val pool = SnLedgerAccountState(1, 42, 5_120_000_000, 48_025_660, 1_000_000_000, false, 0)
+        val ctf = SnLedgerAccountState(Sdk.SnLedgerCtfPoolIdBase + 1, 3, 96_051_320, 96_051_320, 0, false, 0, kind = Sdk.SnLedgerPoolKindCtf)
+        val floor = 100_000_000L
+        assertEquals(
+            SnLedgerClaimDialogState.Ready(listOf(pool), 0, gasKey, 0.0, transferFloorRao = floor),
+            snLedgerClaimDialog(SnLedgerLoad.Loaded(listOf(pool)), gasKey, 0.0, floor)
+        )
+        assertEquals(
+            SnLedgerClaimDialogState.Ready(listOf(pool, ctf), 0, gasKey, 0.0, transferFloorRao = floor),
+            snLedgerClaimDialog(SnLedgerLoad.Loaded(listOf(pool, ctf)), gasKey, 0.0, floor)
         )
     }
 }

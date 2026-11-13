@@ -7,6 +7,10 @@ import com.bringyour.network.analytics.ClientEvents
 import com.bringyour.sdk.CryptoInvoiceListener
 import com.bringyour.sdk.CryptoInvoiceState
 import com.bringyour.sdk.CryptoInvoiceViewController
+import com.bringyour.sdk.CryptoPaymentCoin
+import com.bringyour.sdk.CryptoPaymentStepList
+import com.bringyour.sdk.CryptoPaymentTab
+import com.bringyour.sdk.CryptoPaymentTabList
 import com.bringyour.sdk.DeviceLocal
 import com.bringyour.sdk.Sdk
 import com.bringyour.sdk.StringList
@@ -70,6 +74,16 @@ class CryptoPayViewModel @Inject constructor(
     private val _rememberedMethod = MutableStateFlow(Sdk.PaymentMethodCard)
     val rememberedMethod: StateFlow<String> = _rememberedMethod.asStateFlow()
 
+    /**
+     * The coin last chosen in each tab, by tab id, while the activity lives:
+     * what a tap on the tab chooses first (the sdk's CryptoPaymentTabCoin), so
+     * More coins gets back the coin chosen there after a tap on another tab.
+     * The remembered method the row opens on counts as chosen in its tab, as
+     * every pick does: remembered SOL, a tap on Zcash, then More coins is SOL
+     * again, not its first coin (the same on every platform).
+     */
+    private val lastTabCoins = mutableMapOf<String, String>()
+
     /** The coins whose last start was refused with asset_unavailable ("Temporarily unavailable"). */
     private val _unavailable = MutableStateFlow<Set<String>>(emptySet())
     val unavailable: StateFlow<Set<String>> = _unavailable.asStateFlow()
@@ -112,6 +126,7 @@ class CryptoPayViewModel @Inject constructor(
             viewModelScope.launch(Dispatchers.Main) { refresh() }
         })
         _rememberedMethod.value = opened.paymentMethod.ifEmpty { Sdk.PaymentMethodCard }
+        noteTabCoin(_rememberedMethod.value)
         if (started) {
             opened.start()
         }
@@ -136,12 +151,42 @@ class CryptoPayViewModel @Inject constructor(
         _sheetVisible.value = false
         _unavailable.value = emptySet()
         _rememberedMethod.value = Sdk.PaymentMethodCard
+        lastTabCoins.clear()
     }
 
-    /** Remembers the chosen method on this device. */
+    /** Remembers the chosen method on this device, and a coin as the one chosen in its tab. */
     fun selectMethod(method: String) {
         _rememberedMethod.value = method
         controller?.paymentMethod = method
+        noteTabCoin(method)
+    }
+
+    /** [method], when a coin, is now the coin chosen last in its tab; card changes nothing. */
+    private fun noteTabCoin(method: String) {
+        if (CryptoPayment.isCoin(method)) {
+            tabId(method).takeIf { it.isNotEmpty() }?.let { lastTabCoins[it] = method }
+        }
+    }
+
+    /**
+     * What a tap on [tab] chooses (the sdk's CryptoPaymentTabCoin): the coin
+     * last chosen in the tab, else the remembered method's coin, else the
+     * tab's first coin that can be paid with now; null for a tab none of whose
+     * coins can be, which cannot be chosen.
+     */
+    fun tabCoin(tab: CryptoPayTab): String? {
+        val sdkTab = CryptoPaymentTab()
+        sdkTab.id = tab.id
+        val coins = Sdk.newCryptoPaymentCoinList()
+        tab.coins.forEach { coin ->
+            val sdkCoin = CryptoPaymentCoin()
+            sdkCoin.asset = coin.asset
+            sdkCoin.available = coin.available
+            coins.add(sdkCoin)
+        }
+        sdkTab.coins = coins
+        return Sdk.cryptoPaymentTabCoin(sdkTab, lastTabCoins[tab.id] ?: "", _rememberedMethod.value)
+            ?.takeIf { it.isNotEmpty() }
     }
 
     /**
@@ -215,9 +260,7 @@ class CryptoPayViewModel @Inject constructor(
             return
         }
         if (current.phase == Sdk.CryptoInvoicePhaseOpen) {
-            val store = CryptoPayment.eventStore(current.asset)
-            val product = CryptoPayment.eventProduct(current.asset)
-            if (store != null && product != null) {
+            purchaseEvent(current.asset)?.let { (store, product) ->
                 ClientEvents.purchaseCancelled(store, product, CryptoPayment.eventPlan(current.plan), false, current.priceUsd, USD)
             }
         }
@@ -273,12 +316,51 @@ class CryptoPayViewModel @Inject constructor(
         return true
     }
 
-    /** The row's methods for a plan surface selling [plan], from the server's last balance answer. */
-    fun paymentMethods(result: SubscriptionBalanceResult?, plan: String): List<String> {
-        val assets = result?.cryptoAssets ?: return listOf(Sdk.PaymentMethodCard)
+    /**
+     * The coin selector's tabs for a plan surface selling [plan], from the
+     * server's last balance answer: the sdk's CryptoPaymentTabs over the
+     * balance's coins that can be paid with now and the ones it cannot quote
+     * now, which stay in their place greyed ("Temporarily unavailable"). None
+     * without a balance or without a coin of either list that sells [plan]:
+     * the row is not shown then.
+     */
+    fun paymentTabs(result: SubscriptionBalanceResult?, plan: String): List<CryptoPayTab> {
+        val balance = result ?: return emptyList()
         val items = Sdk.newStringList()
         items.add(plan)
-        return CryptoPayment.rowMethods(Sdk.paymentMethods(assets, items).toKotlinList())
+        return Sdk.cryptoPaymentTabs(balance.cryptoAssets, balance.cryptoUnavailableAssets, items)?.toCryptoPayTabs()
+            ?: emptyList()
+    }
+
+    /**
+     * The tab a method sits in (the sdk's CryptoPaymentTabId): the coin's own
+     * for USDC, Zcash and Monero, "More coins" for TAO, Bitcoin, ETH and SOL,
+     * and "" for the card.
+     */
+    fun tabId(method: String): String = Sdk.cryptoPaymentTabId(method) ?: ""
+
+    /**
+     * The store a coin's offer and purchase events name: its market (the sdk's
+     * CryptoAssetMarket), null for anything that is not a coin.
+     */
+    fun eventStore(asset: String): String? = Sdk.cryptoAssetMarket(asset)?.takeIf { it.isNotEmpty() }
+
+    /**
+     * Whether a coin has a payment uri (the sdk's CryptoPaymentUriScheme). TAO
+     * has none: its invoice shows the address and the amount to send by hand,
+     * and a QR code of the address alone.
+     */
+    fun hasPaymentLink(asset: String): Boolean = !Sdk.cryptoPaymentUriScheme(asset).isNullOrEmpty()
+
+    /**
+     * The store and the product a coin's purchase events name: its market and
+     * its year of Pro (the sdk's CryptoPaymentEventProduct, pro_yearly_<ticker>);
+     * null for anything that is not a coin.
+     */
+    private fun purchaseEvent(asset: String): Pair<String, String>? {
+        val store = eventStore(asset) ?: return null
+        val product = Sdk.cryptoPaymentEventProduct(asset)?.takeIf { it.isNotEmpty() } ?: return null
+        return store to product
     }
 
     /**
@@ -317,9 +399,7 @@ class CryptoPayViewModel @Inject constructor(
                 Sdk.CryptoInvoicePhaseOpen, Sdk.CryptoInvoicePhasePaid -> {
                     startRequest = null
                     _unavailable.update { it - request.asset }
-                    val store = CryptoPayment.eventStore(next.asset)
-                    val product = CryptoPayment.eventProduct(next.asset)
-                    if (store != null && product != null) {
+                    purchaseEvent(next.asset)?.let { (store, product) ->
                         ClientEvents.purchaseStarted(store, product, CryptoPayment.eventPlan(next.plan), false, next.priceUsd, USD)
                     }
                 }
@@ -329,9 +409,7 @@ class CryptoPayViewModel @Inject constructor(
                     if (refusal == CryptoStartRefusal.Unavailable) {
                         _unavailable.update { it + request.asset }
                     }
-                    val store = CryptoPayment.eventStore(request.asset)
-                    val product = CryptoPayment.eventProduct(request.asset)
-                    if (store != null && product != null) {
+                    purchaseEvent(request.asset)?.let { (store, product) ->
                         ClientEvents.purchaseFailed(store, product, CryptoPayment.eventPlan(request.plan), false, 0.0, USD, next.errorCode.ifEmpty { START_FAILED })
                     }
                     _sheetVisible.value = false
@@ -349,9 +427,7 @@ class CryptoPayViewModel @Inject constructor(
 
         if (CryptoPayment.isPaid(next) && next.intentId.isNotEmpty() && next.intentId != paidIntentId) {
             paidIntentId = next.intentId
-            val store = CryptoPayment.eventStore(next.asset)
-            val product = CryptoPayment.eventProduct(next.asset)
-            if (store != null && product != null) {
+            purchaseEvent(next.asset)?.let { (store, product) ->
                 ClientEvents.purchaseCompleted(store, product, CryptoPayment.eventPlan(next.plan), false, next.priceUsd, USD)
             }
             _sheetVisible.value = false
@@ -384,7 +460,7 @@ class CryptoPayViewModel @Inject constructor(
     }
 }
 
-/** The sdk's invoice state as plain values. */
+/** The sdk's invoice state as plain values, with the sdk's memo rule (CryptoPaymentShowsMemo) on it. */
 internal fun snapshotOf(state: CryptoInvoiceState): CryptoInvoiceSnapshot = CryptoInvoiceSnapshot(
     phase = state.phase ?: Sdk.CryptoInvoicePhaseNone,
     intentId = state.intentId ?: "",
@@ -394,7 +470,9 @@ internal fun snapshotOf(state: CryptoInvoiceState): CryptoInvoiceSnapshot = Cryp
     amount = state.amount ?: "",
     ticker = state.ticker ?: "",
     uri = state.uri ?: "",
+    qrText = state.qrText ?: "",
     memo = state.memo ?: "",
+    showsMemo = Sdk.cryptoPaymentShowsMemo(state.asset ?: "", state.memo ?: ""),
     priceUsd = state.priceUsd,
     secondsLeft = state.secondsLeft,
     status = state.status ?: "",
@@ -402,9 +480,47 @@ internal fun snapshotOf(state: CryptoInvoiceState): CryptoInvoiceSnapshot = Cryp
     remaining = state.remaining ?: "",
     confirmations = state.confirmations,
     confirmationsRequired = state.confirmationsRequired,
+    steps = state.steps?.toCryptoInvoiceSteps() ?: emptyList(),
     refreshing = state.refreshing,
     errorCode = state.errorCode ?: "",
     errorMessage = state.errorMessage ?: "",
 )
 
+/** The sdk's status steps (CryptoInvoiceState.Steps) as plain values, in their order. */
+internal fun CryptoPaymentStepList.toCryptoInvoiceSteps(): List<CryptoInvoiceStep> =
+    (0L until len()).mapNotNull { get(it) }.map { step ->
+        CryptoInvoiceStep(
+            status = step.status ?: "",
+            progress = step.progress ?: "",
+            confirmations = step.confirmations,
+            confirmationsRequired = step.confirmationsRequired,
+        )
+    }
+
 internal fun StringList.toKotlinList(): List<String> = (0L until len()).map { get(it) }
+
+/** The sdk's coin selector (CryptoPaymentTabs) as plain values, in its order. */
+internal fun CryptoPaymentTabList.toCryptoPayTabs(): List<CryptoPayTab> =
+    (0L until len()).mapNotNull { get(it) }.map { tab ->
+        val coins = tab.coins
+        CryptoPayTab(
+            id = tab.id ?: "",
+            label = tab.label ?: "",
+            labelKey = tab.labelKey ?: "",
+            iconKeys = tab.iconKeys?.toKotlinList() ?: emptyList(),
+            coins = if (coins == null) {
+                emptyList()
+            } else {
+                (0L until coins.len()).mapNotNull { coins.get(it) }.map { coin ->
+                    CryptoPayCoin(
+                        asset = coin.asset ?: "",
+                        label = coin.label ?: "",
+                        labelKey = coin.labelKey ?: "",
+                        iconKey = coin.iconKey ?: "",
+                        available = coin.available,
+                    )
+                }
+            },
+            available = tab.available,
+        )
+    }

@@ -8,8 +8,10 @@ import com.bringyour.sdk.Sdk
 import com.bringyour.sdk.SnClaimCallback
 import com.bringyour.sdk.SnClaimRelayAccountList
 import com.bringyour.sdk.SnClaimStatusResult
+import com.bringyour.sdk.SnCtfWinList
 import com.bringyour.sdk.SnError
 import com.bringyour.sdk.SnLedgerClaimCallback
+import com.bringyour.sdk.SnLedgerUnavailablePoolList
 import com.bringyour.sdk.SnWallet
 import com.bringyour.sdk.SnWalletChangeListener
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -53,6 +55,7 @@ class SdkProtocolSource private constructor(
             selfClaimAvailable = result.selfClaimAvailable,
             selfClaimNeedsGas = result.selfClaimNeedsGas,
             automaticThresholdRao = result.automaticThresholdRao,
+            transferFloorRao = result.transferFloorRao,
             automaticThresholdTaoRao = result.automaticThresholdTaoRao,
             transferFloorTaoRao = result.transferFloorTaoRao,
             claimNowPeriodDays = result.claimNowPeriodDays,
@@ -62,6 +65,7 @@ class SdkProtocolSource private constructor(
             claimTxUrl = result.claimTxUrl,
             claimAmountRao = result.claimAmountRao,
             accounts = snClaimRelayAccountsOf(result.accounts),
+            unavailablePools = snLedgerUnavailablePoolsOf(result.unavailablePools),
             unavailable = result.error != null,
         )
 
@@ -78,6 +82,36 @@ class SdkProtocolSource private constructor(
                     claimTxHash = a.claimTxHash,
                     claimTxUrl = a.claimTxUrl,
                     claimAmountRao = a.claimAmountRao,
+                    kind = a.kind,
+                )
+            }
+        }
+
+        // the pools a ledger or relay answer could not read: never nil from the sdk, empty for a whole answer
+        private fun snLedgerUnavailablePoolsOf(list: SnLedgerUnavailablePoolList?): List<SnLedgerPool> {
+            if (list == null) {
+                return emptyList()
+            }
+            return (0 until list.len()).map { i ->
+                val p = list.get(i)
+                SnLedgerPool(
+                    noId = p.noId,
+                    kind = p.kind,
+                )
+            }
+        }
+
+        // the wins of a GET /sn/ctf/client answer, in the sdk's order: never nil
+        // from the sdk, so an answer without them could not be read
+        private fun snCtfWinsOf(list: SnCtfWinList?): List<SnCtfWinState> {
+            if (list == null) {
+                throw IllegalStateException("a capture the flag answer without its unclaimed wins")
+            }
+            return (0 until list.len()).map { i ->
+                val w = list.get(i)
+                SnCtfWinState(
+                    role = w.role,
+                    country = w.country,
                 )
             }
         }
@@ -262,7 +296,7 @@ class SdkProtocolSource private constructor(
         })
     }
 
-    override suspend fun ledgerAccounts(): Result<List<SnLedgerAccountState>> {
+    override suspend fun ledgerAccounts(): Result<SnLedgerAccounts> {
         ensureChainSettings()
         return suspendCancellableCoroutine { continuation ->
             device.snLedgerAccounts { result, err ->
@@ -278,18 +312,24 @@ class SdkProtocolSource private constructor(
                         val n = list?.len() ?: 0
                         continuation.resume(
                             Result.success(
-                                (0 until n).map { i ->
-                                    val a = list.get(i)
-                                    SnLedgerAccountState(
-                                        noId = a.noId,
-                                        index = a.index,
-                                        finalizedRao = a.finalizedRao,
-                                        claimableRao = a.claimableRao,
-                                        paidRao = a.paidRao,
-                                        pending = a.pending,
-                                        pendingRao = a.pendingRao,
-                                    )
-                                }
+                                SnLedgerAccounts(
+                                    accounts = (0 until n).map { i ->
+                                        val a = list.get(i)
+                                        SnLedgerAccountState(
+                                            noId = a.noId,
+                                            index = a.index,
+                                            finalizedRao = a.finalizedRao,
+                                            claimableRao = a.claimableRao,
+                                            paidRao = a.paidRao,
+                                            pending = a.pending,
+                                            pendingRao = a.pendingRao,
+                                            kind = a.kind,
+                                        )
+                                    },
+                                    // the sdk asks with partial=true: a pool it could not read is
+                                    // named here, beside the accounts of the others
+                                    unavailablePools = snLedgerUnavailablePoolsOf(result.unavailablePools),
+                                )
                             )
                         )
                     }
@@ -397,6 +437,32 @@ class SdkProtocolSource private constructor(
                 }.getOrElse { SnClaimNowOutcome.Failed(it.message ?: "") }
                 if (continuation.isActive) {
                     continuation.resume(outcome)
+                }
+            }
+        }
+
+    override suspend fun ctfWins(): Result<SnCtfWinsAnswer> =
+        suspendCancellableCoroutine { continuation ->
+            // the sdk asks with the network's credential, and with the client
+            // token when that read fails, on a transport whose 401 never signs
+            // the user out; an older server's 401 is no wins
+            device.snCtfClient { result, err ->
+                // copied off the gomobile objects here: an exception thrown out
+                // of the callback cannot cross JNI and aborts the process. An
+                // error (ctf_unavailable: a read that failed) or an answer that
+                // cannot be read is a failure, which keeps the lines drawn. The
+                // answer's client is "" for the network's answer, set for one
+                // client's (SnCtfWinsLines: a network's answer beats a client's)
+                val wins: Result<SnCtfWinsAnswer> = runCatching {
+                    when {
+                        err != null -> throw err
+                        result == null -> throw IllegalStateException("no capture the flag answer")
+                        result.error != null -> throw result.error.toException()!!
+                        else -> SnCtfWinsAnswer(snCtfWinsOf(result.unclaimedWins), result.clientId.orEmpty())
+                    }
+                }
+                if (continuation.isActive) {
+                    continuation.resume(wins)
                 }
             }
         }

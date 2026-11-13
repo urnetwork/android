@@ -104,6 +104,11 @@ import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.TopBarTitleTextStyle
 import com.bringyour.network.ui.theme.URNetworkTheme
 import com.bringyour.network.R
+import com.bringyour.network.ShownPlan
+import com.bringyour.network.ui.components.ShownPlanName
+import com.bringyour.network.ui.components.LoginMode
+import com.bringyour.network.ui.components.PlanAccountNameLine
+import com.bringyour.sdk.Sdk
 import com.bringyour.network.TAG
 import com.bringyour.network.ui.Route
 import com.bringyour.network.ui.components.ButtonStyle
@@ -175,6 +180,10 @@ fun SettingsScreen(
     isPro: Boolean,
     currentStore: String? = null,
     planNotices: @Composable () -> Unit = {},
+    // the sdk's plan (support inbox 4074): Loading or Unreachable until the
+    // server answers, never Free; retryPlan reads the balance again
+    shownPlan: ShownPlan = if (isPro) ShownPlan.Pro else ShownPlan.Free,
+    retryPlan: () -> Unit = {},
     mockLocationViewModel: MockLocationViewModel = hiltViewModel(),
 ) {
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -200,6 +209,12 @@ fun SettingsScreen(
     val authCode = settingsViewModel.authCode.collectAsState().value
 
     val networkUser = accountViewModel.networkUser.collectAsState().value
+    // the account the plan is on, as the Account screen names it; none for a guest
+    val planAccountNetworkName = networkUser?.networkName ?: ""
+    val planAccountGuest = accountViewModel.loginMode == LoginMode.Guest
+    val planAccountName = remember(planAccountNetworkName, planAccountGuest) {
+        Sdk.planAccountName(planAccountNetworkName, planAccountGuest)
+    }
     val authMethods = remember(networkUser) { networkUser?.let { parseAuthMethods(it) } ?: emptyList() }
     val isAddingAuth = settingsViewModel.isAddingAuth.collectAsState().value
     val isRemovingAuth = settingsViewModel.isRemovingAuth.collectAsState().value
@@ -321,6 +336,8 @@ fun SettingsScreen(
         navController,
         clientId = accountViewModel.clientId,
         currentPlan = if (isPro) Plan.Supporter else Plan.Basic,
+        shownPlan = shownPlan,
+        retryPlan = retryPlan,
         notificationsAllowed = notificationsAllowed,
         requestAllowNotifications = settingsViewModel.triggerPermissionRequest,
         notificationsPermanentlyDenied = settingsViewModel.notificationsPermanentlyDenied,
@@ -335,6 +352,7 @@ fun SettingsScreen(
             isPresentingRenameDevice = true
         },
         networkName = networkUser?.networkName,
+        planAccountName = planAccountName,
         showDeleteAccountDialog = showDeleteAccountDialog,
         setShowDeleteAccountDialog = settingsViewModel.setShowDeleteAccountDialog,
         deleteAccount = settingsViewModel.deleteAccount,
@@ -584,6 +602,8 @@ private fun SettingsScreen(
     navController: NavController,
     clientId: String,
     currentPlan: Plan,
+    shownPlan: ShownPlan = if (currentPlan == Plan.Supporter) ShownPlan.Pro else ShownPlan.Free,
+    retryPlan: () -> Unit = {},
     notificationsAllowed: Boolean,
     notificationsPermanentlyDenied: Boolean,
     requestAllowNotifications: () -> Unit,
@@ -595,6 +615,8 @@ private fun SettingsScreen(
     deviceSpec: String = "",
     onEditDeviceName: () -> Unit = {},
     networkName: String? = null,
+    // the account the plan is on (Sdk.planAccountName), under the plan; empty shows none
+    planAccountName: String = "",
     setShowDeleteAccountDialog: (Boolean) -> Unit = {},
     showDeleteAccountDialog: Boolean,
     deleteAccount: (onSuccess: (signedOutDevice: com.bringyour.sdk.DeviceLocal) -> Unit, onFailure: (DeleteAccountOutcome.Failed) -> Unit) -> Unit,
@@ -972,6 +994,34 @@ private fun SettingsScreen(
                     overflow = TextOverflow.Ellipsis,
                     textAlign = TextAlign.End,
                     modifier = Modifier.weight(1f)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            /**
+             * Manage devices: the network's devices and hosted proxies, each
+             * removable to free a slot of the plan
+             */
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable {
+                        navController.navigate(Route.ManageDevices)
+                    }
+                    .padding(vertical = 6.dp)
+                    .testTag("acceptance.settings_manage_devices"),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    stringResource(id = R.string.manage_devices),
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                    contentDescription = null,
+                    tint = TextMuted
                 )
             }
 
@@ -1420,14 +1470,16 @@ private fun SettingsScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
 
-                    Text(
-                        stringResource(id = if (currentPlan == Plan.Basic) R.string.free else R.string.supporter),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = Color.White
+                    // before the server answers, a spinner or the read's retry,
+                    // never Free (support inbox 4074)
+                    ShownPlanName(
+                        shownPlan = shownPlan,
+                        retryPlan = retryPlan,
+                        style = MaterialTheme.typography.bodyMedium.copy(color = Color.White),
                     )
 
 
-                    if (currentPlan == Plan.Basic) {
+                    if (shownPlan.sellsPro) {
                         InfoIconWithOverlay() {
                             Column() {
 
@@ -1467,7 +1519,7 @@ private fun SettingsScreen(
                     }
                 }
 
-                if (currentPlan == Plan.Basic) {
+                if (shownPlan.sellsPro) {
                     Text(
                         stringResource(id = R.string.change),
                         style = TextStyle(
@@ -1488,12 +1540,15 @@ private fun SettingsScreen(
                 }
             }
 
+            // which account the plan is on (support inbox 6546)
+            PlanAccountNameLine(name = planAccountName)
+
             // a renewal whose payment did not go through, under the manage line
             planNotices()
 
             // the free plan's info icon makes its row 48 dp tall, 14 dp of it
             // below the text
-            Spacer(modifier = Modifier.height(if (currentPlan == Plan.Basic) 18.dp else 32.dp))
+            Spacer(modifier = Modifier.height(if (shownPlan.sellsPro) 18.dp else 32.dp))
 
             /**
             * Version

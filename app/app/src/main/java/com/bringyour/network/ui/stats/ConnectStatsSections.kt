@@ -229,8 +229,21 @@ fun ConnectStatsSections(
         DnsRecommendationPill(dnsSettingsViewModel)
 
         val settings = dnsSettingsViewModel.settings
+        // what the settings select, from the sdk: "DNS: URnetwork", a
+        // preset's name, which says what it does, Custom or Regional
+        val summary = dnsSettingsViewModel.selection?.let {
+            dnsKeyText(it.summaryKey, dnsPresetName(it.name))
+        }
 
         if (settings != null) {
+            if (summary != null) {
+                Text(
+                    summary,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.White
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+            }
             DnsStatusRow(stringResource(id = R.string.dns_over_https), settings.dohEnabled)
             Spacer(modifier = Modifier.height(8.dp))
             DnsStatusRow(stringResource(id = R.string.unencrypted_dns), settings.unencryptedDnsEnabled)
@@ -239,12 +252,18 @@ fun ConnectStatsSections(
             Spacer(modifier = Modifier.height(8.dp))
             DnsStatusRow(stringResource(id = FastDnsOnConnectToggle.labelRes), settings.fastDnsOnConnectEnabled)
         } else if (!dnsSettingsViewModel.reported) {
-            // the device has not reported its resolver settings yet: the four
-            // status rows as placeholders in their exact layout, so the card
-            // and the connect drawer measure their final height at first open
-            // (mmm/DESIGNSTYLE.md "Placeholders, not pop-in"). A device that
-            // reports no settings resolves to the unavailable line below.
+            // the device has not reported its resolver settings yet: the
+            // summary and the four status rows as placeholders in their exact
+            // layout, so the card and the connect drawer measure their final
+            // height at first open (mmm/DESIGNSTYLE.md "Placeholders, not
+            // pop-in"). A device that reports no settings resolves to the
+            // unavailable line below.
             SkeletonGroup {
+                SkeletonText(
+                    stringResource(id = R.string.dns_summary_default),
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                Spacer(modifier = Modifier.height(8.dp))
                 DnsStatusRow(stringResource(id = R.string.dns_over_https), false, placeholder = true)
                 Spacer(modifier = Modifier.height(8.dp))
                 DnsStatusRow(stringResource(id = R.string.unencrypted_dns), false, placeholder = true)
@@ -279,7 +298,9 @@ fun ConnectStatsSections(
 
 /**
  * The ad and tracker blocker toggle, as its own panel under the custom dns
- * summary.
+ * summary and on the dns screen. It is named as URnetwork's own, so it is not
+ * taken for the dns providers under "Block ads and trackers" (connect
+ * ADBLOCK3RD F1): it works beside any dns choice and checks each name first.
  */
 @Composable
 fun BlockerTogglePanel(
@@ -298,11 +319,24 @@ fun BlockerTogglePanel(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(
-            stringResource(id = R.string.block_ads_and_trackers),
-            style = MaterialTheme.typography.bodyMedium,
-            color = Color.White
-        )
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .padding(vertical = 10.dp)
+        ) {
+            Text(
+                stringResource(id = R.string.dns_builtin_blocker_label),
+                style = MaterialTheme.typography.bodyMedium,
+                color = Color.White
+            )
+            Text(
+                stringResource(id = R.string.dns_builtin_blocker_note),
+                style = MaterialTheme.typography.bodySmall,
+                color = TextMuted
+            )
+        }
+
+        Spacer(modifier = Modifier.width(12.dp))
 
         URSwitch(
             checked = enabled,
@@ -463,47 +497,37 @@ private fun rememberAppIcons(packageNames: List<String>): List<ImageBitmap> {
 }
 
 /**
- * A small pill at the top of the custom dns card, shown when the applied dns
- * settings differ from the recommended ones.
+ * A small pill at the top of the custom dns card and of the selection on the
+ * dns settings screen, shown when the applied dns settings differ from the
+ * recommended ones.
  *
- * A connected country with a known-better regional recommendation takes
+ * The sdk decides it (DescribeDnsResolverSettings, connect ADBLOCK3RD F2). A
+ * connected country with a known-better regional recommendation takes
  * precedence: the pill reads "unapplied recommended settings for {country}" and
  * carries that country's color dot. Otherwise, when the safe defaults are not
  * applied, it reads "the default safe settings are not applied" with no dot.
- * Renders nothing once the applied settings already match the best
- * recommendation. This condenses the recommendation logic on the dns settings
- * screen into a single glanceable pill.
+ * Never while a preset is selected, an explicit choice whose problems show as
+ * its status, and nothing once the applied settings already match the best
+ * recommendation.
  *
  * Kept in its own composable so it only recomposes when the dns settings change,
  * rather than with the rest of the card.
  */
 @Composable
-private fun DnsRecommendationPill(
+internal fun DnsRecommendationPill(
     dnsSettingsViewModel: DnsSettingsViewModel,
 ) {
-    // the currently applied settings; no pill until they load
-    val current = dnsSettingsViewModel.settings ?: return
+    // no pill until the settings load
+    val selection = dnsSettingsViewModel.selection ?: return
 
-    val message: String
-    val countryCode: String?
-
-    val recommended = dnsSettingsViewModel.recommendedSettings
-    if (recommended != null) {
-        // a connected country with a known-better regional recommendation
-        if (current == recommended) return // already on the regional recommendation
-        val code = dnsSettingsViewModel.connectedCountryCode
-        val name = dnsSettingsViewModel.connectedCountryName
-            ?: code?.uppercase()
-            ?: stringResource(id = R.string.this_region)
-        message = stringResource(id = R.string.dns_pill_recommended, name)
-        countryCode = code
+    // a regional recommendation names its country
+    val countryCode = selection.pillCountryCode
+    val countryName = if (countryCode.isEmpty()) {
+        stringResource(id = R.string.this_region)
     } else {
-        // otherwise nudge toward the safe defaults when they are not applied
-        val defaults = dnsSettingsViewModel.defaultSettings ?: return
-        if (current == defaults) return
-        message = stringResource(id = R.string.dns_pill_defaults)
-        countryCode = null
+        dnsSettingsViewModel.countryName(countryCode)
     }
+    val message = dnsKeyText(selection.pillKey, countryName) ?: return
 
     Row(
         modifier = Modifier
@@ -516,7 +540,7 @@ private fun DnsRecommendationPill(
         verticalAlignment = Alignment.CenterVertically
     ) {
         // a regional recommendation dots the pill with the connected country color
-        if (countryCode != null) {
+        if (countryCode.isNotEmpty()) {
             Box(
                 modifier = Modifier
                     .size(8.dp)

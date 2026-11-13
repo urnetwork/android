@@ -100,6 +100,7 @@
     <string name="bittensor_error_no_account">%1$s 지갑에 서명할 계정이 없습니다. 지갑에서 계정을 추가하거나 연결한 후 다시 시도하세요.</string>
     <string name="bittensor_error_signature_mismatch">이 서명은 입력한 주소의 서명이 아닙니다. %1$s에서 해당 주소로 메시지에 서명한 다음 서명을 다시 붙여 넣으세요.</string>
     <string name="bittensor_error_user_rejected">지갑에서 요청이 거부되었습니다. 다시 시작하고 요청을 승인하여 계속하세요.</string>
+    <string name="bittensor_error_wallet_failed">%1$s 지갑에서 요청을 완료하지 못했습니다. 지갑을 확인한 후 다시 시도하세요.</string>
     <string name="bittensor_error_walletconnect_expired">지갑이 응답하기 전에 WalletConnect 요청이 만료되었습니다. 다시 시작하세요.</string>
     <string name="bittensor_error_walletconnect_unavailable">지금은 WalletConnect를 사용할 수 없습니다. 나중에 다시 시도하거나 주소를 직접 입력하세요.</string>
     <string name="bittensor_funds_disclaimer">이 키는 앱의 보안 저장소에 로컬로 저장됩니다. URnetwork와 절대 공유되지 않습니다. URnetwork는 사용자 자금에 일절 손대지 않으며 이에 대한 책임도 지지 않습니다.</string>
@@ -242,6 +243,9 @@
     <string name="client_contracts">클라이언트 계약</string>
     <string name="client_id">클라이언트 ID</string>
     <string name="client_id_copied">클라이언트 ID가 복사되었습니다</string>
+    <string name="client_limit_reached">기기 한도에 도달했습니다</string>
+    <string name="client_limit_remove_client_message">요금제의 동시 연결 기기 한도에 도달했습니다. 더 이상 사용하지 않는 기기에서 URnetwork에서 로그아웃한 다음 다시 시도하세요.</string>
+    <string name="client_limit_upgrade_message">무료 요금제는 동시에 연결할 수 있는 기기 수가 제한됩니다. 더 많이 연결하려면 UR Pro로 업그레이드하거나 다른 기기에서 URnetwork 연결을 해제하세요.</string>
     <string name="client_statistics">클라이언트 통계</string>
     <string name="clients">클라이언트</string>
     <string name="close">닫기</string>
@@ -258,11 +262,8 @@
     <string name="connect_bittensor_wallet_to_add_sign_in_method">Bittensor 지갑을 연결하여 로그인 방법으로 추가하세요.</string>
     <string name="connect_options">연결 옵션</string>
     <string name="connect_seeker_wallet">Saga Genesis 또는 Seeker 선주문 토큰으로 지갑을 연결하세요</string>
-    <string name="connect_solana_wallet">Solana 지갑 연결</string>
-    <string name="connect_solana_wallet_note">Solana 지갑 앱을 연결하거나 Solana USDC 주소를 직접 입력하세요.</string>
     <string name="connect_solana_wallet_to_add_sign_in_method">Solana 지갑을 연결하여 로그인 방법으로 추가하세요.</string>
     <string name="connect_to_location">%1$s에 연결</string>
-    <string name="connect_wallet">지갑 연결</string>
     <string name="connect_wallet_first">먼저 Bittensor 지갑을 연결하세요.</string>
     <string name="connected">연결됨</string>
     <string name="connecting_from">연결 위치</string>
@@ -300,6 +301,7 @@
     <string name="copy_extender_address">익스텐더 주소 복사</string>
     <string name="copy_share_text">공유 텍스트 복사</string>
     <string name="could_not_get_google_id_token">Google ID 토큰을 가져올 수 없습니다</string>
+    <string name="couldnt_open_wallet">지갑을 열 수 없습니다. 설치 후 다시 시도해 주세요.</string>
     <string name="countries">국가</string>
     <string name="country">국가</string>
     <string name="country_multipliers">국가별 배수</string>
@@ -311,8 +313,12 @@
     <string name="crypto_does_not_renew">자동 갱신되지 않습니다. 종료 시 다시 결제하세요.</string>
     <string name="crypto_fine_print_data">일회성 결제입니다. 데이터는 1년 동안 유효합니다.</string>
     <string name="crypto_fine_print_yearly">Pro 1년 이용을 위한 일회성 결제입니다. 자동 갱신되지 않으며 무료 체험이 없습니다.</string>
+    <string name="crypto_invoice_bitcoin_network_only">이 주소로는 Bitcoin 네트워크의 Bitcoin만 보내세요. 다른 네트워크로 보낸 Bitcoin은 입금 처리되지 않습니다.</string>
     <string name="crypto_invoice_copied">복사됨</string>
     <string name="crypto_invoice_copy">복사</string>
+    <string name="crypto_invoice_copy_address">주소 복사</string>
+    <string name="crypto_invoice_copy_amount">금액 복사</string>
+    <string name="crypto_invoice_eth_network_only">이 주소로는 Ethereum 메인넷의 ETH만 보내세요. 토큰이나 Base, Arbitrum 등 다른 네트워크의 ETH는 입금 처리되지 않습니다.</string>
     <string name="crypto_invoice_expires_in">견적 만료까지 %1$s</string>
     <string name="crypto_invoice_memo">메모(직접 보내는 경우)</string>
     <string name="crypto_invoice_open_wallet">지갑에서 열기</string>
@@ -321,13 +327,21 @@
     <string name="crypto_invoice_refresh_quote">견적 새로고침</string>
     <string name="crypto_invoice_remaining">%1$s 더 보내야 합니다</string>
     <string name="crypto_invoice_send_exactly">정확히 이 금액을 보내세요</string>
+    <string name="crypto_invoice_send_exactly_to_address">정확히 이 금액을 이 주소로 보내세요.</string>
+    <string name="crypto_invoice_sol_network_only">이 주소로는 Solana 네트워크의 SOL만 보내세요. USDC를 포함한 토큰은 입금 처리되지 않습니다.</string>
+    <string name="crypto_invoice_tao_network_only">이 주소로는 Bittensor 네트워크의 TAO만 보내세요. 다른 네트워크로 보낸 TAO는 입금 처리되지 않습니다.</string>
+    <string name="crypto_invoice_tao_no_payment_link">TAO에는 결제 링크가 없어 이 QR 코드에는 주소만 들어 있습니다. 지갑에서 정확한 금액을 입력하세요.</string>
     <string name="crypto_invoice_to_address">이 주소로</string>
     <string name="crypto_invoice_unavailable">%1$s 결제를 일시적으로 이용할 수 없습니다. 나중에 다시 시도하거나 다른 방법으로 결제하세요.</string>
     <string name="crypto_invoice_wallets">사용 가능한 지갑: %1$s</string>
     <string name="crypto_invoice_zcash_exchange_note">Coinbase, Robinhood 같은 거래소에서는 이 차폐 주소로 보낼 수 없습니다. 차폐 주소를 지원하는 지갑에서 보내세요.</string>
+    <string name="crypto_network_bitcoin">Bitcoin 네트워크</string>
+    <string name="crypto_network_eth">Ethereum 메인넷</string>
+    <string name="crypto_network_sol">Solana(네이티브 SOL)</string>
+    <string name="crypto_network_tao">Bittensor 네트워크</string>
     <string name="crypto_network_usdc">Solana의 USDC</string>
     <string name="crypto_network_zcash">Zcash(차폐)</string>
-    <string name="crypto_pay_button">%1$s로 결제</string>
+    <string name="crypto_pay_button">%1$s(으)로 결제</string>
     <string name="crypto_payment_in_progress">결제 진행 중</string>
     <string name="crypto_status_confirming">확인 중: %1$d/%2$d</string>
     <string name="crypto_status_paid">결제가 완료되었습니다. 감사합니다!</string>
@@ -352,7 +366,6 @@
     <string name="data_limit_reached">데이터 한도에 도달했습니다</string>
     <string name="data_usage">데이터 사용량</string>
     <string name="default_daily_data">기본적으로 매일 %1$s를 받습니다.</string>
-    <string name="default_wallet">기본값</string>
     <string name="delete">삭제</string>
     <string name="delete_account">계정 삭제</string>
     <string name="delete_account_type_network_name">확인하려면 %1$s을(를) 입력하세요.</string>
@@ -539,14 +552,87 @@
     <string name="disconnected">연결 끊김</string>
     <string name="dismiss">닫기</string>
     <string name="display_network_on_leaderboard">리더보드에 네트워크 표시</string>
+    <string name="dns_blocked_count_floor_note">일부 차단은 집계되지 않으므로 실제 수는 더 많을 수 있습니다.</string>
+    <string name="dns_builtin_blocker_label">URnetwork 광고 차단기</string>
+    <string name="dns_builtin_blocker_note">URnetwork 자체 차단기입니다. 어떤 DNS를 선택해도 작동하며 각 이름을 가장 먼저 확인합니다.</string>
+    <string name="dns_custom_mix_note">필터링 서버를 기본 서버와 함께 쓰면 필터링되지 않습니다. 가장 빠른 응답이 사용되기 때문입니다.</string>
+    <string name="dns_group_block_malware">악성코드 차단</string>
+    <string name="dns_group_family">가족</string>
+    <string name="dns_group_my_account">내 계정 사용</string>
+    <string name="dns_group_no_filtering">필터링 없음</string>
     <string name="dns_over_https">DNS over HTTPS</string>
+    <string name="dns_personal_id_block_response">%1$s에서 차단 응답을 제로 IP(0.0.0.0, 기본값) 또는 NXDOMAIN으로 유지하세요. REFUSED 등 다른 응답은 장애처럼 보입니다.</string>
+    <string name="dns_personal_id_dashboard_link">%1$s 대시보드 열기</string>
+    <string name="dns_personal_id_format_adguard">%1$s 기기 ID는 숫자와 a~f 문자로 된 8자입니다(예: %2$s).</string>
+    <string name="dns_personal_id_format_controld">%1$s 리졸버 ID는 문자와 숫자로만 이루어집니다(예: %2$s).</string>
+    <string name="dns_personal_id_format_nextdns">%1$s ID는 숫자와 a~f 문자로 된 6자입니다(예: %2$s).</string>
+    <string name="dns_personal_id_label">프로필 ID 또는 DNS 주소</string>
+    <string name="dns_personal_id_linked_ip_note">대시보드에서 IP 주소를 연결할 필요가 없습니다. URnetwork를 거친 조회는 내 것이 아닌 주소에서 나옵니다. ID만 있으면 됩니다.</string>
+    <string name="dns_personal_id_quota_adguard">%1$s 무료 요금제는 월 30만 요청으로 제한됩니다.</string>
+    <string name="dns_personal_id_quota_nextdns">%1$s 무료 요금제는 월 30만 쿼리를 넘으면 필터링을 멈춥니다.</string>
+    <string name="dns_personal_id_where_adguard">%1$s 대시보드의 기기 페이지에서 찾을 수 있습니다.</string>
+    <string name="dns_personal_id_where_controld">%1$s 대시보드에서 엔드포인트의 Show Resolvers를 선택하세요.</string>
+    <string name="dns_personal_id_where_nextdns">%1$s 계정의 Setup 페이지에서 찾을 수 있습니다.</string>
     <string name="dns_pill_defaults">기본 안전 설정이 적용되어 있지 않습니다</string>
     <string name="dns_pill_recommended">%1$s에 대한 권장 설정이 적용되지 않았습니다</string>
+    <string name="dns_preset_apply_note">변경 사항은 새 조회에 바로 적용됩니다. 앱에서 이전 응답을 1분 정도 유지할 수 있습니다.</string>
+    <string name="dns_preset_copy_ads_adult_safe_search">광고, 트래커, 성인 사이트를 차단하고 세이프서치를 켭니다</string>
+    <string name="dns_preset_copy_ads_malware">광고, 트래커, 악성코드 차단</string>
+    <string name="dns_preset_copy_ads_malware_adult_drugs">광고, 트래커, 악성코드, 성인 사이트, 마약 차단</string>
+    <string name="dns_preset_copy_ads_malware_phishing">광고, 트래커, 악성코드, 피싱 차단</string>
+    <string name="dns_preset_copy_ads_phishing">광고, 트래커, 피싱 차단</string>
+    <string name="dns_preset_copy_child">악성코드, 성인 사이트, 도박, 마약, 폭력 차단(광고는 차단 안 함)</string>
+    <string name="dns_preset_copy_child_ads">광고, 트래커, 악성코드, 성인 사이트, 도박, 마약, 폭력 차단</string>
+    <string name="dns_preset_copy_court_orders">법원이 명령한 것만 차단</string>
+    <string name="dns_preset_copy_malware">악성코드 차단(광고는 차단 안 함)</string>
+    <string name="dns_preset_copy_malware_adult">악성코드와 성인 사이트 차단(광고는 차단 안 함)</string>
+    <string name="dns_preset_copy_malware_phishing">악성코드와 피싱 차단(광고는 차단 안 함)</string>
+    <string name="dns_preset_copy_nothing">아무것도 차단하지 않음</string>
+    <string name="dns_preset_copy_personal">%1$s 계정에서 설정한 필터를 사용</string>
+    <string name="dns_preset_disclosure">DNS 조회는 터널을 통해 %1$s에 전달되므로 사용자의 IP 주소는 절대 노출되지 않습니다. 해당 업체의 개인정보 처리방침이 적용됩니다.</string>
+    <string name="dns_preset_dropped">%1$s 서비스를 더 이상 사용할 수 없습니다. URnetwork DNS를 사용 중이므로 조회가 필터링되지 않습니다.</string>
+    <string name="dns_preset_dropped_choose">다른 프리셋 선택</string>
+    <string name="dns_preset_dropped_custom">사용자 지정에서 직접 입력</string>
+    <string name="dns_preset_error_personal_id_invalid">이 ID의 형식이 올바르지 않습니다.</string>
+    <string name="dns_preset_error_personal_id_not_accepted">이 프리셋은 프로필 ID를 사용하지 않습니다.</string>
+    <string name="dns_preset_error_personal_id_other_provider">이 주소는 다른 광고 차단 서비스의 것입니다. 해당 광고 차단 서비스를 선택하세요.</string>
+    <string name="dns_preset_error_personal_id_required">프로필 ID를 입력하세요.</string>
+    <string name="dns_preset_error_unknown">이 프리셋은 사용할 수 없습니다. 다른 프리셋을 선택하세요.</string>
+    <string name="dns_preset_fast_dns_note">연결 중에는 조회에 URnetwork DNS를 사용하므로 %1$s에서 필터링하지 않습니다.</string>
+    <string name="dns_preset_help_link">도움말</string>
+    <string name="dns_preset_jurisdiction">관할권: %1$s</string>
+    <string name="dns_preset_name_ad_blocking">%1$s 광고 차단</string>
+    <string name="dns_preset_name_child">%1$s 어린이</string>
+    <string name="dns_preset_name_child_ads">%1$s 어린이, 광고 없음</string>
+    <string name="dns_preset_name_family">%1$s 가족</string>
+    <string name="dns_preset_name_malware_blocking">%1$s 악성코드 차단</string>
+    <string name="dns_preset_name_no_filtering">%1$s 필터링 없음</string>
+    <string name="dns_preset_name_personal">%1$s 개인용</string>
+    <string name="dns_preset_privacy_link">개인정보 처리방침</string>
+    <string name="dns_private_dns_overrides_preset">비공개 DNS가 선택한 DNS(%1$s)보다 우선 적용됩니다.</string>
+    <string name="dns_provider_custom">사용자 지정</string>
+    <string name="dns_provider_custom_copy">직접 지정하는 DNS over HTTPS URL 및 DNS 서버</string>
+    <string name="dns_provider_default">URnetwork(기본값)</string>
+    <string name="dns_provider_default_copy">터널을 통한 암호화 DNS, 필터링 없음</string>
+    <string name="dns_provider_regional">지역(%1$s), 암호화되지 않음</string>
     <string name="dns_recommendation_message">가장 강력한 보안 규칙은 %1$s에서 작동하지 않는 것으로 알려져 있습니다. 보안 수준은 낮지만 더 잘 작동하는 권장 DNS 설정이 있습니다.</string>
-    <string name="dns_restore_secure_message">가장 안전한 설정으로 복원합니다: 터널을 통한 암호화된 DNS over HTTPS.</string>
     <string name="dns_settings_unavailable">DNS 설정을 사용할 수 없습니다</string>
-    <string name="dns_using_recommended">지역 권장 설정 사용 중</string>
-    <string name="dns_using_secure">가장 안전한 기본 설정 사용 중</string>
+    <string name="dns_status_change_location">위치 변경</string>
+    <string name="dns_status_fallback">%1$s 응답 없음. URnetwork DNS를 사용 중입니다.</string>
+    <string name="dns_status_paused">광고 차단 일시 중지됨: %1$s 응답 없음</string>
+    <string name="dns_status_paused_detail">광고 차단 서비스가 응답할 때까지 URnetwork DNS를 사용합니다. 광고 차단은 자동으로 다시 시작됩니다.</string>
+    <string name="dns_status_provider">DNS: %1$s</string>
+    <string name="dns_status_unreachable">%1$s 응답 없음</string>
+    <string name="dns_status_unreachable_detail">필터링을 유지하기 위해 URnetwork는 DNS를 자동으로 바꾸지 않습니다. 광고 차단 서비스가 응답할 때까지 사이트가 로드되지 않을 수 있습니다.</string>
+    <string name="dns_status_use_default">URnetwork DNS 사용</string>
+    <string name="dns_summary_custom">DNS: 사용자 지정</string>
+    <string name="dns_summary_custom_unencrypted">DNS: 사용자 지정(암호화되지 않음)</string>
+    <string name="dns_summary_default">DNS: URnetwork</string>
+    <string name="dns_summary_regional">DNS: 지역(암호화되지 않음)</string>
+    <string name="dns_verify_malformed_adguard">%1$s에서 이 기기 ID를 거부했습니다</string>
+    <string name="dns_verify_not_filtering">이 위치에서는 %1$s 필터링이 작동하지 않습니다</string>
+    <string name="dns_verify_rejected_controld">%1$s에서 이 리졸버 ID를 인식하지 못합니다</string>
+    <string name="dns_verify_unconfirmed">저장했지만 이 프로필을 확인할 수 없습니다. ID가 잘못되면 %1$s에서 필터링 없이 응답합니다.</string>
     <string name="done">완료</string>
     <string name="dont_see_it">메일이 보이지 않나요?</string>
     <string name="earn_more_bullet_stay_connected">매일 연결 유지 = 하루 최대 %1$s GiB 적립</string>
@@ -578,7 +664,6 @@
     <string name="enter">들어가기</string>
     <string name="enter_a_bonus_referral_code">보너스 추천 코드를 입력하세요</string>
     <string name="enter_a_password">비밀번호를 입력하세요</string>
-    <string name="enter_a_solana_usdc_wallet_address">Solana USDC 지갑 주소를 입력하세요</string>
     <string name="enter_address_manually">주소 직접 입력</string>
     <string name="enter_balance_code">잔액 코드를 입력하세요</string>
     <string name="enter_network_referral_code">네트워크 추천 코드를 입력하세요</string>
@@ -586,14 +671,12 @@
     <string name="epoch_row_title">에포크 %1$d</string>
     <string name="epoch_share_of_block">블록의 %1$s</string>
     <string name="error_connecting_to_wallet">지갑 연결 오류</string>
-    <string name="error_connecting_wallet_with_reason">지갑을 연결하는 중 오류가 발생했습니다: %1$s</string>
     <string name="error_deleting_account">죄송합니다. 계정을 삭제하는 중 오류가 발생했습니다.</string>
     <string name="error_loading_account_plan">계정 플랜을 불러오는 중 오류가 발생했습니다.</string>
     <string name="error_logging_in_please_try_again">로그인 중 오류가 발생했습니다. 다시 시도하세요.</string>
     <string name="error_redeeming_transfer_balance_code">이체 잔액 코드 사용 중 오류가 발생했습니다.</string>
     <string name="error_sending_password_reset_link">비밀번호 재설정 링크를 보내는 중 오류가 발생했습니다</string>
     <string name="error_sending_verification_code">인증 코드를 보내는 중 오류가 발생했습니다.</string>
-    <string name="error_setting_default_wallet_with_reason">기본 지갑을 설정하는 중 오류가 발생했습니다: %1$s</string>
     <string name="error_signing_in_with_google">Google로 로그인하는 중 오류가 발생했습니다</string>
     <string name="error_updating_device_name">기기 이름을 업데이트하는 중 오류가 발생했습니다.</string>
     <string name="exclude_app">VPN에서 제외</string>
@@ -683,7 +766,6 @@
     <string name="intro_widgets_tap_to_add">위젯을 탭하면 홈 화면에 추가됩니다.</string>
     <string name="invalid_input">잘못된 입력</string>
     <string name="invalid_referral_code">이 코드는 유효하지 않습니다</string>
-    <string name="invalid_solana_address">유효한 Solana 주소가 아닙니다.</string>
     <string name="invalid_ss58_address">유효한 Bittensor 주소가 아닙니다.</string>
     <string name="ip_address">IP 주소</string>
     <string name="ip_family_both">둘 다</string>
@@ -780,7 +862,16 @@
     <string name="login_verify_details">본인 확인을 위해 보내드린 코드를\n입력해주세요.</string>
     <string name="login_verify_header">메일을 확인해주세요</string>
     <string name="longest_streak">최장 연속</string>
-    <string name="make_default">기본값으로 설정</string>
+    <string name="manage_devices">기기 관리</string>
+    <string name="manage_devices_connecting">이 기기를 연결하는 중…</string>
+    <string name="manage_devices_help">연결된 기기나 프록시는 각각 요금제의 자리를 하나씩 사용합니다. 더 이상 사용하지 않는 것을 제거하면 자리가 비워집니다.</string>
+    <string name="manage_devices_last_seen">마지막 확인: %1$s</string>
+    <string name="manage_devices_load_failed">기기를 불러오지 못했습니다.</string>
+    <string name="manage_devices_proxy">호스팅 프록시</string>
+    <string name="manage_devices_remove_failed">기기를 제거하지 못했습니다. 다시 시도하세요.</string>
+    <string name="manage_devices_remove_title">이 기기를 제거할까요?</string>
+    <string name="manage_devices_sign_in_required">기기를 관리하려면 다시 로그인하세요.</string>
+    <string name="manage_devices_this_device">이 기기</string>
     <string name="manage_subscription">구독 관리</string>
     <string name="member">회원</string>
     <string name="method">방법</string>
@@ -858,7 +949,6 @@
     <string name="no_solana_wallet_found">Solana 결제를 처리할 지갑 앱을 찾을 수 없습니다.</string>
     <string name="no_solana_wallets_found">Solana 지갑을 찾을 수 없습니다</string>
     <string name="no_wallets_found_alert_content">이 장치에 설치된 Solana 지갑이 없습니다. 지갑을 설치하고 다시 시도하십시오.</string>
-    <string name="no_wallets_found_enter_address_manually">이 기기에서 호환되는 Solana 지갑 앱을 찾을 수 없습니다. 대신 지갑 주소를 붙여 넣으려면 \'주소 직접 입력\'을 선택하세요.</string>
     <string name="none">없음</string>
     <string name="notifications_label">알림</string>
     <string name="of_total">/ %1$s</string>
@@ -890,7 +980,10 @@
     <string name="pay_method_card">카드</string>
     <string name="pay_method_card_only_monthly">월간은 카드 결제만 가능</string>
     <string name="pay_method_label">결제 수단</string>
+    <string name="pay_method_more_coins">기타 코인</string>
+    <string name="pay_method_more_coins_a11y">기타 코인: %1$s</string>
     <string name="pay_method_unavailable">일시적으로 사용할 수 없음</string>
+    <string name="pay_method_usdc_solana">Solana의 USDC</string>
     <string name="pay_with_solana_wallet">Solana 지갑으로 결제</string>
     <string name="pay_with_stripe">Stripe로 가입하기</string>
     <string name="payment_confirmation_delayed">확인이 예상보다 오래 걸리고 있습니다. 확인되는 즉시 요금제가 자동으로 업데이트됩니다. 다시 구매할 필요는 없습니다.</string>
@@ -900,8 +993,6 @@
     <string name="payment_past_due_update_payment">결제 수단 업데이트</string>
     <string name="payment_problem">결제 문제</string>
     <string name="payment_received_title">결제 완료</string>
-    <string name="payout_wallet_updated">지급 지갑이 업데이트되었습니다</string>
-    <string name="payouts_now_go_to">이제 지급금은 %1$s(으)로 전송됩니다.</string>
     <string name="peer_count_one">피어 1개</string>
     <string name="peer_count_other">피어 %d개</string>
     <string name="pending_data_key">대기 중</string>
@@ -910,6 +1001,7 @@
     <string name="pin_app_description">이 앱의 모든 연결을 하나의 제공업체로 유지하여 API와 이미지가 같은 IP 주소를 사용하도록 합니다. VPN을 통해 콘텐츠가 로드되지 않는 앱에 사용하세요</string>
     <string name="pinned">고정됨</string>
     <string name="plan">플랜</string>
+    <string name="plan_account_name">계정: %1$s</string>
     <string name="plan_billed_monthly_cancel_anytime">매월 청구 · 언제든 취소 가능</string>
     <string name="plan_billed_yearly_price_for_country">연 1회 청구 · %1$s 가격</string>
     <string name="plan_monthly_equivalent_line">≈ %1$s/월 · 연 1회 청구</string>
@@ -936,6 +1028,10 @@
     <string name="private_extender_secret">비밀 키</string>
     <string name="private_network">프라이빗 네트워크</string>
     <string name="pro_benefits_simple">URnetwork의 최고의 버전.</string>
+    <string name="pro_features_in_use">Pro 기능 사용 중</string>
+    <string name="pro_features_stopped">SOCKS와 WireGuard가 더 이상 작동하지 않습니다</string>
+    <string name="pro_features_stopped_message">SOCKS와 WireGuard는 Pro에 포함된 기능이므로 이제 프록시에서 작동하지 않습니다. HTTP와 HTTPS는 계속 작동합니다. 다시 사용하려면 업그레이드하세요. WireGuard가 다시 연결되기까지 최대 30분이 걸릴 수 있습니다.</string>
+    <string name="pro_features_upgrade_message">SOCKS 및 WireGuard 프록시는 Pro에 포함된 기능입니다. 계속 사용하려면 업그레이드하세요.</string>
     <string name="processing_payment">결제 처리 중</string>
     <string name="processing_subscription_balance">구독 잔액 처리 중...</string>
     <string name="profile">프로필</string>
@@ -1071,8 +1167,6 @@
     <string name="remove">제거</string>
     <string name="remove_rule">규칙 제거</string>
     <string name="remove_this_sign_in_method">이 로그인 방법을 제거할까요?</string>
-    <string name="remove_wallet">지갑 제거</string>
-    <string name="remove_wallet_moves_or_holds_payouts">USDC 지급은 다른 Solana 또는 Polygon 지갑이 있으면 그 지갑으로 옮겨지고, 없으면 지갑을 연결할 때까지 보류됩니다.</string>
     <string name="resend_reset_link">링크 재전송</string>
     <string name="resend_verify_code">코드 재전송</string>
     <string name="reset_extenders">익스텐더 재설정</string>
@@ -1083,7 +1177,6 @@
     <string name="reset_password_email_sent">비밀번호 재설정 이메일이 %1$s로 전송되었습니다</string>
     <string name="resolvers">리졸버</string>
     <string name="restore_default_transports">기본 전송 방식 복원</string>
-    <string name="restore_most_secure_settings">가장 안전한 설정으로 복원</string>
     <string name="retry">다시 시도</string>
     <string name="review_our_app">저희 앱을 리뷰하시겠어요?</string>
     <string name="route_internet">인터넷</string>
@@ -1214,8 +1307,8 @@
     <string name="slow_internet_recovered_detail">지연이 해소되었습니다</string>
     <string name="slow_internet_still_connected">URnetwork는 계속 연결되어 있습니다</string>
     <string name="slow_internet_upload_delay">업로드 지연</string>
-    <string name="sn_claim_relay_again_on">“지금 받기”는 %1$s에 다시 사용할 수 있습니다.</string>
-    <string name="sn_claim_relay_cap">오늘의 받기 예산이 소진되어 다음 날까지 기다립니다. 잃는 것은 없습니다. 이 잔액은 절대 만료되지 않습니다.</string>
+    <string name="sn_claim_relay_again_on">다음 “지금 받기”는 %1$s에 사용할 수 있습니다.</string>
+    <string name="sn_claim_relay_cap">오늘의 받기 예산이 소진되어 기다립니다. 예산은 매일 00:00 UTC에 새로 채워집니다. 잃는 것은 없습니다. 이 잔액은 절대 만료되지 않습니다.</string>
     <string name="sn_claim_relay_claim_now">지금 받기</string>
     <string name="sn_claim_relay_claimed">URnetwork가 받았습니다. %1$s SN25α가 내 키 %2$s에 있습니다.</string>
     <string name="sn_claim_relay_for_you">URnetwork가 받기를 대신 처리합니다</string>
@@ -1225,7 +1318,7 @@
     <string name="sn_claim_relay_queued">곧 URnetwork가 받기를 처리합니다.</string>
     <string name="sn_claim_relay_queued_button">대기열에 추가됨</string>
     <string name="sn_claim_relay_refused">최근 받기가 처리되지 않았습니다. URnetwork가 나중에 다시 시도합니다.</string>
-    <string name="sn_claim_relay_requested">“지금 받기”가 대기열에 있습니다. URnetwork가 오늘 예산 범위 안에서 먼저 보냅니다.</string>
+    <string name="sn_claim_relay_requested">“지금 받기”가 대기열에 있습니다. 자동 받기보다 먼저, 요청이 들어온 순서대로, 날마다 예산이 허용하는 만큼 보내집니다.</string>
     <string name="sn_claim_relay_self_claim">가스 키로 직접 받기</string>
     <string name="sn_claim_relay_under_floor">“지금 받기”를 사용하려면 %1$s TAO 이상의 가치가 있는 잔액이 필요합니다.</string>
     <string name="sn_claim_relay_under_threshold">자동 받기 기준 금액 미만입니다.</string>
@@ -1244,11 +1337,18 @@
     <string name="sn_consent_sign">지갑으로 서명</string>
     <string name="sn_consent_signing">지갑의 서명을 기다리는 중…</string>
     <string name="sn_consent_title">지급 동의</string>
+    <string name="sn_ctf_pool">깃발 뺏기</string>
+    <string name="sn_ctf_won_extender_slot">%1$s의 익스텐더 자리 중 하나를 획득했습니다</string>
+    <string name="sn_ctf_won_provider_slot">%1$s의 제공자 자리 중 하나를 획득했습니다</string>
+    <string name="sn_ledger_claim_both">둘 다 받기</string>
     <string name="sn_ledger_claimable">받을 수 있음</string>
     <string name="sn_ledger_earned">획득</string>
     <string name="sn_ledger_paid">지급됨</string>
     <string name="sn_ledger_pending">대기 중: +%1$s, 확정 대기</string>
     <string name="sn_ledger_pool">풀 %1$d</string>
+    <string name="sn_ledger_pool_unavailable">지금은 사용할 수 없음</string>
+    <string name="sn_ledger_pool_under_floor">받기 최소 금액 미만</string>
+    <string name="sn_ledger_provider_pool">제공자 풀</string>
     <string name="sn_ledger_title">정산 v2</string>
     <string name="sn_ledger_unavailable">사용할 수 없음</string>
     <string name="sn_payout_schedule">수익은 에포크마다 정산되며, 받기를 하면 SN25α로 Bittensor coldkey에 지급됩니다.</string>
@@ -1258,6 +1358,7 @@
     <string name="solana_payment_still_checking">Solana 결제를 아직 확인하고 있습니다. 네트워크에서 확인되기까지 1~2분 걸릴 수 있습니다.</string>
     <string name="solana_sign_in">Solana로 로그인</string>
     <string name="solana_wallet">Solana 지갑</string>
+    <string name="solana_wallet_error_session_not_found">이 브라우저에서 지갑 연결을 찾을 수 없습니다. 다시 시작하여 지갑을 다시 연결하세요.</string>
     <string name="something_went_wrong">문제가 발생했습니다.</string>
     <string name="sorry_to_see_you_go">저희는 당신이 가는 것을 보게 되어 유감입니다!</string>
     <string name="split_rule_description">선택한 호스트는 터널을 우회하여 로컬로 라우팅됩니다.</string>
@@ -1377,13 +1478,9 @@
     <string name="update_referral_network">추천 네트워크 업데이트</string>
     <string name="upgrade_now">지금 업그레이드하세요</string>
     <string name="upgrade_subscription">구독 업그레이드</string>
-    <string name="usdc_payouts_until_migration">Bittensor로의 이전이 완료될 때까지 USDC 지급은 계속 이 지갑으로 갑니다.</string>
     <string name="usdc_solana_network_only">USDC는 Solana 네트워크로만 보내세요. 다른 네트워크로 보낸 USDC는 도착하지 않습니다.</string>
-    <string name="usdc_waiting">마지막 USDC 지급: %1$s USDC 대기 중</string>
-    <string name="usdc_wallet_address">USDC 월렛 주소</string>
     <string name="use_extender_settings">익스텐더 설정 사용</string>
     <string name="use_most_stable_provider">가장 안정적인 제공업체를 사용합니다</string>
-    <string name="use_recommended_settings">권장 설정 사용</string>
     <string name="use_wireguard_socks_https_proxy">WireGuard / SOCKS / HTTPS 프록시 사용</string>
     <string name="use_wireguard_socks_https_proxy_note">브라우저에서 ur.io를 엽니다. SOCKS와 WireGuard는 Pro가 필요합니다.</string>
     <string name="used_data_key">사용됨</string>
@@ -1438,7 +1535,6 @@
     <string name="wallet_connected_to_protocol">UR 프로토콜에 연결되었습니다. 받은 보상은 여기로 들어옵니다. Alpha는 연결 후 다음 에포크부터 쌓입니다.</string>
     <string name="wallet_looks_new_warning">이 주소는 아직 Bittensor 체인에서 활동 기록이 없습니다. 새 지갑으로 보입니다. 계속하기 전에 내 지갑이 맞는지 확인하세요.</string>
     <string name="wallet_not_retroactive">지갑을 연결하면 다음 에포크부터 SN25α를 받습니다. 이전 에포크는 소급해서 정산되지 않습니다.</string>
-    <string name="wallet_options">지갑 옵션</string>
     <string name="wallet_sign_in_method_added">지갑 로그인 방법이 추가되었습니다</string>
     <string name="welcome_offer_eyebrow">웰컴 오퍼</string>
     <string name="welcome_to_urnetwork">URnetwork에 오신 것을 환영합니다</string>
@@ -1497,6 +1593,9 @@
     <plurals name="dev_export_summary">
         <item quantity="other">로그 파일 %1$d개를 내보냈습니다(%2$s)</item>
     </plurals>
+    <plurals name="dns_blocked_count">
+        <item quantity="other">이번 연결 중 %2$s에서 차단한 조회: %1$d건</item>
+    </plurals>
     <plurals name="feedback_star_count">
         <item quantity="other">별 %1$d개</item>
     </plurals>
@@ -1545,6 +1644,12 @@
     <plurals name="provider_status_histogram_total">
         <item quantity="other">최근 1시간 동안 %1$d회</item>
     </plurals>
+    <plurals name="provider_status_reason_line_ipv4">
+        <item quantity="other">이 검사 중 %1$d개가 IPv6에서만 실패하여 이 기기는 IPv4 트래픽 전용으로 제시됩니다.</item>
+    </plurals>
+    <plurals name="provider_status_reason_line_tcp">
+        <item quantity="other">이 검사 중 %1$d개가 HTTP/3(UDP)에서만 실패하여 이 기기는 TCP 트래픽 전용으로 제시됩니다. 일부 앱 버전과 일부 네트워크는 UDP를 라우팅하지 않습니다.</item>
+    </plurals>
     <plurals name="referral_celebration_detail">
         <item quantity="other">친구 %1$d명이 내 코드로 URnetwork에 가입했습니다. 한 명당 평생 매일 +%2$d GiB의 무료 데이터를 받습니다.</item>
     </plurals>
@@ -1565,6 +1670,9 @@
     </plurals>
     <plurals name="sn_claim_relay_claim_now_paid_each">
         <item quantity="other">URnetwork가 비용을 부담하며, coldkey마다 %1$d일에 한 번 사용할 수 있습니다.</item>
+    </plurals>
+    <plurals name="sn_claim_relay_requested_period">
+        <item quantity="other">다음 “지금 받기”는 이번 받기가 완료된 뒤 %1$d일 후에 사용할 수 있습니다.</item>
     </plurals>
     <plurals name="split_rule_count">
         <item quantity="other">분할 규칙 %1$d개</item>

@@ -103,6 +103,7 @@
     <string name="bittensor_error_no_account">Your %1$s wallet has no account to sign with. Add or connect an account in the wallet, then try again.</string>
     <string name="bittensor_error_signature_mismatch">This signature isn\'t from the address you entered. In %1$s, sign the message with that address, then paste the signature again.</string>
     <string name="bittensor_error_user_rejected">The request was declined in your wallet. Start again and approve it to continue.</string>
+    <string name="bittensor_error_wallet_failed">Your %1$s wallet couldn\'t finish the request. Check the wallet, then try again.</string>
     <string name="bittensor_error_walletconnect_expired">The WalletConnect request expired before the wallet answered. Start again.</string>
     <string name="bittensor_error_walletconnect_unavailable">WalletConnect is not available right now. Try again later, or enter your address manually.</string>
     <string name="bittensor_funds_disclaimer">This key is stored locally in the app secure storage. It is never shared with URnetwork. URnetwork does not touch and is not responsible for any user funds.</string>
@@ -245,6 +246,9 @@
     <string name="client_contracts">Client contracts</string>
     <string name="client_id">Client ID</string>
     <string name="client_id_copied">Client ID copied</string>
+    <string name="client_limit_reached">Device limit reached</string>
+    <string name="client_limit_remove_client_message">Your plan\'s limit of devices connected at once is reached. Sign out of URnetwork on a device you no longer use, then try again.</string>
+    <string name="client_limit_upgrade_message">Your free plan connects a limited number of devices at once. Upgrade to UR Pro to connect more, or disconnect URnetwork on another device.</string>
     <string name="client_statistics">Client statistics</string>
     <string name="clients">Clients</string>
     <string name="close">Close</string>
@@ -261,11 +265,8 @@
     <string name="connect_bittensor_wallet_to_add_sign_in_method">Connect a Bittensor wallet to add it as a sign-in method.</string>
     <string name="connect_options">Connect options</string>
     <string name="connect_seeker_wallet">Connect a wallet with the Saga Genesis or Seeker Pre-Order Token</string>
-    <string name="connect_solana_wallet">Connect Solana wallet</string>
-    <string name="connect_solana_wallet_note">Connect a Solana wallet app, or enter a Solana USDC address manually.</string>
     <string name="connect_solana_wallet_to_add_sign_in_method">Connect a Solana wallet to add it as a sign-in method.</string>
     <string name="connect_to_location">Connect to %1$s</string>
-    <string name="connect_wallet">Connect Wallet</string>
     <string name="connect_wallet_first">Connect a Bittensor wallet first.</string>
     <string name="connected">Connected</string>
     <string name="connecting_from">Connecting from</string>
@@ -303,6 +304,7 @@
     <string name="copy_extender_address">Copy extender address</string>
     <string name="copy_share_text">Copy share text</string>
     <string name="could_not_get_google_id_token">Could not get Google ID token</string>
+    <string name="couldnt_open_wallet">Couldn\'t open wallet. Please install it and try again.</string>
     <string name="countries">Countries</string>
     <string name="country">Country</string>
     <string name="country_multipliers">Country multipliers</string>
@@ -314,8 +316,12 @@
     <string name="crypto_does_not_renew">Does not renew. Pay again when it ends.</string>
     <string name="crypto_fine_print_data">A one-time payment. The data stays valid for a year.</string>
     <string name="crypto_fine_print_yearly">A one-time payment for a year of Pro. It doesn\'t renew, and there\'s no free trial.</string>
+    <string name="crypto_invoice_bitcoin_network_only">Send only Bitcoin on the Bitcoin network to this address. Bitcoin sent on any other network won\'t be credited.</string>
     <string name="crypto_invoice_copied">Copied</string>
     <string name="crypto_invoice_copy">Copy</string>
+    <string name="crypto_invoice_copy_address">Copy address</string>
+    <string name="crypto_invoice_copy_amount">Copy amount</string>
+    <string name="crypto_invoice_eth_network_only">Send only ETH on Ethereum mainnet to this address. Tokens and ETH on other networks, such as Base or Arbitrum, won\'t be credited.</string>
     <string name="crypto_invoice_expires_in">Quote expires in %1$s</string>
     <string name="crypto_invoice_memo">Memo, if you send by hand</string>
     <string name="crypto_invoice_open_wallet">Open in wallet</string>
@@ -324,11 +330,19 @@
     <string name="crypto_invoice_refresh_quote">Refresh quote</string>
     <string name="crypto_invoice_remaining">%1$s more to send</string>
     <string name="crypto_invoice_send_exactly">Send exactly</string>
+    <string name="crypto_invoice_send_exactly_to_address">Send exactly this amount to this address.</string>
+    <string name="crypto_invoice_sol_network_only">Send only SOL on the Solana network to this address. Tokens, including USDC, won\'t be credited.</string>
+    <string name="crypto_invoice_tao_network_only">Send only TAO on the Bittensor network to this address. TAO sent on any other network won\'t be credited.</string>
+    <string name="crypto_invoice_tao_no_payment_link">TAO has no payment link, so this QR code holds only the address. Enter the exact amount in your wallet.</string>
     <string name="crypto_invoice_to_address">To this address</string>
     <string name="crypto_invoice_unavailable">Paying with %1$s is temporarily unavailable. Try again later, or pay another way.</string>
     <string name="crypto_invoice_wallets">Wallets that work: %1$s</string>
     <string name="crypto_invoice_zcash_exchange_note">Exchanges such as Coinbase and Robinhood can\'t send to this shielded address. Send from a shielded wallet.</string>
+    <string name="crypto_network_bitcoin">Bitcoin network</string>
+    <string name="crypto_network_eth">Ethereum mainnet</string>
     <string name="crypto_network_monero" translatable="false">Monero</string>
+    <string name="crypto_network_sol">Solana (native SOL)</string>
+    <string name="crypto_network_tao">Bittensor network</string>
     <string name="crypto_network_usdc">USDC on Solana</string>
     <string name="crypto_network_zcash">Zcash, shielded</string>
     <string name="crypto_pay_button">Pay with %1$s</string>
@@ -356,7 +370,6 @@
     <string name="data_limit_reached">Data limit reached</string>
     <string name="data_usage">Data usage</string>
     <string name="default_daily_data">By default, you get %1$s every day.</string>
-    <string name="default_wallet">Default</string>
     <string name="delete">Delete</string>
     <string name="delete_account">Delete Account</string>
     <string name="delete_account_type_network_name">Type %1$s to confirm.</string>
@@ -544,14 +557,87 @@
     <string name="disconnected">Disconnected</string>
     <string name="dismiss">Dismiss</string>
     <string name="display_network_on_leaderboard">Display network on leaderboard</string>
+    <string name="dns_blocked_count_floor_note">Some blocks aren\'t counted, so the real number may be higher.</string>
+    <string name="dns_builtin_blocker_label">URnetwork ad blocker</string>
+    <string name="dns_builtin_blocker_note">URnetwork\'s own blocker. It works with any DNS choice and checks each name first.</string>
+    <string name="dns_custom_mix_note">Mixing a filtering server with the default servers doesn\'t filter: the fastest answer wins.</string>
+    <string name="dns_group_block_malware">Block malware</string>
+    <string name="dns_group_family">Family</string>
+    <string name="dns_group_my_account">Use my account</string>
+    <string name="dns_group_no_filtering">No filtering</string>
     <string name="dns_over_https">DNS over HTTPS</string>
+    <string name="dns_personal_id_block_response">In %1$s, keep the block response at zero IP (0.0.0.0, the default) or NXDOMAIN. REFUSED and other responses look like an outage.</string>
+    <string name="dns_personal_id_dashboard_link">Open your %1$s dashboard</string>
+    <string name="dns_personal_id_format_adguard">%1$s device IDs are 8 characters: digits and the letters a to f, like %2$s.</string>
+    <string name="dns_personal_id_format_controld">%1$s resolver IDs use only letters and digits, like %2$s.</string>
+    <string name="dns_personal_id_format_nextdns">%1$s IDs are 6 characters: digits and the letters a to f, like %2$s.</string>
+    <string name="dns_personal_id_label">Profile ID or DNS address</string>
+    <string name="dns_personal_id_linked_ip_note">No need to link an IP address in your dashboard: through URnetwork, your lookups come from an address that isn\'t yours. Your ID is enough.</string>
+    <string name="dns_personal_id_quota_adguard">%1$s\'s free plan is limited to 300,000 requests a month.</string>
+    <string name="dns_personal_id_quota_nextdns">%1$s\'s free plan stops filtering after 300,000 queries a month.</string>
+    <string name="dns_personal_id_where_adguard">Find it on your device\'s page in your %1$s dashboard.</string>
+    <string name="dns_personal_id_where_controld">In your %1$s dashboard, choose Show Resolvers on your endpoint.</string>
+    <string name="dns_personal_id_where_nextdns">Find it on the Setup page of your %1$s account.</string>
     <string name="dns_pill_defaults">The default safe settings are not applied</string>
     <string name="dns_pill_recommended">There are unapplied recommended settings for %1$s</string>
+    <string name="dns_preset_apply_note">Changes apply to new lookups right away. Apps may keep earlier answers for about a minute.</string>
+    <string name="dns_preset_copy_ads_adult_safe_search">Blocks ads, trackers and adult sites, and turns on safe search</string>
+    <string name="dns_preset_copy_ads_malware">Blocks ads, trackers and malware</string>
+    <string name="dns_preset_copy_ads_malware_adult_drugs">Blocks ads, trackers, malware, adult sites and drugs</string>
+    <string name="dns_preset_copy_ads_malware_phishing">Blocks ads, trackers, malware and phishing</string>
+    <string name="dns_preset_copy_ads_phishing">Blocks ads, trackers and phishing</string>
+    <string name="dns_preset_copy_child">Blocks malware, adult sites, gambling, drugs and violence, not ads</string>
+    <string name="dns_preset_copy_child_ads">Blocks ads, trackers, malware, adult sites, gambling, drugs and violence</string>
+    <string name="dns_preset_copy_court_orders">Blocks only what courts order it to block</string>
+    <string name="dns_preset_copy_malware">Blocks malware, not ads</string>
+    <string name="dns_preset_copy_malware_adult">Blocks malware and adult sites, not ads</string>
+    <string name="dns_preset_copy_malware_phishing">Blocks malware and phishing, not ads</string>
+    <string name="dns_preset_copy_nothing">Blocks nothing</string>
+    <string name="dns_preset_copy_personal">Uses the filters you set up in your %1$s account</string>
+    <string name="dns_preset_disclosure">Your DNS lookups go to %1$s through the tunnel, so it never sees your IP address. Its privacy policy applies.</string>
+    <string name="dns_preset_dropped">%1$s is no longer available. You\'re using URnetwork DNS, so lookups aren\'t filtered.</string>
+    <string name="dns_preset_dropped_choose">Choose another preset</string>
+    <string name="dns_preset_dropped_custom">Enter it yourself under Custom</string>
+    <string name="dns_preset_error_personal_id_invalid">This ID isn\'t in the right format.</string>
+    <string name="dns_preset_error_personal_id_not_accepted">This preset doesn\'t use a profile ID.</string>
+    <string name="dns_preset_error_personal_id_other_provider">This address belongs to another adblock provider. Choose that adblock provider instead.</string>
+    <string name="dns_preset_error_personal_id_required">Enter your profile ID.</string>
+    <string name="dns_preset_error_unknown">This preset isn\'t available. Choose another one.</string>
+    <string name="dns_preset_fast_dns_note">While connecting, lookups use URnetwork DNS, so %1$s doesn\'t filter them.</string>
+    <string name="dns_preset_help_link">Help</string>
+    <string name="dns_preset_jurisdiction">Jurisdiction: %1$s</string>
+    <string name="dns_preset_name_ad_blocking">%1$s Ad Blocking</string>
+    <string name="dns_preset_name_child">%1$s Child</string>
+    <string name="dns_preset_name_child_ads">%1$s Child, no ads</string>
+    <string name="dns_preset_name_family">%1$s Family</string>
+    <string name="dns_preset_name_malware_blocking">%1$s Malware Blocking</string>
+    <string name="dns_preset_name_no_filtering">%1$s No Filtering</string>
+    <string name="dns_preset_name_personal">%1$s Personal</string>
+    <string name="dns_preset_privacy_link">Privacy policy</string>
+    <string name="dns_private_dns_overrides_preset">Private DNS overrides your DNS choice (%1$s).</string>
+    <string name="dns_provider_custom">Custom</string>
+    <string name="dns_provider_custom_copy">Your own DNS over HTTPS URLs and DNS servers</string>
+    <string name="dns_provider_default">URnetwork (default)</string>
+    <string name="dns_provider_default_copy">Encrypted DNS through the tunnel, with no filtering</string>
+    <string name="dns_provider_regional">Regional (%1$s), unencrypted</string>
     <string name="dns_recommendation_message">The strongest security rules are known not to work in %1$s. There are less secure recommended DNS settings that work better.</string>
-    <string name="dns_restore_secure_message">Restore the most secure settings: encrypted DNS over HTTPS through the tunnel.</string>
     <string name="dns_settings_unavailable">DNS settings unavailable</string>
-    <string name="dns_using_recommended">Using recommended regional settings</string>
-    <string name="dns_using_secure">Using most secure default settings</string>
+    <string name="dns_status_change_location">Change location</string>
+    <string name="dns_status_fallback">%1$s isn\'t answering. Using URnetwork DNS.</string>
+    <string name="dns_status_paused">Ad blocking paused: %1$s isn\'t answering</string>
+    <string name="dns_status_paused_detail">Using URnetwork DNS until it answers. Ad blocking comes back on its own.</string>
+    <string name="dns_status_provider">DNS: %1$s</string>
+    <string name="dns_status_unreachable">%1$s isn\'t answering</string>
+    <string name="dns_status_unreachable_detail">To keep filtering on, URnetwork doesn\'t switch DNS for you. Sites may not load until it answers.</string>
+    <string name="dns_status_use_default">Use URnetwork DNS</string>
+    <string name="dns_summary_custom">DNS: Custom</string>
+    <string name="dns_summary_custom_unencrypted">DNS: Custom (unencrypted)</string>
+    <string name="dns_summary_default">DNS: URnetwork</string>
+    <string name="dns_summary_regional">DNS: Regional (unencrypted)</string>
+    <string name="dns_verify_malformed_adguard">%1$s rejected this device ID</string>
+    <string name="dns_verify_not_filtering">%1$s isn\'t filtering from this location</string>
+    <string name="dns_verify_rejected_controld">%1$s doesn\'t recognize this resolver ID</string>
+    <string name="dns_verify_unconfirmed">Saved, but we can\'t confirm this profile. If the ID is wrong, %1$s answers without filtering.</string>
     <string name="done">Done</string>
     <string name="dont_see_it">Don\'t see it?</string>
     <string name="earn_more_bullet_stay_connected">Stay connected daily = Earn up to %1$s GiB/Day</string>
@@ -585,7 +671,6 @@
     <string name="enter">Enter</string>
     <string name="enter_a_bonus_referral_code">Enter a bonus referral code</string>
     <string name="enter_a_password">Enter a password</string>
-    <string name="enter_a_solana_usdc_wallet_address">Enter a Solana USDC wallet address</string>
     <string name="enter_address_manually">Enter address manually</string>
     <string name="enter_balance_code">Enter balance code</string>
     <string name="enter_network_referral_code">Enter network referral code</string>
@@ -593,14 +678,12 @@
     <string name="epoch_row_title">Epoch %1$d</string>
     <string name="epoch_share_of_block">%1$s of block</string>
     <string name="error_connecting_to_wallet">Error connecting to wallet</string>
-    <string name="error_connecting_wallet_with_reason">There was an error connecting your wallet: %1$s</string>
     <string name="error_deleting_account">Sorry, there was an error deleting your account.</string>
     <string name="error_loading_account_plan">Error loading your account plan.</string>
     <string name="error_logging_in_please_try_again">Error logging in, please try again.</string>
     <string name="error_redeeming_transfer_balance_code">Error redeeming transfer balance code</string>
     <string name="error_sending_password_reset_link">Error sending password reset link</string>
     <string name="error_sending_verification_code">There was an error sending the verification code.</string>
-    <string name="error_setting_default_wallet_with_reason">Error setting default wallet: %1$s</string>
     <string name="error_signing_in_with_google">Error signing in with Google</string>
     <string name="error_updating_device_name">There was an error updating the device name.</string>
     <string name="exclude_app">Exclude from VPN</string>
@@ -690,7 +773,6 @@
     <string name="intro_widgets_tap_to_add">Tap a widget to add it to your home screen.</string>
     <string name="invalid_input">Invalid input</string>
     <string name="invalid_referral_code">This code is not valid</string>
-    <string name="invalid_solana_address">That is not a valid Solana address.</string>
     <string name="invalid_ss58_address">That is not a valid Bittensor address.</string>
     <string name="ip_address">IP address</string>
     <string name="ip_family_both">Both</string>
@@ -788,7 +870,16 @@
     <string name="login_verify_details">Tell us who you really are. Enter the code we\nsent you to verify your identity.</string>
     <string name="login_verify_header">You\'ve got mail</string>
     <string name="longest_streak">Longest streak</string>
-    <string name="make_default">Make default</string>
+    <string name="manage_devices">Manage devices</string>
+    <string name="manage_devices_connecting">Connecting this device…</string>
+    <string name="manage_devices_help">Each connected device or proxy uses a slot of your plan. Remove one you no longer use to free its slot.</string>
+    <string name="manage_devices_last_seen">Last seen %1$s</string>
+    <string name="manage_devices_load_failed">Couldn\'t load your devices.</string>
+    <string name="manage_devices_proxy">Hosted proxy</string>
+    <string name="manage_devices_remove_failed">Couldn\'t remove the device. Try again.</string>
+    <string name="manage_devices_remove_title">Remove this device?</string>
+    <string name="manage_devices_sign_in_required">Sign in again to manage devices.</string>
+    <string name="manage_devices_this_device">This device</string>
     <string name="manage_subscription">Manage subscription</string>
     <string name="member">Member</string>
     <string name="method">Method</string>
@@ -866,7 +957,6 @@
     <string name="no_solana_wallet_found">No wallet app found to handle the Solana payment.</string>
     <string name="no_solana_wallets_found">No Solana Wallets Found</string>
     <string name="no_wallets_found_alert_content">No Solana wallets were found installed on this device. Please install a wallet and try again.</string>
-    <string name="no_wallets_found_enter_address_manually">No compatible Solana wallet app was found on this device. Choose “Enter address manually” to paste your wallet address instead.</string>
     <string name="none">None</string>
     <string name="notifications_label">Notifications</string>
     <string name="of_total">of %1$s</string>
@@ -895,12 +985,19 @@
     <string name="password_label">Password</string>
     <string name="password_support_txt">Password must be at least 12 characters</string>
     <string name="paste_share_text">Paste share text</string>
+    <string name="pay_method_bitcoin" translatable="false">Bitcoin</string>
     <string name="pay_method_card">Card</string>
     <string name="pay_method_card_only_monthly">Monthly is card only</string>
+    <string name="pay_method_eth" translatable="false">ETH</string>
     <string name="pay_method_label">Pay with</string>
     <string name="pay_method_monero" translatable="false">Monero</string>
+    <string name="pay_method_more_coins">More coins</string>
+    <string name="pay_method_more_coins_a11y">More coins: %1$s</string>
+    <string name="pay_method_sol" translatable="false">SOL</string>
+    <string name="pay_method_tao" translatable="false">TAO</string>
     <string name="pay_method_unavailable">Temporarily unavailable</string>
     <string name="pay_method_usdc" translatable="false">USDC</string>
+    <string name="pay_method_usdc_solana">USDC on Solana</string>
     <string name="pay_method_zcash" translatable="false">Zcash</string>
     <string name="pay_with_solana_wallet">Pay with Solana Wallet</string>
     <string name="pay_with_stripe">Join with Stripe</string>
@@ -911,8 +1008,6 @@
     <string name="payment_past_due_update_payment">Update payment method</string>
     <string name="payment_problem">Payment problem</string>
     <string name="payment_received_title">Payment received</string>
-    <string name="payout_wallet_updated">Payout wallet updated</string>
-    <string name="payouts_now_go_to">Payouts now go to %1$s.</string>
     <string name="peer_count_one">1 peer</string>
     <string name="peer_count_other">%d peers</string>
     <string name="pending_data_key">Pending</string>
@@ -921,6 +1016,7 @@
     <string name="pin_app_description">Keeps all of this app\'s connections on a single provider, so its API and images share one IP address. Use for apps whose content fails to load through the VPN</string>
     <string name="pinned">Pinned</string>
     <string name="plan">Plan</string>
+    <string name="plan_account_name">Account: %1$s</string>
     <string name="plan_billed_monthly_cancel_anytime">Billed monthly · cancel anytime</string>
     <string name="plan_billed_yearly_price_for_country">Billed once a year · price for %1$s</string>
     <string name="plan_monthly_equivalent_line">≈ %1$s/month · billed once a year</string>
@@ -947,6 +1043,10 @@
     <string name="private_extender_secret">Secret</string>
     <string name="private_network">Private Network</string>
     <string name="pro_benefits_simple">The best version of URnetwork.</string>
+    <string name="pro_features_in_use">Pro features in use</string>
+    <string name="pro_features_stopped">SOCKS and WireGuard stopped working</string>
+    <string name="pro_features_stopped_message">SOCKS and WireGuard are part of Pro, so they no longer work on your proxies. HTTP and HTTPS still work. Upgrade to turn them back on. WireGuard can take up to 30 minutes to reconnect.</string>
+    <string name="pro_features_upgrade_message">SOCKS and WireGuard proxies are part of Pro. Upgrade to keep using them.</string>
     <string name="processing_payment">Processing payment</string>
     <string name="processing_subscription_balance">Processing subscription balance...</string>
     <string name="profile">Profile</string>
@@ -1082,8 +1182,6 @@
     <string name="remove">Remove</string>
     <string name="remove_rule">Remove rule</string>
     <string name="remove_this_sign_in_method">Remove this sign-in method?</string>
-    <string name="remove_wallet">Remove wallet</string>
-    <string name="remove_wallet_moves_or_holds_payouts">USDC payouts move to another of your Solana or Polygon wallets, or are held until you connect one.</string>
     <string name="resend_reset_link">Resend link</string>
     <string name="resend_verify_code">Resend code</string>
     <string name="reset_extenders">Reset extenders</string>
@@ -1094,7 +1192,6 @@
     <string name="reset_password_email_sent">Reset password email sent to %1$s</string>
     <string name="resolvers">Resolvers</string>
     <string name="restore_default_transports">Restore default transports</string>
-    <string name="restore_most_secure_settings">Restore to most secure settings</string>
     <string name="retry">Retry</string>
     <string name="review_our_app">Would you like to review our app?</string>
     <string name="route_internet">Internet</string>
@@ -1226,8 +1323,8 @@
     <string name="slow_internet_still_connected">URnetwork is still connected</string>
     <string name="slow_internet_upload_delay">Upload delay</string>
     <string name="sn_alpha_symbol" translatable="false">SN25α</string>
-    <string name="sn_claim_relay_again_on">Claim now is available again on %1$s.</string>
-    <string name="sn_claim_relay_cap">Today\'s claim budget is used up, so this waits for the next day. Nothing is lost: this credit never expires.</string>
+    <string name="sn_claim_relay_again_on">Your next Claim now opens on %1$s.</string>
+    <string name="sn_claim_relay_cap">Today\'s claim budget is used up, so this waits. The budget renews each day at 00:00 UTC. Nothing is lost: this credit never expires.</string>
     <string name="sn_claim_relay_claim_now">Claim now</string>
     <string name="sn_claim_relay_claimed">Claimed by URnetwork. %1$s SN25α is on your key, %2$s.</string>
     <string name="sn_claim_relay_for_you">URnetwork claims this for you</string>
@@ -1237,7 +1334,7 @@
     <string name="sn_claim_relay_queued">URnetwork claims this soon.</string>
     <string name="sn_claim_relay_queued_button">Queued</string>
     <string name="sn_claim_relay_refused">The last claim didn\'t go through. URnetwork tries again later.</string>
-    <string name="sn_claim_relay_requested">Claim now is queued. URnetwork sends it first, within today\'s budget.</string>
+    <string name="sn_claim_relay_requested">Claim now is queued. It goes out ahead of automatic claims, in the order requests came in, as each day\'s budget allows.</string>
     <string name="sn_claim_relay_self_claim">Claim it yourself with your gas key</string>
     <string name="sn_claim_relay_under_floor">Claim now needs a balance worth at least %1$s TAO.</string>
     <string name="sn_claim_relay_under_threshold">Below the automatic threshold.</string>
@@ -1256,11 +1353,18 @@
     <string name="sn_consent_sign">Sign with wallet</string>
     <string name="sn_consent_signing">Waiting for your wallet\'s signature…</string>
     <string name="sn_consent_title">Payout consent</string>
+    <string name="sn_ctf_pool">Capture the flag</string>
+    <string name="sn_ctf_won_extender_slot">You won one of the %1$s extender slots</string>
+    <string name="sn_ctf_won_provider_slot">You won one of the %1$s provider slots</string>
+    <string name="sn_ledger_claim_both">Claim both</string>
     <string name="sn_ledger_claimable">Claimable</string>
     <string name="sn_ledger_earned">Earned</string>
     <string name="sn_ledger_paid">Paid</string>
     <string name="sn_ledger_pending">Pending: +%1$s, awaiting finalization</string>
     <string name="sn_ledger_pool">Pool %1$d</string>
+    <string name="sn_ledger_pool_unavailable">Unavailable right now</string>
+    <string name="sn_ledger_pool_under_floor">Below the claim minimum</string>
+    <string name="sn_ledger_provider_pool">Provider pool</string>
     <string name="sn_ledger_title">Settlement v2</string>
     <string name="sn_ledger_unavailable">Unavailable</string>
     <string name="sn_payout_schedule">Earnings settle every epoch and are paid in SN25α to your Bittensor coldkey when you claim them.</string>
@@ -1272,6 +1376,7 @@
     <string name="solana_payment_still_checking">Still checking for your Solana payment. Confirmation on the network can take a minute or two.</string>
     <string name="solana_sign_in">Sign in with Solana</string>
     <string name="solana_wallet">Solana wallet</string>
+    <string name="solana_wallet_error_session_not_found">The wallet connection wasn\'t found in this browser. Start again to reconnect your wallet.</string>
     <string name="something_went_wrong">Something went wrong.</string>
     <string name="sorry_to_see_you_go">We\'re sorry to see you go!</string>
     <string name="split_rule_description">Selected hosts are routed locally and bypass the tunnel.</string>
@@ -1392,13 +1497,9 @@
     <string name="update_referral_network">Update referral network</string>
     <string name="upgrade_now">Upgrade now</string>
     <string name="upgrade_subscription">Upgrade Subscription</string>
-    <string name="usdc_payouts_until_migration">USDC payouts continue to this wallet until the migration to Bittensor is complete.</string>
     <string name="usdc_solana_network_only">Send USDC on the Solana network only. USDC sent on any other network will not arrive.</string>
-    <string name="usdc_waiting">Final USDC payout: %1$s USDC waiting</string>
-    <string name="usdc_wallet_address">USDC wallet address</string>
     <string name="use_extender_settings">Use extender settings</string>
     <string name="use_most_stable_provider">Use most stable provider</string>
-    <string name="use_recommended_settings">Use recommended settings</string>
     <string name="use_wireguard_socks_https_proxy">Use WireGuard / SOCKS / HTTPS proxy</string>
     <string name="use_wireguard_socks_https_proxy_note">Opens ur.io in your browser. SOCKS and WireGuard need Pro.</string>
     <string name="used_data_key">Used</string>
@@ -1461,7 +1562,6 @@
     <string name="wallet_connected_to_protocol">Connected to the UR protocol. Claims land here. Alpha accrues from the next epoch after connecting.</string>
     <string name="wallet_looks_new_warning">This address has no activity on the Bittensor chain yet. It looks like a new wallet. Make sure it is yours before continuing.</string>
     <string name="wallet_not_retroactive">Connect a wallet to earn SN25α from the next epoch. Earlier epochs are not settled retroactively.</string>
-    <string name="wallet_options">Wallet options</string>
     <string name="wallet_sign_in_method_added">Wallet sign-in method added</string>
     <string name="welcome_offer_eyebrow">Welcome offer</string>
     <string name="welcome_to_urnetwork">Welcome to URnetwork</string>
@@ -1524,6 +1624,10 @@
     <plurals name="dev_export_summary">
         <item quantity="one">Exported %1$d log file (%2$s)</item>
         <item quantity="other">Exported %1$d log files (%2$s)</item>
+    </plurals>
+    <plurals name="dns_blocked_count">
+        <item quantity="one">%1$d lookup blocked by %2$s this connection</item>
+        <item quantity="other">%1$d lookups blocked by %2$s this connection</item>
     </plurals>
     <plurals name="feedback_star_count">
         <item quantity="one">%1$d star</item>
@@ -1589,6 +1693,14 @@
         <item quantity="one">%1$d time in the last hour</item>
         <item quantity="other">%1$d times in the last hour</item>
     </plurals>
+    <plurals name="provider_status_reason_line_ipv4">
+        <item quantity="one">%1$d of these checks failed only over IPv6, so this device is offered for IPv4 traffic only.</item>
+        <item quantity="other">%1$d of these checks failed only over IPv6, so this device is offered for IPv4 traffic only.</item>
+    </plurals>
+    <plurals name="provider_status_reason_line_tcp">
+        <item quantity="one">%1$d of these checks failed only over HTTP/3 (UDP), so this device is offered for TCP traffic only. Some app builds and some networks do not route UDP.</item>
+        <item quantity="other">%1$d of these checks failed only over HTTP/3 (UDP), so this device is offered for TCP traffic only. Some app builds and some networks do not route UDP.</item>
+    </plurals>
     <plurals name="referral_celebration_detail">
         <item quantity="one">A friend just joined URnetwork with your code. You\'re both earning +%2$d GiB a day of free data — for life.</item>
         <item quantity="other">%1$d friends just joined URnetwork with your code. Each one earns you +%2$d GiB a day of free data — for life.</item>
@@ -1616,6 +1728,10 @@
     <plurals name="sn_claim_relay_claim_now_paid_each">
         <item quantity="one">Paid by URnetwork, once a day for each coldkey.</item>
         <item quantity="other">Paid by URnetwork, once every %1$d days for each coldkey.</item>
+    </plurals>
+    <plurals name="sn_claim_relay_requested_period">
+        <item quantity="one">Your next Claim now opens a day after this claim goes through.</item>
+        <item quantity="other">Your next Claim now opens %1$d days after this claim goes through.</item>
     </plurals>
     <plurals name="split_rule_count">
         <item quantity="one">%1$d split rule</item>

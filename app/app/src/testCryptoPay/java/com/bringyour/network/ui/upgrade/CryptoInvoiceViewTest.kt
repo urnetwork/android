@@ -14,11 +14,33 @@ import org.junit.Test
  * while the quote is current and nothing has arrived -- the uri asks for the
  * full amount, so after a part payment, an expiry or during a requote it would
  * ask for the wrong one. The addresses and amounts are fixtures, not wallets.
+ * The status steps and the memo rule are the sdk's (CryptoPaymentSteps,
+ * CryptoPaymentShowsMemo), carried on the snapshot as the sdk hands them out:
+ * these fixtures spell them the way the sdk's vectors do.
  */
 class CryptoInvoiceViewTest {
 
     private val xmrAddress = "8FixtureMoneroSubaddressForTheAppTestsOnlyNotAWallet"
     private val xmrUri = "monero:$xmrAddress?tx_amount=0.072387&tx_description=URnetwork%20Pro%20yearly"
+
+    private val done = Sdk.CryptoPaymentStepDone
+    private val current = Sdk.CryptoPaymentStepCurrent
+    private val upcoming = Sdk.CryptoPaymentStepUpcoming
+
+    /** The sdk's steps of a coin other than USDC, with the confirming step's counts. */
+    private fun steps(
+        pendingProgress: String,
+        seenProgress: String,
+        confirmingProgress: String,
+        paidProgress: String,
+        confirmations: Long = 0L,
+        confirmationsRequired: Long = 1L,
+    ): List<CryptoInvoiceStep> = listOf(
+        CryptoInvoiceStep(Sdk.CryptoPaymentStatusPending, pendingProgress),
+        CryptoInvoiceStep(Sdk.CryptoPaymentStatusSeen, seenProgress),
+        CryptoInvoiceStep(Sdk.CryptoPaymentStatusConfirming, confirmingProgress, confirmations, confirmationsRequired),
+        CryptoInvoiceStep(Sdk.CryptoPaymentStatusPaid, paidProgress),
+    )
 
     // an open Monero invoice, just quoted, nothing received
     private val pending = CryptoInvoiceSnapshot(
@@ -30,10 +52,13 @@ class CryptoInvoiceViewTest {
         amount = "0.072387",
         ticker = "XMR",
         uri = xmrUri,
+        // the sdk's CryptoPaymentQrText: the uri, which passes its check
+        qrText = xmrUri,
         priceUsd = 40.0,
         secondsLeft = 1799,
         status = Sdk.CryptoPaymentStatusPending,
         confirmationsRequired = 1,
+        steps = steps(current, upcoming, upcoming, upcoming),
     )
 
     @Test
@@ -42,18 +67,16 @@ class CryptoInvoiceViewTest {
         assertFalse(view.loading)
         assertTrue(view.paymentRequest)
         assertEquals(xmrUri, view.payUri)
+        assertEquals(xmrUri, view.qrText)
+        assertFalse(view.noPaymentLink)
         assertTrue(view.amount)
         assertTrue(view.address)
         assertFalse(view.memo)
-        assertFalse(view.usdcNetworkWarning)
         assertEquals("29:59", view.countdown)
         assertFalse(view.expired)
         assertTrue(view.refresh)
-        assertEquals(
-            listOf(CryptoInvoiceStep.WAITING, CryptoInvoiceStep.SEEN, CryptoInvoiceStep.CONFIRMING, CryptoInvoiceStep.PAID),
-            view.steps,
-        )
-        assertEquals(0, view.currentStep)
+        // the sdk's steps, as it hands them out
+        assertEquals(pending.steps, view.steps)
         assertNull(view.remaining)
         assertFalse(view.review)
         assertTrue(view.wallets)
@@ -65,6 +88,7 @@ class CryptoInvoiceViewTest {
     fun aUriThatFailsTheCheckIsNeitherShownNorOpened() {
         val view = CryptoPayment.view(pending, uriPasses = false)
         assertNull(view.payUri)
+        assertNull(view.qrText)
         // the amount and the address still let a wallet pay by hand
         assertTrue(view.paymentRequest)
         assertTrue(view.amount)
@@ -76,8 +100,114 @@ class CryptoInvoiceViewTest {
         // the controller blanks a uri that fails the check, or one a requote elsewhere made stale
         val view = CryptoPayment.view(pending.copy(uri = ""), uriPasses = true)
         assertNull(view.payUri)
+        // a QR text left over from the uri is not drawn either
+        assertNull(view.qrText)
         assertTrue(view.amount)
         assertTrue(view.address)
+    }
+
+    @Test
+    fun theQrCodeShowsOnlyTheCheckedUriOrTheAddressOnScreen() {
+        // a QR text that is neither (the sdk never hands one out) shows no code
+        assertNull(CryptoPayment.view(pending.copy(qrText = "monero:SomewhereElse"), uriPasses = true).qrText)
+        assertNull(CryptoPayment.view(pending.copy(qrText = ""), uriPasses = true).qrText)
+        // no code once nothing is payable
+        assertNull(CryptoPayment.view(pending.copy(refreshing = true), uriPasses = true).qrText)
+        assertNull(CryptoPayment.view(pending.copy(status = Sdk.CryptoPaymentStatusSeen, remaining = "0.01"), uriPasses = true).qrText)
+    }
+
+    // TAO has no payment uri (mmm/BTCPAY.md §17.6): a QR code of the address
+    // alone, no Open in wallet, and the amount and the address to send by hand
+    @Test
+    fun aTaoInvoiceShowsTheAddressAsItsQrCodeAndNoOpenInWallet() {
+        val address = "5FixtureBittensorColdkeyForTheAppTestsOnlyNotAWallet"
+        val tao = CryptoInvoiceSnapshot(
+            phase = Sdk.CryptoInvoicePhaseOpen,
+            intentId = "intent-3",
+            asset = Sdk.CryptoAssetTao,
+            plan = Sdk.PlanYearly,
+            address = address,
+            amount = "0.123457",
+            ticker = "TAO",
+            uri = "",
+            // the sdk's CryptoPaymentQrText for a coin without a payment uri
+            qrText = address,
+            priceUsd = 40.0,
+            secondsLeft = 1799,
+            status = Sdk.CryptoPaymentStatusPending,
+            confirmationsRequired = 1,
+        )
+        val view = CryptoPayment.view(tao, uriPasses = false, hasPaymentLink = false)
+        assertTrue(view.paymentRequest)
+        assertNull(view.payUri)
+        assertEquals(address, view.qrText)
+        assertTrue(view.noPaymentLink)
+        assertTrue(view.amount)
+        assertTrue(view.address)
+        assertFalse(view.memo)
+        assertEquals("29:59", view.countdown)
+        assertTrue(view.wallets)
+
+        // the quote ran out: no amount, and no code of the address either
+        val expired = CryptoPayment.view(tao.copy(status = Sdk.CryptoPaymentStatusExpired, secondsLeft = 0), uriPasses = false, hasPaymentLink = false)
+        assertNull(expired.qrText)
+        assertFalse(expired.amount)
+        // part of it arrived: the address stays for the rest
+        val seen = CryptoPayment.view(tao.copy(status = Sdk.CryptoPaymentStatusSeen, remaining = "0.023457"), uriPasses = false, hasPaymentLink = false)
+        assertNull(seen.qrText)
+        assertTrue(seen.address)
+        assertEquals("0.023457", seen.remaining)
+    }
+
+    // the server sends "memo": "" for SOL (its own deposit address names the
+    // invoice), and the sdk shows a memo only when there is one: the sheet used
+    // to show a memo row for SOL as for USDC
+    @Test
+    fun aSolInvoiceShowsNoMemo() {
+        val address = "FixtureSolanaRecipientForTheAppTests"
+        val uri = "solana:$address?amount=0.204517"
+        val sol = CryptoInvoiceSnapshot(
+            phase = Sdk.CryptoInvoicePhaseOpen,
+            intentId = "intent-4",
+            asset = Sdk.CryptoAssetSol,
+            plan = Sdk.PlanYearly,
+            address = address,
+            amount = "0.204517",
+            ticker = "SOL",
+            uri = uri,
+            qrText = uri,
+            memo = "",
+            // the sdk's CryptoPaymentShowsMemo(sol, "")
+            showsMemo = false,
+            secondsLeft = 1800,
+            status = Sdk.CryptoPaymentStatusPending,
+        )
+        val view = CryptoPayment.view(sol, uriPasses = true)
+        assertFalse(view.memo)
+        assertFalse(view.noPaymentLink)
+        assertEquals(uri, view.payUri)
+        assertEquals(uri, view.qrText)
+        // the sheet follows the sdk's rule, not the coin: no memo row unless the sdk shows one
+        assertFalse(CryptoPayment.view(pending.copy(memo = "stray"), uriPasses = true).memo)
+        assertTrue(CryptoPayment.view(pending.copy(memo = "FixtureReference", showsMemo = true), uriPasses = true).memo)
+    }
+
+    // SOL and TAO, which the server sees only once final, usually go from
+    // pending straight to paid: the sdk draws every step they skipped done
+    @Test
+    fun aPaymentThatSkippedStepsShowsThemDone() {
+        val paid = pending.copy(
+            asset = Sdk.CryptoAssetSol,
+            ticker = "SOL",
+            phase = Sdk.CryptoInvoicePhasePaid,
+            status = Sdk.CryptoPaymentStatusPaid,
+            confirmations = 1,
+            steps = steps(done, done, done, done, confirmations = 1L),
+        )
+        val view = CryptoPayment.view(paid, uriPasses = true)
+        assertEquals(paid.steps, view.steps)
+        assertTrue(view.steps.all { it.progress == Sdk.CryptoPaymentStepDone })
+        assertFalse(view.paymentRequest)
     }
 
     @Test
@@ -90,7 +220,8 @@ class CryptoInvoiceViewTest {
         assertFalse(view.amount)
         assertFalse(view.address)
         assertNull(view.countdown)
-        assertEquals(0, view.currentStep)
+        // nothing received: the sdk puts an expired quote at the first step
+        assertEquals(pending.steps, view.steps)
         assertTrue(view.payAnotherWay)
     }
 
@@ -119,8 +250,9 @@ class CryptoInvoiceViewTest {
 
     @Test
     fun aPartPaymentAsksForTheRestToTheSameAddress() {
+        val seenSteps = steps(done, current, upcoming, upcoming)
         val view = CryptoPayment.view(
-            pending.copy(status = Sdk.CryptoPaymentStatusSeen, remaining = "0.012000", secondsLeft = 600),
+            pending.copy(status = Sdk.CryptoPaymentStatusSeen, remaining = "0.012000", secondsLeft = 600, steps = seenSteps),
             uriPasses = true,
         )
         // the uri would ask for the full amount again
@@ -133,7 +265,7 @@ class CryptoInvoiceViewTest {
         assertNull(view.countdown)
         // a requote is the server's for nothing received only
         assertFalse(view.refresh)
-        assertEquals(1, view.currentStep)
+        assertEquals(seenSteps, view.steps)
         // money arrived: another way would pay twice
         assertFalse(view.payAnotherWay)
     }
@@ -146,11 +278,14 @@ class CryptoInvoiceViewTest {
 
     @Test
     fun confirmingShowsTheConfirmationsStep() {
+        // a whole payment skips seen, which the sdk draws done
+        val confirmingSteps = steps(done, done, current, upcoming)
         val view = CryptoPayment.view(
-            pending.copy(status = Sdk.CryptoPaymentStatusConfirming, confirmations = 0, secondsLeft = 900),
+            pending.copy(status = Sdk.CryptoPaymentStatusConfirming, confirmations = 0, secondsLeft = 900, steps = confirmingSteps),
             uriPasses = true,
         )
-        assertEquals(CryptoInvoiceStep.CONFIRMING, view.steps[view.currentStep])
+        assertEquals(confirmingSteps, view.steps)
+        assertEquals(Sdk.CryptoPaymentStatusConfirming, view.steps.single { it.progress == Sdk.CryptoPaymentStepCurrent }.status)
         assertFalse(view.paymentRequest)
         assertFalse(view.address)
         assertNull(view.countdown)
@@ -162,6 +297,7 @@ class CryptoInvoiceViewTest {
     @Test
     fun reviewShowsItsCopyAndNothingElseToDo() {
         val view = CryptoPayment.view(
+            // the sdk lists no steps in review; none show even if a stale list came along
             pending.copy(status = Sdk.CryptoPaymentStatusReview, reviewReason = "underpaid", errorCode = Sdk.PurchaseErrorCodeUnderpaid),
             uriPasses = true,
         )
@@ -180,17 +316,20 @@ class CryptoInvoiceViewTest {
 
     @Test
     fun paidIsTheLastStep() {
+        val paidSteps = steps(done, done, done, done, confirmations = 1L)
         val view = CryptoPayment.view(
-            pending.copy(phase = Sdk.CryptoInvoicePhasePaid, status = Sdk.CryptoPaymentStatusPaid, confirmations = 1),
+            pending.copy(phase = Sdk.CryptoInvoicePhasePaid, status = Sdk.CryptoPaymentStatusPaid, confirmations = 1, steps = paidSteps),
             uriPasses = true,
         )
-        assertEquals(CryptoInvoiceStep.PAID, view.steps[view.currentStep])
+        // once paid every step is done, the last one too
+        assertEquals(paidSteps, view.steps)
+        assertEquals(Sdk.CryptoPaymentStatusPaid, view.steps.last().status)
         assertFalse(view.paymentRequest)
         assertFalse(view.payAnotherWay)
     }
 
     @Test
-    fun usdcHasAMemoTheNetworkWarningAndTwoSteps() {
+    fun usdcHasAMemoTheAddressForItsNetworkWarningAndTwoSteps() {
         val address = "FixtureSolanaRecipientForTheAppTests"
         val usdc = CryptoInvoiceSnapshot(
             phase = Sdk.CryptoInvoicePhaseOpen,
@@ -201,21 +340,37 @@ class CryptoInvoiceViewTest {
             amount = "29.990417",
             ticker = "USDC",
             uri = "solana:$address?amount=29.990417",
+            qrText = "solana:$address?amount=29.990417",
             memo = "FixtureReference",
+            // the sdk's CryptoPaymentShowsMemo(usdc_solana, "FixtureReference")
+            showsMemo = true,
             secondsLeft = 3600,
             status = Sdk.CryptoPaymentStatusPending,
+            // the sdk's two USDC steps
+            steps = listOf(
+                CryptoInvoiceStep(Sdk.CryptoPaymentStatusPending, current),
+                CryptoInvoiceStep(Sdk.CryptoPaymentStatusPaid, upcoming),
+            ),
         )
         val view = CryptoPayment.view(usdc, uriPasses = true)
         assertTrue(view.memo)
-        assertTrue(view.usdcNetworkWarning)
-        assertEquals(listOf(CryptoInvoiceStep.WAITING, CryptoInvoiceStep.PAID), view.steps)
+        // the network-only warning shows with the address (the sdk's network warning)
+        assertTrue(view.address)
+        assertEquals(usdc.steps, view.steps)
         assertEquals("60:00", view.countdown)
         assertFalse(view.zcashExchangeNote)
 
-        val paid = CryptoPayment.view(usdc.copy(phase = Sdk.CryptoInvoicePhasePaid, status = Sdk.CryptoPaymentStatusPaid), uriPasses = true)
-        assertEquals(1, paid.currentStep)
-        // USDC without a memo shows none
-        assertFalse(CryptoPayment.view(usdc.copy(memo = ""), uriPasses = true).memo)
+        val paidSteps = listOf(
+            CryptoInvoiceStep(Sdk.CryptoPaymentStatusPending, done),
+            CryptoInvoiceStep(Sdk.CryptoPaymentStatusPaid, done),
+        )
+        val paid = CryptoPayment.view(
+            usdc.copy(phase = Sdk.CryptoInvoicePhasePaid, status = Sdk.CryptoPaymentStatusPaid, steps = paidSteps),
+            uriPasses = true,
+        )
+        assertEquals(paidSteps, paid.steps)
+        // USDC without a memo shows none (the sdk says so)
+        assertFalse(CryptoPayment.view(usdc.copy(memo = "", showsMemo = false), uriPasses = true).memo)
         // the memo is the payable invoice's
         assertFalse(CryptoPayment.view(usdc.copy(status = Sdk.CryptoPaymentStatusExpired, secondsLeft = 0), uriPasses = true).memo)
         assertFalse(CryptoPayment.view(usdc.copy(status = ""), uriPasses = true).memo)

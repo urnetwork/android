@@ -45,7 +45,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -71,7 +70,6 @@ import com.bringyour.network.ui.components.SectionLoadError
 import com.bringyour.network.ui.components.ButtonStyle
 import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.components.URLearnMoreText
-import com.bringyour.network.ui.login.NoSolanaWalletsAlert
 import com.bringyour.network.ui.login.launchBittensorBridge
 import com.bringyour.network.ui.stats.ThroughputViewModel
 import com.bringyour.network.ui.shared.viewmodels.OverlayViewModel
@@ -92,10 +90,7 @@ import com.bringyour.network.ui.theme.gravityCondensedFamily
 import com.bringyour.network.utils.Ss58
 import com.bringyour.sdk.ReliabilityWindow
 import com.bringyour.sdk.Sdk
-import com.solana.mobilewalletadapter.clientlib.ActivityResultSender
-import kotlinx.coroutines.launch
 import java.time.ZoneId
-import kotlin.coroutines.cancellation.CancellationException
 
 const val UR_XYZ_URL = "https://ur.xyz"
 
@@ -123,7 +118,6 @@ fun EarningsScreen(
     reliabilityPoints: Double,
     fetchAccountPoints: () -> Unit,
     reliabilityWindow: ReliabilityWindow?,
-    activityResultSender: ActivityResultSender?,
     accountPointsFailed: Boolean = false,
     // the Top 200 tile's "See the Protocol leaderboard"
     onSeeProtocolBoard: () -> Unit = {},
@@ -153,10 +147,12 @@ fun EarningsScreen(
     }
     val isSeekerHolder by earningsViewModel.isSeekerHolder.collectAsState()
     val claimDialog by earningsViewModel.claimDialog.collectAsState()
+    val epochClaimInFlight by earningsViewModel.epochClaimInFlight.collectAsState()
     val manualValidation by earningsViewModel.manualValidation.collectAsState()
     val ledgerLoad by earningsViewModel.ledgerFlow.load.collectAsState()
     val ledgerClaimConfigured by earningsViewModel.ledgerFlow.claimConfigured.collectAsState()
     val ledgerClaimDialog by earningsViewModel.ledgerFlow.dialog.collectAsState()
+    val ledgerClaimInFlight by earningsViewModel.ledgerFlow.claimInFlight.collectAsState()
     val consentState by earningsViewModel.consentFlow.state.collectAsState()
     val consentStage by earningsViewModel.consentFlow.proofFlow.stage.collectAsState()
 
@@ -169,6 +165,8 @@ fun EarningsScreen(
     val claimStatus by earningsViewModel.claimStatus.collectAsState()
     val claimNowOutcome by earningsViewModel.claimNowOutcome.collectAsState()
     val isClaimingNow by earningsViewModel.isClaimingNow.collectAsState()
+    // the capture the flag slots won and not claimed yet
+    val ctfWins by earningsViewModel.ctfWins.collectAsState()
     // Change wallet offers a key on this device above the wallets; Use a wallet
     // I already have opens the same chooser without it
     var consentOffersKey by remember { mutableStateOf(false) }
@@ -185,45 +183,8 @@ fun EarningsScreen(
         }
     }
 
-    // the legacy USDC payout wallet (Solana), connected from the wallet overflow
-    val solanaWalletViewModel: SolanaWalletViewModel = hiltViewModel()
     // the same instance as the provider statistics' below: one nav entry, one store
     val providerStatusViewModel: ProviderStatusViewModel = hiltViewModel()
-    val legacy by solanaWalletViewModel.legacy.collectAsState()
-    val legacyLoaded by solanaWalletViewModel.legacyLoaded.collectAsState()
-    val solanaState by solanaWalletViewModel.connectState.collectAsState()
-    val solanaSheetStep by solanaWalletViewModel.sheetStep.collectAsState()
-    val solanaManualValidation by solanaWalletViewModel.manualValidation.collectAsState()
-
-    // Mobile Wallet Adapter needs the activity's sender, so the call is made here, the
-    // way Settings verifies a Seeker
-    val scope = rememberCoroutineScope()
-    val onConnectWalletApp: () -> Unit = {
-        val sender = activityResultSender
-        if (sender == null) {
-            solanaWalletViewModel.onWalletAppFailed(null)
-        } else {
-            scope.launch {
-                if (!solanaWalletViewModel.onWalletAppConnecting()) {
-                    return@launch
-                }
-                try {
-                    when (val result = connectSolanaWalletAddress(sender)) {
-                        is SolanaWalletConnectResult.Success ->
-                            solanaWalletViewModel.onWalletAppConnected(result.address)
-                        SolanaWalletConnectResult.NoWalletFound ->
-                            solanaWalletViewModel.onWalletAppNotFound()
-                        is SolanaWalletConnectResult.Failure ->
-                            solanaWalletViewModel.onWalletAppFailed(result.message)
-                    }
-                } catch (e: CancellationException) {
-                    // the screen left composition before the wallet app answered
-                    solanaWalletViewModel.onWalletAppAbandoned()
-                    throw e
-                }
-            }
-        }
-    }
 
     LaunchedEffect(Unit) {
         fetchAccountPoints()
@@ -231,7 +192,6 @@ fun EarningsScreen(
 
     LifecycleResumeEffect(Unit) {
         earningsViewModel.onScreenResumed()
-        solanaWalletViewModel.refresh()
         onPauseOrDispose {}
     }
 
@@ -255,7 +215,6 @@ fun EarningsScreen(
         refresh = {
             fetchAccountPoints()
             earningsViewModel.refresh()
-            solanaWalletViewModel.refresh()
             providerStatusViewModel.refresh()
         },
         totalAccountPoints = totalAccountPoints,
@@ -276,21 +235,12 @@ fun EarningsScreen(
         onEnterManually = { earningsViewModel.openManualSheet() },
         onContinueLooksNew = { earningsViewModel.continueAfterLooksNew() },
         onDismissConnectState = { earningsViewModel.dismissConnectState() },
-        legacy = legacy,
-        legacyLoaded = legacyLoaded,
-        // the sheet and the remove dialog show their own states; the card's line waits until they close
-        solanaState = if (solanaWalletViewModel.isPresentedSheet || solanaWalletViewModel.isPresentedRemoveDialog) {
-            SolanaConnectState.Idle
-        } else {
-            solanaState
-        },
-        onConnectSolana = { solanaWalletViewModel.openSheet() },
-        onRemoveSolana = { solanaWalletViewModel.openRemoveDialog() },
-        onDismissSolanaState = { solanaWalletViewModel.dismissConnectState() },
         claims = claims,
         totalClaimableRao = totalClaimableRao,
         claimsError = claimsError,
         onOpenClaim = { earningsViewModel.openClaimDialog() },
+        // while the session's v1 claim is in flight, Claim opens it whatever the read says
+        claimInFlight = epochClaimInFlight,
         epochs = epochs,
         epochsLoaded = epochsLoaded,
         top200 = top200TileState(top),
@@ -305,10 +255,13 @@ fun EarningsScreen(
         onSetColdkey = { earningsViewModel.connectWithBridge() },
         // the device wallet's v2 ledger, or what the claim relay says is claimable
         // for a network with no wallet on this device
-        ledgerTile = snLedgerTileWithRelay(wallet != null, snLedgerTile(ledgerLoad, ledgerClaimConfigured), claimStatus),
+        // while the session's v2 claim is in flight, Claim opens it whatever the read says
+        ledgerTile = snLedgerTileWithRelay(wallet != null, snLedgerTile(ledgerLoad, ledgerClaimConfigured), claimStatus)
+            ?.withClaimInFlight(ledgerClaimInFlight),
         onOpenLedgerClaim = { earningsViewModel.ledgerFlow.open() },
         claimStatus = claimStatus,
         onOpenRelayClaim = { earningsViewModel.openRelayClaimDialog() },
+        ctfWins = ctfWins,
         consentTile = if (earningsViewModel.protocolAvailable) snConsentTile(consentState, consentStage) else null,
         onSignConsent = {
             consentOffersKey = true
@@ -338,6 +291,8 @@ fun EarningsScreen(
         formatAlpha = earningsViewModel::formatAlpha,
         shortSs58 = earningsViewModel::shortSs58,
         explorerTxUrl = earningsViewModel::explorerTxUrl,
+        // the gas key sends one claim at a time: Claim waits for the session's v2 claim
+        claimHeld = ledgerClaimInFlight,
     )
 
     SnLedgerClaimDialog(
@@ -348,6 +303,10 @@ fun EarningsScreen(
         formatAlpha = earningsViewModel::formatAlpha,
         shortSs58 = earningsViewModel::shortSs58,
         explorerTxUrl = earningsViewModel::explorerTxUrl,
+        // the rows are named as the tile names them
+        pools = snLedgerPools(ledgerLoad),
+        // the gas key sends one claim at a time: Claim waits for the session's v1 claim
+        claimHeld = epochClaimInFlight,
     )
 
     // Claim now, through URnetwork's claim relay: a screen of its own, with the
@@ -425,40 +384,6 @@ fun EarningsScreen(
         )
     }
 
-    if (solanaWalletViewModel.isPresentedSheet) {
-        ConnectSolanaWalletSheet(
-            step = solanaSheetStep,
-            state = solanaState,
-            address = solanaWalletViewModel.manualAddress,
-            onAddressChange = { solanaWalletViewModel.updateManualAddress(it) },
-            validation = solanaManualValidation,
-            onConnectWalletApp = onConnectWalletApp,
-            onEnterManually = { solanaWalletViewModel.showManualStep() },
-            onBack = { solanaWalletViewModel.showChooseStep() },
-            onContinue = { solanaWalletViewModel.continueManual() },
-            onDismissState = { solanaWalletViewModel.dismissConnectState() },
-            onDismiss = { solanaWalletViewModel.closeSheet() },
-        )
-    }
-
-    // over the sheet, which stays open so manual entry remains available. A wallet the
-    // adapter cannot reach (as reported with Brave Wallet) still connects by its
-    // address, so the alert points at manual entry and opens the sheet's manual step
-    if (solanaState is SolanaConnectState.NoWalletApp) {
-        NoSolanaWalletsAlert(
-            onDismiss = { solanaWalletViewModel.dismissConnectState() },
-            onEnterManually = { solanaWalletViewModel.showManualStep() },
-        )
-    }
-
-    RemoveSolanaWalletDialog(
-        visible = solanaWalletViewModel.isPresentedRemoveDialog,
-        removing = solanaState is SolanaConnectState.Removing,
-        error = (solanaState as? SolanaConnectState.Failed)?.let { solanaFailureText(it) },
-        onConfirm = { solanaWalletViewModel.removePayoutWallet() },
-        onDismiss = { solanaWalletViewModel.closeRemoveDialog() },
-    )
-
     // the payout key's screen, in a secure window of its own
     BittensorKeyScreenDialog(
         model = keyModel,
@@ -496,16 +421,12 @@ fun EarningsScreenContent(
     onEnterManually: () -> Unit,
     onContinueLooksNew: () -> Unit,
     onDismissConnectState: () -> Unit,
-    legacy: LegacyWalletUi,
-    legacyLoaded: Boolean,
-    solanaState: SolanaConnectState,
-    onConnectSolana: () -> Unit,
-    onRemoveSolana: () -> Unit,
-    onDismissSolanaState: () -> Unit,
     claims: List<EpochClaim>,
     totalClaimableRao: Long,
     claimsError: String?,
     onOpenClaim: () -> Unit,
+    // the session's v1 claim is in flight: Claim opens it
+    claimInFlight: Boolean = false,
     epochs: List<AccountEpoch>,
     epochsLoaded: Boolean,
     top200: Top200TileState,
@@ -524,6 +445,8 @@ fun EarningsScreenContent(
     // what URnetwork's claim relay says, and its Claim now
     claimStatus: SnClaimStatusState? = null,
     onOpenRelayClaim: () -> Unit = {},
+    // the capture the flag slots won and not claimed yet, a line each on the Settlement v2 tile
+    ctfWins: List<SnCtfWinState> = emptyList(),
     consentTile: SnConsentTile? = null,
     onSignConsent: () -> Unit = {},
     onRetryConsent: () -> Unit = {},
@@ -645,24 +568,10 @@ fun EarningsScreenContent(
                     onEnterManually = onEnterManually,
                     onContinueLooksNew = onContinueLooksNew,
                     onDismissConnectState = onDismissConnectState,
-                    onConnectSolana = onConnectSolana,
-                    // with no payout wallet to show it on, the final USDC payout sits above the wallet actions
-                    usdcWaiting = if (legacy.payoutWallet == null) finalUsdcWaitingUsd(legacy, legacyLoaded) else null,
                     shortSs58 = shortSs58,
                     // the payout key on this device takes the connect call's place
                     localKey = BittensorWalletCardLocalKey.of(keyCard),
                 )
-
-                if (walletLoaded) {
-                    LegacyPayoutBlock(
-                        legacy = legacy,
-                        legacyLoaded = legacyLoaded,
-                        showWaitingLine = wallet != null,
-                        state = solanaState,
-                        onRemove = onRemoveSolana,
-                        onDismissState = onDismissSolanaState
-                    )
-                }
 
                 // the first claim tile carries the claim card's disclaimer
                 if (wallet != null) {
@@ -671,6 +580,7 @@ fun EarningsScreenContent(
                         totalClaimableRao = totalClaimableRao,
                         claimsError = claimsError,
                         onOpenClaim = onOpenClaim,
+                        claimInFlight = claimInFlight,
                         formatAlpha = formatAlpha,
                         fundsDisclaimer = keyCard.claimFundsDisclaimer,
                     )
@@ -690,6 +600,7 @@ fun EarningsScreenContent(
                         onClaimNow = onOpenRelayClaim,
                         onSelfClaim = onOpenLedgerClaim,
                         fundsDisclaimer = if (wallet != null) Sdk.BittensorFundsDisclaimerNone else keyCard.claimFundsDisclaimer,
+                        ctfWins = ctfWins,
                     )
                 }
 
@@ -968,8 +879,6 @@ internal fun WalletSection(
     onEnterManually: () -> Unit,
     onContinueLooksNew: () -> Unit,
     onDismissConnectState: () -> Unit,
-    onConnectSolana: () -> Unit,
-    usdcWaiting: Double?,
     shortSs58: (String) -> String,
     walletFailed: Boolean = false,
     onRetryWallet: () -> Unit = {},
@@ -1034,11 +943,6 @@ internal fun WalletSection(
                         style = MaterialTheme.typography.bodyLarge
                     )
                 }
-                Spacer(modifier = Modifier.weight(1f))
-                WalletOverflowMenu(
-                    contentDescription = stringResource(id = R.string.wallet_options),
-                    items = listOf(connectSolanaOverflowItem(onConnectSolana))
-                )
             }
             Spacer(modifier = Modifier.height(12.dp))
             Text(
@@ -1093,15 +997,6 @@ internal fun WalletSection(
                         )
                     }
                 }
-                Spacer(modifier = Modifier.weight(1f))
-                WalletOverflowMenu(
-                    contentDescription = stringResource(id = R.string.wallet_options),
-                    items = listOf(connectSolanaOverflowItem(onConnectSolana))
-                )
-            }
-            if (usdcWaiting != null) {
-                Spacer(modifier = Modifier.height(8.dp))
-                UsdcWaitingLine(pendingUsd = usdcWaiting)
             }
             Spacer(modifier = Modifier.height(12.dp))
             Text(
@@ -1155,26 +1050,12 @@ internal fun WalletSection(
                 }
             }
             else -> {
-                if (usdcWaiting != null) {
-                    UsdcWaitingLine(pendingUsd = usdcWaiting)
-                    Spacer(modifier = Modifier.height(8.dp))
-                }
-
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    URButton(
-                        onClick = onConnectWallet,
-                        enabled = protocolAvailable && !connectState.busy,
-                        isProcessing = connectState.busy,
-                        modifier = Modifier.weight(1f)
-                    ) { buttonTextStyle ->
-                        Text(stringResource(id = R.string.connect_bittensor_wallet), style = buttonTextStyle)
-                    }
-                    Spacer(modifier = Modifier.width(8.dp))
-                    // enabled without the protocol: a Solana payout wallet does not need it
-                    WalletOverflowMenu(
-                        contentDescription = stringResource(id = R.string.wallet_options),
-                        items = listOf(connectSolanaOverflowItem(onConnectSolana))
-                    )
+                URButton(
+                    onClick = onConnectWallet,
+                    enabled = protocolAvailable && !connectState.busy,
+                    isProcessing = connectState.busy
+                ) { buttonTextStyle ->
+                    Text(stringResource(id = R.string.connect_bittensor_wallet), style = buttonTextStyle)
                 }
 
                 Spacer(modifier = Modifier.height(12.dp))
@@ -1220,6 +1101,8 @@ private fun UnclaimedTile(
     totalClaimableRao: Long,
     claimsError: String?,
     onOpenClaim: () -> Unit,
+    // the session's v1 claim is in flight: Claim opens it whatever the read says
+    claimInFlight: Boolean = false,
     formatAlpha: (Long) -> String,
     // the claim card's disclaimer (a BittensorFundsDisclaimer*): Earnings shows
     // it once, here only while the payout card has none
@@ -1266,7 +1149,7 @@ private fun UnclaimedTile(
 
         URButton(
             onClick = onOpenClaim,
-            enabled = 0 < totalClaimableRao
+            enabled = 0 < totalClaimableRao || claimInFlight
         ) { buttonTextStyle ->
             Text(stringResource(id = R.string.claim), style = buttonTextStyle)
         }
@@ -1300,16 +1183,6 @@ private fun EarningsScreenNoWalletPreview() {
             onEnterManually = {},
             onContinueLooksNew = {},
             onDismissConnectState = {},
-            legacy = LegacyWalletUi(
-                payments = listOf(
-                    LegacyPayment("held", null, SampleLegacyWalletSource.SAMPLE_USDC_WAITING, 0.0, false, false, null)
-                )
-            ),
-            legacyLoaded = true,
-            solanaState = SolanaConnectState.Idle,
-            onConnectSolana = {},
-            onRemoveSolana = {},
-            onDismissSolanaState = {},
             claims = emptyList(),
             totalClaimableRao = 0,
             claimsError = null,
@@ -1347,12 +1220,6 @@ private fun EarningsScreenWalletPreview() {
             onEnterManually = {},
             onContinueLooksNew = {},
             onDismissConnectState = {},
-            legacy = LegacyWalletUi(),
-            legacyLoaded = true,
-            solanaState = SolanaConnectState.Idle,
-            onConnectSolana = {},
-            onRemoveSolana = {},
-            onDismissSolanaState = {},
             claims = listOf(
                 EpochClaim(1218, 71, 3_241_000_000, EpochClaimStatus.CLAIMABLE, 0, 0, null),
             ),
@@ -1370,61 +1237,6 @@ private fun EarningsScreenWalletPreview() {
                 bindingOpen = false,
                 borderline = false,
             ),
-            reliabilityWindow = null,
-            formatAlpha = { EarningsFormat.alpha(it) },
-            formatShareBps = { EarningsFormat.shareBps(it) },
-            shortSs58 = { Ss58.short(it) },
-        )
-    }
-}
-
-@Preview
-@Composable
-private fun EarningsScreenSolanaWalletPreview() {
-    val solanaWallet = LegacyWallet(
-        SampleLegacyWalletSource.SAMPLE_WALLET_ID,
-        SampleLegacyWalletSource.SAMPLE_SOLANA_ADDRESS,
-        LegacyChain.SOLANA,
-        hasSeekerToken = false
-    )
-    URNetworkTheme {
-        EarningsScreenContent(
-            navController = rememberNavController(),
-            isRefreshing = false,
-            refresh = {},
-            totalAccountPoints = 12_480.0,
-            payoutPoints = 9_120.0,
-            referralPoints = 2_400.0,
-            multiplierPoints = 0.0,
-            reliabilityPoints = 960.0,
-            isSeekerHolder = false,
-            protocolAvailable = true,
-            wallet = null,
-            walletLoaded = true,
-            connectState = WalletConnectState.Idle,
-            onConnectWallet = {},
-            onEnterManually = {},
-            onContinueLooksNew = {},
-            onDismissConnectState = {},
-            legacy = LegacyWalletUi(
-                wallets = listOf(solanaWallet),
-                payoutWalletId = solanaWallet.walletId,
-                payments = listOf(
-                    LegacyPayment("held", null, SampleLegacyWalletSource.SAMPLE_USDC_WAITING, 0.0, false, false, null)
-                )
-            ),
-            legacyLoaded = true,
-            solanaState = SolanaConnectState.Linked(solanaWallet),
-            onConnectSolana = {},
-            onRemoveSolana = {},
-            onDismissSolanaState = {},
-            claims = emptyList(),
-            totalClaimableRao = 0,
-            claimsError = null,
-            onOpenClaim = {},
-            epochs = emptyList(),
-            epochsLoaded = true,
-            top200 = Top200TileState.Hidden,
             reliabilityWindow = null,
             formatAlpha = { EarningsFormat.alpha(it) },
             formatShareBps = { EarningsFormat.shareBps(it) },

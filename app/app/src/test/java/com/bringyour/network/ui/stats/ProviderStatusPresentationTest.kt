@@ -338,6 +338,57 @@ class ProviderStatusPresentationTest {
         )
     }
 
+    // a downgraded provider's network checks row (server FP2-PROTOCOL.md
+    // §5.5): the sdk's lines, in its order, as plural strings with their
+    // counts, a label this app has no string for as the server's English, and
+    // nothing for a provider that keeps every capability
+    @Test
+    fun urlChecksRowShowsTheReasonLines() {
+        val urlChecks = providerStatusRow(
+            ProviderRankingNumberUi(
+                name = Sdk.ProviderStatusNumberUrlChecks,
+                hasValue = true,
+                value = 0.65,
+                hasMinimum = true,
+                minimum = 0.8,
+                passes = false,
+                count = 13,
+                total = 20,
+                reasonLines = listOf(
+                    ProviderStatusReasonLineUi(label = Sdk.ProviderStatusReasonLineTcp, count = 3),
+                    ProviderStatusReasonLineUi(label = Sdk.ProviderStatusReasonLineIpv4, count = 2),
+                ),
+            )
+        )
+        assertEquals(
+            listOf(
+                ProviderStatusReason.Plural(R.plurals.provider_status_reason_line_tcp, 3),
+                ProviderStatusReason.Plural(R.plurals.provider_status_reason_line_ipv4, 2),
+            ),
+            urlChecks?.reasons,
+        )
+        // the value and help are as before
+        assertEquals(R.string.provider_status_help_url_checks, urlChecks?.helpResourceId)
+        assertEquals("13 of 20 loaded (needs 80%)", text(urlChecks))
+
+        assertEquals(
+            listOf(ProviderStatusReason.Text("A newer server's sentence.")),
+            providerStatusReasons(
+                listOf(
+                    ProviderStatusReasonLineUi(label = Sdk.ProviderStatusReasonLineText, text = "A newer server's sentence."),
+                    // a label this app does not know, with no text, is left out
+                    ProviderStatusReasonLineUi(label = "pq"),
+                )
+            ),
+        )
+        assertEquals(
+            listOf<ProviderStatusReason>(),
+            providerStatusRow(
+                ProviderRankingNumberUi(name = Sdk.ProviderStatusNumberUrlChecks, hasValue = true, count = 20, total = 20)
+            )?.reasons,
+        )
+    }
+
     @Test
     fun weightAndTierRows() {
         val qualityWeight = providerStatusRow(

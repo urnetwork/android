@@ -123,6 +123,9 @@ sealed class Route {
     // Account -> API keys: the network's API keys, with create and delete
     @Serializable object ApiKeys : Route()
     @Serializable object Settings : Route()
+    // Settings -> Manage devices, and the client limit notice's Manage devices:
+    // the network's devices, each removable to free a slot (ManageDevicesScreen)
+    @Serializable object ManageDevices : Route()
     @Serializable object Earnings : Route()
     // Earnings › Top 200 › Sign fleet binding (also opened by ur://top200/sign)
     @Serializable object Top200Sign : Route()

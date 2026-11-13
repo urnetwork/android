@@ -123,10 +123,12 @@ fun CryptoInvoiceHost(
     if (visible) {
         val invoice by cryptoPay.invoice.collectAsState()
         val uriPasses = remember(invoice.asset, invoice.uri, invoice.address) { cryptoPay.uriPasses(invoice) }
+        val hasPaymentLink = remember(invoice.asset) { cryptoPay.hasPaymentLink(invoice.asset) }
         val wallets = remember(invoice.asset) { cryptoPay.wallets(invoice.asset) }
         CryptoInvoiceSheet(
             invoice = invoice,
             uriPasses = uriPasses,
+            hasPaymentLink = hasPaymentLink,
             wallets = wallets,
             setActive = cryptoPay::setActive,
             requote = cryptoPay::requote,
@@ -139,10 +141,13 @@ fun CryptoInvoiceHost(
 /**
  * The payment method row for a plan surface (CONTRACT §6.1), or null when the
  * server lists no coin for what the surface sells (the surface then looks as
- * it did). A coin buys the welcome offer while it is active, else the yearly
- * plan; choosing one moves a monthly selection to yearly. Its button starts
- * the invoice -- or, one invoice at a time (CONTRACT §6.2.1), shows the saved
- * invoice in progress instead -- and its events name the coin's store.
+ * it did). Its coins are in the sdk's tabs (USDC on Solana, Zcash, Monero and
+ * More coins), and the remembered method selects its tab (the sdk's
+ * CryptoPaymentTabId). A coin buys the welcome offer while it is active, else
+ * the yearly plan; choosing one moves a monthly selection to yearly. Its
+ * button starts the invoice -- or, one invoice at a time (CONTRACT §6.2.1),
+ * shows the saved invoice in progress instead -- and its events name the
+ * coin's market.
  */
 @Composable
 fun rememberPlanMethodSlot(
@@ -156,11 +161,12 @@ fun rememberPlanMethodSlot(
     val offerActive = presentation.offer != null
     val plan = CryptoPayment.coinPlan(offerActive)
     val balanceAnswer by subscriptionBalanceViewModel.balanceAnswer.collectAsState()
-    val methods = remember(balanceAnswer, plan) { cryptoPay.paymentMethods(balanceAnswer?.result, plan) }
+    val tabs = remember(balanceAnswer, plan) { cryptoPay.paymentTabs(balanceAnswer?.result, plan) }
     val remembered by cryptoPay.rememberedMethod.collectAsState()
     val unavailable by cryptoPay.unavailable.collectAsState()
     val invoice by cryptoPay.invoice.collectAsState()
-    val method = CryptoPayment.chosenMethod(remembered, methods)
+    val method = CryptoPayment.chosenMethod(remembered, tabs)
+    val selectedTabId = remember(method) { cryptoPay.tabId(method) }
 
     // a coin sells no monthly plan ("Monthly is card only")
     LaunchedEffect(method, selectedPlan) {
@@ -170,13 +176,13 @@ fun rememberPlanMethodSlot(
         }
     }
 
-    if (!CryptoPayment.showsRow(methods)) {
+    if (!CryptoPayment.showsRow(tabs)) {
         return null
     }
 
     val alternative = if (CryptoPayment.isCoin(method)) {
         PlanAlternative(
-            label = stringResource(id = R.string.crypto_pay_button, stringResource(id = paymentMethodLabel(method))),
+            label = stringResource(id = R.string.crypto_pay_button, cryptoAssetName(method)),
             finePrint = stringResource(id = R.string.crypto_fine_print_yearly),
             monthlyNote = stringResource(id = R.string.pay_method_card_only_monthly),
             inProgress = invoice.phase == Sdk.CryptoInvoicePhaseStarting,
@@ -188,7 +194,7 @@ fun rememberPlanMethodSlot(
                     storefrontCountry = subscriptionBalanceViewModel.storefrontCountry ?: "",
                 )
                 if (started && offerActive) {
-                    CryptoPayment.eventStore(method)?.let { store -> ClientEvents.offerCtaTapped(CryptoPayment.eventPlan(plan), store) }
+                    cryptoPay.eventStore(method)?.let { store -> ClientEvents.offerCtaTapped(CryptoPayment.eventPlan(plan), store) }
                 }
             },
         )
@@ -199,9 +205,11 @@ fun rememberPlanMethodSlot(
     return PlanMethodSlot(
         row = {
             PaymentMethodRow(
-                methods = methods,
+                tabs = tabs,
                 selected = method,
+                selectedTabId = selectedTabId,
                 onSelect = cryptoPay::selectMethod,
+                tabCoin = cryptoPay::tabCoin,
                 unavailable = method in unavailable,
             )
         },
@@ -295,7 +303,7 @@ fun rememberUpdatePaymentAction(subscriptionBalanceViewModel: SubscriptionBalanc
     }
 }
 
-/** A subscription paid once in USDC, Zcash or Monero: it never renews. */
+/** A subscription paid once in a coin (the sdk's crypto store family): it never renews. */
 private fun isOneTimeCryptoStore(store: String?): Boolean =
     !store.isNullOrEmpty() && Sdk.classifySubscriptionStore(store) == Sdk.SubscriptionStoreCrypto
 
@@ -311,7 +319,7 @@ private fun PaymentInProgressEntry(invoice: CryptoInvoiceSnapshot, setActive: (B
         onPauseOrDispose { setActive(false) }
     }
     val view = remember(invoice) { CryptoPayment.view(invoice, uriPasses = false) }
-    val network = stringResource(id = cryptoNetworkLine(invoice.asset))
+    val network = cryptoNetworkLineText(invoice.asset)
     // a resumed invoice says where it is once the sheet has asked
     val status = when {
         invoice.status.isEmpty() -> null

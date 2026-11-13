@@ -9,6 +9,7 @@ import com.bringyour.network.ui.leaderboard.ProtocolRow
 import com.bringyour.network.ui.leaderboard.ProtocolSnapshot
 import com.bringyour.network.ui.leaderboard.ProtocolTopMe
 import com.bringyour.network.utils.Ss58
+import com.bringyour.sdk.Sdk
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -111,6 +112,39 @@ sealed class ClaimEvent {
     object Done : ClaimEvent()
 }
 
+enum class ClaimProgressStatus { PENDING, SENT, CONFIRMED, FAILED }
+
+/** One epoch of a v1 claim (SnClaim): its amount, and where its claim stands. */
+data class ClaimProgress(
+    val epoch: Long,
+    val amountRao: Long,
+    val status: ClaimProgressStatus,
+    val txHash: String?,
+    val message: String?,
+)
+
+/** A v1 claim's rows after one of SnClaim's events; Done leaves them as they are (claimProgressSettled). */
+fun claimProgressAfter(progress: List<ClaimProgress>, event: ClaimEvent): List<ClaimProgress> = when (event) {
+    is ClaimEvent.Sent -> progress.map {
+        if (it.epoch == event.epoch) it.copy(status = ClaimProgressStatus.SENT, txHash = event.txHash) else it
+    }
+    is ClaimEvent.Confirmed -> progress.map {
+        if (it.epoch == event.epoch) {
+            it.copy(status = ClaimProgressStatus.CONFIRMED, txHash = event.txHash, amountRao = event.amountRao)
+        } else {
+            it
+        }
+    }
+    is ClaimEvent.Failed -> progress.map {
+        if (it.epoch == event.epoch) it.copy(status = ClaimProgressStatus.FAILED, message = event.message) else it
+    }
+    ClaimEvent.Done -> progress
+}
+
+/** A v1 claim's rows at its Done: an epoch the SDK never reported on was not sent, and failed. */
+fun claimProgressSettled(progress: List<ClaimProgress>): List<ClaimProgress> =
+    progress.map { if (it.status == ClaimProgressStatus.PENDING) it.copy(status = ClaimProgressStatus.FAILED) else it }
+
 class EarningsUnavailableException(message: String = "The UR protocol is not available in this build yet") :
     Exception(message)
 
@@ -148,8 +182,11 @@ interface EarningsProtocolSource {
     /** events arrive on an arbitrary thread */
     fun claim(epochs: List<Long>, onEvent: (ClaimEvent) -> Unit)
 
-    /** settlement v2: the coldkey's accounts, one per pool; a failure is unavailable, never zero */
-    suspend fun ledgerAccounts(): Result<List<SnLedgerAccountState>>
+    /**
+     * settlement v2: the coldkey's accounts, one per pool, and the pools that
+     * could not be read just now; a failure is unavailable, never zero
+     */
+    suspend fun ledgerAccounts(): Result<SnLedgerAccounts>
 
     /** vault2's address is configured, so v2 accounts can be claimed */
     fun ledgerClaimConfigured(): Boolean
@@ -189,6 +226,15 @@ interface EarningsProtocolSource {
     /** asks URnetwork to claim the coldkey's balance now (SnClaimNow) */
     suspend fun claimNow(coldkeySs58: String): SnClaimNowOutcome =
         SnClaimNowOutcome.Failed(EarningsUnavailableException().message ?: "")
+
+    /**
+     * the capture the flag slots won and not claimed yet (SnCtfClient's
+     * UnclaimedWins), newest first, empty without one, and the client the
+     * answer is for ("" for the network's). A read that failed or could not
+     * be read is a failure, never "no win": the lines the last read that
+     * answered drew stay
+     */
+    suspend fun ctfWins(): Result<SnCtfWinsAnswer> = Result.success(SnCtfWinsAnswer(emptyList()))
 
     suspend fun accountEpochs(): Result<List<AccountEpoch>>
 
@@ -264,7 +310,7 @@ object NoProtocolSource : EarningsProtocolSource {
         epochs.forEach { onEvent(ClaimEvent.Failed(it, EarningsUnavailableException().message ?: "")) }
         onEvent(ClaimEvent.Done)
     }
-    override suspend fun ledgerAccounts(): Result<List<SnLedgerAccountState>> =
+    override suspend fun ledgerAccounts(): Result<SnLedgerAccounts> =
         Result.failure(EarningsUnavailableException())
     override fun ledgerClaimConfigured(): Boolean = false
     override fun ledgerClaim(onEvent: (SnLedgerClaimEvent) -> Unit) {
@@ -414,46 +460,80 @@ class SampleProtocolSource(
         }
     }
 
-    // settlement v2: one account in the pool, with a pending root above the finalized one
-    private val ledgerAccount = MutableStateFlow(
-        SnLedgerAccountState(
-            noId = 1,
-            index = 42,
-            finalizedRao = 5_120_000_000,
-            claimableRao = 4_120_000_000,
-            paidRao = 1_000_000_000,
-            pending = true,
-            pendingRao = 5_870_000_000,
+    // settlement v2: the pool's account, with a pending root above the finalized
+    // one, and capture the flag's, with two slots won
+    private val ledgerAccounts = MutableStateFlow(
+        listOf(
+            SnLedgerAccountState(
+                noId = 1,
+                index = 42,
+                finalizedRao = 5_120_000_000,
+                claimableRao = 4_120_000_000,
+                paidRao = 1_000_000_000,
+                pending = true,
+                pendingRao = 5_870_000_000,
+                kind = Sdk.SnLedgerPoolKindPool,
+            ),
+            SnLedgerAccountState(
+                noId = Sdk.SnLedgerCtfPoolIdBase + 1,
+                index = 3,
+                finalizedRao = 96_051_320,
+                claimableRao = 96_051_320,
+                paidRao = 0,
+                pending = false,
+                pendingRao = 0,
+                kind = Sdk.SnLedgerPoolKindCtf,
+            ),
         )
     )
 
-    override suspend fun ledgerAccounts(): Result<List<SnLedgerAccountState>> {
+    override suspend fun ledgerAccounts(): Result<SnLedgerAccounts> {
         delay(400)
-        return Result.success(if (wallet.value == null) emptyList() else listOf(ledgerAccount.value))
+        return Result.success(SnLedgerAccounts(if (wallet.value == null) emptyList() else ledgerAccounts.value))
     }
 
     override fun ledgerClaimConfigured(): Boolean = true
 
     override fun ledgerClaim(onEvent: (SnLedgerClaimEvent) -> Unit) {
         scope.launch {
-            val account = ledgerAccount.value
-            if (account.claimableRao <= 0) {
+            val claimable = ledgerAccounts.value.filter { 0 < it.claimableRao }
+            if (claimable.isEmpty()) {
                 onEvent(SnLedgerClaimEvent.Done)
                 return@launch
             }
             delay(700)
             if (gasUnfunded) {
-                onEvent(SnLedgerClaimEvent.Failed(account.noId, account.index, "needs_gas: insufficient funds"))
+                claimable.forEach { onEvent(SnLedgerClaimEvent.Failed(it.noId, it.index, "needs_gas: insufficient funds")) }
                 onEvent(SnLedgerClaimEvent.Done)
                 return@launch
             }
-            val txHash = "0x" + String.format(Locale.US, "%064x", account.index * 7_919L + 0x5a5a5bL)
-            onEvent(SnLedgerClaimEvent.Sent(account.noId, account.index, txHash))
+            // two or more accounts go in one batch transaction, as the sdk sends them
+            val txHash = "0x" + String.format(Locale.US, "%064x", claimable.first().index * 7_919L + 0x5a5a5bL)
+            claimable.forEach { onEvent(SnLedgerClaimEvent.Sent(it.noId, it.index, txHash)) }
             delay(1_600)
-            ledgerAccount.value = account.copy(claimableRao = 0, paidRao = account.finalizedRao)
-            onEvent(SnLedgerClaimEvent.Confirmed(account.noId, account.index, txHash, account.claimableRao))
+            ledgerAccounts.value = ledgerAccounts.value.map {
+                if (0 < it.claimableRao) it.copy(claimableRao = 0, paidRao = it.finalizedRao) else it
+            }
+            claimable.forEach { onEvent(SnLedgerClaimEvent.Confirmed(it.noId, it.index, txHash, it.claimableRao)) }
             onEvent(SnLedgerClaimEvent.Done)
         }
+    }
+
+    // the two slots capture the flag's account holds, newest first: a provider
+    // slot in Iceland's latest draw and an extender slot in Kenya's before it
+    override suspend fun ctfWins(): Result<SnCtfWinsAnswer> {
+        delay(300)
+        if (ledgerAccounts.value.none { it.kind == Sdk.SnLedgerPoolKindCtf && 0 < it.claimableRao }) {
+            return Result.success(SnCtfWinsAnswer(emptyList()))
+        }
+        return Result.success(
+            SnCtfWinsAnswer(
+                listOf(
+                    SnCtfWinState(Sdk.SnCtfRoleProvider, "is"),
+                    SnCtfWinState(Sdk.SnCtfRoleExtender, "ke"),
+                )
+            )
+        )
     }
 
     // the payout consent: none until the manual sheet's answer is submitted, then
@@ -593,14 +673,6 @@ object EarningsDebugFlags {
     @Volatile var sampleStartDisconnected: Boolean = false
         private set
 
-    // start the sample with a Solana payout wallet (legacy USDC payouts)
-    @Volatile var sampleSolanaWallet: Boolean = false
-        private set
-
-    // the sample network has USDC held for want of a payout wallet
-    @Volatile var sampleUsdcWaiting: Boolean = false
-        private set
-
     fun setUseSampleData(value: Boolean) {
         useSampleData = value
         version.value += 1
@@ -613,16 +685,6 @@ object EarningsDebugFlags {
 
     fun setSampleStartDisconnected(value: Boolean) {
         sampleStartDisconnected = value
-        version.value += 1
-    }
-
-    fun setSampleSolanaWallet(value: Boolean) {
-        sampleSolanaWallet = value
-        version.value += 1
-    }
-
-    fun setSampleUsdcWaiting(value: Boolean) {
-        sampleUsdcWaiting = value
         version.value += 1
     }
 }

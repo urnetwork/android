@@ -11,6 +11,36 @@
 - Install NDK + CMake on Android Studio (https://developer.android.com/studio/projects/install-ndk). You can specify version 25.2.9519653 by clicking "Show Package Details" Settings -> Languages & Frameworks -> Android SDK -> SDK Tools.
 - Pull down https://github.com/bringyour/bringyour. Inside of this repo, navigate to /bringyour/client and run `make`.
 
+## Updating Gradle
+
+`app/gradle/wrapper/gradle-wrapper.properties` pins the Gradle distribution: the
+wrapper checks each download against `distributionSha256Sum` and refuses a zip
+that does not match. A version bump changes `distributionUrl` and
+`distributionSha256Sum` together.
+
+1. Take the new version's "Binary-only (-bin) ZIP Checksum" from
+   https://gradle.org/release-checksums/ and check it against
+   `https://services.gradle.org/distributions/gradle-<version>-bin.zip.sha256`.
+2. From `app/`, run the wrapper task with both values, or edit both lines by hand:
+
+   ```bash
+   ./gradlew wrapper --gradle-version <version> --gradle-distribution-sha256-sum <sha256>
+   ```
+
+3. Whatever made the change (the wrapper task, Android Studio's upgrade
+   assistant or a hand edit), check that `distributionSha256Sum` is still in
+   the file and holds the new version's checksum. A stale checksum fails every
+   fresh download, and a missing one turns the check off.
+   `GOWORK=off go test -count=1 test-gradle-wrapper_test.go` fails when the
+   checksum is missing.
+
+The wrapper task also rewrites `app/gradle/wrapper/gradle-wrapper.jar` and the
+`gradlew` scripts with those of the Gradle version that runs the task. Check a
+new jar's SHA-256 against that version's "Wrapper JAR Checksum" on the same
+page. The jar committed now is Gradle's wrapper jar for 6.6 to 7.0.2
+(`e996d452d2645e70c01c11143ca2d3742734a28da2bf61f25c82bdc288c9e637`), and it
+checks `distributionSha256Sum` too.
+
 ## Debugging notes
 
 ### Acceptance-test profiles

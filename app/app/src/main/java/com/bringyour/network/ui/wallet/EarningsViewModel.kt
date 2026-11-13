@@ -94,16 +94,6 @@ sealed class AddressValidation {
         get() = this is Ok || this is LooksNew
 }
 
-enum class ClaimProgressStatus { PENDING, SENT, CONFIRMED, FAILED }
-
-data class ClaimProgress(
-    val epoch: Long,
-    val amountRao: Long,
-    val status: ClaimProgressStatus,
-    val txHash: String?,
-    val message: String?,
-)
-
 sealed class ClaimDialogState {
     object Loading : ClaimDialogState()
     data class Ready(
@@ -127,6 +117,9 @@ sealed class ClaimDialogState {
 class EarningsViewModel @Inject constructor(
     private val deviceManager: DeviceManager,
     @ApplicationContext context: Context,
+    // the claims in flight, v1's and v2's, the session's: the process's, so
+    // they outlive this view model
+    private val ledgerClaims: SnClaimHolder,
 ) : ViewModel() {
 
     private var byDevice: DeviceLocal? = null
@@ -184,6 +177,13 @@ class EarningsViewModel @Inject constructor(
     private val _claimsError = MutableStateFlow<String?>(null)
     val claimsError: StateFlow<String?> = _claimsError.asStateFlow()
 
+    // the reads of the v1 claims and of the gas balance by the order they
+    // started (SnReadOrder): an answer shows unless a read that started after
+    // it has, and a v1 claim's Done makes the claims reads out then ones from
+    // before it, which may list the epochs it paid
+    private val claimsReads = SnReadOrder()
+    private val gasReads = SnReadOrder()
+
     // the current epoch's schedule from the claims read (the coordinator's policy)
     private val _schedule = MutableStateFlow<SnEpochScheduleState?>(null)
     val schedule: StateFlow<SnEpochScheduleState?> = _schedule.asStateFlow()
@@ -213,8 +213,51 @@ class EarningsViewModel @Inject constructor(
     private val _claimDialog = MutableStateFlow<ClaimDialogState?>(null)
     val claimDialog: StateFlow<ClaimDialogState?> = _claimDialog.asStateFlow()
 
-    // settlement v2: its tile beside the v1 claims, and its claim dialog
-    val ledgerFlow = SnLedgerFlow(viewModelScope) { _wallet.value != null }
+    // the v1 claim in flight is the session's (ledgerClaims), not the
+    // dialog's: its events and its Done reach this view model while it lives,
+    // whether its dialog shows it or not
+    private var detachEpochClaim: (() -> Unit)? = null
+
+    // the session's v1 claim is in flight: the tile's Claim opens it whatever
+    // the claims read says, as the v2 tile's does its claim
+    private val _epochClaimInFlight = MutableStateFlow(false)
+    val epochClaimInFlight: StateFlow<Boolean> = _epochClaimInFlight.asStateFlow()
+
+    private val epochClaimListener = object : SnClaimHolder.Listener {
+        override fun epochClaimMoved(rows: List<ClaimProgress>) {
+            _epochClaimInFlight.value = true
+            if (_claimDialog.value is ClaimDialogState.Sending) {
+                _claimDialog.value = ClaimDialogState.Sending(rows)
+            }
+        }
+
+        override fun epochClaimDone(settled: List<ClaimProgress>) {
+            _epochClaimInFlight.value = false
+            // a claims read out now may list the epochs the claim paid
+            claimsReads.done()
+            // a dialog on a read from before it (the claim was another
+            // activity's view model's) offers no Claim from that read: it reads again
+            val dialog = _claimDialog.value
+            if (dialog is ClaimDialogState.Ready || dialog == ClaimDialogState.Loading) {
+                _claimDialog.value = ClaimDialogState.Loading
+                viewModelScope.launch { loadClaimDialog() }
+            }
+            viewModelScope.launch { finishEpochClaim(settled) }
+        }
+    }
+
+    // settlement v2: its tile beside the v1 claims, with capture the flag's won
+    // lines, and its claim dialog, which offers a claim only for what the claim
+    // relay's transfer floor lets move. A claim in flight is the signed-in
+    // session's (the process's holder), so this view model's end, with its
+    // activity's, loses none of it; after its Done the wins are read again on
+    // their own, on the apps' shared schedule (SnLedgerFlow)
+    val ledgerFlow = SnLedgerFlow(
+        scope = viewModelScope,
+        hasWallet = { _wallet.value != null },
+        transferFloorRao = { _claimStatus.value?.takeIf { !it.unavailable }?.transferFloorRao ?: 0 },
+        claims = ledgerClaims,
+    )
 
     // the network's payout consent beside the v2 tile, signed through its own wallet sheets
     val consentFlow = SnConsentFlow(viewModelScope)
@@ -241,6 +284,13 @@ class EarningsViewModel @Inject constructor(
 
     private val _isClaimingNow = MutableStateFlow(false)
     val isClaimingNow: StateFlow<Boolean> = _isClaimingNow.asStateFlow()
+
+    // the capture the flag slots won and not claimed yet (GET /sn/ctf/client),
+    // newest first, a line each on the Settlement v2 tile, as the newest good
+    // read listed them, a network's answer over a client's: the session's
+    // (ledgerClaims), so a read that failed keeps them, a view model of a new
+    // activity finds them, and another device or a sign-out drops them
+    val ctfWins: StateFlow<List<SnCtfWinState>> = ledgerFlow.wins
 
     var isRefreshing by mutableStateOf(false)
         private set
@@ -310,6 +360,8 @@ class EarningsViewModel @Inject constructor(
         if (userInitiated) {
             isRefreshing = true
         }
+        // the optional capture the flag lines hold up neither the claims nor the refresh
+        viewModelScope.launch { ledgerFlow.refreshWins() }
         try {
             coroutineScope {
                 launch { refreshWallet() }
@@ -364,29 +416,47 @@ class EarningsViewModel @Inject constructor(
             .onFailure { Log.i(TAG, "sn top me: ${it.message}") }
     }
 
-    private suspend fun refreshClaims() {
+    /**
+     * Reads the gas balance, then the v1 claims, each numbered as it starts
+     * (gasReads, claimsReads): an answer shows unless a read that started
+     * after it has, so one from before a claim's Done that lands after the
+     * read at Done never puts back the epochs the claim paid. A failed read
+     * keeps the claims and the balance shown, and a failed claims read says
+     * so only while no read that started after it has answered. Returns the
+     * claims read's number.
+     */
+    private suspend fun refreshClaims(): Long {
         val s = source
         if (!s.available || _wallet.value == null) {
+            val read = claimsReads.start()
+            claimsReads.apply(read)
             _claims.value = emptyList()
             _totalClaimableRao.value = 0
             _schedule.value = null
-            return
+            return read
         }
         _gasKey.value = s.gasKey()
+        val gasRead = gasReads.start()
         s.gasBalance()
-            .onSuccess { _gasBalance.value = it }
+            .onSuccess { if (gasReads.apply(gasRead)) _gasBalance.value = it }
             .onFailure { Log.i(TAG, "gas balance: ${it.message}") }
+        val read = claimsReads.start()
         s.claims()
             .onSuccess {
-                _claims.value = it.claims
-                _totalClaimableRao.value = it.totalClaimableRao
-                _schedule.value = it.schedule
-                _claimsError.value = null
+                if (claimsReads.apply(read)) {
+                    _claims.value = it.claims
+                    _totalClaimableRao.value = it.totalClaimableRao
+                    _schedule.value = it.schedule
+                    _claimsError.value = null
+                }
             }
             .onFailure {
                 Log.i(TAG, "claims: ${it.message}")
-                _claimsError.value = claimsReadFailureMessage(it)
+                if (claimsReads.applies(read)) {
+                    _claimsError.value = claimsReadFailureMessage(it)
+                }
             }
+        return read
     }
 
     // the v1 claims and the v2 accounts, read side by side
@@ -668,6 +738,11 @@ class EarningsViewModel @Inject constructor(
     // ---- claims (the SDK signs and sends; the app only shows progress)
 
     fun openClaimDialog() {
+        // the session's claim in flight, whichever dialog started it
+        ledgerClaims.epochClaimInFlight(byDevice)?.let {
+            _claimDialog.value = ClaimDialogState.Sending(it)
+            return
+        }
         if (_wallet.value == null) {
             _claimDialog.value = ClaimDialogState.NoWallet
             return
@@ -683,7 +758,7 @@ class EarningsViewModel @Inject constructor(
     }
 
     fun retryClaimDialog() {
-        if (_claimDialog.value == null) {
+        if (_claimDialog.value == null || ledgerClaims.epochClaimInFlight(byDevice) != null) {
             return
         }
         _claimDialog.value = ClaimDialogState.Loading
@@ -692,9 +767,16 @@ class EarningsViewModel @Inject constructor(
         }
     }
 
+    /**
+     * The dialog from its own read of the claims, which it takes up with no
+     * wait between: the claims are this read's answer or a newer read's
+     * (claimsReads). A v1 claim that ended while this read was out (another
+     * activity's view model's) may have paid what it lists: the dialog waits
+     * for the read its Done started.
+     */
     private suspend fun loadClaimDialog() {
-        refreshClaims()
-        if (_claimDialog.value == null) {
+        val read = refreshClaims()
+        if (_claimDialog.value != ClaimDialogState.Loading || !claimsReads.sinceDone(read)) {
             return
         }
         val error = _claimsError.value
@@ -712,68 +794,57 @@ class EarningsViewModel @Inject constructor(
         }
     }
 
+    /**
+     * The dialog's Claim: the SDK claims the epochs. The claim is the
+     * session's from here (ledgerClaims): closing the dialog, or this view
+     * model's end with its activity's, loses none of its events nor its
+     * Done, a dialog opened during it shows it, and no second claim starts
+     * while it is in flight. Nor does it start while the session's v2 claim
+     * is in flight: the gas key sends one claim at a time, and the dialog's
+     * Claim waits for it (SnClaimHolder.claiming).
+     */
     fun claimAll() {
         val ready = _claimDialog.value as? ClaimDialogState.Ready ?: return
-        if (ready.claims.isEmpty()) {
+        val device = byDevice ?: return
+        if (ready.claims.isEmpty() || ledgerClaims.claiming(device)) {
             return
         }
         val progress = ready.claims.map {
             ClaimProgress(it.epoch, it.amountRao, ClaimProgressStatus.PENDING, null, null)
         }
+        // the dialog shows the claim before the SDK's first event, which may come at once
         _claimDialog.value = ClaimDialogState.Sending(progress)
-        source.claim(ready.claims.map { it.epoch }) { event ->
-            viewModelScope.launch {
-                onClaimEvent(event)
-            }
-        }
+        _epochClaimInFlight.value = true
+        ledgerClaims.startEpochClaim(device, source, ready.claims.map { it.epoch }, progress)
     }
 
-    private suspend fun onClaimEvent(event: ClaimEvent) {
-        val sending = _claimDialog.value as? ClaimDialogState.Sending ?: return
-        when (event) {
-            is ClaimEvent.Sent -> _claimDialog.value = ClaimDialogState.Sending(
-                sending.progress.map {
-                    if (it.epoch == event.epoch) it.copy(status = ClaimProgressStatus.SENT, txHash = event.txHash) else it
-                }
-            )
-            is ClaimEvent.Confirmed -> _claimDialog.value = ClaimDialogState.Sending(
-                sending.progress.map {
-                    if (it.epoch == event.epoch) {
-                        it.copy(status = ClaimProgressStatus.CONFIRMED, txHash = event.txHash, amountRao = event.amountRao)
-                    } else {
-                        it
-                    }
-                }
-            )
-            is ClaimEvent.Failed -> _claimDialog.value = ClaimDialogState.Sending(
-                sending.progress.map {
-                    if (it.epoch == event.epoch) it.copy(status = ClaimProgressStatus.FAILED, message = event.message) else it
-                }
-            )
-            ClaimEvent.Done -> {
-                val progress = sending.progress.map {
-                    if (it.status == ClaimProgressStatus.PENDING) {
-                        it.copy(status = ClaimProgressStatus.FAILED)
-                    } else {
-                        it
-                    }
-                }
-                val allNeedGas = progress.isNotEmpty() && progress.all {
-                    it.status == ClaimProgressStatus.FAILED && claimFailureCode(it.message) == SN_CODE_NEEDS_GAS
-                }
-                if (allNeedGas) {
-                    val gasTao = source.gasBalance().getOrNull()?.tao ?: 0.0
-                    _gasBalance.update { it?.copy(tao = gasTao) ?: SnGasBalanceState("0", gasTao) }
-                    _claimDialog.value = ClaimDialogState.NeedsGas(_gasKey.value, gasTao, progress.sumOf { it.amountRao })
-                } else {
-                    _claimDialog.value = ClaimDialogState.Finished(
-                        progress,
-                        progress.filter { it.status == ClaimProgressStatus.CONFIRMED }.sumOf { it.amountRao }
-                    )
-                }
-                refreshClaims()
-            }
+    // the session's v1 claim is done: its dialog, if it shows the claim (the
+    // gas top-up when the gas key could pay for none of the epochs, else the
+    // rows with the confirmed total), then the claims read again
+    private suspend fun finishEpochClaim(progress: List<ClaimProgress>) {
+        val s = source
+        val allNeedGas = progress.isNotEmpty() && progress.all {
+            it.status == ClaimProgressStatus.FAILED && claimFailureCode(it.message) == SN_CODE_NEEDS_GAS
         }
+        if (allNeedGas) {
+            val gasRead = gasReads.start()
+            val gasTao = s.gasBalance().getOrNull()?.tao ?: 0.0
+            if (s !== source) {
+                return
+            }
+            if (gasReads.apply(gasRead)) {
+                _gasBalance.update { it?.copy(tao = gasTao) ?: SnGasBalanceState("0", gasTao) }
+            }
+            if (_claimDialog.value is ClaimDialogState.Sending) {
+                _claimDialog.value = ClaimDialogState.NeedsGas(_gasKey.value, gasTao, progress.sumOf { it.amountRao })
+            }
+        } else if (_claimDialog.value is ClaimDialogState.Sending) {
+            _claimDialog.value = ClaimDialogState.Finished(
+                progress,
+                progress.filter { it.status == ClaimProgressStatus.CONFIRMED }.sumOf { it.amountRao }
+            )
+        }
+        refreshClaims()
     }
 
     // ---- seeker
@@ -865,7 +936,12 @@ class EarningsViewModel @Inject constructor(
         removeWalletListener = null
         byDevice = device
         source = if (device == null) NoProtocolSource else createProtocolSource(device)
-        ledgerFlow.reset(source)
+        // the session is the device: a view model of a new activity finds the
+        // claims it left in flight, and another device or a sign-out ends them
+        ledgerFlow.reset(source, device)
+        detachEpochClaim?.invoke()
+        detachEpochClaim = ledgerClaims.attach(epochClaimListener, device)
+        _epochClaimInFlight.value = ledgerClaims.epochClaimInFlight(device) != null
         consentFlow.reset(source)
         resetKeyModel(device)
         _claimStatus.value = null
@@ -882,6 +958,9 @@ class EarningsViewModel @Inject constructor(
         _totalClaimableRao.value = 0
         _claimsError.value = null
         _schedule.value = null
+        // no answer of the last device's reads shows
+        claimsReads.reset()
+        gasReads.reset()
         _epochs.value = emptyList()
         _epochsLoaded.value = false
         _top.value = null
@@ -921,6 +1000,9 @@ class EarningsViewModel @Inject constructor(
     override fun onCleared() {
         removeDeviceChangeListener?.invoke()
         removeDeviceChangeListener = null
+        // the claims in flight go on, the session's; this view model hears no more of them
+        detachEpochClaim?.invoke()
+        detachEpochClaim = null
         removeWalletListener?.invoke()
         removeWalletListener = null
         byDevice = null
@@ -940,6 +1022,8 @@ class EarningsViewModel @Inject constructor(
         const val SN_CODE_CHAIN_NOT_CONFIGURED = "chain_not_configured"
         const val SN_CODE_ARTIFACT_UNAVAILABLE = "artifact_unavailable"
         const val SN_CODE_LEDGER_UNAVAILABLE = "ledger_unavailable"
+        // a v2 account no claim can take now; AmountTooLow: under the runtime's transfer floor
+        const val SN_CODE_NOT_CLAIMABLE = "not_claimable"
         const val SN_CODE_CONNECT_WALLET_FIRST = "connect_wallet_first"
         const val SN_CODE_LOCAL_STATE_UNAVAILABLE = "local_state_unavailable"
         // POST /sn/wallet: the signature is not from the entered address (bittensor_error_signature_mismatch)

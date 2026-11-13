@@ -125,8 +125,9 @@ class MainActivity: AppCompatActivity() {
 
         setContent {
 
-            val jwt by jwtManager.jwtFlow.collectAsState(initial = null)
-            val isPro = jwt?.pro == true
+            // the sdk's Pro, the server's once a balance loads; the stored jwt's
+            // claim stays Free after a purchase (support inbox 8259)
+            val isPro by jwtManager.isPro.collectAsState()
 
             URNetworkTheme {
                 MainNavHost(

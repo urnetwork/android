@@ -37,8 +37,9 @@ claim that never passes through URnetwork.
 4. **No USDC anywhere in the apps.** The single exception is the Solana
    subscription payment note "Paid in USDC on Solana." Past USDC payout history
    is not shown; support@ur.io answers requests for it.
-   Exception to 3 and 4 since 2026-09-14: Android connects a Solana USDC payout
-   wallet again (see the note under "Audit: what left the apps").
+   Exception to 3 and 4 from 2026-09-14 to 2026-11-13: Android connected a
+   Solana USDC payout wallet again (see the note under "Audit: what left the
+   apps"); removed 2026-11-13 because USDC payouts ended 2026-11-12.
 5. **Claims are direct.** The claim is the user's own transaction from the SDK
    on their device to the settlement vault contract. No URnetwork API is in the
    claim path, no relayer submits on a user's behalf, and no URnetwork key ever
@@ -120,6 +121,17 @@ app makes it the payout wallet when the server did not
 (`POST /account/payout-wallet`). A card under the Bittensor wallet shows the
 payout wallet, the USDC waiting and Remove. Payout history, Polygon entry and the
 Saga label stay removed. USDC payouts continue until the migration completes.
+
+Removed again on Android (2026-11-13), on the owner's decision to close out USDC:
+USDC provider payouts ended 2026-11-12 and every unsent payout row was closed.
+Gone: the overflow and its "Connect Solana wallet", the connect sheet (wallet app
+and manual address with its checks), `POST /account/wallet` (SOL, USDC) and
+`POST /account/payout-wallet`, the payout wallet card with Remove, the "Final USDC
+payout: N USDC waiting" line, the reads that fed them (`GET /account/payout-wallet`,
+`GET /account/payments`, the `GET /account/wallets` read for the card) and the
+Developer screen's sample switches. Provider earnings are paid in SN25α to a
+Bittensor coldkey (since 2026-10-06). Seeker verification still reads
+`GET /account/wallets`.
 
 ## The Earnings screen
 
@@ -483,7 +495,10 @@ show "Paid in USDC on Solana". Manual entry still signs through the bridge
 (the server rejects unsigned sets); a looks-new address asks for confirmation
 before `ConnectSnWallet`. Gas threshold constants: `MIN_GAS_TAO` 0.015, what
 the SDK's 2,700,000 gas floor for a v1 claim costs at 5 gwei, and
-`SUGGESTED_GAS_TAO` 0.02, for v1 and v2 claims alike.
+`SUGGESTED_GAS_TAO` 0.02, for v1 and v2 claims alike. The Solana payout wallet
+restored on 2026-09-14 (`LegacyWalletModels`, `SdkLegacyWalletSource`,
+`SolanaWalletViewModel`, `SolanaWalletCard`, `ConnectSolanaWalletSheet`,
+`SolanaWalletConnect`) was deleted on 2026-11-13: USDC payouts ended 2026-11-12.
 
 **Apple (iOS, macOS).** `app/network/Main/Account/Earnings/` (11 files):
 `EarningsView` + `EarningsTiles`, `ConnectBittensorWalletFlow` + sheet,
@@ -544,7 +559,8 @@ error (no store key). Not exercised live (no signed-in session or chain here).
 - Apple: regenerate the catalog (`gen:apple`) once the store owner confirms
   the catalog has no drift; until then new keys show English.
 - Retire the USDC payout planner and `MissingWalletTemplate` once no network has
-  a pending USDC balance.
+  a pending USDC balance. (2026-11-12: USDC payouts ended and every unsent row
+  was closed; the owner's 2026-11-13 decision retires the payout code.)
 - Windows/Linux: consider constructing the remote device at sign-in so claims
   and the gas key are available without starting the tunnel.
 - Add a store key for `chain_not_configured` if the state should read better

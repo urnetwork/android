@@ -23,8 +23,10 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.bringyour.network.R
+import com.bringyour.network.ShownPlan
 import com.bringyour.network.ui.Route
 import com.bringyour.network.ui.components.LoginMode
+import com.bringyour.network.ui.components.ShownPlanName
 import com.bringyour.network.ui.shared.viewmodels.Plan
 import com.bringyour.network.ui.theme.BlueMedium
 import com.bringyour.network.ui.theme.TextFaint
@@ -47,6 +49,10 @@ fun AccountRootSubscription(
     navController: NavHostController,
     // a Pro network's plan label replays the Pro celebration
     onPlanLabelTap: () -> Unit = {},
+    // the sdk's plan (support inbox 4074): Loading or Unreachable until the
+    // server answers, never Free; retryPlan reads the balance again
+    shownPlan: ShownPlan = if (currentPlan == Plan.Supporter) ShownPlan.Pro else ShownPlan.Free,
+    retryPlan: () -> Unit = {},
 ) {
     // member area
     Box {
@@ -85,14 +91,12 @@ fun AccountRootSubscription(
                         )
 
                     } else {
-                        Text(if (currentPlan == Plan.Supporter) stringResource(id = R.string.supporter) else stringResource(id = R.string.free),
-                            style = MaterialTheme.typography.headlineMedium,
-                            // Pro: the label itself is a button that replays the celebration
-                            modifier = if (currentPlan == Plan.Supporter) {
-                                Modifier.clickable(role = Role.Button) { onPlanLabelTap() }
-                            } else {
-                                Modifier
-                            }
+                        // Pro: the label itself is a button that replays the celebration;
+                        // before the server answers, a spinner or the read's retry, never Free
+                        ShownPlanName(
+                            shownPlan = shownPlan,
+                            retryPlan = retryPlan,
+                            onPlanLabelTap = onPlanLabelTap,
                         )
                     }
                 }
@@ -111,7 +115,7 @@ fun AccountRootSubscription(
                     )
                 } else {
 
-                    if (currentPlan == Plan.Basic && !isProcessingUpgrade) {
+                    if (shownPlan.sellsPro && !isProcessingUpgrade) {
                         Text(
                             stringResource(id = R.string.change),
                             modifier = Modifier

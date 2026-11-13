@@ -274,7 +274,8 @@ class PlanViewModel @Inject constructor(
 
     /**
      * The remedy offered alongside a billing error. On this flavor the purchase runs
-     * through Google Play, so we can re-launch it directly.
+     * through Google Play, so we can re-launch it directly. The relaunch passes the
+     * same guest gate as a purchase, right before billing opens (MainActivity).
      */
     val retryUpgrade: (() -> Unit)? = { upgrade() }
 

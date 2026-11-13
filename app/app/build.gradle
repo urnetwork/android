@@ -295,6 +295,12 @@ android {
             // the migration host name, when set, is used for services instead of the host name
             buildConfigField "String", "BRINGYOUR_BUNDLE_MIGRATION_HOST_NAME", '""'
             buildConfigField "String", "BRINGYOUR_BUNDLE_STORE", 'null'
+            // the distribution the app reports in its client info (sdk
+            // ClientDistribution*): the server reads it for the account's
+            // onboarding platform, where it tells who bills the purchases. This
+            // flavor is the GitHub APK and the F-Droid build, without Play
+            // services, billed by Stripe
+            buildConfigField "String", "BRINGYOUR_BUNDLE_DISTRIBUTION", '"android_direct"'
             // hard coded initial extender networks
             // this can avoid the need for an initial doh query
             // json string array
@@ -305,6 +311,9 @@ android {
             // never play-services-auth.
             buildConfigField "boolean", "BRINGYOUR_BUNDLE_SSO_GOOGLE", 'true'
             buildConfigField "String", "BRINGYOUR_BUNDLE_WALLET", '"solana"'
+            // every DNS preset is offered; only the play flavor may hide the
+            // ones that block ads (see play)
+            buildConfigField "boolean", "BRINGYOUR_BUNDLE_DNS_PRESETS_HIDE_AD_BLOCKING", 'false'
 
             signingConfig = signingConfigs.github
 
@@ -340,9 +349,18 @@ android {
             buildConfigField "String", "BRINGYOUR_BUNDLE_LINK_HOST_NAME", '"ur.io"'
             buildConfigField "String", "BRINGYOUR_BUNDLE_MIGRATION_HOST_NAME", '""'
             buildConfigField "String", "BRINGYOUR_BUNDLE_STORE", '"play"'
+            // the client info's distribution (see github): Google Play bills
+            buildConfigField "String", "BRINGYOUR_BUNDLE_DISTRIBUTION", '"play"'
             buildConfigField "String[]", "BRINGYOUR_BUNDLE_NET_EXTENDER_NETWORKS", 'new String[]{}'
             buildConfigField "boolean", "BRINGYOUR_BUNDLE_SSO_GOOGLE", 'true'
             buildConfigField "String", "BRINGYOUR_BUNDLE_WALLET", '"solana"'
+            // the DNS preset catalog on Play (connect ADBLOCK3RD O15, H4). false
+            // offers every preset, as every flavor does: ad blocking is off by
+            // default and only ever the user's choice. true hides the presets
+            // that block ads, if Play review objects; malware, family, no
+            // filtering, personal IDs and Custom stay. MainApplication hands it
+            // to Sdk.setDnsPresetsHideAdBlocking before any device is built.
+            buildConfigField "boolean", "BRINGYOUR_BUNDLE_DNS_PRESETS_HIDE_AD_BLOCKING", 'false'
 
             ndk {
                 abiFilters = ['x86_64', 'armeabi-v7a', 'arm64-v8a']
@@ -366,9 +384,15 @@ android {
             buildConfigField "String", "BRINGYOUR_BUNDLE_LINK_HOST_NAME", '"ur.io"'
             buildConfigField "String", "BRINGYOUR_BUNDLE_MIGRATION_HOST_NAME", '""'
             buildConfigField "String", "BRINGYOUR_BUNDLE_STORE", '"solana_dapp"'
+            // the client info's distribution (see github): the Solana dApp
+            // Store, billed by Stripe
+            buildConfigField "String", "BRINGYOUR_BUNDLE_DISTRIBUTION", '"solana_dapp"'
             buildConfigField "String", "BRINGYOUR_BUNDLE_WALLET", '"solana"'
             buildConfigField "String[]", "BRINGYOUR_BUNDLE_NET_EXTENDER_NETWORKS", 'new String[]{}'
             buildConfigField "boolean", "BRINGYOUR_BUNDLE_SSO_GOOGLE", 'true'
+            // every DNS preset is offered; only the play flavor may hide the
+            // ones that block ads (see play)
+            buildConfigField "boolean", "BRINGYOUR_BUNDLE_DNS_PRESETS_HIDE_AD_BLOCKING", 'false'
 
             signingConfig = signingConfigs.solana_dapp
 
@@ -403,9 +427,15 @@ android {
             buildConfigField "String", "BRINGYOUR_BUNDLE_LINK_HOST_NAME", '"ur.io"'
             buildConfigField "String", "BRINGYOUR_BUNDLE_MIGRATION_HOST_NAME", '""'
             buildConfigField "String", "BRINGYOUR_BUNDLE_STORE", '"ethos_dapp"'
+            // the client info's distribution (see github): the Ethos dApp
+            // store, billed by Stripe
+            buildConfigField "String", "BRINGYOUR_BUNDLE_DISTRIBUTION", '"ethos_dapp"'
             buildConfigField "String", "BRINGYOUR_BUNDLE_WALLET", '"ethos"'
             buildConfigField "String[]", "BRINGYOUR_BUNDLE_NET_EXTENDER_NETWORKS", 'new String[]{}'
             buildConfigField "boolean", "BRINGYOUR_BUNDLE_SSO_GOOGLE", 'true'
+            // every DNS preset is offered; only the play flavor may hide the
+            // ones that block ads (see play)
+            buildConfigField "boolean", "BRINGYOUR_BUNDLE_DNS_PRESETS_HIDE_AD_BLOCKING", 'false'
 
             signingConfig = signingConfigs.ethos_dapp
 

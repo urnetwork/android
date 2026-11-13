@@ -66,6 +66,7 @@ import com.bringyour.network.ui.components.sideBySideSplit
 import com.bringyour.network.ui.components.stackedSplit
 import com.bringyour.network.ui.stats.AppSplitRulesPanel
 import com.bringyour.network.ui.stats.ConnectStatsTiles
+import com.bringyour.network.ui.stats.dnsPresetName
 import com.bringyour.network.ui.theme.MainTintedBackgroundBase
 import com.bringyour.network.ui.theme.Pink
 import com.bringyour.network.ui.theme.TopBarTitleTextStyle
@@ -311,6 +312,10 @@ fun ConnectScreen(
     val windowLayout = LocalWindowLayout.current
     val arrangement = connectArrangementFor(windowLayout.widthDp, windowLayout.heightDp, windowLayout.fold)
     val currentPlan = if (isPro) Plan.Supporter else Plan.Basic
+    // the plan card's plan: never Free before the server answered (support inbox 4074)
+    val shownPlan by subscriptionBalanceViewModel.shownPlan.collectAsState()
+    // and which account it is on (support inbox 6546)
+    val planAccountName by subscriptionBalanceViewModel.planAccountName.collectAsState()
 
     // Above the arrangements, so a fold, an unfold or a resize keeps them: the
     // "About your data" sheet (Why? under the out-of-balance notice), the
@@ -416,8 +421,13 @@ fun ConnectScreen(
                 balanceRecovery = balanceRecoveryState,
                 cancelBalanceRecovery = { application?.clearBalanceRecovery() },
                 privateDnsStrictHost = privateDnsStrictHost,
+                privateDnsPresetName = dnsSettingsViewModel.selectedPresetName?.let { dnsPresetName(it) },
                 showDataInfo = { dataInfoPresented = true },
             )
+            // the network's client limit holds the device off: what to do
+            ClientLimitNotice(navController = navController)
+            // the network's proxies use Pro features it does not have
+            ProFeaturesNotice(navController = navController)
             Spacer(modifier = Modifier.height(12.dp))
             ConnectActionButtonRow(
                 actionButtons = actionButtons,
@@ -455,6 +465,9 @@ fun ConnectScreen(
                 getLocationColor = locationsViewModel.getLocationColor,
                 minHeight = minHeight,
                 currentPlan = currentPlan,
+                shownPlan = shownPlan,
+                retryPlan = subscriptionBalanceViewModel.refreshSubscriptionBalance,
+                planAccountName = planAccountName,
                 connect = connect,
                 disconnect = connectViewModel.disconnect,
                 reconnectTunnel = reconnectTunnel,
@@ -679,6 +692,9 @@ fun ConnectScreen(
                             ConnectPlanCard(
                                 navController = navController,
                                 currentPlan = currentPlan,
+                                shownPlan = shownPlan,
+                                retryPlan = subscriptionBalanceViewModel.refreshSubscriptionBalance,
+                                planAccountName = planAccountName,
                                 isPollingSubscriptionBalance = subscriptionBalanceViewModel.isPollingSubscriptionBalance,
                                 usedBytes = subscriptionBalanceViewModel.usedBalanceByteCount,
                                 availableBytes = availableBytes,

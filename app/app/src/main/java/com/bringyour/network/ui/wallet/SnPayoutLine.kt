@@ -84,11 +84,3 @@ fun formatSnPayoutTime(millis: Long, zone: ZoneId, locale: Locale): String =
         .withLocale(locale)
         .withZone(zone)
         .format(Instant.ofEpochMilli(millis))
-
-/**
- * The final USDC payout still waiting, or null. Since payouts moved to the UR
- * subnet, the "Final USDC payout: N USDC waiting" line shows only while a USDC
- * amount is pending, and not before the payments have loaded.
- */
-fun finalUsdcWaitingUsd(legacy: LegacyWalletUi, legacyLoaded: Boolean): Double? =
-    if (legacyLoaded && legacy.hasPending) legacy.pendingUsd else null

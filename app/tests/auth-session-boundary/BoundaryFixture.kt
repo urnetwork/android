@@ -170,7 +170,10 @@ internal class ClientEventQueue {
     fun close() {}
     fun flushAndWait(millis: Long) {}
 }
-internal object BuildConfig { const val VERSION_NAME = "synthetic-test-build" }
+internal object BuildConfig {
+    const val VERSION_NAME = "synthetic-test-build"
+    const val BRINGYOUR_BUNDLE_DISTRIBUTION = "android_direct"
+}
 internal object Log { fun w(tag: String, message: String) {}
 fun e(tag: String, message: String, error: Throwable) {} }
 internal object Sdk {
@@ -181,7 +184,7 @@ internal object Sdk {
         spec: String, version: String, instance: String, ignored: Boolean, key: String?, memory: Long): DeviceLocal? =
         factories.getValue(space)(key)
     val factories = mutableMapOf<NetworkSpace, (String?) -> DeviceLocal?>()
-    fun newClientInfo(type: String, version: String): Any = Any()
+    fun newClientInfoWithDistribution(type: String, version: String, distribution: String): Any = Any()
     fun newClientEventQueue(space: NetworkSpace, platform: Int, version: String, language: String) = ClientEventQueue()
     fun newLoginViewController(api: Api?): Sub = Sub()
 }
@@ -230,7 +233,7 @@ internal class DeviceLocal(val networkSpace: NetworkSpace, val keyMaterial: Stri
     fun initProvideSecretKeys() {}
     fun close() { closes += 1 }
 }
-internal class JwtManager { fun updateJwt(jwt: Any) {}; fun clearJwt() {} }
+internal class JwtManager { fun updateJwt(jwt: Any, storedByJwt: String? = null) {}; fun clearJwt() {} }
 internal class DeviceChanges { fun prepareUpdate(device: DeviceLocal): () -> Unit = {} }
 internal class DeviceManager {
     var clearCalls = 0
@@ -371,6 +374,7 @@ internal class MainApplicationFixture(val store: LocalState) {
     var tunnelChangeSub: Sub? = null
     var contractStatusChangeSub: Sub? = null
     var lastLoggedContractStatus: String? = null
+    fun clearClientLimit() {}
     fun resetTunnelRecoveryState() {}
     var stopHook: () -> Unit = {}
     fun stopVpnService() { stopHook() }

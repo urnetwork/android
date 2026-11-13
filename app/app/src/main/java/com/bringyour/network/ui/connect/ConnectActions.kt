@@ -46,6 +46,9 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.bringyour.network.R
+import com.bringyour.network.ShownPlan
+import com.bringyour.network.ui.components.ShownPlanName
+import com.bringyour.network.ui.components.PlanAccountNameLine
 import com.bringyour.network.ui.Route
 import com.bringyour.network.ui.components.ButtonStyle
 import com.bringyour.network.ui.components.outOfBalanceKindText
@@ -64,6 +67,7 @@ import com.bringyour.network.ui.stats.ConnectStatsSections
 import com.bringyour.network.ui.stats.IpFamilyPoint
 import com.bringyour.network.ui.stats.DnsSettingsViewModel
 import com.bringyour.network.ui.stats.ThroughputViewModel
+import com.bringyour.network.ui.stats.dnsPresetName
 import com.bringyour.network.ui.theme.Green
 import com.bringyour.network.ui.theme.MainTintedBackgroundBase
 import com.bringyour.network.ui.theme.Pink
@@ -89,6 +93,12 @@ internal fun ConnectActions(
     getLocationColor: (String) -> Color,
     minHeight: Dp,
     currentPlan: Plan,
+    // the plan card's sdk plan: Loading or Unreachable until the server
+    // answers, never Free (support inbox 4074); retryPlan reads it again
+    shownPlan: ShownPlan = if (currentPlan == Plan.Supporter) ShownPlan.Pro else ShownPlan.Free,
+    retryPlan: () -> Unit = {},
+    // the account the plan card's plan is on (PlanAccountNameLine); empty shows none
+    planAccountName: String = "",
     connect: () -> Unit,
     disconnect: () -> Unit,
     reconnectTunnel: () -> Unit,
@@ -239,8 +249,16 @@ internal fun ConnectActions(
                     balanceRecovery = balanceRecovery,
                     cancelBalanceRecovery = cancelBalanceRecovery,
                     privateDnsStrictHost = privateDnsStrictHost,
+                    privateDnsPresetName = dnsSettingsViewModel.selectedPresetName?.let { dnsPresetName(it) },
                     showDataInfo = showDataInfo,
                 )
+
+                // the network's client limit holds the device off: what to
+                // do, above the fold with the other alerts
+                ClientLimitNotice(navController = navController)
+                // the network's proxies use Pro features it does not have,
+                // under the client limit's when both show
+                ProFeaturesNotice(navController = navController)
 
                 // the fold marker: a zero-height anchor at the bottom of the
                 // location + connect block. positionInParent is relative to the
@@ -314,6 +332,9 @@ internal fun ConnectActions(
         ConnectPlanCard(
             navController = navController,
             currentPlan = currentPlan,
+            shownPlan = shownPlan,
+            retryPlan = retryPlan,
+            planAccountName = planAccountName,
             isPollingSubscriptionBalance = isPollingSubscriptionBalance,
             usedBytes = usedBytes,
             availableBytes = availableBytes,
@@ -485,6 +506,9 @@ internal fun ConnectActionNotices(
     balanceRecovery: BalanceRecoveryState,
     cancelBalanceRecovery: () -> Unit,
     privateDnsStrictHost: String?,
+    // the selected DNS preset's name, which strict Private DNS overrides, or
+    // null when no preset is selected (DnsSettingsViewModel)
+    privateDnsPresetName: String?,
     showDataInfo: () -> Unit,
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
@@ -638,6 +662,19 @@ internal fun ConnectActionNotices(
                     .padding(horizontal = 4.dp)
                     .testTag("acceptance.private_dns_strict_notice")
             )
+            // the DNS preset the user picked does not apply either (connect
+            // ADBLOCK3RD F2)
+            if (privateDnsPresetName != null) {
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    stringResource(id = R.string.dns_private_dns_overrides_preset, privateDnsPresetName),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = TextMuted,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 4.dp)
+                )
+            }
             TextButton(
                 onClick = {
                     runCatching {
@@ -827,6 +864,12 @@ internal fun ConnectOptions(
 internal fun ConnectPlanCard(
     navController: NavController,
     currentPlan: Plan,
+    // the sdk's plan (support inbox 4074): Loading or Unreachable until the
+    // server answers, never Free; retryPlan reads the balance again
+    shownPlan: ShownPlan = if (currentPlan == Plan.Supporter) ShownPlan.Pro else ShownPlan.Free,
+    retryPlan: () -> Unit = {},
+    // the account the plan is on, under it (PlanAccountNameLine); empty shows none
+    planAccountName: String = "",
     isPollingSubscriptionBalance: Boolean,
     usedBytes: Long,
     availableBytes: Long,
@@ -890,18 +933,12 @@ internal fun ConnectPlanCard(
 
                 } else {
 
-                    if (currentPlan == Plan.Supporter) {
-                        Text(stringResource(id = R.string.supporter),
-                            style = MaterialTheme.typography.headlineMedium
-                        )
-                    } else {
-                        Text(stringResource(id = R.string.free),
-                            style = MaterialTheme.typography.headlineMedium
-                        )
-                    }
+                    // before the server answers, a spinner or the read's retry,
+                    // never Free
+                    ShownPlanName(shownPlan = shownPlan, retryPlan = retryPlan)
                 }
 
-                if (currentPlan != Plan.Supporter) {
+                if (shownPlan.sellsPro) {
 
                     TextButton(onClick = {
                         // the same upgrade flow Account's "Change" opens; this used to
@@ -918,6 +955,9 @@ internal fun ConnectPlanCard(
 
                 }
             }
+
+            // which account the plan is on (support inbox 6546)
+            PlanAccountNameLine(name = planAccountName)
         }
 
         Spacer(modifier = Modifier.height(12.dp))
@@ -930,7 +970,8 @@ internal fun ConnectPlanCard(
             totalReferrals = totalReferrals,
             dailyByteCount = dailyByteCount,
             onReferralClick = onReferralClick,
-            showFreeRefresh = dataInfoShowsFreeRefresh(currentPlan),
+            // the free plan's refresh, once the server said Free
+            showFreeRefresh = shownPlan == ShownPlan.Free && dataInfoShowsFreeRefresh(currentPlan),
         )
 
     }

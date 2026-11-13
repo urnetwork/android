@@ -36,10 +36,10 @@ object ClientEvents {
     const val WIDGET_COVER = "cover"
     const val WIDGET_QUICK_SETTINGS = "quick_settings"
 
-    // the Play product id (the store's product on a purchase event)
+    // the Play product id (the store's product on a purchase event); a coin's
+    // is the sdk's CryptoPaymentEventProduct (pro_yearly_<ticker>)
     const val PRODUCT_PLAY_SUPPORTER = "supporter"
     const val PRODUCT_STRIPE_PRO = "pro"
-    const val PRODUCT_SOLANA_PRO_YEARLY = "pro_yearly_usdc"
 
     private const val PREFS = "client_events"
 
