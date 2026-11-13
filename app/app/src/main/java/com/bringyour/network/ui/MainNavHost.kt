@@ -1874,7 +1874,6 @@ fun MainNavContent(
                         reliabilityPoints = accountPointsViewModel.reliabilityPoints.collectAsState().value,
                         fetchAccountPoints = { accountPointsViewModel.fetchAccountPoints() },
                         reliabilityWindow = reliabilityWindow,
-                        activityResultSender = activityResultSender,
                         accountPointsFailed = accountPointsViewModel.pointsLoad.collectAsState().value == SectionLoad.Failed,
                         onSeeProtocolBoard = openProtocolLeaderboard,
                         // a guest gets no payout key, only the wallet card

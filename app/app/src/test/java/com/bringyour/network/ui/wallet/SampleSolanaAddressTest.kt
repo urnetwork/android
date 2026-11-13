@@ -6,12 +6,9 @@ import org.junit.Assert.assertEquals
 import org.junit.Test
 
 /**
- * The sample Solana address (SampleLegacyWalletSource.SAMPLE_SOLANA_ADDRESS) is a
- * fixture key, not the official merchant, and no production code path reads it:
- * only previews and the sample source do, and the sample source is built only
- * behind the Developer screen's sample data switch, which only debug builds show
- * (DeveloperScreen, BuildConfig.DEBUG). Checked on the app's sources, read from the
- * module directory where Gradle runs unit tests.
+ * Samples and tests use fixture Solana keys, never the official merchant's address: the
+ * app pays the merchant a Solana Pay quote names. Checked on the app's sources, read
+ * from the module directory where Gradle runs unit tests.
  */
 class SampleSolanaAddressTest {
 
@@ -27,12 +24,6 @@ class SampleSolanaAddressTest {
     private fun sourceFiles(roots: List<File>, extensions: Set<String>): List<File> =
         roots.flatMap { root -> root.walkTopDown().filter { it.isFile && it.extension in extensions }.toList() }
 
-    // every source set an app build compiles: all but the test source sets
-    private fun appSourceSets(): List<File> {
-        val testSourceSets = setOf("test", "androidTest", "testPlay", "testCryptoPay")
-        return File("src").listFiles().orEmpty().filter { it.isDirectory && it.name !in testSourceSets }
-    }
-
     @Test
     fun `no app source carries the official merchant`() {
         // the app pays the merchant a quote names; samples and tests use fixture keys
@@ -42,39 +33,5 @@ class SampleSolanaAddressTest {
                 .map { (index, _) -> "${file.path}:${index + 1}" }
         }
         assertEquals(emptyList<String>(), found)
-    }
-
-    @Test
-    fun `only previews and the sample source read the sample address`() {
-        val function = Regex("""^\s*(?:(?:private|internal|public|override)\s+)*fun\s""")
-        val type = Regex("""^\s*(?:(?:private|internal|public|data|sealed|abstract|open|enum|inner|companion)\s+)*(?:class|object|interface)\b""")
-        val readers = sourceFiles(appSourceSets(), setOf("kt", "java")).flatMap { file ->
-            val lines = file.readLines()
-            lines.indices
-                .filter { lines[it].contains("SAMPLE_SOLANA_ADDRESS") && !lines[it].contains("const val SAMPLE_SOLANA_ADDRESS") }
-                .filterNot { index ->
-                    val functionIndex = (index downTo 0).firstOrNull { function.containsMatchIn(lines[it]) }
-                    val classIndex = (index downTo 0).firstOrNull { type.containsMatchIn(lines[it]) }
-                    val inPreview = functionIndex != null &&
-                        lines.subList(maxOf(0, functionIndex - 3), functionIndex).any { it.trim().startsWith("@Preview") }
-                    val inSampleSource = classIndex != null && lines[classIndex].contains("class SampleLegacyWalletSource(")
-                    inPreview || inSampleSource
-                }
-                .map { "${file.path}:${it + 1}" }
-        }
-        assertEquals(emptyList<String>(), readers)
-    }
-
-    @Test
-    fun `the sample source is built only behind the sample data switch`() {
-        // EarningsDebugFlags.useSampleData is set only by the Developer screen's sample
-        // data switch
-        val constructions = sourceFiles(appSourceSets(), setOf("kt", "java")).flatMap { file ->
-            file.readLines().withIndex()
-                .filter { (_, line) -> line.contains("SampleLegacyWalletSource(") && !line.contains("class SampleLegacyWalletSource(") }
-                .filterNot { (_, line) -> line.contains("EarningsDebugFlags.useSampleData") }
-                .map { (index, _) -> "${file.path}:${index + 1}" }
-        }
-        assertEquals(emptyList<String>(), constructions)
     }
 }

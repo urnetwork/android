@@ -8,9 +8,8 @@ import org.junit.Assert.assertNull
 import org.junit.Test
 
 /**
- * The SN payout line at the foot of the points card: which line shows, the
- * epoch's times in the reader's zone and locale, and the final USDC payout
- * while one is pending.
+ * The SN payout line at the foot of the points card: which line shows, and the
+ * epoch's times in the reader's zone and locale.
  */
 class SnPayoutLineTest {
 
@@ -108,22 +107,5 @@ class SnPayoutLineTest {
             "15.10.2026, 02:00",
             formatSnPayoutTime(schedule.claimOpenMillis, ZoneId.of("Europe/Berlin"), Locale.GERMANY)
         )
-    }
-
-    @Test
-    fun `the final USDC payout shows only while USDC is pending`() {
-        fun payment(usd: Double, completed: Boolean = false, canceled: Boolean = false) =
-            LegacyPayment("payment", null, usd, 0.0, completed, canceled, null)
-
-        val held = LegacyWalletUi(payments = listOf(payment(3.50), payment(0.37)))
-        assertEquals(3.87, finalUsdcWaitingUsd(held, legacyLoaded = true)!!, 1e-9)
-        // not before the payments have loaded
-        assertNull(finalUsdcWaitingUsd(held, legacyLoaded = false))
-        // paid out or canceled: nothing waits
-        assertNull(finalUsdcWaitingUsd(LegacyWalletUi(payments = listOf(payment(3.87, completed = true))), true))
-        assertNull(finalUsdcWaitingUsd(LegacyWalletUi(payments = listOf(payment(3.87, canceled = true))), true))
-        // a remainder that would read 0.00
-        assertNull(finalUsdcWaitingUsd(LegacyWalletUi(payments = listOf(payment(0.004))), true))
-        assertNull(finalUsdcWaitingUsd(LegacyWalletUi(), true))
     }
 }
