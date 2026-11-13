@@ -261,11 +261,8 @@
     <string name="connect_bittensor_wallet_to_add_sign_in_method">Подключите кошелек Bittensor, чтобы добавить его как способ входа.</string>
     <string name="connect_options">Параметры подключения</string>
     <string name="connect_seeker_wallet">Подключите кошелек с токеном Saga Genesis или Seeker Pre-Order</string>
-    <string name="connect_solana_wallet">Подключить кошелек Solana</string>
-    <string name="connect_solana_wallet_note">Подключите приложение-кошелек Solana или введите адрес USDC в сети Solana вручную.</string>
     <string name="connect_solana_wallet_to_add_sign_in_method">Подключите кошелек Solana, чтобы добавить его как способ входа.</string>
     <string name="connect_to_location">Подключиться к %1$s</string>
-    <string name="connect_wallet">Подключить кошелек</string>
     <string name="connect_wallet_first">Сначала подключите кошелек Bittensor.</string>
     <string name="connected">Подключено</string>
     <string name="connecting_from">Подключение из</string>
@@ -367,7 +364,6 @@
     <string name="data_limit_reached">Достигнут лимит данных</string>
     <string name="data_usage">Использование данных</string>
     <string name="default_daily_data">По умолчанию вы получаете %1$s каждый день.</string>
-    <string name="default_wallet">По умолчанию</string>
     <string name="delete">Удалить</string>
     <string name="delete_account">Удалить аккаунт</string>
     <string name="delete_account_type_network_name">Введите %1$s для подтверждения.</string>
@@ -666,7 +662,6 @@
     <string name="enter">Войти</string>
     <string name="enter_a_bonus_referral_code">Введите бонусный реферальный код</string>
     <string name="enter_a_password">Введите пароль</string>
-    <string name="enter_a_solana_usdc_wallet_address">Введите адрес кошелька USDC в сети Solana</string>
     <string name="enter_address_manually">Ввести адрес вручную</string>
     <string name="enter_balance_code">Введите код баланса</string>
     <string name="enter_network_referral_code">Введите реферальный код сети</string>
@@ -674,14 +669,12 @@
     <string name="epoch_row_title">Эпоха %1$d</string>
     <string name="epoch_share_of_block">%1$s блока</string>
     <string name="error_connecting_to_wallet">Ошибка подключения к кошельку</string>
-    <string name="error_connecting_wallet_with_reason">Произошла ошибка при подключении кошелька: %1$s</string>
     <string name="error_deleting_account">К сожалению, произошла ошибка при удалении вашего аккаунта.</string>
     <string name="error_loading_account_plan">Ошибка загрузки вашего тарифного плана.</string>
     <string name="error_logging_in_please_try_again">Ошибка входа, попробуйте еще раз.</string>
     <string name="error_redeeming_transfer_balance_code">Ошибка при активации кода перевода баланса.</string>
     <string name="error_sending_password_reset_link">Ошибка при отправке ссылки для сброса пароля</string>
     <string name="error_sending_verification_code">Произошла ошибка при отправке кода подтверждения.</string>
-    <string name="error_setting_default_wallet_with_reason">Ошибка при установке кошелька по умолчанию: %1$s</string>
     <string name="error_signing_in_with_google">Ошибка входа через Google</string>
     <string name="error_updating_device_name">Произошла ошибка при обновлении имени устройства.</string>
     <string name="exclude_app">Исключить из VPN</string>
@@ -771,7 +764,6 @@
     <string name="intro_widgets_tap_to_add">Нажмите на виджет, чтобы добавить его на главный экран.</string>
     <string name="invalid_input">Недопустимое значение</string>
     <string name="invalid_referral_code">Этот код недействителен</string>
-    <string name="invalid_solana_address">Это недействительный адрес Solana.</string>
     <string name="invalid_ss58_address">Это недействительный адрес Bittensor.</string>
     <string name="ip_address">IP-адрес</string>
     <string name="ip_family_both">Обе</string>
@@ -868,7 +860,6 @@
     <string name="login_verify_details">Подтвердите, что это вы. Введите код,\nкоторый мы отправили, для проверки вашей личности.</string>
     <string name="login_verify_header">Вам письмо</string>
     <string name="longest_streak">Самая длинная серия</string>
-    <string name="make_default">Сделать по умолчанию</string>
     <string name="manage_devices">Управление устройствами</string>
     <string name="manage_devices_connecting">Подключение этого устройства…</string>
     <string name="manage_devices_help">Каждое подключённое устройство или прокси занимает одно место в тарифе. Удалите то, которым больше не пользуетесь, чтобы освободить место.</string>
@@ -956,7 +947,6 @@
     <string name="no_solana_wallet_found">Не найдено приложение кошелька для оплаты через Solana.</string>
     <string name="no_solana_wallets_found">Кошельки Solana не найдены</string>
     <string name="no_wallets_found_alert_content">На этом устройстве не найдено установленных кошельков Solana. Пожалуйста, установите кошелек и попробуйте снова.</string>
-    <string name="no_wallets_found_enter_address_manually">На этом устройстве не найдено совместимое приложение кошелька Solana. Выберите «Ввести адрес вручную», чтобы вместо этого вставить адрес вашего кошелька.</string>
     <string name="none">Нет</string>
     <string name="notifications_label">Уведомления</string>
     <string name="of_total">из %1$s</string>
@@ -1001,8 +991,6 @@
     <string name="payment_past_due_update_payment">Обновить способ оплаты</string>
     <string name="payment_problem">Проблема с оплатой</string>
     <string name="payment_received_title">Платёж получен</string>
-    <string name="payout_wallet_updated">Кошелек для выплат обновлен</string>
-    <string name="payouts_now_go_to">Выплаты теперь поступают на %1$s.</string>
     <string name="peer_count_one">1 узел</string>
     <string name="peer_count_other">%d узлов</string>
     <string name="pending_data_key">В ожидании</string>
@@ -1177,8 +1165,6 @@
     <string name="remove">Удалить</string>
     <string name="remove_rule">Удалить правило</string>
     <string name="remove_this_sign_in_method">Удалить этот способ входа?</string>
-    <string name="remove_wallet">Удалить кошелек</string>
-    <string name="remove_wallet_moves_or_holds_payouts">Выплаты в USDC перейдут на другой ваш кошелек Solana или Polygon, а если его нет, будут приостановлены, пока вы не подключите кошелек.</string>
     <string name="resend_reset_link">Отправить ссылку повторно</string>
     <string name="resend_verify_code">Отправить код повторно</string>
     <string name="reset_extenders">Сбросить экстендеры</string>
@@ -1489,10 +1475,7 @@
     <string name="update_referral_network">Обновить реферальную сеть</string>
     <string name="upgrade_now">Улучшить сейчас</string>
     <string name="upgrade_subscription">Улучшить подписку</string>
-    <string name="usdc_payouts_until_migration">Выплаты в USDC будут поступать на этот кошелек, пока не завершится переход на Bittensor.</string>
     <string name="usdc_solana_network_only">Отправляйте USDC только в сети Solana. USDC, отправленные в другой сети, не дойдут.</string>
-    <string name="usdc_waiting">Последняя выплата в USDC: %1$s USDC ожидают выплаты</string>
-    <string name="usdc_wallet_address">Адрес кошелька USDC</string>
     <string name="use_extender_settings">Использовать настройки экстендера</string>
     <string name="use_most_stable_provider">Используется самый стабильный провайдер</string>
     <string name="use_wireguard_socks_https_proxy">Использовать прокси WireGuard / SOCKS / HTTPS</string>
@@ -1549,7 +1532,6 @@
     <string name="wallet_connected_to_protocol">Подключено к протоколу UR. Полученные средства поступают сюда. Alpha начисляется со следующей эпохи после подключения.</string>
     <string name="wallet_looks_new_warning">У этого адреса пока нет активности в блокчейне Bittensor. Похоже, это новый кошелек. Прежде чем продолжить, убедитесь, что он ваш.</string>
     <string name="wallet_not_retroactive">Подключите кошелек, чтобы получать SN25α со следующей эпохи. Прошлые эпохи задним числом не рассчитываются.</string>
-    <string name="wallet_options">Параметры кошелька</string>
     <string name="wallet_sign_in_method_added">Способ входа через кошелек добавлен</string>
     <string name="welcome_offer_eyebrow">Приветственное предложение</string>
     <string name="welcome_to_urnetwork">Добро пожаловать в URnetwork</string>

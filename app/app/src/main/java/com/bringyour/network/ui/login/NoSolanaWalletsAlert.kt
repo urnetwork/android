@@ -13,14 +13,11 @@ import com.bringyour.network.ui.components.FoldSafeAlertDialog
 /**
  * No Solana wallet app on the device answered the Mobile Wallet Adapter request: none is
  * installed, or none of the installed ones answers it (as reported with Brave Wallet).
- * Signing in needs a wallet app's signature, so by default the alert says to install one.
- * The payout wallet can also be connected by its address: given [onEnterManually], the
- * alert points at the sheet's manual entry in that control's own words and offers it.
+ * Signing in needs a wallet app's signature, so the alert says to install one.
  */
 @Composable
 fun NoSolanaWalletsAlert(
     onDismiss: () -> Unit,
-    onEnterManually: (() -> Unit)? = null,
 ) {
     FoldSafeAlertDialog(
         icon = {
@@ -30,44 +27,18 @@ fun NoSolanaWalletsAlert(
             Text(text = stringResource(id = R.string.no_solana_wallets_found))
         },
         text = {
-            Text(
-                text = stringResource(
-                    id = if (onEnterManually == null) {
-                        R.string.no_wallets_found_alert_content
-                    } else {
-                        R.string.no_wallets_found_enter_address_manually
-                    }
-                )
-            )
+            Text(text = stringResource(id = R.string.no_wallets_found_alert_content))
         },
         onDismissRequest = {
             onDismiss()
         },
         confirmButton = {
-            if (onEnterManually == null) {
-                TextButton(
-                    onClick = {
-                        onDismiss()
-                    }
-                ) {
-                    Text(stringResource(id = R.string.close))
+            TextButton(
+                onClick = {
+                    onDismiss()
                 }
-            } else {
-                TextButton(onClick = onEnterManually) {
-                    Text(stringResource(id = R.string.enter_address_manually))
-                }
-            }
-        },
-        dismissButton = {
-            // a second button only when the first one opens manual entry
-            if (onEnterManually != null) {
-                TextButton(
-                    onClick = {
-                        onDismiss()
-                    }
-                ) {
-                    Text(stringResource(id = R.string.close))
-                }
+            ) {
+                Text(stringResource(id = R.string.close))
             }
         },
     )

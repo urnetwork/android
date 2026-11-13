@@ -261,11 +261,8 @@
     <string name="connect_bittensor_wallet_to_add_sign_in_method">连接 Bittensor 钱包，将其添加为登录方式。</string>
     <string name="connect_options">连接选项</string>
     <string name="connect_seeker_wallet">连接带有 Saga Genesis 或 Seeker 预售代币的钱包</string>
-    <string name="connect_solana_wallet">连接 Solana 钱包</string>
-    <string name="connect_solana_wallet_note">连接 Solana 钱包应用，或手动输入 Solana USDC 地址。</string>
     <string name="connect_solana_wallet_to_add_sign_in_method">连接 Solana 钱包，将其添加为登录方式。</string>
     <string name="connect_to_location">连接到 %1$s</string>
-    <string name="connect_wallet">连接钱包</string>
     <string name="connect_wallet_first">请先连接 Bittensor 钱包。</string>
     <string name="connected">已连接</string>
     <string name="connecting_from">连接位置</string>
@@ -367,7 +364,6 @@
     <string name="data_limit_reached">已达到数据上限</string>
     <string name="data_usage">数据使用量</string>
     <string name="default_daily_data">默认情况下，您每天可获得 %1$s。</string>
-    <string name="default_wallet">默认</string>
     <string name="delete">删除</string>
     <string name="delete_account">删除账户</string>
     <string name="delete_account_type_network_name">输入 %1$s 以确认。</string>
@@ -666,7 +662,6 @@
     <string name="enter">进入</string>
     <string name="enter_a_bonus_referral_code">输入奖励推荐码</string>
     <string name="enter_a_password">请输入密码</string>
-    <string name="enter_a_solana_usdc_wallet_address">请输入 Solana USDC 钱包地址</string>
     <string name="enter_address_manually">手动输入地址</string>
     <string name="enter_balance_code">输入余额码</string>
     <string name="enter_network_referral_code">输入网络推荐码</string>
@@ -674,14 +669,12 @@
     <string name="epoch_row_title">周期 %1$d</string>
     <string name="epoch_share_of_block">区块的 %1$s</string>
     <string name="error_connecting_to_wallet">连接钱包时出错</string>
-    <string name="error_connecting_wallet_with_reason">连接钱包时出错：%1$s</string>
     <string name="error_deleting_account">抱歉，删除账户时出错。</string>
     <string name="error_loading_account_plan">加载您的账户方案时出错。</string>
     <string name="error_logging_in_please_try_again">登录出错，请重试。</string>
     <string name="error_redeeming_transfer_balance_code">兑换转账余额码时出错。</string>
     <string name="error_sending_password_reset_link">发送密码重置链接时出错</string>
     <string name="error_sending_verification_code">发送验证码时出错。</string>
-    <string name="error_setting_default_wallet_with_reason">设置默认钱包时出错：%1$s</string>
     <string name="error_signing_in_with_google">使用 Google 登录时出错</string>
     <string name="error_updating_device_name">更新设备名称时出错。</string>
     <string name="exclude_app">从 VPN 排除</string>
@@ -771,7 +764,6 @@
     <string name="intro_widgets_tap_to_add">轻点小组件即可将其添加到主屏幕。</string>
     <string name="invalid_input">输入无效</string>
     <string name="invalid_referral_code">此代码无效</string>
-    <string name="invalid_solana_address">这不是有效的 Solana 地址。</string>
     <string name="invalid_ss58_address">这不是有效的 Bittensor 地址。</string>
     <string name="ip_address">IP 地址</string>
     <string name="ip_family_both">两者</string>
@@ -868,7 +860,6 @@
     <string name="login_verify_details">告诉我们您是谁。输入我们\n发送给您的代码以验证您的身份。</string>
     <string name="login_verify_header">您有邮件</string>
     <string name="longest_streak">最长连续</string>
-    <string name="make_default">设为默认</string>
     <string name="manage_devices">管理设备</string>
     <string name="manage_devices_connecting">正在连接此设备…</string>
     <string name="manage_devices_help">每个已连接的设备或代理都会占用您套餐的一个名额。移除不再使用的设备或代理即可释放名额。</string>
@@ -956,7 +947,6 @@
     <string name="no_solana_wallet_found">未找到可处理 Solana 付款的钱包应用。</string>
     <string name="no_solana_wallets_found">未找到 Solana 钱包</string>
     <string name="no_wallets_found_alert_content">在此设备上未找到已安装的 Solana 钱包。请安装一个钱包，然后重试。</string>
-    <string name="no_wallets_found_enter_address_manually">此设备上未找到兼容的 Solana 钱包应用。请选择“手动输入地址”，改为粘贴您的钱包地址。</string>
     <string name="none">无</string>
     <string name="notifications_label">通知</string>
     <string name="of_total">/ %1$s</string>
@@ -1001,8 +991,6 @@
     <string name="payment_past_due_update_payment">更新支付方式</string>
     <string name="payment_problem">付款问题</string>
     <string name="payment_received_title">已收到付款</string>
-    <string name="payout_wallet_updated">支付钱包已更新</string>
-    <string name="payouts_now_go_to">支付现在将发送到 %1$s。</string>
     <string name="peer_count_one">1 个对等节点</string>
     <string name="peer_count_other">%d 个对等节点</string>
     <string name="pending_data_key">待处理</string>
@@ -1177,8 +1165,6 @@
     <string name="remove">移除</string>
     <string name="remove_rule">移除规则</string>
     <string name="remove_this_sign_in_method">移除此登录方式？</string>
-    <string name="remove_wallet">移除钱包</string>
-    <string name="remove_wallet_moves_or_holds_payouts">USDC 支付将转到你的另一个 Solana 或 Polygon 钱包；若没有，则暂停发放，直到你连接一个钱包。</string>
     <string name="resend_reset_link">重新发送链接</string>
     <string name="resend_verify_code">重新发送代码</string>
     <string name="reset_extenders">重置扩展器</string>
@@ -1489,10 +1475,7 @@
     <string name="update_referral_network">更新推荐网络</string>
     <string name="upgrade_now">立即升级</string>
     <string name="upgrade_subscription">升级订阅</string>
-    <string name="usdc_payouts_until_migration">在迁移到 Bittensor 完成之前，USDC 支付将继续发送到此钱包。</string>
     <string name="usdc_solana_network_only">请仅在 Solana 网络上发送 USDC。通过其他网络发送的 USDC 将无法到账。</string>
-    <string name="usdc_waiting">最后一笔 USDC 付款：%1$s USDC 待发放</string>
-    <string name="usdc_wallet_address">USDC 钱包地址</string>
     <string name="use_extender_settings">使用扩展器设置</string>
     <string name="use_most_stable_provider">使用最稳定的提供商</string>
     <string name="use_wireguard_socks_https_proxy">使用 WireGuard / SOCKS / HTTPS 代理</string>
@@ -1549,7 +1532,6 @@
     <string name="wallet_connected_to_protocol">已连接到 UR 协议。领取的收益将存入此处。Alpha 从连接后的下一个周期开始累积。</string>
     <string name="wallet_looks_new_warning">此地址在 Bittensor 链上尚无任何活动，看起来是一个新钱包。继续之前，请确认它属于您。</string>
     <string name="wallet_not_retroactive">连接钱包，即可从下一个周期开始赚取 SN25α。之前的周期不会追溯结算。</string>
-    <string name="wallet_options">钱包选项</string>
     <string name="wallet_sign_in_method_added">已添加钱包登录方式</string>
     <string name="welcome_offer_eyebrow">欢迎优惠</string>
     <string name="welcome_to_urnetwork">欢迎来到 URnetwork</string>

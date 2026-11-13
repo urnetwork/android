@@ -261,11 +261,8 @@
     <string name="connect_bittensor_wallet_to_add_sign_in_method">Bittensor ウォレットを接続して、サインイン方法として追加します。</string>
     <string name="connect_options">接続オプション</string>
     <string name="connect_seeker_wallet">Saga Genesisまたはシーカー事前予約トークンでウォレットを接続する</string>
-    <string name="connect_solana_wallet">Solana ウォレットを接続</string>
-    <string name="connect_solana_wallet_note">Solana ウォレットアプリを接続するか、Solana の USDC アドレスを手動で入力してください。</string>
     <string name="connect_solana_wallet_to_add_sign_in_method">Solana ウォレットを接続して、サインイン方法として追加します。</string>
     <string name="connect_to_location">%1$sに接続</string>
-    <string name="connect_wallet">ウォレットを接続</string>
     <string name="connect_wallet_first">先に Bittensor ウォレットを接続してください。</string>
     <string name="connected">接続済み</string>
     <string name="connecting_from">接続元</string>
@@ -367,7 +364,6 @@
     <string name="data_limit_reached">データ上限に達しました</string>
     <string name="data_usage">データ使用量</string>
     <string name="default_daily_data">デフォルトでは、毎日 %1$s を受け取れます。</string>
-    <string name="default_wallet">デフォルト</string>
     <string name="delete">削除</string>
     <string name="delete_account">アカウントを削除</string>
     <string name="delete_account_type_network_name">確認のため %1$s と入力してください。</string>
@@ -666,7 +662,6 @@
     <string name="enter">ゴー！</string>
     <string name="enter_a_bonus_referral_code">ボーナス紹介コードを入力</string>
     <string name="enter_a_password">パスワードを入力</string>
-    <string name="enter_a_solana_usdc_wallet_address">Solana USDCウォレットアドレスを入力してください</string>
     <string name="enter_address_manually">アドレスを手動で入力</string>
     <string name="enter_balance_code">残高コードを入力</string>
     <string name="enter_network_referral_code">ネットワーク紹介コードを入力してください</string>
@@ -674,14 +669,12 @@
     <string name="epoch_row_title">エポック %1$d</string>
     <string name="epoch_share_of_block">ブロックの %1$s</string>
     <string name="error_connecting_to_wallet">ウォレットへの接続エラー</string>
-    <string name="error_connecting_wallet_with_reason">ウォレットの接続中にエラーが発生しました：%1$s</string>
     <string name="error_deleting_account">申し訳ありません。アカウントの削除中にエラーが発生しました。</string>
     <string name="error_loading_account_plan">アカウントプランの読み込み中にエラーが発生しました。</string>
     <string name="error_logging_in_please_try_again">ログイン中にエラーが発生しました。もう一度お試しください。</string>
     <string name="error_redeeming_transfer_balance_code">転送残高コードの引き換え時にエラーが発生しました。</string>
     <string name="error_sending_password_reset_link">パスワードリセット用リンクの送信中にエラーが発生しました</string>
     <string name="error_sending_verification_code">確認コードの送信中にエラーが発生しました。</string>
-    <string name="error_setting_default_wallet_with_reason">デフォルトウォレットの設定中にエラーが発生しました：%1$s</string>
     <string name="error_signing_in_with_google">Google でのサインイン中にエラーが発生しました</string>
     <string name="error_updating_device_name">デバイス名の更新中にエラーが発生しました。</string>
     <string name="exclude_app">VPNから除外</string>
@@ -771,7 +764,6 @@
     <string name="intro_widgets_tap_to_add">ウィジェットをタップするとホーム画面に追加されます。</string>
     <string name="invalid_input">無効な入力</string>
     <string name="invalid_referral_code">このコードは無効です</string>
-    <string name="invalid_solana_address">有効な Solana アドレスではありません。</string>
     <string name="invalid_ss58_address">有効な Bittensor アドレスではありません。</string>
     <string name="ip_address">IPアドレス</string>
     <string name="ip_family_both">両方</string>
@@ -868,7 +860,6 @@
     <string name="login_verify_details">本人確認のために、送信したコードを入力してください。</string>
     <string name="login_verify_header">メールが届いています</string>
     <string name="longest_streak">最長連続</string>
-    <string name="make_default">デフォルトに設定</string>
     <string name="manage_devices">デバイスを管理</string>
     <string name="manage_devices_connecting">このデバイスを接続しています…</string>
     <string name="manage_devices_help">接続中のデバイスやプロキシは、それぞれプランの枠を 1 つ使います。使わなくなったものを削除すると、その枠が空きます。</string>
@@ -956,7 +947,6 @@
     <string name="no_solana_wallet_found">Solana の支払いを処理できるウォレットアプリが見つかりません。</string>
     <string name="no_solana_wallets_found">Solanaウォレットが見つかりません</string>
     <string name="no_wallets_found_alert_content">このデバイスにSolanaウォレットがインストールされていません。ウォレットをインストールして、もう一度お試しください。</string>
-    <string name="no_wallets_found_enter_address_manually">このデバイスに対応する Solana ウォレットアプリが見つかりません。代わりにウォレットのアドレスを貼り付けるには、「アドレスを手動で入力」を選択してください。</string>
     <string name="none">なし</string>
     <string name="notifications_label">通知</string>
     <string name="of_total">/ %1$s</string>
@@ -1001,8 +991,6 @@
     <string name="payment_past_due_update_payment">お支払い方法を更新</string>
     <string name="payment_problem">支払いの問題</string>
     <string name="payment_received_title">お支払いを受け付けました</string>
-    <string name="payout_wallet_updated">支払いウォレットを更新しました</string>
-    <string name="payouts_now_go_to">支払いは今後 %1$s に送られます。</string>
     <string name="peer_count_one">1 ピア</string>
     <string name="peer_count_other">%d ピア</string>
     <string name="pending_data_key">保留中</string>
@@ -1177,8 +1165,6 @@
     <string name="remove">削除</string>
     <string name="remove_rule">ルールを削除</string>
     <string name="remove_this_sign_in_method">このサインイン方法を削除しますか？</string>
-    <string name="remove_wallet">ウォレットを削除</string>
-    <string name="remove_wallet_moves_or_holds_payouts">USDC の支払いは、別の Solana または Polygon ウォレットがあればそちらに移り、なければウォレットを接続するまで保留されます。</string>
     <string name="resend_reset_link">リンクを再送信</string>
     <string name="resend_verify_code">コードを再送信</string>
     <string name="reset_extenders">エクステンダーをリセット</string>
@@ -1489,10 +1475,7 @@
     <string name="update_referral_network">紹介ネットワークを更新する</string>
     <string name="upgrade_now">今すぐアップグレード</string>
     <string name="upgrade_subscription">サブスクリプションをアップグレード</string>
-    <string name="usdc_payouts_until_migration">Bittensor への移行が完了するまで、USDC の支払いは引き続きこのウォレットに送られます。</string>
     <string name="usdc_solana_network_only">USDCはSolanaネットワークでのみ送金してください。他のネットワークで送金したUSDCは届きません。</string>
-    <string name="usdc_waiting">最後の USDC 支払い: %1$s USDC が送金待ち</string>
-    <string name="usdc_wallet_address">USDCウォレットアドレス</string>
     <string name="use_extender_settings">エクステンダー設定を使う</string>
     <string name="use_most_stable_provider">最も安定したプロバイダーを使用します</string>
     <string name="use_wireguard_socks_https_proxy">WireGuard / SOCKS / HTTPS プロキシを使う</string>
@@ -1549,7 +1532,6 @@
     <string name="wallet_connected_to_protocol">UR プロトコルに接続済みです。受け取りはここに届きます。Alpha は接続後の次のエポックから貯まります。</string>
     <string name="wallet_looks_new_warning">このアドレスには Bittensor チェーン上の活動がまだありません。新しいウォレットのようです。続行する前に、自分のものか確認してください。</string>
     <string name="wallet_not_retroactive">ウォレットを接続すると、次のエポックから SN25α を獲得できます。以前のエポックはさかのぼって精算されません。</string>
-    <string name="wallet_options">ウォレットのオプション</string>
     <string name="wallet_sign_in_method_added">ウォレットのサインイン方法を追加しました</string>
     <string name="welcome_offer_eyebrow">ウェルカムオファー</string>
     <string name="welcome_to_urnetwork">URnetworkへようこそ</string>

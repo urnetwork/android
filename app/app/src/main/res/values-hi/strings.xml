@@ -261,11 +261,8 @@
     <string name="connect_bittensor_wallet_to_add_sign_in_method">Bittensor वॉलेट को साइन-इन विधि के रूप में जोड़ने के लिए उसे कनेक्ट करें।</string>
     <string name="connect_options">कनेक्शन विकल्प</string>
     <string name="connect_seeker_wallet">सागा जेनेसिस या सीकर प्री-ऑर्डर टोकन के साथ एक वॉलेट कनेक्ट करें</string>
-    <string name="connect_solana_wallet">Solana वॉलेट कनेक्ट करें</string>
-    <string name="connect_solana_wallet_note">कोई Solana वॉलेट ऐप कनेक्ट करें, या Solana USDC पता मैन्युअल रूप से डालें।</string>
     <string name="connect_solana_wallet_to_add_sign_in_method">Solana वॉलेट को साइन-इन विधि के रूप में जोड़ने के लिए उसे कनेक्ट करें।</string>
     <string name="connect_to_location">%1$s से कनेक्ट करें</string>
-    <string name="connect_wallet">वॉलेट कनेक्ट करें</string>
     <string name="connect_wallet_first">पहले Bittensor वॉलेट कनेक्ट करें।</string>
     <string name="connected">कनेक्टेड</string>
     <string name="connecting_from">यहाँ से कनेक्ट</string>
@@ -367,7 +364,6 @@
     <string name="data_limit_reached">डेटा सीमा पूरी हो गई</string>
     <string name="data_usage">डेटा उपयोग</string>
     <string name="default_daily_data">डिफ़ॉल्ट रूप से, आपको हर दिन %1$s मिलता है।</string>
-    <string name="default_wallet">डिफ़ॉल्ट</string>
     <string name="delete">डिलीट करें</string>
     <string name="delete_account">अकाउंट डिलीट करें</string>
     <string name="delete_account_type_network_name">पुष्टि करने के लिए %1$s टाइप करें।</string>
@@ -666,7 +662,6 @@
     <string name="enter">दर्ज</string>
     <string name="enter_a_bonus_referral_code">बोनस रेफरल कोड दर्ज करें</string>
     <string name="enter_a_password">पासवर्ड दर्ज करें</string>
-    <string name="enter_a_solana_usdc_wallet_address">Solana USDC वॉलेट पता दर्ज करें</string>
     <string name="enter_address_manually">पता मैन्युअल रूप से डालें</string>
     <string name="enter_balance_code">बैलेंस कोड दर्ज करें</string>
     <string name="enter_network_referral_code">नेटवर्क रेफ़रल कोड दर्ज करें</string>
@@ -674,14 +669,12 @@
     <string name="epoch_row_title">एपोक %1$d</string>
     <string name="epoch_share_of_block">ब्लॉक का %1$s</string>
     <string name="error_connecting_to_wallet">वॉलेट से कनेक्ट करने में त्रुटि</string>
-    <string name="error_connecting_wallet_with_reason">आपका वॉलेट कनेक्ट करते समय त्रुटि हुई: %1$s</string>
     <string name="error_deleting_account">क्षमा करें, आपका खाता हटाते समय त्रुटि हुई।</string>
     <string name="error_loading_account_plan">आपके अकाउंट प्लान को लोड करने में त्रुटि हुई।</string>
     <string name="error_logging_in_please_try_again">लॉग इन करने में त्रुटि, कृपया पुनः प्रयास करें।</string>
     <string name="error_redeeming_transfer_balance_code">ट्रांसफर बैलेंस कोड रिडीम करने में त्रुटि।</string>
     <string name="error_sending_password_reset_link">पासवर्ड रीसेट लिंक भेजने में त्रुटि</string>
     <string name="error_sending_verification_code">सत्यापन कोड भेजने में त्रुटि हुई।</string>
-    <string name="error_setting_default_wallet_with_reason">डिफ़ॉल्ट वॉलेट सेट करने में त्रुटि: %1$s</string>
     <string name="error_signing_in_with_google">Google से साइन इन करने में त्रुटि</string>
     <string name="error_updating_device_name">डिवाइस का नाम अपडेट करते समय त्रुटि हुई।</string>
     <string name="exclude_app">VPN से बाहर रखें</string>
@@ -771,7 +764,6 @@
     <string name="intro_widgets_tap_to_add">किसी विजेट को होम स्क्रीन पर जोड़ने के लिए उस पर टैप करें।</string>
     <string name="invalid_input">अमान्य इनपुट</string>
     <string name="invalid_referral_code">यह कोड मान्य नहीं है</string>
-    <string name="invalid_solana_address">यह मान्य Solana पता नहीं है।</string>
     <string name="invalid_ss58_address">यह मान्य Bittensor पता नहीं है।</string>
     <string name="ip_address">IP पता</string>
     <string name="ip_family_both">दोनों</string>
@@ -868,7 +860,6 @@
     <string name="login_verify_details">हमें बताएं कि आप वास्तव में कौन हैं। अपनी पहचान सत्यापित करने के लिए हमने आपको जो कोड भेजा है उसे दर्ज करें।</string>
     <string name="login_verify_header">आपके पास एक ईमेल है</string>
     <string name="longest_streak">सबसे लंबी स्ट्रीक</string>
-    <string name="make_default">डिफ़ॉल्ट बनाएं</string>
     <string name="manage_devices">डिवाइस प्रबंधित करें</string>
     <string name="manage_devices_connecting">यह डिवाइस कनेक्ट हो रहा है…</string>
     <string name="manage_devices_help">हर कनेक्ट डिवाइस या प्रॉक्सी आपके प्लान की एक जगह लेता है। जिसका अब इस्तेमाल नहीं करते, उसे हटाकर उसकी जगह खाली करें।</string>
@@ -956,7 +947,6 @@
     <string name="no_solana_wallet_found">Solana भुगतान के लिए कोई वॉलेट ऐप नहीं मिला।</string>
     <string name="no_solana_wallets_found">कोई Solana वॉलेट नहीं मिला</string>
     <string name="no_wallets_found_alert_content">इस डिवाइस पर कोई Solana वॉलेट इंस्टॉल नहीं मिला. कृपया एक वॉलेट इंस्टॉल करें और फिर से प्रयास करें.</string>
-    <string name="no_wallets_found_enter_address_manually">इस डिवाइस पर कोई संगत Solana वॉलेट ऐप नहीं मिला। इसके बजाय अपने वॉलेट का पता पेस्ट करने के लिए \"पता मैन्युअल रूप से डालें\" चुनें।</string>
     <string name="none">कोई नहीं</string>
     <string name="notifications_label">सूचनाएं</string>
     <string name="of_total">%1$s में से</string>
@@ -1001,8 +991,6 @@
     <string name="payment_past_due_update_payment">भुगतान का तरीका अपडेट करें</string>
     <string name="payment_problem">भुगतान में समस्या</string>
     <string name="payment_received_title">भुगतान मिल गया</string>
-    <string name="payout_wallet_updated">पेआउट वॉलेट अपडेट किया गया</string>
-    <string name="payouts_now_go_to">भुगतान अब %1$s पर जाएंगे।</string>
     <string name="peer_count_one">1 पीयर</string>
     <string name="peer_count_other">%d पीयर</string>
     <string name="pending_data_key">लंबित</string>
@@ -1177,8 +1165,6 @@
     <string name="remove">हटाएं</string>
     <string name="remove_rule">नियम हटाएं</string>
     <string name="remove_this_sign_in_method">इस साइन-इन विधि को हटाएं?</string>
-    <string name="remove_wallet">वॉलेट हटाएं</string>
-    <string name="remove_wallet_moves_or_holds_payouts">USDC भुगतान आपके किसी दूसरे Solana या Polygon वॉलेट पर चले जाते हैं, या जब तक आप कोई वॉलेट कनेक्ट नहीं करते, तब तक रोक दिए जाते हैं।</string>
     <string name="resend_reset_link">लिंक फिर से भेजें</string>
     <string name="resend_verify_code">कोड फिर से भेजें</string>
     <string name="reset_extenders">एक्सटेंडर रीसेट करें</string>
@@ -1489,10 +1475,7 @@
     <string name="update_referral_network">रेफ़रल नेटवर्क अपडेट करें</string>
     <string name="upgrade_now">अभी अपग्रेड करें</string>
     <string name="upgrade_subscription">सदस्यता अपग्रेड करें</string>
-    <string name="usdc_payouts_until_migration">Bittensor पर माइग्रेशन पूरा होने तक USDC भुगतान इसी वॉलेट में आते रहेंगे।</string>
     <string name="usdc_solana_network_only">USDC केवल Solana नेटवर्क पर भेजें। किसी अन्य नेटवर्क पर भेजे गए USDC नहीं पहुंचेंगे।</string>
-    <string name="usdc_waiting">अंतिम USDC भुगतान: %1$s USDC प्रतीक्षा में</string>
-    <string name="usdc_wallet_address">USDC वॉलेट पता</string>
     <string name="use_extender_settings">एक्सटेंडर सेटिंग इस्तेमाल करें</string>
     <string name="use_most_stable_provider">सबसे स्थिर प्रदाता का उपयोग करता है</string>
     <string name="use_wireguard_socks_https_proxy">WireGuard / SOCKS / HTTPS प्रॉक्सी का उपयोग करें</string>
@@ -1549,7 +1532,6 @@
     <string name="wallet_connected_to_protocol">UR प्रोटोकॉल से कनेक्टेड। दावे यहीं आते हैं। Alpha कनेक्ट करने के बाद वाले एपोक से जमा होता है।</string>
     <string name="wallet_looks_new_warning">इस पते पर अभी Bittensor चेन पर कोई गतिविधि नहीं है। यह नया वॉलेट लगता है। आगे बढ़ने से पहले पक्का कर लें कि यह आपका है।</string>
     <string name="wallet_not_retroactive">अगले एपोक से SN25α कमाने के लिए वॉलेट कनेक्ट करें। पिछले एपोक पिछली तारीख से सेटल नहीं होते।</string>
-    <string name="wallet_options">वॉलेट विकल्प</string>
     <string name="wallet_sign_in_method_added">वॉलेट साइन-इन विधि जोड़ी गई</string>
     <string name="welcome_offer_eyebrow">स्वागत ऑफ़र</string>
     <string name="welcome_to_urnetwork">URnetwork में आपका स्वागत है</string>
