@@ -80,6 +80,7 @@
     <string name="balance_code_already_redeemed_message">Deze tegoedcode is al ingewisseld. Als je hem eerder hebt ingewisseld, staat de data al op je tegoed.</string>
     <string name="balance_code_data_added">%1$s data aan je tegoed toegevoegd.</string>
     <string name="balance_code_invalid_message">Die tegoedcode is niet geldig. Controleer de code en probeer het opnieuw.</string>
+    <string name="balance_code_pro_year">Een jaar Pro</string>
     <string name="balance_code_redeemed">Saldocode ingewisseld.</string>
     <string name="balance_code_transport_error">We konden de server niet bereiken — controleer je verbinding. Als er geld is afgeschreven, is de code misschien al toegepast; controleer je tegoed voordat je het opnieuw probeert.</string>
     <string name="balance_code_where_to_buy">Nog geen code? Datacodes koop je op ur.io en krijg je per e-mail toegestuurd.</string>
@@ -722,6 +723,9 @@
     <string name="get_pro">Word Pro</string>
     <string name="get_started">Aan de slag</string>
     <string name="get_urnetwork_free_for_life_by_participating">Krijg URnetwork gratis voor altijd door deel te nemen</string>
+    <string name="gift_does_not_renew">Een cadeau. Wordt niet verlengd.</string>
+    <string name="gift_pro_redeemed">Een jaar Pro is van jou.</string>
+    <string name="gift_pro_redeemed_queued">Het jaar Pro dat je cadeau hebt gekregen, begint op %1$s, na je huidige Pro-periode.</string>
     <string name="go_back">Terug</string>
     <string name="google">Google</string>
     <string name="google_auth_btn_text">Log in met google</string>

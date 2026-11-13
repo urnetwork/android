@@ -47,10 +47,18 @@ fun AccountPaymentNotices(
 ) {
 }
 
-/** The Settings plan row's subscription line: this flavor's manage button, as before. */
+/**
+ * The Settings plan row's subscription line: a gift's year of Pro (store family
+ * SubscriptionStoreGift) does not renew and has nothing to manage, so it says
+ * so; any other keeps this flavor's manage button, as before.
+ */
 @Composable
 fun SubscriptionManageLine(currentStore: String?, stripePortalUrl: String?) {
-    ManageSubscriptionButton(stripePortalUrl)
+    if (isGiftStore(currentStore)) {
+        GiftDoesNotRenewLine()
+    } else {
+        ManageSubscriptionButton(stripePortalUrl)
+    }
 }
 
 /**

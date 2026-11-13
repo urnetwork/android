@@ -82,6 +82,7 @@
     <string name="balance_code_already_redeemed_message">This balance code has already been redeemed. If you redeemed it earlier, the data is already on your balance.</string>
     <string name="balance_code_data_added">%1$s of data added to your balance.</string>
     <string name="balance_code_invalid_message">That balance code isn\'t valid. Check the code and try again.</string>
+    <string name="balance_code_pro_year">A year of Pro</string>
     <string name="balance_code_redeemed">Balance code redeemed.</string>
     <string name="balance_code_transport_error">We couldn\'t reach the server — check your connection. If you were charged, the code may already be applied; check your balance before trying again.</string>
     <string name="balance_code_where_to_buy">Don\'t have a code? Data codes can be purchased at ur.io and emailed to you.</string>
@@ -729,6 +730,9 @@
     <string name="get_pro">Get Pro</string>
     <string name="get_started">Get started</string>
     <string name="get_urnetwork_free_for_life_by_participating">Get URnetwork free for life by participating</string>
+    <string name="gift_does_not_renew">A gift. It doesn\'t renew.</string>
+    <string name="gift_pro_redeemed">A year of Pro is yours.</string>
+    <string name="gift_pro_redeemed_queued">Your gift year of Pro starts on %1$s, after your current Pro period.</string>
     <string name="go_back">Go Back</string>
     <string name="google">Google</string>
     <string name="google_auth_btn_text">Log in with Google</string>

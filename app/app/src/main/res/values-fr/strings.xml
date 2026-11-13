@@ -80,6 +80,7 @@
     <string name="balance_code_already_redeemed_message">Ce code de solde a déjà été utilisé. Si vous l’avez utilisé plus tôt, les données sont déjà sur votre solde.</string>
     <string name="balance_code_data_added">%1$s de données ajoutées à votre solde.</string>
     <string name="balance_code_invalid_message">Ce code de solde n’est pas valide. Vérifiez le code et réessayez.</string>
+    <string name="balance_code_pro_year">Un an de Pro</string>
     <string name="balance_code_redeemed">Code de solde utilisé.</string>
     <string name="balance_code_transport_error">Impossible de joindre le serveur — vérifiez votre connexion. Si vous avez été débité, le code est peut-être déjà appliqué ; vérifiez votre solde avant de réessayer.</string>
     <string name="balance_code_where_to_buy">Pas de code ? Les codes de données s\'achètent sur ur.io et vous sont envoyés par e-mail.</string>
@@ -722,6 +723,9 @@
     <string name="get_pro">Passer à Pro</string>
     <string name="get_started">Commencer</string>
     <string name="get_urnetwork_free_for_life_by_participating">Obtenez URnetwork gratuitement à vie en participant</string>
+    <string name="gift_does_not_renew">Offert. Ne se renouvelle pas.</string>
+    <string name="gift_pro_redeemed">Un an de Pro est à vous.</string>
+    <string name="gift_pro_redeemed_queued">Votre année de Pro offerte commence le %1$s, à la fin de votre période Pro en cours.</string>
     <string name="go_back">Revenir</string>
     <string name="google">Google</string>
     <string name="google_auth_btn_text">Connectez-vous avec Google</string>

@@ -80,6 +80,7 @@
     <string name="balance_code_already_redeemed_message">यह बैलेंस कोड पहले ही रिडीम हो चुका है। अगर आपने इसे पहले रिडीम किया था, तो डेटा पहले से आपके बैलेंस में है।</string>
     <string name="balance_code_data_added">आपके बैलेंस में %1$s डेटा जोड़ा गया।</string>
     <string name="balance_code_invalid_message">यह बैलेंस कोड मान्य नहीं है। कोड जाँचें और दोबारा कोशिश करें।</string>
+    <string name="balance_code_pro_year">Pro का एक साल</string>
     <string name="balance_code_redeemed">बैलेंस कोड रिडीम कर लिया गया।</string>
     <string name="balance_code_transport_error">हम सर्वर तक नहीं पहुँच सके — अपना कनेक्शन जाँचें। अगर आपसे शुल्क लिया गया है, तो हो सकता है कोड पहले ही लागू हो चुका हो; दोबारा कोशिश करने से पहले अपना बैलेंस जाँचें।</string>
     <string name="balance_code_where_to_buy">कोड नहीं है? डेटा कोड ur.io पर खरीदे जा सकते हैं और आपको ईमेल कर दिए जाते हैं।</string>
@@ -722,6 +723,9 @@
     <string name="get_pro">प्रो प्राप्त करें</string>
     <string name="get_started">आरंभ करें</string>
     <string name="get_urnetwork_free_for_life_by_participating">भाग लेकर URnetwork जीवनभर मुफ्त पाएं</string>
+    <string name="gift_does_not_renew">एक उपहार। नवीनीकृत नहीं होता।</string>
+    <string name="gift_pro_redeemed">Pro का एक साल अब आपका है।</string>
+    <string name="gift_pro_redeemed_queued">उपहार में मिला Pro का साल आपकी मौजूदा Pro अवधि खत्म होने के बाद, %1$s से शुरू होगा।</string>
     <string name="go_back">वापस जाएँ</string>
     <string name="google">Google</string>
     <string name="google_auth_btn_text">Google से लॉग इन करें</string>

@@ -80,6 +80,7 @@
     <string name="balance_code_already_redeemed_message">Αυτός ο κωδικός υπολοίπου έχει ήδη εξαργυρωθεί. Αν τον εξαργυρώσατε νωρίτερα, τα δεδομένα βρίσκονται ήδη στο υπόλοιπό σας.</string>
     <string name="balance_code_data_added">Προστέθηκαν %1$s δεδομένων στο υπόλοιπό σας.</string>
     <string name="balance_code_invalid_message">Αυτός ο κωδικός υπολοίπου δεν είναι έγκυρος. Ελέγξτε τον κωδικό και δοκιμάστε ξανά.</string>
+    <string name="balance_code_pro_year">Ένα έτος Pro</string>
     <string name="balance_code_redeemed">Ο κωδικός υπολοίπου εξαργυρώθηκε.</string>
     <string name="balance_code_transport_error">Δεν μπορέσαμε να επικοινωνήσουμε με τον διακομιστή — ελέγξτε τη σύνδεσή σας. Αν χρεωθήκατε, ο κωδικός ίσως έχει ήδη εφαρμοστεί· ελέγξτε το υπόλοιπό σας πριν δοκιμάσετε ξανά.</string>
     <string name="balance_code_where_to_buy">Δεν έχετε κωδικό; Οι κωδικοί δεδομένων αγοράζονται στο ur.io και αποστέλλονται με email.</string>
@@ -722,6 +723,9 @@
     <string name="get_pro">Απόκτησε το Pro</string>
     <string name="get_started">Ξεκίνα</string>
     <string name="get_urnetwork_free_for_life_by_participating">Αποκτήστε το URnetwork δωρεάν για πάντα συμμετέχοντας</string>
+    <string name="gift_does_not_renew">Δώρο. Δεν ανανεώνεται.</string>
+    <string name="gift_pro_redeemed">Ένα έτος Pro είναι πλέον δικό σας.</string>
+    <string name="gift_pro_redeemed_queued">Το έτος Pro που λάβατε δώρο ξεκινά στις %1$s, μετά τη λήξη της τρέχουσας περιόδου Pro σας.</string>
     <string name="go_back">Επιστροφή</string>
     <string name="google">Google</string>
     <string name="google_auth_btn_text">Συνδέσου με Google</string>

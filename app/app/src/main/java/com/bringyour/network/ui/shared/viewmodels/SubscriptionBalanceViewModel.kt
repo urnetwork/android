@@ -19,6 +19,7 @@ import com.bringyour.network.ForegroundPollingSession
 import com.bringyour.network.JwtManager
 import com.bringyour.network.ui.account.GuestAccount
 import com.bringyour.network.ui.upgrade.PastDueRenewal
+import com.bringyour.network.ui.upgrade.planStore
 import com.bringyour.network.TAG
 import com.bringyour.sdk.AuthCodeCreateArgs
 import com.bringyour.sdk.ExperimentAssignmentList
@@ -53,6 +54,8 @@ class SubscriptionBalanceViewModel @Inject constructor(
     @dagger.hilt.android.qualifiers.ApplicationContext private val appContext: android.content.Context,
 ): ViewModel(), DefaultLifecycleObserver {
 
+    // the store the plan rows describe (planStore): the current subscription's,
+    // null when there is none
     private val _currentStore = MutableStateFlow<String?>(null)
     val currentStore: StateFlow<String?> get() = _currentStore
 
@@ -588,9 +591,13 @@ class SubscriptionBalanceViewModel @Inject constructor(
                                 deviceManager.device?.refreshToken(0)
                             }
 
-                            result.currentSubscription?.store.let { store ->
-                                _currentStore.value = store
-                            }
+                            // the store the plan rows describe: a gift's year of Pro,
+                            // unless a store subscription still charging overlaps it
+                            // (planStore), whose manage control then stays
+                            val activeStores = result.subscriptions?.let { subscriptions ->
+                                (0 until subscriptions.len()).mapNotNull { i -> subscriptions.get(i)?.store }
+                            } ?: emptyList()
+                            _currentStore.value = planStore(result.currentSubscription?.store, activeStores)
 
                             // the onboarding plan data: absent on an older server
                             result.priceTier?.let { _priceTier.value = it }

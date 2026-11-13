@@ -80,6 +80,7 @@
     <string name="balance_code_already_redeemed_message">Ten kod salda został już wykorzystany. Jeśli wykorzystano go wcześniej, dane są już na twoim saldzie.</string>
     <string name="balance_code_data_added">Do twojego salda dodano %1$s danych.</string>
     <string name="balance_code_invalid_message">Ten kod salda jest nieprawidłowy. Sprawdź kod i spróbuj ponownie.</string>
+    <string name="balance_code_pro_year">Rok Pro</string>
     <string name="balance_code_redeemed">Kod salda zrealizowany.</string>
     <string name="balance_code_transport_error">Nie udało się połączyć z serwerem — sprawdź połączenie. Jeśli pobrano opłatę, kod mógł już zostać zastosowany; sprawdź saldo, zanim spróbujesz ponownie.</string>
     <string name="balance_code_where_to_buy">Nie masz kodu? Kody danych można kupić na ur.io i otrzymać e-mailem.</string>
@@ -722,6 +723,9 @@
     <string name="get_pro">Zdobądź Pro</string>
     <string name="get_started">Rozpocznij</string>
     <string name="get_urnetwork_free_for_life_by_participating">Zdobądź URnetwork za darmo na całe życie, uczestnicząc</string>
+    <string name="gift_does_not_renew">Podarunek. Nie odnawia się.</string>
+    <string name="gift_pro_redeemed">Rok Pro jest teraz twój.</string>
+    <string name="gift_pro_redeemed_queued">Twój podarowany rok Pro zacznie się %1$s, po zakończeniu obecnego okresu Pro.</string>
     <string name="go_back">Wróć</string>
     <string name="google">Google</string>
     <string name="google_auth_btn_text">Zaloguj się przez Google</string>

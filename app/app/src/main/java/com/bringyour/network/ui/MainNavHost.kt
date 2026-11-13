@@ -1207,10 +1207,11 @@ fun IntroNavHost(
                     dismiss()
                 },
                 onRedeemTransferBalanceCodeSuccess = {
-                    // a balance code is data only: the sheet confirmed the data it
-                    // added; read the balance once and finish the intro. The Pro
-                    // overlay and the Pro confirmation poll would wait for a plan a
-                    // code never grants.
+                    // the sheet confirmed what the code added: data, or a gift
+                    // code's year of Pro. The redeem is committed when the server
+                    // answers, so one balance read shows either, Pro included (it
+                    // refreshes the token when Pro changes); then finish the intro.
+                    // The purchase overlay and its confirmation poll are for payments.
                     subscriptionBalanceViewModel.fetchSubscriptionBalance()
                     dismiss()
                 },
@@ -1854,6 +1855,7 @@ fun MainNavContent(
                 ) {
                     BalanceCodesScreen(
                         navController = navController,
+                        subscriptionBalanceViewModel = subscriptionBalanceViewModel,
                     )
                 }
 
