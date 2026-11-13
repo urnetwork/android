@@ -77,9 +77,23 @@ class SnLedgerClaimTest {
         // answer (the sdk's fallback to the client token, or a server before the network's
         // answer); unset, the network's ("")
         val winClientFor = mutableMapOf<Int, String>()
+        // the ledger reads by the order they started, from 0: read n with a gate in
+        // ledgerGateFor answers what the ledger held as it started, once the gate opens
+        var ledgerStarts = 0
+        val ledgerGateFor = mutableMapOf<Int, CompletableDeferred<Unit>>()
+        // when set, the next gas balance read waits for it
+        var gasGate: CompletableDeferred<Unit>? = null
 
         override val available: Boolean = true
         override suspend fun ledgerAccounts(): Result<SnLedgerAccounts> {
+            val started = ledgerStarts++
+            ledgerGateFor[started]?.let { gate ->
+                // the ledger answered as the read started; the answer is on its way
+                val answer = accounts.map { SnLedgerAccounts(it, unavailablePools) }
+                gate.await()
+                reads += 1
+                return answer
+            }
             readGate?.await()
             reads += 1
             return accounts.map { SnLedgerAccounts(it, unavailablePools) }
@@ -94,8 +108,14 @@ class SnLedgerClaimTest {
             this.onEvent = onEvent
         }
         override fun gasKey(): SnGasKeyState? = key
-        override suspend fun gasBalance(): Result<SnGasBalanceState> =
-            Result.success(SnGasBalanceState("0", gasTao))
+        override suspend fun gasBalance(): Result<SnGasBalanceState> {
+            val tao = gasTao
+            gasGate?.let { gate ->
+                gasGate = null
+                gate.await()
+            }
+            return Result.success(SnGasBalanceState("0", tao))
+        }
         override suspend fun ctfWins(): Result<SnCtfWinsAnswer> {
             val started = winStarts++
             winGate?.await()
@@ -2042,5 +2062,192 @@ class SnLedgerClaimTest {
         gate.complete(Unit)
         assertEquals(4, next.winReads)
         assertEquals(emptyList<SnCtfWinState>(), second.wins.value)
+    }
+
+    // ---- the reads by the order they started (every app, 2026-11-12)
+
+    /** pool1 once the claim paid it */
+    private val pool1Paid = pool1.copy(claimableRao = 0, paidRao = 5_120_000_000)
+
+    @Test
+    fun `a read from before a claim's Done that lands after the read at Done puts back nothing it paid`() {
+        val source = sourceWith(pool1)
+        val flow = flowFor(source)
+        flow.open()
+        flow.claim()
+        // a refresh during the claim, slow to answer: the ledger as it was before the claim
+        val before = CompletableDeferred<Unit>()
+        source.ledgerGateFor[source.ledgerStarts] = before
+        CoroutineScope(Dispatchers.Unconfined).launch { flow.refresh() }
+        source.onEvent(SnLedgerClaimEvent.Sent(1, 42, txHash1))
+        source.onEvent(SnLedgerClaimEvent.Confirmed(1, 42, txHash1, pool1.claimableRao))
+        source.accounts = Result.success(listOf(pool1Paid))
+        source.onEvent(SnLedgerClaimEvent.Done)
+        // the read at Done: the account paid, and no Claim on the tile
+        assertEquals(SnLedgerLoad.Loaded(listOf(pool1Paid)), flow.load.value)
+        // the read from before the Done lands after it: nothing it paid comes back
+        before.complete(Unit)
+        assertEquals(SnLedgerLoad.Loaded(listOf(pool1Paid)), flow.load.value)
+        assertFalse(snLedgerTile(flow.load.value, flow.claimConfigured.value)!!.claimEnabled)
+        // nor in a dialog opened now
+        flow.close()
+        flow.open()
+        assertEquals(SnLedgerClaimDialogState.Ready(emptyList(), 0, gasKey, 0.124), flow.dialog.value)
+        flow.claim()
+        assertEquals(1, source.claims)
+    }
+
+    @Test
+    fun `the dialog's read is never replaced by a read from before the Done that lands while its gas is read`() {
+        // the dialog reads the accounts and the gas side by side and draws once both answered
+        val source = sourceWith(pool1)
+        val flow = flowFor(source)
+        flow.open()
+        flow.claim()
+        val before = CompletableDeferred<Unit>()
+        source.ledgerGateFor[source.ledgerStarts] = before
+        CoroutineScope(Dispatchers.Unconfined).launch { flow.refresh() }
+        source.onEvent(SnLedgerClaimEvent.Confirmed(1, 42, txHash1, pool1.claimableRao))
+        source.accounts = Result.success(listOf(pool1Paid))
+        source.onEvent(SnLedgerClaimEvent.Done)
+        flow.close()
+        // opened again: its own read answers at once, its gas read is slow
+        val gas = CompletableDeferred<Unit>()
+        source.gasGate = gas
+        flow.open()
+        assertEquals(SnLedgerClaimDialogState.Loading, flow.dialog.value)
+        // the read from before the Done lands while the gas is still read
+        before.complete(Unit)
+        gas.complete(Unit)
+        assertEquals(SnLedgerClaimDialogState.Ready(emptyList(), 0, gasKey, 0.124), flow.dialog.value)
+        flow.claim()
+        assertEquals(1, source.claims)
+    }
+
+    @Test
+    fun `a dialog drawn before another activity's claim ended reads again and offers nothing it paid`() {
+        // two activities of the session (a notification opens a second MainActivity over the first):
+        // the one below has its dialog drawn, the one on top claims
+        val claims = SnClaimHolder(CoroutineScope(Dispatchers.Unconfined))
+        val device = Any()
+        val source = sourceWith(pool1)
+        val below = SnLedgerFlow(CoroutineScope(Dispatchers.Unconfined), { true }, { 0 }, claims).also { it.reset(source, device) }
+        below.open()
+        assertEquals(SnLedgerClaimDialogState.Ready(listOf(pool1), pool1.claimableRao, gasKey, 0.124), below.dialog.value)
+        val top = SnLedgerFlow(CoroutineScope(Dispatchers.Unconfined), { true }, { 0 }, claims).also { it.reset(source, device) }
+        top.open()
+        top.claim()
+        assertEquals(1, source.claims)
+        source.onEvent(SnLedgerClaimEvent.Confirmed(1, 42, txHash1, pool1.claimableRao))
+        source.accounts = Result.success(listOf(pool1Paid))
+        source.onEvent(SnLedgerClaimEvent.Done)
+        // the dialog below read again: nothing left to claim, and its Claim starts nothing
+        assertEquals(SnLedgerClaimDialogState.Ready(emptyList(), 0, gasKey, 0.124), below.dialog.value)
+        below.claim()
+        assertEquals(1, source.claims)
+        // the one on top shows the claim's end
+        assertTrue(top.dialog.value is SnLedgerClaimDialogState.Finished)
+    }
+
+    @Test
+    fun `a dialog whose read was out when another activity's claim ended waits for the read after it`() {
+        val claims = SnClaimHolder(CoroutineScope(Dispatchers.Unconfined))
+        val device = Any()
+        val source = sourceWith(pool1)
+        val below = SnLedgerFlow(CoroutineScope(Dispatchers.Unconfined), { true }, { 0 }, claims).also { it.reset(source, device) }
+        // its dialog opens on a slow read: the ledger before the claim
+        val before = CompletableDeferred<Unit>()
+        source.ledgerGateFor[source.ledgerStarts] = before
+        below.open()
+        assertEquals(SnLedgerClaimDialogState.Loading, below.dialog.value)
+        val top = SnLedgerFlow(CoroutineScope(Dispatchers.Unconfined), { true }, { 0 }, claims).also { it.reset(source, device) }
+        top.open()
+        top.claim()
+        source.onEvent(SnLedgerClaimEvent.Confirmed(1, 42, txHash1, pool1.claimableRao))
+        source.accounts = Result.success(listOf(pool1Paid))
+        // the reads the Done starts are slow too: below, its dialog's again and the one after
+        // every claim; on top, the one after its claim
+        val after = CompletableDeferred<Unit>()
+        for (i in 0 until 3) {
+            source.ledgerGateFor[source.ledgerStarts + i] = after
+        }
+        source.onEvent(SnLedgerClaimEvent.Done)
+        assertEquals(SnLedgerClaimDialogState.Loading, below.dialog.value)
+        // the read from before the Done lands first: no Claim from it
+        before.complete(Unit)
+        assertEquals(SnLedgerClaimDialogState.Loading, below.dialog.value)
+        // the read after it answers
+        after.complete(Unit)
+        assertEquals(SnLedgerClaimDialogState.Ready(emptyList(), 0, gasKey, 0.124), below.dialog.value)
+        assertEquals(SnLedgerLoad.Loaded(listOf(pool1Paid)), below.load.value)
+        below.claim()
+        assertEquals(1, source.claims)
+    }
+
+    @Test
+    fun `the newest read decides the ledger, a failed one unavailable, whatever order they answer in`() {
+        // the ledger's rule: the newest read decides, a failed one unavailable
+        val source = sourceWith(pool1)
+        val flow = flowFor(source)
+        val first = CompletableDeferred<Unit>()
+        source.ledgerGateFor[source.ledgerStarts] = first
+        CoroutineScope(Dispatchers.Unconfined).launch { flow.refresh() }
+        source.accounts = Result.failure(SnProtocolException("ledger_unavailable", "refused the ledger answer"))
+        runBlocking { flow.refresh() }
+        assertEquals(SnLedgerLoad.Unavailable, flow.load.value)
+        // the older read's good answer lands after the newer read's failure: the newer decides
+        first.complete(Unit)
+        assertEquals(SnLedgerLoad.Unavailable, flow.load.value)
+        // and the other way round: an older read's failure after a newer good answer
+        val failed = CompletableDeferred<Unit>()
+        source.ledgerGateFor[source.ledgerStarts] = failed
+        CoroutineScope(Dispatchers.Unconfined).launch { flow.refresh() }
+        source.accounts = Result.success(listOf(pool1))
+        runBlocking { flow.refresh() }
+        failed.complete(Unit)
+        assertEquals(SnLedgerLoad.Loaded(listOf(pool1)), flow.load.value)
+    }
+
+    @Test
+    fun `the reads' order, as the v1 claims read and the gas read take it`() {
+        // EarningsViewModel.refreshClaims numbers each read as it starts and shows an answer only
+        // through the order; a failed read keeps what shows (SnLedgerWiringTest pins the wiring:
+        // the view model needs a device, which these JVM tests do not have)
+        val order = SnReadOrder()
+        // the dialog's own read, with no claim done yet
+        val opened = order.start()
+        assertTrue(order.sinceDone(opened))
+        assertTrue(order.apply(opened))
+        // a refresh during a claim, then the claim's Done and the read at Done
+        val during = order.start()
+        order.done()
+        assertFalse(order.sinceDone(during))
+        val atDone = order.start()
+        assertTrue(order.sinceDone(atDone))
+        // the read at Done answers first; the one from before lands after it: no epoch the claim
+        // paid comes back, and its failure would say nothing either
+        assertTrue(order.apply(atDone))
+        assertFalse(order.applies(during))
+        assertFalse(order.apply(during))
+        // a read that fails says so while no read that started after it answered, and applies
+        // nothing: an older read's good answer still to land shows
+        val older = order.start()
+        val newer = order.start()
+        assertTrue(order.applies(newer))
+        assertTrue(order.apply(older))
+        assertTrue(order.applies(newer))
+        assertTrue(order.apply(newer))
+        assertFalse(order.applies(older))
+        // another device or a sign-out: no read from before it shows
+        val out = order.start()
+        order.reset()
+        assertFalse(order.applies(out))
+        assertFalse(order.apply(out))
+        val next = order.start()
+        assertTrue(order.apply(next))
+        // a Done marks only the reads out when it came
+        order.done()
+        assertFalse(order.sinceDone(next))
+        assertTrue(order.sinceDone(order.start()))
     }
 }

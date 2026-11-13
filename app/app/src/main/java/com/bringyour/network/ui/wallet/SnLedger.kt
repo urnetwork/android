@@ -383,6 +383,62 @@ class SnCtfWinsLines {
 }
 
 /**
+ * The reads of one part of what a claim dialog offers Claim from: the v1
+ * epoch claims, the v2 accounts, or the gas balance. Reads overlap (a
+ * refresh's, a dialog's, a claim's Done's) and their answers land in any
+ * order, so each is numbered as it starts: an answer applies only if no read
+ * of the part that started after it has applied. A read from before a claim's
+ * Done that lands after the read at Done never puts back what the claim paid.
+ * A failed read where the part keeps what it shows (the v1 claims, the gas
+ * balance) applies nothing: it only asks whether it is still the newest word
+ * ([applies]), so an older read's good answer still to land shows.
+ *
+ * A claim's Done ([done]) makes every read of its kind out at that moment one
+ * from before it, and a dialog offers Claim only from a read that started
+ * after its kind's last Done ([sinceDone]). Per kind: a v2 claim moves
+ * nothing a v1 read shows, and back, and the gas both spend the SDK checks
+ * again before it sends. As every app orders these reads (2026-11-12).
+ */
+class SnReadOrder {
+    // the newest read's number
+    private var started = 0L
+
+    // the read whose answer the part shows
+    private var shown = 0L
+
+    // the reads up to this one started before the last claim's Done
+    private var doneAt = 0L
+
+    /** A read starts: its number, which its answer carries. */
+    fun start(): Long = ++started
+
+    /** No read that started after [read] has applied: its answer is the newest word. */
+    fun applies(read: Long): Boolean = shown < read
+
+    /** The answer of [read] shows from now, unless a read that started after it applied: true when it does. */
+    fun apply(read: Long): Boolean {
+        if (!applies(read)) {
+            return false
+        }
+        shown = read
+        return true
+    }
+
+    /** A claim of the part's kind is done: every read out now started before it. */
+    fun done() {
+        doneAt = started
+    }
+
+    /** [read] started after the last claim's Done of the part's kind. */
+    fun sinceDone(read: Long): Boolean = doneAt < read
+
+    /** A sign-in or another device: no answer of a read from before shows. */
+    fun reset() {
+        shown = started
+    }
+}
+
+/**
  * When the wins are read again after a claim that paid an account, in ms
  * after its Done, beside the read at Done (every app's schedule). The SDK's
  * Done comes once the claim is in a block, but the server says a win is
@@ -1010,6 +1066,11 @@ class SnClaimHolder internal constructor(
  * the session is there, and the accounts and the wins are read again after
  * its Done. Only another device or a sign-out (a reset for another session)
  * drops it.
+ *
+ * The reads of the accounts go by the order they started ([reads]): a read
+ * from before a claim's Done that lands late never puts back the accounts the
+ * claim paid, and the dialog offers Claim only from a read that started after
+ * the last v2 claim's Done.
  */
 class SnLedgerFlow(
     private val scope: CoroutineScope,
@@ -1031,6 +1092,11 @@ class SnLedgerFlow(
 
     private val _load = MutableStateFlow<SnLedgerLoad>(SnLedgerLoad.Loading)
     val load: StateFlow<SnLedgerLoad> = _load.asStateFlow()
+
+    // the reads of the accounts by the order they started: an answer shows
+    // unless a read that started after it has, a failed read's unavailable
+    // too, and a v2 claim's Done makes the reads out then ones from before it
+    private val reads = SnReadOrder()
 
     // the capture the flag slots won and not claimed yet (GET /sn/ctf/client),
     // newest first, a line each on the tile: the session's (the holder's), as
@@ -1060,6 +1126,15 @@ class SnLedgerFlow(
 
         override fun claimDone(settled: List<SnLedgerClaimProgress>, transferFloorRao: Long) {
             _claimInFlight.value = false
+            // a read out now may list what the claim paid
+            reads.done()
+            // a dialog on a read from before it (the claim was another
+            // activity's flow's) offers no Claim from that read: it reads again
+            val dialog = _dialog.value
+            if (dialog is SnLedgerClaimDialogState.Ready || dialog == SnLedgerClaimDialogState.Loading) {
+                _dialog.value = SnLedgerClaimDialogState.Loading
+                scope.launch { loadDialog() }
+            }
             scope.launch { finishClaim(settled, transferFloorRao) }
         }
 
@@ -1087,6 +1162,7 @@ class SnLedgerFlow(
         this.source = source
         this.session = session
         _load.value = SnLedgerLoad.Loading
+        reads.reset()
         _claimConfigured.value = false
         _dialog.value = null
         detach?.invoke()
@@ -1115,12 +1191,18 @@ class SnLedgerFlow(
         claims.applyWins(owner, read, answer.getOrNull())
     }
 
-    /** Reads the accounts; without a wallet there are none to read. */
-    suspend fun refresh() {
+    /**
+     * Reads the accounts; without a wallet there are none to read. Returns
+     * the read's number ([reads]), which the dialog reading with it checks
+     * against the last v2 claim's Done.
+     */
+    suspend fun refresh(): Long {
         val s = source
+        val read = reads.start()
         if (!s.available || !hasWallet()) {
+            reads.apply(read)
             _load.value = SnLedgerLoad.Loading
-            return
+            return read
         }
         // the release pins vault2, so a configured tile shows its spinner during the first read
         _claimConfigured.value = s.ledgerClaimConfigured()
@@ -1128,9 +1210,11 @@ class SnLedgerFlow(
             onSuccess = { SnLedgerLoad.Loaded(it.accounts, it.unavailablePools) },
             onFailure = { SnLedgerLoad.Unavailable },
         )
-        if (s === source) {
+        // a read that started after this one and answered first is the newer word
+        if (s === source && reads.apply(read)) {
             _load.value = load
         }
+        return read
     }
 
     /** The tile's Claim: the dialog, or the session's claim still in flight. */
@@ -1156,14 +1240,23 @@ class SnLedgerFlow(
         scope.launch { loadDialog() }
     }
 
+    /**
+     * The dialog from its own read of the accounts, beside the gas balance's.
+     * The accounts are this read's answer or a newer read's: one from before
+     * that lands while the gas is still read applies nothing ([reads]). A v2
+     * claim that ended while this read was out (another activity's flow's)
+     * may have paid what it lists: the dialog waits for the read its Done
+     * started.
+     */
     private suspend fun loadDialog() {
         val s = source
         var gasTao: Double? = null
+        var read = 0L
         coroutineScope {
-            launch { refresh() }
+            launch { read = refresh() }
             launch { gasTao = s.gasBalance().getOrNull()?.tao }
         }
-        if (s !== source || _dialog.value != SnLedgerClaimDialogState.Loading) {
+        if (s !== source || _dialog.value != SnLedgerClaimDialogState.Loading || !reads.sinceDone(read)) {
             return
         }
         _dialog.value = snLedgerClaimDialog(_load.value, s.gasKey(), gasTao, transferFloorRao())

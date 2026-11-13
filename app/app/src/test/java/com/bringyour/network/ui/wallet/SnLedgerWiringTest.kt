@@ -293,6 +293,52 @@ class SnLedgerWiringTest {
     }
 
     @Test
+    fun `the v1 claims and the gas balance are read by the order the reads started`() {
+        // every app, 2026-11-12: each read numbered as it starts, an answer shown only unless a
+        // read that started after it has, a failed claims read said only while it is the newest
+        // word, and a dialog's Claim only from a read that started after the last v1 Done (the
+        // order's rules run in SnLedgerClaimTest: the reads' order; the view model needs a device)
+        val model = source("EarningsViewModel.kt")
+        val read = between(model, "private suspend fun refreshClaims(): Long {", "\n    }\n")
+        val gasRead = read.indexOf("val gasRead = gasReads.start()")
+        assertTrue(0 <= gasRead && gasRead < read.indexOf("s.gasBalance()"))
+        assertTrue(read.contains(".onSuccess { if (gasReads.apply(gasRead)) _gasBalance.value = it }"))
+        assertTrue(read.contains("val read = claimsReads.start()\n        s.claims()"))
+        assertTrue(read.contains("if (claimsReads.apply(read)) {\n                    _claims.value = it.claims"))
+        assertTrue(read.contains("if (claimsReads.applies(read)) {\n                    _claimsError.value = claimsReadFailureMessage(it)"))
+        assertTrue(read.trimEnd().endsWith("return read"))
+        // no other way into the claims shown
+        assertEquals(1, Regex("_claims\\.value = it\\.claims").findAll(model).count())
+        assertEquals(1, Regex("_gasBalance\\.value = it").findAll(model).count())
+        // the dialog: from its own read, and only from one that started after the last v1 Done
+        val load = between(model, "private suspend fun loadClaimDialog() {", "\n    }\n")
+        assertTrue(load.contains("val read = refreshClaims()\n        if (_claimDialog.value != ClaimDialogState.Loading || !claimsReads.sinceDone(read)) {\n            return\n        }"))
+        // a v1 claim's Done marks the reads out then, and a dialog drawn or loading on one of
+        // them (another activity's claim) reads again
+        val ear = between(model, "private val epochClaimListener = object : SnClaimHolder.Listener {", "\n    }\n")
+        val doneAt = ear.indexOf("override fun epochClaimDone(")
+        assertTrue(0 <= doneAt)
+        val done = ear.substring(doneAt)
+        assertTrue(done.contains("claimsReads.done()"))
+        assertTrue(done.contains("if (dialog is ClaimDialogState.Ready || dialog == ClaimDialogState.Loading) {\n                _claimDialog.value = ClaimDialogState.Loading\n                viewModelScope.launch { loadClaimDialog() }"))
+        assertTrue(done.indexOf("claimsReads.done()") < done.indexOf("loadClaimDialog()"))
+        assertTrue(done.indexOf("claimsReads.done()") < done.indexOf("viewModelScope.launch { finishEpochClaim(settled) }"))
+        // the gas read again at a Done short of gas goes by the same order
+        val finish = between(model, "private suspend fun finishEpochClaim(", "\n    }\n")
+        assertTrue(finish.contains("val gasRead = gasReads.start()\n            val gasTao = s.gasBalance()"))
+        assertTrue(finish.contains("if (gasReads.apply(gasRead)) {\n                _gasBalance.update"))
+        // another device or a sign-out: no read from before shows
+        assertTrue(between(model, "private fun setupDevice(", "private fun createProtocolSource(").contains("claimsReads.reset()\n        gasReads.reset()"))
+        // the v2 flow's reads the same, run in SnLedgerClaimTest
+        val ledger = source("SnLedger.kt")
+        val refresh = between(ledger, "    suspend fun refresh(): Long {", "\n    }\n")
+        assertTrue(refresh.contains("val read = reads.start()"))
+        assertTrue(refresh.contains("if (s === source && reads.apply(read)) {\n            _load.value = load"))
+        assertTrue(between(ledger, "private suspend fun loadDialog() {", "\n    }\n").contains("|| !reads.sinceDone(read)) {"))
+        assertTrue(between(ledger, "override fun claimDone(settled: List<SnLedgerClaimProgress>, transferFloorRao: Long) {", "\n        }\n").contains("reads.done()"))
+    }
+
+    @Test
     fun `the accounts are read with the v1 claims, and v1 reads alone`() {
         val model = source("EarningsViewModel.kt")
         assertTrue(model.contains("ledgerFlow.reset(source, device)"))
