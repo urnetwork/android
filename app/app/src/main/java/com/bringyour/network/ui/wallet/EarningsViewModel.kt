@@ -177,6 +177,13 @@ class EarningsViewModel @Inject constructor(
     private val _claimsError = MutableStateFlow<String?>(null)
     val claimsError: StateFlow<String?> = _claimsError.asStateFlow()
 
+    // the reads of the v1 claims and of the gas balance by the order they
+    // started (SnReadOrder): an answer shows unless a read that started after
+    // it has, and a v1 claim's Done makes the claims reads out then ones from
+    // before it, which may list the epochs it paid
+    private val claimsReads = SnReadOrder()
+    private val gasReads = SnReadOrder()
+
     // the current epoch's schedule from the claims read (the coordinator's policy)
     private val _schedule = MutableStateFlow<SnEpochScheduleState?>(null)
     val schedule: StateFlow<SnEpochScheduleState?> = _schedule.asStateFlow()
@@ -226,6 +233,15 @@ class EarningsViewModel @Inject constructor(
 
         override fun epochClaimDone(settled: List<ClaimProgress>) {
             _epochClaimInFlight.value = false
+            // a claims read out now may list the epochs the claim paid
+            claimsReads.done()
+            // a dialog on a read from before it (the claim was another
+            // activity's view model's) offers no Claim from that read: it reads again
+            val dialog = _claimDialog.value
+            if (dialog is ClaimDialogState.Ready || dialog == ClaimDialogState.Loading) {
+                _claimDialog.value = ClaimDialogState.Loading
+                viewModelScope.launch { loadClaimDialog() }
+            }
             viewModelScope.launch { finishEpochClaim(settled) }
         }
     }
@@ -400,29 +416,47 @@ class EarningsViewModel @Inject constructor(
             .onFailure { Log.i(TAG, "sn top me: ${it.message}") }
     }
 
-    private suspend fun refreshClaims() {
+    /**
+     * Reads the gas balance, then the v1 claims, each numbered as it starts
+     * (gasReads, claimsReads): an answer shows unless a read that started
+     * after it has, so one from before a claim's Done that lands after the
+     * read at Done never puts back the epochs the claim paid. A failed read
+     * keeps the claims and the balance shown, and a failed claims read says
+     * so only while no read that started after it has answered. Returns the
+     * claims read's number.
+     */
+    private suspend fun refreshClaims(): Long {
         val s = source
         if (!s.available || _wallet.value == null) {
+            val read = claimsReads.start()
+            claimsReads.apply(read)
             _claims.value = emptyList()
             _totalClaimableRao.value = 0
             _schedule.value = null
-            return
+            return read
         }
         _gasKey.value = s.gasKey()
+        val gasRead = gasReads.start()
         s.gasBalance()
-            .onSuccess { _gasBalance.value = it }
+            .onSuccess { if (gasReads.apply(gasRead)) _gasBalance.value = it }
             .onFailure { Log.i(TAG, "gas balance: ${it.message}") }
+        val read = claimsReads.start()
         s.claims()
             .onSuccess {
-                _claims.value = it.claims
-                _totalClaimableRao.value = it.totalClaimableRao
-                _schedule.value = it.schedule
-                _claimsError.value = null
+                if (claimsReads.apply(read)) {
+                    _claims.value = it.claims
+                    _totalClaimableRao.value = it.totalClaimableRao
+                    _schedule.value = it.schedule
+                    _claimsError.value = null
+                }
             }
             .onFailure {
                 Log.i(TAG, "claims: ${it.message}")
-                _claimsError.value = claimsReadFailureMessage(it)
+                if (claimsReads.applies(read)) {
+                    _claimsError.value = claimsReadFailureMessage(it)
+                }
             }
+        return read
     }
 
     // the v1 claims and the v2 accounts, read side by side
@@ -733,9 +767,16 @@ class EarningsViewModel @Inject constructor(
         }
     }
 
+    /**
+     * The dialog from its own read of the claims, which it takes up with no
+     * wait between: the claims are this read's answer or a newer read's
+     * (claimsReads). A v1 claim that ended while this read was out (another
+     * activity's view model's) may have paid what it lists: the dialog waits
+     * for the read its Done started.
+     */
     private suspend fun loadClaimDialog() {
-        refreshClaims()
-        if (_claimDialog.value == null) {
+        val read = refreshClaims()
+        if (_claimDialog.value != ClaimDialogState.Loading || !claimsReads.sinceDone(read)) {
             return
         }
         val error = _claimsError.value
@@ -786,11 +827,14 @@ class EarningsViewModel @Inject constructor(
             it.status == ClaimProgressStatus.FAILED && claimFailureCode(it.message) == SN_CODE_NEEDS_GAS
         }
         if (allNeedGas) {
+            val gasRead = gasReads.start()
             val gasTao = s.gasBalance().getOrNull()?.tao ?: 0.0
             if (s !== source) {
                 return
             }
-            _gasBalance.update { it?.copy(tao = gasTao) ?: SnGasBalanceState("0", gasTao) }
+            if (gasReads.apply(gasRead)) {
+                _gasBalance.update { it?.copy(tao = gasTao) ?: SnGasBalanceState("0", gasTao) }
+            }
             if (_claimDialog.value is ClaimDialogState.Sending) {
                 _claimDialog.value = ClaimDialogState.NeedsGas(_gasKey.value, gasTao, progress.sumOf { it.amountRao })
             }
@@ -914,6 +958,9 @@ class EarningsViewModel @Inject constructor(
         _totalClaimableRao.value = 0
         _claimsError.value = null
         _schedule.value = null
+        // no answer of the last device's reads shows
+        claimsReads.reset()
+        gasReads.reset()
         _epochs.value = emptyList()
         _epochsLoaded.value = false
         _top.value = null
