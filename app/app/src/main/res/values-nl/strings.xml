@@ -100,6 +100,7 @@
     <string name="bittensor_error_no_account">Je %1$s-wallet heeft geen account om mee te ondertekenen. Voeg in de wallet een account toe of koppel er een, en probeer het opnieuw.</string>
     <string name="bittensor_error_signature_mismatch">Deze handtekening is niet van het adres dat je hebt ingevoerd. Onderteken het bericht in %1$s met dat adres en plak de handtekening daarna opnieuw.</string>
     <string name="bittensor_error_user_rejected">Het verzoek is geweigerd in je wallet. Begin opnieuw en keur het goed om door te gaan.</string>
+    <string name="bittensor_error_wallet_failed">Je %1$s-wallet kon het verzoek niet afronden. Controleer de wallet en probeer het opnieuw.</string>
     <string name="bittensor_error_walletconnect_expired">Het WalletConnect-verzoek is verlopen voordat de wallet antwoordde. Begin opnieuw.</string>
     <string name="bittensor_error_walletconnect_unavailable">WalletConnect is op dit moment niet beschikbaar. Probeer het later opnieuw of voer je adres handmatig in.</string>
     <string name="bittensor_funds_disclaimer">Deze sleutel wordt lokaal opgeslagen in de beveiligde opslag van de app. Hij wordt nooit gedeeld met URnetwork. URnetwork raakt geen geld van gebruikers aan en is er niet verantwoordelijk voor.</string>
@@ -300,6 +301,7 @@
     <string name="copy_extender_address">Extender-adres kopiëren</string>
     <string name="copy_share_text">Deeltekst kopiëren</string>
     <string name="could_not_get_google_id_token">Kan Google ID-token niet ophalen</string>
+    <string name="couldnt_open_wallet">Kon de wallet niet openen. Installeer deze en probeer het opnieuw.</string>
     <string name="countries">Landen</string>
     <string name="country">Land</string>
     <string name="country_multipliers">Landmultipliers</string>
@@ -1356,6 +1358,7 @@
     <string name="solana_payment_still_checking">We controleren je Solana-betaling nog. Bevestiging op het netwerk kan een minuut of twee duren.</string>
     <string name="solana_sign_in">Inloggen met Solana</string>
     <string name="solana_wallet">Solana-wallet</string>
+    <string name="solana_wallet_error_session_not_found">De walletverbinding is niet gevonden in deze browser. Begin opnieuw om je wallet opnieuw te koppelen.</string>
     <string name="something_went_wrong">Er is iets misgegaan.</string>
     <string name="sorry_to_see_you_go">Het spijt ons dat je weggaat!</string>
     <string name="split_rule_description">Geselecteerde hosts worden lokaal gerouteerd en omzeilen de tunnel.</string>

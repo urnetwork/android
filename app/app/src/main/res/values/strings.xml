@@ -103,6 +103,7 @@
     <string name="bittensor_error_no_account">Your %1$s wallet has no account to sign with. Add or connect an account in the wallet, then try again.</string>
     <string name="bittensor_error_signature_mismatch">This signature isn\'t from the address you entered. In %1$s, sign the message with that address, then paste the signature again.</string>
     <string name="bittensor_error_user_rejected">The request was declined in your wallet. Start again and approve it to continue.</string>
+    <string name="bittensor_error_wallet_failed">Your %1$s wallet couldn\'t finish the request. Check the wallet, then try again.</string>
     <string name="bittensor_error_walletconnect_expired">The WalletConnect request expired before the wallet answered. Start again.</string>
     <string name="bittensor_error_walletconnect_unavailable">WalletConnect is not available right now. Try again later, or enter your address manually.</string>
     <string name="bittensor_funds_disclaimer">This key is stored locally in the app secure storage. It is never shared with URnetwork. URnetwork does not touch and is not responsible for any user funds.</string>
@@ -303,6 +304,7 @@
     <string name="copy_extender_address">Copy extender address</string>
     <string name="copy_share_text">Copy share text</string>
     <string name="could_not_get_google_id_token">Could not get Google ID token</string>
+    <string name="couldnt_open_wallet">Couldn\'t open wallet. Please install it and try again.</string>
     <string name="countries">Countries</string>
     <string name="country">Country</string>
     <string name="country_multipliers">Country multipliers</string>
@@ -1374,6 +1376,7 @@
     <string name="solana_payment_still_checking">Still checking for your Solana payment. Confirmation on the network can take a minute or two.</string>
     <string name="solana_sign_in">Sign in with Solana</string>
     <string name="solana_wallet">Solana wallet</string>
+    <string name="solana_wallet_error_session_not_found">The wallet connection wasn\'t found in this browser. Start again to reconnect your wallet.</string>
     <string name="something_went_wrong">Something went wrong.</string>
     <string name="sorry_to_see_you_go">We\'re sorry to see you go!</string>
     <string name="split_rule_description">Selected hosts are routed locally and bypass the tunnel.</string>

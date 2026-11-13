@@ -100,6 +100,7 @@
     <string name="bittensor_error_no_account">お使いの%1$sウォレットに、署名に使えるアカウントがありません。ウォレットでアカウントを追加または接続してから、もう一度お試しください。</string>
     <string name="bittensor_error_signature_mismatch">この署名は、入力したアドレスによるものではありません。%1$s でそのアドレスを使ってメッセージに署名し、署名をもう一度貼り付けてください。</string>
     <string name="bittensor_error_user_rejected">ウォレットでリクエストが拒否されました。最初からやり直し、リクエストを承認して続行してください。</string>
+    <string name="bittensor_error_wallet_failed">お使いの%1$sウォレットでリクエストを完了できませんでした。ウォレットを確認してから、もう一度お試しください。</string>
     <string name="bittensor_error_walletconnect_expired">ウォレットが応答する前に WalletConnect のリクエストの有効期限が切れました。最初からやり直してください。</string>
     <string name="bittensor_error_walletconnect_unavailable">WalletConnect は現在利用できません。しばらくしてからもう一度お試しいただくか、アドレスを手動で入力してください。</string>
     <string name="bittensor_funds_disclaimer">このキーは、アプリの安全なストレージにローカルで保存されます。URnetwork と共有されることはありません。URnetwork はユーザーの資金に一切触れず、その責任も負いません。</string>
@@ -300,6 +301,7 @@
     <string name="copy_extender_address">エクステンダーのアドレスをコピー</string>
     <string name="copy_share_text">共有テキストをコピー</string>
     <string name="could_not_get_google_id_token">Google ID トークンを取得できませんでした</string>
+    <string name="couldnt_open_wallet">ウォレットを開けませんでした。インストールしてからもう一度お試しください。</string>
     <string name="countries">国</string>
     <string name="country">国</string>
     <string name="country_multipliers">国別倍率</string>
@@ -1356,6 +1358,7 @@
     <string name="solana_payment_still_checking">Solana での支払いをまだ確認しています。ネットワーク上の確認には 1～2 分かかることがあります。</string>
     <string name="solana_sign_in">Solanaでサインイン</string>
     <string name="solana_wallet">Solana ウォレット</string>
+    <string name="solana_wallet_error_session_not_found">このブラウザーでウォレットの接続が見つかりませんでした。最初からやり直して、ウォレットを再接続してください。</string>
     <string name="something_went_wrong">エラーが発生しました。</string>
     <string name="sorry_to_see_you_go">お見送り残念です！</string>
     <string name="split_rule_description">選択したホストはローカルにルーティングされ、トンネルを迂回します。</string>

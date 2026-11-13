@@ -100,6 +100,7 @@
     <string name="bittensor_error_no_account">%1$s 지갑에 서명할 계정이 없습니다. 지갑에서 계정을 추가하거나 연결한 후 다시 시도하세요.</string>
     <string name="bittensor_error_signature_mismatch">이 서명은 입력한 주소의 서명이 아닙니다. %1$s에서 해당 주소로 메시지에 서명한 다음 서명을 다시 붙여 넣으세요.</string>
     <string name="bittensor_error_user_rejected">지갑에서 요청이 거부되었습니다. 다시 시작하고 요청을 승인하여 계속하세요.</string>
+    <string name="bittensor_error_wallet_failed">%1$s 지갑에서 요청을 완료하지 못했습니다. 지갑을 확인한 후 다시 시도하세요.</string>
     <string name="bittensor_error_walletconnect_expired">지갑이 응답하기 전에 WalletConnect 요청이 만료되었습니다. 다시 시작하세요.</string>
     <string name="bittensor_error_walletconnect_unavailable">지금은 WalletConnect를 사용할 수 없습니다. 나중에 다시 시도하거나 주소를 직접 입력하세요.</string>
     <string name="bittensor_funds_disclaimer">이 키는 앱의 보안 저장소에 로컬로 저장됩니다. URnetwork와 절대 공유되지 않습니다. URnetwork는 사용자 자금에 일절 손대지 않으며 이에 대한 책임도 지지 않습니다.</string>
@@ -300,6 +301,7 @@
     <string name="copy_extender_address">익스텐더 주소 복사</string>
     <string name="copy_share_text">공유 텍스트 복사</string>
     <string name="could_not_get_google_id_token">Google ID 토큰을 가져올 수 없습니다</string>
+    <string name="couldnt_open_wallet">지갑을 열 수 없습니다. 설치 후 다시 시도해 주세요.</string>
     <string name="countries">국가</string>
     <string name="country">국가</string>
     <string name="country_multipliers">국가별 배수</string>
@@ -1356,6 +1358,7 @@
     <string name="solana_payment_still_checking">Solana 결제를 아직 확인하고 있습니다. 네트워크에서 확인되기까지 1~2분 걸릴 수 있습니다.</string>
     <string name="solana_sign_in">Solana로 로그인</string>
     <string name="solana_wallet">Solana 지갑</string>
+    <string name="solana_wallet_error_session_not_found">이 브라우저에서 지갑 연결을 찾을 수 없습니다. 다시 시작하여 지갑을 다시 연결하세요.</string>
     <string name="something_went_wrong">문제가 발생했습니다.</string>
     <string name="sorry_to_see_you_go">저희는 당신이 가는 것을 보게 되어 유감입니다!</string>
     <string name="split_rule_description">선택한 호스트는 터널을 우회하여 로컬로 라우팅됩니다.</string>

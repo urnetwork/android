@@ -100,6 +100,7 @@
     <string name="bittensor_error_no_account">आपके %1$s वॉलेट में हस्ताक्षर करने के लिए कोई खाता नहीं है। वॉलेट में कोई खाता जोड़ें या कनेक्ट करें, फिर दोबारा प्रयास करें।</string>
     <string name="bittensor_error_signature_mismatch">यह हस्ताक्षर आपके दर्ज किए गए पते का नहीं है। %1$s में उस पते से संदेश पर हस्ताक्षर करें, फिर हस्ताक्षर दोबारा पेस्ट करें।</string>
     <string name="bittensor_error_user_rejected">आपके वॉलेट में अनुरोध अस्वीकार कर दिया गया। जारी रखने के लिए फिर से शुरू करें और अनुरोध को स्वीकृत करें।</string>
+    <string name="bittensor_error_wallet_failed">आपका %1$s वॉलेट अनुरोध पूरा नहीं कर सका। वॉलेट जांचें, फिर दोबारा प्रयास करें।</string>
     <string name="bittensor_error_walletconnect_expired">वॉलेट के जवाब देने से पहले WalletConnect अनुरोध की समय-सीमा समाप्त हो गई। फिर से शुरू करें।</string>
     <string name="bittensor_error_walletconnect_unavailable">WalletConnect अभी उपलब्ध नहीं है। बाद में फिर से प्रयास करें, या अपना पता मैन्युअल रूप से दर्ज करें।</string>
     <string name="bittensor_funds_disclaimer">यह कुंजी ऐप के सुरक्षित स्टोरेज में स्थानीय रूप से सेव रहती है। इसे कभी भी URnetwork के साथ शेयर नहीं किया जाता। URnetwork उपयोगकर्ताओं के किसी भी फ़ंड को नहीं छूता और उनके लिए ज़िम्मेदार नहीं है।</string>
@@ -300,6 +301,7 @@
     <string name="copy_extender_address">एक्सटेंडर का पता कॉपी करें</string>
     <string name="copy_share_text">शेयर टेक्स्ट कॉपी करें</string>
     <string name="could_not_get_google_id_token">Google ID टोकन प्राप्त नहीं हो सका</string>
+    <string name="couldnt_open_wallet">वॉलेट खोला नहीं जा सका। कृपया इसे इंस्टॉल करें और पुनः प्रयास करें।</string>
     <string name="countries">देश</string>
     <string name="country">देश</string>
     <string name="country_multipliers">देश गुणक</string>
@@ -1356,6 +1358,7 @@
     <string name="solana_payment_still_checking">आपके Solana भुगतान की जाँच अभी जारी है। नेटवर्क पर पुष्टि में एक-दो मिनट लग सकते हैं।</string>
     <string name="solana_sign_in">Solana से साइन इन करें</string>
     <string name="solana_wallet">Solana वॉलेट</string>
+    <string name="solana_wallet_error_session_not_found">इस ब्राउज़र में वॉलेट कनेक्शन नहीं मिला। अपना वॉलेट फिर से कनेक्ट करने के लिए दोबारा शुरू करें।</string>
     <string name="something_went_wrong">कुछ गलत हो गया।</string>
     <string name="sorry_to_see_you_go">हमें आपको जाते हुए देखकर दुख हो रहा है!</string>
     <string name="split_rule_description">चयनित होस्ट स्थानीय रूप से रूट होते हैं और टनल को बायपास करते हैं।</string>

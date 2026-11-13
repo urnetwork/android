@@ -77,6 +77,8 @@ import androidx.navigation.compose.rememberNavController
 import com.bringyour.network.BuildConfig
 import com.bringyour.sdk.AuthLoginResult
 import com.bringyour.sdk.Api
+import com.bringyour.sdk.Sdk
+import com.bringyour.sdk.SolanaWalletFailure
 import com.bringyour.network.LoginActivity
 import com.bringyour.network.LoginRequest
 import com.bringyour.network.MainApplication
@@ -152,6 +154,16 @@ fun LoginInitial(
         )
     }
 
+    // a wallet that did not sign: the sdk's message for why, every app's; no
+    // wallet app is the no-wallets alert, whose text is that message
+    val showSolanaWalletFailed: (SolanaWalletFailure) -> Unit = { failure ->
+        if (failure.failure == Sdk.SolanaWalletFailureNoWallet) {
+            noSolanaWalletsFound = true
+        } else {
+            loginViewModel.setLoginError(solanaWalletFailureText(context, failure))
+        }
+    }
+
     val onCreateNetworkWallet: (
         blockchain: String,
         publicKey: String,
@@ -162,9 +174,13 @@ fun LoginInitial(
         if (blockchain == "solana") {
             scope.launch {
                 activityResultSender?.let { sender ->
+                    // the sign-in's spinner can still run here, and with it every
+                    // sign-in button is off: each failure ends it, so the user can
+                    // start again
                     val api = application?.api
                     if (api == null) {
-                        loginViewModel.setLoginError("Error connecting to wallet")
+                        loginViewModel.setSolanaAuthInProgress(false)
+                        loginViewModel.setLoginError(context.getString(R.string.login_error))
                         return@launch
                     }
 
@@ -176,6 +192,7 @@ fun LoginInitial(
                             Log.d("LoginInitial", "onCreateNetworkWallet (solana) signed pk=${result.signed.publicKey.isNotEmpty()}, message=${result.signed.message.isNotEmpty()}, signature=${result.signed.signature.isNotEmpty()}")
 
                             if (result.signed.publicKey != pk) {
+                                loginViewModel.setSolanaAuthInProgress(false)
                                 loginViewModel.setLoginError("Wallet account changed. Please use the same account for create network.")
                                 return@launch
                             }
@@ -189,11 +206,14 @@ fun LoginInitial(
 
                             navController.navigate("create-network-wallet/${bundle.toBase64Json()}")
                         }
-                        is SolanaChallengeSignResult.NoWalletFound -> {
-                            noSolanaWalletsFound = true
+                        is SolanaChallengeSignResult.WalletFailed -> {
+                            loginViewModel.setSolanaAuthInProgress(false)
+                            showSolanaWalletFailed(result.failure)
                         }
-                        is SolanaChallengeSignResult.Failure -> {
-                            loginViewModel.setLoginError("Error connecting to wallet")
+                        // the server's challenge failed, not the wallet
+                        is SolanaChallengeSignResult.ChallengeUnavailable -> {
+                            loginViewModel.setSolanaAuthInProgress(false)
+                            loginViewModel.setLoginError(context.getString(R.string.login_error))
                         }
                     }
                 }
@@ -215,7 +235,7 @@ fun LoginInitial(
             activityResultSender?.let { sender ->
                 val api = application?.api
                 if (api == null) {
-                    loginViewModel.setLoginError("Error connecting to wallet")
+                    loginViewModel.setLoginError(context.getString(R.string.login_error))
                     return@launch
                 }
 
@@ -231,13 +251,12 @@ fun LoginInitial(
                             onCreateNetworkWallet
                         )
                     }
-                    is SolanaChallengeSignResult.NoWalletFound -> {
-                        noSolanaWalletsFound = true
-                        Log.i("LoginInitial", "No MWA compatible wallet app found on device.")
+                    is SolanaChallengeSignResult.WalletFailed -> {
+                        showSolanaWalletFailed(result.failure)
                     }
-                    is SolanaChallengeSignResult.Failure -> {
-                        loginViewModel.setLoginError("Error connecting to wallet")
-                        Log.i("LoginInitial", "Error connecting to wallet: ${result.error}")
+                    // the server's challenge failed, not the wallet
+                    is SolanaChallengeSignResult.ChallengeUnavailable -> {
+                        loginViewModel.setLoginError(context.getString(R.string.login_error))
                     }
                 }
             }

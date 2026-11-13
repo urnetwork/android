@@ -100,6 +100,7 @@
     <string name="bittensor_error_no_account">В вашем кошельке %1$s нет аккаунта для подписи. Добавьте или подключите аккаунт в кошельке и попробуйте еще раз.</string>
     <string name="bittensor_error_signature_mismatch">Эта подпись сделана не с того адреса, который вы ввели. В кошельке %1$s подпишите сообщение с введённого адреса, затем снова вставьте подпись.</string>
     <string name="bittensor_error_user_rejected">Запрос отклонен в вашем кошельке. Начните заново и подтвердите его, чтобы продолжить.</string>
+    <string name="bittensor_error_wallet_failed">Кошельку %1$s не удалось выполнить запрос. Проверьте кошелек и повторите попытку.</string>
     <string name="bittensor_error_walletconnect_expired">Срок действия запроса WalletConnect истек до того, как кошелек ответил. Начните заново.</string>
     <string name="bittensor_error_walletconnect_unavailable">WalletConnect сейчас недоступен. Повторите попытку позже или введите адрес вручную.</string>
     <string name="bittensor_funds_disclaimer">Этот ключ хранится локально в защищённом хранилище приложения. Он никогда не передаётся URnetwork. URnetwork не прикасается ни к каким средствам пользователей и не несёт за них ответственности.</string>
@@ -300,6 +301,7 @@
     <string name="copy_extender_address">Скопировать адрес экстендера</string>
     <string name="copy_share_text">Скопировать текст кода</string>
     <string name="could_not_get_google_id_token">Не удалось получить токен идентификатора Google</string>
+    <string name="couldnt_open_wallet">Не удалось открыть кошелек. Установите его и попробуйте снова.</string>
     <string name="countries">Страны</string>
     <string name="country">Страна</string>
     <string name="country_multipliers">Множители по странам</string>
@@ -1356,6 +1358,7 @@
     <string name="solana_payment_still_checking">Всё ещё проверяем ваш платёж в Solana. Подтверждение в сети может занять минуту-две.</string>
     <string name="solana_sign_in">Войти через Solana</string>
     <string name="solana_wallet">Кошелек Solana</string>
+    <string name="solana_wallet_error_session_not_found">В этом браузере не найдено подключение кошелька. Начните заново, чтобы снова подключить кошелек.</string>
     <string name="something_went_wrong">Что-то пошло не так.</string>
     <string name="sorry_to_see_you_go">Нам жаль, что вы уходите!</string>
     <string name="split_rule_description">Выбранные хосты маршрутизируются локально и обходят туннель.</string>

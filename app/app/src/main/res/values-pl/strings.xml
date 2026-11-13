@@ -100,6 +100,7 @@
     <string name="bittensor_error_no_account">Twój portfel %1$s nie ma konta, którym można podpisać. Dodaj lub połącz konto w portfelu, a potem spróbuj ponownie.</string>
     <string name="bittensor_error_signature_mismatch">Ten podpis nie pochodzi z wprowadzonego adresu. W portfelu %1$s podpisz wiadomość tym adresem, a następnie ponownie wklej podpis.</string>
     <string name="bittensor_error_user_rejected">Żądanie zostało odrzucone w Twoim portfelu. Zacznij od nowa i zatwierdź je, aby kontynuować.</string>
+    <string name="bittensor_error_wallet_failed">Twój portfel %1$s nie mógł dokończyć żądania. Sprawdź portfel, a potem spróbuj ponownie.</string>
     <string name="bittensor_error_walletconnect_expired">Żądanie WalletConnect wygasło, zanim portfel odpowiedział. Zacznij od nowa.</string>
     <string name="bittensor_error_walletconnect_unavailable">WalletConnect jest teraz niedostępny. Spróbuj ponownie później lub wprowadź adres ręcznie.</string>
     <string name="bittensor_funds_disclaimer">Ten klucz jest przechowywany lokalnie w bezpiecznej pamięci aplikacji. Nigdy nie jest udostępniany URnetwork. URnetwork nie dotyka żadnych środków użytkowników i nie ponosi za nie odpowiedzialności.</string>
@@ -300,6 +301,7 @@
     <string name="copy_extender_address">Kopiuj adres extendera</string>
     <string name="copy_share_text">Kopiuj tekst do udostępnienia</string>
     <string name="could_not_get_google_id_token">Nie udało się uzyskać tokena identyfikatora Google</string>
+    <string name="couldnt_open_wallet">Nie udało się otworzyć portfela. Zainstaluj go i spróbuj ponownie.</string>
     <string name="countries">Kraje</string>
     <string name="country">Kraj</string>
     <string name="country_multipliers">Mnożniki krajów</string>
@@ -1356,6 +1358,7 @@
     <string name="solana_payment_still_checking">Nadal sprawdzamy twoją płatność w sieci Solana. Potwierdzenie w sieci może potrwać minutę lub dwie.</string>
     <string name="solana_sign_in">Zaloguj się za pomocą Solana</string>
     <string name="solana_wallet">Portfel Solana</string>
+    <string name="solana_wallet_error_session_not_found">Nie znaleziono połączenia z portfelem w tej przeglądarce. Zacznij od nowa, aby ponownie połączyć portfel.</string>
     <string name="something_went_wrong">Coś poszło nie tak.</string>
     <string name="sorry_to_see_you_go">Przykro nam, że odchodzisz!</string>
     <string name="split_rule_description">Wybrane hosty są kierowane lokalnie i omijają tunel.</string>
