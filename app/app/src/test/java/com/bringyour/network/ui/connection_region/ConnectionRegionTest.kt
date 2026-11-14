@@ -124,8 +124,8 @@ class ConnectionRegionTest {
     // The texts of a failure are the sdk's rule (sdk cant_reach.go
     // IsCantReachError), tested there with every app's cases, so the four apps
     // can't drift apart again (support inbox 7956, 7973). Here a fake stands
-    // in for it: the app's own part is its transport exceptions, and asking
-    // the sdk about anything else.
+    // in for it: the app's own part is asking it, with a transport
+    // exception's text or any other failure's message.
 
     // Android's own transport exceptions are the sdk's call too, by their
     // text, which names their class: one of them alone no longer raises the
