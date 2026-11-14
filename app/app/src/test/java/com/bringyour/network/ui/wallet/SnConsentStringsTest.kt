@@ -63,7 +63,8 @@ class SnConsentStringsTest {
         // C5: every platform, from the localization store
         val locales = res.listFiles { file -> file.name.startsWith("values-") }!!
             .filter { File(it, "strings.xml").exists() }
-        assertEquals(18, locales.size)
+        // the translated catalogs the store generates (ANDROID_LOCALE_DIR)
+        assertEquals(19, locales.size)
 
         val missing = mutableListOf<String>()
         for (key in pinned.keys) {
