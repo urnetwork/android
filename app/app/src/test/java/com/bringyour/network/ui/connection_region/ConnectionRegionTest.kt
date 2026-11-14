@@ -127,15 +127,27 @@ class ConnectionRegionTest {
     // in for it: the app's own part is its transport exceptions, and asking
     // the sdk about anything else.
 
+    // Android's own transport exceptions are the sdk's call too, by their
+    // text, which names their class: one of them alone no longer raises the
+    // prompt (the sdk's hold, sdk cant_reach.go)
     @Test
-    fun androidTransportFailuresAreUnreachableWithoutAskingTheSdk() {
+    fun androidTransportFailuresAreTheSdksCall() {
         val asked = mutableListOf<String>()
         val sdkRule = { message: String -> asked.add(message); false }
-        assertTrue(isUrnetworkUnreachable(UnknownHostException("api.bringyour.com"), sdkRule))
-        assertTrue(isUrnetworkUnreachable(SocketTimeoutException(), sdkRule))
-        assertTrue(isUrnetworkUnreachable(ConnectException(), sdkRule))
-        assertTrue(isUrnetworkUnreachable(NoRouteToHostException(), sdkRule))
-        assertEquals(listOf<String>(), asked)
+        assertFalse(isUrnetworkUnreachable(UnknownHostException("api.example"), sdkRule))
+        assertFalse(isUrnetworkUnreachable(SocketTimeoutException(), sdkRule))
+        assertFalse(isUrnetworkUnreachable(ConnectException(), sdkRule))
+        assertFalse(isUrnetworkUnreachable(NoRouteToHostException(), sdkRule))
+        assertEquals(
+            listOf(
+                "java.net.UnknownHostException: api.example",
+                "java.net.SocketTimeoutException",
+                "java.net.ConnectException",
+                "java.net.NoRouteToHostException",
+            ),
+            asked,
+        )
+        assertTrue(isUrnetworkUnreachable(SocketTimeoutException("timeout")) { true })
     }
 
     @Test
@@ -211,7 +223,7 @@ class ConnectionRegionTest {
         assertFalse(prompt.report(null))
         assertFalse(prompt.visible.value)
 
-        assertTrue(prompt.report(UnknownHostException("api.bringyour.com")))
+        assertTrue(prompt.report(Exception("dial tcp: lookup api.example: no such host")))
         assertTrue(prompt.visible.value)
 
         prompt.dismiss()
