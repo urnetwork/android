@@ -55,7 +55,8 @@ class SnLedgerStringsTest {
     fun `the settlement v2 strings are translated in every locale`() {
         val locales = res.listFiles { file -> file.name.startsWith("values-") }!!
             .filter { File(it, "strings.xml").exists() }
-        assertEquals(18, locales.size)
+        // the translated catalogs the store generates (ANDROID_LOCALE_DIR)
+        assertEquals(19, locales.size)
 
         val missing = mutableListOf<String>()
         for (key in keys + ctfKeys) {

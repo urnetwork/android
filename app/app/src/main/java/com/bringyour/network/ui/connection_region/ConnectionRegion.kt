@@ -131,10 +131,12 @@ internal fun sdkCantReachOnStall(previousStallReason: String, stallReason: Strin
     Sdk.cantReachOnStall(previousStallReason, stallReason)
 
 /**
- * Whether an api failure means the app could not reach URnetwork (a network
- * level failure), as opposed to the platform answering with an auth or
- * validation error. Android's own transport exceptions answer here; a
- * failure's text is the sdk's call (`cantReachText`, [sdkIsCantReachError]).
+ * Whether an api failure raises the prompt: the app could not reach URnetwork
+ * (a network level failure), as opposed to the platform answering with an auth
+ * or validation error, and not just once. The sdk decides (`cantReachText`,
+ * [sdkIsCantReachError]), Android's own transport exceptions included, by
+ * their text, which names their class: one failed call is not an outage, and
+ * failures that last the sdk's hold are.
  */
 fun isUrnetworkUnreachable(
     err: Throwable?,
@@ -147,7 +149,7 @@ fun isUrnetworkUnreachable(
         is UnknownHostException,
         is SocketTimeoutException,
         is ConnectException,
-        is NoRouteToHostException -> return true
+        is NoRouteToHostException -> return cantReachText(err.toString())
     }
     val message = err.message ?: return false
     return cantReachText(message)
