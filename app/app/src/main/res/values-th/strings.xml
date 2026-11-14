@@ -80,6 +80,7 @@
     <string name="balance_code_already_redeemed_message">รหัสยอดคงเหลือนี้ถูกแลกไปแล้ว หากคุณแลกไว้ก่อนหน้านี้ ข้อมูลอยู่ในยอดคงเหลือของคุณแล้ว</string>
     <string name="balance_code_data_added">เพิ่มข้อมูล %1$s ลงในยอดคงเหลือของคุณแล้ว</string>
     <string name="balance_code_invalid_message">รหัสยอดคงเหลือนี้ไม่ถูกต้อง ตรวจสอบรหัสแล้วลองอีกครั้ง</string>
+    <string name="balance_code_pro_year">Pro หนึ่งปี</string>
     <string name="balance_code_redeemed">แลกรหัสยอดเงินแล้ว</string>
     <string name="balance_code_transport_error">เราติดต่อเซิร์ฟเวอร์ไม่ได้ — ตรวจสอบการเชื่อมต่อของคุณ หากคุณถูกเรียกเก็บเงินแล้ว รหัสอาจถูกใช้ไปแล้ว โปรดตรวจสอบยอดคงเหลือก่อนลองอีกครั้ง</string>
     <string name="balance_code_where_to_buy">ยังไม่มีโค้ด? ซื้อรหัสข้อมูลได้ที่ ur.io แล้วระบบจะส่งให้ทางอีเมล</string>
@@ -722,6 +723,9 @@
     <string name="get_pro">รับ Pro</string>
     <string name="get_started">เริ่มต้นใช้งาน</string>
     <string name="get_urnetwork_free_for_life_by_participating">รับ URnetwork ฟรีตลอดชีวิตโดยการเข้าร่วม</string>
+    <string name="gift_does_not_renew">ของขวัญ ไม่ต่ออายุอัตโนมัติ</string>
+    <string name="gift_pro_redeemed">คุณได้รับ Pro หนึ่งปีแล้ว</string>
+    <string name="gift_pro_redeemed_queued">Pro หนึ่งปีที่คุณได้รับเป็นของขวัญจะเริ่มในวันที่ %1$s หลังจากช่วง Pro ปัจจุบันของคุณสิ้นสุดลง</string>
     <string name="go_back">ย้อนกลับ</string>
     <string name="google">Google</string>
     <string name="google_auth_btn_text">เข้าสู่ระบบด้วยบัญชี Google</string>

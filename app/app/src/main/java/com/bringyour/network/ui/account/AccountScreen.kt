@@ -80,6 +80,7 @@ import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.wallet.EarningsFormat
 import com.bringyour.network.ui.theme.URNetworkTheme
 import com.bringyour.network.ui.upgrade.AccountPaymentNotices
+import com.bringyour.network.ui.upgrade.GiftPlanNotice
 import com.bringyour.network.ui.upgrade.PaymentPastDueNotice
 import com.bringyour.network.utils.formatDecimalString
 import com.bringyour.sdk.Sdk
@@ -203,13 +204,15 @@ fun AccountScreen(
                         },
                         postQuantumIdentityViewModel = postQuantumIdentityViewModel,
                         // a renewal whose payment did not go through (every flavor), then
-                        // a crypto payment in progress, a one-time term (src/cryptoPay; nothing on Play)
+                        // a crypto payment in progress, a one-time term (src/cryptoPay; nothing on Play),
+                        // then a gift's year of Pro, which does not renew (every flavor)
                         planNotices = {
                             PaymentPastDueNotice(subscriptionBalanceViewModel = subscriptionBalanceViewModel)
                             AccountPaymentNotices(
                                 subscriptionBalanceViewModel = subscriptionBalanceViewModel,
                                 openUpgrade = { navController.navigate(Route.Upgrade) },
                             )
+                            GiftPlanNotice(subscriptionBalanceViewModel = subscriptionBalanceViewModel)
                         },
                     )
                 }
@@ -221,9 +224,11 @@ fun AccountScreen(
                 sheetState = redeemTransferBalanceSheetState,
                 setIsPresenting = setPresentingRedeemTransferBalanceSheet,
                 onSuccess = {
-                    // a balance code is data only: the sheet confirmed the data it
-                    // added; read the balance once. The Pro overlay and the Pro
-                    // confirmation poll would wait for a plan a code never grants.
+                    // the sheet confirmed what the code added: data, or a gift
+                    // code's year of Pro. The redeem is committed when the server
+                    // answers, so one balance read shows either, Pro included (it
+                    // refreshes the token when Pro changes). The purchase overlay
+                    // and its confirmation poll are for payments.
                     subscriptionBalanceViewModel.fetchSubscriptionBalance()
                 }
             )

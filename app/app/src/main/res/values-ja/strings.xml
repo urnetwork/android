@@ -80,6 +80,7 @@
     <string name="balance_code_already_redeemed_message">この残高コードはすでに引き換えられています。以前に引き換えた場合、データはすでに残高に反映されています。</string>
     <string name="balance_code_data_added">%1$s のデータが残高に追加されました。</string>
     <string name="balance_code_invalid_message">この残高コードは無効です。コードを確認してもう一度お試しください。</string>
+    <string name="balance_code_pro_year">Pro 1 年分</string>
     <string name="balance_code_redeemed">残高コードを利用しました。</string>
     <string name="balance_code_transport_error">サーバーに接続できませんでした。接続を確認してください。請求済みの場合、コードはすでに適用されている可能性があります。もう一度試す前に残高を確認してください。</string>
     <string name="balance_code_where_to_buy">コードをお持ちでない方は、ur.ioでデータコードを購入すると、メールで届きます。</string>
@@ -722,6 +723,9 @@
     <string name="get_pro">Proを取得</string>
     <string name="get_started">始める</string>
     <string name="get_urnetwork_free_for_life_by_participating">参加するだけでURnetworkを一生無料で利用できます</string>
+    <string name="gift_does_not_renew">ギフトです。自動更新はされません。</string>
+    <string name="gift_pro_redeemed">Pro 1 年分を受け取りました。</string>
+    <string name="gift_pro_redeemed_queued">ギフトの Pro 1 年分は、現在の Pro 期間の終了後、%1$s から始まります。</string>
     <string name="go_back">戻る</string>
     <string name="google">Google</string>
     <string name="google_auth_btn_text">Googleでログイン</string>

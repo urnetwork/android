@@ -80,6 +80,7 @@
     <string name="balance_code_already_redeemed_message">이 잔액 코드는 이미 사용되었습니다. 이전에 사용했다면 데이터가 이미 잔액에 들어 있습니다.</string>
     <string name="balance_code_data_added">잔액에 %1$s의 데이터가 추가되었습니다.</string>
     <string name="balance_code_invalid_message">유효하지 않은 잔액 코드입니다. 코드를 확인한 후 다시 시도하세요.</string>
+    <string name="balance_code_pro_year">Pro 1년</string>
     <string name="balance_code_redeemed">잔액 코드를 사용했습니다.</string>
     <string name="balance_code_transport_error">서버에 연결할 수 없습니다. 연결을 확인하세요. 요금이 청구되었다면 코드가 이미 적용되었을 수 있으니 다시 시도하기 전에 잔액을 확인하세요.</string>
     <string name="balance_code_where_to_buy">코드가 없으신가요? 데이터 코드는 ur.io에서 구매할 수 있으며 이메일로 전송됩니다.</string>
@@ -722,6 +723,9 @@
     <string name="get_pro">Pro로 업그레이드</string>
     <string name="get_started">시작하기</string>
     <string name="get_urnetwork_free_for_life_by_participating">참여하면 URnetwork를 평생 무료로 이용할 수 있습니다</string>
+    <string name="gift_does_not_renew">선물입니다. 자동 갱신되지 않습니다.</string>
+    <string name="gift_pro_redeemed">이제 Pro를 1년 동안 이용할 수 있습니다.</string>
+    <string name="gift_pro_redeemed_queued">선물로 받은 Pro 1년은 현재 Pro 기간이 끝난 후 %1$s에 시작됩니다.</string>
     <string name="go_back">돌아가기</string>
     <string name="google">Google</string>
     <string name="google_auth_btn_text">Google로 로그인</string>

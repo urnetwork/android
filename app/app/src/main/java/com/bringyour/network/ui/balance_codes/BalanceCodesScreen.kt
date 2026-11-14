@@ -39,16 +39,20 @@ import androidx.navigation.NavController
 import com.bringyour.network.R
 import com.bringyour.network.ui.indexedLazyListKey
 import com.bringyour.network.ui.components.redeemTransferBalanceCode.RedeemTransferBalanceCodeSheet
+import com.bringyour.network.ui.shared.viewmodels.SubscriptionBalanceViewModel
 import com.bringyour.network.ui.theme.Black
 import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.TopBarTitleTextStyle
 import com.bringyour.network.utils.formatBalanceBytes
 import com.bringyour.sdk.RedeemedBalanceCode
+import com.bringyour.sdk.Sdk
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BalanceCodesScreen(
     navController: NavController,
+    // the app's shared one (MainNavContent), so a redeem refreshes the plan every screen shows
+    subscriptionBalanceViewModel: SubscriptionBalanceViewModel,
     viewModel: BalanceCodesViewModel = hiltViewModel<BalanceCodesViewModel>()
 ) {
 
@@ -122,6 +126,9 @@ fun BalanceCodesScreen(
                 },
                 onSuccess = {
                     viewModel.fetchNetworkBalanceCodes()
+                    // as on Account: one balance read shows what the code added,
+                    // data or a gift code's year of Pro
+                    subscriptionBalanceViewModel.fetchSubscriptionBalance()
                 }
             )
         }
@@ -219,6 +226,20 @@ private fun BalanceCodesTable(
     }
 }
 
+/**
+ * What a redeemed code granted, in the list's Data column: a gift code's year
+ * of Pro ("A year of Pro", GIFTOFPRIVACY.md 10.5), never its 0 bytes; any other
+ * the data it added ("+5.00 GiB"). The sdk reads a code from a server that
+ * predates gift codes as a data code.
+ */
+internal fun redeemedCodeGrantText(
+    kind: String?,
+    byteCount: Long,
+    proYearText: String,
+    formatBytes: (Long) -> String = formatBalanceBytes,
+): String =
+    if (kind == Sdk.BalanceCodeKindProGift) proYearText else "+${formatBytes(byteCount)}"
+
 @Composable
 fun BalanceCodeListItem(
     balanceCode: RedeemedBalanceCode,
@@ -241,7 +262,11 @@ fun BalanceCodeListItem(
         )
 
         Text(
-            "+${formatBalanceBytes(balanceCode.balanceByteCount)}",
+            redeemedCodeGrantText(
+                kind = balanceCode.kind,
+                byteCount = balanceCode.balanceByteCount,
+                proYearText = stringResource(id = R.string.balance_code_pro_year),
+            ),
             modifier = Modifier.weight(1f)
         )
 

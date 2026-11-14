@@ -262,14 +262,16 @@ fun AccountPaymentNotices(
 }
 
 /**
- * The Settings plan row's subscription line for a Pro network: a one-time
- * crypto subscription (store family SubscriptionStoreCrypto) does not renew
- * and has nothing to manage, so it says so; any other keeps the flavor's
- * manage link.
+ * The Settings plan row's subscription line for a Pro network: a gift's year
+ * of Pro (store family SubscriptionStoreGift) and a one-time crypto
+ * subscription (SubscriptionStoreCrypto) do not renew and have nothing to
+ * manage, so each says so; any other keeps the flavor's manage link.
  */
 @Composable
 fun SubscriptionManageLine(currentStore: String?, stripePortalUrl: String?) {
-    if (isOneTimeCryptoStore(currentStore)) {
+    if (isGiftStore(currentStore)) {
+        GiftDoesNotRenewLine()
+    } else if (isOneTimeCryptoStore(currentStore)) {
         // where the manage button sits, across from the plan
         Text(
             stringResource(id = R.string.crypto_does_not_renew),

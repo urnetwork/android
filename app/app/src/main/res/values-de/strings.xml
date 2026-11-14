@@ -80,6 +80,7 @@
     <string name="balance_code_already_redeemed_message">Dieser Guthabencode wurde bereits eingelöst. Wenn du ihn schon früher eingelöst hast, sind die Daten bereits in deinem Guthaben.</string>
     <string name="balance_code_data_added">%1$s Daten wurden deinem Guthaben hinzugefügt.</string>
     <string name="balance_code_invalid_message">Dieser Guthabencode ist ungültig. Überprüfe den Code und versuche es erneut.</string>
+    <string name="balance_code_pro_year">Ein Jahr Pro</string>
     <string name="balance_code_redeemed">Guthabencode eingelöst.</string>
     <string name="balance_code_transport_error">Wir konnten den Server nicht erreichen — überprüfe deine Verbindung. Falls dir etwas berechnet wurde, ist der Code möglicherweise schon angewendet; prüfe dein Guthaben, bevor du es erneut versuchst.</string>
     <string name="balance_code_where_to_buy">Noch keinen Code? Datencodes kannst du auf ur.io kaufen und dir per E-Mail schicken lassen.</string>
@@ -722,6 +723,9 @@
     <string name="get_pro">Pro holen</string>
     <string name="get_started">Loslegen</string>
     <string name="get_urnetwork_free_for_life_by_participating">Erhalte URnetwork lebenslang kostenlos durch Teilnahme</string>
+    <string name="gift_does_not_renew">Ein Geschenk. Verlängert sich nicht.</string>
+    <string name="gift_pro_redeemed">Ein Jahr Pro gehört dir.</string>
+    <string name="gift_pro_redeemed_queued">Dein geschenktes Pro-Jahr beginnt am %1$s, nach Ablauf deines aktuellen Pro-Zeitraums.</string>
     <string name="go_back">Zurück</string>
     <string name="google">Google</string>
     <string name="google_auth_btn_text">Mit Google anmelden</string>

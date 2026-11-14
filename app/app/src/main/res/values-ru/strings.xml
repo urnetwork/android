@@ -80,6 +80,7 @@
     <string name="balance_code_already_redeemed_message">Этот код баланса уже активирован. Если вы активировали его ранее, данные уже зачислены на ваш баланс.</string>
     <string name="balance_code_data_added">На ваш баланс добавлено %1$s данных.</string>
     <string name="balance_code_invalid_message">Этот код баланса недействителен. Проверьте код и попробуйте снова.</string>
+    <string name="balance_code_pro_year">Год Pro</string>
     <string name="balance_code_redeemed">Код баланса активирован.</string>
     <string name="balance_code_transport_error">Не удалось связаться с сервером — проверьте подключение. Если с вас списали оплату, код, возможно, уже применён; проверьте баланс, прежде чем повторять попытку.</string>
     <string name="balance_code_where_to_buy">Нет кода? Коды данных можно купить на ur.io — их пришлют вам на почту.</string>
@@ -722,6 +723,9 @@
     <string name="get_pro">Получить Pro</string>
     <string name="get_started">Начать</string>
     <string name="get_urnetwork_free_for_life_by_participating">Получите URnetwork бесплатно навсегда, участвуя</string>
+    <string name="gift_does_not_renew">Подарок. Не продлевается.</string>
+    <string name="gift_pro_redeemed">Год Pro теперь ваш.</string>
+    <string name="gift_pro_redeemed_queued">Ваш подарочный год Pro начнётся %1$s, после окончания текущего периода Pro.</string>
     <string name="go_back">Назад</string>
     <string name="google">Google</string>
     <string name="google_auth_btn_text">Войти через Google</string>

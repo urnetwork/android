@@ -80,6 +80,7 @@
     <string name="balance_code_already_redeemed_message">Tento kód zůstatku už byl uplatněn. Pokud jste ho uplatnili dříve, data už máte na zůstatku.</string>
     <string name="balance_code_data_added">Na váš zůstatek bylo přidáno %1$s dat.</string>
     <string name="balance_code_invalid_message">Tento kód zůstatku není platný. Zkontrolujte kód a zkuste to znovu.</string>
+    <string name="balance_code_pro_year">Rok Pro</string>
     <string name="balance_code_redeemed">Kód zůstatku uplatněn.</string>
     <string name="balance_code_transport_error">Nepodařilo se spojit se serverem — zkontrolujte připojení. Pokud vám byla stržena platba, kód už možná byl uplatněn; než to zkusíte znovu, zkontrolujte zůstatek.</string>
     <string name="balance_code_where_to_buy">Nemáte kód? Datové kódy si můžete koupit na ur.io a přijdou vám e-mailem.</string>
@@ -722,6 +723,9 @@
     <string name="get_pro">Získat Pro</string>
     <string name="get_started">Začněte</string>
     <string name="get_urnetwork_free_for_life_by_participating">Získejte URnetwork zdarma na celý život účastí</string>
+    <string name="gift_does_not_renew">Dárek. Neobnovuje se.</string>
+    <string name="gift_pro_redeemed">Rok Pro je nyní váš.</string>
+    <string name="gift_pro_redeemed_queued">Váš darovaný rok Pro začne %1$s, po skončení vašeho současného období Pro.</string>
     <string name="go_back">Zpět</string>
     <string name="google">Google</string>
     <string name="google_auth_btn_text">Přihlásit se přes Google</string>

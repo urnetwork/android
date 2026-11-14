@@ -80,6 +80,7 @@
     <string name="balance_code_already_redeemed_message">Msimbo huu wa salio umeshakombolewa. Ikiwa uliukomboa awali, data tayari iko kwenye salio lako.</string>
     <string name="balance_code_data_added">Data ya %1$s imeongezwa kwenye salio lako.</string>
     <string name="balance_code_invalid_message">Msimbo huo wa salio si sahihi. Kagua msimbo kisha ujaribu tena.</string>
+    <string name="balance_code_pro_year">Mwaka mmoja wa Pro</string>
     <string name="balance_code_redeemed">Msimbo wa salio umetumika.</string>
     <string name="balance_code_transport_error">Hatukuweza kufikia seva — kagua muunganisho wako. Ikiwa umetozwa, huenda msimbo umeshatumika; kagua salio lako kabla ya kujaribu tena.</string>
     <string name="balance_code_where_to_buy">Huna msimbo? Misimbo ya data inaweza kununuliwa kwenye ur.io na kutumwa kwako kwa barua pepe.</string>
@@ -722,6 +723,9 @@
     <string name="get_pro">Pata Pro</string>
     <string name="get_started">Anza</string>
     <string name="get_urnetwork_free_for_life_by_participating">Pata URnetwork bure maisha yote kwa kushiriki</string>
+    <string name="gift_does_not_renew">Zawadi. Haisasishwi.</string>
+    <string name="gift_pro_redeemed">Mwaka mmoja wa Pro sasa ni wako.</string>
+    <string name="gift_pro_redeemed_queued">Mwaka wako wa Pro uliopewa kama zawadi utaanza tarehe %1$s, baada ya kipindi chako cha sasa cha Pro kuisha.</string>
     <string name="go_back">Rudi nyuma</string>
     <string name="google">Google</string>
     <string name="google_auth_btn_text">Ingia ukitumia Google</string>

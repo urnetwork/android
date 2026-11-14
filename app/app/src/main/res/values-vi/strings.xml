@@ -80,6 +80,7 @@
     <string name="balance_code_already_redeemed_message">Mã số dư này đã được đổi. Nếu bạn đã đổi trước đó, dữ liệu đã có trong số dư của bạn.</string>
     <string name="balance_code_data_added">Đã thêm %1$s dữ liệu vào số dư của bạn.</string>
     <string name="balance_code_invalid_message">Mã số dư đó không hợp lệ. Hãy kiểm tra mã và thử lại.</string>
+    <string name="balance_code_pro_year">Một năm Pro</string>
     <string name="balance_code_redeemed">Đã sử dụng mã số dư.</string>
     <string name="balance_code_transport_error">Không thể kết nối tới máy chủ — hãy kiểm tra kết nối của bạn. Nếu bạn đã bị tính phí, mã có thể đã được áp dụng; hãy kiểm tra số dư trước khi thử lại.</string>
     <string name="balance_code_where_to_buy">Chưa có mã? Bạn có thể mua mã dữ liệu tại ur.io và nhận qua email.</string>
@@ -722,6 +723,9 @@
     <string name="get_pro">Nhận Pro</string>
     <string name="get_started">Bắt đầu</string>
     <string name="get_urnetwork_free_for_life_by_participating">Nhận URnetwork miễn phí trọn đời bằng cách tham gia</string>
+    <string name="gift_does_not_renew">Quà tặng. Không tự gia hạn.</string>
+    <string name="gift_pro_redeemed">Bạn đã nhận được một năm Pro.</string>
+    <string name="gift_pro_redeemed_queued">Năm Pro bạn được tặng sẽ bắt đầu vào %1$s, sau khi kỳ Pro hiện tại của bạn kết thúc.</string>
     <string name="go_back">Quay lại</string>
     <string name="google">Google</string>
     <string name="google_auth_btn_text">Đăng nhập bằng Google</string>

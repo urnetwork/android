@@ -80,6 +80,7 @@
     <string name="balance_code_already_redeemed_message">تم استرداد رمز الرصيد هذا بالفعل. إذا كنت قد استرددته سابقًا، فالبيانات موجودة بالفعل في رصيدك.</string>
     <string name="balance_code_data_added">تمت إضافة %1$s من البيانات إلى رصيدك.</string>
     <string name="balance_code_invalid_message">رمز الرصيد هذا غير صالح. تحقق من الرمز وحاول مرة أخرى.</string>
+    <string name="balance_code_pro_year">عام من Pro</string>
     <string name="balance_code_redeemed">تم استخدام رمز الرصيد.</string>
     <string name="balance_code_transport_error">تعذّر الوصول إلى الخادم — تحقق من اتصالك. إذا تم تحصيل رسوم منك، فربما تم تطبيق الرمز بالفعل؛ تحقق من رصيدك قبل المحاولة مرة أخرى.</string>
     <string name="balance_code_where_to_buy">ليس لديك رمز؟ يمكن شراء رموز البيانات من ur.io وإرسالها إلى بريدك الإلكتروني.</string>
@@ -722,6 +723,9 @@
     <string name="get_pro">احصل على Pro</string>
     <string name="get_started">البدء</string>
     <string name="get_urnetwork_free_for_life_by_participating">احصل على URnetwork مجانًا مدى الحياة من خلال المشاركة</string>
+    <string name="gift_does_not_renew">هدية. لا تتجدد.</string>
+    <string name="gift_pro_redeemed">أصبح لديك عام من Pro.</string>
+    <string name="gift_pro_redeemed_queued">يبدأ عام Pro الذي حصلت عليه هديةً في %1$s، بعد انتهاء فترة Pro الحالية.</string>
     <string name="go_back">رجوع</string>
     <string name="google">Google</string>
     <string name="google_auth_btn_text">تسجيل الدخول باستخدام Google</string>
