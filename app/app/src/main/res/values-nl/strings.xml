@@ -1016,7 +1016,7 @@
     <string name="please_wait">Wacht alstublieft een paar minuten en probeer het opnieuw.</string>
     <string name="points">Punten</string>
     <string name="points_earned">Verdiende punten</string>
-    <string name="points_leaderboard_description">Punten aller tijden. Een blok is één afgeronde epoch; de reeks telt opeenvolgende blokken met punten tot het laatste.</string>
+    <string name="points_leaderboard_description">Punten aller tijden. Een blok is één week; de reeks telt opeenvolgende blokken met punten, en een week waarvan de punten niet konden worden toegekend, of nog worden toegekend, onderbreekt de reeks niet.</string>
     <string name="points_leaderboard_empty">Er staat nog niemand op het puntenscorebord.</string>
     <string name="points_leaderboard_private_hint">Je netwerk wordt als Anoniem getoond totdat je dit aanzet.</string>
     <string name="points_short">%1$s ptn</string>

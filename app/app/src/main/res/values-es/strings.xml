@@ -1016,7 +1016,7 @@
     <string name="please_wait">Espera unos minutos y vuelve a intentarlo.</string>
     <string name="points">Puntos</string>
     <string name="points_earned">Puntos obtenidos</string>
-    <string name="points_leaderboard_description">Puntos históricos. Un bloque es una época finalizada; la racha cuenta bloques consecutivos con puntos hasta el último.</string>
+    <string name="points_leaderboard_description">Puntos históricos. Un bloque es una semana; la racha cuenta bloques consecutivos con puntos, y una semana cuyos puntos no se pudieron otorgar, o aún se están otorgando, no la interrumpe.</string>
     <string name="points_leaderboard_empty">Todavía no hay nadie en la clasificación de puntos.</string>
     <string name="points_leaderboard_private_hint">Tu red aparece como Anónimo hasta que actives esta opción.</string>
     <string name="points_short">%1$s pts</string>

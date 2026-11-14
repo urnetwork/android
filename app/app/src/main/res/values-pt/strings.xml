@@ -1016,7 +1016,7 @@
     <string name="please_wait">Aguarde alguns minutos e tente novamente.</string>
     <string name="points">Pontos</string>
     <string name="points_earned">Pontos ganhos</string>
-    <string name="points_leaderboard_description">Pontos de sempre. Um bloco é uma época finalizada; a sequência conta blocos consecutivos com pontos até ao último.</string>
+    <string name="points_leaderboard_description">Pontos de sempre. Um bloco é uma semana; a sequência conta blocos consecutivos com pontos, e uma semana cujos pontos não puderam ser atribuídos, ou ainda estão a ser atribuídos, não a interrompe.</string>
     <string name="points_leaderboard_empty">Ainda ninguém está na tabela de pontos.</string>
     <string name="points_leaderboard_private_hint">A sua rede aparece como Anónimo até ativar esta opção.</string>
     <string name="points_short">%1$s pts</string>

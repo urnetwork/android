@@ -1016,7 +1016,7 @@
     <string name="please_wait">Poczekaj kilka minut i spróbuj ponownie.</string>
     <string name="points">Punkty</string>
     <string name="points_earned">Zdobyte punkty</string>
-    <string name="points_leaderboard_description">Punkty od początku. Blok to jedna sfinalizowana epoka; seria liczy kolejne bloki z punktami aż do ostatniego.</string>
+    <string name="points_leaderboard_description">Punkty od początku. Blok to jeden tydzień; seria liczy kolejne bloki z punktami, a tydzień, za który nie udało się przyznać punktów lub są one jeszcze przyznawane, jej nie przerywa.</string>
     <string name="points_leaderboard_empty">W rankingu punktów nie ma jeszcze nikogo.</string>
     <string name="points_leaderboard_private_hint">Twoja sieć jest wyświetlana jako Anonimowy, dopóki tego nie włączysz.</string>
     <string name="points_short">%1$s pkt</string>

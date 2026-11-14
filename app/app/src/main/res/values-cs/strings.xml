@@ -1016,7 +1016,7 @@
     <string name="please_wait">Prosím, počkejte několik minut a zkuste to znovu.</string>
     <string name="points">Body</string>
     <string name="points_earned">Získané body</string>
-    <string name="points_leaderboard_description">Body za celou dobu. Blok je jedna dokončená epocha; série počítá po sobě jdoucí bloky s body končící tím posledním.</string>
+    <string name="points_leaderboard_description">Body za celou dobu. Blok je jeden týden; série počítá po sobě jdoucí bloky s body a týden, za který se body nepodařilo přidělit nebo se ještě přidělují, ji nepřeruší.</string>
     <string name="points_leaderboard_empty">V žebříčku bodů zatím nikdo není.</string>
     <string name="points_leaderboard_private_hint">Vaše síť se zobrazuje jako Anonymní, dokud to nezapnete.</string>
     <string name="points_short">%1$s b.</string>

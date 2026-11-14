@@ -1016,7 +1016,7 @@
     <string name="please_wait">โปรดรอสักครู่ แล้วลองใหม่อีกครั้ง</string>
     <string name="points">คะแนน</string>
     <string name="points_earned">คะแนนที่ได้รับ</string>
-    <string name="points_leaderboard_description">คะแนนสะสมทั้งหมด บล็อกคือหนึ่งอีพอคที่สรุปแล้ว ต่อเนื่องนับบล็อกที่มีคะแนนติดต่อกันจนถึงบล็อกล่าสุด</string>
+    <string name="points_leaderboard_description">คะแนนสะสมทั้งหมด บล็อกคือหนึ่งสัปดาห์ ต่อเนื่องนับบล็อกที่มีคะแนนติดต่อกัน และสัปดาห์ที่มอบคะแนนไม่ได้หรือยังอยู่ระหว่างการมอบคะแนนจะไม่ทำให้ต่อเนื่องขาดช่วง</string>
     <string name="points_leaderboard_empty">ยังไม่มีใครบนกระดานคะแนน</string>
     <string name="points_leaderboard_private_hint">เครือข่ายของคุณจะแสดงเป็นไม่ระบุชื่อจนกว่าคุณจะเปิดตัวเลือกนี้</string>
     <string name="points_short">%1$s คะแนน</string>

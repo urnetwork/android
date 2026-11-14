@@ -1016,7 +1016,7 @@
     <string name="please_wait">Bitte warte ein paar Minuten und versuche es erneut.</string>
     <string name="points">Punkte</string>
     <string name="points_earned">Verdiente Punkte</string>
-    <string name="points_leaderboard_description">Punkte seit Beginn. Ein Block ist eine abgeschlossene Epoche; die Serie zählt aufeinanderfolgende Blöcke mit Punkten bis zum letzten.</string>
+    <string name="points_leaderboard_description">Punkte seit Beginn. Ein Block ist eine Woche; die Serie zählt aufeinanderfolgende Blöcke mit Punkten, und eine Woche, deren Punkte nicht vergeben werden konnten oder noch vergeben werden, unterbricht sie nicht.</string>
     <string name="points_leaderboard_empty">Noch niemand ist in der Punkte-Bestenliste.</string>
     <string name="points_leaderboard_private_hint">Dein Netzwerk erscheint als Anonym, bis du das einschaltest.</string>
     <string name="points_short">%1$s Pkt.</string>

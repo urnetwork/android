@@ -1031,7 +1031,7 @@
     <string name="please_wait">Please wait a few minutes and try again.</string>
     <string name="points">Points</string>
     <string name="points_earned">Points earned</string>
-    <string name="points_leaderboard_description">All-time points. A block is one finalized epoch; the streak counts consecutive blocks with points, ending at the latest one.</string>
+    <string name="points_leaderboard_description">All-time points. A block is one week; the streak counts consecutive blocks with points, and a week whose points couldn\'t be awarded, or are still being awarded, doesn\'t break it.</string>
     <string name="points_leaderboard_empty">No one is on the points leaderboard yet.</string>
     <string name="points_leaderboard_private_hint">Your network appears as Anonymous until you turn this on.</string>
     <string name="points_short">%1$s pts</string>
