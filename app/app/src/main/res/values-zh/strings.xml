@@ -1016,7 +1016,7 @@
     <string name="please_wait">请稍等片刻，然后重试。</string>
     <string name="points">积分</string>
     <string name="points_earned">已获得积分</string>
-    <string name="points_leaderboard_description">历史累计积分。一个区块是一个已确认的周期；连续统计直到最新区块的连续得分区块数。</string>
+    <string name="points_leaderboard_description">历史累计积分。一个区块为一周；连续统计连续得分的区块数，积分未能发放或仍在发放中的一周不会中断连续。</string>
     <string name="points_leaderboard_empty">积分排行榜上还没有人。</string>
     <string name="points_leaderboard_private_hint">在你开启此项之前，你的网络显示为匿名。</string>
     <string name="points_short">%1$s 积分</string>

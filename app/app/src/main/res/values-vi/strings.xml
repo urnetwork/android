@@ -1016,7 +1016,7 @@
     <string name="please_wait">Vui lòng đợi vài phút rồi thử lại.</string>
     <string name="points">Điểm</string>
     <string name="points_earned">Điểm đã kiếm được</string>
-    <string name="points_leaderboard_description">Điểm tích lũy. Một khối là một epoch đã hoàn tất; chuỗi đếm các khối liên tiếp có điểm cho đến khối mới nhất.</string>
+    <string name="points_leaderboard_description">Điểm tích lũy. Một khối là một tuần; chuỗi đếm các khối liên tiếp có điểm, và tuần không thể trao điểm hoặc vẫn đang trao điểm sẽ không làm đứt chuỗi.</string>
     <string name="points_leaderboard_empty">Chưa có ai trên bảng xếp hạng điểm.</string>
     <string name="points_leaderboard_private_hint">Mạng của bạn hiển thị là Ẩn danh cho đến khi bạn bật tùy chọn này.</string>
     <string name="points_short">%1$s điểm</string>

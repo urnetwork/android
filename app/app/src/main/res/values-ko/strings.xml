@@ -1016,7 +1016,7 @@
     <string name="please_wait">잠시 후 다시 시도해 주세요.</string>
     <string name="points">포인트</string>
     <string name="points_earned">획득한 포인트</string>
-    <string name="points_leaderboard_description">누적 포인트입니다. 블록은 확정된 에포크 하나이며, 연속은 최신 블록까지 포인트를 얻은 연속 블록 수입니다.</string>
+    <string name="points_leaderboard_description">누적 포인트입니다. 블록은 한 주이며, 연속은 포인트를 얻은 연속 블록 수로, 포인트를 지급하지 못했거나 아직 지급 중인 주가 있어도 끊기지 않습니다.</string>
     <string name="points_leaderboard_empty">아직 포인트 리더보드에 아무도 없습니다.</string>
     <string name="points_leaderboard_private_hint">이 옵션을 켜기 전까지 내 네트워크는 익명으로 표시됩니다.</string>
     <string name="points_short">%1$s점</string>

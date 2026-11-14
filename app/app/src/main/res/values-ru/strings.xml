@@ -1016,7 +1016,7 @@
     <string name="please_wait">Пожалуйста, подождите несколько минут и попробуйте снова.</string>
     <string name="points">Очки</string>
     <string name="points_earned">Заработано очков</string>
-    <string name="points_leaderboard_description">Очки за всё время. Блок — одна завершённая эпоха; серия считает подряд идущие блоки с очками до последнего.</string>
+    <string name="points_leaderboard_description">Очки за всё время. Блок — одна неделя; серия считает подряд идущие блоки с очками, и неделя, очки за которую не удалось начислить или ещё начисляются, её не прерывает.</string>
     <string name="points_leaderboard_empty">В таблице лидеров по очкам пока никого нет.</string>
     <string name="points_leaderboard_private_hint">Ваша сеть отображается как «Анонимно», пока вы не включите этот параметр.</string>
     <string name="points_short">%1$s очк.</string>

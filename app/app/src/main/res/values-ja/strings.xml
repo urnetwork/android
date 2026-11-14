@@ -1016,7 +1016,7 @@
     <string name="please_wait">しばらく待ってから再試行してください。</string>
     <string name="points">ポイント</string>
     <string name="points_earned">獲得ポイント</string>
-    <string name="points_leaderboard_description">累計ポイント。ブロックは確定した1エポック。連続は最新ブロックまでポイントを獲得した連続ブロック数です。</string>
+    <string name="points_leaderboard_description">累計ポイント。ブロックは1週間です。連続はポイントを獲得した連続ブロック数で、ポイントを付与できなかった週や、まだ付与中の週があっても途切れません。</string>
     <string name="points_leaderboard_empty">ポイントリーダーボードにはまだ誰もいません。</string>
     <string name="points_leaderboard_private_hint">オンにするまで、あなたのネットワークは匿名として表示されます。</string>
     <string name="points_short">%1$s pt</string>

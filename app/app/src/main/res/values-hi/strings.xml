@@ -1016,7 +1016,7 @@
     <string name="please_wait">कृपया कुछ मिनट प्रतीक्षा करें और पुनः प्रयास करें।</string>
     <string name="points">पॉइंट</string>
     <string name="points_earned">अर्जित पॉइंट</string>
-    <string name="points_leaderboard_description">अब तक के कुल पॉइंट। एक ब्लॉक एक पूर्ण एपोक है; स्ट्रीक पॉइंट वाले लगातार ब्लॉक गिनती है, जो नवीनतम पर समाप्त होती है।</string>
+    <string name="points_leaderboard_description">अब तक के कुल पॉइंट। एक ब्लॉक एक सप्ताह है; स्ट्रीक पॉइंट वाले लगातार ब्लॉक गिनती है, और जिस सप्ताह के पॉइंट नहीं दिए जा सके या अभी दिए जा रहे हैं, उससे स्ट्रीक नहीं टूटती।</string>
     <string name="points_leaderboard_empty">पॉइंट लीडरबोर्ड पर अभी कोई नहीं है।</string>
     <string name="points_leaderboard_private_hint">जब तक आप इसे चालू नहीं करते, आपका नेटवर्क अनाम के रूप में दिखता है।</string>
     <string name="points_short">%1$s पॉइंट</string>

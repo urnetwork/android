@@ -1016,7 +1016,7 @@
     <string name="please_wait">Περιμένετε λίγα λεπτά και προσπαθήστε ξανά.</string>
     <string name="points">Πόντοι</string>
     <string name="points_earned">Πόντοι που κερδίσατε</string>
-    <string name="points_leaderboard_description">Πόντοι όλων των εποχών. Ένα μπλοκ είναι μία οριστικοποιημένη εποχή· το σερί μετρά διαδοχικά μπλοκ με πόντους έως το τελευταίο.</string>
+    <string name="points_leaderboard_description">Πόντοι όλων των εποχών. Ένα μπλοκ είναι μία εβδομάδα· το σερί μετρά διαδοχικά μπλοκ με πόντους, και μια εβδομάδα της οποίας οι πόντοι δεν μπόρεσαν να απονεμηθούν ή απονέμονται ακόμη δεν το διακόπτει.</string>
     <string name="points_leaderboard_empty">Κανείς δεν είναι ακόμη στον πίνακα πόντων.</string>
     <string name="points_leaderboard_private_hint">Το δίκτυό σας εμφανίζεται ως Ανώνυμο μέχρι να το ενεργοποιήσετε.</string>
     <string name="points_short">%1$s πόντ.</string>

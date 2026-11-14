@@ -1016,7 +1016,7 @@
     <string name="please_wait">Tafadhali subiri dakika chache kisha ujaribu tena.</string>
     <string name="points">Pointi</string>
     <string name="points_earned">Pointi ulizopata</string>
-    <string name="points_leaderboard_description">Pointi za wakati wote. Kitalu ni kipindi kimoja kilichokamilika; mfululizo huhesabu vitalu mfululizo vyenye pointi hadi cha mwisho.</string>
+    <string name="points_leaderboard_description">Pointi za wakati wote. Kitalu ni wiki moja; mfululizo huhesabu vitalu mfululizo vyenye pointi, na wiki ambayo pointi zake hazikuweza kutolewa, au bado zinatolewa, haiuvunji.</string>
     <string name="points_leaderboard_empty">Bado hakuna mtu kwenye ubao wa pointi.</string>
     <string name="points_leaderboard_private_hint">Mtandao wako unaonekana kama Bila jina hadi uwashe hii.</string>
     <string name="points_short">Pointi %1$s</string>

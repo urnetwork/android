@@ -1016,7 +1016,7 @@
     <string name="please_wait">يرجى الانتظار بضع دقائق وحاول مرة أخرى.</string>
     <string name="points">النقاط</string>
     <string name="points_earned">النقاط المكتسبة</string>
-    <string name="points_leaderboard_description">النقاط منذ البداية. الكتلة هي فترة مكتملة واحدة؛ وتحسب السلسلة الكتل المتتالية ذات النقاط حتى آخر كتلة.</string>
+    <string name="points_leaderboard_description">النقاط منذ البداية. الكتلة هي أسبوع واحد؛ وتحسب السلسلة الكتل المتتالية ذات النقاط، ولا يقطعها أسبوع تعذّر منح نقاطه أو ما زال منحها جاريًا.</string>
     <string name="points_leaderboard_empty">لا أحد في لوحة صدارة النقاط بعد.</string>
     <string name="points_leaderboard_private_hint">تظهر شبكتك باسم «مجهول» حتى تفعّل هذا الخيار.</string>
     <string name="points_short">%1$s نقطة</string>

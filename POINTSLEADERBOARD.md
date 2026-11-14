@@ -44,7 +44,7 @@ server → SDK view controller → Android (reference UI) → iOS/macOS → ur.i
 | Total points | `SUM(point_value)` over every `account_point` row of the network, all time. Displayed in points (1 point = 1,000,000 nano points, the same `snNanoPointsPerPoint` the epochs endpoint uses) with the existing `FormatPoints` style. |
 | Block | One **finalized** SN epoch. Only finalized epochs count; the open epoch is never counted. |
 | Blocks with points | Number of finalized epochs in which the network's points inside the epoch window are > 0. |
-| Streak | Number of consecutive finalized epochs with points, **ending at the latest finalized epoch** (current streak). If the latest finalized epoch has no points the streak is 0. `longest_streak` is also stored (cheap, same pass) and shown as a secondary stat, but the rank is on the current streak. |
+| Streak | Number of consecutive finalized epochs with points, **ending at the latest finalized epoch** (current streak). If the latest finalized epoch has no points the streak is 0, unless that block is excused or pending. A block whose award expired is **excused** (owner decision 2026-11-14, option B): it neither breaks nor extends a run, and points earned in it from another source count as in any block. The latest completed block is **pending** until its award commits (owner decision 2026-11-14): it neither breaks nor extends the current streak and leaves the longest unchanged; once awarded it counts as any block, and if its award expires it is excused. `longest_streak` is also stored (cheap, same pass) and shown as a secondary stat, but the rank is on the current streak. |
 | Rank | Competition ranking per dimension (`RANK()`: 1, 2, 2, 4) on the sort's full key tuple: a rank is shared only when all three values tie. Tie-break order per sort (user, 2026-09-03), every key desc: **points = (points, streak, blocks)**, **blocks = (blocks, streak, points)**, **streak = (streak, blocks, points)**, then network id asc — a total order, so pages never overlap. The one definition lives in the SDK (`ComparePointsLeaderboardKeys` next to the view controller, which keeps its rows in that order); the server ranks and pages with the same function. |
 
 ## Visibility and identity
@@ -155,7 +155,11 @@ server → SDK view controller → Android (reference UI) → iOS/macOS → ur.i
 - **D1 Block = finalized SN epoch** — RESOLVED (user, 2026-09-03). The open epoch never counts.
 - **D2 Streak = current streak** — RESOLVED (user). Consecutive finalized epochs with points
   ending at the latest finalized epoch; 0 if the latest was missed. `longest_streak` stored and
-  shown as a secondary number, never ranked.
+  shown as a secondary number, never ranked. Amended 2026-11-14 (owner): a block whose award
+  expired is excused (option B: neither breaks nor extends a run; points earned in it from
+  another source count), and the latest completed block is pending until its award commits
+  (neither breaks nor extends the current streak, longest unaffected; it counts normally once
+  awarded and is excused if it expires).
 - **D3 Rank population = everyone with points** — RESOLVED (user). The opt-in only controls
   display; the visible list has gaps; "of N" = all ranked networks.
 - **D4 Every ranked network is listed; the switch reveals the name** — RESOLVED (user,
