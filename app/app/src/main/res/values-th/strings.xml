@@ -222,6 +222,7 @@
     <string name="checking_payment">กำลังตรวจสอบการชำระเงิน</string>
     <string name="checking_solana_transactions">กำลังตรวจสอบธุรกรรม Solana</string>
     <string name="checking_wallet_address">กำลังตรวจสอบที่อยู่…</string>
+    <string name="checkout_error_incorrect_cvc">รหัสความปลอดภัย (CVC) ของบัตรไม่ตรงกัน โปรดตรวจสอบข้อมูลบัตรแล้วลองอีกครั้ง</string>
     <string name="choose_file">เลือกไฟล์</string>
     <string name="choose_image_file">เลือกไฟล์รูปภาพ</string>
     <string name="choose_photo">เลือกรูปภาพ</string>

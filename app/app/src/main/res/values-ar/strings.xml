@@ -222,6 +222,7 @@
     <string name="checking_payment">جارٍ التحقق من الدفع</string>
     <string name="checking_solana_transactions">جارٍ التحقق من معاملات Solana</string>
     <string name="checking_wallet_address">جارٍ التحقق من العنوان…</string>
+    <string name="checkout_error_incorrect_cvc">رمز الأمان لبطاقتك (CVC) غير مطابق. تحقق من بيانات البطاقة وحاول مرة أخرى.</string>
     <string name="choose_file">اختيار ملف</string>
     <string name="choose_image_file">اختيار ملف صورة</string>
     <string name="choose_photo">اختيار صورة</string>

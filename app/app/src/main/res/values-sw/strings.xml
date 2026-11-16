@@ -222,6 +222,7 @@
     <string name="checking_payment">Inakagua malipo</string>
     <string name="checking_solana_transactions">Inakagua miamala ya Solana</string>
     <string name="checking_wallet_address">Inakagua anwani…</string>
+    <string name="checkout_error_incorrect_cvc">Msimbo wa usalama (CVC) wa kadi yako haukulingana. Kagua maelezo ya kadi kisha ujaribu tena.</string>
     <string name="choose_file">Chagua faili</string>
     <string name="choose_image_file">Chagua faili ya picha</string>
     <string name="choose_photo">Chagua picha</string>

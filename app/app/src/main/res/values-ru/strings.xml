@@ -222,6 +222,7 @@
     <string name="checking_payment">Проверка платежа</string>
     <string name="checking_solana_transactions">Проверка транзакций Solana</string>
     <string name="checking_wallet_address">Проверка адреса…</string>
+    <string name="checkout_error_incorrect_cvc">Код безопасности (CVC) вашей карты не совпал. Проверьте данные карты и попробуйте снова.</string>
     <string name="choose_file">Выбрать файл</string>
     <string name="choose_image_file">Выбрать файл изображения</string>
     <string name="choose_photo">Выбрать фото</string>
