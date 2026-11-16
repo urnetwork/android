@@ -100,6 +100,49 @@ class PurchaseConfirmationTest {
         assertEquals(listOf("foreground:true", "start", "startPurchaseConfirmation"), h.sources.single().calls)
     }
 
+    // the trial card check: the server refused the purchase when it was reported
+    // (StripePurchaseReport), and the balance never says so
+    @Test
+    fun refusedPurchaseEndsTheConfirmationWithoutTheOverlayOrTheDelayedNotice() {
+        val h = Harness()
+        h.confirmation.prepare()
+        h.confirmation.confirm()
+
+        h.confirmation.refuse()
+        // the budget running out later says nothing
+        h.onState!!("confirmation_gave_up")
+        h.onState!!("confirmed")
+
+        assertEquals(emptyList<Boolean>(), h.confirmed)
+        assertEquals(0, h.gaveUp)
+        assertFalse(h.confirmation.waiting)
+        assertEquals(
+            listOf("foreground:true", "start", "startPurchaseConfirmation", "clear", "close"),
+            h.sources.single().calls
+        )
+    }
+
+    @Test
+    fun aRefusalLeavesAPurchaseOpenedSinceAlone() {
+        val h = Harness()
+        // a refusal after the confirmation gave up, while the next purchase's
+        // sheet is up with its baseline loaded
+        h.confirmation.confirm()
+        h.onState!!("confirmation_gave_up")
+        h.confirmation.prepare()
+
+        h.confirmation.refuse()
+
+        assertEquals(1, h.gaveUp)
+        assertEquals(2, h.sources.size)
+        assertEquals(listOf("foreground:true", "start"), h.sources.last().calls)
+        // that purchase confirms as ever
+        h.confirmation.confirm()
+        h.sources.last().pro = true
+        h.onState!!("confirmed")
+        assertEquals(listOf(true), h.confirmed)
+    }
+
     @Test
     fun cancelledPurchaseClosesTheSourceWithoutAnnouncing() {
         val h = Harness()

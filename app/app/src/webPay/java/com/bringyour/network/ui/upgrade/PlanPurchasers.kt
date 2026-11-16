@@ -45,7 +45,10 @@ import com.bringyour.sdk.Sdk
  * view: the server prepares the intent (StripeSheetRequest), the page mounts
  * Stripe's Payment Element on it, and navigates to the `return` url when the
  * purchase is done, which the web view intercepts; the purchase is then reported
- * to the server (StripePurchaseReport). Never an external browser.
+ * to the server (StripePurchaseReport). Never an external browser. A trial the
+ * server refuses when it is reported (its card failed the CVC check) ends the
+ * confirmation and shows the refusal with Try again (MainNavHost), which opens
+ * Get Pro for a new pay page.
  */
 @Composable
 fun rememberPlanPurchaser(
@@ -68,13 +71,12 @@ fun rememberPlanPurchaser(
                 planViewModel.setInProgress(false)
                 ClientEvents.purchaseCompleted(Sdk.EventStoreStripe, ClientEvents.PRODUCT_STRIPE_PRO, page.plan, page.trial, page.price, page.currency)
                 onPurchaseSuccess()
-                // the server credits it now, not when Stripe's webhook arrives; after
+                // the server credits it now, not when Stripe's webhook arrives, or
+                // refuses a trial whose card failed its CVC check; after
                 // onPurchaseSuccess, so the confirmation's baseline predates the credit
-                StripePurchaseReport.report(
-                    api = planViewModel.api,
-                    subscriptionId = page.subscriptionId,
-                    onCredited = subscriptionBalanceViewModel.fetchSubscriptionBalance,
-                )
+                subscriptionBalanceViewModel.reportCardPurchase(planViewModel.api, page.subscriptionId) { refusal ->
+                    ClientEvents.purchaseFailed(Sdk.EventStoreStripe, ClientEvents.PRODUCT_STRIPE_PRO, page.plan, page.trial, page.price, page.currency, refusal.errorClass)
+                }
             },
             onDismiss = {
                 payPage = null
