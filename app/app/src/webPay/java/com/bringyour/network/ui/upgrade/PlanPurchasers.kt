@@ -1,10 +1,7 @@
 package com.bringyour.network.ui.upgrade
 
-import android.annotation.SuppressLint
 import android.net.Uri
-import android.webkit.WebResourceRequest
 import android.webkit.WebView
-import android.webkit.WebViewClient
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -17,6 +14,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.listSaver
@@ -183,13 +181,17 @@ private val PayPageSaver = listSaver<PayPage?, Any>(
     },
 )
 
-@SuppressLint("SetJavaScriptEnabled")
 @Composable
 private fun PayPageDialog(page: PayPage, onDone: () -> Unit, onDismiss: () -> Unit) {
+    // a window the page opened (a bank's 3D Secure window, PayPageWebView), shown
+    // over the page until it closes; the close and back close it first, so the
+    // purchase underneath goes on
+    var popup by remember { mutableStateOf<WebView?>(null) }
+    val close = { if (popup != null) popup = null else onDismiss() }
     // beside a fold the page fills one side, and a fold or an unfold
     // while it is open never reloads it (FoldSafeDialog)
     FoldSafeDialog(
-        onDismissRequest = onDismiss,
+        onDismissRequest = close,
         properties = DialogProperties(usePlatformDefaultWidth = false, dismissOnClickOutside = false),
         fullScreen = true,
     ) {
@@ -199,31 +201,38 @@ private fun PayPageDialog(page: PayPage, onDone: () -> Unit, onDismiss: () -> Un
                 .background(Black)
         ) {
             Box(modifier = Modifier.fillMaxWidth()) {
-                IconButton(onClick = onDismiss, modifier = Modifier.align(Alignment.CenterEnd)) {
+                IconButton(onClick = close, modifier = Modifier.align(Alignment.CenterEnd)) {
                     Icon(Icons.Filled.Close, contentDescription = stringResource(id = R.string.close))
                 }
             }
-            AndroidView(
-                modifier = Modifier.fillMaxSize(),
-                factory = { context ->
-                    WebView(context).apply {
-                        settings.javaScriptEnabled = true
-                        settings.domStorageEnabled = true
-                        webViewClient = object : WebViewClient() {
-                            override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
-                                val url = request?.url ?: return false
-                                if (url.toString().startsWith(PAY_RETURN_URL)) {
-                                    onDone()
-                                    return true
-                                }
-                                // the page stays on ur.io and Stripe's own frames
-                                return false
-                            }
+            Box(modifier = Modifier.fillMaxSize()) {
+                AndroidView(
+                    modifier = Modifier.fillMaxSize(),
+                    factory = { context ->
+                        PayPageWebView.create(
+                            context = context,
+                            returnUrl = PAY_RETURN_URL,
+                            onReturn = onDone,
+                            onPopup = { window -> popup = window },
+                            onPopupClosed = { window -> if (popup === window) popup = null },
+                        ).apply {
+                            loadUrl(page.url)
                         }
-                        loadUrl(page.url)
+                    }
+                )
+                popup?.let { window ->
+                    // a new window gets a view of its own
+                    key(window) {
+                        AndroidView(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(Black),
+                            factory = { window },
+                            onRelease = { it.destroy() },
+                        )
                     }
                 }
-            )
+            }
         }
     }
 }
