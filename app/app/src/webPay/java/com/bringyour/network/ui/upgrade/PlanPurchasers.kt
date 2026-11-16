@@ -1,10 +1,7 @@
 package com.bringyour.network.ui.upgrade
 
-import android.annotation.SuppressLint
 import android.net.Uri
-import android.webkit.WebResourceRequest
 import android.webkit.WebView
-import android.webkit.WebViewClient
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -17,6 +14,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.listSaver
@@ -45,7 +43,10 @@ import com.bringyour.sdk.Sdk
  * view: the server prepares the intent (StripeSheetRequest), the page mounts
  * Stripe's Payment Element on it, and navigates to the `return` url when the
  * purchase is done, which the web view intercepts; the purchase is then reported
- * to the server (StripePurchaseReport). Never an external browser.
+ * to the server (StripePurchaseReport). Never an external browser. A trial the
+ * server refuses when it is reported (its card failed the CVC check) ends the
+ * confirmation and shows the refusal with Try again (MainNavHost), which opens
+ * Get Pro for a new pay page.
  */
 @Composable
 fun rememberPlanPurchaser(
@@ -68,13 +69,12 @@ fun rememberPlanPurchaser(
                 planViewModel.setInProgress(false)
                 ClientEvents.purchaseCompleted(Sdk.EventStoreStripe, ClientEvents.PRODUCT_STRIPE_PRO, page.plan, page.trial, page.price, page.currency)
                 onPurchaseSuccess()
-                // the server credits it now, not when Stripe's webhook arrives; after
+                // the server credits it now, not when Stripe's webhook arrives, or
+                // refuses a trial whose card failed its CVC check; after
                 // onPurchaseSuccess, so the confirmation's baseline predates the credit
-                StripePurchaseReport.report(
-                    api = planViewModel.api,
-                    subscriptionId = page.subscriptionId,
-                    onCredited = subscriptionBalanceViewModel.fetchSubscriptionBalance,
-                )
+                subscriptionBalanceViewModel.reportCardPurchase(planViewModel.api, page.subscriptionId) { refusal ->
+                    ClientEvents.purchaseFailed(Sdk.EventStoreStripe, ClientEvents.PRODUCT_STRIPE_PRO, page.plan, page.trial, page.price, page.currency, refusal.errorClass)
+                }
             },
             onDismiss = {
                 payPage = null
@@ -181,13 +181,17 @@ private val PayPageSaver = listSaver<PayPage?, Any>(
     },
 )
 
-@SuppressLint("SetJavaScriptEnabled")
 @Composable
 private fun PayPageDialog(page: PayPage, onDone: () -> Unit, onDismiss: () -> Unit) {
+    // a window the page opened (a bank's 3D Secure window, PayPageWebView), shown
+    // over the page until it closes; the close and back close it first, so the
+    // purchase underneath goes on
+    var popup by remember { mutableStateOf<WebView?>(null) }
+    val close = { if (popup != null) popup = null else onDismiss() }
     // beside a fold the page fills one side, and a fold or an unfold
     // while it is open never reloads it (FoldSafeDialog)
     FoldSafeDialog(
-        onDismissRequest = onDismiss,
+        onDismissRequest = close,
         properties = DialogProperties(usePlatformDefaultWidth = false, dismissOnClickOutside = false),
         fullScreen = true,
     ) {
@@ -197,31 +201,38 @@ private fun PayPageDialog(page: PayPage, onDone: () -> Unit, onDismiss: () -> Un
                 .background(Black)
         ) {
             Box(modifier = Modifier.fillMaxWidth()) {
-                IconButton(onClick = onDismiss, modifier = Modifier.align(Alignment.CenterEnd)) {
+                IconButton(onClick = close, modifier = Modifier.align(Alignment.CenterEnd)) {
                     Icon(Icons.Filled.Close, contentDescription = stringResource(id = R.string.close))
                 }
             }
-            AndroidView(
-                modifier = Modifier.fillMaxSize(),
-                factory = { context ->
-                    WebView(context).apply {
-                        settings.javaScriptEnabled = true
-                        settings.domStorageEnabled = true
-                        webViewClient = object : WebViewClient() {
-                            override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
-                                val url = request?.url ?: return false
-                                if (url.toString().startsWith(PAY_RETURN_URL)) {
-                                    onDone()
-                                    return true
-                                }
-                                // the page stays on ur.io and Stripe's own frames
-                                return false
-                            }
+            Box(modifier = Modifier.fillMaxSize()) {
+                AndroidView(
+                    modifier = Modifier.fillMaxSize(),
+                    factory = { context ->
+                        PayPageWebView.create(
+                            context = context,
+                            returnUrl = PAY_RETURN_URL,
+                            onReturn = onDone,
+                            onPopup = { window -> popup = window },
+                            onPopupClosed = { window -> if (popup === window) popup = null },
+                        ).apply {
+                            loadUrl(page.url)
                         }
-                        loadUrl(page.url)
+                    }
+                )
+                popup?.let { window ->
+                    // a new window gets a view of its own
+                    key(window) {
+                        AndroidView(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(Black),
+                            factory = { window },
+                            onRelease = { it.destroy() },
+                        )
                     }
                 }
-            )
+            }
         }
     }
 }

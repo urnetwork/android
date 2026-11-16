@@ -222,6 +222,7 @@
     <string name="checking_payment">Betaling controleren</string>
     <string name="checking_solana_transactions">Controleren op Solana-transacties</string>
     <string name="checking_wallet_address">Adres controleren…</string>
+    <string name="checkout_error_incorrect_cvc">De beveiligingscode (CVC) van je kaart klopt niet. Controleer de kaartgegevens en probeer het opnieuw.</string>
     <string name="choose_file">Bestand kiezen</string>
     <string name="choose_image_file">Afbeeldingsbestand kiezen</string>
     <string name="choose_photo">Foto kiezen</string>

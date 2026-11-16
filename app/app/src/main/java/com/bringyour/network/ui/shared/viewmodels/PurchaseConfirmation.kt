@@ -20,8 +20,9 @@ import com.bringyour.sdk.Sdk
  *
  * [prepare] opens the controller when a purchase UI starts so the baseline loads
  * before the payment; [confirm] starts the confirmation when the purchase UI
- * reports success. Main-thread confined: the source's state callbacks must be
- * delivered on the main thread.
+ * reports success; [refuse] ends it when the server refused the purchase.
+ * Main-thread confined: the source's state callbacks must be delivered on the
+ * main thread.
  */
 internal class PurchaseConfirmation(
     private val openSource: (onState: (String) -> Unit) -> Source?,
@@ -75,6 +76,20 @@ internal class PurchaseConfirmation(
         waiting = true
         s.startPurchaseConfirmation()
         return true
+    }
+
+    /**
+     * The server refused the purchase when it was reported (a yearly trial whose
+     * card failed its CVC check, StripePurchaseReport). The balance never says
+     * so, so a waiting confirmation would run out its budget and give up with the
+     * confirmation-delayed notice ("Payment received"). It ends now, with neither
+     * callback. A purchase UI opened since (a prepared baseline, not waiting) is
+     * left alone.
+     */
+    fun refuse() {
+        if (waiting) {
+            end()
+        }
     }
 
     fun setForeground(foreground: Boolean) {

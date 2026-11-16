@@ -19,6 +19,8 @@ import com.bringyour.network.ForegroundPollingSession
 import com.bringyour.network.JwtManager
 import com.bringyour.network.ui.account.GuestAccount
 import com.bringyour.network.ui.upgrade.PastDueRenewal
+import com.bringyour.network.ui.upgrade.StripePurchaseRefusal
+import com.bringyour.network.ui.upgrade.StripePurchaseReport
 import com.bringyour.network.ui.upgrade.planStore
 import com.bringyour.network.TAG
 import com.bringyour.sdk.AuthCodeCreateArgs
@@ -315,6 +317,59 @@ class SubscriptionBalanceViewModel @Inject constructor(
         } else {
             pollSubscriptionBalance()
         }
+    }
+
+    // the subscription id of the card purchase reported last (reportCardPurchase)
+    private var reportedCardPurchase = ""
+
+    /**
+     * Reports a finished card purchase to the server (StripePurchaseReport), after
+     * confirmPurchase, so the confirmation's baseline predates the credit. A credit
+     * refreshes the balance at once; a refusal ends the confirmation and shows why
+     * ([purchaseRefusal]), and runs [onRefused] (the purchaser's failed event).
+     */
+    fun reportCardPurchase(api: Api?, subscriptionId: String?, onRefused: (StripePurchaseRefusal) -> Unit) {
+        val id = subscriptionId?.trim().orEmpty()
+        reportedCardPurchase = id
+        StripePurchaseReport.report(
+            api = api,
+            subscriptionId = id,
+            onCredited = fetchSubscriptionBalance,
+            onRefused = { refusal ->
+                if (purchaseRefused(id, refusal)) {
+                    onRefused(refusal)
+                }
+            },
+        )
+    }
+
+    /**
+     * A card purchase the server refused when it was reported: a yearly trial whose
+     * card failed its CVC check gets no Pro, and the card was detached, so nothing
+     * is charged. MainNavHost shows it with Try again, which opens Get Pro, where the
+     * plan button asks for a new payment sheet. Null when there is none to show.
+     */
+    var purchaseRefusal by mutableStateOf<StripePurchaseRefusal?>(null)
+        private set
+
+    /** False for a refusal of a purchase reported before the latest one, which is left alone. */
+    private fun purchaseRefused(subscriptionId: String, refusal: StripePurchaseRefusal): Boolean {
+        if (subscriptionId != reportedCardPurchase) {
+            // a newer card purchase was reported since: its own answer decides
+            Log.i(TAG, "card purchase refusal for an earlier purchase: ${refusal.errorClass}")
+            return false
+        }
+        // the balance never shows a refusal (the trial just never turns Pro), so the
+        // confirmation ends here instead of running out with "Payment received"
+        purchaseConfirmation.refuse()
+        isConfirmingPurchase = false
+        purchaseRefusal = refusal
+        createBackgroundPollingJob()
+        return true
+    }
+
+    fun dismissPurchaseRefusal() {
+        purchaseRefusal = null
     }
 
     var isPollingSubscriptionBalance by mutableStateOf(false)

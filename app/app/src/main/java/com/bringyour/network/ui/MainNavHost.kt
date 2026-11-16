@@ -33,6 +33,7 @@ import com.bringyour.network.ui.introduction.IntroductionOffer
 import com.bringyour.network.ui.introduction.IntroStepTimer
 import com.bringyour.network.ui.shared.enums.PlanType
 import com.bringyour.network.ui.upgrade.rememberPlanPresentation
+import com.bringyour.network.ui.upgrade.CheckoutRefusal
 import com.bringyour.network.ui.upgrade.CryptoInvoiceHost
 import com.bringyour.network.ui.upgrade.PaymentMethodsScope
 import com.bringyour.network.ui.upgrade.PaymentPastDueNotice
@@ -742,13 +743,61 @@ private fun MainNavHostContent(
         )
     }
 
-    if (showConfirmationDelayedDialog) {
+    // a refused card purchase was not received: its refusal replaces the notice
+    val purchaseRefusal = subscriptionBalanceViewModel.purchaseRefusal
+
+    if (showConfirmationDelayedDialog && purchaseRefusal == null) {
         FoldSafeAlertDialog(
             onDismissRequest = { showConfirmationDelayedDialog = false },
             title = { Text(stringResource(id = R.string.payment_received_title)) },
             text = { Text(stringResource(id = R.string.payment_confirmation_delayed)) },
             confirmButton = {
                 TextButton(onClick = { showConfirmationDelayedDialog = false }) {
+                    Text(stringResource(id = R.string.close))
+                }
+            }
+        )
+    }
+
+    /**
+     * A card purchase the server refused when the app reported it
+     * (SubscriptionBalanceViewModel.purchaseRefusal): a yearly trial whose card
+     * failed its CVC check. There is no Pro, and the card was detached, so it is
+     * never charged. The purchase confirmation has ended, so the "Payment received"
+     * notice never follows, and one already up (the refusal came after the
+     * confirmation gave up) is closed. Try again opens Get Pro, where the plan
+     * button asks the server for a new payment sheet or pay page.
+     */
+    LaunchedEffect(purchaseRefusal) {
+        if (purchaseRefusal != null) {
+            showConfirmationDelayedDialog = false
+        }
+    }
+
+    purchaseRefusal?.let { refusal ->
+        val notCompleted = stringResource(id = R.string.payment_not_completed)
+        val refusalContext = LocalContext.current
+        FoldSafeAlertDialog(
+            onDismissRequest = { subscriptionBalanceViewModel.dismissPurchaseRefusal() },
+            title = { Text(stringResource(id = R.string.payment_problem)) },
+            text = {
+                // the reader's line for the code, else the server's words
+                Text(CheckoutRefusal.refusedMessage(refusal.code, refusal.words, notCompleted) { id -> refusalContext.getString(id) })
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        subscriptionBalanceViewModel.dismissPurchaseRefusal()
+                        if (navController.currentDestination?.hasRoute<Route.Upgrade>() != true) {
+                            navController.navigate(Route.Upgrade)
+                        }
+                    }
+                ) {
+                    Text(stringResource(id = R.string.try_again))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { subscriptionBalanceViewModel.dismissPurchaseRefusal() }) {
                     Text(stringResource(id = R.string.close))
                 }
             }

@@ -222,6 +222,7 @@
     <string name="checking_payment">正在检查付款</string>
     <string name="checking_solana_transactions">正在检查 Solana 交易</string>
     <string name="checking_wallet_address">正在检查地址…</string>
+    <string name="checkout_error_incorrect_cvc">您的银行卡安全码（CVC）不匹配。请检查卡片信息后重试。</string>
     <string name="choose_file">选择文件</string>
     <string name="choose_image_file">选择图片文件</string>
     <string name="choose_photo">选择照片</string>

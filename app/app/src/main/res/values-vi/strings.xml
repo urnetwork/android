@@ -222,6 +222,7 @@
     <string name="checking_payment">Đang kiểm tra thanh toán</string>
     <string name="checking_solana_transactions">Đang kiểm tra giao dịch Solana</string>
     <string name="checking_wallet_address">Đang kiểm tra địa chỉ…</string>
+    <string name="checkout_error_incorrect_cvc">Mã bảo mật (CVC) của thẻ không khớp. Hãy kiểm tra thông tin thẻ rồi thử lại.</string>
     <string name="choose_file">Chọn tệp</string>
     <string name="choose_image_file">Chọn tệp hình ảnh</string>
     <string name="choose_photo">Chọn ảnh</string>

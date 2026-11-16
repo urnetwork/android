@@ -31,7 +31,8 @@ sealed interface StripeSheetFailure {
  *   as it did before the codes.
  * `guest_sign_in_required` never gets here: it opens the add-sign-in sheet
  * (GuestAccount.purchaseRefusal). The non-Play flavors word a refused crypto
- * invoice start the same way ([refusedMessage]).
+ * invoice start, and a card purchase the server refused when it was reported
+ * (StripePurchaseReport), the same way ([refusedMessage]).
  */
 object CheckoutRefusal {
 
@@ -42,6 +43,11 @@ object CheckoutRefusal {
     const val INVALID_REQUEST = "invalid_request"
     const val START_FAILED = "start_failed"
 
+    // the refusal of a card purchase's report (StripePurchaseReport): a yearly
+    // trial whose card failed its CVC check gets no Pro, and the card is
+    // detached, so it is never charged
+    const val INCORRECT_CVC = "incorrect_cvc"
+
     /**
      * The translated line for a refusal code, or null when the screen's own
      * line words it. Codes compare exactly, like the guest code.
@@ -50,6 +56,7 @@ object CheckoutRefusal {
     fun lineFor(code: String): Int? = when (code) {
         ALREADY_SUBSCRIBED -> R.string.site_payment_error_already_subscribed
         PLAN_UNAVAILABLE -> R.string.site_payment_error_plan_unavailable
+        INCORRECT_CVC -> R.string.checkout_error_incorrect_cvc
         else -> null
     }
 

@@ -222,6 +222,7 @@
     <string name="checking_payment">支払いを確認中</string>
     <string name="checking_solana_transactions">Solanaのトランザクションを確認中</string>
     <string name="checking_wallet_address">アドレスを確認しています…</string>
+    <string name="checkout_error_incorrect_cvc">カードのセキュリティコード（CVC）が一致しませんでした。カード情報を確認して、もう一度お試しください。</string>
     <string name="choose_file">ファイルを選択</string>
     <string name="choose_image_file">画像ファイルを選択</string>
     <string name="choose_photo">写真を選択</string>

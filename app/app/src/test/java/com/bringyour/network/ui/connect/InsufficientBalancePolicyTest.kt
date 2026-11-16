@@ -977,9 +977,15 @@ class InsufficientBalancePolicyTest {
         val play = flavorSource("google/java/com/bringyour/network/ui/upgrade/PlanPurchasers.kt")
         assertTrue(play.contains("PLAN_CHECKOUT_RIDES_TUNNEL = true"))
         val web = flavorSource("webPay/java/com/bringyour/network/ui/upgrade/PlanPurchasers.kt")
-        assertTrue(web.contains("WebView(context)"))
+        assertTrue(web.contains("PayPageWebView.create("))
         assertFalse(web.contains("ACTION_VIEW"))
         assertTrue(web.contains("PLAN_CHECKOUT_RIDES_TUNNEL = false"))
+        // the pay page's web view, and a window it opens (a bank's 3D Secure
+        // window), are this app's own
+        val webView = flavorSource("webPay/java/com/bringyour/network/ui/upgrade/PayPageWebView.kt")
+        assertTrue(webView.contains("WebView(context)"))
+        assertTrue(webView.contains("WebView(view.context)"))
+        assertFalse(webView.contains("ACTION_VIEW"))
         val sheet = flavorSource("stripeSheet/java/com/bringyour/network/ui/upgrade/PlanPurchasers.kt")
         assertTrue(sheet.contains("PaymentSheet.Builder"))
         assertFalse(sheet.contains("ACTION_VIEW"))

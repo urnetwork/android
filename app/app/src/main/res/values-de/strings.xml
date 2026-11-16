@@ -222,6 +222,7 @@
     <string name="checking_payment">Zahlung wird überprüft</string>
     <string name="checking_solana_transactions">Überprüfung von Solana-Transaktionen</string>
     <string name="checking_wallet_address">Adresse wird geprüft…</string>
+    <string name="checkout_error_incorrect_cvc">Der Sicherheitscode (CVC) deiner Karte stimmt nicht. Prüfe die Kartendaten und versuche es erneut.</string>
     <string name="choose_file">Datei auswählen</string>
     <string name="choose_image_file">Bilddatei auswählen</string>
     <string name="choose_photo">Foto auswählen</string>

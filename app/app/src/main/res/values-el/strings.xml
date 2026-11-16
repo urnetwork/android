@@ -222,6 +222,7 @@
     <string name="checking_payment">Έλεγχος πληρωμής</string>
     <string name="checking_solana_transactions">Έλεγχος για συναλλαγές Solana</string>
     <string name="checking_wallet_address">Έλεγχος διεύθυνσης…</string>
+    <string name="checkout_error_incorrect_cvc">Ο κωδικός ασφαλείας (CVC) της κάρτας σας δεν ταιριάζει. Ελέγξτε τα στοιχεία της κάρτας και δοκιμάστε ξανά.</string>
     <string name="choose_file">Επιλογή αρχείου</string>
     <string name="choose_image_file">Επιλογή αρχείου εικόνας</string>
     <string name="choose_photo">Επιλογή φωτογραφίας</string>

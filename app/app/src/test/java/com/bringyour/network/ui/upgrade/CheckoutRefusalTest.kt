@@ -92,10 +92,26 @@ class CheckoutRefusalTest {
         )
     }
 
+    // the card purchase report's refusal (StripePurchaseReport): a yearly trial
+    // whose card failed its CVC check, worded by the shared store key, never the
+    // server's English
+    @Test
+    fun aTrialCardThatFailedItsCvcCheckReadsItsLineAlone() {
+        fun refused(code: String, words: String) = CheckoutRefusal.refusedMessage(code, words, screenLine, text)
+
+        val serverWords = "Your card's security code (CVC) didn't match. Check the card details and try again."
+        assertEquals("string resource ${R.string.checkout_error_incorrect_cvc}", refused("incorrect_cvc", serverWords))
+        // the line stands without the server's words
+        assertEquals("string resource ${R.string.checkout_error_incorrect_cvc}", refused("incorrect_cvc", ""))
+        // codes compare exactly
+        assertEquals("$screenLine\n$serverWords", refused("INCORRECT_CVC", serverWords))
+    }
+
     @Test
     fun theLinesAreTheStoreKeysUrIoUses() {
         assertEquals(R.string.site_payment_error_already_subscribed, CheckoutRefusal.lineFor(CheckoutRefusal.ALREADY_SUBSCRIBED))
         assertEquals(R.string.site_payment_error_plan_unavailable, CheckoutRefusal.lineFor(CheckoutRefusal.PLAN_UNAVAILABLE))
+        assertEquals(R.string.checkout_error_incorrect_cvc, CheckoutRefusal.lineFor(CheckoutRefusal.INCORRECT_CVC))
         assertNull(CheckoutRefusal.lineFor(CheckoutRefusal.INVALID_REQUEST))
         assertNull(CheckoutRefusal.lineFor(CheckoutRefusal.START_FAILED))
         assertNull(CheckoutRefusal.lineFor("guest_sign_in_required"))
@@ -108,5 +124,6 @@ class CheckoutRefusalTest {
         assertEquals("plan_unavailable", CheckoutRefusal.PLAN_UNAVAILABLE)
         assertEquals("invalid_request", CheckoutRefusal.INVALID_REQUEST)
         assertEquals("start_failed", CheckoutRefusal.START_FAILED)
+        assertEquals("incorrect_cvc", CheckoutRefusal.INCORRECT_CVC)
     }
 }

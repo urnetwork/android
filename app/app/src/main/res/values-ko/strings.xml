@@ -222,6 +222,7 @@
     <string name="checking_payment">결제 확인 중</string>
     <string name="checking_solana_transactions">Solana 거래 확인 중</string>
     <string name="checking_wallet_address">주소 확인 중…</string>
+    <string name="checkout_error_incorrect_cvc">카드 보안 코드(CVC)가 일치하지 않습니다. 카드 정보를 확인한 후 다시 시도하세요.</string>
     <string name="choose_file">파일 선택</string>
     <string name="choose_image_file">이미지 파일 선택</string>
     <string name="choose_photo">사진 선택</string>

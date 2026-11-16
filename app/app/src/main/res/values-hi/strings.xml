@@ -222,6 +222,7 @@
     <string name="checking_payment">भुगतान की जांच हो रही है</string>
     <string name="checking_solana_transactions">Solana लेन-देन की जांच हो रही है</string>
     <string name="checking_wallet_address">पता जाँचा जा रहा है…</string>
+    <string name="checkout_error_incorrect_cvc">आपके कार्ड का सुरक्षा कोड (CVC) मेल नहीं खाया। कार्ड की जानकारी जाँचें और फिर से कोशिश करें।</string>
     <string name="choose_file">फ़ाइल चुनें</string>
     <string name="choose_image_file">इमेज फ़ाइल चुनें</string>
     <string name="choose_photo">फ़ोटो चुनें</string>
