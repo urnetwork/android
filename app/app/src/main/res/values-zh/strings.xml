@@ -1013,6 +1013,8 @@
     <string name="plan_price_per_month">%1$s/月</string>
     <string name="plan_price_per_year">%1$s/年</string>
     <string name="plan_save_percent">省 %1$d%%</string>
+    <string name="plan_terms_first_year_price">首年 %1$s，之后 %2$s/年。可随时取消。</string>
+    <string name="plan_terms_yearly_billed_today">今天收取 %1$s，之后每年收取。可随时取消。</string>
     <string name="please_try_again">请再试一次。</string>
     <string name="please_wait">请稍等片刻，然后重试。</string>
     <string name="points">积分</string>

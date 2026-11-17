@@ -43,7 +43,9 @@ fun SubscriptionOptions(
         upgradeInProgress = planViewModel.inProgress,
         surface = surface,
         experiment = subscriptionBalanceViewModel.offerExperiment,
-        freeTrialDays = planViewModel.freeTrialDays,
+        // the trial of the yearly offer the purchase buys, as Play listed it for
+        // this account: none for an account that already had one
+        freeTrialDays = planViewModel.yearlyTrialDays(presentation.offer?.playOfferTag),
         countryName = countryDisplayName(billingCountry),
     )
 }

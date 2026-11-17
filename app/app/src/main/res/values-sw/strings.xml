@@ -1013,6 +1013,8 @@
     <string name="plan_price_per_month">%1$s/mwezi</string>
     <string name="plan_price_per_year">%1$s/mwaka</string>
     <string name="plan_save_percent">Okoa %1$d%%</string>
+    <string name="plan_terms_first_year_price">%1$s kwa mwaka wako wa kwanza, kisha %2$s/mwaka. Ghairi wakati wowote.</string>
+    <string name="plan_terms_yearly_billed_today">%1$s inatozwa leo, kisha kila mwaka. Ghairi wakati wowote.</string>
     <string name="please_try_again">Tafadhali jaribu tena.</string>
     <string name="please_wait">Tafadhali subiri dakika chache kisha ujaribu tena.</string>
     <string name="points">Pointi</string>

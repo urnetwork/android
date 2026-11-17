@@ -1013,6 +1013,8 @@
     <string name="plan_price_per_month">%1$s/μήνα</string>
     <string name="plan_price_per_year">%1$s/έτος</string>
     <string name="plan_save_percent">Εξοικονόμηση %1$d%%</string>
+    <string name="plan_terms_first_year_price">%1$s για τον πρώτο χρόνο, μετά %2$s/έτος. Ακύρωση οποιαδήποτε στιγμή.</string>
+    <string name="plan_terms_yearly_billed_today">%1$s χρεώνονται σήμερα, μετά κάθε χρόνο. Ακύρωση οποιαδήποτε στιγμή.</string>
     <string name="please_try_again">Παρακαλώ δοκιμάστε ξανά.</string>
     <string name="please_wait">Περιμένετε λίγα λεπτά και προσπαθήστε ξανά.</string>
     <string name="points">Πόντοι</string>

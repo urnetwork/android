@@ -36,10 +36,13 @@ fun rememberPlanPurchaser(
             }?.takeIf { it.isNotEmpty() }
             planViewModel.setSelectedPlan(plan)
             val yearly = plan == PlanType.YEARLY
+            // a trial only when the offer the purchase buys has one: Play lists
+            // none to an account that already had a trial
+            val trial = yearly && 0 < planViewModel.yearlyTrialDays(planViewModel.preferredOfferTag)
             val price = presentation.firstChargeAmount(plan)
             planViewModel.pendingPurchaseEvent = PlanViewModel.PendingPurchaseEvent(
                 plan = if (yearly) Sdk.PlanYearly else Sdk.PlanMonthly,
-                trial = yearly,
+                trial = trial,
                 price = price,
                 currency = presentation.currency,
             )
@@ -47,7 +50,7 @@ fun rememberPlanPurchaser(
                 Sdk.EventStorePlay,
                 ClientEvents.PRODUCT_PLAY_SUPPORTER,
                 if (yearly) Sdk.PlanYearly else Sdk.PlanMonthly,
-                yearly,
+                trial,
                 price,
                 presentation.currency,
             )
