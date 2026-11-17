@@ -176,6 +176,15 @@ class PlanViewModel @Inject constructor(
     val freeTrialDays: Int = com.bringyour.network.ui.upgrade.FREE_TRIAL_DAYS
 
     /**
+     * The free trial the plan surfaces promise with the yearly plan, in days,
+     * the same call as the Play flavor's: Stripe starts every yearly
+     * subscription with the trial (the server's StripeSubscriptionTrialDays),
+     * whatever the offer.
+     */
+    @Suppress("UNUSED_PARAMETER")
+    fun yearlyTrialDays(preferTag: String?): Int = freeTrialDays
+
+    /**
      * The Stripe payment-link buttons attach `client_reference_id=networkId` -- a
      * payment made without it can never be credited. This used to be derived once at
      * init, so a slow jwt parse or an account switch left the buttons silently

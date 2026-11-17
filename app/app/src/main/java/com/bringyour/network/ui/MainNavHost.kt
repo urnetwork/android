@@ -1343,6 +1343,9 @@ fun IntroNavHost(
                     selectedPlan = PlanType.YEARLY,
                     setSelectedPlan = {},
                 ),
+                // the trial the yearly purchase starts with: on Play none for an
+                // account that already had one
+                freeTrialDays = planViewModel.yearlyTrialDays(presentation.offer?.playOfferTag),
             )
         }
 

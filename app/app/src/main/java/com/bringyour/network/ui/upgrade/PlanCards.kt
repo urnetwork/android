@@ -258,7 +258,9 @@ fun formatOfferDeadline(expiresAtMillis: Long): String =
  * The terms line under the primary button: the trial, the first charge and
  * the cancel rule, so the price is never hidden (App Store 3.1.2(c) and the
  * Play equivalent). With the win-back offer the monthly line names the
- * discounted first month and the price after it.
+ * discounted first month and the price after it. Without a trial
+ * (`freeTrialDays` 0: the store gives this account none) the yearly line says
+ * the price is billed today, as iOS does (PlanPresentation.termsLine).
  */
 @Composable
 fun PlanTermsLine(
@@ -268,15 +270,20 @@ fun PlanTermsLine(
 ) {
     val offer = presentation.offer
     val winback = presentation.winback
+    val trialOffered = 0 < freeTrialDays
     val text = when {
         selectedPlan == PlanType.MONTHLY && winback != null ->
             stringResource(id = R.string.offer_terms_first_month, winback.firstMonthPrice, winback.regularMonthPrice)
         selectedPlan == PlanType.MONTHLY ->
             stringResource(id = R.string.plan_billed_monthly_cancel_anytime)
-        offer != null ->
+        offer != null && trialOffered ->
             pluralStringResource(id = R.plurals.offer_terms_first_year, count = freeTrialDays, freeTrialDays, offer.firstYearPrice, offer.regularYearPrice)
-        else ->
+        offer != null ->
+            stringResource(id = R.string.plan_terms_first_year_price, offer.firstYearPrice, offer.regularYearPrice)
+        trialOffered ->
             pluralStringResource(id = R.plurals.plan_terms_yearly, count = freeTrialDays, freeTrialDays, presentation.yearlyPrice)
+        else ->
+            stringResource(id = R.string.plan_terms_yearly_billed_today, presentation.yearlyPrice)
     }
     PlanFinePrintLine(text)
 }

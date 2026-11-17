@@ -77,6 +77,44 @@ class PlanOffersTest {
         assertEquals(trial, PlanOffers.forPlan(listOf(welcome, trial, base), PlanType.YEARLY, preferTag = "winback-monthly-50"))
     }
 
+    // The trial the picker promises is the one the purchase gets. Play lists the
+    // trial offer only to an account eligible for it, so an account that already
+    // had a trial is listed the yearly base plan alone; a picker that printed the
+    // trial whatever Play listed sold it the year as a free trial, and Play
+    // charged the year at once (the iOS paywall did the same: support inbox
+    // 790, 837 and 858).
+
+    @Test
+    fun anAccountPlayListsNoTrialOfferToIsPromisedNoTrial() {
+        assertEquals(0, PlanOffers.promisedYearlyTrialDays(listOf(base, monthlyBase), preferTag = null, assumedDays = FREE_TRIAL_DAYS))
+        // the developer-determined welcome offer Play lists to every account is
+        // not bought without its tag, so its free phase is not promised either
+        assertEquals(0, PlanOffers.promisedYearlyTrialDays(listOf(welcome, base, monthlyBase), preferTag = null, assumedDays = FREE_TRIAL_DAYS))
+        assertEquals(0, PlanOffers.promisedYearlyTrialDays(listOf(welcome, base), preferTag = "winback-monthly-50", assumedDays = FREE_TRIAL_DAYS))
+    }
+
+    @Test
+    fun anEligibleAccountIsPromisedTheTrialOfTheOfferThePurchaseBuys() {
+        assertEquals(14, PlanOffers.promisedYearlyTrialDays(listOf(base, trial, monthlyBase), preferTag = null, assumedDays = FREE_TRIAL_DAYS))
+        // with the welcome offer's tag the purchase buys the welcome offer, whose
+        // own free phase is the one promised, also to an account Play lists no
+        // trial offer to (Play enforces nothing for a developer-determined offer)
+        val welcomeWeek = PlanOffer(index = 2, periodDays = 365, freeDays = 7, tags = listOf("onboarding25"))
+        assertEquals(7, PlanOffers.promisedYearlyTrialDays(listOf(base, trial, welcomeWeek), preferTag = "onboarding25", assumedDays = FREE_TRIAL_DAYS))
+        assertEquals(14, PlanOffers.promisedYearlyTrialDays(listOf(welcome, base), preferTag = "onboarding25", assumedDays = FREE_TRIAL_DAYS))
+    }
+
+    @Test
+    fun theAssumedTrialStandsUntilPlayListsAYearlyPlan() {
+        // before Play answers
+        assertEquals(FREE_TRIAL_DAYS, PlanOffers.promisedYearlyTrialDays(null, preferTag = null, assumedDays = FREE_TRIAL_DAYS))
+        // an answer without any yearly plan (a build the store does not
+        // recognise): the yearly plan and its trial are assumed, and a tap
+        // surfaces the store's error before anything is charged
+        assertEquals(FREE_TRIAL_DAYS, PlanOffers.promisedYearlyTrialDays(emptyList(), preferTag = null, assumedDays = FREE_TRIAL_DAYS))
+        assertEquals(FREE_TRIAL_DAYS, PlanOffers.promisedYearlyTrialDays(listOf(monthlyBase), preferTag = "onboarding25", assumedDays = FREE_TRIAL_DAYS))
+    }
+
     @Test
     fun aBasePlansTagsAreNotItsOffersOwn() {
         assertEquals(listOf("winback-monthly-50"), PlanOffers.ownTags(listOf("monthly", "winback-monthly-50"), setOf("monthly")))

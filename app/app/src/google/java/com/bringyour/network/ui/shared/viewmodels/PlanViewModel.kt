@@ -191,12 +191,26 @@ class PlanViewModel @Inject constructor(
     var selectedPlan by mutableStateOf(PlanType.YEARLY)
 
     /**
-     * The free trial the yearly plan starts with on Play (the trial-14d offer),
-     * printed unconditionally: the picker assumes the yearly plan and its trial
-     * exist. The purchase buys the trial offer when Play returns one. Only the
-     * yearly plan has a trial.
+     * The offers Play listed for this account, reduced to the picker's decision
+     * data; null until they have loaded. Play lists the trial offer only to an
+     * account eligible for it.
      */
-    val freeTrialDays: Int = FREE_TRIAL_DAYS
+    private var storePlanOffers by mutableStateOf<List<PlanOffer>?>(null)
+
+    /**
+     * The free trial the plan surfaces promise with the yearly plan, in days:
+     * the free phase of the offer the yearly purchase buys, with `preferTag`
+     * (the welcome offer's Play tag while it is active), once Play has listed
+     * this account's offers (PlanOffers.promisedYearlyTrialDays). An account
+     * that already had a trial gets 0: no trial line, and the yearly price
+     * billed today. The picker printed the trial-14d offer's 14 days whatever
+     * Play listed, so such an account bought the year as a free trial and was
+     * charged at once (on iOS, support inbox 790, 837 and 858). Until Play
+     * answers the yearly plan and its trial are assumed. Only the yearly plan
+     * has a trial.
+     */
+    fun yearlyTrialDays(preferTag: String?): Int =
+        PlanOffers.promisedYearlyTrialDays(storePlanOffers, preferTag?.takeIf { it.isNotEmpty() }, FREE_TRIAL_DAYS)
 
     val setSelectedPlan: (PlanType) -> Unit = { plan ->
         selectedPlan = plan
@@ -747,6 +761,8 @@ class PlanViewModel @Inject constructor(
             }.ifEmpty { "none" },
         )
         val planOffers = offers.toPlanOffers()
+        // the trial promised from here on is the one Play listed for this account
+        storePlanOffers = planOffers
         val monthly = PlanOffers.monthly(planOffers)?.let { offers[it.index] }
             ?: offers.firstOrNull()
         // the yearly offer with the trial when Play returns one; the plain
