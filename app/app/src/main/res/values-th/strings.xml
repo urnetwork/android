@@ -1013,6 +1013,8 @@
     <string name="plan_price_per_month">%1$s/เดือน</string>
     <string name="plan_price_per_year">%1$s/ปี</string>
     <string name="plan_save_percent">ประหยัด %1$d%%</string>
+    <string name="plan_terms_first_year_price">%1$s สำหรับปีแรก จากนั้น %2$s/ปี ยกเลิกได้ทุกเมื่อ</string>
+    <string name="plan_terms_yearly_billed_today">เรียกเก็บ %1$s วันนี้ จากนั้นทุกปี ยกเลิกได้ทุกเมื่อ</string>
     <string name="please_try_again">กรุณาลองใหม่อีกครั้ง</string>
     <string name="please_wait">โปรดรอสักครู่ แล้วลองใหม่อีกครั้ง</string>
     <string name="points">คะแนน</string>

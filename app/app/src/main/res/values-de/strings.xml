@@ -1013,6 +1013,8 @@
     <string name="plan_price_per_month">%1$s/Monat</string>
     <string name="plan_price_per_year">%1$s/Jahr</string>
     <string name="plan_save_percent">%1$d %% sparen</string>
+    <string name="plan_terms_first_year_price">%1$s im ersten Jahr, danach %2$s/Jahr. Jederzeit kündbar.</string>
+    <string name="plan_terms_yearly_billed_today">%1$s wird heute abgerechnet, danach jedes Jahr. Jederzeit kündbar.</string>
     <string name="please_try_again">Bitte versuche es erneut.</string>
     <string name="please_wait">Bitte warte ein paar Minuten und versuche es erneut.</string>
     <string name="points">Punkte</string>

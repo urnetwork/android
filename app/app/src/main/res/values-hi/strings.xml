@@ -1013,6 +1013,8 @@
     <string name="plan_price_per_month">%1$s/महीना</string>
     <string name="plan_price_per_year">%1$s/साल</string>
     <string name="plan_save_percent">%1$d%% बचाएँ</string>
+    <string name="plan_terms_first_year_price">पहले साल के लिए %1$s, फिर %2$s/साल। कभी भी रद्द करें।</string>
+    <string name="plan_terms_yearly_billed_today">आज %1$s का बिल, फिर हर साल। कभी भी रद्द करें।</string>
     <string name="please_try_again">कृपया पुनः प्रयास करें।</string>
     <string name="please_wait">कृपया कुछ मिनट प्रतीक्षा करें और पुनः प्रयास करें।</string>
     <string name="points">पॉइंट</string>

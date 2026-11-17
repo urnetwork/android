@@ -1013,6 +1013,8 @@
     <string name="plan_price_per_month">%1$s/месяц</string>
     <string name="plan_price_per_year">%1$s/год</string>
     <string name="plan_save_percent">Экономия %1$d%%</string>
+    <string name="plan_terms_first_year_price">%1$s за первый год, затем %2$s/год. Отменить можно в любой момент.</string>
+    <string name="plan_terms_yearly_billed_today">%1$s списывается сегодня, затем каждый год. Отменить можно в любой момент.</string>
     <string name="please_try_again">Пожалуйста, попробуйте снова.</string>
     <string name="please_wait">Пожалуйста, подождите несколько минут и попробуйте снова.</string>
     <string name="points">Очки</string>

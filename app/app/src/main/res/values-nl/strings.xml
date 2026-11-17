@@ -1013,6 +1013,8 @@
     <string name="plan_price_per_month">%1$s/maand</string>
     <string name="plan_price_per_year">%1$s/jaar</string>
     <string name="plan_save_percent">Bespaar %1$d%%</string>
+    <string name="plan_terms_first_year_price">%1$s voor je eerste jaar, daarna %2$s/jaar. Altijd opzegbaar.</string>
+    <string name="plan_terms_yearly_billed_today">%1$s wordt vandaag in rekening gebracht, daarna elk jaar. Altijd opzegbaar.</string>
     <string name="please_try_again">Probeer het alstublieft opnieuw.</string>
     <string name="please_wait">Wacht alstublieft een paar minuten en probeer het opnieuw.</string>
     <string name="points">Punten</string>

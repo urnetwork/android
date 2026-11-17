@@ -1013,6 +1013,8 @@
     <string name="plan_price_per_month">%1$s/月</string>
     <string name="plan_price_per_year">%1$s/年</string>
     <string name="plan_save_percent">%1$d%%お得</string>
+    <string name="plan_terms_first_year_price">最初の 1 年は %1$s、その後は %2$s/年。いつでもキャンセルできます。</string>
+    <string name="plan_terms_yearly_billed_today">本日 %1$s を請求し、以降は毎年請求します。いつでもキャンセルできます。</string>
     <string name="please_try_again">もう一度お試しください。</string>
     <string name="please_wait">しばらく待ってから再試行してください。</string>
     <string name="points">ポイント</string>

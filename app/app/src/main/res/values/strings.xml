@@ -1028,6 +1028,8 @@
     <string name="plan_price_per_month">%1$s/month</string>
     <string name="plan_price_per_year">%1$s/year</string>
     <string name="plan_save_percent">Save %1$d%%</string>
+    <string name="plan_terms_first_year_price">%1$s for your first year, then %2$s/year. Cancel anytime.</string>
+    <string name="plan_terms_yearly_billed_today">%1$s billed today, then every year. Cancel anytime.</string>
     <string name="please_try_again">Please try again.</string>
     <string name="please_wait">Please wait a few minutes and try again.</string>
     <string name="points">Points</string>

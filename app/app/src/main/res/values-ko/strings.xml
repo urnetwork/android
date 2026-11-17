@@ -1013,6 +1013,8 @@
     <string name="plan_price_per_month">%1$s/월</string>
     <string name="plan_price_per_year">%1$s/년</string>
     <string name="plan_save_percent">%1$d%% 절약</string>
+    <string name="plan_terms_first_year_price">첫해 %1$s, 이후 %2$s/년. 언제든지 취소할 수 있습니다.</string>
+    <string name="plan_terms_yearly_billed_today">오늘 %1$s 청구, 이후 매년 청구. 언제든지 취소할 수 있습니다.</string>
     <string name="please_try_again">다시 시도해 주세요.</string>
     <string name="please_wait">잠시 후 다시 시도해 주세요.</string>
     <string name="points">포인트</string>

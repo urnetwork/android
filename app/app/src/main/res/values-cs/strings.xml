@@ -1013,6 +1013,8 @@
     <string name="plan_price_per_month">%1$s/měsíc</string>
     <string name="plan_price_per_year">%1$s/rok</string>
     <string name="plan_save_percent">Ušetřete %1$d %%</string>
+    <string name="plan_terms_first_year_price">%1$s za první rok, potom %2$s/rok. Zrušit můžete kdykoli.</string>
+    <string name="plan_terms_yearly_billed_today">%1$s účtováno dnes, potom každý rok. Zrušit můžete kdykoli.</string>
     <string name="please_try_again">Prosím, zkuste to znovu.</string>
     <string name="please_wait">Prosím, počkejte několik minut a zkuste to znovu.</string>
     <string name="points">Body</string>

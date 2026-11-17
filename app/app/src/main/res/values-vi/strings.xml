@@ -1013,6 +1013,8 @@
     <string name="plan_price_per_month">%1$s/tháng</string>
     <string name="plan_price_per_year">%1$s/năm</string>
     <string name="plan_save_percent">Tiết kiệm %1$d%%</string>
+    <string name="plan_terms_first_year_price">%1$s cho năm đầu tiên, sau đó %2$s/năm. Hủy bất cứ lúc nào.</string>
+    <string name="plan_terms_yearly_billed_today">%1$s được tính phí hôm nay, sau đó mỗi năm. Hủy bất cứ lúc nào.</string>
     <string name="please_try_again">Vui lòng thử lại.</string>
     <string name="please_wait">Vui lòng đợi vài phút rồi thử lại.</string>
     <string name="points">Điểm</string>

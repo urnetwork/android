@@ -1013,6 +1013,8 @@
     <string name="plan_price_per_month">%1$s/شهر</string>
     <string name="plan_price_per_year">%1$s/سنة</string>
     <string name="plan_save_percent">وفّر %1$d%%</string>
+    <string name="plan_terms_first_year_price">%1$s للسنة الأولى، ثم %2$s/سنة. ألغِ في أي وقت.</string>
+    <string name="plan_terms_yearly_billed_today">%1$s يُحصَّل اليوم، ثم كل عام. ألغِ في أي وقت.</string>
     <string name="please_try_again">يرجى المحاولة مرة أخرى.</string>
     <string name="please_wait">يرجى الانتظار بضع دقائق وحاول مرة أخرى.</string>
     <string name="points">النقاط</string>
