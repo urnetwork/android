@@ -481,6 +481,18 @@ class DeviceManager @Inject constructor(
                     }
 
                     newDevice.providePaused = true
+                    // the device's own saved preferences, the ones its auto
+                    // save writes (sdk device_local_preference_catalog.go).
+                    // The seeds below cover only the settings the app saves
+                    // itself, so a setting the app writes only through the
+                    // device came back as the default after every restart:
+                    // the client and provider transport settings. Load reads
+                    // without rewriting, transport first and the destination
+                    // last, and the seeds below set the same values. A failed
+                    // load leaves the seeds to restore what they cover.
+                    runCatching { newDevice.load() }.onFailure {
+                        Log.e(TAG, "could not load the device's saved preferences", it)
+                    }
                     newDevice.routeLocal = routeLocal
                     newDevice.provideMode = provideMode
                     newDevice.connectLocation = connectLocation
