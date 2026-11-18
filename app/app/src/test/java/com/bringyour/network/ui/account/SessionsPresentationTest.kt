@@ -138,6 +138,7 @@ class SessionsPresentationTest {
             "windows" to Triple(SessionDevice.Windows, R.string.sessions_device_windows, R.drawable.device_windows),
             "linux" to Triple(SessionDevice.Linux, R.string.sessions_device_linux, R.drawable.device_linux),
             "web" to Triple(SessionDevice.Web, R.string.sessions_device_web, R.drawable.device_web),
+            "extension" to Triple(SessionDevice.Extension, R.string.sessions_device_extension, R.drawable.device_web),
             "cli" to Triple(SessionDevice.Cli, R.string.sessions_device_cli, R.drawable.device_cli),
             "server" to Triple(SessionDevice.Server, R.string.sessions_device_server, R.drawable.device_server),
             "unknown" to Triple(SessionDevice.Unknown, R.string.sessions_device_unknown, R.drawable.device_unknown),

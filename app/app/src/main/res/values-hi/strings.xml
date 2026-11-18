@@ -1235,6 +1235,7 @@
     <string name="sessions_copy_id">सत्र ID कॉपी करें</string>
     <string name="sessions_device_android">Android</string>
     <string name="sessions_device_cli">कमांड लाइन</string>
+    <string name="sessions_device_extension">ब्राउज़र एक्सटेंशन</string>
     <string name="sessions_device_ios">iOS</string>
     <string name="sessions_device_linux">Linux</string>
     <string name="sessions_device_macos">macOS</string>

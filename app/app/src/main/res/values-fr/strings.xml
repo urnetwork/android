@@ -1235,6 +1235,7 @@
     <string name="sessions_copy_id">Copier l’ID de session</string>
     <string name="sessions_device_android">Android</string>
     <string name="sessions_device_cli">Ligne de commande</string>
+    <string name="sessions_device_extension">Extension de navigateur</string>
     <string name="sessions_device_ios">iOS</string>
     <string name="sessions_device_linux">Linux</string>
     <string name="sessions_device_macos">macOS</string>

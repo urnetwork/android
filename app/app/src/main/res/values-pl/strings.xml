@@ -1235,6 +1235,7 @@
     <string name="sessions_copy_id">Kopiuj ID sesji</string>
     <string name="sessions_device_android">Android</string>
     <string name="sessions_device_cli">Wiersz poleceń</string>
+    <string name="sessions_device_extension">Rozszerzenie przeglądarki</string>
     <string name="sessions_device_ios">iOS</string>
     <string name="sessions_device_linux">Linux</string>
     <string name="sessions_device_macos">macOS</string>

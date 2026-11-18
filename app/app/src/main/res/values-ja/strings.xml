@@ -1235,6 +1235,7 @@
     <string name="sessions_copy_id">セッションIDをコピー</string>
     <string name="sessions_device_android">Android</string>
     <string name="sessions_device_cli">コマンドライン</string>
+    <string name="sessions_device_extension">ブラウザ拡張機能</string>
     <string name="sessions_device_ios">iOS</string>
     <string name="sessions_device_linux">Linux</string>
     <string name="sessions_device_macos">macOS</string>

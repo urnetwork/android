@@ -37,7 +37,9 @@ data class SessionLastUse(
     val country: String,
     // lower-case ISO alpha-2, or empty
     val countryCode: String,
-    // android, ios, macos, windows, linux, web, cli, server or unknown
+    // the sdk's device kind (LastUsed.DeviceKind): android, ios, macos,
+    // windows, linux, web, extension (the browser extension), cli, server or
+    // unknown
     val deviceType: String,
     // empty is unknown
     val appVersion: String,
@@ -148,6 +150,8 @@ enum class SessionDevice(@get:StringRes val labelRes: Int, @get:DrawableRes val 
     Windows(R.string.sessions_device_windows, R.drawable.device_windows),
     Linux(R.string.sessions_device_linux, R.drawable.device_linux),
     Web(R.string.sessions_device_web, R.drawable.device_web),
+    // the browser extension's own sign-in: a browser, with the web logo
+    Extension(R.string.sessions_device_extension, R.drawable.device_web),
     Cli(R.string.sessions_device_cli, R.drawable.device_cli),
     Server(R.string.sessions_device_server, R.drawable.device_server),
     Unknown(R.string.sessions_device_unknown, R.drawable.device_unknown);
@@ -161,6 +165,7 @@ enum class SessionDevice(@get:StringRes val labelRes: Int, @get:DrawableRes val 
             "windows" -> Windows
             "linux" -> Linux
             "web" -> Web
+            Sdk.SessionDeviceKindExtension -> Extension
             "cli" -> Cli
             "server" -> Server
             else -> Unknown

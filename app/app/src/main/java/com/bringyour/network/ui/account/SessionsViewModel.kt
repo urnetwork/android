@@ -177,7 +177,9 @@ private fun sessionsSnapshotFromSdk(snapshot: ClientSessionSnapshot?): SessionsS
                     region = it.region.orEmpty(),
                     country = it.country.orEmpty(),
                     countryCode = it.countryCode.orEmpty(),
-                    deviceType = it.deviceType.orEmpty(),
+                    // the sdk's kind names the browser extension; a type
+                    // from an sdk without it is the same for every other device
+                    deviceType = it.deviceKind?.takeIf { kind -> kind.isNotEmpty() } ?: it.deviceType.orEmpty(),
                     appVersion = it.appVersion.orEmpty(),
                 )
             },

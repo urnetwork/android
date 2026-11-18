@@ -1235,6 +1235,7 @@
     <string name="sessions_copy_id">Αντιγραφή ID συνεδρίας</string>
     <string name="sessions_device_android">Android</string>
     <string name="sessions_device_cli">Γραμμή εντολών</string>
+    <string name="sessions_device_extension">Επέκταση προγράμματος περιήγησης</string>
     <string name="sessions_device_ios">iOS</string>
     <string name="sessions_device_linux">Linux</string>
     <string name="sessions_device_macos">macOS</string>

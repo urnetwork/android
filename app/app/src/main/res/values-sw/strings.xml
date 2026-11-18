@@ -1235,6 +1235,7 @@
     <string name="sessions_copy_id">Nakili kitambulisho cha kipindi</string>
     <string name="sessions_device_android">Android</string>
     <string name="sessions_device_cli">Mstari wa amri</string>
+    <string name="sessions_device_extension">Kiendelezi cha kivinjari</string>
     <string name="sessions_device_ios">iOS</string>
     <string name="sessions_device_linux">Linux</string>
     <string name="sessions_device_macos">macOS</string>

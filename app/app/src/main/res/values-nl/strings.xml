@@ -1235,6 +1235,7 @@
     <string name="sessions_copy_id">Sessie-ID kopiëren</string>
     <string name="sessions_device_android">Android</string>
     <string name="sessions_device_cli">Opdrachtregel</string>
+    <string name="sessions_device_extension">Browserextensie</string>
     <string name="sessions_device_ios">iOS</string>
     <string name="sessions_device_linux">Linux</string>
     <string name="sessions_device_macos">macOS</string>
