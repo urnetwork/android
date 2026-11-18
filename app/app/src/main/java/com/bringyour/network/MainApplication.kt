@@ -55,6 +55,7 @@ import java.io.File
 import java.lang.ref.WeakReference
 import javax.inject.Inject
 import kotlin.math.min
+import com.bringyour.network.ui.connect.AccountSignInNotices
 import com.bringyour.network.ui.connect.connectRequested
 import com.bringyour.network.ui.connect.runOnDevice
 
@@ -784,6 +785,15 @@ class MainApplication : Application() {
      * sign-out and a new sign-in drop it.
      */
     val signInNotices = SignInNotices()
+
+    /**
+     * What the main screen says when the account's sign-in ended while this
+     * device stays signed in: the sdk's AccountSignInRequired leaves the
+     * notice its cause has (AccountSignInNotice), the connect screen shows it
+     * until the user closes it, and a sign-out or a new sign-in drops it.
+     * Nothing signs out or disconnects for it. Main-thread confined.
+     */
+    val accountSignInNotices = AccountSignInNotices()
 
     /**
      * The physical network's Private DNS (DoT) mode, mapped from the offline
@@ -2558,6 +2568,9 @@ class MainApplication : Application() {
     }
 
     private fun logoutInternal() {
+        // signed out, by the user or by the sdk: the account's sign-in notice
+        // ends with the sign-in it was about
+        accountSignInNotices.clear()
         // from here no connect is admitted on the signed-out device, and its
         // connects still queued never run; its disconnects still do
         device?.let { connectCommands.signOutStarted(it) }
@@ -2691,6 +2704,18 @@ class MainApplication : Application() {
                 startActivity(intent)
             }
         }
+        // the account's sign-in ended while this device stays signed in (the
+        // sdk's AccountSignInRequired): no sign-out and no disconnect, only
+        // the main screen's notice, with the cause the listener read. A late
+        // one for a device since replaced or signed out says nothing
+        deviceManager.onAccountSignInRequired = { signedInDevice, cause ->
+            Handler(mainLooper).post {
+                if (authSessionOwner !== logoutOwner || device !== signedInDevice) {
+                    return@post
+                }
+                accountSignInNotices.accountSignInRequired(cause)
+            }
+        }
         val deviceInitResult = deviceManager.initDevice(
             networkSpaceManagerProvider.getNetworkSpace(),
             byClientJwt,
@@ -2700,8 +2725,10 @@ class MainApplication : Application() {
         if (deviceInitResult !is DeviceInitResult.Ready) {
             return deviceInitResult
         }
-        // signed in: an earlier sign-out's notice no longer applies
+        // signed in: an earlier sign-out's notice no longer applies, nor an
+        // earlier account sign-in's
         signInNotices.clear()
+        accountSignInNotices.clear()
 
         // A callback queued for a former DeviceLocal must never reset the new
         // device's transports or judge its initial provider window unhealthy.
