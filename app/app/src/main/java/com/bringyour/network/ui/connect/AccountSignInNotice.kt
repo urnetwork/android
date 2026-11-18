@@ -74,7 +74,9 @@ data class AccountSignInRequired(
 /**
  * The main screen's notice, held by the app (MainApplication.accountSignInNotices)
  * from the sdk's AccountSignInRequired until the user closes it, signs out or
- * signs in again. Main-thread confined.
+ * signs in again. The sdk keeps it across restarts and reports it again to the
+ * device's listener; a close ends it there too
+ * (MainApplication.dismissAccountSignInNotice). Main-thread confined.
  */
 class AccountSignInNotices {
     private val shown = MutableStateFlow<AccountSignInRequired?>(null)
@@ -126,7 +128,7 @@ fun AccountSignInNotice() {
             )
             // small; Compose still gives it a 48 dp touch target
             IconButton(
-                onClick = { application.accountSignInNotices.clear() },
+                onClick = { application.dismissAccountSignInNotice() },
                 modifier = Modifier
                     .size(24.dp)
                     .testTag("acceptance.account_sign_in_notice_close")

@@ -796,6 +796,18 @@ class MainApplication : Application() {
     val accountSignInNotices = AccountSignInNotices()
 
     /**
+     * The user closed the account sign-in notice. The sdk keeps the notice in
+     * the device's local state, and reports it again after a restart, until
+     * this ends it there (Api.dismissAccountSignInNotice); its storage write
+     * runs off the main thread.
+     */
+    fun dismissAccountSignInNotice() {
+        accountSignInNotices.clear()
+        val api = device?.api ?: return
+        Thread({ api.dismissAccountSignInNotice() }, "account-sign-in-notice-dismiss").start()
+    }
+
+    /**
      * The physical network's Private DNS (DoT) mode, mapped from the offline
      * callback's LinkProperties (API 28+). In strict mode (a user-set hostname)
      * Android sends every lookup as DoT straight to that host through the tunnel,
