@@ -109,7 +109,7 @@ class AccountSignInNoticeWiringTest {
         val notice = source("ui/connect/AccountSignInNotice.kt")
         assertTrue(notice.contains("onClick = { application.dismissAccountSignInNotice() },"))
         // the close also ends the notice the sdk keeps across restarts, off the main thread
-        val dismiss = between(application, "    fun dismissAccountSignInNotice() {", "\n    }\n")
+        val dismiss = between(source("MainApplication.kt"), "    fun dismissAccountSignInNotice() {", "\n    }\n")
         assertTrue(dismiss.contains("accountSignInNotices.clear()"))
         assertTrue(dismiss.contains("api.dismissAccountSignInNotice()"))
         assertTrue(dismiss.contains("Thread("))
