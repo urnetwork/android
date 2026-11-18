@@ -1221,9 +1221,14 @@
     <string name="send_tao_to_mirror">Sende etwa %1$s TAO an %2$s, um das Gas zu decken.</string>
     <string name="sent">Gesendet!</string>
     <string name="sessions_action_failed">Diese Sitzung konnte nicht abgemeldet werden. Versuche es erneut.</string>
+    <string name="sessions_client_api_key">API-Client</string>
+    <string name="sessions_client_device">Gekoppeltes Gerät</string>
+    <string name="sessions_client_other">Anderer Client</string>
     <string name="sessions_confirm_body">%1$s (%2$s) wird abgemeldet.</string>
+    <string name="sessions_confirm_body_hosted_proxy">Dieser gehostete Proxy funktioniert dann nicht mehr. Erstelle einen neuen, um ihn zu ersetzen.</string>
     <string name="sessions_confirm_body_no_place">%1$s wird abgemeldet.</string>
     <string name="sessions_confirm_others_body">Alle anderen Sitzungen in dieser Liste werden abgemeldet. Diese Sitzung bleibt angemeldet. Wer deine Anmeldedaten kennt, kann sich trotzdem wieder anmelden.</string>
+    <string name="sessions_confirm_others_body_keeps_proxies">Alle anderen Sitzungen in dieser Liste außer gehosteten Proxys werden abgemeldet. Diese Sitzung bleibt angemeldet. Wer deine Anmeldedaten kennt, kann sich trotzdem wieder anmelden.</string>
     <string name="sessions_confirm_others_title">Alle anderen Sitzungen abmelden?</string>
     <string name="sessions_confirm_self_body">Das ist die Sitzung, die du gerade verwendest. Diese App wird abgemeldet.</string>
     <string name="sessions_confirm_title">Diese Sitzung abmelden?</string>
@@ -1238,6 +1243,10 @@
     <string name="sessions_device_web">Web</string>
     <string name="sessions_device_windows">Windows</string>
     <string name="sessions_empty">Keine aktiven Sitzungen</string>
+    <string name="sessions_group_api_clients">API-Clients (%1$s)</string>
+    <string name="sessions_group_hosted_proxies">Gehostete Proxys (%1$s)</string>
+    <string name="sessions_group_other_clients">Andere Clients (%1$s)</string>
+    <string name="sessions_group_paired_devices">Gekoppelte Geräte (%1$s)</string>
     <string name="sessions_id">ID %1$s</string>
     <string name="sessions_kind_api_key_client">API-Schlüssel</string>
     <string name="sessions_kind_apple">Apple</string>
@@ -1254,8 +1263,10 @@
     <string name="sessions_last_used">Zuletzt verwendet: %1$s</string>
     <string name="sessions_last_used_help">„Zuletzt verwendet“ ist die letzte Anmeldeaktivität, die der Server gesehen hat. Sie kann sich um einige Minuten verzögern, und der Standort ist nur ungefähr.</string>
     <string name="sessions_legacy_note">Anmeldungen aus älteren App-Versionen erscheinen hier, sobald sie erneuert werden. Um alle Anmeldungen zu beenden, ändere deine Anmeldedaten.</string>
+    <string name="sessions_limit_reached_sign_in">Zu viele aktive Sitzungen. Öffne auf einem Gerät, das bei diesem Konto angemeldet ist, Konto &gt; Sitzungen, melde die Sitzungen ab, die du nicht mehr nutzt, und versuche es dann erneut.</string>
     <string name="sessions_load_failed">Sitzungen konnten nicht geladen werden.</string>
     <string name="sessions_refresh_failed">Aktualisierung fehlgeschlagen. Die letzte Liste wird angezeigt.</string>
+    <string name="sessions_show_more">Mehr anzeigen</string>
     <string name="sessions_sign_in_required">Melde dich erneut an, um Sitzungen zu verwalten.</string>
     <string name="sessions_sign_out_accessibility">%1$s abmelden</string>
     <string name="sessions_sign_out_all_others">Alle anderen Sitzungen abmelden</string>

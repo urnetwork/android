@@ -1221,9 +1221,14 @@
     <string name="send_tao_to_mirror">Tuma takribani TAO %1$s kwenda %2$s ili kulipia gas.</string>
     <string name="sent">Kimetumwa!</string>
     <string name="sessions_action_failed">Imeshindwa kutoka kwenye kipindi hiki. Jaribu tena.</string>
+    <string name="sessions_client_api_key">Mteja wa API</string>
+    <string name="sessions_client_device">Kifaa kilichooanishwa</string>
+    <string name="sessions_client_other">Mteja mwingine</string>
     <string name="sessions_confirm_body">Utatoka kwenye %1$s huko %2$s.</string>
+    <string name="sessions_confirm_body_hosted_proxy">Proksi hii iliyopangishwa itaacha kufanya kazi. Unda mpya ili kuibadilisha.</string>
     <string name="sessions_confirm_body_no_place">Utatoka kwenye %1$s.</string>
     <string name="sessions_confirm_others_body">Utatoka kwenye vipindi vingine vyote vilivyo kwenye orodha hii. Kipindi hiki kitabaki ndani. Mtu yeyote anayejua maelezo yako ya kuingia bado anaweza kuingia tena.</string>
+    <string name="sessions_confirm_others_body_keeps_proxies">Utatoka kwenye vipindi vingine vyote vilivyo kwenye orodha hii, isipokuwa proksi zilizopangishwa. Kipindi hiki kitabaki ndani. Mtu yeyote anayejua maelezo yako ya kuingia bado anaweza kuingia tena.</string>
     <string name="sessions_confirm_others_title">Toka kwenye vipindi vingine vyote?</string>
     <string name="sessions_confirm_self_body">Hiki ndicho kipindi unachotumia sasa. Utatoka kwenye programu hii.</string>
     <string name="sessions_confirm_title">Toka kwenye kipindi hiki?</string>
@@ -1238,6 +1243,10 @@
     <string name="sessions_device_web">Wavuti</string>
     <string name="sessions_device_windows">Windows</string>
     <string name="sessions_empty">Hakuna vipindi vinavyotumika</string>
+    <string name="sessions_group_api_clients">Wateja wa API (%1$s)</string>
+    <string name="sessions_group_hosted_proxies">Proksi zilizopangishwa (%1$s)</string>
+    <string name="sessions_group_other_clients">Wateja wengine (%1$s)</string>
+    <string name="sessions_group_paired_devices">Vifaa vilivyooanishwa (%1$s)</string>
     <string name="sessions_id">Kitambulisho %1$s</string>
     <string name="sessions_kind_api_key_client">Ufunguo wa API</string>
     <string name="sessions_kind_apple">Apple</string>
@@ -1254,8 +1263,10 @@
     <string name="sessions_last_used">Ilitumika mwisho %1$s</string>
     <string name="sessions_last_used_help">Ilitumika mwisho inaonyesha shughuli ya hivi karibuni zaidi ya kuingia ambayo seva iliona. Inaweza kuchelewa kwa dakika chache, na eneo ni la kukadiria.</string>
     <string name="sessions_legacy_note">Kuingia kutoka kwenye matoleo ya zamani ya programu kutaonekana hapa kukishasasishwa. Ili kukomesha kuingia kote, badilisha maelezo yako ya kuingia.</string>
+    <string name="sessions_limit_reached_sign_in">Kuna vipindi vingi mno vilivyo hai. Kwenye kifaa kilichoingia kwenye akaunti hii, nenda kwenye Akaunti &gt; Vipindi, toka kwenye vipindi usivyotumia tena, kisha ujaribu tena.</string>
     <string name="sessions_load_failed">Imeshindwa kupakia vipindi.</string>
     <string name="sessions_refresh_failed">Imeshindwa kuonyesha upya. Inaonyesha orodha ya mwisho.</string>
+    <string name="sessions_show_more">Onyesha zaidi</string>
     <string name="sessions_sign_in_required">Ingia tena ili kudhibiti vipindi.</string>
     <string name="sessions_sign_out_accessibility">Toka kwenye %1$s</string>
     <string name="sessions_sign_out_all_others">Toka kwenye vipindi vingine vyote</string>

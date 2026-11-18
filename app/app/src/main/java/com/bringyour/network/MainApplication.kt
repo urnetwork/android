@@ -324,23 +324,21 @@ class MainApplication : Application() {
                         val resultError = result?.error
                         // the sdk decides what a client limit refusal offers
                         // (ClientLimitStatus.prompt): the upgrade when UR Pro
-                        // lifts it, else a freed slot. The message says what
-                        // to do, where every sign-in screen shows it; any
-                        // other refusal keeps the server's message
-                        val failure = when {
-                            resultError?.clientLimitPrompt == Sdk.ClientLimitPromptUpgrade ->
-                                LoginStartupFailure.AUTH_CLIENT_UPGRADE_REQUIRED
-                            resultError?.clientLimitPrompt == Sdk.ClientLimitPromptRemoveClient ->
-                                LoginStartupFailure.AUTH_CLIENT_LIMIT_EXCEEDED
-                            resultError != null -> LoginStartupFailure.AUTH_CLIENT_REJECTED
-                            else -> null
-                        }
+                        // lifts it, else a freed slot; the network's cap of
+                        // active sessions is neither (authClientRefusal). The
+                        // message says what to do, where every sign-in screen
+                        // shows it; any other refusal keeps the server's message
+                        val failure = resultError?.let { authClientRefusal(it.code, it.clientLimitPrompt) }
                         val failureMessage = when (failure) {
                             LoginStartupFailure.AUTH_CLIENT_UPGRADE_REQUIRED ->
                                 getString(com.bringyour.network.ui.connect.clientLimitMessageId(offersUpgrade = true))
                             LoginStartupFailure.AUTH_CLIENT_LIMIT_EXCEEDED ->
                                 getString(com.bringyour.network.ui.connect.clientLimitMessageId(offersUpgrade = false))
-                            else -> resultError?.message
+                            else -> com.bringyour.network.ui.login.signInErrorMessage(
+                                this@MainApplication,
+                                resultError?.code,
+                                resultError?.message,
+                            )
                         }
                         callback(
                             result?.let {
@@ -394,7 +392,12 @@ class MainApplication : Application() {
                                     } else {
                                         LoginStartupFailure.PASSWORD_AUTH_REJECTED
                                     },
-                                    failureMessage = resultError?.message,
+                                    // the session limit's own message, never "incorrect password"
+                                    failureMessage = com.bringyour.network.ui.login.signInErrorMessage(
+                                        this@MainApplication,
+                                        resultError?.code,
+                                        resultError?.message,
+                                    ),
                                 )
                             }
                             mappedResult to error?.message
@@ -3466,7 +3469,9 @@ class MainApplication : Application() {
                                     getString(com.bringyour.network.ui.connect.clientLimitMessageId(offersUpgrade = true))
                                 LoginStartupFailure.AUTH_CLIENT_LIMIT_EXCEEDED ->
                                     getString(com.bringyour.network.ui.connect.clientLimitMessageId(offersUpgrade = false))
-                                else -> getString(R.string.something_went_wrong)
+                                // a freed client slot does not free a session
+                                else -> com.bringyour.network.ui.login.signInClientFailureMessage(this@MainApplication, completion)
+                                    ?: getString(R.string.something_went_wrong)
                             }
                         }
                     }

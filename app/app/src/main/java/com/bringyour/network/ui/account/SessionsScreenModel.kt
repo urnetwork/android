@@ -3,13 +3,13 @@ package com.bringyour.network.ui.account
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import com.bringyour.network.VisibleDeviceControllerOwner
 
 /**
  * The parts of the sdk's ClientSessionViewController that Account -> Sessions
  * drives (REVOKE-UI-FINAL.md §2). The controller fetches, polls every 30
  * seconds while visible, and owns operation ids, retries and status recovery;
- * the screen only forwards its lifecycle and actions.
+ * it reads the whole list, groups and counts it, and hands over only the rows
+ * on screen. The screen only forwards its lifecycle and actions.
  */
 internal interface SessionsController {
     // the controller's current snapshot, copied off it
@@ -19,11 +19,22 @@ internal interface SessionsController {
 
     fun setVisible(visible: Boolean)
 
+    // the app's lifecycle: the foreground loads the list again, the background
+    // changes nothing (a pending sign out goes on to its outcome)
+    fun setForeground(foreground: Boolean)
+
     fun refresh()
 
     fun revokeSession(sessionId: String)
 
     fun revokeOtherSessions()
+
+    // opens a client group to its first rows, or closes it; presentation only
+    fun setGroupExpanded(kind: String, expanded: Boolean)
+
+    // another page of the device sign-ins (Sdk.ClientSessionGroupSignIns) or
+    // of an open group; presentation only
+    fun showMoreSessions(kind: String)
 
     // removes the change listener, then closes the controller
     fun close()
@@ -43,20 +54,19 @@ sealed interface SessionsConfirmation {
  * Main-thread confined; SessionsViewModel binds it to the device, the process
  * lifecycle and the screen.
  *
- * The lifecycle is ProviderStatusViewModel's (VisibleDeviceControllerOwner):
- * the controller is open while there is a device and the app is in the
- * foreground, so the background closes it and the foreground opens a new one,
- * whose start loads the list again (§6 "foreground goes to SetForeground": the
- * sdk's SetForeground(true) is exactly that refresh). While open, the screen's
- * visibility starts it and sets SetVisible, which runs the controller's
- * polling. A replaced device closes the former device's controller, which
- * clears the list; switching accounts never shows the older account's rows.
+ * One controller per device's account, open from the device until another
+ * device replaces it (an account switch or a sign out, which also clears the
+ * list) or the screen goes: the background never closes it, since a pending
+ * sign out's operation id lives in it until the controller confirms the
+ * outcome (§6: foreground and background go to SetForeground, and only the
+ * dispose closes). The screen's visibility starts it and sets SetVisible,
+ * which runs the controller's polling.
  *
  * The controller's change listener fires on an sdk thread. [post] hands each
  * change to the main thread, which then reads the controller's latest snapshot:
  * deliveries that race across sdk threads cannot apply an older snapshot over
  * a newer one, and a change of a controller that has since closed (the screen
- * gone, the background, another device) is dropped.
+ * gone, another device) is dropped.
  */
 internal class SessionsScreenModel<D : Any>(
     private val openController: (device: D, onChange: () -> Unit) -> SessionsController,
@@ -69,40 +79,52 @@ internal class SessionsScreenModel<D : Any>(
     var confirmation by mutableStateOf<SessionsConfirmation?>(null)
         private set
 
+    private var device: D? = null
+
     // the open controller, and a count that changes whenever one opens or closes
     private var controller: SessionsController? = null
     private var controllerGeneration = 0L
 
-    private val owner = VisibleDeviceControllerOwner<D, SessionsController>(
-        open = { device -> open(device) },
-        close = { _, opened -> close(opened) },
-        // on appear: Start, then SetVisible(true); Start runs once per controller
-        start = {
-            it.start()
-            it.setVisible(true)
-        },
-        // on disappear: SetVisible(false), which keeps the controller and its list
-        stop = { it.setVisible(false) },
-    )
+    private var visible = false
+    private var foreground = false
+    // the screen is gone: nothing opens again
+    private var closed = false
 
-    init {
-        // the screen exists exactly while this model does
-        owner.setEnabled(true)
+    /** The device whose account api the controller opens on; another device closes the former one's. */
+    fun setDevice(nextDevice: D?) {
+        if (closed || device === nextDevice) {
+            return
+        }
+        device = nextDevice
+        controller?.let { close(it) }
+        val opened = nextDevice?.let { open(it) } ?: return
+        if (visible) {
+            appear(opened)
+        }
     }
 
-    /** The device whose account api the controller opens on. */
-    fun setDevice(device: D?) {
-        owner.setDevice(device)
+    /** Whether the app is in the foreground, forwarded to the controller, which stays open. */
+    fun setForeground(nextForeground: Boolean) {
+        if (closed || foreground == nextForeground) {
+            return
+        }
+        foreground = nextForeground
+        controller?.setForeground(nextForeground)
     }
 
-    /** Whether the app is in the foreground. */
-    fun setForeground(foreground: Boolean) {
-        owner.setForeground(foreground)
-    }
-
-    /** Whether the screen shows. */
-    fun setVisible(visible: Boolean) {
-        owner.setVisible(visible)
+    /** Whether the screen shows. Hidden stops the polling and keeps the controller and its list. */
+    fun setVisible(nextVisible: Boolean) {
+        if (closed || visible == nextVisible) {
+            return
+        }
+        visible = nextVisible
+        val opened = controller ?: return
+        if (nextVisible) {
+            appear(opened)
+        } else {
+            // on disappear: SetVisible(false)
+            opened.setVisible(false)
+        }
     }
 
     /** Pull to refresh; the controller publishes its refreshing state. */
@@ -110,12 +132,30 @@ internal class SessionsScreenModel<D : Any>(
         controller?.refresh()
     }
 
-    /** The swipe's Sign out, or the row's screen reader action: asks first. */
+    /** A group header's tap or its expand and collapse actions. */
+    fun setGroupExpanded(kind: String, expanded: Boolean) {
+        val opened = controller ?: return
+        opened.setGroupExpanded(kind, expanded)
+        // the controller lays the rows out before it returns
+        apply(opened.snapshot())
+    }
+
+    /** Show more, under the device sign-ins or an open group. */
+    fun showMoreSessions(kind: String) {
+        val opened = controller ?: return
+        opened.showMoreSessions(kind)
+        apply(opened.snapshot())
+    }
+
+    /**
+     * The swipe's Sign out, or the row's screen reader action, of a device
+     * sign-in or a group's row: asks first.
+     */
     fun requestSignOut(sessionId: String) {
         if (controller == null) {
             return
         }
-        val row = ui.rows.firstOrNull { it.sessionId == sessionId } ?: return
+        val row = ui.row(sessionId) ?: return
         if (row.signingOut) {
             return
         }
@@ -149,8 +189,7 @@ internal class SessionsScreenModel<D : Any>(
         val opened = controller ?: return
         when (target) {
             is SessionsConfirmation.SignOut -> {
-                val row = ui.rows.firstOrNull { it.sessionId == target.row.sessionId }
-                if (row?.signingOut == true) {
+                if (ui.row(target.row.sessionId)?.signingOut == true) {
                     return
                 }
                 // the current session's success signs this app out through
@@ -170,7 +209,19 @@ internal class SessionsScreenModel<D : Any>(
 
     /** The screen is gone: closes the controller, after which nothing updates. */
     fun close() {
-        owner.close()
+        if (closed) {
+            return
+        }
+        closed = true
+        visible = false
+        device = null
+        controller?.let { close(it) }
+    }
+
+    // on appear: Start (once per controller in the sdk), then SetVisible(true)
+    private fun appear(opened: SessionsController) {
+        opened.start()
+        opened.setVisible(true)
     }
 
     private fun open(device: D): SessionsController {

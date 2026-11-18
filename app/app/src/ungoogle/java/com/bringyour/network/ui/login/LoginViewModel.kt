@@ -108,7 +108,7 @@ class LoginViewModel @Inject constructor(
                                 CantReachPrompt.shared.report(err)
                                 setLoginError(err.message)
                             } else if (result.error != null) {
-                                setLoginError(result.error.message)
+                                setLoginError(signInErrorMessage(ctx, result.error.code, result.error.message))
                             } else if (result.authAllowed != null) {
 
                                 if (result.authAllowed.contains("password")) {
@@ -189,8 +189,9 @@ class LoginViewModel @Inject constructor(
                         setLoginError(err.message)
                         onError(err.message ?: "Seedphrase login failed")
                     } else if (result?.error != null) {
-                        setLoginError(result.error.message)
-                        onError(result.error.message ?: "Invalid seedphrase")
+                        val errorMessage = signInErrorMessage(ctx, result.error.code, result.error.message)
+                        setLoginError(errorMessage)
+                        onError(errorMessage ?: "Invalid seedphrase")
                     } else {
                         val msg = "Invalid seedphrase"
                         setLoginError(msg)
@@ -256,7 +257,7 @@ class LoginViewModel @Inject constructor(
                             CantReachPrompt.shared.report(err)
                             setLoginError(err.message)
                         } else if (result.error != null) {
-                            setLoginError(result.error.message)
+                            setLoginError(signInErrorMessage(ctx, result.error.code, result.error.message))
                         } else {
                             setLoginError(null)
 

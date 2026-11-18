@@ -573,7 +573,9 @@ private fun launchInBrowser(context: Context, uri: Uri): Boolean {
 }
 
 /**
- * Used on LoginInitial on individual build flavors
+ * Used on LoginInitial on individual build flavors. `onErr` gets the message
+ * the failure has for the screen's error line (the session limit's,
+ * signInClientFailureMessage), or null for the screen's own error.
  */
 fun handleLoginFlow(
     request: LoginRequest,
@@ -581,13 +583,13 @@ fun handleLoginFlow(
     scope: CoroutineScope,
     application: MainApplication?,
     finishAuthenticatedLoginAfterWelcome: () -> Unit,
-    onErr: () -> Unit,
+    onErr: (message: String?) -> Unit,
     onContentVisibilityChange: (Boolean) -> Unit,
     onWelcomeOverlayVisibilityChange: (Boolean) -> Unit,
 ) {
     val app = application
     if (app == null) {
-        scope.launch { onErr() }
+        scope.launch { onErr(null) }
         return
     }
     app.authenticateNetworkSession(request, networkJwt, newNetwork = false) { completion ->
@@ -604,7 +606,7 @@ fun handleLoginFlow(
                 // the network's client limit refused the client: what to do,
                 // and the device list (LoginNavHost), in place of the error
                 if (!app.offerSignInClientLimit(request, networkJwt, newNetwork = false, completion.failure)) {
-                    onErr()
+                    onErr(signInClientFailureMessage(app, completion))
                 }
                 return@launch
             }

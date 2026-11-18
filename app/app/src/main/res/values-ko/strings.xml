@@ -1221,9 +1221,14 @@
     <string name="send_tao_to_mirror">가스 비용으로 약 %1$s TAO를 %2$s에 보내세요.</string>
     <string name="sent">전송됨!</string>
     <string name="sessions_action_failed">이 세션에서 로그아웃할 수 없습니다. 다시 시도하세요.</string>
+    <string name="sessions_client_api_key">API 클라이언트</string>
+    <string name="sessions_client_device">페어링된 기기</string>
+    <string name="sessions_client_other">기타 클라이언트</string>
     <string name="sessions_confirm_body">%2$s의 %1$s에서 로그아웃됩니다.</string>
+    <string name="sessions_confirm_body_hosted_proxy">이 호스팅 프록시가 더 이상 작동하지 않습니다. 대체하려면 새 프록시를 만드세요.</string>
     <string name="sessions_confirm_body_no_place">%1$s에서 로그아웃됩니다.</string>
     <string name="sessions_confirm_others_body">이 목록의 다른 모든 세션에서 로그아웃됩니다. 현재 세션은 로그인 상태로 유지됩니다. 로그인 정보를 아는 사람은 여전히 다시 로그인할 수 있습니다.</string>
+    <string name="sessions_confirm_others_body_keeps_proxies">호스팅 프록시를 제외한 이 목록의 다른 모든 세션에서 로그아웃됩니다. 현재 세션은 로그인 상태로 유지됩니다. 로그인 정보를 아는 사람은 여전히 다시 로그인할 수 있습니다.</string>
     <string name="sessions_confirm_others_title">다른 모든 세션에서 로그아웃할까요?</string>
     <string name="sessions_confirm_self_body">현재 사용 중인 세션입니다. 이 앱에서 로그아웃됩니다.</string>
     <string name="sessions_confirm_title">이 세션에서 로그아웃할까요?</string>
@@ -1238,6 +1243,10 @@
     <string name="sessions_device_web">웹</string>
     <string name="sessions_device_windows">Windows</string>
     <string name="sessions_empty">활성 세션 없음</string>
+    <string name="sessions_group_api_clients">API 클라이언트 (%1$s)</string>
+    <string name="sessions_group_hosted_proxies">호스팅 프록시 (%1$s)</string>
+    <string name="sessions_group_other_clients">기타 클라이언트 (%1$s)</string>
+    <string name="sessions_group_paired_devices">페어링된 기기 (%1$s)</string>
     <string name="sessions_id">ID %1$s</string>
     <string name="sessions_kind_api_key_client">API 키</string>
     <string name="sessions_kind_apple">Apple</string>
@@ -1254,8 +1263,10 @@
     <string name="sessions_last_used">마지막 사용: %1$s</string>
     <string name="sessions_last_used_help">마지막 사용은 서버가 확인한 가장 최근의 로그인 활동입니다. 몇 분 늦게 반영될 수 있으며, 위치는 대략적입니다.</string>
     <string name="sessions_legacy_note">이전 버전 앱의 로그인은 갱신되면 여기에 표시됩니다. 모든 로그인을 종료하려면 로그인 정보를 변경하세요.</string>
+    <string name="sessions_limit_reached_sign_in">활성 세션이 너무 많습니다. 이 계정에 로그인된 기기에서 계정 &gt; 세션으로 이동해 더 이상 사용하지 않는 세션에서 로그아웃한 후 다시 시도하세요.</string>
     <string name="sessions_load_failed">세션을 불러올 수 없습니다.</string>
     <string name="sessions_refresh_failed">새로고침할 수 없습니다. 마지막 목록을 표시합니다.</string>
+    <string name="sessions_show_more">더 보기</string>
     <string name="sessions_sign_in_required">세션을 관리하려면 다시 로그인하세요.</string>
     <string name="sessions_sign_out_accessibility">%1$s에서 로그아웃</string>
     <string name="sessions_sign_out_all_others">다른 모든 세션에서 로그아웃</string>

@@ -323,7 +323,7 @@ fun LoginCreateNetwork(
                     scope.launch {
                         if (!application.ownsLoginRequest(request)) return@launch
                         createNetworkError = mismatchWallet?.let { bittensorSignatureMismatchText(context, it) }
-                            ?: result.error.message
+                            ?: signInErrorMessage(context, result.error.code, result.error.message)
                         inProgress = false
                     }
                 } else if (result.network != null && result.network.byJwt.isNotEmpty()) {

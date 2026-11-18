@@ -1221,9 +1221,14 @@
     <string name="send_tao_to_mirror">Envoyez environ %1$s TAO à %2$s pour couvrir le gas.</string>
     <string name="sent">Envoyé !</string>
     <string name="sessions_action_failed">Impossible de déconnecter cette session. Réessayez.</string>
+    <string name="sessions_client_api_key">Client API</string>
+    <string name="sessions_client_device">Appareil associé</string>
+    <string name="sessions_client_other">Autre client</string>
     <string name="sessions_confirm_body">La session %1$s (%2$s) sera déconnectée.</string>
+    <string name="sessions_confirm_body_hosted_proxy">Ce proxy hébergé cessera de fonctionner. Créez-en un nouveau pour le remplacer.</string>
     <string name="sessions_confirm_body_no_place">La session %1$s sera déconnectée.</string>
     <string name="sessions_confirm_others_body">Toutes les autres sessions de cette liste seront déconnectées. Cette session reste connectée. Toute personne qui connaît vos identifiants peut toujours se reconnecter.</string>
+    <string name="sessions_confirm_others_body_keeps_proxies">Toutes les autres sessions de cette liste seront déconnectées, sauf les proxys hébergés. Cette session reste connectée. Toute personne qui connaît vos identifiants peut toujours se reconnecter.</string>
     <string name="sessions_confirm_others_title">Déconnecter toutes les autres sessions ?</string>
     <string name="sessions_confirm_self_body">C’est la session que vous utilisez. Cette application sera déconnectée.</string>
     <string name="sessions_confirm_title">Déconnecter cette session ?</string>
@@ -1238,6 +1243,10 @@
     <string name="sessions_device_web">Web</string>
     <string name="sessions_device_windows">Windows</string>
     <string name="sessions_empty">Aucune session active</string>
+    <string name="sessions_group_api_clients">Clients API (%1$s)</string>
+    <string name="sessions_group_hosted_proxies">Proxys hébergés (%1$s)</string>
+    <string name="sessions_group_other_clients">Autres clients (%1$s)</string>
+    <string name="sessions_group_paired_devices">Appareils associés (%1$s)</string>
     <string name="sessions_id">ID %1$s</string>
     <string name="sessions_kind_api_key_client">Clé API</string>
     <string name="sessions_kind_apple">Apple</string>
@@ -1254,8 +1263,10 @@
     <string name="sessions_last_used">Dernière utilisation : %1$s</string>
     <string name="sessions_last_used_help">« Dernière utilisation » correspond à la dernière activité de connexion vue par le serveur. Elle peut avoir quelques minutes de retard, et la position est approximative.</string>
     <string name="sessions_legacy_note">Les connexions des anciennes versions de l’application apparaissent ici dès qu’elles se renouvellent. Pour mettre fin à toutes les connexions, modifiez vos identifiants.</string>
+    <string name="sessions_limit_reached_sign_in">Trop de sessions actives. Sur un appareil connecté à ce compte, ouvrez Compte &gt; Sessions, déconnectez les sessions que vous n’utilisez plus, puis réessayez.</string>
     <string name="sessions_load_failed">Impossible de charger les sessions.</string>
     <string name="sessions_refresh_failed">Actualisation impossible. Affichage de la dernière liste.</string>
+    <string name="sessions_show_more">Afficher plus</string>
     <string name="sessions_sign_in_required">Reconnectez-vous pour gérer les sessions.</string>
     <string name="sessions_sign_out_accessibility">Déconnecter %1$s</string>
     <string name="sessions_sign_out_all_others">Déconnecter toutes les autres sessions</string>

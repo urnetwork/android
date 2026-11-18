@@ -1,6 +1,7 @@
 package com.bringyour.network.ui.login
 
 import com.bringyour.network.ui.connection_region.CantReachPrompt
+import android.content.Context
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -10,6 +11,7 @@ import com.bringyour.network.ui.components.referral.ReferralCodeInputController
 import com.bringyour.network.ui.components.referral.apiReferralCodeChecker
 import com.bringyour.sdk.NetworkCreateArgs
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -30,6 +32,8 @@ import javax.inject.Inject
 @HiltViewModel
 class CreateNetworkInstantViewModel @Inject constructor(
     private val networkSpaceManagerProvider: NetworkSpaceManagerProvider,
+    // the refusal's message at the network's cap of active sessions
+    @ApplicationContext private val context: Context,
 ): ViewModel() {
 
     private val _inProgress = MutableStateFlow(false)
@@ -138,7 +142,8 @@ class CreateNetworkInstantViewModel @Inject constructor(
                     return@launch
                 }
                 if (result?.error != null) {
-                    _error.value = result.error.message ?: "Failed to create account"
+                    _error.value = signInErrorMessage(context, result.error.code, result.error.message)
+                        ?: "Failed to create account"
                     return@launch
                 }
 

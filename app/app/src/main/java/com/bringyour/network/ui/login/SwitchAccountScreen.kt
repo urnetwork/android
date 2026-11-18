@@ -32,7 +32,9 @@ fun SwitchAccountScreen(
     currentNetworkName: String,
     targetJwt: String?,
     request: LoginRequest? = null,
-    setSwitchAccount: (Boolean) -> Unit
+    setSwitchAccount: (Boolean) -> Unit,
+    // the sign-in screen's error line, which this screen closes to
+    setLoginError: (String?) -> Unit = {},
 ) {
 
     val context = LocalContext.current
@@ -55,9 +57,11 @@ fun SwitchAccountScreen(
                 } else {
                     setSwitchAccount(false)
                     // the other account's client limit refused the client:
-                    // what to do, and its device list (LoginNavHost)
+                    // what to do, and its device list (LoginNavHost); its cap
+                    // of active sessions says what to do on the error line
                     if (completion is LoginClientCompletion.Failed) {
                         application.offerSignInClientLimit(acceptedRequest, targetJwt, newNetwork = false, completion.failure)
+                        signInClientFailureMessage(context, completion)?.let(setLoginError)
                     }
                 }
             }

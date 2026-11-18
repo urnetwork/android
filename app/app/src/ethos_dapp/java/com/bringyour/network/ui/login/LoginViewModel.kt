@@ -98,7 +98,7 @@ class LoginViewModel @Inject constructor(
                                 CantReachPrompt.shared.report(err)
                                 setLoginError(err.message)
                             } else if (result.error != null) {
-                                setLoginError(result.error.message)
+                                setLoginError(signInErrorMessage(ctx, result.error.code, result.error.message))
                             } else if (result.authAllowed != null) {
 
                                 if (result.authAllowed.contains("password")) {
@@ -179,8 +179,9 @@ class LoginViewModel @Inject constructor(
                         setLoginError(err.message)
                         onError(err.message ?: "Seedphrase login failed")
                     } else if (result?.error != null) {
-                        setLoginError(result.error.message)
-                        onError(result.error.message ?: "Invalid seedphrase")
+                        val errorMessage = signInErrorMessage(ctx, result.error.code, result.error.message)
+                        setLoginError(errorMessage)
+                        onError(errorMessage ?: "Invalid seedphrase")
                     } else {
                         val msg = "Invalid seedphrase"
                         setLoginError(msg)
@@ -244,7 +245,7 @@ class LoginViewModel @Inject constructor(
                         setLoginError(err.message)
                         setGoogleAuthInProgress(false)
                     } else if (result.error != null) {
-                        setLoginError(result.error.message)
+                        setLoginError(signInErrorMessage(ctx, result.error.code, result.error.message))
                         setGoogleAuthInProgress(false)
                     } else if (result.authAllowed != null) {
                         val authAllowed = mutableListOf<String>()
@@ -326,7 +327,7 @@ class LoginViewModel @Inject constructor(
                             setLoginError(err.message)
                             setSolanaAuthInProgress(false)
                         } else if (result.error != null) {
-                            setLoginError(result.error.message)
+                            setLoginError(signInErrorMessage(ctx, result.error.code, result.error.message))
                             setSolanaAuthInProgress(false)
                         } else {
                             setLoginError(null)
@@ -404,7 +405,7 @@ class LoginViewModel @Inject constructor(
                             setLoginError(err.message)
                             setEthOsAuthInProgress(false)
                         } else if (result.error != null) {
-                            setLoginError(result.error.message)
+                            setLoginError(signInErrorMessage(ctx, result.error.code, result.error.message))
                             setEthOsAuthInProgress(false)
                         } else {
                             setLoginError(null)

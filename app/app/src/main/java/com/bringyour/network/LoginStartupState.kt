@@ -1,6 +1,8 @@
 package com.bringyour.network
 
 import com.bringyour.network.ui.login.VerifySendError
+import com.bringyour.network.ui.login.isSessionLimitReached
+import com.bringyour.sdk.Sdk
 import java.util.Base64
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -35,6 +37,8 @@ enum class LoginStartupFailure(val wireValue: String) {
     AUTH_CLIENT_REJECTED("auth-client-rejected"),
     AUTH_CLIENT_LIMIT_EXCEEDED("auth-client-limit-exceeded"),
     AUTH_CLIENT_UPGRADE_REQUIRED("auth-client-upgrade-required"),
+    // the network holds its cap of active sessions (authClientRefusal)
+    AUTH_CLIENT_SESSION_LIMIT_REACHED("auth-client-session-limit-reached"),
     AUTH_CLIENT_RESULT_MISSING("auth-client-result-missing"),
     AUTH_CLIENT_ID_MISSING("auth-client-id-missing"),
     AUTH_CLIENT_ID_INVALID("auth-client-id-invalid"),
@@ -291,6 +295,20 @@ internal data class AuthClientWireResult(
     val failure: LoginStartupFailure? = null,
     val failureMessage: String? = null,
 )
+
+/**
+ * Why the server refused a sign-in's client (a result error), from what the
+ * sdk read off the refusal: the network's cap of active sessions, which no
+ * upgrade and no removed device frees (its error code); the client limit,
+ * which UR Pro lifts or a freed slot does (ClientLimitStatus.prompt); or any
+ * other refusal.
+ */
+internal fun authClientRefusal(code: String?, clientLimitPrompt: String?): LoginStartupFailure = when {
+    isSessionLimitReached(code) -> LoginStartupFailure.AUTH_CLIENT_SESSION_LIMIT_REACHED
+    clientLimitPrompt == Sdk.ClientLimitPromptUpgrade -> LoginStartupFailure.AUTH_CLIENT_UPGRADE_REQUIRED
+    clientLimitPrompt == Sdk.ClientLimitPromptRemoveClient -> LoginStartupFailure.AUTH_CLIENT_LIMIT_EXCEEDED
+    else -> LoginStartupFailure.AUTH_CLIENT_REJECTED
+}
 
 internal fun interface AuthClientRequester {
     fun request(callback: (AuthClientWireResult?, String?) -> Unit)

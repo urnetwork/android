@@ -1221,9 +1221,14 @@
     <string name="send_tao_to_mirror">Pošlete asi %1$s TAO na %2$s na pokrytí gasu.</string>
     <string name="sent">Odesláno!</string>
     <string name="sessions_action_failed">Tuto relaci se nepodařilo odhlásit. Zkuste to znovu.</string>
+    <string name="sessions_client_api_key">Klient API</string>
+    <string name="sessions_client_device">Spárované zařízení</string>
+    <string name="sessions_client_other">Jiný klient</string>
     <string name="sessions_confirm_body">Relace %1$s (%2$s) bude odhlášena.</string>
+    <string name="sessions_confirm_body_hosted_proxy">Tato hostovaná proxy přestane fungovat. Pokud ji chcete nahradit, vytvořte novou.</string>
     <string name="sessions_confirm_body_no_place">Relace %1$s bude odhlášena.</string>
     <string name="sessions_confirm_others_body">Všechny ostatní relace v tomto seznamu budou odhlášeny. Tato relace zůstane přihlášená. Kdokoli, kdo zná vaše přihlašovací údaje, se i tak může znovu přihlásit.</string>
+    <string name="sessions_confirm_others_body_keeps_proxies">Všechny ostatní relace v tomto seznamu kromě hostovaných proxy budou odhlášeny. Tato relace zůstane přihlášená. Kdokoli, kdo zná vaše přihlašovací údaje, se i tak může znovu přihlásit.</string>
     <string name="sessions_confirm_others_title">Odhlásit všechny ostatní relace?</string>
     <string name="sessions_confirm_self_body">Tuto relaci právě používáte. Tato aplikace bude odhlášena.</string>
     <string name="sessions_confirm_title">Odhlásit tuto relaci?</string>
@@ -1238,6 +1243,10 @@
     <string name="sessions_device_web">Web</string>
     <string name="sessions_device_windows">Windows</string>
     <string name="sessions_empty">Žádné aktivní relace</string>
+    <string name="sessions_group_api_clients">Klienti API (%1$s)</string>
+    <string name="sessions_group_hosted_proxies">Hostované proxy (%1$s)</string>
+    <string name="sessions_group_other_clients">Ostatní klienti (%1$s)</string>
+    <string name="sessions_group_paired_devices">Spárovaná zařízení (%1$s)</string>
     <string name="sessions_id">ID %1$s</string>
     <string name="sessions_kind_api_key_client">Klíč API</string>
     <string name="sessions_kind_apple">Apple</string>
@@ -1254,8 +1263,10 @@
     <string name="sessions_last_used">Naposledy použito: %1$s</string>
     <string name="sessions_last_used_help">„Naposledy použito“ ukazuje nejnovější aktivitu přihlášení, kterou server zaznamenal. Může se o několik minut opožďovat a poloha je přibližná.</string>
     <string name="sessions_legacy_note">Přihlášení ze starších verzí aplikace se zde zobrazí, jakmile se obnoví. Chcete-li ukončit všechna přihlášení, změňte své přihlašovací údaje.</string>
+    <string name="sessions_limit_reached_sign_in">Příliš mnoho aktivních relací. Na zařízení přihlášeném k tomuto účtu přejděte do části Účet &gt; Relace, odhlaste relace, které už nepoužíváte, a zkuste to znovu.</string>
     <string name="sessions_load_failed">Relace se nepodařilo načíst.</string>
     <string name="sessions_refresh_failed">Obnovení se nezdařilo. Zobrazuje se poslední seznam.</string>
+    <string name="sessions_show_more">Zobrazit další</string>
     <string name="sessions_sign_in_required">Pro správu relací se znovu přihlaste.</string>
     <string name="sessions_sign_out_accessibility">Odhlásit %1$s</string>
     <string name="sessions_sign_out_all_others">Odhlásit všechny ostatní relace</string>
