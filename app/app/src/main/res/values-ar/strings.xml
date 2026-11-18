@@ -1263,6 +1263,7 @@
     <string name="sessions_last_used">آخر استخدام: %1$s</string>
     <string name="sessions_last_used_help">«آخر استخدام» هو أحدث نشاط لتسجيل الدخول رصده الخادم. قد يتأخر بضع دقائق، والموقع تقريبي.</string>
     <string name="sessions_legacy_note">تظهر عمليات تسجيل الدخول من إصدارات التطبيق الأقدم هنا بعد تجديدها. لإنهاء كل عمليات تسجيل الدخول، غيّر بيانات تسجيل الدخول الخاصة بك.</string>
+    <string name="sessions_limit_reached">توجد جلسات نشطة كثيرة جدًا. سجّل الخروج من الجلسات التي لم تعد تستخدمها في الحساب &gt; الجلسات، ثم حاول مرة أخرى.</string>
     <string name="sessions_limit_reached_sign_in">توجد جلسات نشطة كثيرة جدًا. على جهاز مسجَّل الدخول إلى هذا الحساب، انتقل إلى الحساب &gt; الجلسات وسجّل الخروج من الجلسات التي لم تعد تستخدمها، ثم حاول مرة أخرى.</string>
     <string name="sessions_load_failed">تعذّر تحميل الجلسات.</string>
     <string name="sessions_refresh_failed">تعذّر التحديث. يتم عرض آخر قائمة.</string>

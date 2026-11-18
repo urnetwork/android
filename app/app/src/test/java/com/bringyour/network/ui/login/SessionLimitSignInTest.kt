@@ -173,7 +173,8 @@ class SessionLimitSignInTest {
             "ui/login/CreateNetworkInstantViewModel.kt" to "signInErrorMessage(context, result.error.code, result.error.message)",
             "ui/login/AuthCodeLoginSheetViewModel.kt" to "signInErrorMessage(context, result.error.code, result.error.message)",
             "ui/login/BittensorLogin.kt" to "signInErrorMessage(application, it.code, it.message)",
-            "ui/settings/AddAuthMethodSheet.kt" to "signInErrorMessage(context, result.error.code, result.error.message)",
+            // a signed-in device: the signed-in line (sessions_limit_reached)
+            "ui/settings/AddAuthMethodSheet.kt" to "signedInErrorMessage(context, result.error.code, result.error.message)",
             // the client after a sign-in, where its failure shows
             "ui/login/LoginUtils.kt" to "onErr(signInClientFailureMessage(app, completion))",
             "ui/LoginNavHost.kt" to "signInClientFailureMessage(context, completion)",

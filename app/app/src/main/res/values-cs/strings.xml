@@ -1263,6 +1263,7 @@
     <string name="sessions_last_used">Naposledy použito: %1$s</string>
     <string name="sessions_last_used_help">„Naposledy použito“ ukazuje nejnovější aktivitu přihlášení, kterou server zaznamenal. Může se o několik minut opožďovat a poloha je přibližná.</string>
     <string name="sessions_legacy_note">Přihlášení ze starších verzí aplikace se zde zobrazí, jakmile se obnoví. Chcete-li ukončit všechna přihlášení, změňte své přihlašovací údaje.</string>
+    <string name="sessions_limit_reached">Příliš mnoho aktivních relací. V části Účet &gt; Relace odhlaste relace, které už nepoužíváte, a zkuste to znovu.</string>
     <string name="sessions_limit_reached_sign_in">Příliš mnoho aktivních relací. Na zařízení přihlášeném k tomuto účtu přejděte do části Účet &gt; Relace, odhlaste relace, které už nepoužíváte, a zkuste to znovu.</string>
     <string name="sessions_load_failed">Relace se nepodařilo načíst.</string>
     <string name="sessions_refresh_failed">Obnovení se nezdařilo. Zobrazuje se poslední seznam.</string>

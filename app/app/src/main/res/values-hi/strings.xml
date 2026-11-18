@@ -1263,6 +1263,7 @@
     <string name="sessions_last_used">पिछला उपयोग: %1$s</string>
     <string name="sessions_last_used_help">पिछला उपयोग सर्वर को दिखी सबसे हाल की साइन-इन गतिविधि है। इसमें कुछ मिनट की देरी हो सकती है, और स्थान अनुमानित है।</string>
     <string name="sessions_legacy_note">पुराने ऐप संस्करणों से किए गए साइन-इन नवीनीकृत होने पर यहाँ दिखेंगे। सभी साइन-इन समाप्त करने के लिए, अपनी साइन-इन जानकारी बदलें।</string>
+    <string name="sessions_limit_reached">बहुत सारे सक्रिय सत्र हैं। खाता &gt; सत्र में उन सत्रों से साइन आउट करें जिनका आप अब उपयोग नहीं करते, फिर पुनः प्रयास करें।</string>
     <string name="sessions_limit_reached_sign_in">बहुत सारे सक्रिय सत्र हैं। इस खाते में साइन इन किए गए किसी डिवाइस पर खाता &gt; सत्र में जाएँ, उन सत्रों से साइन आउट करें जिनका आप अब उपयोग नहीं करते, फिर पुनः प्रयास करें।</string>
     <string name="sessions_load_failed">सत्र लोड नहीं हो सके।</string>
     <string name="sessions_refresh_failed">रीफ़्रेश नहीं हो सका। पिछली सूची दिखाई जा रही है।</string>

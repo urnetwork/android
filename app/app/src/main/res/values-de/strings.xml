@@ -1263,6 +1263,7 @@
     <string name="sessions_last_used">Zuletzt verwendet: %1$s</string>
     <string name="sessions_last_used_help">„Zuletzt verwendet“ ist die letzte Anmeldeaktivität, die der Server gesehen hat. Sie kann sich um einige Minuten verzögern, und der Standort ist nur ungefähr.</string>
     <string name="sessions_legacy_note">Anmeldungen aus älteren App-Versionen erscheinen hier, sobald sie erneuert werden. Um alle Anmeldungen zu beenden, ändere deine Anmeldedaten.</string>
+    <string name="sessions_limit_reached">Zu viele aktive Sitzungen. Melde unter Konto &gt; Sitzungen die Sitzungen ab, die du nicht mehr nutzt, und versuche es dann erneut.</string>
     <string name="sessions_limit_reached_sign_in">Zu viele aktive Sitzungen. Öffne auf einem Gerät, das bei diesem Konto angemeldet ist, Konto &gt; Sitzungen, melde die Sitzungen ab, die du nicht mehr nutzt, und versuche es dann erneut.</string>
     <string name="sessions_load_failed">Sitzungen konnten nicht geladen werden.</string>
     <string name="sessions_refresh_failed">Aktualisierung fehlgeschlagen. Die letzte Liste wird angezeigt.</string>

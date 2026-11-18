@@ -1263,6 +1263,7 @@
     <string name="sessions_last_used">Último uso: %1$s</string>
     <string name="sessions_last_used_help">\"Último uso\" é a atividade de login mais recente que o servidor registrou. Pode ter alguns minutos de atraso, e a localização é aproximada.</string>
     <string name="sessions_legacy_note">Logins de versões mais antigas do app aparecem aqui quando forem renovados. Para encerrar todos os logins, altere seus dados de login.</string>
+    <string name="sessions_limit_reached">Há sessões ativas demais. Encerre as sessões que você não usa mais em Conta &gt; Sessões e tente novamente.</string>
     <string name="sessions_limit_reached_sign_in">Há sessões ativas demais. Em um dispositivo conectado a esta conta, acesse Conta &gt; Sessões, encerre as sessões que você não usa mais e tente novamente.</string>
     <string name="sessions_load_failed">Não foi possível carregar as sessões.</string>
     <string name="sessions_refresh_failed">Não foi possível atualizar. Mostrando a última lista.</string>

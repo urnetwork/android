@@ -183,11 +183,12 @@ class SessionsWiringTest {
         val english = strings(File(res, "values"))
         val keys = english.keys.filter { it.startsWith("sessions_") }
         // with sessions_sign_out_others_failed and sessions_sign_in_required,
-        // and session1118's 11 (C.md §4: the groups, their row labels, Show
-        // more, the hosted proxy bodies and the sign-in refusal at the cap)
-        assertEquals(57, keys.size)
-        // the site's own keys are not in the app's catalogs
-        assertFalse(english.containsKey("sessions_limit_reached"))
+        // and session1118's 12 (C.md §4: the groups, their row labels, Show
+        // more, the hosted proxy bodies and the refusal at the cap, signed
+        // out and signed in)
+        assertEquals(58, keys.size)
+        assertTrue(english.containsKey("sessions_limit_reached"))
+        // the site's own key is not in the app's catalogs
         assertFalse(english.containsKey("sessions_open"))
 
         val locales = res.listFiles { file -> file.name.startsWith("values-") }!!

@@ -1263,6 +1263,7 @@
     <string name="sessions_last_used">Ostatnie użycie: %1$s</string>
     <string name="sessions_last_used_help">„Ostatnie użycie” to najnowsza aktywność logowania odnotowana przez serwer. Może być opóźniona o kilka minut, a lokalizacja jest przybliżona.</string>
     <string name="sessions_legacy_note">Logowania ze starszych wersji aplikacji pojawią się tutaj po ich odnowieniu. Aby zakończyć wszystkie logowania, zmień swoje dane logowania.</string>
+    <string name="sessions_limit_reached">Zbyt wiele aktywnych sesji. Wyloguj sesje, których już nie używasz, w sekcji Konto &gt; Sesje, a potem spróbuj ponownie.</string>
     <string name="sessions_limit_reached_sign_in">Zbyt wiele aktywnych sesji. Na urządzeniu zalogowanym na to konto przejdź do sekcji Konto &gt; Sesje, wyloguj sesje, których już nie używasz, a potem spróbuj ponownie.</string>
     <string name="sessions_load_failed">Nie udało się wczytać sesji.</string>
     <string name="sessions_refresh_failed">Nie udało się odświeżyć. Wyświetlana jest ostatnia lista.</string>

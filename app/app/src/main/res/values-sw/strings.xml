@@ -1263,6 +1263,7 @@
     <string name="sessions_last_used">Ilitumika mwisho %1$s</string>
     <string name="sessions_last_used_help">Ilitumika mwisho inaonyesha shughuli ya hivi karibuni zaidi ya kuingia ambayo seva iliona. Inaweza kuchelewa kwa dakika chache, na eneo ni la kukadiria.</string>
     <string name="sessions_legacy_note">Kuingia kutoka kwenye matoleo ya zamani ya programu kutaonekana hapa kukishasasishwa. Ili kukomesha kuingia kote, badilisha maelezo yako ya kuingia.</string>
+    <string name="sessions_limit_reached">Kuna vipindi vingi mno vilivyo hai. Toka kwenye vipindi usivyotumia tena katika Akaunti &gt; Vipindi, kisha ujaribu tena.</string>
     <string name="sessions_limit_reached_sign_in">Kuna vipindi vingi mno vilivyo hai. Kwenye kifaa kilichoingia kwenye akaunti hii, nenda kwenye Akaunti &gt; Vipindi, toka kwenye vipindi usivyotumia tena, kisha ujaribu tena.</string>
     <string name="sessions_load_failed">Imeshindwa kupakia vipindi.</string>
     <string name="sessions_refresh_failed">Imeshindwa kuonyesha upya. Inaonyesha orodha ya mwisho.</string>

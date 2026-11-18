@@ -1263,6 +1263,7 @@
     <string name="sessions_last_used">Dernière utilisation : %1$s</string>
     <string name="sessions_last_used_help">« Dernière utilisation » correspond à la dernière activité de connexion vue par le serveur. Elle peut avoir quelques minutes de retard, et la position est approximative.</string>
     <string name="sessions_legacy_note">Les connexions des anciennes versions de l’application apparaissent ici dès qu’elles se renouvellent. Pour mettre fin à toutes les connexions, modifiez vos identifiants.</string>
+    <string name="sessions_limit_reached">Trop de sessions actives. Déconnectez les sessions que vous n’utilisez plus dans Compte &gt; Sessions, puis réessayez.</string>
     <string name="sessions_limit_reached_sign_in">Trop de sessions actives. Sur un appareil connecté à ce compte, ouvrez Compte &gt; Sessions, déconnectez les sessions que vous n’utilisez plus, puis réessayez.</string>
     <string name="sessions_load_failed">Impossible de charger les sessions.</string>
     <string name="sessions_refresh_failed">Actualisation impossible. Affichage de la dernière liste.</string>

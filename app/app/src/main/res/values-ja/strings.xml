@@ -1263,6 +1263,7 @@
     <string name="sessions_last_used">最終使用: %1$s</string>
     <string name="sessions_last_used_help">「最終使用」は、サーバーが確認した最新のサインインアクティビティです。数分遅れることがあり、場所はおおよその位置です。</string>
     <string name="sessions_legacy_note">古いバージョンのアプリからのサインインは、更新されるとここに表示されます。すべてのサインインを終了するには、サインイン情報を変更してください。</string>
+    <string name="sessions_limit_reached">アクティブなセッションが多すぎます。アカウント &gt; セッションで、使用しなくなったセッションからサインアウトしてから、もう一度お試しください。</string>
     <string name="sessions_limit_reached_sign_in">アクティブなセッションが多すぎます。このアカウントにサインインしているデバイスで、アカウント &gt; セッションを開き、使用しなくなったセッションからサインアウトしてから、もう一度お試しください。</string>
     <string name="sessions_load_failed">セッションを読み込めませんでした。</string>
     <string name="sessions_refresh_failed">更新できませんでした。前回の一覧を表示しています。</string>

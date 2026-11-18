@@ -1263,6 +1263,7 @@
     <string name="sessions_last_used">Laatst gebruikt: %1$s</string>
     <string name="sessions_last_used_help">“Laatst gebruikt” is de meest recente inlogactiviteit die de server heeft gezien. Dit kan een paar minuten achterlopen en de locatie is bij benadering.</string>
     <string name="sessions_legacy_note">Inlogsessies van oudere appversies verschijnen hier zodra ze worden vernieuwd. Wijzig je inloggegevens om alle inlogsessies te beëindigen.</string>
+    <string name="sessions_limit_reached">Te veel actieve sessies. Log de sessies die je niet meer gebruikt uit via Account &gt; Sessies en probeer het opnieuw.</string>
     <string name="sessions_limit_reached_sign_in">Te veel actieve sessies. Ga op een apparaat dat bij dit account is ingelogd naar Account &gt; Sessies, log de sessies uit die je niet meer gebruikt en probeer het opnieuw.</string>
     <string name="sessions_load_failed">Kan sessies niet laden.</string>
     <string name="sessions_refresh_failed">Kan niet vernieuwen. De laatste lijst wordt getoond.</string>

@@ -1278,6 +1278,7 @@
     <string name="sessions_last_used">Last used %1$s</string>
     <string name="sessions_last_used_help">Last used is the most recent sign-in activity the server saw. It can lag a few minutes, and the location is approximate.</string>
     <string name="sessions_legacy_note">Sign-ins from older app versions appear here once they renew. To end every sign-in, change your sign-in details.</string>
+    <string name="sessions_limit_reached">Too many active sessions. Sign out sessions you no longer use in Account &gt; Sessions, then try again.</string>
     <string name="sessions_limit_reached_sign_in">Too many active sessions. On a device that\'s signed in to this account, go to Account &gt; Sessions and sign out sessions you no longer use, then try again.</string>
     <string name="sessions_load_failed">Couldn\'t load sessions.</string>
     <string name="sessions_refresh_failed">Couldn\'t refresh. Showing the last list.</string>

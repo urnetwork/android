@@ -1263,6 +1263,7 @@
     <string name="sessions_last_used">上次使用：%1$s</string>
     <string name="sessions_last_used_help">“上次使用”是服务器看到的最近一次登录活动。它可能会延迟几分钟，位置也只是大致位置。</string>
     <string name="sessions_legacy_note">旧版应用的登录会在续期后显示在这里。要结束所有登录，请更改您的登录信息。</string>
+    <string name="sessions_limit_reached">活跃会话过多。请在“账户 &gt; 登录会话”中退出不再使用的会话，然后重试。</string>
     <string name="sessions_limit_reached_sign_in">活跃会话过多。请在已登录此账户的设备上前往“账户 &gt; 登录会话”，退出不再使用的会话，然后重试。</string>
     <string name="sessions_load_failed">无法加载会话。</string>
     <string name="sessions_refresh_failed">无法刷新。正在显示上次的列表。</string>

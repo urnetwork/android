@@ -1263,6 +1263,7 @@
     <string name="sessions_last_used">Sử dụng lần cuối %1$s</string>
     <string name="sessions_last_used_help">Sử dụng lần cuối là hoạt động đăng nhập gần đây nhất mà máy chủ ghi nhận. Thông tin này có thể chậm vài phút và vị trí chỉ là ước tính.</string>
     <string name="sessions_legacy_note">Các lượt đăng nhập từ phiên bản ứng dụng cũ sẽ xuất hiện ở đây khi được gia hạn. Để kết thúc mọi lượt đăng nhập, hãy thay đổi thông tin đăng nhập của bạn.</string>
+    <string name="sessions_limit_reached">Có quá nhiều phiên đang hoạt động. Hãy đăng xuất các phiên bạn không còn dùng trong Tài khoản &gt; Phiên đăng nhập, rồi thử lại.</string>
     <string name="sessions_limit_reached_sign_in">Có quá nhiều phiên đang hoạt động. Trên một thiết bị đã đăng nhập vào tài khoản này, hãy vào Tài khoản &gt; Phiên đăng nhập, đăng xuất các phiên bạn không còn dùng, rồi thử lại.</string>
     <string name="sessions_load_failed">Không thể tải các phiên.</string>
     <string name="sessions_refresh_failed">Không thể làm mới. Đang hiển thị danh sách gần nhất.</string>
