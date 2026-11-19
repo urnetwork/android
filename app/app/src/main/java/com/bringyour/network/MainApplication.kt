@@ -1618,7 +1618,14 @@ class MainApplication : Application() {
             // one checked generation before deciding whether startup can proceed.
             val auth = runCatching { localState.authStateSnapshot }.getOrNull() ?: return@let
             val byClientJwt = auth.byClientJwt
-            if (byClientJwt.isNullOrEmpty() || runCatching { auth.parseByJwt() }.getOrNull() == null) {
+            // A device whose account sign-in the server rejected while it
+            // stayed signed in (the sdk's AccountSignInRequired) keeps only its
+            // client token, until the next sign-in or sign-out: it starts on
+            // it, and the sdk reports the account sign-in notice again.
+            val accountSignInRequired = runCatching { auth.accountSignInRequired }.getOrDefault(false)
+            if (byClientJwt.isNullOrEmpty() ||
+                (!accountSignInRequired && runCatching { auth.parseByJwt() }.getOrNull() == null)
+            ) {
                 return@let
             }
 
