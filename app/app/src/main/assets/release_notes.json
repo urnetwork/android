@@ -1,0 +1,11 @@
+{
+  "version": "2026.11",
+  "date": "2026-11-19",
+  "locales": {
+    "en": {
+      "title": "What's new",
+      "intro": "The release notes for this version are on the way.",
+      "sections": []
+    }
+  }
+}

@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -64,11 +65,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
@@ -255,6 +258,15 @@ fun SettingsScreen(
     var isPresentingRenameDevice by rememberSaveable { mutableStateOf(false) }
     var editingDeviceName by rememberSaveable(stateSaver = TextFieldValue.Saver) { mutableStateOf(TextFieldValue("")) }
 
+    // the bundled release note in the reader's language, which the version
+    // row opens; with none the row stays plain text
+    val releaseNotes = settingsViewModel.releaseNotes.collectAsState().value
+    val locales = LocalConfiguration.current.locales
+    val releaseNote = remember(releaseNotes, locales) {
+        releaseNotes?.noteFor((0 until locales.size()).map { locales[it] })
+    }
+    var isPresentingReleaseNotes by rememberSaveable { mutableStateOf(false) }
+
     LaunchedEffect(Unit) {
         settingsViewModel.fetchDeviceInfo()
     }
@@ -363,6 +375,11 @@ fun SettingsScreen(
         signAndVerifySeekerHolder = signAndVerifySeekerHolder,
         isSeekerHolder = earningsViewModel.isSeekerHolder.collectAsState().value,
         version = settingsViewModel.version,
+        onOpenReleaseNotes = if (releaseNote != null) {
+            { isPresentingReleaseNotes = true }
+        } else {
+            null
+        },
         allowProvideCell = settingsViewModel.allowProvideOnCell.collectAsState().value,
         toggleProvideCell = settingsViewModel.toggleAllowProvideOnCell,
         providePowerMode = settingsViewModel.providePowerMode.collectAsState().value,
@@ -477,6 +494,15 @@ fun SettingsScreen(
             accountViewModel.refreshNetworkUser()
         }
     )
+
+    if (isPresentingReleaseNotes && releaseNote != null) {
+        ReleaseNotesSheet(
+            note = releaseNote,
+            version = displayVersion(settingsViewModel.version),
+            date = releaseNotes?.date,
+            onDismiss = { isPresentingReleaseNotes = false },
+        )
+    }
 
     URDialog(
         visible = pendingRemoveMethod != null,
@@ -593,6 +619,9 @@ fun SettingsScreen(
 
 }
 
+// the version as the version row and the release notes show it
+private fun displayVersion(version: String): String = version.ifEmpty { "0.0.0" }
+
 // stateless presentation half of the settings screen: every value and
 // callback is hoisted into the stateful composable above, which is what makes
 // the previews at the bottom of this file possible
@@ -627,6 +656,9 @@ private fun SettingsScreen(
     signAndVerifySeekerHolder: () -> Unit,
     isSeekerHolder: Boolean,
     version: String,
+    // opens the bundled release notes from the version row; null leaves the
+    // row plain text, when the app has no note it can read
+    onOpenReleaseNotes: (() -> Unit)? = null,
     allowProvideCell: Boolean,
     toggleProvideCell: () -> Unit,
     providePowerMode: ProvidePowerMode = ProvidePowerMode.DEFAULT,
@@ -1574,24 +1606,51 @@ private fun SettingsScreen(
                 )
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
-            URTextInputLabel(stringResource(id = R.string.version_info))
-
+            /**
+             * Version. The label and the version are one row, which opens the
+             * bundled release notes (ReleaseNotesSheet) when the app has a note
+             * it can read. It is 48 dp tall to touch whether or not it opens
+             * anything, so its box stays put when the note loads; the room
+             * above and below its text replaces 4 dp of each spacer around it
+             */
+            val releaseNotesLabel = stringResource(id = R.string.release_notes)
             Row(
                 modifier = Modifier
-                    .fillMaxWidth(),
-                horizontalArrangement = Arrangement.Start,
+                    .fillMaxWidth()
+                    .then(
+                        if (onOpenReleaseNotes != null) {
+                            Modifier.clickable(
+                                onClickLabel = releaseNotesLabel,
+                                role = Role.Button,
+                                onClick = onOpenReleaseNotes,
+                            )
+                        } else {
+                            Modifier
+                        }
+                    )
+                    .heightIn(min = 48.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    version.ifEmpty { "0.0.0" },
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = Color.White
-                )
+                Column(modifier = Modifier.weight(1f)) {
+                    URTextInputLabel(stringResource(id = R.string.version_info))
+                    Text(
+                        displayVersion(version),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color.White
+                    )
+                }
+                if (onOpenReleaseNotes != null) {
+                    Icon(
+                        Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                        contentDescription = null,
+                    )
+                }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
             /**
              * Protocol

@@ -1162,6 +1162,7 @@
     <string name="regenerate_seedphrase_body">Votre phrase de récupération actuelle ne fonctionnera plus. Une nouvelle vous sera présentée, à conserver.</string>
     <string name="regenerate_seedphrase_title">Régénérer votre phrase de récupération ?</string>
     <string name="regions">Régions</string>
+    <string name="release_notes">Notes de version</string>
     <string name="reliability">Fiabilité</string>
     <string name="reliability_bonus">+%1$.3f GiB/jour</string>
     <string name="reliability_settings">Contribuer de la bande passante</string>

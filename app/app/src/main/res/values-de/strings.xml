@@ -1162,6 +1162,7 @@
     <string name="regenerate_seedphrase_body">Deine aktuelle Seedphrase funktioniert dann nicht mehr. Dir wird eine neue zum Aufbewahren angezeigt.</string>
     <string name="regenerate_seedphrase_title">Seedphrase neu erzeugen?</string>
     <string name="regions">Regionen</string>
+    <string name="release_notes">Versionshinweise</string>
     <string name="reliability">Zuverlässigkeit</string>
     <string name="reliability_bonus">+%1$.3f GiB/Tag</string>
     <string name="reliability_settings">Bandbreite beisteuern</string>

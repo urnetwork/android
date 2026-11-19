@@ -1162,6 +1162,7 @@
     <string name="regenerate_seedphrase_body">Текущая сид-фраза перестанет работать. Вам покажут новую — сохраните её.</string>
     <string name="regenerate_seedphrase_title">Создать сид-фразу заново?</string>
     <string name="regions">Регионы</string>
+    <string name="release_notes">Примечания к выпуску</string>
     <string name="reliability">Надежность</string>
     <string name="reliability_bonus">+%1$.3f GiB/день</string>
     <string name="reliability_settings">Поделиться пропускной способностью</string>

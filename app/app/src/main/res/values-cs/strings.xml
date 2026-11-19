@@ -1162,6 +1162,7 @@
     <string name="regenerate_seedphrase_body">Vaše současná seed fráze přestane fungovat. Zobrazí se vám nová, kterou si uložte.</string>
     <string name="regenerate_seedphrase_title">Vygenerovat seed frázi znovu?</string>
     <string name="regions">Regiony</string>
+    <string name="release_notes">Poznámky k verzi</string>
     <string name="reliability">Spolehlivost</string>
     <string name="reliability_bonus">+%1$.3f GiB/den</string>
     <string name="reliability_settings">Přispět šířkou pásma</string>

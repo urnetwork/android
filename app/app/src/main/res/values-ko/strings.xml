@@ -1162,6 +1162,7 @@
     <string name="regenerate_seedphrase_body">현재 시드 문구는 더 이상 작동하지 않습니다. 저장할 새 시드 문구가 표시됩니다.</string>
     <string name="regenerate_seedphrase_title">시드 문구를 다시 생성할까요?</string>
     <string name="regions">지역</string>
+    <string name="release_notes">릴리스 노트</string>
     <string name="reliability">신뢰성</string>
     <string name="reliability_bonus">+%1$.3f GiB/일</string>
     <string name="reliability_settings">대역폭 기여</string>

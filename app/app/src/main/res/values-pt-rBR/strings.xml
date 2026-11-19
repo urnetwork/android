@@ -1162,6 +1162,7 @@
     <string name="regenerate_seedphrase_body">Sua frase-semente atual deixará de funcionar. Você verá uma nova para guardar.</string>
     <string name="regenerate_seedphrase_title">Gerar uma nova frase-semente?</string>
     <string name="regions">Regiões</string>
+    <string name="release_notes">Notas da versão</string>
     <string name="reliability">Confiabilidade</string>
     <string name="reliability_bonus">+%1$.3f GiB/dia</string>
     <string name="reliability_settings">Contribuir com largura de banda</string>

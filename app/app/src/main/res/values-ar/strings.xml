@@ -1162,6 +1162,7 @@
     <string name="regenerate_seedphrase_body">ستتوقف عبارة الاسترداد الحالية عن العمل. ستظهر لك عبارة جديدة لتحفظها.</string>
     <string name="regenerate_seedphrase_title">هل تريد إعادة إنشاء عبارة الاسترداد؟</string>
     <string name="regions">المناطق</string>
+    <string name="release_notes">ملاحظات الإصدار</string>
     <string name="reliability">الموثوقية</string>
     <string name="reliability_bonus">+%1$.3f GiB/يوم</string>
     <string name="reliability_settings">المساهمة بعرض النطاق الترددي</string>
