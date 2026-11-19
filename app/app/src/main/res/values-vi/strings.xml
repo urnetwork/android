@@ -315,6 +315,8 @@
     <string name="crypto_does_not_renew">Không tự gia hạn. Thanh toán lại khi kết thúc.</string>
     <string name="crypto_fine_print_data">Thanh toán một lần. Dữ liệu có hiệu lực trong một năm.</string>
     <string name="crypto_fine_print_yearly">Thanh toán một lần cho một năm Pro. Không tự gia hạn và không có dùng thử miễn phí.</string>
+    <string name="crypto_invoice_bitcoin_awaiting_confirmation">Báo giá này đã hết hạn. Khoản thanh toán bạn gửi trước khi hết hạn sẽ được ghi nhận theo giá này ngay khi được xác nhận, có thể mất đến 3 giờ. Nếu bạn chưa gửi, hãy thanh toán cách khác.</string>
+    <string name="crypto_invoice_bitcoin_confirmation_time">Thanh toán Bitcoin có thể mất đến 3 giờ để được xác nhận. Khoản thanh toán gửi trước khi báo giá hết hạn sẽ được ghi nhận theo giá này.</string>
     <string name="crypto_invoice_bitcoin_network_only">Chỉ gửi Bitcoin trên mạng Bitcoin đến địa chỉ này. Bitcoin gửi trên mạng khác sẽ không được ghi nhận.</string>
     <string name="crypto_invoice_copied">Đã sao chép</string>
     <string name="crypto_invoice_copy">Sao chép</string>
