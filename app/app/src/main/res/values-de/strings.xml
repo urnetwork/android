@@ -222,6 +222,7 @@
     <string name="checking_payment">Zahlung wird überprüft</string>
     <string name="checking_solana_transactions">Überprüfung von Solana-Transaktionen</string>
     <string name="checking_wallet_address">Adresse wird geprüft…</string>
+    <string name="checkout_error_incorrect_cvc">Der Sicherheitscode (CVC) deiner Karte stimmt nicht. Prüfe die Kartendaten und versuche es erneut.</string>
     <string name="choose_file">Datei auswählen</string>
     <string name="choose_image_file">Bilddatei auswählen</string>
     <string name="choose_photo">Foto auswählen</string>
@@ -1012,6 +1013,8 @@
     <string name="plan_price_per_month">%1$s/Monat</string>
     <string name="plan_price_per_year">%1$s/Jahr</string>
     <string name="plan_save_percent">%1$d %% sparen</string>
+    <string name="plan_terms_first_year_price">%1$s im ersten Jahr, danach %2$s/Jahr. Jederzeit kündbar.</string>
+    <string name="plan_terms_yearly_billed_today">%1$s wird heute abgerechnet, danach jedes Jahr. Jederzeit kündbar.</string>
     <string name="please_try_again">Bitte versuche es erneut.</string>
     <string name="please_wait">Bitte warte ein paar Minuten und versuche es erneut.</string>
     <string name="points">Punkte</string>
@@ -1159,6 +1162,7 @@
     <string name="regenerate_seedphrase_body">Deine aktuelle Seedphrase funktioniert dann nicht mehr. Dir wird eine neue zum Aufbewahren angezeigt.</string>
     <string name="regenerate_seedphrase_title">Seedphrase neu erzeugen?</string>
     <string name="regions">Regionen</string>
+    <string name="release_notes">Versionshinweise</string>
     <string name="reliability">Zuverlässigkeit</string>
     <string name="reliability_bonus">+%1$.3f GiB/Tag</string>
     <string name="reliability_settings">Bandbreite beisteuern</string>

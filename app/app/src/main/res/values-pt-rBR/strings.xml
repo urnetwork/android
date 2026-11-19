@@ -222,6 +222,7 @@
     <string name="checking_payment">Verificando pagamento</string>
     <string name="checking_solana_transactions">Verificando transações Solana</string>
     <string name="checking_wallet_address">Verificando o endereço…</string>
+    <string name="checkout_error_incorrect_cvc">O código de segurança (CVC) do seu cartão não confere. Verifique os dados do cartão e tente de novo.</string>
     <string name="choose_file">Escolher arquivo</string>
     <string name="choose_image_file">Escolher arquivo de imagem</string>
     <string name="choose_photo">Escolher foto</string>
@@ -1012,6 +1013,8 @@
     <string name="plan_price_per_month">%1$s/mês</string>
     <string name="plan_price_per_year">%1$s/ano</string>
     <string name="plan_save_percent">Economize %1$d%%</string>
+    <string name="plan_terms_first_year_price">%1$s no primeiro ano, depois %2$s/ano. Cancele quando quiser.</string>
+    <string name="plan_terms_yearly_billed_today">%1$s cobrados hoje, depois todo ano. Cancele quando quiser.</string>
     <string name="please_try_again">Por favor, tente novamente.</string>
     <string name="please_wait">Aguarde alguns minutos e tente novamente.</string>
     <string name="points">Pontos</string>
@@ -1159,6 +1162,7 @@
     <string name="regenerate_seedphrase_body">Sua frase-semente atual deixará de funcionar. Você verá uma nova para guardar.</string>
     <string name="regenerate_seedphrase_title">Gerar uma nova frase-semente?</string>
     <string name="regions">Regiões</string>
+    <string name="release_notes">Notas da versão</string>
     <string name="reliability">Confiabilidade</string>
     <string name="reliability_bonus">+%1$.3f GiB/dia</string>
     <string name="reliability_settings">Contribuir com largura de banda</string>

@@ -222,6 +222,7 @@
     <string name="checking_payment">결제 확인 중</string>
     <string name="checking_solana_transactions">Solana 거래 확인 중</string>
     <string name="checking_wallet_address">주소 확인 중…</string>
+    <string name="checkout_error_incorrect_cvc">카드 보안 코드(CVC)가 일치하지 않습니다. 카드 정보를 확인한 후 다시 시도하세요.</string>
     <string name="choose_file">파일 선택</string>
     <string name="choose_image_file">이미지 파일 선택</string>
     <string name="choose_photo">사진 선택</string>
@@ -1012,6 +1013,8 @@
     <string name="plan_price_per_month">%1$s/월</string>
     <string name="plan_price_per_year">%1$s/년</string>
     <string name="plan_save_percent">%1$d%% 절약</string>
+    <string name="plan_terms_first_year_price">첫해 %1$s, 이후 %2$s/년. 언제든지 취소할 수 있습니다.</string>
+    <string name="plan_terms_yearly_billed_today">오늘 %1$s 청구, 이후 매년 청구. 언제든지 취소할 수 있습니다.</string>
     <string name="please_try_again">다시 시도해 주세요.</string>
     <string name="please_wait">잠시 후 다시 시도해 주세요.</string>
     <string name="points">포인트</string>
@@ -1159,6 +1162,7 @@
     <string name="regenerate_seedphrase_body">현재 시드 문구는 더 이상 작동하지 않습니다. 저장할 새 시드 문구가 표시됩니다.</string>
     <string name="regenerate_seedphrase_title">시드 문구를 다시 생성할까요?</string>
     <string name="regions">지역</string>
+    <string name="release_notes">릴리스 노트</string>
     <string name="reliability">신뢰성</string>
     <string name="reliability_bonus">+%1$.3f GiB/일</string>
     <string name="reliability_settings">대역폭 기여</string>

@@ -225,6 +225,7 @@
     <string name="checking_payment">Checking payment</string>
     <string name="checking_solana_transactions">Checking for Solana Transactions</string>
     <string name="checking_wallet_address">Checking address…</string>
+    <string name="checkout_error_incorrect_cvc">Your card\'s security code (CVC) didn\'t match. Check the card details and try again.</string>
     <string name="choose_file">Choose file</string>
     <string name="choose_image_file">Choose image file</string>
     <string name="choose_photo">Choose photo</string>
@@ -1027,6 +1028,8 @@
     <string name="plan_price_per_month">%1$s/month</string>
     <string name="plan_price_per_year">%1$s/year</string>
     <string name="plan_save_percent">Save %1$d%%</string>
+    <string name="plan_terms_first_year_price">%1$s for your first year, then %2$s/year. Cancel anytime.</string>
+    <string name="plan_terms_yearly_billed_today">%1$s billed today, then every year. Cancel anytime.</string>
     <string name="please_try_again">Please try again.</string>
     <string name="please_wait">Please wait a few minutes and try again.</string>
     <string name="points">Points</string>
@@ -1174,6 +1177,7 @@
     <string name="regenerate_seedphrase_body">Your current seedphrase will stop working. You\'ll be shown a new one to save.</string>
     <string name="regenerate_seedphrase_title">Regenerate your seedphrase?</string>
     <string name="regions">Regions</string>
+    <string name="release_notes">Release notes</string>
     <string name="reliability">Reliability</string>
     <string name="reliability_bonus">+%1$.3f GiB/Day</string>
     <string name="reliability_settings">Contribute bandwidth</string>

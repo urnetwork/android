@@ -222,6 +222,7 @@
     <string name="checking_payment">भुगतान की जांच हो रही है</string>
     <string name="checking_solana_transactions">Solana लेन-देन की जांच हो रही है</string>
     <string name="checking_wallet_address">पता जाँचा जा रहा है…</string>
+    <string name="checkout_error_incorrect_cvc">आपके कार्ड का सुरक्षा कोड (CVC) मेल नहीं खाया। कार्ड की जानकारी जाँचें और फिर से कोशिश करें।</string>
     <string name="choose_file">फ़ाइल चुनें</string>
     <string name="choose_image_file">इमेज फ़ाइल चुनें</string>
     <string name="choose_photo">फ़ोटो चुनें</string>
@@ -1012,6 +1013,8 @@
     <string name="plan_price_per_month">%1$s/महीना</string>
     <string name="plan_price_per_year">%1$s/साल</string>
     <string name="plan_save_percent">%1$d%% बचाएँ</string>
+    <string name="plan_terms_first_year_price">पहले साल के लिए %1$s, फिर %2$s/साल। कभी भी रद्द करें।</string>
+    <string name="plan_terms_yearly_billed_today">आज %1$s का बिल, फिर हर साल। कभी भी रद्द करें।</string>
     <string name="please_try_again">कृपया पुनः प्रयास करें।</string>
     <string name="please_wait">कृपया कुछ मिनट प्रतीक्षा करें और पुनः प्रयास करें।</string>
     <string name="points">पॉइंट</string>
@@ -1159,6 +1162,7 @@
     <string name="regenerate_seedphrase_body">आपका मौजूदा सीड फ़्रेज़ काम करना बंद कर देगा। आपको सहेजने के लिए एक नया दिखाया जाएगा।</string>
     <string name="regenerate_seedphrase_title">सीड फ़्रेज़ दोबारा बनाएं?</string>
     <string name="regions">क्षेत्र</string>
+    <string name="release_notes">रिलीज़ नोट्स</string>
     <string name="reliability">विश्वसनीयता</string>
     <string name="reliability_bonus">+%1$.3f GiB/दिन</string>
     <string name="reliability_settings">बैंडविड्थ का योगदान करें</string>

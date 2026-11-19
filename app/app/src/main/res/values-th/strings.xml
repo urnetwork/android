@@ -222,6 +222,7 @@
     <string name="checking_payment">กำลังตรวจสอบการชำระเงิน</string>
     <string name="checking_solana_transactions">กำลังตรวจสอบธุรกรรม Solana</string>
     <string name="checking_wallet_address">กำลังตรวจสอบที่อยู่…</string>
+    <string name="checkout_error_incorrect_cvc">รหัสความปลอดภัย (CVC) ของบัตรไม่ตรงกัน โปรดตรวจสอบข้อมูลบัตรแล้วลองอีกครั้ง</string>
     <string name="choose_file">เลือกไฟล์</string>
     <string name="choose_image_file">เลือกไฟล์รูปภาพ</string>
     <string name="choose_photo">เลือกรูปภาพ</string>
@@ -1012,6 +1013,8 @@
     <string name="plan_price_per_month">%1$s/เดือน</string>
     <string name="plan_price_per_year">%1$s/ปี</string>
     <string name="plan_save_percent">ประหยัด %1$d%%</string>
+    <string name="plan_terms_first_year_price">%1$s สำหรับปีแรก จากนั้น %2$s/ปี ยกเลิกได้ทุกเมื่อ</string>
+    <string name="plan_terms_yearly_billed_today">เรียกเก็บ %1$s วันนี้ จากนั้นทุกปี ยกเลิกได้ทุกเมื่อ</string>
     <string name="please_try_again">กรุณาลองใหม่อีกครั้ง</string>
     <string name="please_wait">โปรดรอสักครู่ แล้วลองใหม่อีกครั้ง</string>
     <string name="points">คะแนน</string>
@@ -1159,6 +1162,7 @@
     <string name="regenerate_seedphrase_body">วลีกู้คืนปัจจุบันของคุณจะใช้ไม่ได้อีก คุณจะเห็นวลีใหม่เพื่อเก็บไว้</string>
     <string name="regenerate_seedphrase_title">สร้างวลีกู้คืนใหม่ใช่ไหม</string>
     <string name="regions">ภูมิภาค</string>
+    <string name="release_notes">บันทึกประจำรุ่น</string>
     <string name="reliability">ความน่าเชื่อถือ</string>
     <string name="reliability_bonus">+%1$.3f GiB/วัน</string>
     <string name="reliability_settings">ร่วมแบ่งปันแบนด์วิดท์</string>

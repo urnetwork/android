@@ -222,6 +222,7 @@
     <string name="checking_payment">支払いを確認中</string>
     <string name="checking_solana_transactions">Solanaのトランザクションを確認中</string>
     <string name="checking_wallet_address">アドレスを確認しています…</string>
+    <string name="checkout_error_incorrect_cvc">カードのセキュリティコード（CVC）が一致しませんでした。カード情報を確認して、もう一度お試しください。</string>
     <string name="choose_file">ファイルを選択</string>
     <string name="choose_image_file">画像ファイルを選択</string>
     <string name="choose_photo">写真を選択</string>
@@ -1012,6 +1013,8 @@
     <string name="plan_price_per_month">%1$s/月</string>
     <string name="plan_price_per_year">%1$s/年</string>
     <string name="plan_save_percent">%1$d%%お得</string>
+    <string name="plan_terms_first_year_price">最初の 1 年は %1$s、その後は %2$s/年。いつでもキャンセルできます。</string>
+    <string name="plan_terms_yearly_billed_today">本日 %1$s を請求し、以降は毎年請求します。いつでもキャンセルできます。</string>
     <string name="please_try_again">もう一度お試しください。</string>
     <string name="please_wait">しばらく待ってから再試行してください。</string>
     <string name="points">ポイント</string>
@@ -1159,6 +1162,7 @@
     <string name="regenerate_seedphrase_body">現在のシードフレーズは使えなくなります。保存用に新しいシードフレーズが表示されます。</string>
     <string name="regenerate_seedphrase_title">シードフレーズを再生成しますか？</string>
     <string name="regions">地域</string>
+    <string name="release_notes">リリースノート</string>
     <string name="reliability">信頼性</string>
     <string name="reliability_bonus">+%1$.3f GiB/日</string>
     <string name="reliability_settings">帯域幅を提供する</string>

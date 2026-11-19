@@ -988,6 +988,13 @@ class MainApplication : Application() {
 
 
     override fun onCreate() {
+        // First, before anything below can throw: a crash on any start path,
+        // direct boot and the VPN service's cold start included, is left for
+        // the next feedback upload (JavaCrashRecorder; support 8308). The
+        // directory is read only at a crash.
+        JavaCrashRecorder.install("${BuildConfig.VERSION_NAME}-${BuildConfig.VERSION_CODE}") {
+            File(logRootDir(filesDir), APP_LOG_PROCESS_NAME)
+        }
         super.onCreate()
 
         if (!isCredentialStorageUnlocked()) {

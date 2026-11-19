@@ -222,6 +222,7 @@
     <string name="checking_payment">جارٍ التحقق من الدفع</string>
     <string name="checking_solana_transactions">جارٍ التحقق من معاملات Solana</string>
     <string name="checking_wallet_address">جارٍ التحقق من العنوان…</string>
+    <string name="checkout_error_incorrect_cvc">رمز الأمان لبطاقتك (CVC) غير مطابق. تحقق من بيانات البطاقة وحاول مرة أخرى.</string>
     <string name="choose_file">اختيار ملف</string>
     <string name="choose_image_file">اختيار ملف صورة</string>
     <string name="choose_photo">اختيار صورة</string>
@@ -1012,6 +1013,8 @@
     <string name="plan_price_per_month">%1$s/شهر</string>
     <string name="plan_price_per_year">%1$s/سنة</string>
     <string name="plan_save_percent">وفّر %1$d%%</string>
+    <string name="plan_terms_first_year_price">%1$s للسنة الأولى، ثم %2$s/سنة. ألغِ في أي وقت.</string>
+    <string name="plan_terms_yearly_billed_today">%1$s يُحصَّل اليوم، ثم كل عام. ألغِ في أي وقت.</string>
     <string name="please_try_again">يرجى المحاولة مرة أخرى.</string>
     <string name="please_wait">يرجى الانتظار بضع دقائق وحاول مرة أخرى.</string>
     <string name="points">النقاط</string>
@@ -1159,6 +1162,7 @@
     <string name="regenerate_seedphrase_body">ستتوقف عبارة الاسترداد الحالية عن العمل. ستظهر لك عبارة جديدة لتحفظها.</string>
     <string name="regenerate_seedphrase_title">هل تريد إعادة إنشاء عبارة الاسترداد؟</string>
     <string name="regions">المناطق</string>
+    <string name="release_notes">ملاحظات الإصدار</string>
     <string name="reliability">الموثوقية</string>
     <string name="reliability_bonus">+%1$.3f GiB/يوم</string>
     <string name="reliability_settings">المساهمة بعرض النطاق الترددي</string>

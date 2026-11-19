@@ -222,6 +222,7 @@
     <string name="checking_payment">Đang kiểm tra thanh toán</string>
     <string name="checking_solana_transactions">Đang kiểm tra giao dịch Solana</string>
     <string name="checking_wallet_address">Đang kiểm tra địa chỉ…</string>
+    <string name="checkout_error_incorrect_cvc">Mã bảo mật (CVC) của thẻ không khớp. Hãy kiểm tra thông tin thẻ rồi thử lại.</string>
     <string name="choose_file">Chọn tệp</string>
     <string name="choose_image_file">Chọn tệp hình ảnh</string>
     <string name="choose_photo">Chọn ảnh</string>
@@ -1012,6 +1013,8 @@
     <string name="plan_price_per_month">%1$s/tháng</string>
     <string name="plan_price_per_year">%1$s/năm</string>
     <string name="plan_save_percent">Tiết kiệm %1$d%%</string>
+    <string name="plan_terms_first_year_price">%1$s cho năm đầu tiên, sau đó %2$s/năm. Hủy bất cứ lúc nào.</string>
+    <string name="plan_terms_yearly_billed_today">%1$s được tính phí hôm nay, sau đó mỗi năm. Hủy bất cứ lúc nào.</string>
     <string name="please_try_again">Vui lòng thử lại.</string>
     <string name="please_wait">Vui lòng đợi vài phút rồi thử lại.</string>
     <string name="points">Điểm</string>
@@ -1159,6 +1162,7 @@
     <string name="regenerate_seedphrase_body">Cụm từ khôi phục hiện tại của bạn sẽ ngừng hoạt động. Bạn sẽ thấy một cụm từ mới để lưu lại.</string>
     <string name="regenerate_seedphrase_title">Tạo lại cụm từ khôi phục?</string>
     <string name="regions">Khu vực</string>
+    <string name="release_notes">Ghi chú phát hành</string>
     <string name="reliability">Độ tin cậy</string>
     <string name="reliability_bonus">+%1$.3f GiB/ngày</string>
     <string name="reliability_settings">Đóng góp băng thông</string>

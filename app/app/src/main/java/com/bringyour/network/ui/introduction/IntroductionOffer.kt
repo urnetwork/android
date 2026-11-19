@@ -60,6 +60,13 @@ import com.bringyour.sdk.Sdk
  * and emits its own events, the trial timeline is left out, and the card
  * prints no trial or renewal line: that method buys one year once. Play
  * passes none.
+ *
+ * [freeTrialDays] is the trial the yearly purchase starts with
+ * (PlanViewModel.yearlyTrialDays): 0 when the store gives this account none,
+ * as Play does for an account that already had a trial. Then the page shows
+ * no trial timeline, the button subscribes and the terms say the price is
+ * billed today: it promised the trial to every account, and Play charged such
+ * an account the year at once (on iOS, support inbox 790, 837 and 858).
  */
 @Composable
 fun IntroductionOffer(
@@ -71,10 +78,12 @@ fun IntroductionOffer(
     dismiss: () -> Unit,
     onBack: (() -> Unit)? = null,
     methodSlot: PlanMethodSlot? = null,
+    freeTrialDays: Int = FREE_TRIAL_DAYS,
 ) {
     val shownAt = remember { System.currentTimeMillis() }
     val offer = presentation.offer
     val alternative = methodSlot?.alternative
+    val trialOffered = 0 < freeTrialDays
 
     LaunchedEffect(Unit) {
         ClientEvents.offerScreenShown(
@@ -140,8 +149,8 @@ fun IntroductionOffer(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                if (alternative == null) {
-                    TrialTimeline(presentation = presentation)
+                if (alternative == null && trialOffered) {
+                    TrialTimeline(presentation = presentation, freeTrialDays = freeTrialDays)
 
                     Spacer(modifier = Modifier.height(24.dp))
                 }
@@ -150,6 +159,7 @@ fun IntroductionOffer(
                     presentation = presentation,
                     selectedPlan = PlanType.YEARLY,
                     setSelectedPlan = {},
+                    freeTrialDays = freeTrialDays,
                     showMonthly = false,
                     oneTimeYear = alternative != null,
                 )
@@ -178,10 +188,12 @@ fun IntroductionOffer(
                     Text(
                         if (alternative != null) {
                             alternative.label
-                        } else if (offer != null) {
+                        } else if (offer != null && trialOffered) {
                             pluralStringResource(id = R.plurals.offer_cta_start_trial_months_free, count = offer.monthsFree, offer.monthsFree)
-                        } else {
+                        } else if (trialOffered) {
                             stringResource(id = R.string.start_free_trial)
+                        } else {
+                            stringResource(id = R.string.subscribe)
                         },
                         style = btnStyle
                     )
@@ -192,7 +204,7 @@ fun IntroductionOffer(
                 if (alternative != null) {
                     PlanFinePrintLine(alternative.finePrint)
                 } else {
-                    PlanTermsLine(presentation = presentation, selectedPlan = PlanType.YEARLY)
+                    PlanTermsLine(presentation = presentation, selectedPlan = PlanType.YEARLY, freeTrialDays = freeTrialDays)
                 }
 
                 Spacer(modifier = Modifier.height(8.dp))

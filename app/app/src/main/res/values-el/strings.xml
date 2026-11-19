@@ -222,6 +222,7 @@
     <string name="checking_payment">Έλεγχος πληρωμής</string>
     <string name="checking_solana_transactions">Έλεγχος για συναλλαγές Solana</string>
     <string name="checking_wallet_address">Έλεγχος διεύθυνσης…</string>
+    <string name="checkout_error_incorrect_cvc">Ο κωδικός ασφαλείας (CVC) της κάρτας σας δεν ταιριάζει. Ελέγξτε τα στοιχεία της κάρτας και δοκιμάστε ξανά.</string>
     <string name="choose_file">Επιλογή αρχείου</string>
     <string name="choose_image_file">Επιλογή αρχείου εικόνας</string>
     <string name="choose_photo">Επιλογή φωτογραφίας</string>
@@ -1012,6 +1013,8 @@
     <string name="plan_price_per_month">%1$s/μήνα</string>
     <string name="plan_price_per_year">%1$s/έτος</string>
     <string name="plan_save_percent">Εξοικονόμηση %1$d%%</string>
+    <string name="plan_terms_first_year_price">%1$s για τον πρώτο χρόνο, μετά %2$s/έτος. Ακύρωση οποιαδήποτε στιγμή.</string>
+    <string name="plan_terms_yearly_billed_today">%1$s χρεώνονται σήμερα, μετά κάθε χρόνο. Ακύρωση οποιαδήποτε στιγμή.</string>
     <string name="please_try_again">Παρακαλώ δοκιμάστε ξανά.</string>
     <string name="please_wait">Περιμένετε λίγα λεπτά και προσπαθήστε ξανά.</string>
     <string name="points">Πόντοι</string>
@@ -1159,6 +1162,7 @@
     <string name="regenerate_seedphrase_body">Η τρέχουσα φράση ανάκτησης θα σταματήσει να λειτουργεί. Θα σας εμφανιστεί μια νέα για να την αποθηκεύσετε.</string>
     <string name="regenerate_seedphrase_title">Δημιουργία νέας φράσης ανάκτησης;</string>
     <string name="regions">Περιοχές</string>
+    <string name="release_notes">Σημειώσεις έκδοσης</string>
     <string name="reliability">Αξιοπιστία</string>
     <string name="reliability_bonus">+%1$.3f GiB/ημέρα</string>
     <string name="reliability_settings">Συνεισφορά εύρους ζώνης</string>

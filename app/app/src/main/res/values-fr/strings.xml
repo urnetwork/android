@@ -222,6 +222,7 @@
     <string name="checking_payment">Vérification du paiement</string>
     <string name="checking_solana_transactions">Vérification des transactions Solana</string>
     <string name="checking_wallet_address">Vérification de l’adresse…</string>
+    <string name="checkout_error_incorrect_cvc">Le code de sécurité (CVC) de votre carte ne correspond pas. Vérifiez les informations de la carte et réessayez.</string>
     <string name="choose_file">Choisir un fichier</string>
     <string name="choose_image_file">Choisir un fichier image</string>
     <string name="choose_photo">Choisir une photo</string>
@@ -1012,6 +1013,8 @@
     <string name="plan_price_per_month">%1$s/mois</string>
     <string name="plan_price_per_year">%1$s/an</string>
     <string name="plan_save_percent">Économisez %1$d %%</string>
+    <string name="plan_terms_first_year_price">%1$s la première année, puis %2$s/an. Annulable à tout moment.</string>
+    <string name="plan_terms_yearly_billed_today">%1$s facturés aujourd’hui, puis chaque année. Annulable à tout moment.</string>
     <string name="please_try_again">Veuillez réessayer.</string>
     <string name="please_wait">Veuillez patienter quelques minutes et réessayer.</string>
     <string name="points">Points</string>
@@ -1159,6 +1162,7 @@
     <string name="regenerate_seedphrase_body">Votre phrase de récupération actuelle ne fonctionnera plus. Une nouvelle vous sera présentée, à conserver.</string>
     <string name="regenerate_seedphrase_title">Régénérer votre phrase de récupération ?</string>
     <string name="regions">Régions</string>
+    <string name="release_notes">Notes de version</string>
     <string name="reliability">Fiabilité</string>
     <string name="reliability_bonus">+%1$.3f GiB/jour</string>
     <string name="reliability_settings">Contribuer de la bande passante</string>

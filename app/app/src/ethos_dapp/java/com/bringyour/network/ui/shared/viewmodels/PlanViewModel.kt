@@ -172,6 +172,15 @@ class PlanViewModel @Inject constructor(
     /** The yearly plan's free trial on Stripe, in days. */
     val freeTrialDays: Int = com.bringyour.network.ui.upgrade.FREE_TRIAL_DAYS
 
+    /**
+     * The free trial the plan surfaces promise with the yearly plan, in days,
+     * the same call as the Play flavor's: Stripe starts every yearly
+     * subscription with the trial (the server's StripeSubscriptionTrialDays),
+     * whatever the offer.
+     */
+    @Suppress("UNUSED_PARAMETER")
+    fun yearlyTrialDays(preferTag: String?): Int = freeTrialDays
+
     init {
         val networkSpace = networkSpaceManagerProvider.getNetworkSpace()
         val localState = networkSpace?.asyncLocalState

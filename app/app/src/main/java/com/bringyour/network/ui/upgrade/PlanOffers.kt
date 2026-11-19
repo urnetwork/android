@@ -74,6 +74,27 @@ object PlanOffers {
     fun trialDays(offers: List<PlanOffer>): Int = yearly(offers)?.freeDays ?: 0
 
     /**
+     * The free trial the plan surfaces promise with the yearly plan, in days:
+     * the free phase of the offer the yearly purchase buys ([yearly], with the
+     * same `preferTag`), so the promise is exactly what Play grants. Play lists
+     * the trial offer only to an account eligible for it, so an account that
+     * already had a trial gets 0: no trial line, and its price billed today.
+     * The surfaces printed the trial whatever Play listed, and such an account
+     * bought the year as a free trial and was charged at once (on iOS, support
+     * inbox 790, 837 and 858).
+     *
+     * `offers` is null until Play has listed this account's offers. Until then,
+     * and when Play lists no yearly plan at all (a build the store does not
+     * recognise), `assumedDays` stands in: the yearly plan and its trial are
+     * assumed to exist, and a tap without a yearly offer surfaces the store's
+     * error before anything is charged.
+     */
+    fun promisedYearlyTrialDays(offers: List<PlanOffer>?, preferTag: String?, assumedDays: Int): Int {
+        val yearly = offers?.let { yearly(it, preferTag) } ?: return assumedDays
+        return yearly.freeDays
+    }
+
+    /**
      * The offer to buy for a plan; null when the store has no such plan, so the
      * purchase surfaces the store's error rather than selling the other plan
      * behind the one the user picked. `preferTag` is the tag the server named

@@ -222,6 +222,7 @@
     <string name="checking_payment">Проверка платежа</string>
     <string name="checking_solana_transactions">Проверка транзакций Solana</string>
     <string name="checking_wallet_address">Проверка адреса…</string>
+    <string name="checkout_error_incorrect_cvc">Код безопасности (CVC) вашей карты не совпал. Проверьте данные карты и попробуйте снова.</string>
     <string name="choose_file">Выбрать файл</string>
     <string name="choose_image_file">Выбрать файл изображения</string>
     <string name="choose_photo">Выбрать фото</string>
@@ -1012,6 +1013,8 @@
     <string name="plan_price_per_month">%1$s/месяц</string>
     <string name="plan_price_per_year">%1$s/год</string>
     <string name="plan_save_percent">Экономия %1$d%%</string>
+    <string name="plan_terms_first_year_price">%1$s за первый год, затем %2$s/год. Отменить можно в любой момент.</string>
+    <string name="plan_terms_yearly_billed_today">%1$s списывается сегодня, затем каждый год. Отменить можно в любой момент.</string>
     <string name="please_try_again">Пожалуйста, попробуйте снова.</string>
     <string name="please_wait">Пожалуйста, подождите несколько минут и попробуйте снова.</string>
     <string name="points">Очки</string>
@@ -1159,6 +1162,7 @@
     <string name="regenerate_seedphrase_body">Текущая сид-фраза перестанет работать. Вам покажут новую — сохраните её.</string>
     <string name="regenerate_seedphrase_title">Создать сид-фразу заново?</string>
     <string name="regions">Регионы</string>
+    <string name="release_notes">Примечания к выпуску</string>
     <string name="reliability">Надежность</string>
     <string name="reliability_bonus">+%1$.3f GiB/день</string>
     <string name="reliability_settings">Поделиться пропускной способностью</string>

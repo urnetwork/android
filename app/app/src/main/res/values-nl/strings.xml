@@ -222,6 +222,7 @@
     <string name="checking_payment">Betaling controleren</string>
     <string name="checking_solana_transactions">Controleren op Solana-transacties</string>
     <string name="checking_wallet_address">Adres controleren…</string>
+    <string name="checkout_error_incorrect_cvc">De beveiligingscode (CVC) van je kaart klopt niet. Controleer de kaartgegevens en probeer het opnieuw.</string>
     <string name="choose_file">Bestand kiezen</string>
     <string name="choose_image_file">Afbeeldingsbestand kiezen</string>
     <string name="choose_photo">Foto kiezen</string>
@@ -1012,6 +1013,8 @@
     <string name="plan_price_per_month">%1$s/maand</string>
     <string name="plan_price_per_year">%1$s/jaar</string>
     <string name="plan_save_percent">Bespaar %1$d%%</string>
+    <string name="plan_terms_first_year_price">%1$s voor je eerste jaar, daarna %2$s/jaar. Altijd opzegbaar.</string>
+    <string name="plan_terms_yearly_billed_today">%1$s wordt vandaag in rekening gebracht, daarna elk jaar. Altijd opzegbaar.</string>
     <string name="please_try_again">Probeer het alstublieft opnieuw.</string>
     <string name="please_wait">Wacht alstublieft een paar minuten en probeer het opnieuw.</string>
     <string name="points">Punten</string>
@@ -1159,6 +1162,7 @@
     <string name="regenerate_seedphrase_body">Je huidige seedphrase werkt dan niet meer. Je krijgt een nieuwe te zien om te bewaren.</string>
     <string name="regenerate_seedphrase_title">Seedphrase opnieuw genereren?</string>
     <string name="regions">Regio\'s</string>
+    <string name="release_notes">Release-opmerkingen</string>
     <string name="reliability">Betrouwbaarheid</string>
     <string name="reliability_bonus">+%1$.3f GiB/dag</string>
     <string name="reliability_settings">Bandbreedte bijdragen</string>

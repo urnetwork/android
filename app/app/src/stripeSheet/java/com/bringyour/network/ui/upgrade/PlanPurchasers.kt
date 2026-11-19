@@ -25,7 +25,9 @@ import com.stripe.android.paymentsheet.PaymentSheetResult
  * the yearly plan (card saved, 14-day trial, the welcome coupon when the offer
  * is active), a PaymentIntent for the monthly plan -- and on completion the
  * purchase is reported to the server (StripePurchaseReport) and the balance is
- * polled until Pro lands.
+ * polled until Pro lands. A trial the server refuses when it is reported (its
+ * card failed the CVC check) ends the confirmation and shows the refusal with
+ * Try again (MainNavHost), which opens Get Pro for a new sheet.
  */
 @Composable
 fun rememberPlanPurchaser(
@@ -48,13 +50,12 @@ fun rememberPlanPurchaser(
                 is PaymentSheetResult.Completed -> {
                     inFlight?.let { ClientEvents.purchaseCompleted(Sdk.EventStoreStripe, ClientEvents.PRODUCT_STRIPE_PRO, it.plan, it.trial, it.price, it.currency) }
                     onPurchaseSuccess()
-                    // the server credits it now, not when Stripe's webhook arrives; after
+                    // the server credits it now, not when Stripe's webhook arrives, or
+                    // refuses a trial whose card failed its CVC check; after
                     // onPurchaseSuccess, so the confirmation's baseline predates the credit
-                    StripePurchaseReport.report(
-                        api = planViewModel.api,
-                        subscriptionId = inFlight?.subscriptionId,
-                        onCredited = subscriptionBalanceViewModel.fetchSubscriptionBalance,
-                    )
+                    subscriptionBalanceViewModel.reportCardPurchase(planViewModel.api, inFlight?.subscriptionId) { refusal ->
+                        inFlight?.let { ClientEvents.purchaseFailed(Sdk.EventStoreStripe, ClientEvents.PRODUCT_STRIPE_PRO, it.plan, it.trial, it.price, it.currency, refusal.errorClass) }
+                    }
                 }
                 is PaymentSheetResult.Canceled -> {
                     subscriptionBalanceViewModel.cancelPurchaseConfirmation()

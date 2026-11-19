@@ -222,6 +222,7 @@
     <string name="checking_payment">Sprawdzanie płatności</string>
     <string name="checking_solana_transactions">Sprawdzanie transakcji Solana</string>
     <string name="checking_wallet_address">Sprawdzanie adresu…</string>
+    <string name="checkout_error_incorrect_cvc">Kod bezpieczeństwa (CVC) Twojej karty się nie zgadza. Sprawdź dane karty i spróbuj ponownie.</string>
     <string name="choose_file">Wybierz plik</string>
     <string name="choose_image_file">Wybierz plik obrazu</string>
     <string name="choose_photo">Wybierz zdjęcie</string>
@@ -1012,6 +1013,8 @@
     <string name="plan_price_per_month">%1$s/mies.</string>
     <string name="plan_price_per_year">%1$s/rok</string>
     <string name="plan_save_percent">Oszczędź %1$d%%</string>
+    <string name="plan_terms_first_year_price">%1$s za pierwszy rok, potem %2$s/rok. Anuluj w dowolnym momencie.</string>
+    <string name="plan_terms_yearly_billed_today">%1$s płatne dziś, potem co roku. Anuluj w dowolnym momencie.</string>
     <string name="please_try_again">Proszę spróbować ponownie.</string>
     <string name="please_wait">Poczekaj kilka minut i spróbuj ponownie.</string>
     <string name="points">Punkty</string>
@@ -1159,6 +1162,7 @@
     <string name="regenerate_seedphrase_body">Twoja obecna fraza seed przestanie działać. Zobaczysz nową, którą trzeba zachować.</string>
     <string name="regenerate_seedphrase_title">Wygenerować frazę seed ponownie?</string>
     <string name="regions">Regiony</string>
+    <string name="release_notes">Informacje o wersji</string>
     <string name="reliability">Niezawodność</string>
     <string name="reliability_bonus">+%1$.3f GiB/dzień</string>
     <string name="reliability_settings">Udostępnij przepustowość</string>

@@ -222,6 +222,7 @@
     <string name="checking_payment">Inakagua malipo</string>
     <string name="checking_solana_transactions">Inakagua miamala ya Solana</string>
     <string name="checking_wallet_address">Inakagua anwani…</string>
+    <string name="checkout_error_incorrect_cvc">Msimbo wa usalama (CVC) wa kadi yako haukulingana. Kagua maelezo ya kadi kisha ujaribu tena.</string>
     <string name="choose_file">Chagua faili</string>
     <string name="choose_image_file">Chagua faili ya picha</string>
     <string name="choose_photo">Chagua picha</string>
@@ -1012,6 +1013,8 @@
     <string name="plan_price_per_month">%1$s/mwezi</string>
     <string name="plan_price_per_year">%1$s/mwaka</string>
     <string name="plan_save_percent">Okoa %1$d%%</string>
+    <string name="plan_terms_first_year_price">%1$s kwa mwaka wako wa kwanza, kisha %2$s/mwaka. Ghairi wakati wowote.</string>
+    <string name="plan_terms_yearly_billed_today">%1$s inatozwa leo, kisha kila mwaka. Ghairi wakati wowote.</string>
     <string name="please_try_again">Tafadhali jaribu tena.</string>
     <string name="please_wait">Tafadhali subiri dakika chache kisha ujaribu tena.</string>
     <string name="points">Pointi</string>
@@ -1159,6 +1162,7 @@
     <string name="regenerate_seedphrase_body">Kifungu chako cha seed cha sasa kitaacha kufanya kazi. Utaonyeshwa kipya cha kuhifadhi.</string>
     <string name="regenerate_seedphrase_title">Tengeneza upya kifungu cha seed?</string>
     <string name="regions">Mikoa</string>
+    <string name="release_notes">Maelezo ya toleo</string>
     <string name="reliability">Uaminifu</string>
     <string name="reliability_bonus">+%1$.3f GiB/siku</string>
     <string name="reliability_settings">Changia kipimo data</string>
