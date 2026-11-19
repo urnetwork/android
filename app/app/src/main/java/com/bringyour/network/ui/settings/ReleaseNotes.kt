@@ -19,7 +19,7 @@ import java.util.Locale
  * asset.
  */
 class ReleaseNotes(
-    /** The release the note describes, as people see it ("2026.11"). */
+    /** The release the note describes ("2026.11"). The sheet shows the running build's version instead (versionLine). */
     val version: String,
     /** The release day; null when the file's date is not a day of the calendar. */
     val date: LocalDate?,
@@ -54,15 +54,16 @@ class ReleaseNotes(
     }
 
     /**
-     * The line under the note's title: the note's own version and day
-     * ("2026.11 · Nov 19, 2026"), not the running build's version, since a
-     * later build carries the same note. The day is the file's calendar day,
-     * never shifted by a time zone, in [locale]'s medium form; [isolate]
-     * wraps each part (the sheet bidi-isolates them).
+     * The line under the note's title: the running build's [appVersion],
+     * exactly as the version row shows it, with the note's day
+     * ("2026.11.17+1101053110 · Nov 19, 2026"; owner 2026-11-19). The note's
+     * own [version] is not shown. The day is the file's calendar day, never
+     * shifted by a time zone, in [locale]'s medium form; [isolate] wraps each
+     * part (the sheet bidi-isolates them).
      */
-    fun versionLine(locale: Locale, isolate: (String) -> String = { it }): String {
+    fun versionLine(appVersion: String, locale: Locale, isolate: (String) -> String = { it }): String {
         val day = date?.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withLocale(locale))
-        return listOfNotNull(version, day).joinToString(" · ") { isolate(it) }
+        return listOfNotNull(appVersion, day).joinToString(" · ") { isolate(it) }
     }
 
     companion object {

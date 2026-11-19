@@ -147,30 +147,34 @@ class ReleaseNotesTest {
         )
     }
 
+    // the running build's version, as the Settings row shows it
+    private val appVersion = "2026.11.17+1101053110"
+
     @Test
     fun aDateThatIsNoDayKeepsTheNote() {
         val notes = ReleaseNotes.parse(file(""""en": {"title": "T"}""", date = "2026-13-45"))!!
         assertNull(notes.date)
         assertEquals("T", notes.notes["en"]?.title)
-        // the line under the title is then the note's version alone
-        assertEquals("2026.11", notes.versionLine(Locale.US))
+        // the line under the title is then the running version alone
+        assertEquals(appVersion, notes.versionLine(appVersion, Locale.US))
     }
 
     @Test
-    fun theLineUnderTheTitleIsTheNotesOwnVersionAndDay() {
+    fun theLineUnderTheTitleIsTheRunningVersionAndTheNotesDay() {
         val notes = ReleaseNotes.parse(file(""""en": {"title": "T"}"""))!!
-        // the note's version, never the running build's: a later build carries the same note
-        assertEquals("2026.11 · Nov 19, 2026", notes.versionLine(Locale.US))
+        // the running build's version, never the note's own (2026.11)
+        assertEquals("2026.11.17+1101053110 · Nov 19, 2026", notes.versionLine(appVersion, Locale.US))
         // the day in the reader's medium form
-        assertEquals("2026.11 · 19.11.2026", notes.versionLine(Locale.GERMANY))
+        assertEquals("2026.11.17+1101053110 · 19.11.2026", notes.versionLine(appVersion, Locale.GERMANY))
         // each part wrapped, as the sheet bidi-isolates them
-        assertEquals("[2026.11] · [Nov 19, 2026]", notes.versionLine(Locale.US) { "[$it]" })
+        assertEquals("[2026.11.17+1101053110] · [Nov 19, 2026]", notes.versionLine(appVersion, Locale.US) { "[$it]" })
         // the file's calendar day, in any time zone
         val zone = TimeZone.getDefault()
         try {
             for (id in listOf("Pacific/Kiritimati", "Pacific/Pago_Pago")) {
                 TimeZone.setDefault(TimeZone.getTimeZone(id))
-                assertEquals("2026.11 · Nov 19, 2026", notes.versionLine(Locale.US))
+                assertEquals("2026.11.17+1101053110 · Nov 19, 2026", notes.versionLine(appVersion, Locale.US))
+                assertEquals("2026.11.17+1101053110 · 19.11.2026", notes.versionLine(appVersion, Locale.GERMANY))
             }
         } finally {
             TimeZone.setDefault(zone)

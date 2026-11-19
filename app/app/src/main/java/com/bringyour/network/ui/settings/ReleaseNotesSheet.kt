@@ -56,18 +56,20 @@ import java.util.Locale
 
 /**
  * The bundled release note (ReleaseNotes), opened from the version row in
- * Account -> Settings: the note's title, the note's own version and day, its
- * intro, then its sections, each an optional heading over bullets. A sheet
- * like the data info sheet, no wider than the readable column, kept off a
- * fold; it scrolls when the note is taller than the window.
+ * Account -> Settings: the note's title, the running build's version with the
+ * note's day, its intro, then its sections, each an optional heading over
+ * bullets. A sheet like the data info sheet, no wider than the readable
+ * column, kept off a fold; it scrolls when the note is taller than the window.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ReleaseNotesSheet(
-    // the file, for the note's version and day
+    // the file, for the note's day
     notes: ReleaseNotes,
     // the note in the reader's language (ReleaseNotes.noteFor)
     note: ReleaseNote,
+    // the running build's version, exactly as the version row shows it
+    version: String,
     onDismiss: () -> Unit,
 ) {
     val sheetState = rememberFoldSafeSheetState()
@@ -81,6 +83,7 @@ fun ReleaseNotesSheet(
         ReleaseNotesContent(
             notes = notes,
             note = note,
+            version = version,
             onClose = {
                 // slides away as a swipe down does, then closes
                 scope.launch { sheetState.hide() }.invokeOnCompletion {
@@ -97,6 +100,7 @@ fun ReleaseNotesSheet(
 private fun ReleaseNotesContent(
     notes: ReleaseNotes,
     note: ReleaseNote,
+    version: String,
     onClose: () -> Unit,
 ) {
     val locale = LocalConfiguration.current.locales[0]
@@ -109,12 +113,12 @@ private fun ReleaseNotesContent(
         val direction = TextUtils.getLayoutDirectionFromLocale(Locale.forLanguageTag(note.locale))
         if (direction == View.LAYOUT_DIRECTION_RTL) LayoutDirection.Rtl else LayoutDirection.Ltr
     }
-    // the note's version and day ("2026.11 · Nov 19, 2026"), the day in the
+    // the running build's version with the note's day, the day in the
     // reader's form, so maybe the other direction: each part keeps its own
     // order within the note's direction
-    val versionLine = remember(notes, locale, noteDirection) {
+    val versionLine = remember(notes, version, locale, noteDirection) {
         val bidi = BidiFormatter.getInstance(noteDirection == LayoutDirection.Rtl)
-        notes.versionLine(locale) { bidi.unicodeWrap(it) }
+        notes.versionLine(version, locale) { bidi.unicodeWrap(it) }
     }
 
     Column(
@@ -276,6 +280,7 @@ private fun ReleaseNotesContentPreview() {
             ReleaseNotesContent(
                 notes = ReleaseNotes(version = "2026.11", date = LocalDate.of(2026, 11, 19), notes = mapOf("en" to note)),
                 note = note,
+                version = "1.2.3",
                 onClose = {},
             )
         }
@@ -296,6 +301,7 @@ private fun ReleaseNotesContentIntroOnlyPreview() {
             ReleaseNotesContent(
                 notes = ReleaseNotes(version = "2026.11", date = LocalDate.of(2026, 11, 19), notes = mapOf("en" to note)),
                 note = note,
+                version = "1.2.3",
                 onClose = {},
             )
         }
