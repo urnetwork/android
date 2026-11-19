@@ -162,6 +162,19 @@ object CryptoPayment {
      * nothing to pay until its first status answers. Review shows its copy and
      * nothing to do.
      *
+     * Bitcoin's confirmation grace (mmm/BTCPAY.md §16.8): the server sees a
+     * Bitcoin payment only once it is mined, so it credits one sent within the
+     * quote at the quoted price while it is mined within 3 hours of the quote's
+     * end, keeps the invoice pending meanwhile and refuses a requote then. The
+     * countdown still ends with the quote, the time to send by, and the coin's
+     * confirmation note goes under it ([CryptoInvoiceView.confirmationNote]).
+     * Once the countdown ended, while the sdk says a payment sent within the
+     * quote may still confirm ([CryptoInvoiceSnapshot.awaitingConfirmation]),
+     * the invoice is neither payable nor expired: the coin's awaiting line
+     * stands in place of the expired copy, with nothing to pay, no Refresh
+     * quote and no requote's failure, and the status steps and Pay another way
+     * are a pending invoice's. Every coin without a grace is as before.
+     *
      * The memo shows when the sdk says so ([CryptoInvoiceSnapshot.showsMemo],
      * CryptoPaymentShowsMemo: only a memo the server sent, which only USDC
      * has), and the status steps are the sdk's for the state
@@ -173,16 +186,23 @@ object CryptoPayment {
         val status = snapshot.status
         val checking = open && status.isEmpty()
         val review = open && status == Sdk.CryptoPaymentStatusReview
-        val expired = open && (
+        // the countdown ended with nothing received, and a payment sent within
+        // the quote may still confirm at its price: the sdk's word (Bitcoin's
+        // confirmation grace, mmm/BTCPAY.md §16.8), in place of expired
+        val awaitingConfirmation = open && status == Sdk.CryptoPaymentStatusPending &&
+            snapshot.secondsLeft <= 0L && snapshot.awaitingConfirmation
+        val expired = open && !awaitingConfirmation && (
             status == Sdk.CryptoPaymentStatusExpired ||
                 (status == Sdk.CryptoPaymentStatusPending && snapshot.secondsLeft <= 0L)
             )
         // payable: open, pending, and time left on the quote
-        val pending = open && status == Sdk.CryptoPaymentStatusPending && !expired
+        val pending = open && status == Sdk.CryptoPaymentStatusPending && !expired && !awaitingConfirmation
         val seen = open && status == Sdk.CryptoPaymentStatusSeen
         val paid = isPaid(snapshot)
-        // what a requote can change: a quote nothing was paid to
-        val requotable = open && (status == Sdk.CryptoPaymentStatusPending || status == Sdk.CryptoPaymentStatusExpired)
+        // what a requote can change: a quote nothing was paid to, and none
+        // while awaiting confirmation (the server refuses one in the grace)
+        val requotable = open && !awaitingConfirmation &&
+            (status == Sdk.CryptoPaymentStatusPending || status == Sdk.CryptoPaymentStatusExpired)
 
         val paymentRequest = pending && !snapshot.refreshing
         val address = (pending || seen) && snapshot.address.isNotEmpty()
@@ -207,7 +227,9 @@ object CryptoPayment {
             memo = paymentRequest && snapshot.showsMemo,
             noPaymentLink = !hasPaymentLink,
             countdown = if (pending) countdown(snapshot.secondsLeft) else null,
+            confirmationNote = pending,
             expired = expired,
+            awaitingConfirmation = awaitingConfirmation,
             refresh = pending || expired,
             refreshing = snapshot.refreshing,
             steps = steps,
@@ -245,10 +267,10 @@ sealed interface CryptoStartRefusal {
 
 /**
  * The sdk's CryptoInvoiceState as plain values (CONTRACT §4.4), or a test's,
- * with the sdk's decisions on it ([qrText], [showsMemo], [steps]). Amounts
- * are the server's exact decimal strings; the countdown is the sdk's
- * ([secondsLeft]). [status] is "" for a resumed invoice until its first poll
- * answers.
+ * with the sdk's decisions on it ([qrText], [showsMemo], [steps],
+ * [awaitingConfirmation]). Amounts are the server's exact decimal strings;
+ * the countdown is the sdk's ([secondsLeft]). [status] is "" for a resumed
+ * invoice until its first poll answers.
  */
 data class CryptoInvoiceSnapshot(
     val phase: String = Sdk.CryptoInvoicePhaseNone,
@@ -266,6 +288,13 @@ data class CryptoInvoiceSnapshot(
     val showsMemo: Boolean = false,
     val priceUsd: Double = 0.0,
     val secondsLeft: Long = 0L,
+    /**
+     * the sdk's AwaitingConfirmation: the countdown ended with nothing
+     * received, and a payment sent within the quote may still confirm and is
+     * credited at its price (Bitcoin's confirmation grace, mmm/BTCPAY.md
+     * §16.8); false for every coin without a grace
+     */
+    val awaitingConfirmation: Boolean = false,
     val status: String = "",
     val reviewReason: String = "",
     val remaining: String = "",
@@ -331,9 +360,23 @@ data class CryptoInvoiceView(
     val noPaymentLink: Boolean,
     /** "Quote expires in m:ss" while payable, or null */
     val countdown: String?,
-    /** the quote expired with nothing received */
+    /**
+     * the coin's confirmation note under the countdown, while payable; only a
+     * coin whose payment may confirm after the quote ends, at its price, has
+     * one (the sdk's ConfirmationNote: Bitcoin's, mmm/BTCPAY.md §16.8)
+     */
+    val confirmationNote: Boolean,
+    /** the quote expired with nothing received, past any confirmation grace ([awaitingConfirmation]) */
     val expired: Boolean,
-    /** Refresh quote: offered while nothing has been received */
+    /**
+     * the quote ended with nothing received, and a payment sent within it may
+     * still confirm and is credited at its price (the sdk's
+     * AwaitingConfirmation, Bitcoin's confirmation grace, mmm/BTCPAY.md
+     * §16.8): the coin's awaiting line in place of the expired copy, and no
+     * Refresh quote, which the server refuses meanwhile
+     */
+    val awaitingConfirmation: Boolean,
+    /** Refresh quote: offered while nothing has been received, except while awaiting confirmation */
     val refresh: Boolean,
     /** a requote is in flight */
     val refreshing: Boolean,

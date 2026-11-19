@@ -9,14 +9,17 @@ import org.junit.Test
 
 /**
  * What the crypto invoice sheet shows for each state of the sdk's invoice
- * (mmm/ZCASH-CONTRACT.md §6.2 and §6.2.1). The rule that matters most: the QR code and
+ * (mmm/ZCASH-CONTRACT.md §6.2 and §6.2.1, and Bitcoin's confirmation grace,
+ * mmm/BTCPAY.md §16.8). The rule that matters most: the QR code and
  * Open in wallet show only a uri that passed CheckCryptoPaymentUri, and only
  * while the quote is current and nothing has arrived -- the uri asks for the
  * full amount, so after a part payment, an expiry or during a requote it would
  * ask for the wrong one. The addresses and amounts are fixtures, not wallets.
- * The status steps and the memo rule are the sdk's (CryptoPaymentSteps,
- * CryptoPaymentShowsMemo), carried on the snapshot as the sdk hands them out:
- * these fixtures spell them the way the sdk's vectors do.
+ * The status steps, the memo rule and whether a payment sent within an ended
+ * quote may still confirm are the sdk's (CryptoPaymentSteps,
+ * CryptoPaymentShowsMemo, AwaitingConfirmation), carried on the snapshot as
+ * the sdk hands them out: these fixtures spell them the way the sdk's vectors
+ * and tests do.
  */
 class CryptoInvoiceViewTest {
 
@@ -60,6 +63,32 @@ class CryptoInvoiceViewTest {
         confirmationsRequired = 1,
         steps = steps(current, upcoming, upcoming, upcoming),
     )
+
+    // an open Bitcoin invoice, just quoted, nothing received: the server
+    // credits a payment sent within its quote at the quoted price while it is
+    // mined within 3 hours of the quote's end (mmm/BTCPAY.md §16.8)
+    private val btcAddress = "bc1qFixtureBitcoinAddressForTheAppTestsOnlyNotAWallet"
+    private val btcUri = "bitcoin:$btcAddress?amount=0.00054622"
+    private val btcPending = CryptoInvoiceSnapshot(
+        phase = Sdk.CryptoInvoicePhaseOpen,
+        intentId = "intent-5",
+        asset = Sdk.CryptoAssetBtc,
+        plan = Sdk.PlanYearly,
+        address = btcAddress,
+        amount = "0.00054622",
+        ticker = "BTC",
+        uri = btcUri,
+        qrText = btcUri,
+        priceUsd = 40.0,
+        secondsLeft = 1799,
+        status = Sdk.CryptoPaymentStatusPending,
+        confirmationsRequired = 1,
+        steps = steps(current, upcoming, upcoming, upcoming),
+    )
+
+    // its countdown ended, the server still says pending, and the sdk says a
+    // payment sent within the quote may still confirm (AwaitingConfirmation)
+    private val btcAwaiting = btcPending.copy(secondsLeft = 0, awaitingConfirmation = true)
 
     @Test
     fun aCurrentQuoteAsksForThePayment() {
@@ -232,6 +261,129 @@ class CryptoInvoiceViewTest {
         assertTrue(view.refresh)
         assertNull(view.payUri)
         assertFalse(view.amount)
+    }
+
+    // Bitcoin's confirmation grace (mmm/BTCPAY.md §16.8): the countdown is
+    // still the time to send by, and while the invoice is payable the coin's
+    // confirmation note goes under it -- a payment can take up to 3 hours to
+    // confirm, and one sent in time is credited at the quoted price
+    @Test
+    fun aBitcoinQuoteSaysHowLongItsPaymentCanTakeToConfirm() {
+        val view = CryptoPayment.view(btcPending, uriPasses = true)
+        assertTrue(view.paymentRequest)
+        assertEquals(btcUri, view.payUri)
+        assertEquals(btcUri, view.qrText)
+        assertTrue(view.amount)
+        assertTrue(view.address)
+        assertEquals("29:59", view.countdown)
+        // where the note goes; the sdk's lines say which coin has one (Bitcoin alone)
+        assertTrue(view.confirmationNote)
+        assertFalse(view.awaitingConfirmation)
+        assertFalse(view.expired)
+        assertTrue(view.refresh)
+        assertTrue(view.payAnotherWay)
+        // with the countdown, a requote in flight too
+        assertTrue(CryptoPayment.view(btcPending.copy(refreshing = true), uriPasses = true).confirmationNote)
+        // and only with it: not once the quote ended, nor once money may have arrived
+        assertFalse(CryptoPayment.view(btcAwaiting, uriPasses = true).confirmationNote)
+        assertFalse(CryptoPayment.view(btcPending.copy(status = Sdk.CryptoPaymentStatusExpired, secondsLeft = 0), uriPasses = true).confirmationNote)
+        for (status in listOf("", Sdk.CryptoPaymentStatusSeen, Sdk.CryptoPaymentStatusConfirming, Sdk.CryptoPaymentStatusReview)) {
+            assertFalse(status, CryptoPayment.view(btcPending.copy(status = status), uriPasses = true).confirmationNote)
+        }
+        assertFalse(
+            CryptoPayment.view(btcPending.copy(phase = Sdk.CryptoInvoicePhasePaid, status = Sdk.CryptoPaymentStatusPaid), uriPasses = true).confirmationNote
+        )
+    }
+
+    // Bitcoin's confirmation grace: once the quote ended with nothing received,
+    // a payment sent within it may still confirm and is credited at its price,
+    // and the server refuses a requote until the grace is over. While the sdk
+    // says so the invoice is neither payable nor expired: the coin's awaiting
+    // line stands in place of the expired copy, with no Refresh quote
+    @Test
+    fun anEndedBitcoinQuoteAwaitsConfirmationWithoutARefresh() {
+        val view = CryptoPayment.view(btcAwaiting, uriPasses = true)
+        assertTrue(view.awaitingConfirmation)
+        assertFalse(view.expired)
+        assertFalse(view.refresh)
+        // nothing to pay, as once a quote expired
+        assertFalse(view.paymentRequest)
+        assertNull(view.payUri)
+        assertNull(view.qrText)
+        assertFalse(view.amount)
+        assertFalse(view.address)
+        assertFalse(view.memo)
+        assertNull(view.countdown)
+        assertFalse(view.confirmationNote)
+        // nothing received: the status steps and the ways out are a pending invoice's
+        assertEquals(btcPending.steps, view.steps)
+        assertNull(view.remaining)
+        assertFalse(view.loading)
+        assertFalse(view.review)
+        assertTrue(view.wallets)
+        assertTrue(view.payAnotherWay)
+    }
+
+    // nothing can be requoted in the grace, so the last requote's failure is
+    // not said there, where the awaiting line says what to do: one that
+    // failed before the quote ended, or reached the server after it and was
+    // refused (invalid_request)
+    @Test
+    fun aRequoteFailureIsNotSaidWhileAwaitingConfirmation() {
+        for (failed in listOf(
+            btcAwaiting.copy(errorCode = "invalid_request"),
+            btcAwaiting.copy(errorCode = "", errorMessage = "i/o timeout"),
+            btcAwaiting.copy(errorCode = Sdk.PurchaseErrorCodeAssetUnavailable),
+        )) {
+            val view = CryptoPayment.view(failed, uriPasses = true)
+            assertFalse(view.failed)
+            assertFalse(view.unavailable)
+        }
+        // past the grace it is said, as for every expired quote
+        assertTrue(CryptoPayment.view(btcPending.copy(secondsLeft = 0, errorCode = "invalid_request"), uriPasses = true).failed)
+    }
+
+    // past the grace the sdk no longer says so (on the quote's own clock, or
+    // once the server says expired): an ended Bitcoin quote is an expired one,
+    // as every coin's, with the expired copy and Refresh quote. A coin without
+    // a grace never awaits
+    @Test
+    fun pastTheGraceAnEndedBitcoinQuoteIsExpired() {
+        for (ended in listOf(
+            btcPending.copy(secondsLeft = 0),
+            btcPending.copy(status = Sdk.CryptoPaymentStatusExpired, secondsLeft = 0),
+        )) {
+            val view = CryptoPayment.view(ended, uriPasses = true)
+            assertTrue(view.expired)
+            assertFalse(view.awaitingConfirmation)
+            assertTrue(view.refresh)
+            assertFalse(view.paymentRequest)
+            assertNull(view.countdown)
+            assertTrue(view.payAnotherWay)
+        }
+        assertFalse(CryptoPayment.view(pending.copy(secondsLeft = 0), uriPasses = true).awaitingConfirmation)
+    }
+
+    // the sdk says AwaitingConfirmation only of an open, pending invoice whose
+    // countdown ended, and the view takes it there alone: time left on the
+    // quote stays payable, and a payment mined in the grace shows as one
+    @Test
+    fun awaitingConfirmationOnlyStandsForAnEndedQuote() {
+        val payable = CryptoPayment.view(btcPending.copy(awaitingConfirmation = true), uriPasses = true)
+        assertFalse(payable.awaitingConfirmation)
+        assertTrue(payable.paymentRequest)
+        assertEquals("29:59", payable.countdown)
+
+        val confirmingSteps = steps(done, done, current, upcoming)
+        val confirming = CryptoPayment.view(
+            btcAwaiting.copy(status = Sdk.CryptoPaymentStatusConfirming, steps = confirmingSteps),
+            uriPasses = true,
+        )
+        assertFalse(confirming.awaitingConfirmation)
+        assertFalse(confirming.expired)
+        assertEquals(confirmingSteps, confirming.steps)
+        // money arrived: another way would pay twice
+        assertFalse(confirming.payAnotherWay)
     }
 
     @Test

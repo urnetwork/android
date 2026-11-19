@@ -315,6 +315,8 @@
     <string name="crypto_does_not_renew">Haisasishwi. Lipa tena ikiisha.</string>
     <string name="crypto_fine_print_data">Malipo ya mara moja. Data inabaki halali kwa mwaka mmoja.</string>
     <string name="crypto_fine_print_yearly">Malipo ya mara moja kwa mwaka mmoja wa Pro. Hayasasishwi, na hakuna jaribio la bila malipo.</string>
+    <string name="crypto_invoice_bitcoin_awaiting_confirmation">Muda wa bei hii umeisha. Malipo uliyotuma kabla muda wake kuisha yanahesabiwa kwa bei hii mara yanapothibitishwa, jambo linaloweza kuchukua hadi saa 3. Ikiwa hukutuma malipo, lipa kwa njia nyingine.</string>
+    <string name="crypto_invoice_bitcoin_confirmation_time">Malipo ya Bitcoin yanaweza kuchukua hadi saa 3 kuthibitishwa. Malipo yaliyotumwa kabla muda wa bei kuisha yanahesabiwa kwa bei hii.</string>
     <string name="crypto_invoice_bitcoin_network_only">Tuma Bitcoin kwenye mtandao wa Bitcoin pekee kwa anwani hii. Bitcoin zilizotumwa kwenye mtandao mwingine hazitahesabiwa.</string>
     <string name="crypto_invoice_copied">Imenakiliwa</string>
     <string name="crypto_invoice_copy">Nakili</string>

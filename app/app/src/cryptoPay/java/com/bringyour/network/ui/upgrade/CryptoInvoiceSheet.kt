@@ -64,13 +64,22 @@ import kotlinx.coroutines.withContext
  * to bottom: the network the coin is sent on; the QR code of the sdk's QR text
  * and Open in wallet, only for a uri that pays the address shown; the exact
  * amount and the address with Copy, the memo, and the coin's network-only
- * warning; the quote's countdown with Refresh quote; the status steps; the
- * wallets that work; Pay another way and Close.
+ * warning; the quote's countdown, with the coin's confirmation note, and
+ * Refresh quote; the status steps; the wallets that work; Pay another way and
+ * Close.
  *
  * A coin without a payment link (TAO) has no Open in wallet: its QR code
  * holds the address alone, with a note that says so, and "Send exactly this
  * amount to this address." stands in its place, over the amount and the
  * address with their own Copy amount and Copy address.
+ *
+ * A coin whose payment may confirm after the quote ends and still be credited
+ * at its price (Bitcoin's 3-hour confirmation grace, mmm/BTCPAY.md §16.8) says
+ * so under the countdown, which is still the time to send by. Once the quote
+ * ended, while the sdk says a payment sent within it may still confirm
+ * (AwaitingConfirmation), the coin's awaiting line stands in place of the
+ * expired copy, with no Refresh quote: the server refuses a requote until the
+ * grace is over.
  *
  * Hosted above the screen that opened it (CryptoInvoiceHost), so leaving that
  * screen doesn't end a payment. The controller polls and counts down only
@@ -225,7 +234,7 @@ fun CryptoInvoiceSheet(
             }
 
             // 4. the quote's time, and a new one
-            if (view.countdown != null || view.expired || view.refresh) {
+            if (view.countdown != null || view.expired || view.awaitingConfirmation || view.refresh) {
                 Spacer(modifier = Modifier.height(24.dp))
                 view.countdown?.let { countdown ->
                     Text(
@@ -234,11 +243,31 @@ fun CryptoInvoiceSheet(
                         color = TextMuted
                     )
                 }
+                if (view.confirmationNote) {
+                    // sent before the countdown ends, a payment that confirms later keeps this price (Bitcoin)
+                    cryptoConfirmationNoteText(invoice.asset)?.let { note ->
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            note,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = TextMuted
+                        )
+                    }
+                }
                 if (view.expired) {
                     Text(
                         stringResource(id = R.string.crypto_invoice_quote_expired),
                         style = MaterialTheme.typography.bodyMedium
                     )
+                }
+                if (view.awaitingConfirmation) {
+                    // in place of the expired copy, with no Refresh: a payment sent in time may still confirm
+                    cryptoAwaitingConfirmationNoteText(invoice.asset)?.let { note ->
+                        Text(
+                            note,
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
                 }
                 if (view.refresh) {
                     Spacer(modifier = Modifier.height(8.dp))

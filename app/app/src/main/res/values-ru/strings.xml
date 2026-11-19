@@ -315,6 +315,8 @@
     <string name="crypto_does_not_renew">Не продлевается. По окончании оплатите снова.</string>
     <string name="crypto_fine_print_data">Разовый платёж. Данные действительны один год.</string>
     <string name="crypto_fine_print_yearly">Разовый платёж за год Pro. Не продлевается, бесплатного пробного периода нет.</string>
+    <string name="crypto_invoice_bitcoin_awaiting_confirmation">Срок действия курса истёк. Платёж, отправленный до истечения срока, будет зачислен по этой цене после подтверждения — это может занять до 3 часов. Если вы ничего не отправляли, оплатите другим способом.</string>
+    <string name="crypto_invoice_bitcoin_confirmation_time">Подтверждение платежа в Bitcoin может занять до 3 часов. Платёж, отправленный до истечения срока действия курса, зачисляется по этой цене.</string>
     <string name="crypto_invoice_bitcoin_network_only">Отправляйте на этот адрес только Bitcoin в сети Bitcoin. Bitcoin, отправленный в другой сети, не будет зачислен.</string>
     <string name="crypto_invoice_copied">Скопировано</string>
     <string name="crypto_invoice_copy">Копировать</string>
