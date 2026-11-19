@@ -495,11 +495,10 @@ fun SettingsScreen(
         }
     )
 
-    if (isPresentingReleaseNotes && releaseNote != null) {
+    if (isPresentingReleaseNotes && releaseNotes != null && releaseNote != null) {
         ReleaseNotesSheet(
+            notes = releaseNotes,
             note = releaseNote,
-            version = displayVersion(settingsViewModel.version),
-            date = releaseNotes?.date,
             onDismiss = { isPresentingReleaseNotes = false },
         )
     }
@@ -618,9 +617,6 @@ fun SettingsScreen(
     }
 
 }
-
-// the version as the version row and the release notes show it
-private fun displayVersion(version: String): String = version.ifEmpty { "0.0.0" }
 
 // stateless presentation half of the settings screen: every value and
 // callback is hoisted into the stateful composable above, which is what makes
@@ -1637,7 +1633,7 @@ private fun SettingsScreen(
                 Column(modifier = Modifier.weight(1f)) {
                     URTextInputLabel(stringResource(id = R.string.version_info))
                     Text(
-                        displayVersion(version),
+                        version.ifEmpty { "0.0.0" },
                         style = MaterialTheme.typography.bodyMedium,
                         color = Color.White
                     )

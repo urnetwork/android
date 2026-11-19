@@ -52,24 +52,22 @@ import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.network.ui.theme.URNetworkTheme
 import kotlinx.coroutines.launch
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
-import java.time.format.FormatStyle
 import java.util.Locale
 
 /**
  * The bundled release note (ReleaseNotes), opened from the version row in
- * Account -> Settings: the note's title, the running version and the note's
- * day, its intro, then its sections, each an optional heading over bullets.
- * A sheet like the data info sheet, no wider than the readable column, kept
- * off a fold; it scrolls when the note is taller than the window.
+ * Account -> Settings: the note's title, the note's own version and day, its
+ * intro, then its sections, each an optional heading over bullets. A sheet
+ * like the data info sheet, no wider than the readable column, kept off a
+ * fold; it scrolls when the note is taller than the window.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ReleaseNotesSheet(
+    // the file, for the note's version and day
+    notes: ReleaseNotes,
+    // the note in the reader's language (ReleaseNotes.noteFor)
     note: ReleaseNote,
-    // the running app's version, as the version row shows it
-    version: String,
-    date: LocalDate?,
     onDismiss: () -> Unit,
 ) {
     val sheetState = rememberFoldSafeSheetState()
@@ -81,9 +79,8 @@ fun ReleaseNotesSheet(
         containerColor = SheetBlack,
     ) {
         ReleaseNotesContent(
+            notes = notes,
             note = note,
-            version = version,
-            date = date,
             onClose = {
                 // slides away as a swipe down does, then closes
                 scope.launch { sheetState.hide() }.invokeOnCompletion {
@@ -98,16 +95,11 @@ fun ReleaseNotesSheet(
 
 @Composable
 private fun ReleaseNotesContent(
+    notes: ReleaseNotes,
     note: ReleaseNote,
-    version: String,
-    date: LocalDate?,
     onClose: () -> Unit,
 ) {
     val locale = LocalConfiguration.current.locales[0]
-    // the release day in the reader's own form ("Nov 19, 2026")
-    val day = remember(date, locale) {
-        date?.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withLocale(locale))
-    }
     // the intro and the bullets share one line height, so a wrapped bullet
     // and the gap to the next keep the same rhythm
     val bodyStyle = MaterialTheme.typography.bodyMedium.copy(lineHeight = 20.sp)
@@ -117,9 +109,13 @@ private fun ReleaseNotesContent(
         val direction = TextUtils.getLayoutDirectionFromLocale(Locale.forLanguageTag(note.locale))
         if (direction == View.LAYOUT_DIRECTION_RTL) LayoutDirection.Rtl else LayoutDirection.Ltr
     }
-    // the version and the day (in the reader's form, so maybe the other
-    // direction) each keep their own order within the note's direction
-    val bidi = remember(noteDirection) { BidiFormatter.getInstance(noteDirection == LayoutDirection.Rtl) }
+    // the note's version and day ("2026.11 · Nov 19, 2026"), the day in the
+    // reader's form, so maybe the other direction: each part keeps its own
+    // order within the note's direction
+    val versionLine = remember(notes, locale, noteDirection) {
+        val bidi = BidiFormatter.getInstance(noteDirection == LayoutDirection.Rtl)
+        notes.versionLine(locale) { bidi.unicodeWrap(it) }
+    }
 
     Column(
         modifier = Modifier
@@ -147,9 +143,8 @@ private fun ReleaseNotesContent(
 
                 Spacer(modifier = Modifier.height(4.dp))
 
-                // the version running, which may be newer than the note, and the note's day
                 Text(
-                    listOfNotNull(version, day).joinToString(" · ") { bidi.unicodeWrap(it) },
+                    versionLine,
                     style = MaterialTheme.typography.bodyMedium,
                     color = TextMuted,
                 )
@@ -252,32 +247,35 @@ private fun ReleaseNoteBullet(
     }
 }
 
+// the previews' note is placeholder text: a real note's words come from
+// release-notes/latest.yaml in the localizations store
+
 @Preview
 @Composable
 private fun ReleaseNotesContentPreview() {
+    val note = ReleaseNote(
+        locale = "en",
+        title = "Note title",
+        intro = "An intro paragraph under the title.",
+        sections = listOf(
+            ReleaseNoteSection(
+                heading = "Section heading",
+                items = listOf(
+                    "A first item that is long enough to wrap onto a second line.",
+                    "A second item.",
+                ),
+            ),
+            ReleaseNoteSection(
+                heading = null,
+                items = listOf("An item in a section without a heading."),
+            ),
+        ),
+    )
     URNetworkTheme {
         Column(modifier = Modifier.background(SheetBlack)) {
             ReleaseNotesContent(
-                note = ReleaseNote(
-                    locale = "en",
-                    title = "What's new",
-                    intro = "Faster connections on slow networks, and a clearer Account screen.",
-                    sections = listOf(
-                        ReleaseNoteSection(
-                            heading = "Connect",
-                            items = listOf(
-                                "Connects in about half the time on a slow cellular network, and picks the closest provider first.",
-                                "The location picker keeps its search through a fold.",
-                            ),
-                        ),
-                        ReleaseNoteSection(
-                            heading = null,
-                            items = listOf("Fixes a crash when the window is resized."),
-                        ),
-                    ),
-                ),
-                version = "2026.11.19-58710121",
-                date = LocalDate.of(2026, 11, 19),
+                notes = ReleaseNotes(version = "2026.11", date = LocalDate.of(2026, 11, 19), notes = mapOf("en" to note)),
+                note = note,
                 onClose = {},
             )
         }
@@ -287,17 +285,17 @@ private fun ReleaseNotesContentPreview() {
 @Preview
 @Composable
 private fun ReleaseNotesContentIntroOnlyPreview() {
+    val note = ReleaseNote(
+        locale = "en",
+        title = "Note title",
+        intro = "An intro paragraph, and no sections.",
+        sections = listOf(),
+    )
     URNetworkTheme {
         Column(modifier = Modifier.background(SheetBlack)) {
             ReleaseNotesContent(
-                note = ReleaseNote(
-                    locale = "en",
-                    title = "What's new",
-                    intro = "The release notes for this version are on the way.",
-                    sections = listOf(),
-                ),
-                version = "2026.11.19-58710121",
-                date = LocalDate.of(2026, 11, 19),
+                notes = ReleaseNotes(version = "2026.11", date = LocalDate.of(2026, 11, 19), notes = mapOf("en" to note)),
+                note = note,
                 onClose = {},
             )
         }

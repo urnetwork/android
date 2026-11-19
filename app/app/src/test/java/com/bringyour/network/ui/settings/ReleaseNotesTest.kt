@@ -3,6 +3,7 @@ package com.bringyour.network.ui.settings
 import java.io.File
 import java.time.LocalDate
 import java.util.Locale
+import java.util.TimeZone
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
@@ -151,6 +152,29 @@ class ReleaseNotesTest {
         val notes = ReleaseNotes.parse(file(""""en": {"title": "T"}""", date = "2026-13-45"))!!
         assertNull(notes.date)
         assertEquals("T", notes.notes["en"]?.title)
+        // the line under the title is then the note's version alone
+        assertEquals("2026.11", notes.versionLine(Locale.US))
+    }
+
+    @Test
+    fun theLineUnderTheTitleIsTheNotesOwnVersionAndDay() {
+        val notes = ReleaseNotes.parse(file(""""en": {"title": "T"}"""))!!
+        // the note's version, never the running build's: a later build carries the same note
+        assertEquals("2026.11 · Nov 19, 2026", notes.versionLine(Locale.US))
+        // the day in the reader's medium form
+        assertEquals("2026.11 · 19.11.2026", notes.versionLine(Locale.GERMANY))
+        // each part wrapped, as the sheet bidi-isolates them
+        assertEquals("[2026.11] · [Nov 19, 2026]", notes.versionLine(Locale.US) { "[$it]" })
+        // the file's calendar day, in any time zone
+        val zone = TimeZone.getDefault()
+        try {
+            for (id in listOf("Pacific/Kiritimati", "Pacific/Pago_Pago")) {
+                TimeZone.setDefault(TimeZone.getTimeZone(id))
+                assertEquals("2026.11 · Nov 19, 2026", notes.versionLine(Locale.US))
+            }
+        } finally {
+            TimeZone.setDefault(zone)
+        }
     }
 
     @Test

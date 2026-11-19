@@ -5,7 +5,9 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import java.io.IOException
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
+import java.time.format.FormatStyle
 import java.util.Locale
 
 /**
@@ -49,6 +51,18 @@ class ReleaseNotes(
             }
         }
         return notes[ENGLISH]
+    }
+
+    /**
+     * The line under the note's title: the note's own version and day
+     * ("2026.11 · Nov 19, 2026"), not the running build's version, since a
+     * later build carries the same note. The day is the file's calendar day,
+     * never shifted by a time zone, in [locale]'s medium form; [isolate]
+     * wraps each part (the sheet bidi-isolates them).
+     */
+    fun versionLine(locale: Locale, isolate: (String) -> String = { it }): String {
+        val day = date?.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withLocale(locale))
+        return listOfNotNull(version, day).joinToString(" · ") { isolate(it) }
     }
 
     companion object {
