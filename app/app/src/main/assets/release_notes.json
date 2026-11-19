@@ -18,6 +18,465 @@
           ]
         }
       ]
+    },
+    "ar": {
+      "title": "ما الجديد",
+      "intro": "يحمل هذا الإصدار اسم Champion، ويتضمن شهرين من التحسينات في:",
+      "sections": [
+        {
+          "items": [
+            "أداء تدفق الحزم، بما في ذلك تحسينات تناسب ظروف الشبكة المتنوعة",
+            "الموسّعات ودعم VLESS، لجعل الشبكة أسهل وصولًا",
+            "تحسينات الذاكرة ووحدة المعالجة المركزية",
+            "خيارات DNS موسّعة",
+            "تكامل أرباح SN25/ur.xyz",
+            "إدارة محسّنة للجلسات",
+            "إصلاحات الأخطاء"
+          ]
+        }
+      ]
+    },
+    "cs": {
+      "title": "Co je nového",
+      "intro": "Tato verze nese název Champion. Obsahuje 2 měsíce vylepšení v oblastech:",
+      "sections": [
+        {
+          "items": [
+            "Výkon toku paketů, včetně optimalizací pro různé síťové podmínky",
+            "Extendery a podpora VLESS, aby byla síť dostupnější",
+            "Optimalizace paměti a CPU",
+            "Rozšířené možnosti DNS",
+            "Integrace výdělků SN25/ur.xyz",
+            "Vylepšená správa relací",
+            "Opravy chyb"
+          ]
+        }
+      ]
+    },
+    "de": {
+      "title": "Neuigkeiten",
+      "intro": "Diese Version heißt Champion. Sie enthält 2 Monate an Verbesserungen bei:",
+      "sections": [
+        {
+          "items": [
+            "Leistung des Paketflusses, einschließlich Optimierungen für unterschiedliche Netzwerkbedingungen",
+            "Extender und VLESS-Unterstützung, um das Netzwerk zugänglicher zu machen",
+            "Speicher- und CPU-Optimierungen",
+            "Erweiterte DNS-Optionen",
+            "Integration der SN25/ur.xyz-Einnahmen",
+            "Verbesserte Sitzungsverwaltung",
+            "Fehlerbehebungen"
+          ]
+        }
+      ]
+    },
+    "el": {
+      "title": "Τι νέο υπάρχει",
+      "intro": "Αυτή η έκδοση ονομάζεται Champion. Περιλαμβάνει βελτιώσεις 2 μηνών σε:",
+      "sections": [
+        {
+          "items": [
+            "Απόδοση ροής πακέτων, με βελτιστοποιήσεις για ποικίλες συνθήκες δικτύου",
+            "Επεκτατές και υποστήριξη VLESS, για να γίνει το δίκτυο πιο προσβάσιμο",
+            "Βελτιστοποιήσεις μνήμης και CPU",
+            "Διευρυμένες επιλογές DNS",
+            "Ενσωμάτωση κερδών SN25/ur.xyz",
+            "Βελτιωμένη διαχείριση συνεδριών",
+            "Διορθώσεις σφαλμάτων"
+          ]
+        }
+      ]
+    },
+    "es": {
+      "title": "Novedades",
+      "intro": "Esta versión se llama Champion. Incluye 2 meses de mejoras en:",
+      "sections": [
+        {
+          "items": [
+            "Rendimiento del flujo de paquetes, incluidas optimizaciones para distintas condiciones de red",
+            "Extensores y compatibilidad con VLESS, para que la red sea más accesible",
+            "Optimizaciones de memoria y CPU",
+            "Más opciones de DNS",
+            "Integración de ganancias de SN25/ur.xyz",
+            "Gestión de sesiones mejorada",
+            "Corrección de errores"
+          ]
+        }
+      ]
+    },
+    "es-419": {
+      "title": "Novedades",
+      "intro": "Esta versión se llama Champion. Incluye 2 meses de mejoras en:",
+      "sections": [
+        {
+          "items": [
+            "Rendimiento del flujo de paquetes, incluidas optimizaciones para distintas condiciones de red",
+            "Extensores y compatibilidad con VLESS, para que la red sea más accesible",
+            "Optimizaciones de memoria y CPU",
+            "Más opciones de DNS",
+            "Integración de ganancias de SN25/ur.xyz",
+            "Administración de sesiones mejorada",
+            "Corrección de errores"
+          ]
+        }
+      ]
+    },
+    "es-MX": {
+      "title": "Novedades",
+      "intro": "Esta versión se llama Champion. Incluye 2 meses de mejoras en:",
+      "sections": [
+        {
+          "items": [
+            "Rendimiento del flujo de paquetes, incluidas optimizaciones para distintas condiciones de red",
+            "Extensores y compatibilidad con VLESS, para que la red sea más accesible",
+            "Optimizaciones de memoria y CPU",
+            "Más opciones de DNS",
+            "Integración de ganancias de SN25/ur.xyz",
+            "Administración de sesiones mejorada",
+            "Corrección de errores"
+          ]
+        }
+      ]
+    },
+    "fr": {
+      "title": "Nouveautés",
+      "intro": "Cette version s'appelle Champion. Elle apporte 2 mois d'améliorations dans les domaines suivants :",
+      "sections": [
+        {
+          "items": [
+            "Performances du flux de paquets, avec des optimisations pour des conditions réseau variées",
+            "Extendeurs et prise en charge de VLESS, pour rendre le réseau plus accessible",
+            "Optimisations de la mémoire et du processeur",
+            "Options DNS étendues",
+            "Intégration des gains SN25/ur.xyz",
+            "Gestion des sessions améliorée",
+            "Corrections de bugs"
+          ]
+        }
+      ]
+    },
+    "he": {
+      "title": "מה חדש",
+      "intro": "הגרסה הזו נקראת Champion. היא כוללת חודשיים של שיפורים ב:",
+      "sections": [
+        {
+          "items": [
+            "ביצועי זרימת החבילות, כולל אופטימיזציות לתנאי רשת מגוונים",
+            "מרחיבים ותמיכה ב-VLESS, כדי להנגיש את הרשת",
+            "אופטימיזציות של זיכרון ומעבד",
+            "אפשרויות DNS מורחבות",
+            "שילוב רווחי SN25/ur.xyz",
+            "ניהול הפעלות משופר",
+            "תיקוני באגים"
+          ]
+        }
+      ]
+    },
+    "hi": {
+      "title": "नया क्या है",
+      "intro": "इस रिलीज़ का नाम Champion है। इसमें 2 महीनों के सुधार शामिल हैं:",
+      "sections": [
+        {
+          "items": [
+            "पैकेट फ़्लो का प्रदर्शन, जिसमें अलग-अलग नेटवर्क स्थितियों के लिए ऑप्टिमाइज़ेशन शामिल हैं",
+            "एक्सटेंडर और VLESS सपोर्ट, ताकि नेटवर्क ज़्यादा सुलभ हो",
+            "मेमोरी और CPU ऑप्टिमाइज़ेशन",
+            "DNS के ज़्यादा विकल्प",
+            "SN25/ur.xyz आय का इंटीग्रेशन",
+            "बेहतर सत्र प्रबंधन",
+            "बग फ़िक्स"
+          ]
+        }
+      ]
+    },
+    "id": {
+      "title": "Yang baru",
+      "intro": "Rilis ini bernama Champion. Rilis ini mencakup 2 bulan peningkatan pada:",
+      "sections": [
+        {
+          "items": [
+            "Performa aliran paket, termasuk optimasi untuk beragam kondisi jaringan",
+            "Extender dan dukungan VLESS, agar jaringan lebih mudah diakses",
+            "Optimasi memori dan CPU",
+            "Opsi DNS yang lebih lengkap",
+            "Integrasi pendapatan SN25/ur.xyz",
+            "Pengelolaan sesi yang lebih baik",
+            "Perbaikan bug"
+          ]
+        }
+      ]
+    },
+    "it": {
+      "title": "Novità",
+      "intro": "Questa versione si chiama Champion. Include 2 mesi di miglioramenti a:",
+      "sections": [
+        {
+          "items": [
+            "Prestazioni del flusso di pacchetti, con ottimizzazioni per condizioni di rete diverse",
+            "Extender e supporto VLESS, per rendere la rete più accessibile",
+            "Ottimizzazioni di memoria e CPU",
+            "Opzioni DNS ampliate",
+            "Integrazione dei guadagni SN25/ur.xyz",
+            "Gestione delle sessioni migliorata",
+            "Correzioni di bug"
+          ]
+        }
+      ]
+    },
+    "ja": {
+      "title": "新機能",
+      "intro": "このリリースの名前は Champion です。2 か月分の改善が含まれています：",
+      "sections": [
+        {
+          "items": [
+            "パケットフローのパフォーマンス（さまざまなネットワーク環境向けの最適化を含む）",
+            "エクステンダーと VLESS への対応により、ネットワークをより利用しやすく",
+            "メモリと CPU の最適化",
+            "DNS オプションの拡充",
+            "SN25/ur.xyz の収益との連携",
+            "セッション管理の改善",
+            "バグ修正"
+          ]
+        }
+      ]
+    },
+    "ko": {
+      "title": "새로운 기능",
+      "intro": "이번 릴리스의 이름은 Champion입니다. 2개월간의 개선 사항이 포함되어 있습니다:",
+      "sections": [
+        {
+          "items": [
+            "다양한 네트워크 환경에 맞춘 최적화를 포함한 패킷 흐름 성능",
+            "네트워크를 더 쉽게 이용할 수 있도록 익스텐더 및 VLESS 지원",
+            "메모리 및 CPU 최적화",
+            "DNS 옵션 확대",
+            "SN25/ur.xyz 수익 연동",
+            "세션 관리 개선",
+            "버그 수정"
+          ]
+        }
+      ]
+    },
+    "nl": {
+      "title": "Wat is er nieuw",
+      "intro": "Deze release heet Champion. Ze bevat 2 maanden aan verbeteringen in:",
+      "sections": [
+        {
+          "items": [
+            "Prestaties van de pakketstroom, inclusief optimalisaties voor uiteenlopende netwerkomstandigheden",
+            "Extenders en ondersteuning voor VLESS, om het netwerk toegankelijker te maken",
+            "Optimalisaties voor geheugen en CPU",
+            "Uitgebreide DNS-opties",
+            "Integratie van SN25/ur.xyz-opbrengsten",
+            "Verbeterd sessiebeheer",
+            "Bugfixes"
+          ]
+        }
+      ]
+    },
+    "pl": {
+      "title": "Co nowego",
+      "intro": "Ta wersja nosi nazwę Champion. Zawiera 2 miesiące ulepszeń w obszarach:",
+      "sections": [
+        {
+          "items": [
+            "Wydajność przepływu pakietów, w tym optymalizacje pod różne warunki sieciowe",
+            "Extendery i obsługa VLESS, aby sieć była bardziej dostępna",
+            "Optymalizacje pamięci i procesora",
+            "Rozszerzone opcje DNS",
+            "Integracja zarobków SN25/ur.xyz",
+            "Ulepszone zarządzanie sesjami",
+            "Poprawki błędów"
+          ]
+        }
+      ]
+    },
+    "pt": {
+      "title": "Novidades",
+      "intro": "Esta versão chama-se Champion. Inclui 2 meses de melhorias em:",
+      "sections": [
+        {
+          "items": [
+            "Desempenho do fluxo de pacotes, incluindo otimizações para diferentes condições de rede",
+            "Extensores e suporte para VLESS, para tornar a rede mais acessível",
+            "Otimizações de memória e CPU",
+            "Mais opções de DNS",
+            "Integração dos ganhos SN25/ur.xyz",
+            "Gestão de sessões melhorada",
+            "Correções de erros"
+          ]
+        }
+      ]
+    },
+    "pt-BR": {
+      "title": "Novidades",
+      "intro": "Esta versão se chama Champion. Ela inclui 2 meses de melhorias em:",
+      "sections": [
+        {
+          "items": [
+            "Desempenho do fluxo de pacotes, incluindo otimizações para diferentes condições de rede",
+            "Extensores e suporte a VLESS, para tornar a rede mais acessível",
+            "Otimizações de memória e CPU",
+            "Mais opções de DNS",
+            "Integração de ganhos SN25/ur.xyz",
+            "Gerenciamento de sessões aprimorado",
+            "Correções de bugs"
+          ]
+        }
+      ]
+    },
+    "pt-PT": {
+      "title": "Novidades",
+      "intro": "Esta versão chama-se Champion. Inclui 2 meses de melhorias em:",
+      "sections": [
+        {
+          "items": [
+            "Desempenho do fluxo de pacotes, incluindo otimizações para diferentes condições de rede",
+            "Extensores e suporte para VLESS, para tornar a rede mais acessível",
+            "Otimizações de memória e CPU",
+            "Mais opções de DNS",
+            "Integração dos ganhos SN25/ur.xyz",
+            "Gestão de sessões melhorada",
+            "Correções de erros"
+          ]
+        }
+      ]
+    },
+    "ru": {
+      "title": "Что нового",
+      "intro": "Этот выпуск называется Champion. В него вошли улучшения за 2 месяца:",
+      "sections": [
+        {
+          "items": [
+            "Производительность потока пакетов, включая оптимизации для разных условий сети",
+            "Экстендеры и поддержка VLESS, чтобы сеть была доступнее",
+            "Оптимизация памяти и процессора",
+            "Расширенные настройки DNS",
+            "Интеграция заработка SN25/ur.xyz",
+            "Улучшенное управление сеансами",
+            "Исправления ошибок"
+          ]
+        }
+      ]
+    },
+    "sv": {
+      "title": "Nyheter",
+      "intro": "Den här versionen heter Champion. Den innehåller 2 månaders förbättringar av:",
+      "sections": [
+        {
+          "items": [
+            "Prestanda för paketflödet, inklusive optimeringar för varierande nätverksförhållanden",
+            "Extendrar och stöd för VLESS, för att göra nätverket mer tillgängligt",
+            "Optimeringar av minne och CPU",
+            "Utökade DNS-alternativ",
+            "Integrering av intäkter från SN25/ur.xyz",
+            "Förbättrad sessionshantering",
+            "Buggfixar"
+          ]
+        }
+      ]
+    },
+    "sw": {
+      "title": "Kipya ni nini",
+      "intro": "Toleo hili linaitwa Champion. Linajumuisha maboresho ya miezi 2 katika:",
+      "sections": [
+        {
+          "items": [
+            "Utendaji wa mtiririko wa pakiti, ikiwa ni pamoja na uboreshaji kwa hali mbalimbali za mtandao",
+            "Vipanuzi na usaidizi wa VLESS, ili kufanya mtandao ufikike kwa urahisi zaidi",
+            "Uboreshaji wa kumbukumbu na CPU",
+            "Chaguo zaidi za DNS",
+            "Ujumuishaji wa mapato ya SN25/ur.xyz",
+            "Usimamizi bora wa vipindi",
+            "Marekebisho ya hitilafu"
+          ]
+        }
+      ]
+    },
+    "th": {
+      "title": "มีอะไรใหม่",
+      "intro": "รุ่นนี้มีชื่อว่า Champion ซึ่งรวมการปรับปรุงตลอด 2 เดือนในด้านต่อไปนี้:",
+      "sections": [
+        {
+          "items": [
+            "ประสิทธิภาพของการไหลของแพ็กเก็ต รวมถึงการปรับแต่งสำหรับสภาพเครือข่ายที่หลากหลาย",
+            "ตัวขยายและการรองรับ VLESS เพื่อให้เข้าถึงเครือข่ายได้ง่ายขึ้น",
+            "การปรับแต่งหน่วยความจำและ CPU",
+            "ตัวเลือก DNS ที่มากขึ้น",
+            "การผสานรวมรายได้จาก SN25/ur.xyz",
+            "การจัดการเซสชันที่ดีขึ้น",
+            "การแก้ไขข้อบกพร่อง"
+          ]
+        }
+      ]
+    },
+    "uk": {
+      "title": "Що нового",
+      "intro": "Цей випуск називається Champion. Він містить покращення за 2 місяці:",
+      "sections": [
+        {
+          "items": [
+            "Продуктивність потоку пакетів, зокрема оптимізації для різних умов мережі",
+            "Екстендери та підтримка VLESS, щоб мережа була доступнішою",
+            "Оптимізація пам'яті та процесора",
+            "Розширені налаштування DNS",
+            "Інтеграція заробітку SN25/ur.xyz",
+            "Покращене керування сеансами",
+            "Виправлення помилок"
+          ]
+        }
+      ]
+    },
+    "vi": {
+      "title": "Có gì mới",
+      "intro": "Bản phát hành này có tên Champion. Bản này gồm 2 tháng cải tiến về:",
+      "sections": [
+        {
+          "items": [
+            "Hiệu năng luồng gói tin, bao gồm các tối ưu cho nhiều điều kiện mạng khác nhau",
+            "Bộ mở rộng và hỗ trợ VLESS, giúp mạng dễ tiếp cận hơn",
+            "Tối ưu bộ nhớ và CPU",
+            "Mở rộng tùy chọn DNS",
+            "Tích hợp thu nhập SN25/ur.xyz",
+            "Cải thiện quản lý phiên đăng nhập",
+            "Sửa lỗi"
+          ]
+        }
+      ]
+    },
+    "zh": {
+      "title": "新功能",
+      "intro": "此版本名为 Champion，包含 2 个月来在以下方面的改进：",
+      "sections": [
+        {
+          "items": [
+            "数据包流性能，包括针对各种网络条件的优化",
+            "扩展器和 VLESS 支持，让网络更易于访问",
+            "内存和 CPU 优化",
+            "更多 DNS 选项",
+            "SN25/ur.xyz 收益集成",
+            "改进的登录会话管理",
+            "错误修复"
+          ]
+        }
+      ]
+    },
+    "zh-HK": {
+      "title": "新功能",
+      "intro": "此版本名為 Champion，包含 2 個月來在以下方面的改進：",
+      "sections": [
+        {
+          "items": [
+            "數據包流量效能，包括針對各種網絡狀況的優化",
+            "擴展器及 VLESS 支援，讓網絡更易於使用",
+            "記憶體及 CPU 優化",
+            "更多 DNS 選項",
+            "SN25/ur.xyz 收益整合",
+            "改進的登入工作階段管理",
+            "錯誤修正"
+          ]
+        }
+      ]
     }
   }
 }
