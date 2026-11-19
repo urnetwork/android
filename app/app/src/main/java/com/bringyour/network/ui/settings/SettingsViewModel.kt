@@ -42,9 +42,11 @@ import com.bringyour.sdk.StripeCreateCustomerPortalArgs
 import com.bringyour.sdk.Sub
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
@@ -114,6 +116,12 @@ class SettingsViewModel @Inject constructor(
 
     var version by mutableStateOf("")
         private set
+
+    // the release note the app bundles (ReleaseNotes), which the version row
+    // opens; null while it loads, and when the asset is missing or unreadable,
+    // which leaves the row plain text
+    private val _releaseNotes = MutableStateFlow<ReleaseNotes?>(null)
+    val releaseNotes: StateFlow<ReleaseNotes?> = _releaseNotes
 
     /**
      * Device name and spec, from this device's network client record
@@ -610,6 +618,10 @@ class SettingsViewModel @Inject constructor(
         _allowProvideOnCell.value = deviceManager.provideNetworkMode == ProvideNetworkMode.ALL
 
         version = Sdk.getVersion()
+
+        viewModelScope.launch {
+            _releaseNotes.value = withContext(Dispatchers.IO) { ReleaseNotes.loadBundled(context) }
+        }
 
         processLifecycle.addObserver(this)
         controllerOwner.setForeground(

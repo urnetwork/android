@@ -1162,6 +1162,7 @@
     <string name="regenerate_seedphrase_body">Η τρέχουσα φράση ανάκτησης θα σταματήσει να λειτουργεί. Θα σας εμφανιστεί μια νέα για να την αποθηκεύσετε.</string>
     <string name="regenerate_seedphrase_title">Δημιουργία νέας φράσης ανάκτησης;</string>
     <string name="regions">Περιοχές</string>
+    <string name="release_notes">Σημειώσεις έκδοσης</string>
     <string name="reliability">Αξιοπιστία</string>
     <string name="reliability_bonus">+%1$.3f GiB/ημέρα</string>
     <string name="reliability_settings">Συνεισφορά εύρους ζώνης</string>

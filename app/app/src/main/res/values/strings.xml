@@ -1177,6 +1177,7 @@
     <string name="regenerate_seedphrase_body">Your current seedphrase will stop working. You\'ll be shown a new one to save.</string>
     <string name="regenerate_seedphrase_title">Regenerate your seedphrase?</string>
     <string name="regions">Regions</string>
+    <string name="release_notes">Release notes</string>
     <string name="reliability">Reliability</string>
     <string name="reliability_bonus">+%1$.3f GiB/Day</string>
     <string name="reliability_settings">Contribute bandwidth</string>

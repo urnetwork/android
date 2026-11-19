@@ -1162,6 +1162,7 @@
     <string name="regenerate_seedphrase_body">आपका मौजूदा सीड फ़्रेज़ काम करना बंद कर देगा। आपको सहेजने के लिए एक नया दिखाया जाएगा।</string>
     <string name="regenerate_seedphrase_title">सीड फ़्रेज़ दोबारा बनाएं?</string>
     <string name="regions">क्षेत्र</string>
+    <string name="release_notes">रिलीज़ नोट्स</string>
     <string name="reliability">विश्वसनीयता</string>
     <string name="reliability_bonus">+%1$.3f GiB/दिन</string>
     <string name="reliability_settings">बैंडविड्थ का योगदान करें</string>

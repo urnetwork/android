@@ -1162,6 +1162,7 @@
     <string name="regenerate_seedphrase_body">Je huidige seedphrase werkt dan niet meer. Je krijgt een nieuwe te zien om te bewaren.</string>
     <string name="regenerate_seedphrase_title">Seedphrase opnieuw genereren?</string>
     <string name="regions">Regio\'s</string>
+    <string name="release_notes">Release-opmerkingen</string>
     <string name="reliability">Betrouwbaarheid</string>
     <string name="reliability_bonus">+%1$.3f GiB/dag</string>
     <string name="reliability_settings">Bandbreedte bijdragen</string>

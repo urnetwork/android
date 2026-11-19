@@ -1162,6 +1162,7 @@
     <string name="regenerate_seedphrase_body">你当前的助记词将失效。系统会显示新的助记词，请保存。</string>
     <string name="regenerate_seedphrase_title">重新生成助记词？</string>
     <string name="regions">地区</string>
+    <string name="release_notes">发行说明</string>
     <string name="reliability">可靠性</string>
     <string name="reliability_bonus">+%1$.3f GiB/天</string>
     <string name="reliability_settings">贡献带宽</string>

@@ -1162,6 +1162,7 @@
     <string name="regenerate_seedphrase_body">Cụm từ khôi phục hiện tại của bạn sẽ ngừng hoạt động. Bạn sẽ thấy một cụm từ mới để lưu lại.</string>
     <string name="regenerate_seedphrase_title">Tạo lại cụm từ khôi phục?</string>
     <string name="regions">Khu vực</string>
+    <string name="release_notes">Ghi chú phát hành</string>
     <string name="reliability">Độ tin cậy</string>
     <string name="reliability_bonus">+%1$.3f GiB/ngày</string>
     <string name="reliability_settings">Đóng góp băng thông</string>

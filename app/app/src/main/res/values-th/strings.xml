@@ -1162,6 +1162,7 @@
     <string name="regenerate_seedphrase_body">วลีกู้คืนปัจจุบันของคุณจะใช้ไม่ได้อีก คุณจะเห็นวลีใหม่เพื่อเก็บไว้</string>
     <string name="regenerate_seedphrase_title">สร้างวลีกู้คืนใหม่ใช่ไหม</string>
     <string name="regions">ภูมิภาค</string>
+    <string name="release_notes">บันทึกประจำรุ่น</string>
     <string name="reliability">ความน่าเชื่อถือ</string>
     <string name="reliability_bonus">+%1$.3f GiB/วัน</string>
     <string name="reliability_settings">ร่วมแบ่งปันแบนด์วิดท์</string>

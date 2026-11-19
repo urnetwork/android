@@ -1162,6 +1162,7 @@
     <string name="regenerate_seedphrase_body">Twoja obecna fraza seed przestanie działać. Zobaczysz nową, którą trzeba zachować.</string>
     <string name="regenerate_seedphrase_title">Wygenerować frazę seed ponownie?</string>
     <string name="regions">Regiony</string>
+    <string name="release_notes">Informacje o wersji</string>
     <string name="reliability">Niezawodność</string>
     <string name="reliability_bonus">+%1$.3f GiB/dzień</string>
     <string name="reliability_settings">Udostępnij przepustowość</string>

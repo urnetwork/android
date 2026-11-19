@@ -1162,6 +1162,7 @@
     <string name="regenerate_seedphrase_body">Kifungu chako cha seed cha sasa kitaacha kufanya kazi. Utaonyeshwa kipya cha kuhifadhi.</string>
     <string name="regenerate_seedphrase_title">Tengeneza upya kifungu cha seed?</string>
     <string name="regions">Mikoa</string>
+    <string name="release_notes">Maelezo ya toleo</string>
     <string name="reliability">Uaminifu</string>
     <string name="reliability_bonus">+%1$.3f GiB/siku</string>
     <string name="reliability_settings">Changia kipimo data</string>
