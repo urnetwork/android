@@ -315,6 +315,8 @@
     <string name="crypto_does_not_renew">नवीनीकृत नहीं होता। समाप्त होने पर फिर से भुगतान करें।</string>
     <string name="crypto_fine_print_data">एक बार का भुगतान। डेटा एक साल तक मान्य रहता है।</string>
     <string name="crypto_fine_print_yearly">Pro के एक साल के लिए एक बार का भुगतान। यह नवीनीकृत नहीं होता, और इसमें मुफ़्त ट्रायल नहीं है।</string>
+    <string name="crypto_invoice_bitcoin_awaiting_confirmation">यह दर समाप्त हो गई है। इसके समाप्त होने से पहले भेजा गया आपका भुगतान पुष्टि होते ही इसी कीमत पर जमा किया जाता है, जिसमें 3 घंटे तक लग सकते हैं। अगर आपने कोई भुगतान नहीं भेजा है, तो दूसरे तरीके से भुगतान करें।</string>
+    <string name="crypto_invoice_bitcoin_confirmation_time">Bitcoin भुगतानों की पुष्टि में 3 घंटे तक लग सकते हैं। दर समाप्त होने से पहले भेजा गया भुगतान इसी कीमत पर जमा किया जाता है।</string>
     <string name="crypto_invoice_bitcoin_network_only">इस पते पर केवल Bitcoin नेटवर्क पर Bitcoin भेजें। किसी अन्य नेटवर्क पर भेजे गए Bitcoin जमा नहीं होंगे।</string>
     <string name="crypto_invoice_copied">कॉपी हो गया</string>
     <string name="crypto_invoice_copy">कॉपी करें</string>
@@ -1162,6 +1164,7 @@
     <string name="regenerate_seedphrase_body">आपका मौजूदा सीड फ़्रेज़ काम करना बंद कर देगा। आपको सहेजने के लिए एक नया दिखाया जाएगा।</string>
     <string name="regenerate_seedphrase_title">सीड फ़्रेज़ दोबारा बनाएं?</string>
     <string name="regions">क्षेत्र</string>
+    <string name="release_notes">रिलीज़ नोट्स</string>
     <string name="reliability">विश्वसनीयता</string>
     <string name="reliability_bonus">+%1$.3f GiB/दिन</string>
     <string name="reliability_settings">बैंडविड्थ का योगदान करें</string>

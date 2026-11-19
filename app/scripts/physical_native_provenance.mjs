@@ -9,6 +9,7 @@ import { accessSync, closeSync, constants, existsSync, fstatSync, lstatSync, ope
 import { delimiter, dirname, extname, isAbsolute, join, relative, resolve, sep } from "node:path";
 import { availableParallelism } from "node:os";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import { isDeepStrictEqual } from "node:util";
 import { artifactDirectoryReason, prepareArtifactDirectory, requireArtifactPaths } from "./physical_artifact_directory.mjs";
 
 const LIMIT = 32 * 1024 * 1024;
@@ -716,21 +717,45 @@ function retainedArtifactInputs(sourcePath, source, before, binaryPath, writerPa
   if (binary.apk_selection?.path !== selectionPath || !validHash(binary.apk_selection.sha256) ||
       inputFile(selectionPath).sha256 !== binary.apk_selection.sha256) fail("retained-native-apk-selection-mismatch");
   const selection = privateRead(selectionPath);
-  if (selection.type !== "physical-apk-pair" || selection.schemaVersion !== 1 || selection.buildId !== source.buildId ||
+  const scoped = Object.hasOwn(binary, "apk_scope");
+  const observed = selection.observed ?? {};
+  const scopedObservation = Object.hasOwn(observed, "schemaVersion") && observed.schemaVersion !== 1 ||
+    ["apkScope", "buildId", "reservationSha256"].some(key => Object.hasOwn(observed, key));
+  const pixelScope = "hosted-h1-memsteady-pixel-wifi2-v1";
+  if ((scoped ? binary.apk_scope !== pixelScope || selection.apkScope !== pixelScope ||
+        selection.selectionPolicy !== "pixel-wifi-build-only" || selection.installQualified !== false :
+        Object.hasOwn(selection, "apkScope") || scopedObservation) ||
+      selection.type !== "physical-apk-pair" || selection.schemaVersion !== (scoped ? 2 : 1) ||
+      selection.buildId !== source.buildId ||
       selection.abi !== "arm64-v8a" || ["app", "test"].some((key, index) =>
         selection[key]?.path !== files[index].path || selection[key]?.sha256 !== files[index].sha256 ||
         selection[key]?.packageName !== (key === "app" ? "com.bringyour.network" : "com.bringyour.network.test"))) {
     fail("retained-native-apk-selection-mismatch");
   }
-  return { schemaVersion: 1, memoryProfile: writer.memoryProfile, sourceProof: inputFile(sourcePath),
+  const retained = { schemaVersion: scoped ? 2 : 1, memoryProfile: writer.memoryProfile, sourceProof: inputFile(sourcePath),
     writerReceipt: inputFile(writerPath), binaryProvenance: inputFile(binaryPath), files };
+  if (scoped) {
+    const observationPath = join(directory, "apk-devices.json");
+    requireArtifactPaths(binding, [observationPath]);
+    const observation = inputFile(observationPath);
+    const observed = privateRead(observationPath);
+    if (binary.apk_observed?.path !== observationPath || observation.sha256 !== binary.apk_observed.sha256 ||
+        observed.type !== "physical-apk-devices" || observed.schemaVersion !== 2 || observed.apkScope !== pixelScope ||
+        observed.buildId !== source.buildId || !validHash(observed.reservationSha256) ||
+        !Array.isArray(observed.devices) || observed.devices.length !== 1 ||
+        !isDeepStrictEqual(observed, selection.observed) || inputFile(observationPath).sha256 !== observation.sha256) {
+      fail("retained-native-apk-observation-mismatch");
+    }
+    retained.apkObservation = observation;
+  }
+  return retained;
 }
 
 export function requireVerifiedNativeInputs(path, buildId, dependencies = {}) {
   const { proof, after } = verifiedNativeProof(path, buildId);
   if (Object.hasOwn(proof, "retainedArtifacts")) {
     const retained = proof.retainedArtifacts;
-    if (!retained || retained.schemaVersion !== 1 || !retained.sourceProof?.path || !retained.binaryProvenance?.path ||
+    if (!retained || ![1, 2].includes(retained.schemaVersion) || !retained.sourceProof?.path || !retained.binaryProvenance?.path ||
         !retained.writerReceipt?.path || realpathSync(path) !== join(realpathSync(dirname(path)), "retained-proof.json")) {
       fail("retained-native-proof-required");
     }

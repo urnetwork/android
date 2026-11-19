@@ -315,6 +315,8 @@
     <string name="crypto_does_not_renew">Wordt niet verlengd. Betaal opnieuw als het afloopt.</string>
     <string name="crypto_fine_print_data">Een eenmalige betaling. De data blijft een jaar geldig.</string>
     <string name="crypto_fine_print_yearly">Een eenmalige betaling voor een jaar Pro. Wordt niet verlengd, en er is geen gratis proefperiode.</string>
+    <string name="crypto_invoice_bitcoin_awaiting_confirmation">Deze koers is verlopen. Een betaling die je hebt verstuurd voordat hij verliep, wordt na bevestiging tegen deze prijs bijgeschreven. Dat kan tot 3 uur duren. Heb je niets verstuurd, betaal dan op een andere manier.</string>
+    <string name="crypto_invoice_bitcoin_confirmation_time">Bitcoin-betalingen kunnen tot 3 uur nodig hebben om te worden bevestigd. Een betaling die is verstuurd voordat de koers verloopt, wordt tegen deze prijs bijgeschreven.</string>
     <string name="crypto_invoice_bitcoin_network_only">Stuur naar dit adres alleen Bitcoin via het Bitcoin-netwerk. Bitcoin die via een ander netwerk wordt verstuurd, wordt niet bijgeschreven.</string>
     <string name="crypto_invoice_copied">Gekopieerd</string>
     <string name="crypto_invoice_copy">Kopiëren</string>
@@ -1162,6 +1164,7 @@
     <string name="regenerate_seedphrase_body">Je huidige seedphrase werkt dan niet meer. Je krijgt een nieuwe te zien om te bewaren.</string>
     <string name="regenerate_seedphrase_title">Seedphrase opnieuw genereren?</string>
     <string name="regions">Regio\'s</string>
+    <string name="release_notes">Release-opmerkingen</string>
     <string name="reliability">Betrouwbaarheid</string>
     <string name="reliability_bonus">+%1$.3f GiB/dag</string>
     <string name="reliability_settings">Bandbreedte bijdragen</string>

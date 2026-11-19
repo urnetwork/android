@@ -315,6 +315,8 @@
     <string name="crypto_does_not_renew">Não renova. Pague novamente quando terminar.</string>
     <string name="crypto_fine_print_data">Um pagamento único. Os dados valem por um ano.</string>
     <string name="crypto_fine_print_yearly">Um pagamento único por um ano de Pro. Não renova e não tem teste grátis.</string>
+    <string name="crypto_invoice_bitcoin_awaiting_confirmation">Esta cotação expirou. Um pagamento que você enviou antes de ela expirar é creditado por este preço assim que for confirmado, o que pode levar até 3 horas. Se você não enviou nenhum, pague de outra forma.</string>
+    <string name="crypto_invoice_bitcoin_confirmation_time">Pagamentos em Bitcoin podem levar até 3 horas para serem confirmados. Um pagamento enviado antes de a cotação expirar é creditado por este preço.</string>
     <string name="crypto_invoice_bitcoin_network_only">Envie para este endereço apenas Bitcoin na rede Bitcoin. Bitcoin enviado em outra rede não será creditado.</string>
     <string name="crypto_invoice_copied">Copiado</string>
     <string name="crypto_invoice_copy">Copiar</string>
@@ -1162,6 +1164,7 @@
     <string name="regenerate_seedphrase_body">Sua frase-semente atual deixará de funcionar. Você verá uma nova para guardar.</string>
     <string name="regenerate_seedphrase_title">Gerar uma nova frase-semente?</string>
     <string name="regions">Regiões</string>
+    <string name="release_notes">Notas da versão</string>
     <string name="reliability">Confiabilidade</string>
     <string name="reliability_bonus">+%1$.3f GiB/dia</string>
     <string name="reliability_settings">Contribuir com largura de banda</string>

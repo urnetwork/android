@@ -332,6 +332,8 @@ private fun cryptoLineRes(key: String): Int? = when (key) {
     "crypto_invoice_eth_network_only" -> R.string.crypto_invoice_eth_network_only
     "crypto_invoice_sol_network_only" -> R.string.crypto_invoice_sol_network_only
     "crypto_invoice_tao_no_payment_link" -> R.string.crypto_invoice_tao_no_payment_link
+    "crypto_invoice_bitcoin_confirmation_time" -> R.string.crypto_invoice_bitcoin_confirmation_time
+    "crypto_invoice_bitcoin_awaiting_confirmation" -> R.string.crypto_invoice_bitcoin_awaiting_confirmation
     else -> null
 }
 
@@ -357,6 +359,32 @@ fun cryptoNetworkLineText(asset: String): String {
 fun cryptoNetworkWarningText(asset: String): String? {
     val lines = remember(asset) { Sdk.cryptoAssetLinesFor(asset) }
     return cryptoLine(lines?.networkWarningKey, lines?.networkWarning)
+}
+
+/**
+ * The coin's line under the quote's countdown while the invoice is payable
+ * (the sdk's confirmation note): how long a payment can take to confirm, and
+ * that one sent before the quote expires is credited at the quoted price
+ * (Bitcoin's 3-hour confirmation grace, mmm/BTCPAY.md §16.8). Null for every
+ * other coin.
+ */
+@Composable
+fun cryptoConfirmationNoteText(asset: String): String? {
+    val lines = remember(asset) { Sdk.cryptoAssetLinesFor(asset) }
+    return cryptoLine(lines?.confirmationNoteKey, lines?.confirmationNote)
+}
+
+/**
+ * The coin's line in place of the expired copy while the sdk says the invoice
+ * awaits confirmation (the sdk's awaiting confirmation note): the quote
+ * expired, a payment sent before then is credited at its price once it
+ * confirms, and without one, pay another way (Bitcoin's, mmm/BTCPAY.md
+ * §16.8). Null for every other coin.
+ */
+@Composable
+fun cryptoAwaitingConfirmationNoteText(asset: String): String? {
+    val lines = remember(asset) { Sdk.cryptoAssetLinesFor(asset) }
+    return cryptoLine(lines?.awaitingConfirmationNoteKey, lines?.awaitingConfirmationNote)
 }
 
 /**

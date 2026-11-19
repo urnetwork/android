@@ -315,6 +315,8 @@
     <string name="crypto_does_not_renew">自動更新はされません。終了時に再度お支払いください。</string>
     <string name="crypto_fine_print_data">一括払いです。データの有効期間は 1 年です。</string>
     <string name="crypto_fine_print_yearly">Pro 1 年分の一括払いです。自動更新はされず、無料トライアルもありません。</string>
+    <string name="crypto_invoice_bitcoin_awaiting_confirmation">この見積もりは期限切れです。期限切れになる前に送金した支払いは、承認され次第この価格で入金されます。承認には最大 3 時間かかることがあります。送金していない場合は、別の方法で支払ってください。</string>
+    <string name="crypto_invoice_bitcoin_confirmation_time">Bitcoin の支払いは承認まで最大 3 時間かかることがあります。見積もりの期限が切れる前に送金した支払いは、この価格で入金されます。</string>
     <string name="crypto_invoice_bitcoin_network_only">このアドレスには Bitcoin ネットワークの Bitcoin のみを送金してください。他のネットワークで送金した Bitcoin は入金されません。</string>
     <string name="crypto_invoice_copied">コピーしました</string>
     <string name="crypto_invoice_copy">コピー</string>
@@ -1162,6 +1164,7 @@
     <string name="regenerate_seedphrase_body">現在のシードフレーズは使えなくなります。保存用に新しいシードフレーズが表示されます。</string>
     <string name="regenerate_seedphrase_title">シードフレーズを再生成しますか？</string>
     <string name="regions">地域</string>
+    <string name="release_notes">リリースノート</string>
     <string name="reliability">信頼性</string>
     <string name="reliability_bonus">+%1$.3f GiB/日</string>
     <string name="reliability_settings">帯域幅を提供する</string>

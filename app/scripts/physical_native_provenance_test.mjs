@@ -829,8 +829,12 @@ test("writer interruption waits for explicitly released valid preflight before t
 // The real fake Gradle forks an independently held same-group child, then
 // exits. A connected socket is the release/TERM/exit barrier, not a sleep or a
 // negative liveness poll. Cleanup also joins the historical broken writer.
-async function writerDescendantAttempt(t, interrupt) {
-  const f = writerFixture(t, "native-writer-group-");
+async function writerDescendantAttempt(t, interrupt, forceFixtureCleanup = false) {
+  let inspectRemoval;
+  const writerControl = forceFixtureCleanup ? undefined : process.env.URNETWORK_NATIVE_WRITER_CONTROL;
+  const f = writerFixture(t, "native-writer-group-", owner => {
+    owner.beforeRemove = () => inspectRemoval?.();
+  });
   const server = createServer();
   const probe = randomUUID();
   let peer; let peerClosed = false; let termObserved = false; let writer; let writerClosed = false; let writerDone;
@@ -838,6 +842,32 @@ async function writerDescendantAttempt(t, interrupt) {
   const ready = new Promise(resolve => { resolveReady = resolve; });
   const peerDone = new Promise(resolve => { resolvePeerClosed = resolve; });
   const observed = new Promise(resolve => { resolveObserved = resolve; });
+  let cleanupPromise;
+  const cleanup = () => cleanupPromise ??= (async () => {
+    // Stop accepting new descendants while releasing the exact held one.
+    const listenerClosed = new Promise(resolve => server.close(resolve));
+    if (writer && !writerClosed) writer.kill("SIGTERM");
+    if (peer && !peerClosed) peer.end("release\n");
+    if (writerDone) await writerDone;
+    if (peer) await peerDone;
+    await listenerClosed;
+  })();
+  let joinedBeforeRemoval;
+  inspectRemoval = async () => {
+    if (forceFixtureCleanup) {
+      joinedBeforeRemoval = writerClosed && peerClosed;
+      // Keep the test-only omission control safe before deleting its root.
+      await cleanup();
+    }
+    if (!writerControl && writer) {
+      const path = f.paths["writer-receipt"];
+      assert.ok(existsSync(path), "NATIVE_FIXTURE_OWNER_RECEIPT_MISSING");
+      const terminal = JSON.parse(readFileSync(path));
+      assert.equal(terminal.ownership?.ownerClosed, true, "NATIVE_FIXTURE_OWNER_NOT_CLOSED");
+      assert.equal(terminal.ownership?.groupJoined, true, "NATIVE_FIXTURE_OWNER_GROUP_NOT_JOINED");
+    }
+  };
+  f.beforeCleanup.push(cleanup);
   server.on("connection", socket => {
     assert.equal(peer, undefined, "one exact held descendant"); peer = socket;
     let pending = "";
@@ -855,6 +885,7 @@ async function writerDescendantAttempt(t, interrupt) {
     socket.once("close", () => { peerClosed = true; resolveObserved(false); resolvePeerClosed(); });
   });
   server.listen(0, "127.0.0.1"); await once(server, "listening");
+  if (cleanupPromise) return;
   const helper = join(f.root, "held-descendant.mjs");
   write(helper, `import {connect} from 'node:net';\n` +
     `const socket=connect(${server.address().port},'127.0.0.1');\n` +
@@ -873,24 +904,30 @@ async function writerDescendantAttempt(t, interrupt) {
   try {
     // An explicit immutable one-file control imports the same current
     // provenance helper; its only omitted change is writer ownership.
-    const entry = process.env.URNETWORK_NATIVE_WRITER_CONTROL ?? new URL("./physical_native_writer.mjs", import.meta.url).pathname;
+    const entry = writerControl ?? new URL("./physical_native_writer.mjs", import.meta.url).pathname;
     writer = spawn(process.execPath, [entry, ...f.args.slice(1)], { cwd: f.root, env: f.env, stdio: ["ignore", "pipe", "pipe"] });
     writer.stdout.resume(); writer.stderr.resume();
     writerDone = new Promise(resolve => writer.once("close", value => { writerClosed = true; resolve(value); }));
-    const initialized = await Promise.race([ready.then(() => true), writerDone.then(() => false)]);
-    assert.equal(initialized, true, "WRITER_EXITED_BEFORE_DESCENDANT_READY");
+    const descendantReady = await Promise.race([ready.then(() => true), writerDone.then(() => false)]);
+    if (forceFixtureCleanup) {
+      assert.equal(descendantReady, true, "WRITER_EXITED_BEFORE_DESCENDANT_READY");
+      assert.equal(writerClosed, false, "WRITER_WAS_NOT_HELD_AT_CLEANUP");
+      assert.equal(peerClosed, false, "DESCENDANT_WAS_NOT_HELD_AT_CLEANUP");
+      await f.cleanup();
+      assert.equal(joinedBeforeRemoval, true, "NATIVE_FIXTURE_REMOVAL_BEFORE_WRITER_JOIN");
+      assert.equal(existsSync(f.root), false);
+      return;
+    }
+    if (cleanupPromise) return;
+    assert.equal(descendantReady, true, "WRITER_EXITED_BEFORE_DESCENDANT_READY");
     if (interrupt) writer.kill("SIGTERM");
     code = await writerDone;
+    if (cleanupPromise) return;
     if (!peerClosed) peer.write(`probe:${probe}\n`);
     descendantAliveAfterWriter = await observed;
+    if (cleanupPromise) return;
     receipt = JSON.parse(readFileSync(f.paths["writer-receipt"]));
-  } finally {
-    if (writer && !writerClosed) writer.kill("SIGTERM");
-    if (peer && !peerClosed) peer.end("release\n");
-    if (writerDone) await writerDone;
-    if (peer) await peerDone;
-    await new Promise(resolve => server.close(resolve));
-  }
+  } finally { await cleanup(); }
   t.diagnostic(`writer exit=${code} eligible=${receipt.eligible} canceled=${interrupt} descendantAlive=${descendantAliveAfterWriter}`);
   assert.equal(descendantAliveAfterWriter, false, "NATIVE_WRITER_DESCENDANT_NOT_JOINED");
   assert.equal(code, 2, "a canceled or orphaned build cannot qualify");
@@ -909,6 +946,10 @@ test("native writer joins a held descendant after successful Gradle leader exit"
 
 test("native writer cancellation escalates and joins a TERM-ignoring descendant", { timeout: 20000 }, async t => {
   await writerDescendantAttempt(t, true);
+});
+
+test("native fixture forced cleanup joins the held writer before removal", { timeout: 20000 }, async t => {
+  await writerDescendantAttempt(t, true, true);
 });
 
 test("native writer cancellation before owner readiness cannot start Gradle", { timeout: 15000 }, async t => {
@@ -997,22 +1038,69 @@ test("native writer owner spawn refusal joins through close without an exit even
   }
 });
 
-test("native writer complete IPC cannot qualify a subsequently killed anchor", { timeout: 15000 }, async t => {
-  const f = writerFixture(t); let completed = false;
-  const receipt = await runNativeWriter(writerArgs(f.args.slice(1)), { ...f.dependencies, env: f.env,
+// Hold the actual owner at the release message, or exercise its real SIGKILL.
+async function writerAnchorAttempt(t, forceFixtureCleanup = false) {
+  let inspectRemoval;
+  const f = writerFixture(t, "native-writer-anchor-", owner => {
+    if (forceFixtureCleanup) owner.beforeRemove = () => inspectRemoval?.();
+  });
+  let completed = false; let writerSettled = false; let resolveComplete;
+  const complete = new Promise(resolve => { resolveComplete = resolve; });
+  const signals = new EventEmitter();
+  const writerDone = runNativeWriter(writerArgs(f.args.slice(1)), { ...f.dependencies, env: f.env, signals,
     spawn(command, args, options) {
       const child = spawn(command, args, options); const send = child.send.bind(child);
       child.send = (message, callback) => {
         if (message.action === "release") {
-          completed = true; child.kill("SIGKILL"); callback?.(null); return true;
+          completed = true;
+          if (forceFixtureCleanup) resolveComplete();
+          else child.kill("SIGKILL");
+          callback?.(null); return true;
         }
         return send(message, callback);
       };
       return child;
-    } });
-  assert.equal(completed, true); assert.equal(receipt.childExitCode, 0);
-  assert.equal(receipt.ownership.complete, true); assert.equal(receipt.ownership.groupJoined, true);
-  assert.equal(receipt.ownership.ownerSignal, "SIGKILL"); assert.equal(receipt.eligible, false);
+    } }).finally(() => { writerSettled = true; });
+  let cleanupPromise;
+  const cleanup = () => cleanupPromise ??= (async () => {
+    if (!writerSettled) signals.emit("SIGTERM");
+    const receipt = await writerDone;
+    if (receipt.ownership.ownerPid !== null) {
+      assert.equal(receipt.ownership.ownerClosed, true, "NATIVE_FIXTURE_OWNER_NOT_CLOSED");
+      assert.equal(receipt.ownership.groupJoined, true, "NATIVE_FIXTURE_OWNER_GROUP_NOT_JOINED");
+    }
+  })();
+  let joinedBeforeRemoval;
+  if (forceFixtureCleanup) inspectRemoval = async () => {
+    joinedBeforeRemoval = writerSettled;
+    // The omission control still releases and joins its real owner.
+    await cleanup();
+  };
+  f.beforeCleanup.push(cleanup);
+  try {
+    if (forceFixtureCleanup) {
+      const initialized = await Promise.race([complete.then(() => true), writerDone.then(() => false)]);
+      assert.equal(initialized, true, "WRITER_EXITED_BEFORE_OWNER_COMPLETE");
+      assert.equal(writerSettled, false, "ANCHOR_WAS_NOT_HELD_AT_CLEANUP");
+      await f.cleanup();
+      assert.equal(joinedBeforeRemoval, true, "NATIVE_FIXTURE_REMOVAL_BEFORE_ANCHOR_JOIN");
+      assert.equal(existsSync(f.root), false);
+    }
+    const receipt = await writerDone;
+    assert.equal(completed, true); assert.equal(receipt.childExitCode, 0);
+    assert.equal(receipt.ownership.complete, true); assert.equal(receipt.ownership.groupJoined, true);
+    assert.equal(receipt.eligible, false);
+    if (forceFixtureCleanup) assert.equal(receipt.interrupted, true);
+    else assert.equal(receipt.ownership.ownerSignal, "SIGKILL");
+  } finally { await cleanup(); }
+}
+
+test("native writer complete IPC cannot qualify a subsequently killed anchor", { timeout: 15000 }, async t => {
+  await writerAnchorAttempt(t);
+});
+
+test("native fixture forced cleanup joins the held IPC anchor before removal", { timeout: 15000 }, async t => {
+  await writerAnchorAttempt(t, true);
 });
 
 test("actual consumer entry point refuses missing, nonzero and forged receipts before any assembly marker", async t => {
@@ -1520,7 +1608,7 @@ test("retained native publication refuses lost locks owners profiles and incompl
 
 test("retained native readers reject changed artifacts proof chain profile and current source", t => {
   for (const kind of ["app.apk", "test.apk", "sdk.aar", "artifact-mode", "artifact-link", "writer", "original",
-    "before", "after", "source", "profile", "build", "retained-hash", "retained-version", "missing-seal", "foreign-directory"]) {
+    "before", "after", "source", "profile", "build", "retained-hash", "retained-version", "retagged-v1", "missing-seal", "foreign-directory"]) {
     const f = fixture(t), g = retainedGeneration(f);
     assert.equal(requireVerifiedNativeInputs(g.options.output, g.buildId, f.dependencies).buildOwner, g.buildOwner, kind);
     const mutate = (path, update) => { const value = JSON.parse(readFileSync(path)); update(value); json(path, value); };
@@ -1535,7 +1623,8 @@ test("retained native readers reject changed artifacts proof chain profile and c
     if (kind === "profile") mutate(g.options["binary-provenance"], row => { row.profile = "android"; });
     if (kind === "build") mutate(g.options["binary-provenance"], row => { row.build_id = "foreign-build"; });
     if (kind === "retained-hash") mutate(path, row => { row.retainedArtifacts.sourceProof.sha256 = "0".repeat(64); });
-    if (kind === "retained-version") mutate(path, row => { row.retainedArtifacts.schemaVersion = 2; });
+    if (kind === "retained-version") mutate(path, row => { row.retainedArtifacts.schemaVersion = 3; });
+    if (kind === "retagged-v1") mutate(path, row => { row.retainedArtifacts.schemaVersion = 2; });
     if (kind === "missing-seal") rmSync(path);
     if (kind === "foreign-directory") { path = join(f.privateDir, "retained-proof.json"); write(path, readFileSync(g.options.output)); }
     const reasons = { "artifact-mode": /private-retained-native-artifact-required/, "artifact-link": /private-retained-native-artifact-required/,
@@ -1543,7 +1632,8 @@ test("retained native readers reject changed artifacts proof chain profile and c
       before: /native-inputs-changed-across-build/, after: /native-input-proof-replaced/,
       source: /native-inputs-changed-after-build/, profile: /retained-native-artifact-context-mismatch/,
       build: /retained-native-artifact-context-mismatch/, "retained-hash": /retained-native-proof-replaced/,
-      "retained-version": /retained-native-proof-required/, "missing-seal": /private-native-manifest-required/,
+      "retained-version": /retained-native-proof-required/, "retagged-v1": /retained-native-proof-replaced/,
+      "missing-seal": /private-native-manifest-required/,
       "foreign-directory": /artifact-path-outside-directory/ };
     assert.throws(() => requireVerifiedNativeInputs(path, g.buildId, f.dependencies),
       reasons[kind] ?? /retained-native-artifact-changed/, kind);
@@ -1782,4 +1872,59 @@ test("attempt owner: replacing the separate native directory during verification
     else await assert.rejects(runInstrumentationSession(options,dependencies),/artifact-directory-replaced-no-spawn/);
     assert.equal(dependencies.spawnCount,0); assert.equal(existsSync(options.stdout),false);
   }
+});
+
+test("explicit Pixel native retention seals the actual private A observation", t => {
+  for (const disagreement of [false, true]) {
+    const f = fixture(t);
+    const generation = retainedGeneration(f, "ios-memory-audit-v2", "pixel", false);
+    const binaryPath = generation.options["binary-provenance"];
+    const binary = JSON.parse(readFileSync(binaryPath));
+    const pairPath = binary.apk_selection.path;
+    const pair = JSON.parse(readFileSync(pairPath));
+    const apkScope = "hosted-h1-memsteady-pixel-wifi2-v1";
+    const observationPath = join(generation.directory, "apk-devices.json");
+    const observed = { type: "physical-apk-devices", schemaVersion: 2, apkScope, buildId: generation.buildId,
+      reservationSha256: "1".repeat(64), observedAtUnixMs: 1,
+      devices: [{ serial: "SYNTHETICDEVICEA", abis: ["arm64-v8a"], versions: { app: null, test: null } }] };
+    json(observationPath, observed);
+    if (disagreement) observed.devices[0].versions.app = 1;
+    json(pairPath, { ...pair, schemaVersion: 2, apkScope, selectionPolicy: "pixel-wifi-build-only", installQualified: false, observed });
+    json(binaryPath, { ...binary, apk_scope: apkScope, apk_selection: { path: pairPath, sha256: hashNativeInputFile(pairPath).sha256 },
+      apk_observed: { path: observationPath, sha256: hashNativeInputFile(observationPath).sha256 } });
+    if (disagreement) {
+      assert.throws(() => retainNativeConsumer(generation.options, generation.dependencies), /retained-native-apk-observation-mismatch/);
+      assert.equal(existsSync(generation.options.output), false);
+      continue;
+    }
+    retainNativeConsumer(generation.options, generation.dependencies);
+    const proof = JSON.parse(readFileSync(generation.options.output));
+    assert.equal(proof.retainedArtifacts.schemaVersion, 2);
+    assert.equal(proof.retainedArtifacts.apkObservation.sha256, hashNativeInputFile(observationPath).sha256);
+    assert.equal(requireVerifiedNativeInputs(generation.options.output, generation.buildId, generation.dependencies).buildId, generation.buildId);
+    const missingObservation = structuredClone(proof);
+    delete missingObservation.retainedArtifacts.apkObservation;
+    json(generation.options.output, missingObservation);
+    assert.throws(() => requireVerifiedNativeInputs(generation.options.output, generation.buildId, generation.dependencies),
+      /retained-native-proof-replaced/);
+    json(generation.options.output, proof);
+    write(observationPath, "{}");
+    assert.throws(() => requireVerifiedNativeInputs(generation.options.output, generation.buildId, generation.dependencies),
+      /retained-native-apk-observation-mismatch/);
+  }
+});
+
+test("legacy native APK retention rejects a scoped observation marker", t => {
+  const f = fixture(t);
+  const generation = retainedGeneration(f, "ios-memory-audit-v2", "mixed", false);
+  const binaryPath = generation.options["binary-provenance"];
+  const binary = JSON.parse(readFileSync(binaryPath));
+  const pairPath = binary.apk_selection.path;
+  const pair = JSON.parse(readFileSync(pairPath));
+  pair.observed = { schemaVersion: 2 };
+  json(pairPath, pair);
+  binary.apk_selection.sha256 = hashNativeInputFile(pairPath).sha256;
+  json(binaryPath, binary);
+  assert.throws(() => retainNativeConsumer(generation.options, generation.dependencies), /retained-native-apk-selection-mismatch/);
+  assert.equal(existsSync(generation.options.output), false);
 });

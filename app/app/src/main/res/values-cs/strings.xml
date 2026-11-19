@@ -315,6 +315,8 @@
     <string name="crypto_does_not_renew">Neobnovuje se. Po skončení zaplaťte znovu.</string>
     <string name="crypto_fine_print_data">Jednorázová platba. Data zůstávají platná jeden rok.</string>
     <string name="crypto_fine_print_yearly">Jednorázová platba za rok Pro. Neobnovuje se a nezahrnuje zkušební období zdarma.</string>
+    <string name="crypto_invoice_bitcoin_awaiting_confirmation">Platnost tohoto kurzu vypršela. Platba, kterou jste odeslali před jeho vypršením, bude po potvrzení připsána za tuto cenu, což může trvat až 3 hodiny. Pokud jste žádnou neodeslali, zaplaťte jinak.</string>
+    <string name="crypto_invoice_bitcoin_confirmation_time">Potvrzení platby Bitcoin může trvat až 3 hodiny. Platba odeslaná před vypršením platnosti kurzu bude připsána za tuto cenu.</string>
     <string name="crypto_invoice_bitcoin_network_only">Na tuto adresu posílejte pouze Bitcoin v síti Bitcoin. Bitcoin odeslaný v jiné síti nebude připsán.</string>
     <string name="crypto_invoice_copied">Zkopírováno</string>
     <string name="crypto_invoice_copy">Kopírovat</string>
@@ -1162,6 +1164,7 @@
     <string name="regenerate_seedphrase_body">Vaše současná seed fráze přestane fungovat. Zobrazí se vám nová, kterou si uložte.</string>
     <string name="regenerate_seedphrase_title">Vygenerovat seed frázi znovu?</string>
     <string name="regions">Regiony</string>
+    <string name="release_notes">Poznámky k verzi</string>
     <string name="reliability">Spolehlivost</string>
     <string name="reliability_bonus">+%1$.3f GiB/den</string>
     <string name="reliability_settings">Přispět šířkou pásma</string>

@@ -315,6 +315,8 @@
     <string name="crypto_does_not_renew">ไม่ต่ออายุอัตโนมัติ ชำระอีกครั้งเมื่อสิ้นสุด</string>
     <string name="crypto_fine_print_data">ชำระครั้งเดียว ข้อมูลใช้ได้นานหนึ่งปี</string>
     <string name="crypto_fine_print_yearly">ชำระครั้งเดียวสำหรับ Pro หนึ่งปี ไม่ต่ออายุอัตโนมัติ และไม่มีช่วงทดลองใช้ฟรี</string>
+    <string name="crypto_invoice_bitcoin_awaiting_confirmation">ราคาเสนอนี้หมดอายุแล้ว การชำระเงินที่คุณส่งก่อนหมดอายุจะได้รับเครดิตในราคานี้เมื่อได้รับการยืนยัน ซึ่งอาจใช้เวลานานถึง 3 ชั่วโมง หากคุณยังไม่ได้ส่ง ให้ชำระด้วยวิธีอื่น</string>
+    <string name="crypto_invoice_bitcoin_confirmation_time">การชำระเงินด้วย Bitcoin อาจใช้เวลายืนยันนานถึง 3 ชั่วโมง การชำระเงินที่ส่งก่อนราคาเสนอหมดอายุจะได้รับเครดิตในราคานี้</string>
     <string name="crypto_invoice_bitcoin_network_only">ส่งเฉพาะ Bitcoin บนเครือข่าย Bitcoin มายังที่อยู่นี้ Bitcoin ที่ส่งบนเครือข่ายอื่นจะไม่ถูกนับเป็นยอดชำระ</string>
     <string name="crypto_invoice_copied">คัดลอกแล้ว</string>
     <string name="crypto_invoice_copy">คัดลอก</string>
@@ -1162,6 +1164,7 @@
     <string name="regenerate_seedphrase_body">วลีกู้คืนปัจจุบันของคุณจะใช้ไม่ได้อีก คุณจะเห็นวลีใหม่เพื่อเก็บไว้</string>
     <string name="regenerate_seedphrase_title">สร้างวลีกู้คืนใหม่ใช่ไหม</string>
     <string name="regions">ภูมิภาค</string>
+    <string name="release_notes">บันทึกประจำรุ่น</string>
     <string name="reliability">ความน่าเชื่อถือ</string>
     <string name="reliability_bonus">+%1$.3f GiB/วัน</string>
     <string name="reliability_settings">ร่วมแบ่งปันแบนด์วิดท์</string>
