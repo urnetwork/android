@@ -4,8 +4,20 @@
   "locales": {
     "en": {
       "title": "What's new",
-      "intro": "The release notes for this version are on the way.",
-      "sections": []
+      "intro": "This release is named Champion. It includes 2 months of improvements to:",
+      "sections": [
+        {
+          "items": [
+            "Packet flow performance, including optimizations for diverse network conditions",
+            "Extenders and VLESS support, to make the network more accessible",
+            "Memory and CPU optimizations",
+            "Expanded DNS options",
+            "SN25/ur.xyz earnings integration",
+            "Improved session management",
+            "Bug fixes"
+          ]
+        }
+      ]
     }
   }
 }
