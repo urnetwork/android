@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, statSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -367,4 +368,173 @@ test("retain-build is an explicit CLI policy with no downgrade or install option
   assert.throws(() => parseArgs([...args, "--install"]));
   assert.throws(() => parseArgs([...args, "-d"]));
   assert.throws(() => selectAndRetainPair({ ...f.options, mode: "install" }, f.dependencies));
+});
+
+const PIXEL_SCOPE = "hosted-h1-memsteady-pixel-wifi2-v1";
+
+function pixelScopeOptions(buildId) {
+  return { "apk-scope": PIXEL_SCOPE, "build-id": buildId, "reservation-sha256":
+    createHash("sha256").update([PIXEL_SCOPE, buildId, ...SERIALS].join("\0")).digest("hex") };
+}
+
+function pixelObservation(options) {
+  return { ...observed(), schemaVersion: 2, apkScope: PIXEL_SCOPE, buildId: options["build-id"],
+    reservationSha256: options["reservation-sha256"], devices: observed().devices.slice(0, 1) };
+}
+
+function offlineSecondDevice(f) {
+  const invoke = f.dependencies.invoke;
+  f.dependencies.invoke = (command, args) => {
+    if (command !== "adb" || args[1] !== SERIALS[1]) return invoke(command, args);
+    f.commands.push({ command, args });
+    return { status: 1, stdout: "", stderr: "device offline" };
+  };
+}
+
+function preparePixelRetainedFixture(f, options) {
+  const pair = selectAndRetainPair({ ...f.options, mode: "retain-build" }, f.dependencies);
+  Object.assign(pair, { schemaVersion: 2, apkScope: PIXEL_SCOPE, selectionPolicy: "pixel-wifi-build-only",
+    observed: pixelObservation(options) });
+  writeJson(f.options.output, pair);
+  f.commands.length = 0;
+  return pair;
+}
+
+// Prove each boundary independently, including the old observer's actual
+// offline-B failure rather than only a previously unknown CLI option.
+test("explicit Pixel observe reaches only reserved A with B unavailable", t => {
+  const f = fixture(t);
+  offlineSecondDevice(f);
+  assert.throws(() => observeDevices(f.dependencies), /stderr=device-offline/);
+  assert.equal(f.commands.at(-1).args[1], SERIALS[1]);
+  f.commands.length = 0;
+  const options = pixelScopeOptions(f.options["build-id"]);
+  const result = observeDevices(f.dependencies, options);
+  assert.deepEqual(result, { ...pixelObservation(options), observedAtUnixMs: 456 });
+  assert.deepEqual(f.commands.map(({ args }) => args[1]), Array(3).fill(SERIALS[0]));
+});
+
+test("explicit Pixel retention accepts the exact A observation without qualifying install", t => {
+  const f = fixture(t);
+  offlineSecondDevice(f);
+  const options = pixelScopeOptions(f.options["build-id"]);
+  writeJson(f.options.observed, pixelObservation(options));
+  const pair = selectAndRetainPair({ ...f.options, ...options, mode: "retain-build" }, f.dependencies);
+  assert.equal(pair.schemaVersion, 2);
+  assert.equal(pair.apkScope, PIXEL_SCOPE);
+  assert.equal(pair.selectionPolicy, "pixel-wifi-build-only");
+  assert.equal(pair.installQualified, false);
+  assert.deepEqual(pair.observed, pixelObservation(options));
+  assert.ok(f.commands.length > 0 && f.commands.every(({ command }) => command === f.options.aapt));
+});
+
+test("explicit Pixel preinstall uses a fresh A observation and exact retained identity", t => {
+  const f = fixture(t);
+  offlineSecondDevice(f);
+  const options = pixelScopeOptions(f.options["build-id"]);
+  const pair = preparePixelRetainedFixture(f, options);
+  assert.throws(() => checkPair(f.options.output, f.dependencies), /retained-apk-pair-required/);
+  assert.equal(f.commands.length, 0);
+  const checked = checkPair(f.options.output, f.dependencies, options);
+  assert.equal(checked.schemaVersion, 2);
+  assert.equal(checked.apkScope, PIXEL_SCOPE);
+  assert.equal(checked.buildId, pair.buildId);
+  assert.equal(checked.selectionSha256, createHash("sha256").update(readFileSync(f.options.output)).digest("hex"));
+  assert.equal(checked.appVersionCode, pair.app.versionCode);
+  assert.equal(checked.testVersionCode, pair.test.versionCode);
+  assert.equal(checked.observed.observedAtUnixMs, 456);
+  assert.deepEqual(checked.observed.devices, pair.observed.devices);
+  assert.deepEqual(f.commands.map(({ args }) => args[1]), Array(3).fill(SERIALS[0]));
+});
+
+test("explicit Pixel preinstall refuses drift and attempts to reuse incompatible evidence", t => {
+  const cases = [
+    { name: "role order", change: f => { f.dependencies.performanceSerials = [...SERIALS].reverse(); }, error: /pixel-apk-reservation-changed/ },
+    { name: "other reservation", change: f => { f.dependencies.performanceSerials = [SERIALS[0], "SYNTHETICNEWRB"]; }, error: /pixel-apk-reservation-changed/ },
+    { name: "one role", change: f => { f.dependencies.performanceSerials = SERIALS.slice(0, 1); }, error: /pixel-apk-reservation-required/ },
+    { name: "wrong admitted build", change: (_f, options) => { options["build-id"] = "unused-build"; }, error: /retained-apk-pair-required/ },
+    { name: "wrong observation", change: (f, _options, pair) => { pair.observed.devices = observed().devices.slice(1); writeJson(f.options.output, pair); },
+      error: /performance-pair-observation-required/ },
+    { name: "changed APK", change: f => writeFileSync(f.options["app-output"], "different synthetic APK"), error: /retained-apk-pair-changed/ },
+  ];
+  for (const { name, change, error } of cases) {
+    const f = fixture(t);
+    const options = pixelScopeOptions(f.options["build-id"]);
+    const pair = preparePixelRetainedFixture(f, options);
+    change(f, options, pair);
+    assert.throws(() => checkPair(f.options.output, f.dependencies, options), error, name);
+    assert.deepEqual(f.commands, [], name);
+  }
+});
+
+test("explicit Pixel preinstall preserves availability, ABI, absence and exact package floors", t => {
+  const cases = [
+    { name: "offline", args: ["get-state"], output: "offline", error: /performance-device-offline/ },
+    { name: "unauthorized", args: ["get-state"], output: "", stderr: "device unauthorized", error: /stderr=device-unauthorized/ },
+    { name: "ABI", args: ["shell", "getprop", "ro.product.cpu.abilist"], output: "x86_64", error: /performance-device-abi-unavailable/ },
+    { name: "app floor", app: BASE + 4, error: /app-apk-would-downgrade/ },
+    { name: "test floor", instrumentation: 1, error: /test-apk-would-downgrade/ },
+    { name: "package failure", args: ["shell", "cmd", "package", "list", "packages", "--show-versioncode", APP], output: "untrusted text",
+      error: /installed-package-version-unavailable/ },
+    { name: "clean absence", args: ["shell", "cmd", "package", "list", "packages", "--show-versioncode", APP], output: "" },
+  ];
+  for (const item of cases) {
+    const f = fixture(t), options = pixelScopeOptions(f.options["build-id"]);
+    preparePixelRetainedFixture(f, options);
+    f.appVersion = item.app ?? f.appVersion;
+    f.testVersion = item.instrumentation ?? f.testVersion;
+    const invoke = f.dependencies.invoke;
+    f.dependencies.invoke = (command, args) => {
+      if (command === "adb" && item.args?.join(" ") === args.slice(2).join(" ")) {
+        f.commands.push({ command, args });
+        return { status: item.stderr ? 1 : 0, stdout: item.output, stderr: item.stderr ?? "" };
+      }
+      return invoke(command, args);
+    };
+    if (item.error) assert.throws(() => checkPair(f.options.output, f.dependencies, options), item.error, item.name);
+    else assert.deepEqual(checkPair(f.options.output, f.dependencies, options).observed.devices[0].versions, { app: null, test: null });
+    assert.ok(f.commands.length > 0 && f.commands.every(({ command, args }) => command === "adb" && args[1] === SERIALS[0]), item.name);
+  }
+});
+
+test("explicit Pixel flags only admit the known scoped observe, retention and check", t => {
+  const f = fixture(t), options = pixelScopeOptions(f.options["build-id"]);
+  const args = Object.entries(options).flatMap(([key, value]) => ["--" + key, value]);
+  const observe = ["observe", "--output", f.options.observed];
+  const check = ["check", "--selection", f.options.output, "--output", f.options.observed];
+  assert.equal(parseArgs([...observe, ...args])["apk-scope"], PIXEL_SCOPE);
+  assert.equal(parseArgs([...check, ...args])["apk-scope"], PIXEL_SCOPE);
+  assert.throws(() => parseArgs([...observe, ...args.slice(0, 2)]));
+  assert.throws(() => parseArgs([...observe, ...args, "--apk-scope", PIXEL_SCOPE]));
+  assert.throws(() => parseArgs([...observe, ...args, "--serial", "SYNTHETICUNKNOWN"]));
+  assert.throws(() => parseArgs(["select", ...Object.entries(f.options).flatMap(([key, value]) => ["--" + key, value]),
+    ...args.filter((_, i) => i !== 2 && i !== 3)]));
+});
+
+test("legacy APK floor still reads both phones and rejects a newer B package", t => {
+  const f = fixture(t);
+  selectAndRetainPair({ ...f.options, mode: "retain-build" }, f.dependencies);
+  f.commands.length = 0;
+  const invoke = f.dependencies.invoke;
+  f.dependencies.invoke = (command, args) => {
+    if (command === "adb" && args[1] === SERIALS[1] && args[2] === "shell" && args[3] === "cmd") {
+      f.commands.push({ command, args });
+      return { status: 0, stdout: "package:" + APP + " versionCode:" + (BASE + 4) + "\n", stderr: "" };
+    }
+    return invoke(command, args);
+  };
+  assert.throws(() => checkPair(f.options.output, f.dependencies), /app-apk-would-downgrade/);
+  assert.deepEqual(f.commands.map(({ args }) => args[1]), [...Array(3).fill(SERIALS[0]), ...Array(3).fill(SERIALS[1])]);
+});
+
+test("legacy APK evidence rejects every scoped observation marker before ADB", t => {
+  for (const marker of [{ schemaVersion: 2 }, { apkScope: PIXEL_SCOPE }, { reservationSha256: "1".repeat(64) }, { buildId: "synthetic-other-build" }]) {
+    const f = fixture(t);
+    const pair = selectAndRetainPair({ ...f.options, mode: "retain-build" }, f.dependencies);
+    pair.observed = { ...pair.observed, ...marker };
+    writeJson(f.options.output, pair);
+    f.commands.length = 0;
+    assert.throws(() => checkPair(f.options.output, f.dependencies), /retained-apk-pair-required/);
+    assert.deepEqual(f.commands, []);
+  }
 });

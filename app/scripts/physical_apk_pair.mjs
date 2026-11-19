@@ -6,6 +6,7 @@
 // Native source/ABI linkage and the runtime acceptance build ID remain separate
 // mandatory gates; Android versionCode is an installation floor, not identity.
 import { spawnSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import { closeSync, constants, existsSync, lstatSync, openSync, readFileSync, readSync, writeFileSync, writeSync } from "node:fs";
 import { constants as osConstants } from "node:os";
 import { basename, dirname, isAbsolute, join, resolve } from "node:path";
@@ -19,6 +20,10 @@ const SERIAL = /^[A-Za-z0-9._:-]+$/;
 const APP = "com.bringyour.network";
 const TEST = `${APP}.test`;
 const ABI = "arm64-v8a";
+const PIXEL_WIFI_SCOPE = "hosted-h1-memsteady-pixel-wifi2-v1";
+const PIXEL_WIFI_SELECTION_POLICY = "pixel-wifi-build-only";
+const BUILD_ID = /^[A-Za-z0-9][A-Za-z0-9._-]{0,199}$/;
+const SHA256 = /^[a-f0-9]{64}$/;
 const MAX_VERSION_CODE = 2147483647;
 class PairError extends Error {}
 const fail = reason => { throw new PairError(reason); };
@@ -109,8 +114,31 @@ export function parseInstalledVersions(raw) {
   return versions;
 }
 
-export function observeDevices(dependencies = {}) {
-  const devices = performanceSerials(dependencies).map(serial => {
+// Scope binds the same build owner and ordered reservation Go admitted. The
+// hash and selected serial stay in private evidence and command arguments.
+function hasApkScope(options) {
+  return Object.hasOwn(options, "apk-scope") || Object.hasOwn(options, "reservation-sha256");
+}
+
+function deviceSelection(dependencies, options) {
+  const serials = performanceSerials(dependencies);
+  if (!hasApkScope(options)) return { serials, version: 1, fields: {} };
+  const buildId = options["build-id"];
+  const expected = options["reservation-sha256"];
+  if (options["apk-scope"] !== PIXEL_WIFI_SCOPE || typeof buildId !== "string" || !BUILD_ID.test(buildId) ||
+      typeof expected !== "string" || !SHA256.test(expected) || serials.length !== 2 ||
+      serials.some(serial => serial.startsWith("-"))) fail("pixel-apk-reservation-required");
+  const reservationSha256 = createHash("sha256").update([PIXEL_WIFI_SCOPE, buildId, ...serials].join("\0")).digest("hex");
+  if (reservationSha256 !== expected) fail("pixel-apk-reservation-changed");
+  return { serials: [serials[0]], version: 2, fields: { apkScope: PIXEL_WIFI_SCOPE, buildId, reservationSha256 } };
+}
+
+export function observeDevices(dependencies = {}, options = {}) {
+  return observeSelectedDevices(deviceSelection(dependencies, options), dependencies);
+}
+
+function observeSelectedDevices(selection, dependencies) {
+  const devices = selection.serials.map(serial => {
     if (invoke("adb", ["-s", serial, "get-state"], dependencies, "adb-get-state").trim() !== "device") fail("performance-device-offline");
     const abis = invoke("adb", ["-s", serial, "shell", "getprop", "ro.product.cpu.abilist"], dependencies, "adb-abi").trim().split(",");
     if (!abis.includes(ABI) || abis.some(value => !/^[a-z0-9_-]+$/.test(value))) fail("performance-device-abi-unavailable");
@@ -118,11 +146,20 @@ export function observeDevices(dependencies = {}) {
       "--show-versioncode", APP], dependencies, "adb-package-versions"));
     return { serial, abis, versions };
   });
-  return { type: "physical-apk-devices", schemaVersion: 1, observedAtUnixMs: (dependencies.now ?? Date.now)(), devices };
+  return { type: "physical-apk-devices", schemaVersion: selection.version, ...selection.fields,
+    observedAtUnixMs: (dependencies.now ?? Date.now)(), devices };
 }
 
-function validateDevices(observed, serials) {
-  if (observed?.type !== "physical-apk-devices" || observed.schemaVersion !== 1 ||
+function hasScopedObservation(observed) {
+  return Object.hasOwn(observed, "schemaVersion") && observed.schemaVersion !== 1 ||
+    ["apkScope", "buildId", "reservationSha256"].some(key => Object.hasOwn(observed, key));
+}
+
+function validateDevices(observed, selection) {
+  const { serials, version, fields } = selection;
+  if (observed?.type !== "physical-apk-devices" || observed.schemaVersion !== version ||
+      (version === 1 && hasScopedObservation(observed)) ||
+      Object.entries(fields).some(([key, value]) => observed[key] !== value) ||
       !Number.isFinite(observed.observedAtUnixMs) || !Array.isArray(observed.devices) || observed.devices.length !== serials.length ||
       serials.some(serial => observed.devices.filter(device => device.serial === serial).length !== 1) ||
       observed.devices.some(device => !Array.isArray(device.abis) || !device.abis.includes(ABI) || !device.versions ||
@@ -131,7 +168,7 @@ function validateDevices(observed, serials) {
 }
 
 export function selectCandidates(appMetadata, testMetadata, observed, dependencies = {}) {
-  validateDevices(observed, performanceSerials(dependencies));
+  validateDevices(observed, deviceSelection(dependencies, {}));
   const floors = Object.fromEntries(["app", "test"].map(key =>
     [key, Math.max(0, ...observed.devices.map(device => device.versions[key] ?? 0))]));
   return selectMetadata(appMetadata, testMetadata, floors);
@@ -219,13 +256,15 @@ function retainApk(source, destination) {
 
 export function selectAndRetainPair(options, dependencies = {}) {
   const mode = options.mode ?? "select";
-  if (!["select", "retain-build"].includes(mode)) fail("explicit-apk-pair-arguments-required");
+  const scoped = hasApkScope(options);
+  if (!["select", "retain-build"].includes(mode) || (scoped && mode !== "retain-build")) fail("explicit-apk-pair-arguments-required");
   const binding = freshOutput(options.output);
   const destinations = [options["app-output"], options["test-output"], options.output];
   requireArtifactPaths(binding, destinations);
   if (new Set(destinations.map(path => resolve(path))).size !== 3 || destinations.some(existsSync)) fail("fresh-apk-evidence-required");
-  if (!/^[A-Za-z0-9][A-Za-z0-9._-]{0,199}$/.test(options["build-id"])) fail("explicit-acceptance-build-id-required");
-  const observed = validateDevices(readJson(options.observed, true), performanceSerials(dependencies));
+  if (typeof options["build-id"] !== "string" || !BUILD_ID.test(options["build-id"])) fail("explicit-acceptance-build-id-required");
+  const selection = deviceSelection(dependencies, options);
+  const observed = validateDevices(readJson(options.observed, true), selection);
   const appMetadata = readJson(options["app-metadata"]); const testMetadata = readJson(options["test-metadata"]);
   const selected = mode === "retain-build" ? selectMetadata(appMetadata, testMetadata, null) :
     selectCandidates(appMetadata, testMetadata, observed, dependencies);
@@ -239,19 +278,27 @@ export function selectAndRetainPair(options, dependencies = {}) {
       packageName: key === "app" ? APP : TEST, outputType: selected[key].type };
     verifyManifest(options.aapt, artifacts[key].path, selected[key], artifacts[key].packageName, dependencies, `aapt-${key}-retained-manifest`);
   }
-  const report = { type: "physical-apk-pair", schemaVersion: 1, buildId: options["build-id"], abi: ABI,
+  const report = { type: "physical-apk-pair", schemaVersion: selection.version, buildId: options["build-id"], abi: ABI,
     variantName: appMetadata.variantName, observed, ...artifacts };
-  if (mode === "retain-build") Object.assign(report, { selectionPolicy: "build-only", installQualified: false });
+  if (scoped) report.apkScope = PIXEL_WIFI_SCOPE;
+  if (mode === "retain-build") Object.assign(report, {
+    selectionPolicy: scoped ? PIXEL_WIFI_SELECTION_POLICY : "build-only", installQualified: false,
+  });
   publish(options.output, report, binding);
   return report;
 }
 
-export function checkPair(selectionPath, dependencies = {}) {
+export function checkPair(selectionPath, dependencies = {}, options = {}) {
+  const scoped = hasApkScope(options);
+  const selectionSha256 = scoped ? hashNativeInputFile(selectionPath).sha256 : undefined;
   const pair = readJson(selectionPath, true);
   const binding = prepareArtifactDirectory(dirname(selectionPath));
-  if (pair?.type !== "physical-apk-pair" || pair.schemaVersion !== 1 || pair.abi !== ABI) fail("retained-apk-pair-required");
-  if (Object.hasOwn(pair, "selectionPolicy") &&
-      (pair.selectionPolicy !== "build-only" || pair.installQualified !== false)) fail("retained-apk-pair-required");
+  if (pair?.type !== "physical-apk-pair" || pair.schemaVersion !== (scoped ? 2 : 1) || pair.abi !== ABI ||
+      (scoped ? pair.apkScope !== PIXEL_WIFI_SCOPE || pair.buildId !== options["build-id"] :
+        Object.hasOwn(pair, "apkScope") || hasScopedObservation(pair.observed ?? {}))) fail("retained-apk-pair-required");
+  if ((scoped || Object.hasOwn(pair, "selectionPolicy")) &&
+      (pair.selectionPolicy !== (scoped ? PIXEL_WIFI_SELECTION_POLICY : "build-only") ||
+       pair.installQualified !== false)) fail("retained-apk-pair-required");
   for (const key of ["app", "test"]) {
     const artifact = pair[key];
     if (!artifact || artifact.packageName !== (key === "app" ? APP : TEST) || !code(artifact.versionCode) ||
@@ -260,35 +307,46 @@ export function checkPair(selectionPath, dependencies = {}) {
     const stat = lstatSync(artifact.path);
     if (stat.uid !== process.getuid() || (stat.mode & 0o7777) !== 0o600) fail("private-apk-evidence-required");
   }
-  const current = observeDevices(dependencies);
+  const selection = deviceSelection(dependencies, options);
+  if (scoped) validateDevices(pair.observed, selection);
+  const current = observeSelectedDevices(selection, dependencies);
   for (const key of ["app", "test"]) {
     if (current.devices.some(device => (device.versions[key] ?? 0) > pair[key].versionCode)) fail(`${key}-apk-would-downgrade`);
   }
-  return { type: "physical-apk-install-preflight", schemaVersion: 1, eligible: true,
+  if (scoped && hashNativeInputFile(selectionPath).sha256 !== selectionSha256) fail("retained-apk-pair-changed");
+  return { type: "physical-apk-install-preflight", schemaVersion: selection.version, eligible: true,
+    ...(scoped ? { apkScope: PIXEL_WIFI_SCOPE, selectionSha256 } : {}),
     buildId: pair.buildId, appVersionCode: pair.app.versionCode, testVersionCode: pair.test.versionCode, observed: current };
 }
 
 export function parseArgs(argv) {
   const mode = argv[0];
-  const keys = mode === "observe" ? ["output"] : ["select", "retain-build"].includes(mode) ? ["observed", "app-metadata", "test-metadata", "build-id",
-    "aapt", "app-output", "test-output", "output"] : mode === "check" ? ["selection", "output"] : [];
-  if (!keys.length || argv.length !== keys.length * 2 + 1) fail("explicit-apk-pair-arguments-required");
+  const required = mode === "observe" ? ["output"] : ["select", "retain-build"].includes(mode) ?
+    ["observed", "app-metadata", "test-metadata", "build-id", "aapt", "app-output", "test-output", "output"] :
+    mode === "check" ? ["selection", "output"] : [];
+  if (!required.length || argv.length % 2 !== 1) fail("explicit-apk-pair-arguments-required");
+  const allowed = mode === "select" ? required : [...required, "apk-scope", "reservation-sha256", "build-id"];
   const options = { mode };
   for (let index = 1; index < argv.length; index += 2) {
     const key = argv[index].slice(2); const value = argv[index + 1];
-    if (!argv[index].startsWith("--") || !keys.includes(key) || options[key] !== undefined || !value || value.startsWith("--") ||
-        key !== "build-id" && !isAbsolute(value)) fail("explicit-apk-pair-arguments-required");
+    if (!argv[index].startsWith("--") || !allowed.includes(key) || options[key] !== undefined ||
+        !value || value.startsWith("--") ||
+        (!["build-id", "apk-scope", "reservation-sha256"].includes(key) && !isAbsolute(value))) fail("explicit-apk-pair-arguments-required");
     options[key] = value;
   }
+  if (required.some(key => !Object.hasOwn(options, key)) ||
+      (hasApkScope(options) ? options["apk-scope"] !== PIXEL_WIFI_SCOPE ||
+        !SHA256.test(options["reservation-sha256"] ?? "") || !BUILD_ID.test(options["build-id"] ?? "") :
+        !required.includes("build-id") && Object.hasOwn(options, "build-id"))) fail("explicit-apk-pair-arguments-required");
   return options;
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   try {
     const options = parseArgs(process.argv.slice(2)); const binding = freshOutput(options.output);
-    if (options.mode === "observe") publish(options.output, observeDevices(), binding);
+    if (options.mode === "observe") publish(options.output, observeDevices({}, options), binding);
     else if (["select", "retain-build"].includes(options.mode)) selectAndRetainPair(options);
-    else publish(options.output, checkPair(options.selection), binding);
+    else publish(options.output, checkPair(options.selection, {}, options), binding);
     process.stdout.write(`${JSON.stringify(options.mode === "retain-build" ?
       { eligible: false, buildAttested: true, installQualified: false, classification: "APK_PAIR_BUILD_ONLY" } :
       { eligible: true, classification: "APK_PAIR_VERSION_CHECKED" })}\n`);
