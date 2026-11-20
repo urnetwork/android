@@ -158,7 +158,8 @@ class BittensorLoginController(
                     proof = proof,
                     networkJwt = result?.network?.byJwt,
                     unlinkedWallet = result?.walletAuth != null,
-                    errorMessage = err?.message ?: result?.error?.message,
+                    errorMessage = err?.message
+                        ?: result?.error?.let { signInErrorMessage(application, it.code, it.message) },
                     errorCode = result?.error?.code,
                 )
                 if (next is BittensorLoginNext.SignedIn) {

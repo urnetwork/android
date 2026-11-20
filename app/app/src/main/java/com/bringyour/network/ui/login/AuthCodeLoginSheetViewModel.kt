@@ -1,6 +1,7 @@
 package com.bringyour.network.ui.login
 
 import com.bringyour.network.ui.connection_region.CantReachPrompt
+import android.content.Context
 import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -13,6 +14,7 @@ import com.bringyour.sdk.Api
 import com.bringyour.sdk.AuthCodeLoginArgs
 import com.bringyour.sdk.AuthCodeLoginResult
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -23,7 +25,10 @@ typealias AuthCodeLoginFunction = (
 ) -> Unit
 
 @HiltViewModel
-class AuthCodeLoginSheetViewModel @Inject constructor(): ViewModel() {
+class AuthCodeLoginSheetViewModel @Inject constructor(
+    // the refusal's message at the network's cap of active sessions
+    @ApplicationContext private val context: Context,
+): ViewModel() {
 
     var authCode by mutableStateOf(TextFieldValue())
         private set
@@ -83,8 +88,9 @@ class AuthCodeLoginSheetViewModel @Inject constructor(): ViewModel() {
 
                     if (result.error != null) {
                         Log.i(TAG, "authCodeLogin result.err: ${result.error.message}")
-                        authCodeLoginError = result.error.message
-                        onErr(result.error.message)
+                        val errorMessage = signInErrorMessage(context, result.error.code, result.error.message)
+                        authCodeLoginError = errorMessage
+                        onErr(errorMessage)
                         isLoading = false
                         return@launch
                     }

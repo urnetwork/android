@@ -47,6 +47,8 @@ import com.bringyour.network.ui.login.appleOAuthUserName
 import com.bringyour.network.ui.login.isAppleOAuthReturn
 import com.bringyour.network.ui.login.ssoJwtPayload
 import com.bringyour.network.ui.login.requestBittensorChallenge
+import com.bringyour.network.ui.login.signInClientFailureMessage
+import com.bringyour.network.ui.login.signInErrorMessage
 import com.bringyour.network.ui.wallet.SnWalletConnectExtras
 import com.bringyour.network.ui.wallet.Top200Bindings
 import com.bringyour.network.ui.wallet.forwardTop200SignLink
@@ -298,7 +300,8 @@ class LoginActivity : AppCompatActivity() {
             val request = app.beginLoginRequest() ?: return
             request.api.authCodeLogin(args) { result, err ->
 
-                val loginJwt = result?.jwt
+                // a refused code has its error and no jwt
+                val loginJwt = result?.takeIf { it.error == null }?.jwt?.takeIf(String::isNotEmpty)
 
                 if (err == null && loginJwt != null) {
 
@@ -370,7 +373,13 @@ class LoginActivity : AppCompatActivity() {
                     }
 
                 } else {
-                    app.dispatchLoginResult(request) { isLoadingAuthCode = false }
+                    // the session limit says what to do on the sign-in screen's
+                    // error line; any other failure shows nothing here, as before
+                    val sessionLimitMessage = signInErrorMessage(this@LoginActivity, result?.error?.code, null)
+                    app.dispatchLoginResult(request) {
+                        isLoadingAuthCode = false
+                        sessionLimitMessage?.let { loginViewModel.setLoginError(it) }
+                    }
                     Log.i(TAG, "authCodeLogin: error: result is: $result")
                 }
 
@@ -499,7 +508,7 @@ class LoginActivity : AppCompatActivity() {
                         loginViewModel.setLoginError(err.message)
                     } else if (resultError != null) {
                         isLoadingAuthCode = false
-                        loginViewModel.setLoginError(resultError.message)
+                        loginViewModel.setLoginError(signInErrorMessage(this@LoginActivity, resultError.code, resultError.message))
                     } else if (result == null) {
                         isLoadingAuthCode = false
                         loginViewModel.setLoginError(getString(R.string.login_error))
@@ -606,7 +615,7 @@ class LoginActivity : AppCompatActivity() {
                         loginViewModel.setLoginError(err.message)
                     } else if (resultError != null) {
                         isLoadingAuthCode = false
-                        loginViewModel.setLoginError(resultError.message)
+                        loginViewModel.setLoginError(signInErrorMessage(this@LoginActivity, resultError.code, resultError.message))
                     } else if (result?.walletAuth != null) {
                         loginViewModel.setLoginError(null)
                         val api = app.api
@@ -725,6 +734,8 @@ class LoginActivity : AppCompatActivity() {
                 if (!app.ownsLoginRequest(request)) return@launch
                 if (completion is LoginClientCompletion.Failed) {
                     welcomeOverlayVisible = false
+                    // the session limit says what to do on the sign-in screen's error line
+                    signInClientFailureMessage(app, completion)?.let { loginViewModel.setLoginError(it) }
                     callback(completion.message ?: getString(R.string.login_client_error))
                     return@launch
                 }

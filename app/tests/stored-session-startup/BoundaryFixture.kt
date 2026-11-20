@@ -56,11 +56,15 @@ internal class LocalState : AutoCloseable {
     val instanceId: String?
         get() = runCatching { read(); instance }.getOrNull()
 
+    // the sdk's account sign-in requirement: the account's sign-in was
+    // rejected while the device stayed signed in on its client
+    var accountSignInRequired = false
+
     val authStateSnapshot: AuthSnapshot
         get() {
             checkedReads += 1
             read()
-            return AuthSnapshot(admin, client, validAdmin)
+            return AuthSnapshot(admin, client, validAdmin, accountSignInRequired && admin.isEmpty() && client.isNotEmpty())
         }
 
     fun parseByJwt(): Any? = byJwt.takeIf { it.isNotEmpty() && validAdmin }
@@ -86,7 +90,12 @@ internal class LocalState : AutoCloseable {
     override fun close() { directory.deleteRecursively() }
 }
 
-internal class AuthSnapshot(private val admin: String, val byClientJwt: String, private val valid: Boolean) {
+internal class AuthSnapshot(
+    private val admin: String,
+    val byClientJwt: String,
+    private val valid: Boolean,
+    val accountSignInRequired: Boolean = false,
+) {
     fun parseByJwt(): Any? = admin.takeIf { it.isNotEmpty() && valid }
 }
 

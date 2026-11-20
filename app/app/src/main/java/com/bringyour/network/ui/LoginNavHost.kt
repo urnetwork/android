@@ -59,6 +59,7 @@ import com.bringyour.network.ui.login.SignInNotice
 import com.bringyour.network.ui.login.SignInNoticeAlert
 import com.bringyour.network.ui.login.SwitchAccountScreen
 import com.bringyour.network.ui.login.VerifySendError
+import com.bringyour.network.ui.login.signInClientFailureMessage
 import com.bringyour.network.ui.login.toWalletCreateBundle
 import com.bringyour.network.ui.shared.viewmodels.OverlayViewModel
 import com.solana.mobilewalletadapter.clientlib.ActivityResultSender
@@ -132,7 +133,8 @@ fun LoginNavHost(
                         currentNetworkName = currentNetworkName,
                         targetJwt = targetJwt,
                         request = targetLoginRequest,
-                        setSwitchAccount = { switchAccount = it }
+                        setSwitchAccount = { switchAccount = it },
+                        setLoginError = loginViewModel.setLoginError,
                     )
                 } else {
                     NavHost(
@@ -368,9 +370,11 @@ fun LoginNavHost(
                                                     "LoginNavHost",
                                                     "auth client finish err: ${completion.message}",
                                                 )
+                                                // the session limit says what to do
                                                 android.widget.Toast.makeText(
                                                     context,
-                                                    context.getString(R.string.error_logging_in_please_try_again),
+                                                    signInClientFailureMessage(context, completion)
+                                                        ?: context.getString(R.string.error_logging_in_please_try_again),
                                                     android.widget.Toast.LENGTH_LONG,
                                                 ).show()
                                                 welcomeVisible = false

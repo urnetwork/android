@@ -197,10 +197,11 @@ fun LoginVerify(
                         code = List(codeLength) { "" }
                     }
                 } else if (result.error != null) {
+                    val errorMessage = signInErrorMessage(context, result.error.code, result.error.message)
                     scope.launch {
                         if (!application.ownsLoginRequest(request)) return@launch
                         verifyInProgress = false
-                        verifyError = result.error.message
+                        verifyError = errorMessage
                         code = List(codeLength) { "" }
                     }
                 } else if (result.network != null && result.network.byJwt.isNotEmpty()) {

@@ -75,6 +75,25 @@ class StoredSessionStartupBoundaryTest {
         }
     }
 
+    // The sdk keeps a device signed in on its client when the server rejects
+    // only the account's sign-in (AccountSignInRequired), until the next
+    // sign-in or sign-out: such a client-only state starts the device, which
+    // reports the account sign-in notice again. Any other client-only state
+    // still does not (below).
+    @Test
+    fun aClientKeptAfterTheAccountSignInWasRejectedStartsTheDevice() {
+        LocalState().use { store ->
+            store.byJwt = ""
+            store.accountSignInRequired = true
+            val app = MainApplicationFixture(store)
+            val saved = store.savedFiles()
+            app.restore()
+            assertEquals(1, app.initializationCalls)
+            assertEquals(0, store.logoutCalls)
+            assertEquals(saved, store.savedFiles())
+        }
+    }
+
     @Test
     fun emptyPartialAndMalformedStoredAuthenticationDoNotDeleteSettings() {
         listOf("empty", "admin-only", "client-only", "malformed-admin").forEach { kind ->

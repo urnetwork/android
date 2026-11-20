@@ -49,6 +49,7 @@ import com.bringyour.network.ui.login.VerifySendNotice
 import com.bringyour.network.ui.login.launchAppleOAuth
 import com.bringyour.network.ui.login.launchBittensorBridge
 import com.bringyour.network.ui.login.requestAndSignSolanaChallenge
+import com.bringyour.network.ui.login.signedInErrorMessage
 import com.bringyour.network.ui.login.solanaWalletFailureText
 import com.bringyour.network.ui.login.ssoJwtPayload
 import com.bringyour.network.ui.login.ssoOAuthAttempts
@@ -148,14 +149,17 @@ fun AddAuthMethodSheet(
                     val args = AuthVerifyArgs()
                     args.userAuth = userAuth
                     args.verifyCode = code
-                    // the jwt in the result is not installed: the session stays on this network
+                    // the jwt in the result is not installed: the session stays on this network.
+                    // The server still mints one, so the network's cap of active sessions
+                    // can refuse it (sessions_limit_reached: this device is signed in)
                     api.authVerify(args) { result, err ->
                         scope.launch {
                             done(
                                 when {
                                     err != null -> err.message ?: verifyErrMsg
                                     result == null -> verifyErrMsg
-                                    result.error != null -> result.error.message ?: verifyErrMsg
+                                    result.error != null ->
+                                        signedInErrorMessage(context, result.error.code, result.error.message) ?: verifyErrMsg
                                     else -> null
                                 }
                             )

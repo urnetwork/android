@@ -182,28 +182,104 @@ class SessionsWiringTest {
         val res = moduleFile("src/main/res/values/strings.xml").parentFile!!.parentFile!!
         val english = strings(File(res, "values"))
         val keys = english.keys.filter { it.startsWith("sessions_") }
-        // with sessions_sign_out_others_failed and sessions_sign_in_required
-        assertEquals(46, keys.size)
+        // with sessions_sign_out_others_failed and sessions_sign_in_required,
+        // and session1118's 13 (C.md §4: the groups, their row labels, Show
+        // more, the hosted proxy bodies, the refusal at the cap, signed out
+        // and signed in, and the browser extension's label)
+        assertEquals(59, keys.size)
+        assertTrue(english.containsKey("sessions_limit_reached"))
+        // the site's own key is not in the app's catalogs
+        assertFalse(english.containsKey("sessions_open"))
 
         val locales = res.listFiles { file -> file.name.startsWith("values-") }!!
             .filter { File(it, "strings.xml").exists() }
         assertTrue(locales.isNotEmpty())
         val missing = locales.flatMap { locale ->
             val translated = strings(locale)
-            keys.filter { translated[it].isNullOrEmpty() }.map { "${locale.name}/$it" }
+            (keys + "manage_devices_proxy").filter { translated[it].isNullOrEmpty() }.map { "${locale.name}/$it" }
         }
         assertTrue("not translated: $missing", missing.isEmpty())
 
-        // every key is looked up; the remote sign-out explanation also by the
-        // sign-in screen's notice
+        // every key is looked up: the screen's, and the sign-in screens'
+        // refusal at the network's cap of active sessions, all through one
+        // helper; the remote sign-out explanation also by the sign-in
+        // screen's notice
         val sources = listOf(
             "ui/account/SessionsScreen.kt",
             "ui/account/SessionsPresentation.kt",
             "ui/account/AccountScreen.kt",
+            "ui/login/SessionLimitSignIn.kt",
         ).joinToString("\n") { source(it) }
         val unused = keys.filter { !sources.contains("R.string.$it") }
         assertEquals(listOf<String>(), unused)
         assertTrue(source("ui/login/SignInNotice.kt").contains("R.string.sessions_signed_out_remotely"))
+        // a hosted proxy's row reads as the Manage devices list names it
+        assertTrue(source("ui/account/SessionsPresentation.kt").contains("R.string.manage_devices_proxy"))
+    }
+
+    @Test
+    fun theForegroundGoesToTheControllerAndOnlyTheScreensEndClosesIt() {
+        val viewModel = source("ui/account/SessionsViewModel.kt")
+        assertTrue(viewModel.contains("override fun setForeground(foreground: Boolean) = controller.setForeground(foreground)"))
+        // the process lifecycle is forwarded, not used to close
+        assertTrue(between(viewModel, "override fun onStop(owner: LifecycleOwner) {", "}").contains("model.setForeground(false)"))
+
+        val model = source("ui/account/SessionsScreenModel.kt")
+        val foreground = between(model, "fun setForeground(nextForeground: Boolean) {", "\n    }\n")
+        assertTrue(foreground.contains("controller?.setForeground(nextForeground)"))
+        assertFalse(foreground.contains("close("))
+        // the model no longer takes the provider screen's open-in-the-foreground owner
+        assertFalse(model.contains("VisibleDeviceControllerOwner"))
+    }
+
+    @Test
+    fun theSnapshotsGroupsAndCountsReachTheScreen() {
+        val viewModel = source("ui/account/SessionsViewModel.kt")
+        val copy = between(viewModel, "return SessionsSnapshot(", "\n    )\n")
+        for (field in listOf(
+            "sessions = sessions(snapshot.sessions),",
+            "sessionCount = snapshot.sessionCount,",
+            "sessionsHasMore = snapshot.sessionsHasMore,",
+            "groups = groups,",
+            "otherSessionCount = snapshot.otherSessionCount,",
+            "truncated = snapshot.truncated,",
+        )) {
+            assertTrue(field, copy.contains(field))
+        }
+        val group = between(viewModel, "SessionGroupEntry(", "\n        )\n")
+        for (field in listOf("kind = value.kind", "count = value.count", "expanded = value.expanded", "sessions = sessions(value.sessions)", "hasMore = value.hasMore")) {
+            assertTrue(field, group.contains(field))
+        }
+        assertTrue(viewModel.contains("override fun setGroupExpanded(kind: String, expanded: Boolean) = controller.setGroupExpanded(kind, expanded)"))
+        assertTrue(viewModel.contains("override fun showMoreSessions(kind: String) = controller.showMoreSessions(kind)"))
+    }
+
+    @Test
+    fun aGroupIsAnExpandableHeaderAndEachSectionOffersShowMore() {
+        val screen = source("ui/account/SessionsScreen.kt")
+        val rows = between(screen, "SessionsBody.Rows -> {", "ui.signOutOthers?.let { others ->")
+        // the device sign-ins' Show more is the sdk's sign-ins section
+        assertTrue(rows.contains("if (ui.rowsHaveMore) {"))
+        assertTrue(rows.contains("onShowMore(Sdk.ClientSessionGroupSignIns)"))
+        // each group: its header toggles it, and an open group's Show more is its own
+        assertTrue(rows.contains("for (group in ui.groups) {"))
+        assertTrue(rows.contains("onToggle = { onSetGroupExpanded(group.kind, !group.expanded) },"))
+        assertTrue(rows.contains("sessionRows(group.rows, ui.nowMillis, text, onSignOut)"))
+        assertTrue(rows.contains("if (group.hasMore) {"))
+        assertTrue(rows.contains("onShowMore(group.kind)"))
+        assertTrue(screen.contains("onSetGroupExpanded = viewModel::setGroupExpanded,"))
+        assertTrue(screen.contains("onShowMore = viewModel::showMoreSessions,"))
+
+        // the header reads its state and offers expand or collapse
+        val header = between(screen, "private fun SessionGroupHeader(", "\n}\n")
+        assertTrue(header.contains(".clickable(onClick = onToggle)"))
+        assertTrue(header.contains(".expandableRow(expanded = group.expanded, onToggle = onToggle)"))
+        assertTrue(header.contains("sessionGroupHeader(group, text)"))
+        // rows of every section are lazy items keyed by session
+        assertTrue(between(screen, "private fun LazyListScope.sessionRows(", "\n}\n").contains("items(rows, key = { it.key }) { row ->"))
+
+        // the sign out of the others says when hosted proxies stay
+        assertTrue(screen.contains("body = stringResource(id = ui.signOutOthers?.confirmBodyRes ?: R.string.sessions_confirm_others_body),"))
     }
 
     @Test

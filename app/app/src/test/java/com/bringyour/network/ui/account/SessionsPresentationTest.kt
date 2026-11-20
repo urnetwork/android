@@ -1,7 +1,9 @@
 package com.bringyour.network.ui.account
 
 import com.bringyour.network.R
+import com.bringyour.sdk.Sdk
 import java.io.File
+import java.text.NumberFormat
 import java.util.Locale
 import javax.xml.parsers.DocumentBuilderFactory
 import org.junit.Assert.assertEquals
@@ -13,11 +15,13 @@ import org.junit.Test
 import org.w3c.dom.Element
 
 /**
- * Account -> Sessions as data (REVOKE-UI-FINAL.md §3-§5, §10): the device and
- * method labels, the country color, the row lines in English, the body states,
- * the sign out actions and the confirmation text, from snapshots of a fake
- * controller. The platform's date formats are replaced by tagged stand-ins so
- * the tests show which time feeds which text.
+ * Account -> Sessions as data (REVOKE-UI-FINAL.md §3-§5, §10, and the list at
+ * scale of session1118 C.md §5 C): the device and method labels, the country
+ * color, the row lines in English, the body states, Show more, the client
+ * groups with their counts and row labels, the sign out actions and the
+ * confirmation text, from snapshots of a fake controller. The platform's date
+ * formats are replaced by tagged stand-ins so the tests show which time feeds
+ * which text; counts use the US integer format.
  */
 class SessionsPresentationTest {
 
@@ -57,6 +61,8 @@ class SessionsPresentationTest {
         override fun signedIn(timeMillis: Long) = "<date $timeMillis>"
 
         override fun dateTime(timeMillis: Long) = "<date and time $timeMillis>"
+
+        override fun count(value: Long): String = NumberFormat.getIntegerInstance(Locale.US).format(value)
     }
 
     private val nowMillis = 1_800_000_000_000L
@@ -85,19 +91,41 @@ class SessionsPresentationTest {
         lastUse = lastUse,
     )
 
+    // a loaded snapshot as the sdk lays it out; without groups Sign out all
+    // other sessions signs out every sign-in but the current one
     private fun loaded(
         vararg sessions: SessionEntry,
         actions: List<SessionActionState> = listOf(),
         bulkAction: SessionActionState? = null,
         legacyCoverage: String = "complete",
+        groups: List<SessionGroupEntry> = listOf(),
+        otherSessionCount: Long = sessions.count { !it.current }.toLong(),
     ) = SessionsSnapshot.Initial.copy(
         sessions = sessions.toList(),
+        sessionCount = sessions.size.toLong(),
+        groups = groups,
+        otherSessionCount = otherSessionCount,
         currentSessionId = sessions.firstOrNull { it.current }?.sessionId,
         legacyCoverage = legacyCoverage,
         loaded = true,
         actions = actions,
         bulkAction = bulkAction,
     )
+
+    // a client's own session: a hosted proxy's, say, which last used the server
+    private fun clientSession(index: Int, kind: String = "legacy_proxy") = session(
+        10 + index,
+        kind = kind,
+        lastUse = lastUse(deviceType = "server", appVersion = ""),
+    )
+
+    private fun group(
+        kind: String,
+        count: Long,
+        expanded: Boolean = false,
+        sessions: List<SessionEntry> = listOf(),
+        hasMore: Boolean = false,
+    ) = SessionGroupEntry(kind = kind, count = count, expanded = expanded, sessions = sessions, hasMore = hasMore)
 
     private fun row(snapshot: SessionsSnapshot, index: Int = 0) = sessionsUi(snapshot, nowMillis).rows[index]
 
@@ -110,6 +138,7 @@ class SessionsPresentationTest {
             "windows" to Triple(SessionDevice.Windows, R.string.sessions_device_windows, R.drawable.device_windows),
             "linux" to Triple(SessionDevice.Linux, R.string.sessions_device_linux, R.drawable.device_linux),
             "web" to Triple(SessionDevice.Web, R.string.sessions_device_web, R.drawable.device_web),
+            "extension" to Triple(SessionDevice.Extension, R.string.sessions_device_extension, R.drawable.device_web),
             "cli" to Triple(SessionDevice.Cli, R.string.sessions_device_cli, R.drawable.device_cli),
             "server" to Triple(SessionDevice.Server, R.string.sessions_device_server, R.drawable.device_server),
             "unknown" to Triple(SessionDevice.Unknown, R.string.sessions_device_unknown, R.drawable.device_unknown),
@@ -295,11 +324,275 @@ class SessionsPresentationTest {
     }
 
     @Test
-    fun signOutOfAllOthersNeedsTheCurrentSessionAndAnother() {
+    fun signOutOfAllOthersNeedsTheCurrentSessionAndAnotherItSignsOut() {
         assertNotNull(sessionsUi(loaded(session(0, current = true), session(1)), nowMillis).signOutOthers)
         assertNull(sessionsUi(loaded(session(0, current = true)), nowMillis).signOutOthers)
         assertNull(sessionsUi(loaded(session(0), session(1)), nowMillis).signOutOthers)
         assertNull(sessionsUi(loaded(), nowMillis).signOutOthers)
+
+        // the sdk's count decides, not the rows: besides this session only hosted
+        // proxies, which the sign out keeps
+        val proxies = listOf(group(Sdk.ClientSessionGroupHostedProxies, count = 3))
+        assertNull(
+            sessionsUi(loaded(session(0, current = true), groups = proxies, otherSessionCount = 0), nowMillis).signOutOthers
+        )
+        // an API client in a collapsed group, which shows no row, is signed out
+        val apiClients = listOf(group(Sdk.ClientSessionGroupApiClients, count = 1))
+        assertNotNull(
+            sessionsUi(loaded(session(0, current = true), groups = apiClients, otherSessionCount = 1), nowMillis).signOutOthers
+        )
+    }
+
+    @Test
+    fun signOutOfAllOthersSaysWhenHostedProxiesStaySignedIn() {
+        val current = session(0, current = true)
+        val plain = sessionsUi(loaded(current, session(1)), nowMillis).signOutOthers!!
+        assertFalse(plain.keepsHostedProxies)
+        assertEquals(R.string.sessions_confirm_others_body, plain.confirmBodyRes)
+
+        val withProxies = sessionsUi(
+            loaded(
+                current,
+                session(1),
+                groups = listOf(
+                    group(Sdk.ClientSessionGroupHostedProxies, count = 40),
+                    group(Sdk.ClientSessionGroupApiClients, count = 2),
+                ),
+                otherSessionCount = 3,
+            ),
+            nowMillis,
+        ).signOutOthers!!
+        assertTrue(withProxies.keepsHostedProxies)
+        assertEquals(R.string.sessions_confirm_others_body_keeps_proxies, withProxies.confirmBodyRes)
+        assertEquals(
+            "Every other session in this list will be signed out, except hosted proxies. This session stays signed in. Anyone who knows your sign-in details can still sign in again.",
+            EnglishText.string(withProxies.confirmBodyRes),
+        )
+
+        // other groups alone keep the plain body
+        val withoutProxies = sessionsUi(
+            loaded(current, groups = listOf(group(Sdk.ClientSessionGroupPairedDevices, count = 2)), otherSessionCount = 2),
+            nowMillis,
+        ).signOutOthers!!
+        assertEquals(R.string.sessions_confirm_others_body, withoutProxies.confirmBodyRes)
+    }
+
+    @Test
+    fun everyGroupKindHasItsHeaderAndRowLabel() {
+        // the sdk's group kinds (client_session_view_controller.go)
+        assertEquals("sign_ins", Sdk.ClientSessionGroupSignIns)
+        assertEquals("hosted_proxies", Sdk.ClientSessionGroupHostedProxies)
+        assertEquals("api_clients", Sdk.ClientSessionGroupApiClients)
+        assertEquals("paired_devices", Sdk.ClientSessionGroupPairedDevices)
+        assertEquals("other_clients", Sdk.ClientSessionGroupOtherClients)
+
+        val expected = mapOf(
+            Sdk.ClientSessionGroupHostedProxies to Triple(SessionClientGroup.HostedProxies, "Hosted proxies (%1\$s)", "Hosted proxy"),
+            Sdk.ClientSessionGroupApiClients to Triple(SessionClientGroup.ApiClients, "API clients (%1\$s)", "API client"),
+            Sdk.ClientSessionGroupPairedDevices to Triple(SessionClientGroup.PairedDevices, "Paired devices (%1\$s)", "Paired device"),
+            Sdk.ClientSessionGroupOtherClients to Triple(SessionClientGroup.OtherClients, "Other clients (%1\$s)", "Other client"),
+        )
+        for ((kind, labelled) in expected) {
+            val group = SessionClientGroup.fromKind(kind)
+            assertEquals(kind, labelled.first, group)
+            assertEquals(kind, labelled.second, english[name(group.headerRes)])
+            assertEquals(kind, labelled.third, EnglishText.string(group.rowLabelRes))
+        }
+        assertEquals(SessionClientGroup.entries.size, expected.size)
+        assertEquals(R.string.manage_devices_proxy, SessionClientGroup.HostedProxies.rowLabelRes)
+        // a kind this app does not know yet is another client
+        for (kind in listOf("", "proxies", null)) {
+            assertEquals("$kind", SessionClientGroup.OtherClients, SessionClientGroup.fromKind(kind))
+        }
+    }
+
+    @Test
+    fun aGroupHeaderShowsItsCountWithTheLocalesGroupingAndPlusWhenTruncated() {
+        val groups = listOf(
+            group(Sdk.ClientSessionGroupHostedProxies, count = 1204),
+            group(Sdk.ClientSessionGroupApiClients, count = 3),
+        )
+        val ui = sessionsUi(loaded(session(0, current = true), groups = groups), nowMillis)
+        assertEquals(
+            listOf("Hosted proxies (1,204)", "API clients (3)"),
+            ui.groups.map { sessionGroupHeader(it, EnglishText) },
+        )
+
+        // the controller read only part of the list: the counts are lower bounds
+        val truncated = sessionsUi(loaded(session(0, current = true), groups = groups).copy(truncated = true), nowMillis)
+        assertEquals(
+            listOf("Hosted proxies (1,204+)", "API clients (3+)"),
+            truncated.groups.map { sessionGroupHeader(it, EnglishText) },
+        )
+
+        // the platform's grouping, not a fixed one
+        val german = object : SessionsText by EnglishText {
+            override fun count(value: Long): String = NumberFormat.getIntegerInstance(Locale.GERMANY).format(value)
+        }
+        assertEquals("Hosted proxies (1.204+)", sessionGroupHeader(truncated.groups[0], german))
+    }
+
+    @Test
+    fun aCollapsedGroupShowsItsHeaderOnlyAndAnOpenOneItsRows() {
+        val proxies = listOf(clientSession(0), clientSession(1))
+        val collapsed = sessionsUi(
+            loaded(session(0, current = true), groups = listOf(group(Sdk.ClientSessionGroupHostedProxies, count = 120))),
+            nowMillis,
+        ).groups.single()
+        assertEquals(Sdk.ClientSessionGroupHostedProxies, collapsed.kind)
+        assertFalse(collapsed.expanded)
+        assertEquals(listOf<SessionRowUi>(), collapsed.rows)
+        assertFalse(collapsed.hasMore)
+
+        val open = sessionsUi(
+            loaded(
+                session(0, current = true),
+                groups = listOf(
+                    group(Sdk.ClientSessionGroupHostedProxies, count = 120, expanded = true, sessions = proxies, hasMore = true),
+                ),
+            ),
+            nowMillis,
+        ).groups.single()
+        assertTrue(open.expanded)
+        assertEquals(proxies.map { it.sessionId }, open.rows.map { it.sessionId })
+        assertTrue(open.hasMore)
+        assertEquals(listOf(SessionClientGroup.HostedProxies, SessionClientGroup.HostedProxies), open.rows.map { it.group })
+    }
+
+    @Test
+    fun aGroupsRowsTakeTheGroupsLabelOnLineOneAndInTheConfirmation() {
+        val apiClient = clientSession(0, kind = "api_key_client")
+            .copy(lastUse = lastUse(deviceType = "cli", appVersion = "1.4.0"))
+        val pairedDevice = clientSession(1, kind = "device_adopt")
+        val other = clientSession(2, kind = "legacy")
+        val ui = sessionsUi(
+            loaded(
+                session(0, current = true),
+                groups = listOf(
+                    group(Sdk.ClientSessionGroupApiClients, count = 1, expanded = true, sessions = listOf(apiClient)),
+                    group(Sdk.ClientSessionGroupPairedDevices, count = 1, expanded = true, sessions = listOf(pairedDevice)),
+                    group(Sdk.ClientSessionGroupOtherClients, count = 1, expanded = true, sessions = listOf(other)),
+                ),
+                otherSessionCount = 3,
+            ),
+            nowMillis,
+        )
+        val (apiRow, deviceRow, otherRow) = ui.groups.map { it.rows.single() }
+
+        // the app version is still appended when known; the device logo stays
+        val apiText = sessionRowText(apiRow, nowMillis, EnglishText)
+        assertEquals("API client · 1.4.0", apiText.device)
+        assertEquals("Sign out API client", apiText.signOutAction)
+        assertEquals(SessionDevice.Cli, apiRow.device)
+        assertEquals("Paired device", sessionRowText(deviceRow, nowMillis, EnglishText).device)
+        assertEquals("Other client", sessionRowText(otherRow, nowMillis, EnglishText).device)
+
+        // the same label names the session in the confirmation
+        assertEquals(
+            "API client in Chicago, Illinois, United States will be signed out.",
+            sessionConfirmBody(apiRow, EnglishText),
+        )
+        // the device sign-ins keep their device label
+        assertEquals("Android · 2026.10.8-1067", sessionRowText(ui.rows[0], nowMillis, EnglishText).device)
+        assertNull(ui.rows[0].group)
+    }
+
+    @Test
+    fun aHostedProxysConfirmationSaysItStopsWorking() {
+        val proxy = clientSession(0)
+        val row = sessionsUi(
+            loaded(
+                session(0, current = true),
+                groups = listOf(group(Sdk.ClientSessionGroupHostedProxies, count = 1, expanded = true, sessions = listOf(proxy))),
+                otherSessionCount = 0,
+            ),
+            nowMillis,
+        ).groups.single().rows.single()
+        assertEquals("Hosted proxy", sessionRowText(row, nowMillis, EnglishText).device)
+        assertEquals(
+            "This hosted proxy will stop working. Create a new one to replace it.",
+            sessionConfirmBody(row, EnglishText),
+        )
+        assertEquals("Sign out Hosted proxy", sessionRowText(row, nowMillis, EnglishText).signOutAction)
+    }
+
+    @Test
+    fun aGroupsRowShowsItsSignOutLikeASignIn() {
+        // actions are keyed by session id, wherever the session is listed
+        val proxies = listOf(clientSession(0), clientSession(1), clientSession(2))
+        val error = SessionErrorFlags(retryable = true, signInRequired = false, unsupported = false)
+        val ui = sessionsUi(
+            loaded(
+                session(0, current = true),
+                groups = listOf(group(Sdk.ClientSessionGroupHostedProxies, count = 3, expanded = true, sessions = proxies)),
+                actions = listOf(
+                    SessionActionState(proxies[0].sessionId, loading = true, pending = false, error = null),
+                    SessionActionState(proxies[1].sessionId, loading = false, pending = false, error = error),
+                ),
+                otherSessionCount = 0,
+            ),
+            nowMillis,
+        )
+        val rows = ui.groups.single().rows
+        assertEquals(listOf(true, false, false), rows.map { it.signingOut })
+        assertEquals(listOf(false, true, false), rows.map { it.actionFailed })
+        // and the screen finds the row to confirm by its id
+        assertEquals(rows[1], ui.row(proxies[1].sessionId))
+        assertEquals(ui.rows[0], ui.row(ui.rows[0].sessionId))
+        assertNull(ui.row("not-listed"))
+    }
+
+    @Test
+    fun showMoreFollowsTheSnapshot() {
+        val sessions = arrayOf(session(0, current = true), session(1))
+        assertFalse(sessionsUi(loaded(*sessions), nowMillis).rowsHaveMore)
+        assertTrue(sessionsUi(loaded(*sessions).copy(sessionCount = 120, sessionsHasMore = true), nowMillis).rowsHaveMore)
+
+        // a group offers more only while open
+        val closedWithMore = group(Sdk.ClientSessionGroupApiClients, count = 80, expanded = false, hasMore = true)
+        assertFalse(sessionsUi(loaded(*sessions, groups = listOf(closedWithMore)), nowMillis).groups.single().hasMore)
+
+        // nothing is offered in place of the list
+        val signIn = SessionErrorFlags(retryable = false, signInRequired = true, unsupported = false)
+        val refused = sessionsUi(
+            loaded(*sessions, groups = listOf(closedWithMore)).copy(sessionsHasMore = true, error = signIn),
+            nowMillis,
+        )
+        assertFalse(refused.rowsHaveMore)
+        assertEquals(listOf<SessionGroupUi>(), refused.groups)
+        assertEquals("Show more", EnglishText.string(R.string.sessions_show_more))
+    }
+
+    @Test
+    fun theListIsEmptyOnlyWithoutSignInsAndGroups() {
+        assertEquals(SessionsBody.Empty, sessionsUi(loaded(), nowMillis).body)
+        // client sessions alone are a list
+        val onlyClients = sessionsUi(loaded(groups = listOf(group(Sdk.ClientSessionGroupApiClients, count = 2))), nowMillis)
+        assertEquals(SessionsBody.Rows, onlyClients.body)
+        assertEquals(listOf<SessionRowUi>(), onlyClients.rows)
+        assertEquals(1, onlyClients.groups.size)
+        // and no sign out of the others without a current session
+        assertNull(onlyClients.signOutOthers)
+    }
+
+    @Test
+    fun rowKeysAreUniqueAcrossTheSections() {
+        val proxies = listOf(clientSession(0), clientSession(1))
+        val ui = sessionsUi(
+            loaded(
+                session(0, current = true),
+                session(1),
+                groups = listOf(
+                    group(Sdk.ClientSessionGroupHostedProxies, count = 2, expanded = true, sessions = proxies, hasMore = true),
+                    group(Sdk.ClientSessionGroupApiClients, count = 5),
+                ),
+            ).copy(sessionsHasMore = true),
+            nowMillis,
+        )
+        val keys = ui.rows.map { it.key } + ui.groups.flatMap { group -> listOf(group.key, group.showMoreKey) + group.rows.map { it.key } } +
+            listOf("sign-ins-more", "sign-out-others", "last-used-help", "legacy-note", "refresh-failed")
+        assertEquals(keys.size, keys.toSet().size)
+        assertEquals("session-hosted_proxies:${proxies[0].sessionId}", ui.groups[0].rows[0].key)
     }
 
     @Test

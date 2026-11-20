@@ -11,10 +11,12 @@ import com.bringyour.network.DeviceManager
 import com.bringyour.sdk.Api
 import com.bringyour.sdk.ClientSessionAction
 import com.bringyour.sdk.ClientSessionError
+import com.bringyour.sdk.ClientSessionGroup
 import com.bringyour.sdk.ClientSessionListener
 import com.bringyour.sdk.ClientSessionSnapshot
 import com.bringyour.sdk.DeviceLocal
 import com.bringyour.sdk.NetworkSessionInfo
+import com.bringyour.sdk.NetworkSessionInfoList
 import com.bringyour.sdk.Sdk
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -24,12 +26,13 @@ private const val TAG = "SessionsViewModel"
 
 /**
  * Account -> Sessions (server/session/REVOKE-UI-FINAL.md): the account's
- * sign-ins from the sdk's ClientSessionViewController, opened on the device's
+ * sessions from the sdk's ClientSessionViewController, opened on the device's
  * account api, with sign out of one session or of all the others.
  *
  * Binds [SessionsScreenModel] to the app: the device (a replaced device closes
- * the former one's controller), the process lifecycle (the background closes
- * the controller), and the screen's visibility (LifecycleStartEffect in
+ * the former one's controller), the process lifecycle (forwarded to the
+ * controller's SetForeground; the background keeps it open, with any pending
+ * sign out), and the screen's visibility (LifecycleStartEffect in
  * SessionsScreen). The controller's changes arrive on sdk threads and are
  * posted to the main thread; teardown removes the listener, then closes the
  * controller, and nothing updates after.
@@ -72,6 +75,10 @@ class SessionsViewModel @Inject constructor(
 
     fun refresh() = model.refresh()
 
+    fun setGroupExpanded(kind: String, expanded: Boolean) = model.setGroupExpanded(kind, expanded)
+
+    fun showMoreSessions(kind: String) = model.showMoreSessions(kind)
+
     fun requestSignOut(sessionId: String) = model.requestSignOut(sessionId)
 
     fun requestSignOutOthers() = model.requestSignOutOthers()
@@ -109,7 +116,13 @@ private class SdkSessionsController(
 
     override fun setVisible(visible: Boolean) = controller.setVisible(visible)
 
+    override fun setForeground(foreground: Boolean) = controller.setForeground(foreground)
+
     override fun refresh() = controller.refresh()
+
+    override fun setGroupExpanded(kind: String, expanded: Boolean) = controller.setGroupExpanded(kind, expanded)
+
+    override fun showMoreSessions(kind: String) = controller.showMoreSessions(kind)
 
     override fun revokeSession(sessionId: String) {
         val id = try {
@@ -164,20 +177,40 @@ private fun sessionsSnapshotFromSdk(snapshot: ClientSessionSnapshot?): SessionsS
                     region = it.region.orEmpty(),
                     country = it.country.orEmpty(),
                     countryCode = it.countryCode.orEmpty(),
-                    deviceType = it.deviceType.orEmpty(),
+                    // the sdk's kind names the browser extension; a type
+                    // from an sdk without it is the same for every other device
+                    deviceType = it.deviceKind?.takeIf { kind -> kind.isNotEmpty() } ?: it.deviceType.orEmpty(),
                     appVersion = it.appVersion.orEmpty(),
                 )
             },
         )
     }
-    val sessions = snapshot.sessions?.let { list ->
-        (0 until list.len()).mapNotNull { list.get(it)?.let(session) }
+    // the snapshot carries only the rows on screen, never the whole list
+    val sessions = { list: NetworkSessionInfoList? ->
+        list?.let { (0 until it.len()).mapNotNull { i -> it.get(i)?.let(session) } } ?: listOf()
+    }
+    val group = { value: ClientSessionGroup ->
+        SessionGroupEntry(
+            kind = value.kind.orEmpty(),
+            count = value.count,
+            expanded = value.expanded,
+            sessions = sessions(value.sessions),
+            hasMore = value.hasMore,
+        )
+    }
+    val groups = snapshot.groups?.let { list ->
+        (0 until list.len()).mapNotNull { list.get(it)?.let(group) }
     } ?: listOf()
     val actions = snapshot.actions?.let { list ->
         (0 until list.len()).mapNotNull { list.get(it)?.let(action) }
     } ?: listOf()
     return SessionsSnapshot(
-        sessions = sessions,
+        sessions = sessions(snapshot.sessions),
+        sessionCount = snapshot.sessionCount,
+        sessionsHasMore = snapshot.sessionsHasMore,
+        groups = groups,
+        otherSessionCount = snapshot.otherSessionCount,
+        truncated = snapshot.truncated,
         currentSessionId = snapshot.currentSessionId?.idStr,
         legacyCoverage = snapshot.legacyCoverage.orEmpty(),
         loaded = snapshot.loaded,

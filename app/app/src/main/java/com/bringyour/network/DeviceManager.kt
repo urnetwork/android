@@ -119,6 +119,16 @@ class DeviceManager @Inject constructor(
     // connect is admitted on it (ConnectCommands.signOutStarted)
     var onLogoutStarted: ((device: DeviceLocal) -> Unit)? = null
 
+    // set by the application; fired on the sdk's thread when the server
+    // rejected the account's sign-in (the network credential) while this
+    // device's own client credential belongs to another session: the sdk has
+    // cleared the account credential and kept the device, which stays signed
+    // in and connected (the device api's AccountSignInRequired, not
+    // AuthLogout). The cause is the api's (Api.getAccountSignInRequiredCause),
+    // read in the listener: Sdk.AuthLogoutCauseSessionRevoked when the server
+    // confirmed another device signed that sign-in out, else ""
+    var onAccountSignInRequired: ((device: DeviceLocal, cause: String) -> Unit)? = null
+
     @Volatile var device: DeviceLocal? = null
         private set
 
@@ -138,6 +148,7 @@ class DeviceManager @Inject constructor(
         get() = jwtManager.proTracker.isPro
 
     private var authLogoutSub: Sub? = null
+    private var accountSignInRequiredSub: Sub? = null
     private var provideSecretKeysSub: Sub? = null
     private val localStateChangeSubs = mutableListOf<Sub>()
 
@@ -355,6 +366,7 @@ class DeviceManager @Inject constructor(
         // A retired device must retain its original application session owner,
         // even if its already admitted listener runs after the next init.
         val onAuthLogout = onAuthLogout
+        val onAccountSignInRequired = onAccountSignInRequired
         if (networkSpace == null) {
             clearDevice()
             return DeviceInitResult.Failed(DeviceInitFailure.MISSING_NETWORK_SPACE)
@@ -550,6 +562,15 @@ class DeviceManager @Inject constructor(
                         // notifies its listeners
                         onAuthLogout?.invoke(newDevice, newDevice.authLogoutCause.orEmpty())
                     }
+                    // the same api's account sign-in, while the device stays
+                    // signed in: one subscription per device, closed with the
+                    // others. The cause is read here, on the sdk's thread: the
+                    // api records it before it notifies, and a new login clears it
+                    accountSignInRequiredSub = newDevice.api?.let { deviceApi ->
+                        deviceApi.addAccountSignInRequiredListener {
+                            onAccountSignInRequired?.invoke(newDevice, deviceApi.accountSignInRequiredCause.orEmpty())
+                        }
+                    }
                     deviceChanges.prepareUpdate(newDevice)
                 }
             },
@@ -682,6 +703,8 @@ class DeviceManager @Inject constructor(
         jwtRefreshSub = null
         authLogoutSub?.close()
         authLogoutSub = null
+        accountSignInRequiredSub?.close()
+        accountSignInRequiredSub = null
         provideSecretKeysSub?.close()
         provideSecretKeysSub = null
         localStateChangeSubs.forEach { it.close() }

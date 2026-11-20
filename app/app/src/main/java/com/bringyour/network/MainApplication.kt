@@ -55,6 +55,7 @@ import java.io.File
 import java.lang.ref.WeakReference
 import javax.inject.Inject
 import kotlin.math.min
+import com.bringyour.network.ui.connect.AccountSignInNotices
 import com.bringyour.network.ui.connect.connectRequested
 import com.bringyour.network.ui.connect.runOnDevice
 
@@ -324,23 +325,21 @@ class MainApplication : Application() {
                         val resultError = result?.error
                         // the sdk decides what a client limit refusal offers
                         // (ClientLimitStatus.prompt): the upgrade when UR Pro
-                        // lifts it, else a freed slot. The message says what
-                        // to do, where every sign-in screen shows it; any
-                        // other refusal keeps the server's message
-                        val failure = when {
-                            resultError?.clientLimitPrompt == Sdk.ClientLimitPromptUpgrade ->
-                                LoginStartupFailure.AUTH_CLIENT_UPGRADE_REQUIRED
-                            resultError?.clientLimitPrompt == Sdk.ClientLimitPromptRemoveClient ->
-                                LoginStartupFailure.AUTH_CLIENT_LIMIT_EXCEEDED
-                            resultError != null -> LoginStartupFailure.AUTH_CLIENT_REJECTED
-                            else -> null
-                        }
+                        // lifts it, else a freed slot; the network's cap of
+                        // active sessions is neither (authClientRefusal). The
+                        // message says what to do, where every sign-in screen
+                        // shows it; any other refusal keeps the server's message
+                        val failure = resultError?.let { authClientRefusal(it.code, it.clientLimitPrompt) }
                         val failureMessage = when (failure) {
                             LoginStartupFailure.AUTH_CLIENT_UPGRADE_REQUIRED ->
                                 getString(com.bringyour.network.ui.connect.clientLimitMessageId(offersUpgrade = true))
                             LoginStartupFailure.AUTH_CLIENT_LIMIT_EXCEEDED ->
                                 getString(com.bringyour.network.ui.connect.clientLimitMessageId(offersUpgrade = false))
-                            else -> resultError?.message
+                            else -> com.bringyour.network.ui.login.signInErrorMessage(
+                                this@MainApplication,
+                                resultError?.code,
+                                resultError?.message,
+                            )
                         }
                         callback(
                             result?.let {
@@ -394,7 +393,12 @@ class MainApplication : Application() {
                                     } else {
                                         LoginStartupFailure.PASSWORD_AUTH_REJECTED
                                     },
-                                    failureMessage = resultError?.message,
+                                    // the session limit's own message, never "incorrect password"
+                                    failureMessage = com.bringyour.network.ui.login.signInErrorMessage(
+                                        this@MainApplication,
+                                        resultError?.code,
+                                        resultError?.message,
+                                    ),
                                 )
                             }
                             mappedResult to error?.message
@@ -781,6 +785,27 @@ class MainApplication : Application() {
      * sign-out and a new sign-in drop it.
      */
     val signInNotices = SignInNotices()
+
+    /**
+     * What the main screen says when the account's sign-in ended while this
+     * device stays signed in: the sdk's AccountSignInRequired leaves the
+     * notice its cause has (AccountSignInNotice), the connect screen shows it
+     * until the user closes it, and a sign-out or a new sign-in drops it.
+     * Nothing signs out or disconnects for it. Main-thread confined.
+     */
+    val accountSignInNotices = AccountSignInNotices()
+
+    /**
+     * The user closed the account sign-in notice. The sdk keeps the notice in
+     * the device's local state, and reports it again after a restart, until
+     * this ends it there (Api.dismissAccountSignInNotice); its storage write
+     * runs off the main thread.
+     */
+    fun dismissAccountSignInNotice() {
+        accountSignInNotices.clear()
+        val api = device?.api ?: return
+        Thread({ api.dismissAccountSignInNotice() }, "account-sign-in-notice-dismiss").start()
+    }
 
     /**
      * The physical network's Private DNS (DoT) mode, mapped from the offline
@@ -1593,7 +1618,14 @@ class MainApplication : Application() {
             // one checked generation before deciding whether startup can proceed.
             val auth = runCatching { localState.authStateSnapshot }.getOrNull() ?: return@let
             val byClientJwt = auth.byClientJwt
-            if (byClientJwt.isNullOrEmpty() || runCatching { auth.parseByJwt() }.getOrNull() == null) {
+            // A device whose account sign-in the server rejected while it
+            // stayed signed in (the sdk's AccountSignInRequired) keeps only its
+            // client token, until the next sign-in or sign-out: it starts on
+            // it, and the sdk reports the account sign-in notice again.
+            val accountSignInRequired = runCatching { auth.accountSignInRequired }.getOrDefault(false)
+            if (byClientJwt.isNullOrEmpty() ||
+                (!accountSignInRequired && runCatching { auth.parseByJwt() }.getOrNull() == null)
+            ) {
                 return@let
             }
 
@@ -2555,6 +2587,9 @@ class MainApplication : Application() {
     }
 
     private fun logoutInternal() {
+        // signed out, by the user or by the sdk: the account's sign-in notice
+        // ends with the sign-in it was about
+        accountSignInNotices.clear()
         // from here no connect is admitted on the signed-out device, and its
         // connects still queued never run; its disconnects still do
         device?.let { connectCommands.signOutStarted(it) }
@@ -2688,6 +2723,18 @@ class MainApplication : Application() {
                 startActivity(intent)
             }
         }
+        // the account's sign-in ended while this device stays signed in (the
+        // sdk's AccountSignInRequired): no sign-out and no disconnect, only
+        // the main screen's notice, with the cause the listener read. A late
+        // one for a device since replaced or signed out says nothing
+        deviceManager.onAccountSignInRequired = { signedInDevice, cause ->
+            Handler(mainLooper).post {
+                if (authSessionOwner !== logoutOwner || device !== signedInDevice) {
+                    return@post
+                }
+                accountSignInNotices.accountSignInRequired(cause)
+            }
+        }
         val deviceInitResult = deviceManager.initDevice(
             networkSpaceManagerProvider.getNetworkSpace(),
             byClientJwt,
@@ -2697,8 +2744,10 @@ class MainApplication : Application() {
         if (deviceInitResult !is DeviceInitResult.Ready) {
             return deviceInitResult
         }
-        // signed in: an earlier sign-out's notice no longer applies
+        // signed in: an earlier sign-out's notice no longer applies, nor an
+        // earlier account sign-in's
         signInNotices.clear()
+        accountSignInNotices.clear()
 
         // A callback queued for a former DeviceLocal must never reset the new
         // device's transports or judge its initial provider window unhealthy.
@@ -3466,7 +3515,9 @@ class MainApplication : Application() {
                                     getString(com.bringyour.network.ui.connect.clientLimitMessageId(offersUpgrade = true))
                                 LoginStartupFailure.AUTH_CLIENT_LIMIT_EXCEEDED ->
                                     getString(com.bringyour.network.ui.connect.clientLimitMessageId(offersUpgrade = false))
-                                else -> getString(R.string.something_went_wrong)
+                                // a freed client slot does not free a session
+                                else -> com.bringyour.network.ui.login.signInClientFailureMessage(this@MainApplication, completion)
+                                    ?: getString(R.string.something_went_wrong)
                             }
                         }
                     }

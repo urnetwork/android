@@ -259,6 +259,9 @@ internal fun ConnectActions(
                 // the network's proxies use Pro features it does not have,
                 // under the client limit's when both show
                 ProFeaturesNotice(navController = navController)
+                // the account's sign-in ended while this device stays signed
+                // in: no sign-out, no disconnect, only this until it is closed
+                AccountSignInNotice()
 
                 // the fold marker: a zero-height anchor at the bottom of the
                 // location + connect block. positionInParent is relative to the

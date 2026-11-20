@@ -115,8 +115,13 @@ fun LoginInitial(
             onContentVisibilityChange = {
                 contentVisible = it
             },
-            onErr = {
-                Toast.makeText(context, context.getString(R.string.error_logging_in_please_try_again), Toast.LENGTH_LONG).show()
+            // the session limit says what to do on the error line; any other failure is the toast
+            onErr = { message ->
+                if (message != null) {
+                    loginViewModel.setLoginError(message)
+                } else {
+                    Toast.makeText(context, context.getString(R.string.error_logging_in_please_try_again), Toast.LENGTH_LONG).show()
+                }
             },
             onWelcomeOverlayVisibilityChange = {
                 welcomeOverlayVisible = it
@@ -336,7 +341,13 @@ fun LoginInitial(
                         loginActivity?.finishAuthenticatedLoginNow(request)
                     is com.bringyour.network.LoginClientCompletion.Failed -> {
                         android.util.Log.e("LoginInitial", "auth client finish err: ${completion.message}")
-                        android.widget.Toast.makeText(context, context.getString(R.string.error_logging_in_please_try_again), android.widget.Toast.LENGTH_LONG).show()
+                        // the session limit says what to do on the error line; any other failure is the toast
+                        val sessionLimitMessage = signInClientFailureMessage(context, completion)
+                        if (sessionLimitMessage != null) {
+                            loginViewModel.setLoginError(sessionLimitMessage)
+                        } else {
+                            android.widget.Toast.makeText(context, context.getString(R.string.error_logging_in_please_try_again), android.widget.Toast.LENGTH_LONG).show()
+                        }
                     }
                 }
             }

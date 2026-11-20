@@ -1,16 +1,20 @@
 package com.bringyour.network.ui.account
 
 import com.bringyour.network.R
+import com.bringyour.sdk.Sdk
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /**
- * The state machine behind SessionsViewModel (REVOKE-UI-FINAL.md §4-§6, §10)
- * over a fake controller: the lifecycle forwarding, sign out through the
- * confirmation, pending and failed sign outs, the races between deliveries
- * and account switches, and that nothing updates once a controller closed.
+ * The state machine behind SessionsViewModel (REVOKE-UI-FINAL.md §4-§6, §10,
+ * session1118 C.md §5 C-D) over a fake controller: the lifecycle forwarding
+ * (the background keeps the controller and a pending sign out), the group
+ * headers and Show more, sign out through the confirmation, pending and
+ * failed sign outs, the races between deliveries and account switches, and
+ * that nothing updates once a controller closed.
  *
  * Changes are posted, as the view model posts the sdk thread's changes to the
  * main thread; each test runs the posted work explicitly, in the order it
@@ -29,6 +33,10 @@ class SessionsScreenModelTest {
         lateinit var onChange: () -> Unit
         var closed = false
 
+        // the rows the sdk lays out for the next header tap or Show more,
+        // before the call returns (presentation only: no request)
+        var nextLayout: SessionsSnapshot? = null
+
         override fun snapshot(): SessionsSnapshot {
             // a closed controller is never read
             check(!closed) { "$name read after close" }
@@ -43,8 +51,24 @@ class SessionsScreenModelTest {
             events.add("$name:visible:$visible")
         }
 
+        override fun setForeground(foreground: Boolean) {
+            events.add("$name:foreground:$foreground")
+        }
+
         override fun refresh() {
             events.add("$name:refresh")
+        }
+
+        override fun setGroupExpanded(kind: String, expanded: Boolean) {
+            events.add("$name:group:$kind:$expanded")
+            nextLayout?.let { current = it }
+            nextLayout = null
+        }
+
+        override fun showMoreSessions(kind: String) {
+            events.add("$name:more:$kind")
+            nextLayout?.let { current = it }
+            nextLayout = null
         }
 
         override fun revokeSession(sessionId: String) {
@@ -113,8 +137,12 @@ class SessionsScreenModelTest {
         lastUse = SessionLastUse(1_799_999_000L, "", "", "", "", "linux", ""),
     )
 
+    // a loaded list of device sign-ins as the sdk lays it out: Sign out all
+    // other sessions signs out each one but the current
     private fun loaded(vararg sessions: SessionEntry) = SessionsSnapshot.Initial.copy(
         sessions = sessions.toList(),
+        sessionCount = sessions.size.toLong(),
+        otherSessionCount = sessions.count { !it.current }.toLong(),
         currentSessionId = sessions.firstOrNull { it.current }?.sessionId,
         legacyCoverage = "complete",
         loaded = true,
@@ -122,8 +150,25 @@ class SessionsScreenModelTest {
 
     private val threeSessions = loaded(session(0, current = true), session(1), session(2))
 
+    // two hosted proxies of a network that has 120, below this session
+    private val proxies = listOf(session(3), session(4))
+
+    private fun withProxies(expanded: Boolean) = loaded(session(0, current = true)).copy(
+        groups = listOf(
+            SessionGroupEntry(
+                kind = Sdk.ClientSessionGroupHostedProxies,
+                count = 120,
+                expanded = expanded,
+                sessions = if (expanded) proxies else listOf(),
+                hasMore = expanded,
+            )
+        ),
+        // the sign out of the others keeps the hosted proxies
+        otherSessionCount = 0,
+    )
+
     @Test
-    fun opensOnTheDeviceInTheForegroundAndStartsOnlyWhenTheScreenAppears() {
+    fun opensOnTheDeviceAndStartsOnlyWhenTheScreenAppears() {
         val model = model()
         model.setVisible(true)
         model.setForeground(true)
@@ -134,6 +179,14 @@ class SessionsScreenModelTest {
         model.setDevice("a")
         // on appear: Start, then SetVisible(true)
         assertEquals(listOf("a#1:open", "a#1:start", "a#1:visible:true"), events)
+
+        // a device while the screen is hidden opens without starting
+        val hidden = model()
+        events.clear()
+        hidden.setDevice("b")
+        assertEquals(listOf("b#2:open"), events)
+        hidden.setVisible(true)
+        assertEquals(listOf("b#2:open", "b#2:start", "b#2:visible:true"), events)
     }
 
     @Test
@@ -153,18 +206,132 @@ class SessionsScreenModelTest {
     }
 
     @Test
-    fun theBackgroundClosesTheControllerAndTheForegroundLoadsANewOne() {
+    fun theForegroundGoesToTheControllerWhichTheBackgroundKeeps() {
         val model = shownModel()
         controllers.getValue("a").publish(threeSessions)
         runPosted()
         events.clear()
 
+        // §6: foreground and background go to SetForeground; nothing closes
         model.setForeground(false)
-        assertEquals(listOf("a#1:close"), events)
-        assertEquals(SessionsBody.Progress, model.ui.body)
+        assertEquals(listOf("a#1:foreground:false"), events)
+        assertEquals(SessionsBody.Rows, model.ui.body)
+        assertEquals(3, model.ui.rows.size)
 
+        // the same controller loads again in the foreground (the sdk's
+        // SetForeground(true) is that reload)
         model.setForeground(true)
-        assertEquals(listOf("a#1:close", "a#2:open", "a#2:start", "a#2:visible:true"), events)
+        assertEquals(listOf("a#1:foreground:false", "a#1:foreground:true"), events)
+        assertFalse(controllers.getValue("a").closed)
+    }
+
+    // S1 W15: the background closed the controller, and with it the operation
+    // id of a sign out still pending, so its outcome was never recovered and
+    // the row came back as if nothing had been asked
+    @Test
+    fun aPendingSignOutSurvivesTheBackground() {
+        val model = shownModel()
+        val controller = controllers.getValue("a")
+        controller.publish(threeSessions)
+        runPosted()
+        val target = threeSessions.sessions[2].sessionId
+        model.requestSignOut(target)
+        model.confirm()
+        // accepted (202): pending until the controller confirms enforcement
+        controller.publish(
+            threeSessions.copy(actions = listOf(SessionActionState(target, loading = false, pending = true, error = null)))
+        )
+        runPosted()
+        events.clear()
+
+        // the app goes to the background: the activity stops, which hides the
+        // screen, then the process
+        model.setVisible(false)
+        model.setForeground(false)
+        assertEquals(listOf("a#1:visible:false", "a#1:foreground:false"), events)
+        assertFalse(controller.closed)
+        assertTrue(model.ui.row(target)!!.signingOut)
+
+        // back: the same controller, still recovering the same sign out
+        model.setForeground(true)
+        model.setVisible(true)
+        assertEquals(
+            listOf("a#1:visible:false", "a#1:foreground:false", "a#1:foreground:true", "a#1:start", "a#1:visible:true"),
+            events,
+        )
+        assertEquals(1, opens)
+        assertTrue(model.ui.row(target)!!.signingOut)
+
+        // the controller confirms the outcome and drops the row
+        controller.publish(loaded(session(0, current = true), session(1)))
+        runPosted()
+        assertNull(model.ui.row(target))
+    }
+
+    @Test
+    fun aGroupHeaderAndShowMoreGoToTheControllerAndShowItsLayoutAtOnce() {
+        val model = model()
+        // no controller yet: nothing to open
+        model.setGroupExpanded(Sdk.ClientSessionGroupHostedProxies, true)
+        model.showMoreSessions(Sdk.ClientSessionGroupSignIns)
+        assertEquals(listOf<String>(), events)
+
+        model.setDevice("a")
+        model.setForeground(true)
+        model.setVisible(true)
+        val controller = controllers.getValue("a")
+        controller.publish(withProxies(expanded = false))
+        runPosted()
+        events.clear()
+        val collapsed = model.ui.groups.single()
+        assertFalse(collapsed.expanded)
+        assertEquals(listOf<SessionRowUi>(), collapsed.rows)
+
+        // the header's tap: the sdk opens the group and lays its rows out
+        controller.nextLayout = withProxies(expanded = true)
+        model.setGroupExpanded(collapsed.kind, !collapsed.expanded)
+        assertEquals(listOf("a#1:group:hosted_proxies:true"), events)
+        val open = model.ui.groups.single()
+        assertTrue(open.expanded)
+        assertEquals(proxies.map { it.sessionId }, open.rows.map { it.sessionId })
+        assertTrue(open.hasMore)
+
+        // Show more under the group, and under the device sign-ins
+        model.showMoreSessions(open.kind)
+        model.showMoreSessions(Sdk.ClientSessionGroupSignIns)
+        assertEquals(
+            listOf("a#1:group:hosted_proxies:true", "a#1:more:hosted_proxies", "a#1:more:sign_ins"),
+            events,
+        )
+
+        // and the tap again closes it
+        controller.nextLayout = withProxies(expanded = false)
+        model.setGroupExpanded(open.kind, false)
+        assertEquals(listOf<SessionRowUi>(), model.ui.groups.single().rows)
+    }
+
+    @Test
+    fun aGroupsRowSignsOutThroughTheConfirmation() {
+        val model = shownModel()
+        val controller = controllers.getValue("a")
+        controller.publish(withProxies(expanded = true))
+        runPosted()
+        events.clear()
+        // only hosted proxies besides this session: nothing for Sign out all others
+        assertNull(model.ui.signOutOthers)
+        model.requestSignOutOthers()
+        assertNull(model.confirmation)
+
+        val target = proxies[1].sessionId
+        model.requestSignOut(target)
+        val confirmation = model.confirmation as SessionsConfirmation.SignOut
+        assertEquals(SessionClientGroup.HostedProxies, confirmation.row.group)
+        model.confirm()
+        assertEquals(listOf("a#1:revoke:$target"), events)
+        // its row shows the sign out running, as a device sign-in's does
+        assertTrue(model.ui.row(target)!!.signingOut)
+        model.requestSignOut(target)
+        assertNull(model.confirmation)
     }
 
     @Test

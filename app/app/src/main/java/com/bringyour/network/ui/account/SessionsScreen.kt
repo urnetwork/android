@@ -6,6 +6,7 @@ import android.os.Build
 import android.text.format.DateUtils
 import android.widget.Toast
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -22,11 +23,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.Logout
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
@@ -58,6 +62,8 @@ import androidx.compose.ui.input.key.isCtrlPressed
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.type
+import androidx.compose.ui.input.pointer.PointerIcon
+import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalConfiguration
@@ -83,6 +89,7 @@ import com.bringyour.network.ui.components.FoldSafeBasicAlertDialog
 import com.bringyour.network.ui.components.SwipeToRevealRow
 import com.bringyour.network.ui.components.URButton
 import com.bringyour.network.ui.components.URInlineErrorText
+import com.bringyour.network.ui.components.expandableRow
 import com.bringyour.network.ui.components.focusRing
 import com.bringyour.network.ui.components.tabletReadableColumn
 import com.bringyour.network.ui.theme.Black
@@ -94,14 +101,21 @@ import com.bringyour.network.ui.theme.TopBarTitleTextStyle
 import com.bringyour.network.ui.wallet.BittensorKeySignOut
 import com.bringyour.network.utils.relativeTime
 import com.bringyour.sdk.Sdk
+import java.text.NumberFormat
 import kotlinx.coroutines.launch
 
 /**
- * Account -> Sessions (server/session/REVOKE-UI-FINAL.md): every sign-in of
- * the account, current first, each with its device, place, last use, sign-in
- * date, method and short id. Swipe a row left to reveal Sign out (assistive
- * tech gets "Sign out {device}" as the row's action), long-press a row to copy
- * its full session id, and pull to refresh. Every sign out asks first.
+ * Account -> Sessions (server/session/REVOKE-UI-FINAL.md): the account's
+ * device sign-ins, current first, each with its device, place, last use,
+ * sign-in date, method and short id, a page at a time with Show more; then
+ * the sessions clients own (hosted proxies, API clients, paired devices,
+ * other clients), each kind a collapsible group with its count whose rows
+ * show the same way. Swipe a row left to reveal Sign out (assistive tech gets
+ * "Sign out {device}" as the row's action), long-press a row to copy its full
+ * session id, and pull to refresh. Every sign out asks first.
+ *
+ * The sdk's snapshot carries only the rows on screen, and the list is lazy,
+ * so a long list composes only what scrolls into view.
  *
  * Visible while started: LifecycleStartEffect drives the controller's
  * SetVisible, so it polls only while the screen shows.
@@ -124,6 +138,8 @@ fun SessionsScreen(
         text = rememberSessionsText(),
         onBack = { navController.popBackStack() },
         onRefresh = viewModel::refresh,
+        onSetGroupExpanded = viewModel::setGroupExpanded,
+        onShowMore = viewModel::showMoreSessions,
         onSignOut = viewModel::requestSignOut,
         onSignOutOthers = viewModel::requestSignOutOthers,
         onDismissConfirmation = viewModel::dismissConfirmation,
@@ -158,6 +174,10 @@ private class ContextSessionsText(private val context: Context) : SessionsText {
         DateUtils.FORMAT_SHOW_WEEKDAY or DateUtils.FORMAT_SHOW_DATE or
             DateUtils.FORMAT_SHOW_YEAR or DateUtils.FORMAT_SHOW_TIME,
     )
+
+    // in the locale of the catalog strings it goes into
+    override fun count(value: Long): String =
+        NumberFormat.getIntegerInstance(context.resources.configuration.locales[0]).format(value)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -168,6 +188,10 @@ private fun SessionsContent(
     text: SessionsText,
     onBack: () -> Unit,
     onRefresh: () -> Unit,
+    // a group header's tap: the group's kind and whether it opens
+    onSetGroupExpanded: (String, Boolean) -> Unit,
+    // Show more under a section: Sdk.ClientSessionGroupSignIns or the group's kind
+    onShowMore: (String) -> Unit,
     onSignOut: (String) -> Unit,
     onSignOutOthers: () -> Unit,
     onDismissConfirmation: () -> Unit,
@@ -260,15 +284,31 @@ private fun SessionsContent(
                         SessionsBodyMessage(ui.body)
                     }
 
-                    SessionsBody.Rows -> items(ui.rows, key = { it.key }) { row ->
-                        Column(modifier = Modifier.animateItem()) {
-                            SessionRow(
-                                row = row,
-                                nowMillis = ui.nowMillis,
-                                text = text,
-                                onSignOut = { onSignOut(row.sessionId) },
-                            )
-                            HorizontalDivider()
+                    SessionsBody.Rows -> {
+                        // the device sign-ins, a page at a time
+                        sessionRows(ui.rows, ui.nowMillis, text, onSignOut)
+                        if (ui.rowsHaveMore) {
+                            item(key = "sign-ins-more") {
+                                SessionsShowMore(onClick = { onShowMore(Sdk.ClientSessionGroupSignIns) })
+                            }
+                        }
+
+                        // then each kind of client's sessions: the header, and
+                        // while open its rows a page at a time
+                        for (group in ui.groups) {
+                            item(key = group.key) {
+                                SessionGroupHeader(
+                                    group = group,
+                                    text = text,
+                                    onToggle = { onSetGroupExpanded(group.kind, !group.expanded) },
+                                )
+                            }
+                            sessionRows(group.rows, ui.nowMillis, text, onSignOut)
+                            if (group.hasMore) {
+                                item(key = group.showMoreKey) {
+                                    SessionsShowMore(onClick = { onShowMore(group.kind) })
+                                }
+                            }
                         }
                     }
                 }
@@ -337,7 +377,8 @@ private fun SessionsContent(
 
         SessionsConfirmation.SignOutOthers -> SessionsConfirmDialog(
             title = stringResource(id = R.string.sessions_confirm_others_title),
-            body = stringResource(id = R.string.sessions_confirm_others_body),
+            // says that hosted proxies stay signed in when the list has them
+            body = stringResource(id = ui.signOutOthers?.confirmBodyRes ?: R.string.sessions_confirm_others_body),
             onDismiss = onDismissConfirmation,
             onConfirm = onConfirm,
         )
@@ -347,10 +388,88 @@ private fun SessionsContent(
 }
 
 /**
+ * The rows of one section, a device sign-in or a group's, each keyed by its
+ * session so its swipe state stays with it. Sign out goes by session id.
+ */
+private fun LazyListScope.sessionRows(
+    rows: List<SessionRowUi>,
+    nowMillis: Long,
+    text: SessionsText,
+    onSignOut: (String) -> Unit,
+) {
+    items(rows, key = { it.key }) { row ->
+        Column(modifier = Modifier.animateItem()) {
+            SessionRow(
+                row = row,
+                nowMillis = nowMillis,
+                text = text,
+                onSignOut = { onSignOut(row.sessionId) },
+            )
+            HorizontalDivider()
+        }
+    }
+}
+
+/**
+ * A client group's header (§5 C): its label with the count, and a chevron. A
+ * tap or click, Enter, or the screen reader's expand or collapse action opens
+ * or closes it (SetGroupExpanded); assistive tech reads whether it is expanded.
+ */
+@Composable
+private fun SessionGroupHeader(
+    group: SessionGroupUi,
+    text: SessionsText,
+    onToggle: () -> Unit,
+) {
+    Column {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .focusRing()
+                .pointerHoverIcon(PointerIcon.Hand)
+                .clickable(onClick = onToggle)
+                .expandableRow(expanded = group.expanded, onToggle = onToggle)
+                .padding(horizontal = 16.dp, vertical = 16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                sessionGroupHeader(group, text),
+                style = MaterialTheme.typography.bodyLarge,
+                color = Color.White,
+                modifier = Modifier.weight(1f),
+            )
+            Icon(
+                if (group.expanded) {
+                    Icons.Filled.KeyboardArrowUp
+                } else {
+                    Icons.Filled.KeyboardArrowDown
+                },
+                contentDescription = null,
+                tint = TextMuted,
+            )
+        }
+        HorizontalDivider()
+    }
+}
+
+/** Show more: the next rows of the section above it. */
+@Composable
+private fun SessionsShowMore(onClick: () -> Unit) {
+    TextButton(
+        onClick = onClick,
+        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+    ) {
+        Text(stringResource(id = R.string.sessions_show_more))
+    }
+}
+
+/**
  * One session (§3): the country circle with the device logo, then the device
- * and version, the place and last use, and the sign-in date, method and id.
- * Assistive tech reads the row as one node, with full dates and times, and
- * offers "Sign out {device}" and the copy of the session id as its actions.
+ * (or, in a group, the group's row label) and version, the place and last use,
+ * and the sign-in date, method and id. Assistive tech reads the row as one
+ * node, with full dates and times, and offers "Sign out {device}" and the copy
+ * of the session id as its actions.
  */
 @Composable
 private fun SessionRow(
