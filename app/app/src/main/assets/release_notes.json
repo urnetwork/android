@@ -4,7 +4,7 @@
   "locales": {
     "en": {
       "title": "What's new",
-      "intro": "This release is named Champion. It includes 2 months of improvements to:",
+      "intro": "This release is named Champion. It includes major new features and continual bug fixes and improvements to:",
       "sections": [
         {
           "items": [
@@ -21,7 +21,7 @@
     },
     "ar": {
       "title": "ما الجديد",
-      "intro": "يحمل هذا الإصدار اسم Champion، ويتضمن شهرين من التحسينات في:",
+      "intro": "يحمل هذا الإصدار اسم Champion، ويتضمن ميزات جديدة رئيسية وإصلاحات مستمرة للأخطاء وتحسينات في:",
       "sections": [
         {
           "items": [
@@ -38,7 +38,7 @@
     },
     "cs": {
       "title": "Co je nového",
-      "intro": "Tato verze nese název Champion. Obsahuje 2 měsíce vylepšení v oblastech:",
+      "intro": "Tato verze nese název Champion. Obsahuje významné nové funkce a průběžné opravy chyb a vylepšení v oblastech:",
       "sections": [
         {
           "items": [
@@ -55,7 +55,7 @@
     },
     "de": {
       "title": "Neuigkeiten",
-      "intro": "Diese Version heißt Champion. Sie enthält 2 Monate an Verbesserungen bei:",
+      "intro": "Diese Version heißt Champion. Sie enthält wichtige neue Funktionen sowie fortlaufende Fehlerbehebungen und Verbesserungen bei:",
       "sections": [
         {
           "items": [
@@ -72,7 +72,7 @@
     },
     "el": {
       "title": "Τι νέο υπάρχει",
-      "intro": "Αυτή η έκδοση ονομάζεται Champion. Περιλαμβάνει βελτιώσεις 2 μηνών σε:",
+      "intro": "Αυτή η έκδοση ονομάζεται Champion. Περιλαμβάνει σημαντικές νέες λειτουργίες, καθώς και συνεχείς διορθώσεις σφαλμάτων και βελτιώσεις σε:",
       "sections": [
         {
           "items": [
@@ -89,7 +89,7 @@
     },
     "es": {
       "title": "Novedades",
-      "intro": "Esta versión se llama Champion. Incluye 2 meses de mejoras en:",
+      "intro": "Esta versión se llama Champion. Incluye importantes funciones nuevas y continuas correcciones de errores y mejoras en:",
       "sections": [
         {
           "items": [
@@ -106,7 +106,7 @@
     },
     "es-419": {
       "title": "Novedades",
-      "intro": "Esta versión se llama Champion. Incluye 2 meses de mejoras en:",
+      "intro": "Esta versión se llama Champion. Incluye importantes funciones nuevas y continuas correcciones de errores y mejoras en:",
       "sections": [
         {
           "items": [
@@ -123,7 +123,7 @@
     },
     "es-MX": {
       "title": "Novedades",
-      "intro": "Esta versión se llama Champion. Incluye 2 meses de mejoras en:",
+      "intro": "Esta versión se llama Champion. Incluye importantes funciones nuevas y continuas correcciones de errores y mejoras en:",
       "sections": [
         {
           "items": [
@@ -140,7 +140,7 @@
     },
     "fr": {
       "title": "Nouveautés",
-      "intro": "Cette version s'appelle Champion. Elle apporte 2 mois d'améliorations dans les domaines suivants :",
+      "intro": "Cette version s'appelle Champion. Elle apporte d'importantes nouvelles fonctionnalités, ainsi que des corrections de bugs et des améliorations continues dans les domaines suivants :",
       "sections": [
         {
           "items": [
@@ -157,7 +157,7 @@
     },
     "he": {
       "title": "מה חדש",
-      "intro": "הגרסה הזו נקראת Champion. היא כוללת חודשיים של שיפורים ב:",
+      "intro": "הגרסה הזו נקראת Champion. היא כוללת תכונות חדשות משמעותיות, וגם תיקוני באגים ושיפורים שוטפים ב:",
       "sections": [
         {
           "items": [
@@ -174,7 +174,7 @@
     },
     "hi": {
       "title": "नया क्या है",
-      "intro": "इस रिलीज़ का नाम Champion है। इसमें 2 महीनों के सुधार शामिल हैं:",
+      "intro": "इस रिलीज़ का नाम Champion है। इसमें प्रमुख नई सुविधाएँ, साथ ही इन क्षेत्रों में लगातार बग फ़िक्स और सुधार शामिल हैं:",
       "sections": [
         {
           "items": [
@@ -191,7 +191,7 @@
     },
     "id": {
       "title": "Yang baru",
-      "intro": "Rilis ini bernama Champion. Rilis ini mencakup 2 bulan peningkatan pada:",
+      "intro": "Rilis ini bernama Champion. Rilis ini mencakup fitur-fitur baru utama, serta perbaikan bug dan peningkatan berkelanjutan pada:",
       "sections": [
         {
           "items": [
@@ -208,7 +208,7 @@
     },
     "it": {
       "title": "Novità",
-      "intro": "Questa versione si chiama Champion. Include 2 mesi di miglioramenti a:",
+      "intro": "Questa versione si chiama Champion. Include importanti nuove funzionalità e continue correzioni di bug e miglioramenti a:",
       "sections": [
         {
           "items": [
@@ -225,7 +225,7 @@
     },
     "ja": {
       "title": "新機能",
-      "intro": "このリリースの名前は Champion です。2 か月分の改善が含まれています：",
+      "intro": "このリリースの名前は Champion です。主要な新機能に加え、次の分野での継続的なバグ修正と改善が含まれています：",
       "sections": [
         {
           "items": [
@@ -242,7 +242,7 @@
     },
     "ko": {
       "title": "새로운 기능",
-      "intro": "이번 릴리스의 이름은 Champion입니다. 2개월간의 개선 사항이 포함되어 있습니다:",
+      "intro": "이번 릴리스의 이름은 Champion입니다. 주요 신규 기능과 함께 다음 영역의 지속적인 버그 수정 및 개선 사항이 포함되어 있습니다:",
       "sections": [
         {
           "items": [
@@ -259,7 +259,7 @@
     },
     "nl": {
       "title": "Wat is er nieuw",
-      "intro": "Deze release heet Champion. Ze bevat 2 maanden aan verbeteringen in:",
+      "intro": "Deze release heet Champion. Ze bevat belangrijke nieuwe functies en doorlopende bugfixes en verbeteringen in:",
       "sections": [
         {
           "items": [
@@ -276,7 +276,7 @@
     },
     "pl": {
       "title": "Co nowego",
-      "intro": "Ta wersja nosi nazwę Champion. Zawiera 2 miesiące ulepszeń w obszarach:",
+      "intro": "Ta wersja nosi nazwę Champion. Zawiera ważne nowe funkcje oraz ciągłe poprawki błędów i ulepszenia w obszarach:",
       "sections": [
         {
           "items": [
@@ -293,7 +293,7 @@
     },
     "pt": {
       "title": "Novidades",
-      "intro": "Esta versão chama-se Champion. Inclui 2 meses de melhorias em:",
+      "intro": "Esta versão chama-se Champion. Inclui novas funcionalidades importantes, bem como correções de erros e melhorias contínuas em:",
       "sections": [
         {
           "items": [
@@ -310,7 +310,7 @@
     },
     "pt-BR": {
       "title": "Novidades",
-      "intro": "Esta versão se chama Champion. Ela inclui 2 meses de melhorias em:",
+      "intro": "Esta versão se chama Champion. Ela inclui novos recursos importantes, além de correções de bugs e melhorias contínuas em:",
       "sections": [
         {
           "items": [
@@ -327,7 +327,7 @@
     },
     "pt-PT": {
       "title": "Novidades",
-      "intro": "Esta versão chama-se Champion. Inclui 2 meses de melhorias em:",
+      "intro": "Esta versão chama-se Champion. Inclui novas funcionalidades importantes, bem como correções de erros e melhorias contínuas em:",
       "sections": [
         {
           "items": [
@@ -344,7 +344,7 @@
     },
     "ru": {
       "title": "Что нового",
-      "intro": "Этот выпуск называется Champion. В него вошли улучшения за 2 месяца:",
+      "intro": "Этот выпуск называется Champion. В него вошли важные новые функции, а также постоянные исправления ошибок и улучшения в следующих областях:",
       "sections": [
         {
           "items": [
@@ -361,7 +361,7 @@
     },
     "sv": {
       "title": "Nyheter",
-      "intro": "Den här versionen heter Champion. Den innehåller 2 månaders förbättringar av:",
+      "intro": "Den här versionen heter Champion. Den innehåller viktiga nya funktioner och löpande buggfixar och förbättringar av:",
       "sections": [
         {
           "items": [
@@ -378,7 +378,7 @@
     },
     "sw": {
       "title": "Kipya ni nini",
-      "intro": "Toleo hili linaitwa Champion. Linajumuisha maboresho ya miezi 2 katika:",
+      "intro": "Toleo hili linaitwa Champion. Linajumuisha vipengele vipya muhimu, pamoja na marekebisho ya hitilafu na maboresho endelevu katika:",
       "sections": [
         {
           "items": [
@@ -395,7 +395,7 @@
     },
     "th": {
       "title": "มีอะไรใหม่",
-      "intro": "รุ่นนี้มีชื่อว่า Champion ซึ่งรวมการปรับปรุงตลอด 2 เดือนในด้านต่อไปนี้:",
+      "intro": "รุ่นนี้มีชื่อว่า Champion ซึ่งมาพร้อมฟีเจอร์ใหม่ที่สำคัญ พร้อมทั้งการแก้ไขข้อบกพร่องและการปรับปรุงอย่างต่อเนื่องในด้านต่อไปนี้:",
       "sections": [
         {
           "items": [
@@ -412,7 +412,7 @@
     },
     "uk": {
       "title": "Що нового",
-      "intro": "Цей випуск називається Champion. Він містить покращення за 2 місяці:",
+      "intro": "Цей випуск називається Champion. Він містить важливі нові функції, а також постійні виправлення помилок і покращення в таких сферах:",
       "sections": [
         {
           "items": [
@@ -429,7 +429,7 @@
     },
     "vi": {
       "title": "Có gì mới",
-      "intro": "Bản phát hành này có tên Champion. Bản này gồm 2 tháng cải tiến về:",
+      "intro": "Bản phát hành này có tên Champion. Bản này gồm các tính năng mới quan trọng, cùng các bản sửa lỗi và cải tiến liên tục về:",
       "sections": [
         {
           "items": [
@@ -446,7 +446,7 @@
     },
     "zh": {
       "title": "新功能",
-      "intro": "此版本名为 Champion，包含 2 个月来在以下方面的改进：",
+      "intro": "此版本名为 Champion，包含重大新功能，以及在以下方面持续的错误修复和改进：",
       "sections": [
         {
           "items": [
@@ -463,7 +463,7 @@
     },
     "zh-HK": {
       "title": "新功能",
-      "intro": "此版本名為 Champion，包含 2 個月來在以下方面的改進：",
+      "intro": "此版本名為 Champion，包含重大新功能，以及在以下方面持續的錯誤修正及改進：",
       "sections": [
         {
           "items": [
