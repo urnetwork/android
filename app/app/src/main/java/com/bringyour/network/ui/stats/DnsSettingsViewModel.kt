@@ -10,6 +10,8 @@ import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bringyour.network.DeviceManager
+import com.bringyour.network.DnsSettingsState
+import com.bringyour.network.isDefaultDnsSettings
 import com.bringyour.network.ForegroundDeviceControllerOwner
 import com.bringyour.network.utils.listToSdkStringList
 import com.bringyour.network.utils.sdkStringListToList
@@ -58,6 +60,9 @@ class DnsSettingsViewModel @Inject constructor(
      * toggles their selection resolves with (DnsResolverSettingsAsCustom)
      */
     var settings by mutableStateOf<DnsSettingsUi?>(null)
+        private set
+
+    var settingsState by mutableStateOf<DnsSettingsState>(DnsSettingsState.Uninitialized)
         private set
 
     /**
@@ -240,6 +245,13 @@ class DnsSettingsViewModel @Inject constructor(
         val countryCode = connectedCountryCode ?: ""
 
         settings = sdkSettings?.let { toUi(Sdk.dnsResolverSettingsAsCustom(it) ?: it) }
+        settingsState = if (sdkSettings == null) {
+            DnsSettingsState.Uninitialized
+        } else if (isDefaultDnsSettings(sdkSettings)) {
+            DnsSettingsState.SystemDefault
+        } else {
+            DnsSettingsState.Custom(sdkSettings)
+        }
 
         val summary = sdkSettings?.let { Sdk.describeDnsResolverSettings(it, countryCode) }
         val nextSelection = summary?.let {
@@ -429,6 +441,14 @@ class DnsSettingsViewModel @Inject constructor(
         }
         refresh(deviceManager.device)
         return true
+    }
+
+    fun apply(state: DnsSettingsState) {
+        when (state) {
+            is DnsSettingsState.Custom -> applySettings(state.settings)
+            is DnsSettingsState.SystemDefault -> selectPick(DNS_PRESET_ID_DEFAULT)
+            is DnsSettingsState.Uninitialized -> { /* no-op */ }
+        }
     }
 
     override fun onCleared() {
