@@ -72,6 +72,51 @@ internal fun enableDeviceAutoSave(
     false
 }
 
+/**
+ * Tri-state representation of DNS settings: Uninitialized, SystemDefault, or Custom.
+ * Eliminates ambiguity between never-configured and default.
+ */
+sealed class DnsSettingsState {
+    object Uninitialized : DnsSettingsState()
+    object SystemDefault : DnsSettingsState()
+    data class Custom(val settings: DnsResolverSettings) : DnsSettingsState()
+
+    val settingsOrNull: DnsResolverSettings?
+        get() = when (this) {
+            is Custom -> settings
+            is SystemDefault -> Sdk.getDefaultDnsResolverSettings()
+            is Uninitialized -> null
+        }
+}
+
+internal fun dnsResolverSettingsSemanticallyEqual(
+    a: DnsResolverSettings?,
+    b: DnsResolverSettings?,
+): Boolean {
+    if (a === b) return true
+    if (a == null || b == null) return false
+    return a.enableRemoteDoh == b.enableRemoteDoh &&
+        a.enableLocalDoh == b.enableLocalDoh &&
+        a.enableRemoteDns == b.enableRemoteDns &&
+        a.enableLocalDns == b.enableLocalDns &&
+        a.enableFallback == b.enableFallback &&
+        sdkStringListToList(a.remoteDohUrlsIpv4) == sdkStringListToList(b.remoteDohUrlsIpv4) &&
+        sdkStringListToList(a.remoteDohUrlsIpv6) == sdkStringListToList(b.remoteDohUrlsIpv6) &&
+        sdkStringListToList(a.localDohUrlsIpv4) == sdkStringListToList(b.localDohUrlsIpv4) &&
+        sdkStringListToList(a.localDohUrlsIpv6) == sdkStringListToList(b.localDohUrlsIpv6) &&
+        sdkStringListToList(a.remoteDnsIpv4) == sdkStringListToList(b.remoteDnsIpv4) &&
+        sdkStringListToList(a.remoteDnsIpv6) == sdkStringListToList(b.remoteDnsIpv6) &&
+        sdkStringListToList(a.localDnsIpv4) == sdkStringListToList(b.localDnsIpv4) &&
+        sdkStringListToList(a.localDnsIpv6) == sdkStringListToList(b.localDnsIpv6)
+}
+
+internal fun isDefaultDnsSettings(settings: DnsResolverSettings?): Boolean {
+    if (settings == null) return false
+    if (settings.presetId == com.bringyour.network.ui.stats.DNS_PRESET_ID_DEFAULT) return true
+    val defaultSettings = Sdk.getDefaultDnsResolverSettings() ?: return false
+    return dnsResolverSettingsSemanticallyEqual(settings, defaultSettings)
+}
+
 @Singleton
 class DeviceManager @Inject constructor(
     private val jwtManager: JwtManager,
@@ -316,46 +361,85 @@ class DeviceManager @Inject constructor(
     }
 
     /**
-     * The effective dns resolver settings: the live device's, else the
-     * persisted settings. The device reports none while its dns upgrade mux is
-     * disabled, and then the persisted settings show through
+     * The effective dns resolver settings state: explicit Uninitialized, SystemDefault, or Custom.
+     * Replaces nullable DnsResolverSettings so null is not used to mean both never-configured and default.
+     * The device reports none while its dns upgrade mux is disabled, and then the persisted settings show through.
      */
-    val dnsResolverSettings: DnsResolverSettings?
+    val dnsResolverSettings: DnsSettingsState
         get() = synchronized(deviceLock) {
-            SplitRulePersistencePolicy.resolveEffective(
-                livePresent = device?.dnsResolverSettings != null,
-                live = device?.dnsResolverSettings,
-                stored = asyncLocalState?.localState?.dnsResolverSettings,
-            )
+            val live = device?.dnsResolverSettings
+            if (live != null) {
+                return if (isDefaultDnsSettings(live)) {
+                    DnsSettingsState.SystemDefault
+                } else {
+                    DnsSettingsState.Custom(live)
+                }
+            }
+            val stored = asyncLocalState?.localState?.dnsResolverSettings
+            if (stored != null) {
+                return if (isDefaultDnsSettings(stored)) {
+                    DnsSettingsState.SystemDefault
+                } else {
+                    DnsSettingsState.Custom(stored)
+                }
+            }
+            DnsSettingsState.Uninitialized
         }
 
     /**
-     * Applies dns resolver settings to exactly one place; see
-     * [editBlockActionOverrides]. The device persists the settings only when
-     * it accepts them, and with its dns upgrade mux disabled it accepts none,
-     * so in that case they are persisted here for the next device.
+     * Applies dns resolver settings to the live device. When a live device rejects
+     * the settings (dns upgrade mux disabled -> device reports none), falls back
+     * to persisting them here so the edit survives for the next device.
      *
      * @return false when there was nowhere to apply the settings
      */
-    fun applyDnsResolverSettings(settings: DnsResolverSettings): Boolean {
+    fun applyDnsResolverSettings(
+        settings: DnsResolverSettings,
+    ): Boolean {
         synchronized(deviceLock) {
-            val plan = SplitRulePersistencePolicy.planWrite(isDeviceConnected = device != null)
-            when {
-                plan.applyLive -> {
-                    val liveDevice = device ?: return false
+            val liveDevice = device
+            if (liveDevice != null) {
+                val setOk = runCatching {
                     liveDevice.dnsResolverSettings = settings
-                    if (liveDevice.dnsResolverSettings != null) {
-                        return true
-                    }
-                    // device declined (e.g. dns upgrade mux disabled) — fall
-                    // through to persist for the next device
+                    true
+                }.getOrDefault(false)
+                if (!setOk) return false
+                // The device accepts settings only while its dns upgrade mux is
+                // enabled; with the mux disabled it reports none. Fall back to
+                // persisted settings so the edit survives for the next device.
+                val readBack = liveDevice.dnsResolverSettings
+                if (readBack == null) {
+                    val localState = asyncLocalState?.localState ?: return false
+                    return runCatching {
+                        localState.dnsResolverSettings = settings
+                        true
+                    }.getOrDefault(false)
                 }
-                else -> {}
+                val localState = asyncLocalState?.localState ?: return false
+                return runCatching { localState.dnsResolverSettings = readBack }.isSuccess
             }
+            // Disconnected: if no live device, persist immediately as fallback acknowledge
             val localState = asyncLocalState?.localState ?: return false
-            return runCatching { localState.dnsResolverSettings = settings }.isSuccess
+            return runCatching {
+                localState.dnsResolverSettings = settings
+                true
+            }.getOrDefault(false)
         }
     }
+
+    fun applyDnsResolverSettings(
+        state: DnsSettingsState,
+    ): Boolean {
+        return when (state) {
+            is DnsSettingsState.Custom -> applyDnsResolverSettings(state.settings)
+            is DnsSettingsState.SystemDefault -> {
+                val defaultSettings = Sdk.getDefaultDnsResolverSettings() ?: return false
+                applyDnsResolverSettings(defaultSettings)
+            }
+            is DnsSettingsState.Uninitialized -> false
+        }
+    }
+
 
     fun initDevice(
         networkSpace: NetworkSpace?,
