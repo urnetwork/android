@@ -1029,6 +1029,9 @@
     <string name="post_quantum_encryption_fallback_note">الرجوع الاحتياطي مفعّل (مؤقتًا)</string>
     <string name="post_quantum_identity">هوية المزوّد ما بعد الكمومية</string>
     <string name="post_quantum_identity_explanation">يُخزَّن مفتاح هوية المزوّد الخاص بك محليًا على هذا الجهاز. إذا ظهر مفتاح أي قرين مختلفًا عن مفتاحه المخزَّن محليًا، فهذا يعني أنه لا يمكن الوثوق بمشغّل الشبكة.</string>
+    <string name="post_quantum_no_exits">لا توجد مخارج ما بعد الكمومية في %1$s حاليًا</string>
+    <string name="post_quantum_no_exits_pick_location">اختر موقعًا آخر</string>
+    <string name="post_quantum_no_exits_turn_off">إيقاف التشفير ما بعد الكمومي</string>
     <string name="private_dns_open_settings">فتح إعدادات الشبكة</string>
     <string name="private_dns_strict_notice">تم ضبط DNS الخاص على %1$s. يرسل Android طلبات الأسماء إليه مباشرةً بدلاً من المرور عبر URnetwork. إذا توقفت المواقع عن التحميل، فاضبط DNS الخاص على «تلقائي».</string>
     <string name="private_extender">موسّع خاص</string>

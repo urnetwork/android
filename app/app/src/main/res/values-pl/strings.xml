@@ -1029,6 +1029,9 @@
     <string name="post_quantum_encryption_fallback_note">Tryb awaryjny włączony (tymczasowo)</string>
     <string name="post_quantum_identity">Postkwantowa tożsamość dostawcy</string>
     <string name="post_quantum_identity_explanation">Twój klucz tożsamości dostawcy jest przechowywany lokalnie na tym urządzeniu. Jeśli klucz któregoś z węzłów różni się od jego klucza zapisanego lokalnie, oznacza to, że operatorowi sieci nie można ufać.</string>
+    <string name="post_quantum_no_exits">%1$s: obecnie brak wyjść postkwantowych</string>
+    <string name="post_quantum_no_exits_pick_location">Wybierz inną lokalizację</string>
+    <string name="post_quantum_no_exits_turn_off">Wyłącz szyfrowanie postkwantowe</string>
     <string name="private_dns_open_settings">Otwórz ustawienia sieci</string>
     <string name="private_dns_strict_notice">Prywatny DNS jest ustawiony na %1$s. Android wysyła zapytania bezpośrednio tam, zamiast przez URnetwork. Jeśli strony przestaną się ładować, ustaw Prywatny DNS na Automatyczny.</string>
     <string name="private_extender">Prywatny extender</string>

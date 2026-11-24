@@ -1029,6 +1029,9 @@
     <string name="post_quantum_encryption_fallback_note">フォールバック有効（一時的）</string>
     <string name="post_quantum_identity">ポスト量子プロバイダーID</string>
     <string name="post_quantum_identity_explanation">あなたのプロバイダーIDキーはこのデバイスにローカル保存されます。いずれかのピアのキーがローカルに保存されたキーと異なって表示される場合、そのネットワーク運営者は信頼できません。</string>
+    <string name="post_quantum_no_exits">%1$sには現在ポスト量子の出口がありません</string>
+    <string name="post_quantum_no_exits_pick_location">別の場所を選ぶ</string>
+    <string name="post_quantum_no_exits_turn_off">ポスト量子暗号をオフにする</string>
     <string name="private_dns_open_settings">ネットワーク設定を開く</string>
     <string name="private_dns_strict_notice">プライベートDNSが%1$sに設定されています。AndroidはURnetworkを経由せず、そこへ直接名前解決を送信します。サイトが読み込めなくなった場合は、プライベートDNSを「自動」に設定してください。</string>
     <string name="private_extender">プライベートエクステンダー</string>

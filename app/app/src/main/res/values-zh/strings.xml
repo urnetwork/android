@@ -1029,6 +1029,9 @@
     <string name="post_quantum_encryption_fallback_note">已启用回退（临时）</string>
     <string name="post_quantum_identity">后量子提供商身份</string>
     <string name="post_quantum_identity_explanation">你的提供商身份密钥存储在本设备本地。如果某个对等节点的密钥与本地存储的密钥不一致，说明网络运营方不可信。</string>
+    <string name="post_quantum_no_exits">%1$s 目前没有后量子出口</string>
+    <string name="post_quantum_no_exits_pick_location">选择其他位置</string>
+    <string name="post_quantum_no_exits_turn_off">关闭后量子加密</string>
     <string name="private_dns_open_settings">打开网络设置</string>
     <string name="private_dns_strict_notice">私人 DNS 已设置为 %1$s。Android 会直接向其发送查询，而不经过 URnetwork。如果网站无法加载，请将私人 DNS 设置为“自动”。</string>
     <string name="private_extender">私有扩展器</string>

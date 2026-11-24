@@ -1029,6 +1029,9 @@
     <string name="post_quantum_encryption_fallback_note">Fallback aktiv (vorübergehend)</string>
     <string name="post_quantum_identity">Post-Quanten-Anbieteridentität</string>
     <string name="post_quantum_identity_explanation">Dein Anbieter-Identitätsschlüssel wird lokal auf diesem Gerät gespeichert. Wenn der Schlüssel eines Peers von seinem lokal gespeicherten Schlüssel abweicht, bedeutet das, dass dem Netzwerkbetreiber nicht vertraut werden kann.</string>
+    <string name="post_quantum_no_exits">%1$s: zurzeit keine Post-Quanten-Exits</string>
+    <string name="post_quantum_no_exits_pick_location">Anderen Standort wählen</string>
+    <string name="post_quantum_no_exits_turn_off">Post-Quanten-Verschlüsselung ausschalten</string>
     <string name="private_dns_open_settings">Netzwerkeinstellungen öffnen</string>
     <string name="private_dns_strict_notice">Privates DNS ist auf %1$s eingestellt. Android sendet Anfragen direkt dorthin statt über URnetwork. Wenn Seiten nicht mehr laden, stelle Privates DNS auf Automatisch.</string>
     <string name="private_extender">Privater Extender</string>

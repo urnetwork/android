@@ -1029,6 +1029,9 @@
     <string name="post_quantum_encryption_fallback_note">Εφεδρική λειτουργία ενεργή (προσωρινά)</string>
     <string name="post_quantum_identity">Μετακβαντική ταυτότητα παρόχου</string>
     <string name="post_quantum_identity_explanation">Το κλειδί ταυτότητας παρόχου σας αποθηκεύεται τοπικά σε αυτή τη συσκευή. Αν το κλειδί κάποιου κόμβου εμφανίζεται διαφορετικό από το τοπικά αποθηκευμένο κλειδί του, σημαίνει ότι δεν μπορείτε να εμπιστευτείτε τον διαχειριστή του δικτύου.</string>
+    <string name="post_quantum_no_exits">%1$s: προς το παρόν καμία μετακβαντική έξοδος</string>
+    <string name="post_quantum_no_exits_pick_location">Επιλογή άλλης τοποθεσίας</string>
+    <string name="post_quantum_no_exits_turn_off">Απενεργοποίηση μετακβαντικής κρυπτογράφησης</string>
     <string name="private_dns_open_settings">Άνοιγμα ρυθμίσεων δικτύου</string>
     <string name="private_dns_strict_notice">Το Ιδιωτικό DNS έχει οριστεί σε %1$s. Το Android στέλνει τα ερωτήματα απευθείας εκεί αντί μέσω του URnetwork. Αν οι ιστότοποι σταματήσουν να φορτώνουν, ορίστε το Ιδιωτικό DNS σε Αυτόματο.</string>
     <string name="private_extender">Ιδιωτικός επεκτατής</string>
