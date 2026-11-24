@@ -17,6 +17,12 @@ internal data class VpnNotificationPresentation(
     val showDisconnect: Boolean,
     /** The slow internet content in place of the connected content, null for the normal content. */
     val slowInternet: SlowInternetPresentation? = null,
+    /**
+     * The location the sdk says has no post-quantum exits right now, named
+     * in place of connecting or couldn't connect; null for every other
+     * status and while the sdk holds no notice.
+     */
+    val postQuantumUnavailableLocationName: String? = null,
 )
 
 /**
@@ -51,6 +57,11 @@ internal sealed interface SlowInternetPresentation {
  * internet dwell decides ([slowInternetPhase], with the reading it shows,
  * SlowInternetNotice). Every other status keeps its own content: it is more
  * than a slow connection, and "still connected" would not be true of it.
+ *
+ * Connecting and couldn't connect name the sdk's no post-quantum exits
+ * notice instead while it holds ([postQuantumUnavailableLocationName], the
+ * location's name from Device.getPostQuantumUnavailable, null for none), as
+ * the connect screen does (postQuantumUnavailableShows).
  */
 internal fun vpnNotificationPresentation(
     connectRequested: Boolean,
@@ -67,6 +78,7 @@ internal fun vpnNotificationPresentation(
     bestAvailableLabel: String,
     slowInternetPhase: SlowInternetNoticePhase = SlowInternetNoticePhase.NONE,
     transportDelay: TransportDelayUi = TransportDelayUi.None,
+    postQuantumUnavailableLocationName: String? = null,
 ): VpnNotificationPresentation {
     val safeProviderCount = providerCount.coerceIn(0L, Int.MAX_VALUE.toLong()).toInt()
     val locationLabel = if (connectRequested) {
@@ -77,19 +89,18 @@ internal fun vpnNotificationPresentation(
     } else {
         null
     }
-    val status = when (
-        com.bringyour.network.ui.connect.quickConnectStatus(
-            configured = true,
-            requested = connectRequested,
-            startWaiting = false,
-            connectQueued = false,
-            minSatisfied = minSatisfied,
-            failed = failed,
-            addedProviderCount = safeProviderCount,
-            locationProviderCount = locationProviderCount,
-            tunnelStarted = tunnelStarted,
-        )
-    ) {
+    val quickStatus = com.bringyour.network.ui.connect.quickConnectStatus(
+        configured = true,
+        requested = connectRequested,
+        startWaiting = false,
+        connectQueued = false,
+        minSatisfied = minSatisfied,
+        failed = failed,
+        addedProviderCount = safeProviderCount,
+        locationProviderCount = locationProviderCount,
+        tunnelStarted = tunnelStarted,
+    )
+    val status = when (quickStatus) {
         com.bringyour.network.ui.connect.QuickConnectStatus.NOT_SIGNED_IN,
         com.bringyour.network.ui.connect.QuickConnectStatus.DISCONNECTED -> VpnNotificationStatus.ACTIVE
         com.bringyour.network.ui.connect.QuickConnectStatus.CONNECTING -> VpnNotificationStatus.CONNECTING
@@ -119,5 +130,8 @@ internal fun vpnNotificationPresentation(
         // a button that cannot stick would be misleading.
         showDisconnect = connectRequested && !systemAlwaysOn,
         slowInternet = slowInternet,
+        postQuantumUnavailableLocationName = postQuantumUnavailableLocationName?.takeIf {
+            com.bringyour.network.ui.connect.postQuantumUnavailableShows(quickStatus)
+        },
     )
 }

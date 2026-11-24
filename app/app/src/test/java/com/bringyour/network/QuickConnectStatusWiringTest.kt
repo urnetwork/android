@@ -71,6 +71,49 @@ class QuickConnectStatusWiringTest {
     }
 
     @Test
+    fun theSurfacesSayAndFollowTheSdksNoPostQuantumExitsNotice() {
+        // owner, 2026-11-24: "Tell them, let them choose". The device holds
+        // the notice (Device.getPostQuantumUnavailable) while the connect
+        // screen is closed: each surface reads it, follows it where it
+        // follows the window and the tunnel, and says it in the connect
+        // screen's words
+        val tile = source("QuickConnectTileService.kt")
+        val follow = between(tile, "        fun follow(app: MainApplication) {", "\n        }\n")
+        assertTrue(follow, follow.contains("addPostQuantumUnavailableChangeListener { refresh.changed() }"))
+        assertTrue(follow, follow.contains("renderedPostQuantumUnavailable = { renderedPostQuantumUnavailable }"))
+        val listening = between(tile, "    override fun onStartListening() {", "\n    }\n")
+        assertTrue(listening, listening.contains("addPostQuantumUnavailableChangeListener { statusCheck.request() }"))
+        val render = between(tile, "    private fun render() {", "\n    }\n")
+        assertTrue(render, render.contains("QuickConnect.postQuantumUnavailable(app, status)"))
+        assertTrue(render, render.contains("R.string.post_quantum_no_exits"))
+        assertTrue(render, render.contains("renderedPostQuantumUnavailable = postQuantumUnavailable"))
+
+        // the dashboard's title, also the overview's header
+        val title = between(source("widgets/DashboardWidget.kt"), "internal fun locationTitle(", "\n}\n")
+        assertTrue(title, title.contains("R.string.post_quantum_no_exits"))
+        assertTrue(
+            source("widgets/WidgetEntry.kt")
+                .contains("postQuantumUnavailableLocationName = app?.let { QuickConnect.postQuantumUnavailable(it, status) }"),
+        )
+        val writer = source("widgets/WidgetSnapshotWriter.kt")
+        val attach = between(writer, "    private fun attach(device: DeviceLocal?) {", "\n    }\n")
+        assertTrue(attach, attach.contains("addPostQuantumUnavailableChangeListener"))
+        val changed = between(writer, "    private fun dashboardStatusChanged() {", "\n    }\n")
+        assertTrue(changed, changed.contains("QuickConnect.postQuantumUnavailable(app, status)"))
+
+        val service = source("MainService.kt")
+        val build = between(service, "    private fun buildForegroundNotification(", "\n    }\n")
+        assertTrue(build, build.contains("postQuantumUnavailableLocationName = currentDevice?.postQuantumUnavailable"))
+        val serviceAttach = between(service, "    private fun attachToCurrentDevice() {", "\n    }\n")
+        assertTrue(
+            serviceAttach,
+            serviceAttach.contains("postQuantumUnavailableSub = currentDevice.addPostQuantumUnavailableChangeListener"),
+        )
+        val detach = between(service, "    private fun detachDeviceBindings(closePacketFlow: Boolean) {", "\n    }\n")
+        assertTrue(detach, detach.contains("postQuantumUnavailableSub?.close()"))
+    }
+
+    @Test
     fun theAppKeepsTheActiveTileSayingTheStatus() {
         // an active tile is bound only when the app asks, and stops listening
         // once it answers (QuickConnectTileRefresh): for the life of the

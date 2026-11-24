@@ -93,8 +93,10 @@ class WidgetSnapshotWriter(
     private var providing = false
     private var provideMode = ""
     private var connectEnabled = false
-    // what the dashboard's title last said (QuickConnect.status)
+    // what the dashboard's title last said (QuickConnect.status), and the
+    // location it named in the sdk's no post-quantum exits notice in its place
     private var dashboardStatus: com.bringyour.network.ui.connect.QuickConnectStatus? = null
+    private var dashboardPostQuantumUnavailable: String? = null
     private var lastWritten: WidgetTunnelSnapshot? = null
     private var contractRefreshPending = false
     private var lastContractRefreshAt = 0L
@@ -245,6 +247,13 @@ class WidgetSnapshotWriter(
                 if (this.device === device) dashboardStatusChanged()
             }
         }
+        // and the sdk's no post-quantum exits notice, which takes the title's
+        // connecting or couldn't connect line
+        subs += device.addPostQuantumUnavailableChangeListener {
+            handler.post {
+                if (this.device === device) dashboardStatusChanged()
+            }
+        }
         subs += device.addConnectedProviderLocationChangeListener {
             handler.post {
                 if (this.device !== device) return@post
@@ -282,12 +291,18 @@ class WidgetSnapshotWriter(
         handler.postDelayed(balanceTick, BALANCE_INITIAL_DELAY_MILLIS)
     }
 
-    /** The window or the tunnel changed: re-render the dashboard when its title's status changes. */
+    /**
+     * The window, the tunnel or the sdk's no post-quantum exits notice
+     * changed: re-render the dashboard when its title's status, or the
+     * location the notice names in its place, changes.
+     */
     private fun dashboardStatusChanged() {
         val app = context.applicationContext as? com.bringyour.network.MainApplication ?: return
         val status = com.bringyour.network.QuickConnect.status(app)
-        if (status == dashboardStatus) return
+        val postQuantumUnavailable = com.bringyour.network.QuickConnect.postQuantumUnavailable(app, status)
+        if (status == dashboardStatus && postQuantumUnavailable == dashboardPostQuantumUnavailable) return
         dashboardStatus = status
+        dashboardPostQuantumUnavailable = postQuantumUnavailable
         refresh.reloadDashboard()
     }
 

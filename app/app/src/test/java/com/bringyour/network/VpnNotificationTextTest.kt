@@ -73,6 +73,7 @@ class VpnNotificationTextTest {
             "connecting_status_indicator",
             "conn_failed",
             "reconnect_tunnel_status_indicator",
+            "post_quantum_no_exits",
             "slow_internet",
             "slow_internet_fallback_title",
             "slow_internet_still_connected",
@@ -95,6 +96,7 @@ class VpnNotificationTextTest {
         override val connecting get() = string("connecting_status_indicator")
         override val connectFailed get() = string("conn_failed")
         override val tunnelDisconnected get() = string("reconnect_tunnel_status_indicator")
+        override fun postQuantumNoExits(location: String) = String.format(string("post_quantum_no_exits"), location)
         override val slowInternet get() = string("slow_internet")
         override val slowInternetFallback get() = string("slow_internet_fallback_title")
         override val slowInternetStillConnected get() = string("slow_internet_still_connected")
@@ -114,6 +116,8 @@ class VpnNotificationTextTest {
         name: String? = "Germany",
         slowInternetPhase: SlowInternetNoticePhase = SlowInternetNoticePhase.NONE,
         transportDelay: TransportDelayUi = TransportDelayUi.None,
+        // the sdk's no post-quantum exits notice, its location's name
+        postQuantumUnavailable: String? = null,
     ) = vpnNotificationText(
         vpnNotificationPresentation(
             connectRequested = connectRequested,
@@ -130,6 +134,7 @@ class VpnNotificationTextTest {
             bestAvailableLabel = string("best_available_provider"),
             slowInternetPhase = slowInternetPhase,
             transportDelay = transportDelay,
+            postQuantumUnavailableLocationName = postQuantumUnavailable,
         ),
         strings,
     )
@@ -176,6 +181,22 @@ class VpnNotificationTextTest {
         assertEquals(
             VpnNotificationText("VPN tunnel disconnected 😓", "Germany", "Germany"),
             text(tunnelStarted = false),
+        )
+    }
+
+    @Test
+    fun theNoPostQuantumExitsNoticeTakesTheConnectingAndFailedLines() {
+        // owner, 2026-11-24: "Tell them, let them choose"; the sdk's notice
+        // (Device.getPostQuantumUnavailable), then the place
+        val notice = VpnNotificationText("No post-quantum exits in Germany right now", "Germany", "Germany")
+        assertEquals(notice, text(providerCount = 0, postQuantumUnavailable = "Germany"))
+        assertEquals(notice, text(providerCount = 0, failed = true, postQuantumUnavailable = "Germany"))
+        // never over connected, the tunnel down or the VPN up with no connection
+        assertEquals("Protected · Germany", text(postQuantumUnavailable = "Germany").title)
+        assertEquals("VPN tunnel disconnected 😓", text(tunnelStarted = false, postQuantumUnavailable = "Germany").title)
+        assertEquals(
+            VpnNotificationText("URnetwork", "On", "On"),
+            text(connectRequested = false, providerCount = 0, postQuantumUnavailable = "Germany"),
         )
     }
 

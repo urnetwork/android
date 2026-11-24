@@ -23,6 +23,8 @@ class VpnNotificationPolicyTest {
         country: String? = null,
         slowInternetPhase: SlowInternetNoticePhase = SlowInternetNoticePhase.NONE,
         transportDelay: TransportDelayUi = TransportDelayUi.None,
+        // the sdk's no post-quantum exits notice, its location's name
+        postQuantumUnavailable: String? = null,
     ) = vpnNotificationPresentation(
         connectRequested = connectRequested,
         systemAlwaysOn = systemAlwaysOn,
@@ -38,6 +40,7 @@ class VpnNotificationPolicyTest {
         bestAvailableLabel = "Best available provider",
         slowInternetPhase = slowInternetPhase,
         transportDelay = transportDelay,
+        postQuantumUnavailableLocationName = postQuantumUnavailable,
     )
 
     private val slowDelay = TransportDelayUi(
@@ -121,6 +124,29 @@ class VpnNotificationPolicyTest {
 
         assertEquals(VpnNotificationStatus.TUNNEL_DISCONNECTED, result.status)
         assertTrue(result.showDisconnect)
+    }
+
+    @Test
+    fun theNoPostQuantumExitsNoticeStandsOnlyForConnectingOrAFailedConnect() {
+        // the sdk decides the notice; the presentation places it where the
+        // connect screen does, the status unchanged
+        val connecting = presentation(providerCount = 0, postQuantumUnavailable = "Chicago")
+        assertEquals(VpnNotificationStatus.CONNECTING, connecting.status)
+        assertEquals("Chicago", connecting.postQuantumUnavailableLocationName)
+        val failed = presentation(providerCount = 0, failed = true, postQuantumUnavailable = "Chicago")
+        assertEquals(VpnNotificationStatus.CONNECT_FAILED, failed.status)
+        assertEquals("Chicago", failed.postQuantumUnavailableLocationName)
+        // connected, the tunnel down and the VPN up with no connection asked
+        // for keep their own content
+        for (result in listOf(
+            presentation(providerCount = 3, postQuantumUnavailable = "Chicago"),
+            presentation(providerCount = 3, tunnelStarted = false, postQuantumUnavailable = "Chicago"),
+            presentation(connectRequested = false, postQuantumUnavailable = "Chicago"),
+        )) {
+            assertEquals(result.status.name, null, result.postQuantumUnavailableLocationName)
+        }
+        // no notice from the sdk, none shown
+        assertEquals(null, presentation(providerCount = 0).postQuantumUnavailableLocationName)
     }
 
     @Test

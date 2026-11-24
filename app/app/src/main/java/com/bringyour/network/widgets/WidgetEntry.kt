@@ -40,6 +40,13 @@ class WidgetEntry(
      * (dashboardSlowInternet). The sample shows none.
      */
     val slowInternet: TransportDelayUi? = null,
+    /**
+     * The location the sdk says has no post-quantum exits right now, which
+     * the title names in place of connecting or couldn't connect
+     * (QuickConnect.postQuantumUnavailable); null for any other [status] and
+     * while the sdk holds no notice. The sample shows none.
+     */
+    val postQuantumUnavailableLocationName: String? = null,
 ) {
     /** The tunnel snapshot is meaningful only while the tunnel that wrote it is up. */
     val showsTunnelData: Boolean get() = isOn && tunnel.tunnelActive
@@ -62,6 +69,9 @@ class WidgetEntry(
             if (com.bringyour.network.BuildConfig.DEBUG && java.io.File(context.filesDir, SAMPLE_FLAG).exists()) {
                 return sample(now)
             }
+            // read once: the notice shows only for the status the title says
+            val status = app?.let { QuickConnect.status(it) }
+                ?: com.bringyour.network.ui.connect.QuickConnectStatus.NOT_SIGNED_IN
             return WidgetEntry(
                 nowMillis = now,
                 tunnel = WidgetSnapshotStore.loadTunnel(context) ?: WidgetTunnelSnapshot.inactive(now),
@@ -71,9 +81,9 @@ class WidgetEntry(
                 isConnecting = app?.let {
                     QuickConnect.shown(it) == com.bringyour.network.ui.connect.QuickConnectShown.CONNECTING
                 } ?: false,
-                status = app?.let { QuickConnect.status(it) }
-                    ?: com.bringyour.network.ui.connect.QuickConnectStatus.NOT_SIGNED_IN,
+                status = status,
                 slowInternet = WidgetSnapshotStore.slowInternet,
+                postQuantumUnavailableLocationName = app?.let { QuickConnect.postQuantumUnavailable(it, status) },
             )
         }
 

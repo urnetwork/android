@@ -85,6 +85,23 @@ object QuickConnect {
         )
     }
 
+    /**
+     * The selected location's name while the sdk says it has no
+     * post-quantum exits right now (Device.getPostQuantumUnavailable) and
+     * `status` is connecting or couldn't connect, whose line the notice
+     * takes (postQuantumUnavailableShows); null otherwise. The tile's
+     * subtitle and the dashboard widget's title then say "No post-quantum
+     * exits in <location> right now", the location named as the connect
+     * screen names it. Reads the device: any thread.
+     */
+    internal fun postQuantumUnavailable(
+        app: MainApplication,
+        status: com.bringyour.network.ui.connect.QuickConnectStatus,
+    ): String? {
+        if (!com.bringyour.network.ui.connect.postQuantumUnavailableShows(status)) return null
+        return app.device?.postQuantumUnavailable?.let { it.location?.name ?: "" }
+    }
+
     /** What the surfaces show: on, connecting while a start waits on its balance, or off. */
     internal fun shown(app: MainApplication): com.bringyour.network.ui.connect.QuickConnectShown =
         com.bringyour.network.ui.connect.quickConnectShown(
