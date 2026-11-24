@@ -8,6 +8,7 @@
       "sections": [
         {
           "items": [
+            "Post quantum",
             "Packet flow performance, including optimizations for diverse network conditions",
             "Extenders and VLESS support, to make the network more accessible",
             "Memory and CPU optimizations",
@@ -25,6 +26,7 @@
       "sections": [
         {
           "items": [
+            "التشفير ما بعد الكمومي",
             "أداء تدفق الحزم، بما في ذلك تحسينات تناسب ظروف الشبكة المتنوعة",
             "الموسّعات ودعم VLESS، لجعل الشبكة أسهل وصولًا",
             "تحسينات الذاكرة ووحدة المعالجة المركزية",
@@ -42,6 +44,7 @@
       "sections": [
         {
           "items": [
+            "Postkvantové šifrování",
             "Výkon toku paketů, včetně optimalizací pro různé síťové podmínky",
             "Extendery a podpora VLESS, aby byla síť dostupnější",
             "Optimalizace paměti a CPU",
@@ -59,6 +62,7 @@
       "sections": [
         {
           "items": [
+            "Post-Quanten-Verschlüsselung",
             "Leistung des Paketflusses, einschließlich Optimierungen für unterschiedliche Netzwerkbedingungen",
             "Extender und VLESS-Unterstützung, um das Netzwerk zugänglicher zu machen",
             "Speicher- und CPU-Optimierungen",
@@ -76,6 +80,7 @@
       "sections": [
         {
           "items": [
+            "Μετακβαντική κρυπτογράφηση",
             "Απόδοση ροής πακέτων, με βελτιστοποιήσεις για ποικίλες συνθήκες δικτύου",
             "Επεκτατές και υποστήριξη VLESS, για να γίνει το δίκτυο πιο προσβάσιμο",
             "Βελτιστοποιήσεις μνήμης και CPU",
@@ -93,6 +98,7 @@
       "sections": [
         {
           "items": [
+            "Cifrado poscuántico",
             "Rendimiento del flujo de paquetes, incluidas optimizaciones para distintas condiciones de red",
             "Extensores y compatibilidad con VLESS, para que la red sea más accesible",
             "Optimizaciones de memoria y CPU",
@@ -110,6 +116,7 @@
       "sections": [
         {
           "items": [
+            "Cifrado poscuántico",
             "Rendimiento del flujo de paquetes, incluidas optimizaciones para distintas condiciones de red",
             "Extensores y compatibilidad con VLESS, para que la red sea más accesible",
             "Optimizaciones de memoria y CPU",
@@ -127,6 +134,7 @@
       "sections": [
         {
           "items": [
+            "Cifrado poscuántico",
             "Rendimiento del flujo de paquetes, incluidas optimizaciones para distintas condiciones de red",
             "Extensores y compatibilidad con VLESS, para que la red sea más accesible",
             "Optimizaciones de memoria y CPU",
@@ -144,6 +152,7 @@
       "sections": [
         {
           "items": [
+            "Chiffrement post-quantique",
             "Performances du flux de paquets, avec des optimisations pour des conditions réseau variées",
             "Extendeurs et prise en charge de VLESS, pour rendre le réseau plus accessible",
             "Optimisations de la mémoire et du processeur",
@@ -161,6 +170,7 @@
       "sections": [
         {
           "items": [
+            "הצפנה פוסט-קוונטית",
             "ביצועי זרימת החבילות, כולל אופטימיזציות לתנאי רשת מגוונים",
             "מרחיבים ותמיכה ב-VLESS, כדי להנגיש את הרשת",
             "אופטימיזציות של זיכרון ומעבד",
@@ -178,6 +188,7 @@
       "sections": [
         {
           "items": [
+            "पोस्ट-क्वांटम एन्क्रिप्शन",
             "पैकेट फ़्लो का प्रदर्शन, जिसमें अलग-अलग नेटवर्क स्थितियों के लिए ऑप्टिमाइज़ेशन शामिल हैं",
             "एक्सटेंडर और VLESS सपोर्ट, ताकि नेटवर्क ज़्यादा सुलभ हो",
             "मेमोरी और CPU ऑप्टिमाइज़ेशन",
@@ -195,6 +206,7 @@
       "sections": [
         {
           "items": [
+            "Enkripsi pasca-kuantum",
             "Performa aliran paket, termasuk optimasi untuk beragam kondisi jaringan",
             "Extender dan dukungan VLESS, agar jaringan lebih mudah diakses",
             "Optimasi memori dan CPU",
@@ -212,6 +224,7 @@
       "sections": [
         {
           "items": [
+            "Crittografia post-quantistica",
             "Prestazioni del flusso di pacchetti, con ottimizzazioni per condizioni di rete diverse",
             "Extender e supporto VLESS, per rendere la rete più accessibile",
             "Ottimizzazioni di memoria e CPU",
@@ -229,6 +242,7 @@
       "sections": [
         {
           "items": [
+            "ポスト量子暗号",
             "パケットフローのパフォーマンス（さまざまなネットワーク環境向けの最適化を含む）",
             "エクステンダーと VLESS への対応により、ネットワークをより利用しやすく",
             "メモリと CPU の最適化",
@@ -246,6 +260,7 @@
       "sections": [
         {
           "items": [
+            "포스트 양자 암호화",
             "다양한 네트워크 환경에 맞춘 최적화를 포함한 패킷 흐름 성능",
             "네트워크를 더 쉽게 이용할 수 있도록 익스텐더 및 VLESS 지원",
             "메모리 및 CPU 최적화",
@@ -263,6 +278,7 @@
       "sections": [
         {
           "items": [
+            "Post-quantumversleuteling",
             "Prestaties van de pakketstroom, inclusief optimalisaties voor uiteenlopende netwerkomstandigheden",
             "Extenders en ondersteuning voor VLESS, om het netwerk toegankelijker te maken",
             "Optimalisaties voor geheugen en CPU",
@@ -280,6 +296,7 @@
       "sections": [
         {
           "items": [
+            "Szyfrowanie postkwantowe",
             "Wydajność przepływu pakietów, w tym optymalizacje pod różne warunki sieciowe",
             "Extendery i obsługa VLESS, aby sieć była bardziej dostępna",
             "Optymalizacje pamięci i procesora",
@@ -297,6 +314,7 @@
       "sections": [
         {
           "items": [
+            "Encriptação pós-quântica",
             "Desempenho do fluxo de pacotes, incluindo otimizações para diferentes condições de rede",
             "Extensores e suporte para VLESS, para tornar a rede mais acessível",
             "Otimizações de memória e CPU",
@@ -314,6 +332,7 @@
       "sections": [
         {
           "items": [
+            "Criptografia pós-quântica",
             "Desempenho do fluxo de pacotes, incluindo otimizações para diferentes condições de rede",
             "Extensores e suporte a VLESS, para tornar a rede mais acessível",
             "Otimizações de memória e CPU",
@@ -331,6 +350,7 @@
       "sections": [
         {
           "items": [
+            "Encriptação pós-quântica",
             "Desempenho do fluxo de pacotes, incluindo otimizações para diferentes condições de rede",
             "Extensores e suporte para VLESS, para tornar a rede mais acessível",
             "Otimizações de memória e CPU",
@@ -348,6 +368,7 @@
       "sections": [
         {
           "items": [
+            "Постквантовое шифрование",
             "Производительность потока пакетов, включая оптимизации для разных условий сети",
             "Экстендеры и поддержка VLESS, чтобы сеть была доступнее",
             "Оптимизация памяти и процессора",
@@ -365,6 +386,7 @@
       "sections": [
         {
           "items": [
+            "Postkvantkryptering",
             "Prestanda för paketflödet, inklusive optimeringar för varierande nätverksförhållanden",
             "Extendrar och stöd för VLESS, för att göra nätverket mer tillgängligt",
             "Optimeringar av minne och CPU",
@@ -382,6 +404,7 @@
       "sections": [
         {
           "items": [
+            "Usimbaji fiche wa baada ya kwantamu",
             "Utendaji wa mtiririko wa pakiti, ikiwa ni pamoja na uboreshaji kwa hali mbalimbali za mtandao",
             "Vipanuzi na usaidizi wa VLESS, ili kufanya mtandao ufikike kwa urahisi zaidi",
             "Uboreshaji wa kumbukumbu na CPU",
@@ -399,6 +422,7 @@
       "sections": [
         {
           "items": [
+            "การเข้ารหัสแบบโพสต์ควอนตัม",
             "ประสิทธิภาพของการไหลของแพ็กเก็ต รวมถึงการปรับแต่งสำหรับสภาพเครือข่ายที่หลากหลาย",
             "ตัวขยายและการรองรับ VLESS เพื่อให้เข้าถึงเครือข่ายได้ง่ายขึ้น",
             "การปรับแต่งหน่วยความจำและ CPU",
@@ -416,6 +440,7 @@
       "sections": [
         {
           "items": [
+            "Постквантове шифрування",
             "Продуктивність потоку пакетів, зокрема оптимізації для різних умов мережі",
             "Екстендери та підтримка VLESS, щоб мережа була доступнішою",
             "Оптимізація пам'яті та процесора",
@@ -433,6 +458,7 @@
       "sections": [
         {
           "items": [
+            "Mã hóa hậu lượng tử",
             "Hiệu năng luồng gói tin, bao gồm các tối ưu cho nhiều điều kiện mạng khác nhau",
             "Bộ mở rộng và hỗ trợ VLESS, giúp mạng dễ tiếp cận hơn",
             "Tối ưu bộ nhớ và CPU",
@@ -450,6 +476,7 @@
       "sections": [
         {
           "items": [
+            "后量子加密",
             "数据包流性能，包括针对各种网络条件的优化",
             "扩展器和 VLESS 支持，让网络更易于访问",
             "内存和 CPU 优化",
@@ -467,6 +494,7 @@
       "sections": [
         {
           "items": [
+            "後量子加密",
             "數據包流量效能，包括針對各種網絡狀況的優化",
             "擴展器及 VLESS 支援，讓網絡更易於使用",
             "記憶體及 CPU 優化",

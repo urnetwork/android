@@ -67,13 +67,20 @@ internal fun performanceProfileSnapshotsSemanticallyEqual(
 internal fun performanceProfileSnapshot(
     profile: PerformanceProfile?,
 ): PerformanceProfileSnapshot {
+    if (profile == null) {
+        // no profile is the SDK's default profile: auto, direct off and
+        // post-quantum on (Sdk.defaultPerformanceProfile)
+        return PerformanceProfileSnapshot(
+            postQuantumEncryption = Sdk.DefaultPostQuantumEncryption,
+        )
+    }
     return PerformanceProfileSnapshot(
-        windowMode = when (profile?.windowType) {
+        windowMode = when (profile.windowType) {
             Sdk.WindowTypeQuality -> PerformanceWindowMode.QUALITY
             Sdk.WindowTypeSpeed -> PerformanceWindowMode.SPEED
             else -> PerformanceWindowMode.AUTO
         },
-        windowSize = profile?.windowSize?.let {
+        windowSize = profile.windowSize?.let {
             WindowSizeSnapshot(
                 minimum = it.windowSizeMin.toInt(),
                 p2pOnlyMinimum = it.windowSizeMinP2pOnly.toInt(),
@@ -84,8 +91,8 @@ internal fun performanceProfileSnapshot(
                 userLimit = it.ulimit.toInt(),
             )
         },
-        allowDirect = profile?.allowDirect ?: false,
-        postQuantumEncryption = profile?.postQuantumEncryption ?: false,
+        allowDirect = profile.allowDirect,
+        postQuantumEncryption = profile.postQuantumEncryption,
     )
 }
 
@@ -100,7 +107,8 @@ internal data class PerformanceProfileWritePlan(
  * user change made while the device was being recreated.
  *
  * Null snapshots mean the corresponding storage/device endpoint is absent,
- * not a nil SDK profile (a nil profile is represented by the AUTO snapshot).
+ * not a nil SDK profile (a nil profile is the SDK's default profile, the
+ * snapshot of performanceProfileSnapshot(null)).
  */
 internal fun performanceProfileWritePlan(
     stored: PerformanceProfileSnapshot?,

@@ -189,7 +189,8 @@ internal constructor(
         setAllowDirect(!allow)
     }
 
-    var postQuantumEncryption by mutableStateOf(false)
+    // the SDK's default (on) until the device or the saved profile answers
+    var postQuantumEncryption by mutableStateOf(Sdk.DefaultPostQuantumEncryption)
         private set
 
     val setPostQuantumEncryption: (Boolean) -> Unit = {
@@ -734,13 +735,14 @@ internal constructor(
     }
 
     private fun loadPerformanceProfile() {
-        // A null profile and window type auto mean the same thing; the
-        // orthogonal settings are read off the profile with false defaults.
+        // A null profile is the SDK's default profile: auto, direct off and
+        // post-quantum on (Sdk.defaultPerformanceProfile).
         val performanceProfile = deviceManager.performanceProfile
         selectedWindowType =
             WindowType.fromRawValueOrDefault(performanceProfile?.windowType.orEmpty())
         allowDirect = performanceProfile?.allowDirect ?: false
-        postQuantumEncryption = performanceProfile?.postQuantumEncryption ?: false
+        postQuantumEncryption =
+            performanceProfile?.postQuantumEncryption ?: Sdk.DefaultPostQuantumEncryption
         val windowSize = performanceProfile?.windowSize
         fixedIpSize = windowSize != null &&
             windowSize.windowSizeMin.toInt() == 1 &&
