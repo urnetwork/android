@@ -50,13 +50,23 @@ fun ConnectStatusIndicator(
     onShowProviderLocations: (() -> Unit)? = null,
     // a paying account refused at a data limit (DataLimitGate)
     dataLimitReached: Boolean = false,
+    // the selected location's name while the sdk says it has no post-quantum
+    // exits right now: the line says so in place of connecting, with no
+    // ellipsis, since nothing connects until the user picks another location
+    // or turns post-quantum off (PostQuantumUnavailableNotice)
+    postQuantumUnavailableLocationName: String? = null,
 ) {
+
+    val postQuantumUnavailable = postQuantumUnavailableLocationName?.takeIf {
+        postQuantumUnavailableShows(status)
+    }
 
     val text = when {
         isPollingSubscriptionBalance -> stringResource(id = R.string.processing_subscription_balance)
         dataLimitReached -> stringResource(id = R.string.data_limit_reached)
         contractStatus?.insufficientBalance == true && currentPlan != Plan.Supporter -> stringResource(id = R.string.insufficient_balance)
         displayReconnectTunnel -> stringResource(id = R.string.reconnect_tunnel_status_indicator)
+        postQuantumUnavailable != null -> stringResource(id = R.string.post_quantum_no_exits, postQuantumUnavailable)
         status == ConnectStatus.CONNECTED -> pluralStringResource(
             id = R.plurals.connected_provider_count,
             count = windowCurrentSize,
@@ -76,6 +86,7 @@ fun ConnectStatusIndicator(
 
     val indicatorId = when {
         displayReconnectTunnel || isPollingSubscriptionBalance || dataLimitReached || (contractStatus?.insufficientBalance == true && currentPlan != Plan.Supporter) -> R.drawable.circle_indicator_yellow
+        postQuantumUnavailable != null -> R.drawable.circle_indicator_red
         status == ConnectStatus.CONNECTED -> R.drawable.circle_indicator_green
         status == ConnectStatus.CONNECTING || status == ConnectStatus.DESTINATION_SET -> R.drawable.circle_indicator_yellow
         status == ConnectStatus.CONNECT_FAILED -> R.drawable.circle_indicator_red
@@ -102,6 +113,7 @@ fun ConnectStatusIndicator(
             status == ConnectStatus.DESTINATION_SET
     val showProviderLocations = onShowProviderLocations?.takeIf {
         providerStatus &&
+                postQuantumUnavailable == null &&
                 !displayReconnectTunnel &&
                 !isPollingSubscriptionBalance &&
                 !dataLimitReached &&
@@ -140,7 +152,7 @@ fun ConnectStatusIndicator(
 
             Text(text)
 
-            if (status == ConnectStatus.CONNECTING) {
+            if (status == ConnectStatus.CONNECTING && postQuantumUnavailable == null) {
                 AnimatedEllipsis()
             }
 

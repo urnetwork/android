@@ -1029,6 +1029,9 @@
     <string name="post_quantum_encryption_fallback_note">Đã bật dự phòng (tạm thời)</string>
     <string name="post_quantum_identity">Danh tính nhà cung cấp hậu lượng tử</string>
     <string name="post_quantum_identity_explanation">Khóa danh tính nhà cung cấp của bạn được lưu cục bộ trên thiết bị này. Nếu khóa của bất kỳ nút ngang hàng nào khác với khóa đã lưu cục bộ, điều đó có nghĩa là không thể tin tưởng nhà vận hành mạng.</string>
+    <string name="post_quantum_no_exits">Hiện không có điểm thoát hậu lượng tử tại %1$s</string>
+    <string name="post_quantum_no_exits_pick_location">Chọn vị trí khác</string>
+    <string name="post_quantum_no_exits_turn_off">Tắt mã hóa hậu lượng tử</string>
     <string name="private_dns_open_settings">Mở cài đặt mạng</string>
     <string name="private_dns_strict_notice">DNS riêng tư được đặt thành %1$s. Android gửi truy vấn trực tiếp đến đó thay vì qua URnetwork. Nếu các trang web ngừng tải, hãy đặt DNS riêng tư thành Tự động.</string>
     <string name="private_extender">Bộ mở rộng riêng</string>

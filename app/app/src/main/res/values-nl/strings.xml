@@ -1029,6 +1029,9 @@
     <string name="post_quantum_encryption_fallback_note">Fallback ingeschakeld (tijdelijk)</string>
     <string name="post_quantum_identity">Post-quantum provideridentiteit</string>
     <string name="post_quantum_identity_explanation">Je provider-identiteitssleutel wordt lokaal op dit apparaat opgeslagen. Als de sleutel van een peer afwijkt van de lokaal opgeslagen sleutel, betekent dit dat de netwerkbeheerder niet te vertrouwen is.</string>
+    <string name="post_quantum_no_exits">Op dit moment geen post-quantumexits in %1$s</string>
+    <string name="post_quantum_no_exits_pick_location">Andere locatie kiezen</string>
+    <string name="post_quantum_no_exits_turn_off">Post-quantumversleuteling uitschakelen</string>
     <string name="private_dns_open_settings">Netwerkinstellingen openen</string>
     <string name="private_dns_strict_notice">Privé-DNS is ingesteld op %1$s. Android stuurt aanvragen rechtstreeks daarheen in plaats van via URnetwork. Als sites niet meer laden, stel Privé-DNS dan in op Automatisch.</string>
     <string name="private_extender">Privé-extender</string>

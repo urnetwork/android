@@ -1029,6 +1029,9 @@
     <string name="post_quantum_encryption_fallback_note">फ़ॉलबैक चालू (अस्थायी)</string>
     <string name="post_quantum_identity">पोस्ट-क्वांटम प्रदाता पहचान</string>
     <string name="post_quantum_identity_explanation">आपकी प्रदाता पहचान कुंजी इस डिवाइस पर स्थानीय रूप से संग्रहीत होती है। अगर किसी पीयर की कुंजी स्थानीय रूप से संग्रहीत कुंजी से अलग दिखती है, तो इसका मतलब है कि नेटवर्क ऑपरेटर पर भरोसा नहीं किया जा सकता।</string>
+    <string name="post_quantum_no_exits">%1$s में अभी कोई पोस्ट-क्वांटम एग्ज़िट नहीं है</string>
+    <string name="post_quantum_no_exits_pick_location">दूसरा स्थान चुनें</string>
+    <string name="post_quantum_no_exits_turn_off">पोस्ट-क्वांटम एन्क्रिप्शन बंद करें</string>
     <string name="private_dns_open_settings">नेटवर्क सेटिंग खोलें</string>
     <string name="private_dns_strict_notice">निजी DNS %1$s पर सेट है. Android, URnetwork के बजाय सीधे वहीं लुकअप भेजता है. अगर साइटें लोड होना बंद हो जाएं, तो निजी DNS को Automatic पर सेट करें.</string>
     <string name="private_extender">निजी एक्सटेंडर</string>

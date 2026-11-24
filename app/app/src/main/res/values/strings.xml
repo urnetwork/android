@@ -1044,6 +1044,9 @@
     <string name="post_quantum_encryption_fallback_note">Fallback enabled (temporary)</string>
     <string name="post_quantum_identity">Post Quantum Provider Identity</string>
     <string name="post_quantum_identity_explanation">Your provider identity key is stored locally on this device. If any peer\'s key appears different than their locally stored key, it means the network operator cannot be trusted.</string>
+    <string name="post_quantum_no_exits">No post-quantum exits in %1$s right now</string>
+    <string name="post_quantum_no_exits_pick_location">Pick another location</string>
+    <string name="post_quantum_no_exits_turn_off">Turn off post-quantum</string>
     <string name="private_dns_open_settings">Open network settings</string>
     <string name="private_dns_strict_notice">Private DNS is set to %1$s. Android sends lookups there directly instead of through URnetwork. If sites stop loading, set Private DNS to Automatic.</string>
     <string name="private_extender">Private extender</string>
