@@ -94,16 +94,22 @@ fun ConnectStatusIndicator(
         else -> R.drawable.circle_indicator_blue
     }
 
-    // the device tests read the connected and disconnected states from this
-    val indicatorDescription = stringResource(
-        id = if (displayReconnectTunnel) R.string.reconnect else when (status) {
-            ConnectStatus.CONNECTED -> R.string.connected
-            ConnectStatus.CONNECTING -> R.string.connecting_status_indicator
-            ConnectStatus.DESTINATION_SET -> R.string.connecting_status_indicator
-            ConnectStatus.CONNECT_FAILED -> R.string.conn_failed
-            ConnectStatus.DISCONNECTED -> R.string.disconnected
-        }
-    )
+    // the device tests read the connected and disconnected states from this.
+    // While the sdk's no post-quantum exits notice shows, the dot is not read
+    // as connecting or a failed connect: the line beside it names the state
+    val indicatorDescription = if (postQuantumUnavailable != null && !displayReconnectTunnel) {
+        null
+    } else {
+        stringResource(
+            id = if (displayReconnectTunnel) R.string.reconnect else when (status) {
+                ConnectStatus.CONNECTED -> R.string.connected
+                ConnectStatus.CONNECTING -> R.string.connecting_status_indicator
+                ConnectStatus.DESTINATION_SET -> R.string.connecting_status_indicator
+                ConnectStatus.CONNECT_FAILED -> R.string.conn_failed
+                ConnectStatus.DISCONNECTED -> R.string.disconnected
+            }
+        )
+    }
 
     // the provider status is the affordance: tapping it opens the per-provider
     // locations detail, while connecting as well as once connected. Any other

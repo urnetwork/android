@@ -361,8 +361,8 @@ fun ConnectScreen(
                 insufficientBalance = displayInsufficientBalance || dataLimitReached,
                 isPollingSubscriptionBalance = subscriptionBalanceViewModel.isPollingSubscriptionBalance,
                 dataLimitReached = dataLimitReached,
-                postQuantumUnavailable = connectViewModel.postQuantumUnavailableLocationName != null &&
-                    postQuantumUnavailableShows(displayConnectStatus),
+                postQuantumUnavailableLocationName = connectViewModel.postQuantumUnavailableLocationName
+                    ?.takeIf { postQuantumUnavailableShows(displayConnectStatus) },
             )
         }
     }

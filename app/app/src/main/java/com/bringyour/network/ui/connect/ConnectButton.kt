@@ -85,10 +85,15 @@ fun ConnectButton(
     isPollingSubscriptionBalance: Boolean,
     // the warning below is a paying account's data limit, for the button's name
     dataLimitReached: Boolean = false,
-    // the sdk says the selected location has no post-quantum exits right now
-    // (PostQuantumUnavailableNotice): the warning replaces the connecting grid
-    postQuantumUnavailable: Boolean = false,
+    // the selected location's name while the sdk says it has no post-quantum
+    // exits right now and the connect screen shows it
+    // (PostQuantumUnavailableNotice, postQuantumUnavailableShows), null
+    // otherwise: the warning replaces the connecting grid, and the button is
+    // named for the notice's line
+    postQuantumUnavailableLocationName: String? = null,
 ) {
+
+    val postQuantumUnavailable = postQuantumUnavailableLocationName != null
 
     var currentStatus by remember { mutableStateOf<ConnectStatus?>(null) }
     var disconnectedVisible by remember { mutableStateOf(true) }
@@ -116,7 +121,15 @@ fun ConnectButton(
         isPollingSubscriptionBalance = isPollingSubscriptionBalance,
         displayReconnectTunnel = displayReconnectTunnel,
         dataLimitReached = dataLimitReached,
-    )?.let { stringResource(id = it) }
+        postQuantumUnavailable = postQuantumUnavailable,
+    )?.let {
+        // the notice's line names its location
+        if (it == R.string.post_quantum_no_exits) {
+            stringResource(id = it, postQuantumUnavailableLocationName ?: "")
+        } else {
+            stringResource(id = it)
+        }
+    }
 
     Box(
         modifier = Modifier
