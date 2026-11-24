@@ -51,10 +51,17 @@ internal interface ConnectController {
     val connectionStatus: String?
     val grid: ConnectGrid?
     val selectedLocation: ConnectLocation?
+    /**
+     * The selected location's name while the sdk's no post-quantum exits
+     * notice holds (ConnectViewController.getPostQuantumUnavailable), null
+     * otherwise.
+     */
+    val postQuantumUnavailableLocationName: String?
 
     fun addGridListener(listener: () -> Unit): Sub
     fun addConnectionStatusListener(listener: () -> Unit): Sub
     fun addSelectedLocationListener(listener: () -> Unit): Sub
+    fun addPostQuantumUnavailableListener(listener: () -> Unit): Sub
 
     fun start()
     fun stop()
@@ -116,6 +123,8 @@ internal class SdkConnectController(val controller: ConnectViewController) : Con
     override val connectionStatus: String? get() = controller.connectionStatus
     override val grid: ConnectGrid? get() = controller.grid
     override val selectedLocation: ConnectLocation? get() = controller.selectedLocation
+    override val postQuantumUnavailableLocationName: String?
+        get() = controller.postQuantumUnavailable?.let { it.location?.name ?: "" }
 
     override fun addGridListener(listener: () -> Unit): Sub =
         controller.addGridListener { listener() }
@@ -125,6 +134,9 @@ internal class SdkConnectController(val controller: ConnectViewController) : Con
 
     override fun addSelectedLocationListener(listener: () -> Unit): Sub =
         controller.addSelectedLocationListener { listener() }
+
+    override fun addPostQuantumUnavailableListener(listener: () -> Unit): Sub =
+        controller.addPostQuantumUnavailableListener { listener() }
 
     override fun start() = controller.start()
     override fun stop() = controller.stop()

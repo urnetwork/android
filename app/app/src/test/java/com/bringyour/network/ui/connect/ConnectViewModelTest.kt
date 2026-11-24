@@ -129,9 +129,11 @@ class ConnectViewModelTest {
         override var connectionStatus: String? = "DISCONNECTED"
         override val grid: ConnectGrid? = null
         override val selectedLocation: ConnectLocation? = null
+        override val postQuantumUnavailableLocationName: String? = null
 
         override fun addGridListener(listener: () -> Unit): Sub = FakeSub()
         override fun addSelectedLocationListener(listener: () -> Unit): Sub = FakeSub()
+        override fun addPostQuantumUnavailableListener(listener: () -> Unit): Sub = FakeSub()
         override fun addConnectionStatusListener(listener: () -> Unit): Sub {
             statusListener = listener
             return FakeSub { statusListener = null }

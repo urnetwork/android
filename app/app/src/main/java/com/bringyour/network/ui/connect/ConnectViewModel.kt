@@ -120,6 +120,11 @@ internal constructor(
     var selectedLocation by mutableStateOf<ConnectLocation?>(null)
         private set
 
+    // the selected location's name while the sdk says it has no post-quantum
+    // exits right now (PostQuantumUnavailableNotice), null otherwise
+    var postQuantumUnavailableLocationName by mutableStateOf<String?>(null)
+        private set
+
     var windowCurrentSize by mutableIntStateOf(0)
         private set
 
@@ -617,6 +622,19 @@ internal constructor(
         addListener { vc -> vc.addSelectedLocationListener { updateSelectedLocation() } }
     }
 
+    // the controller's getter takes only its own state lock, never the
+    // device's: read where the listener reports, applied on the main thread
+    private fun updatePostQuantumUnavailable() {
+        connectVc?.let {
+            val locationName = it.postQuantumUnavailableLocationName
+            viewModelScope.launch { postQuantumUnavailableLocationName = locationName }
+        }
+    }
+
+    private val addPostQuantumUnavailableListener = {
+        addListener { vc -> vc.addPostQuantumUnavailableListener { updatePostQuantumUnavailable() } }
+    }
+
     val disconnect: () -> Unit = {
         // the user's disconnect: nothing is reconnected by itself after it,
         // and a start still waiting on its balance does not connect
@@ -784,6 +802,7 @@ internal constructor(
         addSelectedLocationListener()
         addGridListener()
         addConnectionStatusListener()
+        addPostQuantumUnavailableListener()
         addContractStatusListener()
         addTransportDelayListener()
         vc.start()
@@ -812,6 +831,8 @@ internal constructor(
             providerGridPoints = mapOf()
             windowCurrentSize = 0
             lastGridSignature = ""
+            // the notice is the closing controller's
+            postQuantumUnavailableLocationName = null
             // its listener is closing: never show a stale reading, it is read
             // again when a controller opens
             _transportDelay.value = TransportDelayUi.None
@@ -823,6 +844,7 @@ internal constructor(
         updateSelectedLocation()
         updateGrid()
         updateConnectionStatus()
+        updatePostQuantumUnavailable()
     }
 
     override fun onCleared() {

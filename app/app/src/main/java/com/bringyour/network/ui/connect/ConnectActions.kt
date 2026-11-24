@@ -147,6 +147,11 @@ internal fun ConnectActions(
     ipFamilyPoints: List<IpFamilyPoint>,
     // opens the referral flow from the usage bar referral row
     onReferralClick: () -> Unit,
+    // the selected location's name while the sdk says it has no post-quantum
+    // exits right now, and its Turn off post-quantum
+    // (PostQuantumUnavailableNotice)
+    postQuantumUnavailableLocationName: String? = null,
+    turnOffPostQuantum: () -> Unit = {},
     // false in the statistics pane beside the connect pane (the pane
     // arrangements, AdaptiveLayout.kt): the connect pane shows the connect
     // buttons and their notices, and the drawer is always open, so there is
@@ -251,6 +256,16 @@ internal fun ConnectActions(
                     privateDnsStrictHost = privateDnsStrictHost,
                     privateDnsPresetName = dnsSettingsViewModel.selectedPresetName?.let { dnsPresetName(it) },
                     showDataInfo = showDataInfo,
+                )
+
+                // the selected location has no post-quantum exits right now:
+                // another location or post-quantum off, above the fold with the
+                // other alerts
+                PostQuantumUnavailableNotice(
+                    locationName = postQuantumUnavailableLocationName,
+                    connectStatus = connectStatus,
+                    pickAnotherLocation = { presentSelectProvider(true) },
+                    turnOffPostQuantum = turnOffPostQuantum,
                 )
 
                 // the network's client limit holds the device off: what to

@@ -85,6 +85,9 @@ fun ConnectButton(
     isPollingSubscriptionBalance: Boolean,
     // the warning below is a paying account's data limit, for the button's name
     dataLimitReached: Boolean = false,
+    // the sdk says the selected location has no post-quantum exits right now
+    // (PostQuantumUnavailableNotice): the warning replaces the connecting grid
+    postQuantumUnavailable: Boolean = false,
 ) {
 
     var currentStatus by remember { mutableStateOf<ConnectStatus?>(null) }
@@ -169,12 +172,14 @@ fun ConnectButton(
 
             /**
              * Connect failed: no provider could be reached (the sdk's
-             * CONNECT_FAILED). The warning replaces the grid, as the error
-             * state of the desktop apps' connect canvas does, until a provider
-             * lands or the user retries.
+             * CONNECT_FAILED), or the selected location has no post-quantum
+             * exits right now (the sdk's notice). The warning replaces the
+             * grid, as the error state of the desktop apps' connect canvas
+             * does, until a provider lands, the user retries, picks another
+             * location or turns post-quantum off.
              */
             AnimatedVisibility(
-                visible = updatedStatus == ConnectStatus.CONNECT_FAILED && !insufficientBalance,
+                visible = (updatedStatus == ConnectStatus.CONNECT_FAILED || postQuantumUnavailable) && !insufficientBalance,
                 enter = fadeIn(),
                 exit = fadeOut(),
             ) {
@@ -210,7 +215,7 @@ fun ConnectButton(
                 }
             }
 
-            if (!insufficientBalance && updatedStatus != ConnectStatus.CONNECT_FAILED) {
+            if (!insufficientBalance && updatedStatus != ConnectStatus.CONNECT_FAILED && !postQuantumUnavailable) {
                 ConnectingButtonContent(
                     providerGridPoints = providerGridPoints,
                     grid = grid,

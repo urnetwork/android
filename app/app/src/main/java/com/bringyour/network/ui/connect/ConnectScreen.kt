@@ -361,6 +361,8 @@ fun ConnectScreen(
                 insufficientBalance = displayInsufficientBalance || dataLimitReached,
                 isPollingSubscriptionBalance = subscriptionBalanceViewModel.isPollingSubscriptionBalance,
                 dataLimitReached = dataLimitReached,
+                postQuantumUnavailable = connectViewModel.postQuantumUnavailableLocationName != null &&
+                    postQuantumUnavailableShows(displayConnectStatus),
             )
         }
     }
@@ -377,6 +379,7 @@ fun ConnectScreen(
             isPollingSubscriptionBalance = subscriptionBalanceViewModel.isPollingSubscriptionBalance,
             onShowProviderLocations = { navController.navigate(Route.ProviderLocations) },
             dataLimitReached = dataLimitReached,
+            postQuantumUnavailableLocationName = connectViewModel.postQuantumUnavailableLocationName,
         )
     }
 
@@ -423,6 +426,14 @@ fun ConnectScreen(
                 privateDnsStrictHost = privateDnsStrictHost,
                 privateDnsPresetName = dnsSettingsViewModel.selectedPresetName?.let { dnsPresetName(it) },
                 showDataInfo = { dataInfoPresented = true },
+            )
+            // the selected location has no post-quantum exits right now:
+            // another location or post-quantum off
+            PostQuantumUnavailableNotice(
+                locationName = connectViewModel.postQuantumUnavailableLocationName,
+                connectStatus = displayConnectStatus,
+                pickAnotherLocation = { presentSelectProvider(true) },
+                turnOffPostQuantum = { connectViewModel.setPostQuantumEncryption(false) },
             )
             // the network's client limit holds the device off: what to do
             ClientLimitNotice(navController = navController)
@@ -507,6 +518,8 @@ fun ConnectScreen(
                 onReferralClick = {
                     navController.navigate(Route.Referrals)
                 },
+                postQuantumUnavailableLocationName = connectViewModel.postQuantumUnavailableLocationName,
+                turnOffPostQuantum = { connectViewModel.setPostQuantumEncryption(false) },
             )
         }
 
