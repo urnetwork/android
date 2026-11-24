@@ -58,10 +58,18 @@ class QuickConnectTileService : TileService() {
             private set
 
         /**
+         * The location the tile last named in the sdk's no post-quantum exits notice, in place
+         * of its status's line; null while it named none. Main thread.
+         */
+        var renderedPostQuantumUnavailable: String? = null
+            private set
+
+        /**
          * Keeps the tile saying the current status for the life of the process: follows the
-         * device, its window and its tunnel, and asks the system to show the tile again when they
-         * change what it says (QuickConnectTileRefresh). An active tile stops listening right
-         * after it answers a request, so its own listeners miss them. Call once, main thread.
+         * device, its window, its tunnel and its no post-quantum exits notice, and asks the
+         * system to show the tile again when they change what it says (QuickConnectTileRefresh).
+         * An active tile stops listening right after it answers a request, so its own listeners
+         * miss them. Call once, main thread.
          */
         fun follow(app: MainApplication) {
             val mainHandler = Handler(Looper.getMainLooper())
@@ -71,6 +79,8 @@ class QuickConnectTileService : TileService() {
                 rendered = { renderedStatus },
                 placed = { isAdded(app) },
                 requestUpdate = { requestUpdate(app) },
+                postQuantumUnavailable = { QuickConnect.postQuantumUnavailable(app, it) },
+                renderedPostQuantumUnavailable = { renderedPostQuantumUnavailable },
             )
             // main thread: each device's subscriptions replace the last one's
             var subs: List<Sub> = listOf()
@@ -80,6 +90,7 @@ class QuickConnectTileService : TileService() {
                     subs = listOfNotNull(
                         device?.addWindowStatusChangeListener { refresh.changed() },
                         device?.addTunnelChangeListener { refresh.changed() },
+                        device?.addPostQuantumUnavailableChangeListener { refresh.changed() },
                     )
                     // a sign in or out, and the first device of the process
                     refresh.deviceChanged()
@@ -90,13 +101,18 @@ class QuickConnectTileService : TileService() {
 
     private val mainHandler = Handler(Looper.getMainLooper())
     private var connectSub: Sub? = null
-    // the window and the tunnel, which decide whether the subtitle says connected
+    // the window and the tunnel, which decide whether the subtitle says
+    // connected, and the sdk's no post-quantum exits notice, which takes its
+    // connecting or couldn't connect line
     private var statusSubs: List<Sub> = listOf()
     // re-rendered only when what the subtitle says changes, with one check
     // pending at a time: the window reports each provider's evaluation, a
     // burst of reports while the shade is open
     private val statusCheck = CoalescedPost(post = { mainHandler.post(it) }) {
-        if (QuickConnect.status(app) != renderedStatus) {
+        val status = QuickConnect.status(app)
+        if (status != renderedStatus ||
+            QuickConnect.postQuantumUnavailable(app, status) != renderedPostQuantumUnavailable
+        ) {
             render()
         }
     }
@@ -130,6 +146,7 @@ class QuickConnectTileService : TileService() {
         statusSubs = listOfNotNull(
             app.device?.addWindowStatusChangeListener { statusCheck.request() },
             app.device?.addTunnelChangeListener { statusCheck.request() },
+            app.device?.addPostQuantumUnavailableChangeListener { statusCheck.request() },
         )
         render()
         // a tap decides on a fresh balance: fetch it while the shade is open
@@ -176,10 +193,18 @@ class QuickConnectTileService : TileService() {
         tile.icon = Icon.createWithResource(this, R.drawable.ic_tile_quick_on)
         tile.label = getString(R.string.app_name)
         // connected only once it is, with the tunnel up; else the connect
-        // screen's connecting, couldn't connect or tunnel down line
+        // screen's connecting, couldn't connect or tunnel down line, the
+        // first two taken by the sdk's no post-quantum exits notice while it
+        // holds, as on the connect screen
         val status = QuickConnect.status(app)
+        val postQuantumUnavailable = QuickConnect.postQuantumUnavailable(app, status)
         renderedStatus = status
-        val subtitle = getString(com.bringyour.network.ui.connect.quickConnectStatusText(status))
+        renderedPostQuantumUnavailable = postQuantumUnavailable
+        val subtitle = if (postQuantumUnavailable != null) {
+            getString(R.string.post_quantum_no_exits, postQuantumUnavailable)
+        } else {
+            getString(com.bringyour.network.ui.connect.quickConnectStatusText(status))
+        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             tile.subtitle = subtitle
         }

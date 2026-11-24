@@ -4,7 +4,9 @@ package com.bringyour.network.ui.connect
  * What the Quick Settings tile, the dashboard widget and the VPN notification
  * say about the connection, in the connect screen's words
  * (ConnectStatusIndicator): connected only when the connect window holds its
- * providers and the tunnel is up.
+ * providers and the tunnel is up. In place of connecting or couldn't connect
+ * they say the sdk's no post-quantum exits notice while it holds
+ * (postQuantumUnavailableShows).
  *
  * They read the device, which has no controller's status, and they said
  * Connected for every requested connection: one forming, one the sdk gave up
@@ -64,6 +66,17 @@ internal fun quickConnectStatus(
     failed -> QuickConnectStatus.CONNECT_FAILED
     else -> QuickConnectStatus.CONNECTING
 }
+
+/**
+ * Whether the sdk's notice that the selected location has no post-quantum
+ * exits right now (Device.getPostQuantumUnavailable) takes the line for
+ * `status`: in place of connecting or couldn't connect, as the connect
+ * screen shows it for its own status (the ConnectStatus overload). Never
+ * over connected, disconnected, the tunnel down or signed out. The sdk
+ * decides when the notice holds; this only places it.
+ */
+internal fun postQuantumUnavailableShows(status: QuickConnectStatus): Boolean =
+    status == QuickConnectStatus.CONNECTING || status == QuickConnectStatus.CONNECT_FAILED
 
 /** The status line for `status`, as the connect screen says it. */
 internal fun quickConnectStatusText(status: QuickConnectStatus): Int = when (status) {

@@ -16,11 +16,13 @@ import com.bringyour.network.ui.connect.QuickConnectStatus
  * state after a sign out. Mullvad's tile showed the same symptom after a
  * remote sign out (mullvadvpn-app#10843), from another cause.
  *
- * [changed] reports the window or the tunnel, which can move the status;
- * [deviceChanged] a new device: a sign in, a sign out, another device
- * signing this one out, or the first device of the process. A burst folds
- * into one check on the main thread ([post]). A device change always asks.
- * Otherwise the check asks only when the status differs from what the tile
+ * [changed] reports the window or the tunnel, which can move the status, or
+ * the sdk's no post-quantum exits notice, which takes the line of
+ * connecting or couldn't connect; [deviceChanged] a new device: a sign in,
+ * a sign out, another device signing this one out, or the first device of
+ * the process. A burst folds into one check on the main thread ([post]). A
+ * device change always asks. Otherwise the check asks only when the status,
+ * or the location the notice names in its place, differs from what the tile
  * last said, and only for a tile that is placed: one that has spoken in
  * this process, or that the app saw added ([placed]). A tile nobody placed
  * is then not asked once per report of the window.
@@ -35,20 +37,32 @@ internal class QuickConnectTileRefresh(
     private val placed: () -> Boolean,
     /** Asks the system to bind the tile (QuickConnectTileService.requestUpdate). */
     private val requestUpdate: () -> Unit,
+    /**
+     * The location the tile would name now in the sdk's no post-quantum
+     * exits notice for a status (QuickConnect.postQuantumUnavailable), null
+     * for none.
+     */
+    private val postQuantumUnavailable: (QuickConnectStatus) -> String? = { null },
+    /** The location the tile last named in the notice, null for none. */
+    private val renderedPostQuantumUnavailable: () -> String? = { null },
 ) {
     // main thread only: set by deviceChanged, read by the check it posts
     private var always = false
 
     private val check = CoalescedPost(post = post) {
         val said = rendered()
-        val ask = always || (status() != said && (said != null || placed()))
+        val now = status()
+        // the notice comes, goes or names another location with the status
+        // unchanged
+        val differs = now != said || postQuantumUnavailable(now) != renderedPostQuantumUnavailable()
+        val ask = always || (differs && (said != null || placed()))
         always = false
         if (ask) {
             requestUpdate()
         }
     }
 
-    /** The window or the tunnel changed. Any thread. */
+    /** The window, the tunnel or the sdk's no post-quantum exits notice changed. Any thread. */
     fun changed() = check.request()
 
     /** The device changed. Main thread. */

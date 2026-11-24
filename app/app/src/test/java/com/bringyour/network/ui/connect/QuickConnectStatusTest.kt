@@ -104,6 +104,17 @@ class QuickConnectStatusTest {
     }
 
     @Test
+    fun theNoPostQuantumExitsNoticeTakesOnlyTheConnectingAndFailedLines() {
+        // the sdk's notice (Device.getPostQuantumUnavailable) where the
+        // connect screen shows it: never over connected, disconnected, the
+        // tunnel down or signed out
+        assertEquals(
+            setOf(QuickConnectStatus.CONNECTING, QuickConnectStatus.CONNECT_FAILED),
+            QuickConnectStatus.entries.filter { postQuantumUnavailableShows(it) }.toSet(),
+        )
+    }
+
+    @Test
     fun onlyConnectedSaysConnected() {
         assertEquals(R.string.tile_status_connected, quickConnectStatusText(QuickConnectStatus.CONNECTED))
         assertEquals(R.string.conn_failed, quickConnectStatusText(QuickConnectStatus.CONNECT_FAILED))

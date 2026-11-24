@@ -13,6 +13,10 @@ class QuickConnectTileRefreshTest {
 
     private var status = QuickConnectStatus.CONNECTING
     private var rendered: QuickConnectStatus? = QuickConnectStatus.CONNECTING
+    // the location the sdk's no post-quantum exits notice names, and the one
+    // the tile last named
+    private var postQuantumUnavailable: String? = null
+    private var renderedPostQuantumUnavailable: String? = null
     private var placed = false
     private var requests = 0
     private val posted = ArrayDeque<Runnable>()
@@ -23,6 +27,8 @@ class QuickConnectTileRefreshTest {
         rendered = { rendered },
         placed = { placed },
         requestUpdate = { requests += 1 },
+        postQuantumUnavailable = { postQuantumUnavailable },
+        renderedPostQuantumUnavailable = { renderedPostQuantumUnavailable },
     )
 
     private fun runPosted() {
@@ -57,6 +63,32 @@ class QuickConnectTileRefreshTest {
         refresh.changed()
         runPosted()
         assertEquals(1, requests)
+    }
+
+    @Test
+    fun theNoPostQuantumExitsNoticeAsksWithTheStatusUnchanged() {
+        // connecting throughout: the notice comes, names another location,
+        // then goes
+        postQuantumUnavailable = "Germany"
+        refresh.changed()
+        runPosted()
+        assertEquals(1, requests)
+
+        renderedPostQuantumUnavailable = "Germany"
+        refresh.changed()
+        runPosted()
+        assertEquals(1, requests)
+
+        postQuantumUnavailable = "Japan"
+        refresh.changed()
+        runPosted()
+        assertEquals(2, requests)
+
+        renderedPostQuantumUnavailable = "Japan"
+        postQuantumUnavailable = null
+        refresh.changed()
+        runPosted()
+        assertEquals(3, requests)
     }
 
     @Test

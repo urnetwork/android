@@ -12,7 +12,9 @@ package com.bringyour.network
  * - Connected: "Protected · Germany", then the provider count.
  * - Connecting, couldn't connect and the tunnel down: the connect screen's
  *   status line, as the Quick Settings tile's subtitle says it, then the
- *   place the connection is for.
+ *   place the connection is for. While the sdk says the place has no
+ *   post-quantum exits right now, "No post-quantum exits in Germany right
+ *   now" is the line for connecting and couldn't connect.
  * - The VPN up with no connection asked for (providing, or the kill switch):
  *   the app's name and "On".
  *
@@ -51,6 +53,9 @@ internal interface VpnNotificationStrings {
 
     /** "VPN tunnel disconnected 😓" */
     val tunnelDisconnected: String
+
+    /** "No post-quantum exits in Germany right now" (post_quantum_no_exits) */
+    fun postQuantumNoExits(location: String): String
 
     /** "Slow internet" */
     val slowInternet: String
@@ -101,13 +106,16 @@ internal fun vpnNotificationText(
     // a requested connection always has a place, else "Best available
     // provider"; only the VPN up with no connection asked for has none
     val location = presentation.locationLabel
+    // the sdk's notice, set only for connecting and couldn't connect
+    val postQuantumUnavailable = presentation.postQuantumUnavailableLocationName?.let(strings::postQuantumNoExits)
     val (title, text) = when (presentation.status) {
         VpnNotificationStatus.CONNECTED ->
             (location?.let(strings::protectedAt) ?: strings.appName) to
                 strings.providerCount(presentation.providerCount)
-        VpnNotificationStatus.CONNECTING -> strings.connecting to (location ?: strings.appName)
+        VpnNotificationStatus.CONNECTING -> (postQuantumUnavailable ?: strings.connecting) to (location ?: strings.appName)
         // the connect screen's words; the connection keeps trying
-        VpnNotificationStatus.CONNECT_FAILED -> strings.connectFailed to (location ?: strings.appName)
+        VpnNotificationStatus.CONNECT_FAILED ->
+            (postQuantumUnavailable ?: strings.connectFailed) to (location ?: strings.appName)
         VpnNotificationStatus.TUNNEL_DISCONNECTED -> strings.tunnelDisconnected to (location ?: strings.appName)
         VpnNotificationStatus.ACTIVE -> strings.appName to strings.on
     }

@@ -162,6 +162,12 @@ import kotlin.math.roundToInt
     private var tunnelChangeSub: Sub? = null
     /** Says in the notification when the connection is slow (apple/DELAY.md §7.2). */
     private var transportDelaySub: Sub? = null
+    /**
+     * Refreshes the notification when the sdk's notice that the selected
+     * location has no post-quantum exits comes, goes or names another
+     * location.
+     */
+    private var postQuantumUnavailableSub: Sub? = null
     // the slow internet dwell (SlowInternetNoticePolicy), main thread only
     private var slowInternetNotice = SlowInternetNotice()
     // observes the dwell again when it can change with no new report, or its
@@ -454,6 +460,13 @@ import kotlin.math.roundToInt
         }
         // connected only with the tunnel up: say when it starts or stops
         tunnelChangeSub = currentDevice.addTunnelChangeListener {
+            Handler(mainLooper).post {
+                if (boundDevice === currentDevice) updateForegroundNotification()
+            }
+        }
+        // the sdk's no post-quantum exits notice takes the connecting or
+        // couldn't connect title; the build reads it from the device
+        postQuantumUnavailableSub = currentDevice.addPostQuantumUnavailableChangeListener {
             Handler(mainLooper).post {
                 if (boundDevice === currentDevice) updateForegroundNotification()
             }
@@ -1020,6 +1033,8 @@ import kotlin.math.roundToInt
         tunnelChangeSub = null
         transportDelaySub?.close()
         transportDelaySub = null
+        postQuantumUnavailableSub?.close()
+        postQuantumUnavailableSub = null
         mainHandler.removeCallbacks(slowInternetCheck)
         slowInternetNotice = SlowInternetNotice()
         (application as MainApplication).widgetSnapshotWriter?.publishSlowInternet(null)
@@ -1374,6 +1389,7 @@ import kotlin.math.roundToInt
         override val connecting: String get() = getString(R.string.connecting_status_indicator)
         override val connectFailed: String get() = getString(R.string.conn_failed)
         override val tunnelDisconnected: String get() = getString(R.string.reconnect_tunnel_status_indicator)
+        override fun postQuantumNoExits(location: String): String = getString(R.string.post_quantum_no_exits, location)
         override val slowInternet: String get() = getString(R.string.slow_internet)
         override val slowInternetFallback: String get() = getString(R.string.slow_internet_fallback_title)
         override val slowInternetStillConnected: String get() = getString(R.string.slow_internet_still_connected)
@@ -1422,6 +1438,8 @@ import kotlin.math.roundToInt
                 bestAvailableLabel = getString(R.string.best_available_provider),
                 slowInternetPhase = slowInternetNotice.phase,
                 transportDelay = slowInternetNotice.delay,
+                // named as the connect screen names it
+                postQuantumUnavailableLocationName = currentDevice?.postQuantumUnavailable?.let { it.location?.name ?: "" },
             )
             // short for a Flip's cover screen and the lock screen: the status
             // first, then the place; the slow content swapped in while slow

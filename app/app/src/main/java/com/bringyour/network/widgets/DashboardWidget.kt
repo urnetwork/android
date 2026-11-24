@@ -476,8 +476,13 @@ internal fun locationMarkBitmap(sizePx: Int, color: Int, density: Float): Bitmap
 internal fun locationTitle(context: Context, entry: WidgetEntry): String {
     // the location only once connected, with the tunnel up; else the connect
     // screen's line for the status (not signed in, disconnected, connecting,
-    // couldn't connect, tunnel down)
+    // couldn't connect, tunnel down), or for connecting and couldn't connect
+    // the sdk's no post-quantum exits notice while it holds
     if (entry.status != com.bringyour.network.ui.connect.QuickConnectStatus.CONNECTED) {
+        val postQuantumUnavailable = entry.postQuantumUnavailableLocationName
+        if (postQuantumUnavailable != null) {
+            return context.getString(R.string.post_quantum_no_exits, postQuantumUnavailable)
+        }
         return context.getString(com.bringyour.network.ui.connect.quickConnectStatusText(entry.status))
     }
     val location = entry.tunnel.location
