@@ -47,8 +47,17 @@ class ConnectFailedStateTest {
     @Test
     fun theConnectButtonShowsAWarningInPlaceOfTheGrid() {
         val button = source("ConnectButton.kt")
-        assertTrue(button.contains("visible = updatedStatus == ConnectStatus.CONNECT_FAILED && !insufficientBalance,"))
-        assertTrue(button.contains("if (!insufficientBalance && updatedStatus != ConnectStatus.CONNECT_FAILED) {"))
+        // the same warning shows for the sdk's no post-quantum exits notice
+        assertTrue(
+            button.contains(
+                "visible = (updatedStatus == ConnectStatus.CONNECT_FAILED || postQuantumUnavailable) && !insufficientBalance,",
+            ),
+        )
+        assertTrue(
+            button.contains(
+                "if (!insufficientBalance && updatedStatus != ConnectStatus.CONNECT_FAILED && !postQuantumUnavailable) {",
+            ),
+        )
     }
 
     @Test

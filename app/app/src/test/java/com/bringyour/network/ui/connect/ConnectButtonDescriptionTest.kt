@@ -20,12 +20,14 @@ class ConnectButtonDescriptionTest {
         isPollingSubscriptionBalance: Boolean = false,
         displayReconnectTunnel: Boolean = false,
         dataLimitReached: Boolean = false,
+        postQuantumUnavailable: Boolean = false,
     ) = connectButtonDescriptionId(
         status = status,
         insufficientBalance = insufficientBalance,
         isPollingSubscriptionBalance = isPollingSubscriptionBalance,
         displayReconnectTunnel = displayReconnectTunnel,
         dataLimitReached = dataLimitReached,
+        postQuantumUnavailable = postQuantumUnavailable,
     )
 
     @Test
@@ -37,6 +39,36 @@ class ConnectButtonDescriptionTest {
         assertEquals(
             R.string.insufficient_balance,
             description(ConnectStatus.CONNECTED, insufficientBalance = true),
+        )
+    }
+
+    /**
+     * While the sdk's no post-quantum exits notice shows, the button draws
+     * its warning: it is named for the notice, where it was named connecting
+     * or couldn't connect over a warning that says neither.
+     */
+    @Test
+    fun `no post-quantum exits names the button for the notice`() {
+        for (status in listOf(ConnectStatus.CONNECTING, ConnectStatus.DESTINATION_SET, ConnectStatus.CONNECT_FAILED)) {
+            assertEquals(
+                status.toString(),
+                R.string.post_quantum_no_exits,
+                description(status, postQuantumUnavailable = true),
+            )
+        }
+        // the balance states still replace everything
+        assertEquals(
+            R.string.insufficient_balance,
+            description(ConnectStatus.CONNECTING, insufficientBalance = true, postQuantumUnavailable = true),
+        )
+        assertEquals(
+            R.string.data_limit_reached,
+            description(
+                ConnectStatus.CONNECTING,
+                insufficientBalance = true,
+                dataLimitReached = true,
+                postQuantumUnavailable = true,
+            ),
         )
     }
 

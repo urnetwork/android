@@ -11,8 +11,14 @@ import com.bringyour.network.ui.shared.models.ConnectStatus
  * name it read as an unlabeled button, once connected for one.
  *
  * The order follows what the button shows: the balance states replace
- * everything, a failed connect replaces the grid, and the reconnect warning
- * sits over the grid while connecting or connected.
+ * everything, the sdk's no post-quantum exits notice and a failed connect
+ * replace the grid, and the reconnect warning sits over the grid while
+ * connecting or connected.
+ *
+ * `postQuantumUnavailable` is the notice as the connect screen shows it
+ * (postQuantumUnavailableShows): the button is named for the notice's line,
+ * R.string.post_quantum_no_exits, which takes the location's name, not for
+ * connecting or a failed connect.
  */
 @StringRes
 fun connectButtonDescriptionId(
@@ -21,10 +27,12 @@ fun connectButtonDescriptionId(
     isPollingSubscriptionBalance: Boolean,
     displayReconnectTunnel: Boolean,
     dataLimitReached: Boolean = false,
+    postQuantumUnavailable: Boolean = false,
 ): Int? = when {
     insufficientBalance && isPollingSubscriptionBalance -> R.string.processing_subscription_balance
     dataLimitReached -> R.string.data_limit_reached
     insufficientBalance -> R.string.insufficient_balance
+    postQuantumUnavailable -> R.string.post_quantum_no_exits
     status == ConnectStatus.CONNECT_FAILED -> R.string.conn_failed
     displayReconnectTunnel -> R.string.reconnect_tunnel_status_indicator
     status == ConnectStatus.CONNECTING || status == ConnectStatus.DESTINATION_SET -> R.string.connecting_status_indicator
