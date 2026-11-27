@@ -559,7 +559,7 @@ fun LoginInitial(
             )
 
         } catch (e: ApiException) {
-            setLoginError("Error signing in with Google")
+            googleSignInFailureMessage(context, e.statusCode)?.let { setLoginError(it) }
         }
     }
 
