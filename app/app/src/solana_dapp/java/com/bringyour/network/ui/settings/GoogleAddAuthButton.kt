@@ -15,6 +15,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.bringyour.network.R
 import com.bringyour.network.ui.components.URButton
+import com.bringyour.network.ui.login.googleSignInFailureMessage
 import com.bringyour.network.ui.theme.TextMuted
 import com.bringyour.sdk.AddAuthArgs
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -62,7 +63,7 @@ fun GoogleAddAuthButton(
                 { msg -> onError(msg) }
             )
         } catch (e: ApiException) {
-            onError(context.getString(R.string.error_signing_in_with_google))
+            googleSignInFailureMessage(context, e.statusCode)?.let { onError(it) }
         }
     }
 
