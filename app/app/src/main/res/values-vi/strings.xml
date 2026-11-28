@@ -739,6 +739,12 @@
     <string name="got_it">Đã hiểu</string>
     <string name="guest">Khách</string>
     <string name="guest_mode">Chế độ khách</string>
+    <string name="help_extender_body">Bộ mở rộng chuyển tiếp kết nối của bạn tới URnetwork ở nơi kết nối bị chặn. Lưu lượng của bạn vẫn được mã hóa khi đi qua nó, và bộ mở rộng không thể đọc được.</string>
+    <string name="help_extender_title">Bộ mở rộng là gì?</string>
+    <string name="help_pending_body">“Đang chờ” là dữ liệu được giữ cho các kết nối đang mở của bạn. Phần không dùng đến sẽ trở về dữ liệu khả dụng khi các kết nối đóng lại.</string>
+    <string name="help_pending_title">“Đang chờ” nghĩa là gì?</string>
+    <string name="help_provide_body">Cung cấp là chia sẻ một phần internet của bạn với các thành viên URnetwork khác: lưu lượng của họ có thể đi ra qua kết nối của bạn. Nhà cung cấp có thể nhận phần thưởng cho dữ liệu họ chia sẻ. Chế độ cung cấp quyết định khi nào thiết bị này cung cấp, và bạn có thể dừng bất cứ lúc nào.</string>
+    <string name="help_provide_title">Cung cấp là gì?</string>
     <string name="how_are_we_doing">Chúng tôi đang làm thế nào?</string>
     <string name="i_ve_saved_my_seedphrase">Tôi đã lưu cụm từ khôi phục</string>
     <string name="identity_key_hash_copied">Đã sao chép hash khóa danh tính nhà cung cấp</string>

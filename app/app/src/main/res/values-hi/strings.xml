@@ -739,6 +739,12 @@
     <string name="got_it">समझ गया</string>
     <string name="guest">अतिथि</string>
     <string name="guest_mode">गेस्ट मोड</string>
+    <string name="help_extender_body">एक्सटेंडर आपके कनेक्शन को वहाँ URnetwork तक पहुँचाता है जहाँ वह ब्लॉक है। आपका ट्रैफ़िक उससे होकर भी एन्क्रिप्टेड रहता है, और एक्सटेंडर उसे पढ़ नहीं सकता।</string>
+    <string name="help_extender_title">एक्सटेंडर क्या है?</string>
+    <string name="help_pending_body">“लंबित” आपके खुले कनेक्शनों के लिए आरक्षित डेटा है। जो वे इस्तेमाल नहीं करते, वह कनेक्शन बंद होने पर आपके उपलब्ध डेटा में लौट आता है।</string>
+    <string name="help_pending_title">“लंबित” का क्या मतलब है?</string>
+    <string name="help_provide_body">प्रदान करने से आपका कुछ इंटरनेट URnetwork के अन्य सदस्यों के साथ साझा होता है: उनका ट्रैफ़िक आपके कनेक्शन से बाहर जा सकता है। प्रदाता साझा किए गए डेटा के लिए पुरस्कार कमा सकते हैं। प्रदान मोड तय करता है कि यह डिवाइस कब प्रदान करे, और आप कभी भी रोक सकते हैं।</string>
+    <string name="help_provide_title">प्रदान करना क्या है?</string>
     <string name="how_are_we_doing">हम कैसा कर रहे हैं?</string>
     <string name="i_ve_saved_my_seedphrase">मैंने अपना सीड फ़्रेज़ सहेज लिया</string>
     <string name="identity_key_hash_copied">प्रदाता पहचान कुंजी का हैश कॉपी किया गया</string>

@@ -739,6 +739,12 @@
     <string name="got_it">Rozumím</string>
     <string name="guest">Host</string>
     <string name="guest_mode">Režim pro hosty</string>
+    <string name="help_extender_body">Extender přenáší vaše připojení k URnetwork tam, kde je blokované. Váš provoz přes něj zůstává šifrovaný a extender ho nemůže číst.</string>
+    <string name="help_extender_title">Co je extender?</string>
+    <string name="help_pending_body">„Čekající“ jsou data vyhrazená pro vaše otevřená připojení. Co nevyužijí, se po jejich ukončení vrátí do vašich dostupných dat.</string>
+    <string name="help_pending_title">Co znamená „Čekající“?</string>
+    <string name="help_provide_body">Poskytování sdílí část vašeho internetu s ostatními členy URnetwork: jejich provoz může odcházet přes vaše připojení. Poskytovatelé mohou za sdílená data získávat odměny. Režim poskytování určuje, kdy toto zařízení poskytuje, a kdykoli můžete přestat.</string>
+    <string name="help_provide_title">Co je poskytování?</string>
     <string name="how_are_we_doing">Jak se nám daří?</string>
     <string name="i_ve_saved_my_seedphrase">Seed frázi mám uloženou</string>
     <string name="identity_key_hash_copied">Otisk identitního klíče poskytovatele zkopírován</string>

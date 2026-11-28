@@ -60,6 +60,7 @@ import com.bringyour.network.ShownPlan
 import com.bringyour.network.ui.components.SectionLoadError
 import com.bringyour.network.ui.Route
 import com.bringyour.network.ui.components.URNavListItem
+import com.bringyour.network.ui.components.HelpTopic
 import com.bringyour.network.ui.components.AccountSwitcher
 import com.bringyour.network.ui.components.LoginMode
 import com.bringyour.network.ui.components.PlanAccountNameLine
@@ -602,7 +603,8 @@ fun AccountScreenContent(
                     navigate(Route.GuestConversion)
                 }
             },
-            selected = chosenRoute == Route.Extenders
+            selected = chosenRoute == Route.Extenders,
+            helpTopic = HelpTopic.Extender,
         )
         HorizontalDivider()
 

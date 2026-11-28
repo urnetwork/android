@@ -739,6 +739,12 @@
     <string name="got_it">Begrepen</string>
     <string name="guest">Gast</string>
     <string name="guest_mode">Gastmodus</string>
+    <string name="help_extender_body">Een extender stuurt je verbinding met URnetwork door waar die geblokkeerd is. Je verkeer blijft versleuteld terwijl het erdoorheen gaat, en de extender kan het niet lezen.</string>
+    <string name="help_extender_title">Wat is een extender?</string>
+    <string name="help_pending_body">‘In behandeling’ is data die is gereserveerd voor je open verbindingen. Wat ze niet gebruiken, gaat terug naar je beschikbare data wanneer ze sluiten.</string>
+    <string name="help_pending_title">Wat betekent ‘In behandeling’?</string>
+    <string name="help_provide_body">Bij leveren deel je een deel van je internet met andere URnetwork-leden: hun verkeer kan via jouw verbinding naar buiten gaan. Leveranciers kunnen beloningen verdienen voor de data die ze delen. De leveringsmodus bepaalt wanneer dit apparaat levert, en je kunt op elk moment stoppen.</string>
+    <string name="help_provide_title">Wat is leveren?</string>
     <string name="how_are_we_doing">Hoe gaat het met ons?</string>
     <string name="i_ve_saved_my_seedphrase">Ik heb mijn seedphrase opgeslagen</string>
     <string name="identity_key_hash_copied">Hash van provider-identiteitssleutel gekopieerd</string>

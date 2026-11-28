@@ -739,6 +739,12 @@
     <string name="got_it">فهمت</string>
     <string name="guest">ضيف</string>
     <string name="guest_mode">وضع الضيف</string>
+    <string name="help_extender_body">يمرّر الموسّع اتصالك إلى URnetwork حيث يكون محظورًا. تبقى حركة مرورك مشفّرة عبره، ولا يستطيع الموسّع قراءتها.</string>
+    <string name="help_extender_title">ما هو الموسّع؟</string>
+    <string name="help_pending_body">«معلّق» هو بيانات محجوزة لاتصالاتك المفتوحة. ما لا تستخدمه منها يعود إلى بياناتك المتاحة عند إغلاقها.</string>
+    <string name="help_pending_title">ما معنى «معلّق»؟</string>
+    <string name="help_provide_body">التوفير يشارك جزءًا من اتصالك بالإنترنت مع أعضاء URnetwork الآخرين: يمكن أن تخرج حركة مرورهم عبر اتصالك. يمكن للموفّرين كسب مكافآت مقابل البيانات التي يشاركونها. يحدد وضع التوفير متى يوفّر هذا الجهاز، ويمكنك التوقف في أي وقت.</string>
+    <string name="help_provide_title">ما هو التوفير؟</string>
     <string name="how_are_we_doing">كيف حالنا؟</string>
     <string name="i_ve_saved_my_seedphrase">حفظت عبارة الاسترداد</string>
     <string name="identity_key_hash_copied">تم نسخ بصمة مفتاح هوية المزوّد</string>
