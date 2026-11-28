@@ -530,9 +530,11 @@ func TestBittensorKeyClaimsThroughTheRelay(t *testing.T) {
 		"unavailable = result.error != null,",
 	)
 	// a network with no wallet on this device still sees what the relay claims for
-	// it, while the sdk says the tile shows (ShowsTile)
+	// it, while the sdk says the tile shows (ShowsTile); a v2 claim in flight then
+	// only keeps that tile's Claim open (withClaimInFlight), and a hidden tile stays
+	// hidden
 	bittensorKeyContainsAll(t, "Earnings", bittensorKeyWallet(t, "EarningsScreen.kt"),
-		"ledgerTile = snLedgerTileWithRelay(wallet != null, snLedgerTile(ledgerLoad, ledgerClaimConfigured), claimStatus),",
+		"ledgerTile = snLedgerTileWithRelay(wallet != null, snLedgerTile(ledgerLoad, ledgerClaimConfigured), claimStatus)\n            ?.withClaimInFlight(ledgerClaimInFlight),",
 	)
 	tile := bittensorKeyBlock(t, bittensorKeyWallet(t, "SnClaimRelay.kt"), "fun snLedgerTileWithRelay(")
 	if !strings.Contains(tile, "if (claimStatus == null || !claimStatus.showsTile) {") || strings.Contains(tile, "pendingRao") {
