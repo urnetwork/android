@@ -179,6 +179,7 @@ enum class SessionMethod(@get:StringRes val labelRes: Int) {
     Verify(R.string.sessions_kind_verify),
     Apple(R.string.sessions_kind_apple),
     Google(R.string.sessions_kind_google),
+    Microsoft(R.string.sessions_kind_microsoft),
     Sso(R.string.sessions_kind_sso),
     Wallet(R.string.sessions_kind_wallet),
     Seedphrase(R.string.sessions_kind_seedphrase),
@@ -194,6 +195,7 @@ enum class SessionMethod(@get:StringRes val labelRes: Int) {
             "verify" -> Verify
             "apple" -> Apple
             "google" -> Google
+            "microsoft" -> Microsoft
             "sso" -> Sso
             "wallet" -> Wallet
             "seedphrase" -> Seedphrase

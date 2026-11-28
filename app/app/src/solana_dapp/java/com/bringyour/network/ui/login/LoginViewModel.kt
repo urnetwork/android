@@ -51,6 +51,10 @@ class LoginViewModel @Inject constructor(
     var appleAuthInProgress by mutableStateOf(false)
         private set
 
+    // Microsoft's sign-in round trip is in the browser too (launchMicrosoftSignIn)
+    var microsoftAuthInProgress by mutableStateOf(false)
+        private set
+
     var isValidUserAuth by mutableStateOf(false)
         private set
 
@@ -383,6 +387,10 @@ class LoginViewModel @Inject constructor(
 
     val setAppleAuthInProgress: (Boolean) -> Unit = { inProgress ->
         appleAuthInProgress = inProgress
+    }
+
+    val setMicrosoftAuthInProgress: (Boolean) -> Unit = { inProgress ->
+        microsoftAuthInProgress = inProgress
     }
 
     val setUserAuth: (TextFieldValue) -> Unit = { newValue ->

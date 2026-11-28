@@ -41,6 +41,7 @@ fun methodDisplayName(method: String): String {
         "phone" -> stringResource(id = R.string.site_app_phone)
         "google" -> "Google"
         "apple" -> "Apple"
+        "microsoft" -> stringResource(id = R.string.microsoft)
         "solana" -> stringResource(id = R.string.solana_wallet)
         "seedphrase" -> stringResource(id = R.string.seedphrase)
         else -> method.replaceFirstChar { it.uppercase() }

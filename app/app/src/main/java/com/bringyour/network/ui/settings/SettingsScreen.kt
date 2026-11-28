@@ -221,10 +221,13 @@ fun SettingsScreen(
         Sdk.planAccountName(planAccountNetworkName, planAccountGuest)
     }
     val authMethods = remember(networkUser) { networkUser?.let { parseAuthMethods(it) } ?: emptyList() }
+    // Change email, while the account has an email sign-in (NetworkUser.EmailSignIn)
+    val emailChangeAvailable = remember(networkUser) { networkUser?.emailSignIn()?.isNotEmpty() == true }
     val isAddingAuth = settingsViewModel.isAddingAuth.collectAsState().value
     val isRemovingAuth = settingsViewModel.isRemovingAuth.collectAsState().value
 
     var presentAddAuthSheet by rememberSaveable { mutableStateOf(false) }
+    var presentEmailChangeSheet by rememberSaveable { mutableStateOf(false) }
     var pendingRemoveMethod by remember { mutableStateOf<String?>(null) }
     var removeAuthError by remember { mutableStateOf<String?>(null) }
 
@@ -405,6 +408,8 @@ fun SettingsScreen(
         authMethods = authMethods,
         onRemoveAuthMethod = { method -> pendingRemoveMethod = method },
         onAddAuthMethodClick = { presentAddAuthSheet = true },
+        emailChangeAvailable = emailChangeAvailable,
+        onChangeEmailClick = { presentEmailChangeSheet = true },
         hasSeedphrase = authMethods.contains("seedphrase"),
         isGeneratingSeedphrase = isGeneratingSeedphrase,
         isRegeneratingSeedphrase = isRegeneratingSeedphrase,
@@ -510,6 +515,14 @@ fun SettingsScreen(
             accountViewModel.refreshNetworkUser()
         }
     )
+
+    if (presentEmailChangeSheet) {
+        EmailChangeSheet(
+            onDismiss = { presentEmailChangeSheet = false },
+            // the new email shows once the network user is read again
+            onChanged = { accountViewModel.refreshNetworkUser() },
+        )
+    }
 
     if (isPresentingReleaseNotes && releaseNotes != null && releaseNote != null) {
         ReleaseNotesSheet(
@@ -692,6 +705,9 @@ private fun SettingsScreen(
     authMethods: List<String>,
     onRemoveAuthMethod: (String) -> Unit,
     onAddAuthMethodClick: () -> Unit,
+    // the email row's Change email, while the account has an email sign-in
+    emailChangeAvailable: Boolean = false,
+    onChangeEmailClick: () -> Unit = {},
     hasSeedphrase: Boolean,
     isGeneratingSeedphrase: Boolean,
     isRegeneratingSeedphrase: Boolean,
@@ -924,14 +940,26 @@ private fun SettingsScreen(
                         color = Color.White
                     )
 
-                    // removing the last method would permanently lock the
-                    // account after logout -- keep at least one way to sign in
-                    if (authMethods.size > 1) {
-                        TextButton(onClick = { onRemoveAuthMethod(method) }) {
-                            Text(
-                                stringResource(id = R.string.remove),
-                                color = TextDanger
-                            )
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        // a verified change of the email sign-in, with a code to each address
+                        if (method == "email" && emailChangeAvailable) {
+                            TextButton(onClick = onChangeEmailClick) {
+                                Text(
+                                    stringResource(id = R.string.email_change),
+                                    color = BlueMedium
+                                )
+                            }
+                        }
+
+                        // removing the last method would permanently lock the
+                        // account after logout -- keep at least one way to sign in
+                        if (authMethods.size > 1) {
+                            TextButton(onClick = { onRemoveAuthMethod(method) }) {
+                                Text(
+                                    stringResource(id = R.string.remove),
+                                    color = TextDanger
+                                )
+                            }
                         }
                     }
                 }

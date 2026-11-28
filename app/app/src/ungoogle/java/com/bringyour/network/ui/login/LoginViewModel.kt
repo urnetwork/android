@@ -90,6 +90,15 @@ class LoginViewModel @Inject constructor(
         appleAuthInProgress = inProgress
     }
 
+    // the browser round trip of Microsoft's sign-in (launchMicrosoftSignIn);
+    // cleared when the login screen resumes
+    var microsoftAuthInProgress by mutableStateOf(false)
+        private set
+
+    val setMicrosoftAuthInProgress: (Boolean) -> Unit = { inProgress ->
+        microsoftAuthInProgress = inProgress
+    }
+
     val login: (
         ctx: Context,
         api: Api?,

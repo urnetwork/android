@@ -163,6 +163,7 @@ class SessionsPresentationTest {
             "verify" to R.string.sessions_kind_verify,
             "apple" to R.string.sessions_kind_apple,
             "google" to R.string.sessions_kind_google,
+            "microsoft" to R.string.sessions_kind_microsoft,
             "sso" to R.string.sessions_kind_sso,
             "wallet" to R.string.sessions_kind_wallet,
             "seedphrase" to R.string.sessions_kind_seedphrase,

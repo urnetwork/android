@@ -106,6 +106,9 @@ fun LoginInitial(
         if (loginViewModel.appleAuthInProgress) {
             loginViewModel.setAppleAuthInProgress(false)
         }
+        if (loginViewModel.microsoftAuthInProgress) {
+            loginViewModel.setMicrosoftAuthInProgress(false)
+        }
         onPauseOrDispose {}
     }
 
@@ -278,6 +281,18 @@ fun LoginInitial(
         }
     }
 
+    // Microsoft: the sdk's browser flow in a Custom Tab, returned by the api
+    // through ur://oauth/microsoft (handled by the LoginActivity)
+    val connectMicrosoft = {
+        loginViewModel.setLoginError(null)
+        val apiUrl = application?.networkSpaceManagerProvider?.getNetworkSpace()?.apiUrl
+        if (launchMicrosoftSignIn(context, apiUrl)) {
+            loginViewModel.setMicrosoftAuthInProgress(true)
+        } else {
+            loginViewModel.setLoginError(context.getString(R.string.error_signing_in_with_microsoft))
+        }
+    }
+
     // the seed sign-in is a slide-up sheet, like the auth code sign-in
     var seedphraseLoginSheetVisible by rememberSaveable { mutableStateOf(false) }
     val onSeedphraseLogin: () -> Unit = {
@@ -327,6 +342,8 @@ fun LoginInitial(
         googleAuthInProgress = loginViewModel.googleAuthInProgress,
         appleLogin = { connectSso(SsoProvider.APPLE) },
         appleAuthInProgress = loginViewModel.appleAuthInProgress,
+        microsoftLogin = { connectMicrosoft() },
+        microsoftAuthInProgress = loginViewModel.microsoftAuthInProgress,
         onLogin = onLogin,
         contentVisible = contentVisible,
         setContentVisible = {
@@ -414,6 +431,8 @@ fun LoginInitial(
     googleAuthInProgress: Boolean = false,
     appleLogin: () -> Unit = {},
     appleAuthInProgress: Boolean = false,
+    microsoftLogin: () -> Unit = {},
+    microsoftAuthInProgress: Boolean = false,
     onLogin: (LoginRequest, String) -> Unit,
     contentVisible: Boolean,
     setContentVisible: (Boolean) -> Unit,
@@ -500,6 +519,8 @@ fun LoginInitial(
                         googleAuthInProgress = googleAuthInProgress,
                         onAppleLogin = appleLogin,
                         appleAuthInProgress = appleAuthInProgress,
+                        onMicrosoftLogin = microsoftLogin,
+                        microsoftAuthInProgress = microsoftAuthInProgress,
                         launchAuthCodeLoginSheet = {
                             setAuthCodeLoginSheetVisible(true)
                         },
@@ -552,11 +573,13 @@ fun LoginInitialActions(
     googleAuthInProgress: Boolean = false,
     onAppleLogin: () -> Unit = {},
     appleAuthInProgress: Boolean = false,
+    onMicrosoftLogin: () -> Unit = {},
+    microsoftAuthInProgress: Boolean = false,
     launchAuthCodeLoginSheet: () -> Unit,
     onSeedphraseLogin: () -> Unit,
     onInstantAccountCreate: () -> Unit,
 ) {
-    val isLoginInProgress = userAuthInProgress || googleAuthInProgress || appleAuthInProgress || solanaAuthInProgress || bittensorAuthInProgress
+    val isLoginInProgress = userAuthInProgress || googleAuthInProgress || appleAuthInProgress || microsoftAuthInProgress || solanaAuthInProgress || bittensorAuthInProgress
 
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -578,11 +601,17 @@ fun LoginInitialActions(
                         SsoProvider.APPLE -> appleLoginMethod(onClick = onAppleLogin, processing = appleAuthInProgress)
                     }
                 } + instantAccountLoginMethod(onClick = onInstantAccountCreate),
-                tiles = listOf(
+                tiles = listOfNotNull(
                     secretKeyLoginMethod(onClick = onSeedphraseLogin),
                     authCodeLoginMethod(onClick = launchAuthCodeLoginSheet, tile = true),
                     bittensorLoginMethod(onClick = onBittensorLogin, processing = bittensorAuthInProgress, tile = true),
-                    solanaLoginMethod(onClick = onSolanaLogin, processing = solanaAuthInProgress, tile = true)
+                    solanaLoginMethod(onClick = onSolanaLogin, processing = solanaAuthInProgress, tile = true),
+                    // in the browser beside Google and Apple, where the build offers them
+                    if (BuildConfig.BRINGYOUR_BUNDLE_SSO_GOOGLE) {
+                        microsoftLoginMethod(onClick = onMicrosoftLogin, processing = microsoftAuthInProgress, tile = true)
+                    } else {
+                        null
+                    }
                 ),
                 enabled = !isLoginInProgress
             )
