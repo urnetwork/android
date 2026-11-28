@@ -17,6 +17,7 @@
     <string name="add_sign_in_method">サインイン方法を追加</string>
     <string name="add_sign_in_method_2">サインイン方法を追加</string>
     <string name="add_tao_for_gas">ガス用の TAO を追加</string>
+    <string name="add_to_favorites">お気に入りに追加</string>
     <string name="advanced">詳細</string>
     <string name="allow_local_connections">ローカル接続を許可</string>
     <string name="allow_providing_cell">携帯ネットワークでの提供を許可する</string>
@@ -687,7 +688,10 @@
     <string name="error_updating_device_name">デバイス名の更新中にエラーが発生しました。</string>
     <string name="exclude_app">VPNから除外</string>
     <string name="exclude_app_description">このアプリはトンネルを迂回します。</string>
+    <string name="exclude_exit_location">除外</string>
     <string name="excluded">除外</string>
+    <string name="excluded_exit_locations">除外する出口の場所</string>
+    <string name="excluded_exit_locations_description">これらの場所にある出口は、直接選んだ場合を除き、接続に使われません。</string>
     <string name="expanded">展開</string>
     <string name="expires">有効期限</string>
     <string name="expiry_time">有効期限</string>
@@ -706,6 +710,8 @@
     <string name="extenders_reset_done">エクステンダーをリセットしました</string>
     <string name="fast_dns_on_connect">接続時の高速DNS</string>
     <string name="fast_dns_on_connect_description">トンネルのDNSが起動するまで、ローカルネットワーク経由でDNSに応答します。問い合わせ内容がローカルネットワークに知られたり、出口の場所に合わない応答が返されたりする可能性があります。オフの場合、DNSはトンネル経由でのみ解決されます。</string>
+    <string name="favorite_exit_note">メンバーのデバイスです。いつでもオフラインになったり、ネットワークから離れたりする可能性があります。</string>
+    <string name="favorites">お気に入り</string>
     <string name="feedback_header">お問い合わせ</string>
     <string name="feedback_include_logs">フィードバックにログを添付（任意）</string>
     <string name="feedback_label">フィードバックボックス</string>
@@ -747,6 +753,18 @@
     <string name="help_pending_title">「保留中」とは？</string>
     <string name="help_provide_body">提供とは、インターネット回線の一部を他の URnetwork メンバーと共有することです。メンバーの通信があなたの回線から外部へ出ることがあります。提供者は共有したデータに応じて報酬を得られます。提供モードでこのデバイスが提供するタイミングを設定でき、いつでも停止できます。</string>
     <string name="help_provide_title">提供とは？</string>
+    <string name="hotspot_proxy">テザリング プロキシ</string>
+    <string name="hotspot_proxy_copy_details">接続情報をコピー</string>
+    <string name="hotspot_proxy_description">Wi-Fi テザリングや USB テザリングでつないだデバイスは、このスマートフォンの HTTP または SOCKS5 プロキシを通じて URnetwork を使えます。通信は URnetwork だけを通るため、接続していない間は何も共有されません。</string>
+    <string name="hotspot_proxy_http">HTTP プロキシ</string>
+    <string name="hotspot_proxy_listen_failed">テザリングでプロキシを開始できませんでした。別のアプリがそのポートを使用している可能性があります。</string>
+    <string name="hotspot_proxy_new_password">新しいパスワード</string>
+    <string name="hotspot_proxy_new_password_note">新しいパスワードにすると、古いパスワードを使っているデバイスは切断されます。</string>
+    <string name="hotspot_proxy_row_note">テザリング中のデバイスと URnetwork を共有します。</string>
+    <string name="hotspot_proxy_share">テザリング中のデバイスと共有</string>
+    <string name="hotspot_proxy_socks">SOCKS5 プロキシ</string>
+    <string name="hotspot_proxy_username">ユーザー名</string>
+    <string name="hotspot_proxy_waiting_for_hotspot">共有を始めるには、Wi-Fi テザリングまたは USB テザリングをオンにしてください。</string>
     <string name="how_are_we_doing">私たちの調子はどうですか？</string>
     <string name="i_ve_saved_my_seedphrase">シードフレーズを保存しました</string>
     <string name="identity_key_hash_copied">プロバイダーIDキーのハッシュをコピーしました</string>
@@ -957,6 +975,7 @@
     <string name="no_blocked_locations">ブロックされた場所はありません</string>
     <string name="no_compatible_wallet_app_found">このデバイスに対応するウォレットアプリが見つかりません。</string>
     <string name="no_ethos_wallet_found">EthOs ウォレットが見つかりません</string>
+    <string name="no_excluded_exit_locations">除外した場所はまだありません。除外する国、地域、都市を検索してください。</string>
     <string name="no_locations_found">場所が見つかりません</string>
     <string name="no_locations_found_detail">申し訳ありませんが、%1$sに関連する場所が見つかりませんでした。</string>
     <string name="no_log_files_found">ログファイルが見つかりません</string>
@@ -1189,6 +1208,7 @@
     <string name="remote_doh_urls">リモートDoH URL</string>
     <string name="remote_lowercase">リモート</string>
     <string name="remove">削除</string>
+    <string name="remove_from_favorites">お気に入りから削除</string>
     <string name="remove_rule">ルールを削除</string>
     <string name="remove_this_sign_in_method">このサインイン方法を削除しますか？</string>
     <string name="resend_reset_link">リンクを再送信</string>
@@ -1214,6 +1234,7 @@
     <string name="saved_as">%1$s として保存されます</string>
     <string name="scan_qr_code">QR コードをスキャン</string>
     <string name="search_apps_placeholder">アプリを検索</string>
+    <string name="search_exit_locations_placeholder">国、地域、都市を検索</string>
     <string name="search_placeholder">全てのロケーションを検索</string>
     <string name="secure_your_account">アカウントを保護</string>
     <string name="see_world_content">世界中のコンテンツを\n見る</string>

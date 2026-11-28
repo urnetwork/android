@@ -17,6 +17,7 @@
     <string name="add_sign_in_method">إضافة طريقة تسجيل دخول</string>
     <string name="add_sign_in_method_2">إضافة طريقة تسجيل الدخول</string>
     <string name="add_tao_for_gas">أضف TAO لرسوم الغاز</string>
+    <string name="add_to_favorites">إضافة إلى المفضلة</string>
     <string name="advanced">متقدم</string>
     <string name="allow_local_connections">السماح بالاتصالات المحلية</string>
     <string name="allow_providing_cell">السماح بالتوفير على شبكة الجوال</string>
@@ -687,7 +688,10 @@
     <string name="error_updating_device_name">حدث خطأ أثناء تحديث اسم الجهاز.</string>
     <string name="exclude_app">استثناء من VPN</string>
     <string name="exclude_app_description">يتجاوز هذا التطبيق النفق.</string>
+    <string name="exclude_exit_location">استبعاد</string>
     <string name="excluded">مستثنى</string>
+    <string name="excluded_exit_locations">مواقع المخارج المستبعدة</string>
+    <string name="excluded_exit_locations_description">لن تستخدم الاتصالات مخارج في هذه الأماكن، إلا إذا اخترت أحدها مباشرة.</string>
     <string name="expanded">تم التوسيع</string>
     <string name="expires">ينتهي</string>
     <string name="expiry_time">وقت الانتهاء</string>
@@ -706,6 +710,8 @@
     <string name="extenders_reset_done">تمت إعادة ضبط الموسّعات</string>
     <string name="fast_dns_on_connect">DNS سريع عند الاتصال</string>
     <string name="fast_dns_on_connect_description">يجيب على استعلامات DNS عبر الشبكة المحلية أثناء بدء DNS الخاص بالنفق. قد يكشف هذا عمليات البحث الخاصة بك للشبكة المحلية ويعيد إجابات لا تتوافق مع موقع الخروج. عند الإيقاف، يتم حل DNS عبر النفق فقط.</string>
+    <string name="favorite_exit_note">جهاز أحد الأعضاء. قد يصبح غير متصل أو يغادر الشبكة في أي وقت.</string>
+    <string name="favorites">المفضلة</string>
     <string name="feedback_header">تواصل معنا</string>
     <string name="feedback_include_logs">إرفاق السجلات مع الملاحظات (اختياري)</string>
     <string name="feedback_label">مربع التعليقات</string>
@@ -747,6 +753,18 @@
     <string name="help_pending_title">ما معنى «معلّق»؟</string>
     <string name="help_provide_body">التوفير يشارك جزءًا من اتصالك بالإنترنت مع أعضاء URnetwork الآخرين: يمكن أن تخرج حركة مرورهم عبر اتصالك. يمكن للموفّرين كسب مكافآت مقابل البيانات التي يشاركونها. يحدد وضع التوفير متى يوفّر هذا الجهاز، ويمكنك التوقف في أي وقت.</string>
     <string name="help_provide_title">ما هو التوفير؟</string>
+    <string name="hotspot_proxy">وكيل نقطة الاتصال</string>
+    <string name="hotspot_proxy_copy_details">نسخ تفاصيل الاتصال</string>
+    <string name="hotspot_proxy_description">يمكن للأجهزة المتصلة بنقطة اتصال Wi-Fi أو بالربط عبر USB استخدام URnetwork من خلال وكيل HTTP أو SOCKS5 على هذا الهاتف. تمر حركة بياناتها عبر URnetwork فقط، لذلك لا تتم مشاركة أي شيء أثناء قطع الاتصال.</string>
+    <string name="hotspot_proxy_http">وكيل HTTP</string>
+    <string name="hotspot_proxy_listen_failed">تعذّر تشغيل الوكيل على نقطة الاتصال. ربما يستخدم تطبيق آخر منافذه.</string>
+    <string name="hotspot_proxy_new_password">كلمة مرور جديدة</string>
+    <string name="hotspot_proxy_new_password_note">تؤدي كلمة المرور الجديدة إلى قطع اتصال الأجهزة التي تستخدم القديمة.</string>
+    <string name="hotspot_proxy_row_note">شارك URnetwork مع الأجهزة المتصلة بنقطة الاتصال الخاصة بك.</string>
+    <string name="hotspot_proxy_share">المشاركة مع أجهزة نقطة الاتصال</string>
+    <string name="hotspot_proxy_socks">وكيل SOCKS5</string>
+    <string name="hotspot_proxy_username">اسم المستخدم</string>
+    <string name="hotspot_proxy_waiting_for_hotspot">شغّل نقطة اتصال Wi-Fi أو الربط عبر USB لبدء المشاركة.</string>
     <string name="how_are_we_doing">كيف حالنا؟</string>
     <string name="i_ve_saved_my_seedphrase">حفظت عبارة الاسترداد</string>
     <string name="identity_key_hash_copied">تم نسخ بصمة مفتاح هوية المزوّد</string>
@@ -957,6 +975,7 @@
     <string name="no_blocked_locations">لا توجد مواقع محجوبة</string>
     <string name="no_compatible_wallet_app_found">لم يتم العثور على تطبيق محفظة متوافق على هذا الجهاز.</string>
     <string name="no_ethos_wallet_found">لم يتم العثور على محفظة EthOs</string>
+    <string name="no_excluded_exit_locations">لا توجد مواقع مستبعدة بعد. ابحث عن بلد أو منطقة أو مدينة لاستبعادها.</string>
     <string name="no_locations_found">لم يتم العثور على مواقع</string>
     <string name="no_locations_found_detail">عذرًا، تعذر علينا العثور على أي مواقع ذات صلة بـ %1$s.</string>
     <string name="no_log_files_found">لم يتم العثور على ملف السجل</string>
@@ -1189,6 +1208,7 @@
     <string name="remote_doh_urls">عناوين URL لـ DoH البعيد</string>
     <string name="remote_lowercase">بعيد</string>
     <string name="remove">أزل</string>
+    <string name="remove_from_favorites">إزالة من المفضلة</string>
     <string name="remove_rule">إزالة القاعدة</string>
     <string name="remove_this_sign_in_method">إزالة طريقة تسجيل الدخول هذه؟</string>
     <string name="resend_reset_link">إعادة إرسال الرابط</string>
@@ -1214,6 +1234,7 @@
     <string name="saved_as">يُحفظ كـ %1$s</string>
     <string name="scan_qr_code">مسح رمز QR</string>
     <string name="search_apps_placeholder">البحث في التطبيقات</string>
+    <string name="search_exit_locations_placeholder">ابحث عن البلدان والمناطق والمدن</string>
     <string name="search_placeholder">البحث في جميع المواقع</string>
     <string name="secure_your_account">أمّن حسابك</string>
     <string name="see_world_content">شاهد كل\nمحتوى\nالعالم</string>

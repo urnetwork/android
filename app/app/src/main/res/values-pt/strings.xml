@@ -17,6 +17,7 @@
     <string name="add_sign_in_method">Adicionar método de início de sessão</string>
     <string name="add_sign_in_method_2">Adicionar método de início de sessão</string>
     <string name="add_tao_for_gas">Adicione TAO para o gás</string>
+    <string name="add_to_favorites">Adicionar aos favoritos</string>
     <string name="advanced">Avançado</string>
     <string name="allow_local_connections">Permitir conexões locais</string>
     <string name="allow_providing_cell">Permitir fornecer na rede celular</string>
@@ -687,7 +688,10 @@
     <string name="error_updating_device_name">Ocorreu um erro ao atualizar o nome do dispositivo.</string>
     <string name="exclude_app">Excluir da VPN</string>
     <string name="exclude_app_description">Esta aplicação contorna o túnel.</string>
+    <string name="exclude_exit_location">Excluir</string>
     <string name="excluded">Excluídas</string>
+    <string name="excluded_exit_locations">Locais de saída excluídos</string>
+    <string name="excluded_exit_locations_description">As conexões não usarão saídas nesses lugares, a menos que você escolha um deles diretamente.</string>
     <string name="expanded">Expandido</string>
     <string name="expires">Expira</string>
     <string name="expiry_time">Hora de expiração</string>
@@ -706,6 +710,8 @@
     <string name="extenders_reset_done">Extensores repostos</string>
     <string name="fast_dns_on_connect">DNS rápido ao ligar</string>
     <string name="fast_dns_on_connect_description">Responde ao DNS através da rede local enquanto o DNS do túnel arranca. Isto pode revelar as suas pesquisas à rede local e devolver respostas que não correspondem à sua localização de saída. Quando desativado, o DNS só é resolvido através do túnel.</string>
+    <string name="favorite_exit_note">O dispositivo de um membro. Ele pode ficar offline ou sair da rede a qualquer momento.</string>
+    <string name="favorites">Favoritos</string>
     <string name="feedback_header">Entrar em contato</string>
     <string name="feedback_include_logs">Anexar logs ao feedback (opcional)</string>
     <string name="feedback_label">Caixa de feedback</string>
@@ -747,6 +753,18 @@
     <string name="help_pending_title">O que significa “Pendente”?</string>
     <string name="help_provide_body">O fornecimento compartilha parte da sua internet com outros membros da URnetwork: o tráfego deles pode sair pela sua conexão. Os fornecedores podem ganhar recompensas pelos dados que compartilham. O modo de fornecimento define quando este dispositivo fornece, e você pode parar a qualquer momento.</string>
     <string name="help_provide_title">O que é o fornecimento?</string>
+    <string name="hotspot_proxy">Proxy do ponto de acesso</string>
+    <string name="hotspot_proxy_copy_details">Copiar dados de ligação</string>
+    <string name="hotspot_proxy_description">Os dispositivos ligados ao seu ponto de acesso Wi-Fi ou por USB podem usar a URnetwork através de um proxy HTTP ou SOCKS5 neste telefone. O tráfego deles passa apenas pela URnetwork, por isso nada é partilhado enquanto estiver desligado.</string>
+    <string name="hotspot_proxy_http">Proxy HTTP</string>
+    <string name="hotspot_proxy_listen_failed">Não foi possível iniciar o proxy no seu ponto de acesso. Outra aplicação pode estar a usar as portas dele.</string>
+    <string name="hotspot_proxy_new_password">Nova palavra-passe</string>
+    <string name="hotspot_proxy_new_password_note">Uma nova palavra-passe desliga os dispositivos que usam a antiga.</string>
+    <string name="hotspot_proxy_row_note">Partilhe a URnetwork com os dispositivos do seu ponto de acesso.</string>
+    <string name="hotspot_proxy_share">Partilhar com dispositivos do ponto de acesso</string>
+    <string name="hotspot_proxy_socks">Proxy SOCKS5</string>
+    <string name="hotspot_proxy_username">Nome de utilizador</string>
+    <string name="hotspot_proxy_waiting_for_hotspot">Ative o ponto de acesso Wi-Fi ou a ligação USB para começar a partilhar.</string>
     <string name="how_are_we_doing">Como estamos a fazer?</string>
     <string name="i_ve_saved_my_seedphrase">Guardei a minha frase-semente</string>
     <string name="identity_key_hash_copied">Hash da chave de identidade do fornecedor copiado</string>
@@ -957,6 +975,7 @@
     <string name="no_blocked_locations">Nenhuma localização bloqueada</string>
     <string name="no_compatible_wallet_app_found">Nenhuma aplicação de carteira compatível encontrada neste dispositivo.</string>
     <string name="no_ethos_wallet_found">Nenhuma carteira EthOs encontrada</string>
+    <string name="no_excluded_exit_locations">Nenhum local excluído ainda. Pesquise um país, região ou cidade para excluí-lo.</string>
     <string name="no_locations_found">Nenhum local encontrado</string>
     <string name="no_locations_found_detail">Desculpe, não conseguimos encontrar nenhum local relacionado a %1$s.</string>
     <string name="no_log_files_found">Nenhum ficheiro de log encontrado</string>
@@ -1189,6 +1208,7 @@
     <string name="remote_doh_urls">URLs DoH remotos</string>
     <string name="remote_lowercase">remoto</string>
     <string name="remove">Remova</string>
+    <string name="remove_from_favorites">Remover dos favoritos</string>
     <string name="remove_rule">Remover regra</string>
     <string name="remove_this_sign_in_method">Remover este método de início de sessão?</string>
     <string name="resend_reset_link">Reenviar link</string>
@@ -1214,6 +1234,7 @@
     <string name="saved_as">Guardado como %1$s</string>
     <string name="scan_qr_code">Digitalizar código QR</string>
     <string name="search_apps_placeholder">Pesquisar aplicações</string>
+    <string name="search_exit_locations_placeholder">Pesquisar países, regiões e cidades</string>
     <string name="search_placeholder">Pesquisar todos os locais</string>
     <string name="secure_your_account">Proteja a sua conta</string>
     <string name="see_world_content">Ver todo o\nconteúdo do mundo</string>

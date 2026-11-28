@@ -17,6 +17,7 @@
     <string name="add_sign_in_method">Ajouter une méthode de connexion</string>
     <string name="add_sign_in_method_2">Ajouter une méthode de connexion</string>
     <string name="add_tao_for_gas">Ajoutez des TAO pour le gas</string>
+    <string name="add_to_favorites">Ajouter aux favoris</string>
     <string name="advanced">Avancé</string>
     <string name="allow_local_connections">Autoriser les connexions locales</string>
     <string name="allow_providing_cell">Autoriser la fourniture sur le réseau cellulaire</string>
@@ -687,7 +688,10 @@
     <string name="error_updating_device_name">Une erreur s\'est produite lors de la mise à jour du nom de l\'appareil.</string>
     <string name="exclude_app">Exclure du VPN</string>
     <string name="exclude_app_description">Cette application contourne le tunnel.</string>
+    <string name="exclude_exit_location">Exclure</string>
     <string name="excluded">Exclue</string>
+    <string name="excluded_exit_locations">Emplacements de sortie exclus</string>
+    <string name="excluded_exit_locations_description">Les connexions n’utiliseront pas de sorties dans ces lieux, sauf si vous choisissez directement l’un d’eux.</string>
     <string name="expanded">Développé</string>
     <string name="expires">Expire</string>
     <string name="expiry_time">Heure d’expiration</string>
@@ -706,6 +710,8 @@
     <string name="extenders_reset_done">Extendeurs réinitialisés</string>
     <string name="fast_dns_on_connect">DNS rapide à la connexion</string>
     <string name="fast_dns_on_connect_description">Répond aux requêtes DNS via le réseau local pendant le démarrage du DNS du tunnel. Cela peut révéler vos recherches au réseau local et renvoyer des réponses qui ne correspondent pas à votre emplacement de sortie. Désactivé, le DNS ne se résout qu\'à travers le tunnel.</string>
+    <string name="favorite_exit_note">L’appareil d’un membre. Il peut se déconnecter ou quitter le réseau à tout moment.</string>
+    <string name="favorites">Favoris</string>
     <string name="feedback_header">Entrer en contact</string>
     <string name="feedback_include_logs">Joindre les journaux au retour (optionnel)</string>
     <string name="feedback_label">Boîte de commentaires</string>
@@ -747,6 +753,18 @@
     <string name="help_pending_title">Que signifie « En attente » ?</string>
     <string name="help_provide_body">La fourniture partage une partie de votre connexion internet avec d’autres membres d’URnetwork : leur trafic peut sortir par votre connexion. Les fournisseurs peuvent gagner des récompenses pour les données qu’ils partagent. Le mode de fourniture définit quand cet appareil fournit, et vous pouvez arrêter à tout moment.</string>
     <string name="help_provide_title">Qu’est-ce que la fourniture ?</string>
+    <string name="hotspot_proxy">Proxy du point d\'accès</string>
+    <string name="hotspot_proxy_copy_details">Copier les informations de connexion</string>
+    <string name="hotspot_proxy_description">Les appareils connectés à votre point d\'accès Wi-Fi ou en partage de connexion USB peuvent utiliser URnetwork via un proxy HTTP ou SOCKS5 sur ce téléphone. Leur trafic passe uniquement par URnetwork : rien n\'est partagé tant que vous êtes déconnecté.</string>
+    <string name="hotspot_proxy_http">Proxy HTTP</string>
+    <string name="hotspot_proxy_listen_failed">Le proxy n\'a pas pu démarrer sur votre point d\'accès. Une autre application utilise peut-être ses ports.</string>
+    <string name="hotspot_proxy_new_password">Nouveau mot de passe</string>
+    <string name="hotspot_proxy_new_password_note">Un nouveau mot de passe déconnecte les appareils qui utilisent l\'ancien.</string>
+    <string name="hotspot_proxy_row_note">Partagez URnetwork avec les appareils de votre point d\'accès.</string>
+    <string name="hotspot_proxy_share">Partager avec les appareils du point d\'accès</string>
+    <string name="hotspot_proxy_socks">Proxy SOCKS5</string>
+    <string name="hotspot_proxy_username">Nom d\'utilisateur</string>
+    <string name="hotspot_proxy_waiting_for_hotspot">Activez votre point d\'accès Wi-Fi ou le partage de connexion USB pour commencer le partage.</string>
     <string name="how_are_we_doing">Comment allons-nous ?</string>
     <string name="i_ve_saved_my_seedphrase">J’ai enregistré ma phrase de récupération</string>
     <string name="identity_key_hash_copied">Empreinte de la clé d\'identité du fournisseur copiée</string>
@@ -957,6 +975,7 @@
     <string name="no_blocked_locations">Aucun emplacement bloqué</string>
     <string name="no_compatible_wallet_app_found">Aucune application de portefeuille compatible trouvée sur cet appareil.</string>
     <string name="no_ethos_wallet_found">Aucun portefeuille EthOs trouvé</string>
+    <string name="no_excluded_exit_locations">Aucun emplacement exclu pour l’instant. Recherchez un pays, une région ou une ville pour l’exclure.</string>
     <string name="no_locations_found">Aucun emplacement trouvé</string>
     <string name="no_locations_found_detail">Désolé, nous n\'avons trouvé aucun emplacement lié à %1$s.</string>
     <string name="no_log_files_found">Aucun fichier journal trouvé</string>
@@ -1189,6 +1208,7 @@
     <string name="remote_doh_urls">URL DoH distantes</string>
     <string name="remote_lowercase">distant</string>
     <string name="remove">Supprimer</string>
+    <string name="remove_from_favorites">Retirer des favoris</string>
     <string name="remove_rule">Supprimer la règle</string>
     <string name="remove_this_sign_in_method">Supprimer cette méthode de connexion ?</string>
     <string name="resend_reset_link">Renvoyer le lien</string>
@@ -1214,6 +1234,7 @@
     <string name="saved_as">Enregistré sous %1$s</string>
     <string name="scan_qr_code">Scanner un code QR</string>
     <string name="search_apps_placeholder">Rechercher des applications</string>
+    <string name="search_exit_locations_placeholder">Rechercher des pays, régions et villes</string>
     <string name="search_placeholder">Rechercher tous les emplacements</string>
     <string name="secure_your_account">Sécurisez votre compte</string>
     <string name="see_world_content">Voir tout\nle contenu\ndu monde</string>

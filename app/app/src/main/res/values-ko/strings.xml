@@ -17,6 +17,7 @@
     <string name="add_sign_in_method">로그인 방법 추가</string>
     <string name="add_sign_in_method_2">로그인 방법 추가</string>
     <string name="add_tao_for_gas">가스용 TAO 추가</string>
+    <string name="add_to_favorites">즐겨찾기에 추가</string>
     <string name="advanced">고급</string>
     <string name="allow_local_connections">로컬 연결 허용</string>
     <string name="allow_providing_cell">셀룰러 네트워크에서 제공 허용</string>
@@ -687,7 +688,10 @@
     <string name="error_updating_device_name">기기 이름을 업데이트하는 중 오류가 발생했습니다.</string>
     <string name="exclude_app">VPN에서 제외</string>
     <string name="exclude_app_description">이 앱은 터널을 우회합니다.</string>
+    <string name="exclude_exit_location">제외</string>
     <string name="excluded">제외</string>
+    <string name="excluded_exit_locations">제외된 출구 위치</string>
+    <string name="excluded_exit_locations_description">직접 선택하지 않는 한 이 위치의 출구는 연결에 사용되지 않습니다.</string>
     <string name="expanded">펼쳐짐</string>
     <string name="expires">만료</string>
     <string name="expiry_time">만료 시간</string>
@@ -706,6 +710,8 @@
     <string name="extenders_reset_done">익스텐더를 재설정했습니다</string>
     <string name="fast_dns_on_connect">연결 시 빠른 DNS</string>
     <string name="fast_dns_on_connect_description">터널 DNS가 시작되는 동안 로컬 네트워크를 통해 DNS에 응답합니다. 이로 인해 조회 내용이 로컬 네트워크에 노출되거나 출구 위치와 맞지 않는 응답이 반환될 수 있습니다. 끄면 DNS는 터널을 통해서만 확인됩니다.</string>
+    <string name="favorite_exit_note">회원의 기기입니다. 언제든지 오프라인이 되거나 네트워크를 떠날 수 있습니다.</string>
+    <string name="favorites">즐겨찾기</string>
     <string name="feedback_header">연락하기</string>
     <string name="feedback_include_logs">피드백에 로그 첨부 (선택 사항)</string>
     <string name="feedback_label">피드백 상자</string>
@@ -747,6 +753,18 @@
     <string name="help_pending_title">‘대기 중’이란 무엇인가요?</string>
     <string name="help_provide_body">제공은 인터넷의 일부를 다른 URnetwork 회원과 공유하는 것입니다. 회원의 트래픽이 사용자의 연결을 통해 나갈 수 있습니다. 제공자는 공유한 데이터에 대해 보상을 받을 수 있습니다. 제공 모드로 이 기기가 제공하는 시점을 정하며, 언제든지 중단할 수 있습니다.</string>
     <string name="help_provide_title">제공이란 무엇인가요?</string>
+    <string name="hotspot_proxy">핫스팟 프록시</string>
+    <string name="hotspot_proxy_copy_details">연결 정보 복사</string>
+    <string name="hotspot_proxy_description">Wi-Fi 핫스팟이나 USB 테더링에 연결된 기기는 이 휴대폰의 HTTP 또는 SOCKS5 프록시를 통해 URnetwork를 사용할 수 있습니다. 트래픽은 URnetwork로만 전달되므로 연결이 끊긴 동안에는 아무것도 공유되지 않습니다.</string>
+    <string name="hotspot_proxy_http">HTTP 프록시</string>
+    <string name="hotspot_proxy_listen_failed">핫스팟에서 프록시를 시작할 수 없습니다. 다른 앱이 해당 포트를 사용 중일 수 있습니다.</string>
+    <string name="hotspot_proxy_new_password">새 비밀번호</string>
+    <string name="hotspot_proxy_new_password_note">새 비밀번호를 만들면 이전 비밀번호를 쓰는 기기의 연결이 끊어집니다.</string>
+    <string name="hotspot_proxy_row_note">핫스팟에 연결된 기기와 URnetwork를 공유하세요.</string>
+    <string name="hotspot_proxy_share">핫스팟 기기와 공유</string>
+    <string name="hotspot_proxy_socks">SOCKS5 프록시</string>
+    <string name="hotspot_proxy_username">사용자 이름</string>
+    <string name="hotspot_proxy_waiting_for_hotspot">공유를 시작하려면 Wi-Fi 핫스팟이나 USB 테더링을 켜세요.</string>
     <string name="how_are_we_doing">우리는 어떻게 하고 있나요?</string>
     <string name="i_ve_saved_my_seedphrase">시드 문구를 저장했습니다</string>
     <string name="identity_key_hash_copied">제공업체 신원 키 해시가 복사되었습니다</string>
@@ -957,6 +975,7 @@
     <string name="no_blocked_locations">차단된 위치 없음</string>
     <string name="no_compatible_wallet_app_found">이 기기에서 호환되는 지갑 앱을 찾을 수 없습니다.</string>
     <string name="no_ethos_wallet_found">EthOs 지갑을 찾을 수 없습니다</string>
+    <string name="no_excluded_exit_locations">아직 제외된 위치가 없습니다. 제외할 국가, 지역 또는 도시를 검색하세요.</string>
     <string name="no_locations_found">위치를 찾을 수 없습니다</string>
     <string name="no_locations_found_detail">죄송합니다. %1$s 관련 위치를 찾을 수 없습니다.</string>
     <string name="no_log_files_found">로그 파일을 찾을 수 없습니다</string>
@@ -1189,6 +1208,7 @@
     <string name="remote_doh_urls">원격 DoH URL</string>
     <string name="remote_lowercase">원격</string>
     <string name="remove">제거</string>
+    <string name="remove_from_favorites">즐겨찾기에서 삭제</string>
     <string name="remove_rule">규칙 제거</string>
     <string name="remove_this_sign_in_method">이 로그인 방법을 제거할까요?</string>
     <string name="resend_reset_link">링크 재전송</string>
@@ -1214,6 +1234,7 @@
     <string name="saved_as">%1$s(으)로 저장됨</string>
     <string name="scan_qr_code">QR 코드 스캔</string>
     <string name="search_apps_placeholder">앱 검색</string>
+    <string name="search_exit_locations_placeholder">국가, 지역, 도시 검색</string>
     <string name="search_placeholder">모든 위치 검색</string>
     <string name="secure_your_account">계정 보호하기</string>
     <string name="see_world_content">전 세계의\n콘텐츠 보기</string>

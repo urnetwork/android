@@ -17,6 +17,7 @@
     <string name="add_sign_in_method">Přidat způsob přihlášení</string>
     <string name="add_sign_in_method_2">Přidat způsob přihlášení</string>
     <string name="add_tao_for_gas">Přidejte TAO na gas</string>
+    <string name="add_to_favorites">Přidat do oblíbených</string>
     <string name="advanced">Pokročilé</string>
     <string name="allow_local_connections">Povolit místní připojení</string>
     <string name="allow_providing_cell">Povolit poskytování na mobilní síti</string>
@@ -687,7 +688,10 @@
     <string name="error_updating_device_name">Při aktualizaci názvu zařízení došlo k chybě.</string>
     <string name="exclude_app">Vyloučit z VPN</string>
     <string name="exclude_app_description">Tato aplikace obchází tunel.</string>
+    <string name="exclude_exit_location">Vyloučit</string>
     <string name="excluded">Vyloučeno</string>
+    <string name="excluded_exit_locations">Vyloučená místa výstupu</string>
+    <string name="excluded_exit_locations_description">Připojení nebudou používat výstupy v těchto místech, pokud některé z nich nevyberete přímo.</string>
     <string name="expanded">Rozbaleno</string>
     <string name="expires">Vyprší</string>
     <string name="expiry_time">Čas vypršení</string>
@@ -706,6 +710,8 @@
     <string name="extenders_reset_done">Extendery byly resetovány</string>
     <string name="fast_dns_on_connect">Rychlé DNS při připojení</string>
     <string name="fast_dns_on_connect_description">Odpovídá na dotazy DNS přes místní síť, dokud se spouští DNS tunelu. Místní síť tak může vidět vaše dotazy a odpovědi nemusí odpovídat vašemu výstupnímu umístění. Když je vypnuto, DNS se překládá jen přes tunel.</string>
+    <string name="favorite_exit_note">Zařízení jiného člena. Může se kdykoli odpojit nebo opustit síť.</string>
+    <string name="favorites">Oblíbené</string>
     <string name="feedback_header">Spojte se s námi</string>
     <string name="feedback_include_logs">Přiložit protokoly k zpětné vazbě (volitelné)</string>
     <string name="feedback_label">Pole pro zpětnou vazbu</string>
@@ -747,6 +753,18 @@
     <string name="help_pending_title">Co znamená „Čekající“?</string>
     <string name="help_provide_body">Poskytování sdílí část vašeho internetu s ostatními členy URnetwork: jejich provoz může odcházet přes vaše připojení. Poskytovatelé mohou za sdílená data získávat odměny. Režim poskytování určuje, kdy toto zařízení poskytuje, a kdykoli můžete přestat.</string>
     <string name="help_provide_title">Co je poskytování?</string>
+    <string name="hotspot_proxy">Proxy pro hotspot</string>
+    <string name="hotspot_proxy_copy_details">Kopírovat údaje pro připojení</string>
+    <string name="hotspot_proxy_description">Zařízení na vašem Wi-Fi hotspotu nebo připojená přes USB tethering mohou používat URnetwork přes proxy HTTP nebo SOCKS5 v tomto telefonu. Jejich provoz jde pouze přes URnetwork, takže když jste odpojeni, nic se nesdílí.</string>
+    <string name="hotspot_proxy_http">Proxy HTTP</string>
+    <string name="hotspot_proxy_listen_failed">Proxy se na vašem hotspotu nepodařilo spustit. Jeho porty možná používá jiná aplikace.</string>
+    <string name="hotspot_proxy_new_password">Nové heslo</string>
+    <string name="hotspot_proxy_new_password_note">Nové heslo odpojí zařízení, která používají staré.</string>
+    <string name="hotspot_proxy_row_note">Sdílejte URnetwork se zařízeními na svém hotspotu.</string>
+    <string name="hotspot_proxy_share">Sdílet se zařízeními na hotspotu</string>
+    <string name="hotspot_proxy_socks">Proxy SOCKS5</string>
+    <string name="hotspot_proxy_username">Uživatelské jméno</string>
+    <string name="hotspot_proxy_waiting_for_hotspot">Pro zahájení sdílení zapněte Wi-Fi hotspot nebo USB tethering.</string>
     <string name="how_are_we_doing">Jak se nám daří?</string>
     <string name="i_ve_saved_my_seedphrase">Seed frázi mám uloženou</string>
     <string name="identity_key_hash_copied">Otisk identitního klíče poskytovatele zkopírován</string>
@@ -957,6 +975,7 @@
     <string name="no_blocked_locations">Žádné blokované lokality</string>
     <string name="no_compatible_wallet_app_found">Na tomto zařízení nebyla nalezena žádná kompatibilní aplikace peněženky.</string>
     <string name="no_ethos_wallet_found">Peněženka EthOs nebyla nalezena</string>
+    <string name="no_excluded_exit_locations">Zatím žádná vyloučená místa. Vyhledejte zemi, region nebo město, které chcete vyloučit.</string>
     <string name="no_locations_found">Nebyly nalezeny žádné lokality</string>
     <string name="no_locations_found_detail">Je nám líto, ale nenašli jsme žádná místa související s %1$s.</string>
     <string name="no_log_files_found">Soubor protokolu nebyl nalezen</string>
@@ -1189,6 +1208,7 @@
     <string name="remote_doh_urls">Vzdálené adresy URL DoH</string>
     <string name="remote_lowercase">vzdáleně</string>
     <string name="remove">Odstranit</string>
+    <string name="remove_from_favorites">Odebrat z oblíbených</string>
     <string name="remove_rule">Odstranit pravidlo</string>
     <string name="remove_this_sign_in_method">Odstranit tento způsob přihlášení?</string>
     <string name="resend_reset_link">Znovu odeslat odkaz</string>
@@ -1214,6 +1234,7 @@
     <string name="saved_as">Uloženo jako %1$s</string>
     <string name="scan_qr_code">Naskenovat QR kód</string>
     <string name="search_apps_placeholder">Hledat aplikace</string>
+    <string name="search_exit_locations_placeholder">Hledat země, regiony a města</string>
     <string name="search_placeholder">Hledat všechna místa</string>
     <string name="secure_your_account">Zabezpečte svůj účet</string>
     <string name="see_world_content">Zobrazit veškerý\nkontent světa</string>

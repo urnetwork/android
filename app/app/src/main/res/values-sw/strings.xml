@@ -17,6 +17,7 @@
     <string name="add_sign_in_method">Ongeza njia ya kuingia</string>
     <string name="add_sign_in_method_2">Ongeza Njia ya Kuingia</string>
     <string name="add_tao_for_gas">Ongeza TAO kwa ajili ya gas</string>
+    <string name="add_to_favorites">Ongeza kwenye vipendwa</string>
     <string name="advanced">Za kina</string>
     <string name="allow_local_connections">Ruhusu miunganisho ya ndani</string>
     <string name="allow_providing_cell">Ruhusu utoaji kwenye mtandao wa simu</string>
@@ -687,7 +688,10 @@
     <string name="error_updating_device_name">Hitilafu imetokea wakati wa kusasisha jina la kifaa.</string>
     <string name="exclude_app">Tenga kutoka VPN</string>
     <string name="exclude_app_description">Programu hii inaepuka tuneli.</string>
+    <string name="exclude_exit_location">Ondoa</string>
     <string name="excluded">Imetengwa</string>
+    <string name="excluded_exit_locations">Maeneo ya kutoka yaliyoondolewa</string>
+    <string name="excluded_exit_locations_description">Miunganisho haitatumia njia za kutoka katika maeneo haya, isipokuwa uchague mojawapo moja kwa moja.</string>
     <string name="expanded">Imepanuliwa</string>
     <string name="expires">Inaisha</string>
     <string name="expiry_time">Muda wa kumalizika</string>
@@ -706,6 +710,8 @@
     <string name="extenders_reset_done">Vipanuzi vimewekwa upya</string>
     <string name="fast_dns_on_connect">DNS ya haraka wakati wa kuunganisha</string>
     <string name="fast_dns_on_connect_description">Hujibu DNS kupitia mtandao wa ndani wakati DNS ya tuneli inaanza. Hii inaweza kufichua utafutaji wako kwa mtandao wa ndani na kurudisha majibu yasiyolingana na eneo lako la kutokea. Ikizimwa, DNS husuluhishwa kupitia tuneli pekee.</string>
+    <string name="favorite_exit_note">Kifaa cha mwanachama. Kinaweza kwenda nje ya mtandao au kuondoka kwenye mtandao wakati wowote.</string>
+    <string name="favorites">Vipendwa</string>
     <string name="feedback_header">Wasiliana nasi</string>
     <string name="feedback_include_logs">Ambatisha logi kwenye maoni (hiari)</string>
     <string name="feedback_label">Kisanduku cha maoni</string>
@@ -747,6 +753,18 @@
     <string name="help_pending_title">“Inasubiri” inamaanisha nini?</string>
     <string name="help_provide_body">Utoaji hushiriki sehemu ya intaneti yako na wanachama wengine wa URnetwork: trafiki yao inaweza kutoka kupitia muunganisho wako. Watoaji wanaweza kupata zawadi kwa data wanayoshiriki. Hali ya utoaji huamua lini kifaa hiki kinatoa, na unaweza kuacha wakati wowote.</string>
     <string name="help_provide_title">Utoaji ni nini?</string>
+    <string name="hotspot_proxy">Proksi ya hotspot</string>
+    <string name="hotspot_proxy_copy_details">Nakili maelezo ya muunganisho</string>
+    <string name="hotspot_proxy_description">Vifaa vilivyo kwenye hotspot yako ya Wi-Fi au vilivyounganishwa kwa USB vinaweza kutumia URnetwork kupitia proksi ya HTTP au SOCKS5 kwenye simu hii. Trafiki yao hupita kwenye URnetwork pekee, kwa hivyo hakuna kinachoshirikiwa ukiwa hujaunganishwa.</string>
+    <string name="hotspot_proxy_http">Proksi ya HTTP</string>
+    <string name="hotspot_proxy_listen_failed">Proksi haikuweza kuanza kwenye hotspot yako. Huenda programu nyingine inatumia milango yake.</string>
+    <string name="hotspot_proxy_new_password">Nenosiri jipya</string>
+    <string name="hotspot_proxy_new_password_note">Nenosiri jipya hukata muunganisho wa vifaa vinavyotumia la zamani.</string>
+    <string name="hotspot_proxy_row_note">Shiriki URnetwork na vifaa vilivyo kwenye hotspot yako.</string>
+    <string name="hotspot_proxy_share">Shiriki na vifaa vya hotspot</string>
+    <string name="hotspot_proxy_socks">Proksi ya SOCKS5</string>
+    <string name="hotspot_proxy_username">Jina la mtumiaji</string>
+    <string name="hotspot_proxy_waiting_for_hotspot">Washa hotspot yako ya Wi-Fi au muunganisho wa USB ili uanze kushiriki.</string>
     <string name="how_are_we_doing">Tunaendaje?</string>
     <string name="i_ve_saved_my_seedphrase">Nimehifadhi kifungu changu cha seed</string>
     <string name="identity_key_hash_copied">Heshi ya ufunguo wa utambulisho wa mtoa huduma imenakiliwa</string>
@@ -957,6 +975,7 @@
     <string name="no_blocked_locations">Hakuna maeneo yaliyofungwa</string>
     <string name="no_compatible_wallet_app_found">Hakuna programu ya pochi inayooana iliyopatikana kwenye kifaa hiki.</string>
     <string name="no_ethos_wallet_found">Hakuna pochi ya EthOs iliyopatikana</string>
+    <string name="no_excluded_exit_locations">Bado hakuna maeneo yaliyoondolewa. Tafuta nchi, eneo au jiji ili kuliondoa.</string>
     <string name="no_locations_found">Hakuna maeneo yaliyopatikana</string>
     <string name="no_locations_found_detail">Samahani, hatukuweza kupata maeneo yoyote yanayohusiana na %1$s.</string>
     <string name="no_log_files_found">Hakuna faili la logi lililopatikana</string>
@@ -1189,6 +1208,7 @@
     <string name="remote_doh_urls">URL za DoH za mbali</string>
     <string name="remote_lowercase">ya mbali</string>
     <string name="remove">Ondoa</string>
+    <string name="remove_from_favorites">Ondoa kwenye vipendwa</string>
     <string name="remove_rule">Ondoa sheria</string>
     <string name="remove_this_sign_in_method">Ondoa njia hii ya kuingia?</string>
     <string name="resend_reset_link">Tuma tena kiungo</string>
@@ -1214,6 +1234,7 @@
     <string name="saved_as">Imehifadhiwa kama %1$s</string>
     <string name="scan_qr_code">Changanua msimbo wa QR</string>
     <string name="search_apps_placeholder">Tafuta programu</string>
+    <string name="search_exit_locations_placeholder">Tafuta nchi, maeneo na miji</string>
     <string name="search_placeholder">Tafuta maeneo yote</string>
     <string name="secure_your_account">Linda akaunti yako</string>
     <string name="see_world_content">Tazama yote\nmaudhui ya dunia</string>

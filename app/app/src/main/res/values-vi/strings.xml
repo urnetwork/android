@@ -17,6 +17,7 @@
     <string name="add_sign_in_method">Thêm phương thức đăng nhập</string>
     <string name="add_sign_in_method_2">Thêm phương thức đăng nhập</string>
     <string name="add_tao_for_gas">Thêm TAO để trả gas</string>
+    <string name="add_to_favorites">Thêm vào yêu thích</string>
     <string name="advanced">Nâng cao</string>
     <string name="allow_local_connections">Cho phép kết nối cục bộ</string>
     <string name="allow_providing_cell">Cho phép cung cấp trên mạng di động</string>
@@ -687,7 +688,10 @@
     <string name="error_updating_device_name">Đã xảy ra lỗi khi cập nhật tên thiết bị.</string>
     <string name="exclude_app">Loại trừ khỏi VPN</string>
     <string name="exclude_app_description">Ứng dụng này bỏ qua đường hầm.</string>
+    <string name="exclude_exit_location">Loại trừ</string>
     <string name="excluded">Đã loại trừ</string>
+    <string name="excluded_exit_locations">Vị trí điểm thoát bị loại trừ</string>
+    <string name="excluded_exit_locations_description">Các kết nối sẽ không dùng điểm thoát ở những nơi này, trừ khi bạn chọn trực tiếp một trong số đó.</string>
     <string name="expanded">Đã mở rộng</string>
     <string name="expires">Hết hạn</string>
     <string name="expiry_time">Thời gian hết hạn</string>
@@ -706,6 +710,8 @@
     <string name="extenders_reset_done">Đã đặt lại bộ mở rộng</string>
     <string name="fast_dns_on_connect">DNS nhanh khi kết nối</string>
     <string name="fast_dns_on_connect_description">Trả lời DNS qua mạng cục bộ trong khi DNS của đường hầm khởi động. Điều này có thể để lộ các truy vấn của bạn cho mạng cục bộ và trả về kết quả không khớp với vị trí thoát của bạn. Khi tắt, DNS chỉ phân giải qua đường hầm.</string>
+    <string name="favorite_exit_note">Thiết bị của một thành viên. Thiết bị có thể ngoại tuyến hoặc rời mạng bất cứ lúc nào.</string>
+    <string name="favorites">Yêu thích</string>
     <string name="feedback_header">Liên hệ với chúng tôi</string>
     <string name="feedback_include_logs">Đính kèm nhật ký vào phản hồi (tùy chọn)</string>
     <string name="feedback_label">Ô phản hồi</string>
@@ -747,6 +753,18 @@
     <string name="help_pending_title">“Đang chờ” nghĩa là gì?</string>
     <string name="help_provide_body">Cung cấp là chia sẻ một phần internet của bạn với các thành viên URnetwork khác: lưu lượng của họ có thể đi ra qua kết nối của bạn. Nhà cung cấp có thể nhận phần thưởng cho dữ liệu họ chia sẻ. Chế độ cung cấp quyết định khi nào thiết bị này cung cấp, và bạn có thể dừng bất cứ lúc nào.</string>
     <string name="help_provide_title">Cung cấp là gì?</string>
+    <string name="hotspot_proxy">Proxy điểm phát sóng</string>
+    <string name="hotspot_proxy_copy_details">Sao chép thông tin kết nối</string>
+    <string name="hotspot_proxy_description">Các thiết bị trong điểm phát sóng Wi-Fi hoặc kết nối qua USB của bạn có thể dùng URnetwork thông qua proxy HTTP hoặc SOCKS5 trên điện thoại này. Lưu lượng của chúng chỉ đi qua URnetwork, nên không có gì được chia sẻ khi bạn ngắt kết nối.</string>
+    <string name="hotspot_proxy_http">Proxy HTTP</string>
+    <string name="hotspot_proxy_listen_failed">Không thể khởi động proxy trên điểm phát sóng của bạn. Có thể một ứng dụng khác đang dùng các cổng của nó.</string>
+    <string name="hotspot_proxy_new_password">Mật khẩu mới</string>
+    <string name="hotspot_proxy_new_password_note">Mật khẩu mới sẽ ngắt kết nối các thiết bị dùng mật khẩu cũ.</string>
+    <string name="hotspot_proxy_row_note">Chia sẻ URnetwork với các thiết bị trong điểm phát sóng của bạn.</string>
+    <string name="hotspot_proxy_share">Chia sẻ với thiết bị trong điểm phát sóng</string>
+    <string name="hotspot_proxy_socks">Proxy SOCKS5</string>
+    <string name="hotspot_proxy_username">Tên người dùng</string>
+    <string name="hotspot_proxy_waiting_for_hotspot">Bật điểm phát sóng Wi-Fi hoặc chia sẻ kết nối qua USB để bắt đầu chia sẻ.</string>
     <string name="how_are_we_doing">Chúng tôi đang làm thế nào?</string>
     <string name="i_ve_saved_my_seedphrase">Tôi đã lưu cụm từ khôi phục</string>
     <string name="identity_key_hash_copied">Đã sao chép hash khóa danh tính nhà cung cấp</string>
@@ -957,6 +975,7 @@
     <string name="no_blocked_locations">Không có vị trí bị chặn</string>
     <string name="no_compatible_wallet_app_found">Không tìm thấy ứng dụng ví tương thích trên thiết bị này.</string>
     <string name="no_ethos_wallet_found">Không tìm thấy ví EthOs</string>
+    <string name="no_excluded_exit_locations">Chưa có vị trí nào bị loại trừ. Tìm một quốc gia, khu vực hoặc thành phố để loại trừ.</string>
     <string name="no_locations_found">Không tìm thấy vị trí nào</string>
     <string name="no_locations_found_detail">Rất tiếc, chúng tôi không tìm thấy vị trí nào liên quan đến %1$s.</string>
     <string name="no_log_files_found">Không tìm thấy tệp nhật ký</string>
@@ -1189,6 +1208,7 @@
     <string name="remote_doh_urls">URL DoH từ xa</string>
     <string name="remote_lowercase">từ xa</string>
     <string name="remove">Gỡ bỏ</string>
+    <string name="remove_from_favorites">Xóa khỏi yêu thích</string>
     <string name="remove_rule">Xóa quy tắc</string>
     <string name="remove_this_sign_in_method">Xóa phương thức đăng nhập này?</string>
     <string name="resend_reset_link">Gửi lại liên kết</string>
@@ -1214,6 +1234,7 @@
     <string name="saved_as">Đã lưu thành %1$s</string>
     <string name="scan_qr_code">Quét mã QR</string>
     <string name="search_apps_placeholder">Tìm ứng dụng</string>
+    <string name="search_exit_locations_placeholder">Tìm quốc gia, khu vực và thành phố</string>
     <string name="search_placeholder">Tìm kiếm tất cả vị trí</string>
     <string name="secure_your_account">Bảo mật tài khoản của bạn</string>
     <string name="see_world_content">Xem tất cả\nnội dung thế giới</string>
