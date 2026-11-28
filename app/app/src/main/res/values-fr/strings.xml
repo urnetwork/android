@@ -739,6 +739,12 @@
     <string name="got_it">Compris</string>
     <string name="guest">Invité</string>
     <string name="guest_mode">Mode invité</string>
+    <string name="help_extender_body">Un extendeur relaie votre connexion à URnetwork là où elle est bloquée. Votre trafic reste chiffré en le traversant, et l’extendeur ne peut pas le lire.</string>
+    <string name="help_extender_title">Qu’est-ce qu’un extendeur ?</string>
+    <string name="help_pending_body">« En attente » désigne les données réservées à vos connexions ouvertes. Ce qu’elles n’utilisent pas revient à vos données disponibles à leur fermeture.</string>
+    <string name="help_pending_title">Que signifie « En attente » ?</string>
+    <string name="help_provide_body">La fourniture partage une partie de votre connexion internet avec d’autres membres d’URnetwork : leur trafic peut sortir par votre connexion. Les fournisseurs peuvent gagner des récompenses pour les données qu’ils partagent. Le mode de fourniture définit quand cet appareil fournit, et vous pouvez arrêter à tout moment.</string>
+    <string name="help_provide_title">Qu’est-ce que la fourniture ?</string>
     <string name="how_are_we_doing">Comment allons-nous ?</string>
     <string name="i_ve_saved_my_seedphrase">J’ai enregistré ma phrase de récupération</string>
     <string name="identity_key_hash_copied">Empreinte de la clé d\'identité du fournisseur copiée</string>

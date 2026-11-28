@@ -184,9 +184,11 @@ fun UsageBar(
         Spacer(modifier = Modifier.height(4.dp))
 
         /**
-         * Keys
+         * Keys, Pending with what it means
          */
-        Row {
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
 
             // used
             ChartKey(
@@ -201,6 +203,8 @@ fun UsageBar(
                 label = stringResource(id = R.string.pending_data_key),
                 color = pendingColor
             )
+
+            HelpButton(HelpTopic.Pending)
 
             Spacer(modifier = Modifier.width(8.dp))
 

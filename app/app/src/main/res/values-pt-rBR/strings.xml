@@ -739,6 +739,12 @@
     <string name="got_it">Entendi</string>
     <string name="guest">Convidado</string>
     <string name="guest_mode">Modo convidado</string>
+    <string name="help_extender_body">Um extensor retransmite sua conexão com a URnetwork onde ela está bloqueada. Seu tráfego continua criptografado ao passar por ele, e o extensor não consegue lê-lo.</string>
+    <string name="help_extender_title">O que é um extensor?</string>
+    <string name="help_pending_body">“Pendente” são dados reservados para suas conexões abertas. O que elas não usarem volta para seus dados disponíveis quando forem fechadas.</string>
+    <string name="help_pending_title">O que significa “Pendente”?</string>
+    <string name="help_provide_body">O fornecimento compartilha parte da sua internet com outros membros da URnetwork: o tráfego deles pode sair pela sua conexão. Os fornecedores podem ganhar recompensas pelos dados que compartilham. O modo de fornecimento define quando este dispositivo fornece, e você pode parar a qualquer momento.</string>
+    <string name="help_provide_title">O que é o fornecimento?</string>
     <string name="how_are_we_doing">Como estamos indo?</string>
     <string name="i_ve_saved_my_seedphrase">Salvei minha frase-semente</string>
     <string name="identity_key_hash_copied">Hash da chave de identidade do provedor copiado</string>
