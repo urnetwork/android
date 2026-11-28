@@ -23,6 +23,12 @@ val blockedLocationRemoveControls: Set<RowRemoveControl> = setOf(
     RowRemoveControl.Button,
 )
 
+// excluded exit locations: removing one has no other path
+val excludedExitLocationRemoveControls: Set<RowRemoveControl> = setOf(
+    RowRemoveControl.Swipe,
+    RowRemoveControl.Button,
+)
+
 // provider locations: removing a provider has no other path
 val providerLocationRemoveControls: Set<RowRemoveControl> = setOf(
     RowRemoveControl.Swipe,

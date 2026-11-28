@@ -1259,6 +1259,33 @@ private fun SettingsScreen(
             Spacer(modifier = Modifier.height(18.dp))
 
             /**
+             * Excluded exit locations: places, such as a US state, that
+             * automatic and collection picks avoid
+             */
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable {
+                        navController.navigate(Route.ExcludedExitLocations)
+                    }
+                    .padding(vertical = 6.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    stringResource(id = R.string.excluded_exit_locations),
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                    contentDescription = null,
+                    tint = TextMuted
+                )
+            }
+
+            Spacer(modifier = Modifier.height(18.dp))
+
+            /**
              * VLESS: a VLESS server this network space also dials through
              */
             Row(

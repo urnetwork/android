@@ -114,6 +114,9 @@ fun BrowseLocationsScreen(
                     connectViewModel.disconnect()
                     navController.popBackStack()
                 },
+                favorites = locationsListViewModel.favoriteLocations,
+                isFavorite = locationsListViewModel.isFavorite,
+                toggleFavorite = locationsListViewModel.toggleFavorite,
             )
         }
     }
