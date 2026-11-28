@@ -16,8 +16,12 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.outlined.StarBorder
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
@@ -90,6 +94,10 @@ internal fun ConnectActions(
     // the selected location's current provider count (selectedProviderCount)
     selectedProviderCount: Int,
     presentSelectProvider: (Boolean) -> Unit,
+    // the selected location as a favorite, null when it cannot be one, and
+    // its star's add or remove (OpenProviderListButton)
+    selectedFavorite: Boolean? = null,
+    toggleSelectedFavorite: () -> Unit = {},
     getLocationColor: (String) -> Color,
     minHeight: Dp,
     currentPlan: Plan,
@@ -228,6 +236,8 @@ internal fun ConnectActions(
                     getLocationColor = getLocationColor,
                     onClick = { presentSelectProvider(true) },
                     modifier = locationRowModifier,
+                    favorite = selectedFavorite,
+                    toggleFavorite = toggleSelectedFavorite,
                 )
 
                 if (showActions) {
@@ -1015,6 +1025,10 @@ fun OpenProviderListButton(
     getLocationColor: (String) -> Color,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    // the location as a favorite: the star's state, or null to show no star
+    // (a location that cannot be one); the star adds or removes it
+    favorite: Boolean? = null,
+    toggleFavorite: () -> Unit = {},
 ) {
 
     val text = when {
@@ -1102,16 +1116,34 @@ fun OpenProviderListButton(
 
         }
 
-        // the row's own click does the same, so the keyboard stops on the
-        // row once rather than twice
-        TextButton(
-            onClick = onClick,
-            modifier = Modifier.focusProperties { canFocus = false },
+        Row(
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                stringResource(id = R.string.change),
-                color = Pink
-            )
+            // a favorite is a place, a collection or an exit to come back
+            // to: favoriting the exit a connection stays on keeps it
+            if (favorite != null) {
+                IconButton(onClick = toggleFavorite) {
+                    Icon(
+                        if (favorite) Icons.Filled.Star else Icons.Outlined.StarBorder,
+                        contentDescription = stringResource(
+                            id = if (favorite) R.string.remove_from_favorites else R.string.add_to_favorites
+                        ),
+                        tint = if (favorite) Pink else TextMuted,
+                    )
+                }
+            }
+
+            // the row's own click does the same, so the keyboard stops on the
+            // row once rather than twice
+            TextButton(
+                onClick = onClick,
+                modifier = Modifier.focusProperties { canFocus = false },
+            ) {
+                Text(
+                    stringResource(id = R.string.change),
+                    color = Pink
+                )
+            }
         }
     }
 }

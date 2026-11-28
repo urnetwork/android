@@ -117,6 +117,7 @@ import com.bringyour.sdk.ConnectGrid
 import com.bringyour.sdk.ConnectLocation
 import com.bringyour.sdk.Id
 import com.bringyour.sdk.ProviderGridPoint
+import com.bringyour.sdk.Sdk
 import com.bringyour.network.ui.Route
 import com.bringyour.network.ui.account.AccountViewModel
 import com.bringyour.network.ui.components.LoginMode
@@ -306,6 +307,17 @@ fun ConnectScreen(
         ).flatMap { it.asSequence() }.map { it.connectLocationId.toString() to it.providerCount },
     )
 
+    // the selected location as a favorite, for the star beside it: null when
+    // it cannot be one (best available). An exit the connection stays on is
+    // kept by its star
+    val selectedCanFavorite = remember(selectedLocation) {
+        selectedLocation != null && Sdk.canFavoriteLocation(selectedLocation)
+    }
+    val selectedFavorite = selectedLocation?.takeIf { selectedCanFavorite }?.let { locationsViewModel.isFavorite(it) }
+    val toggleSelectedFavorite: () -> Unit = {
+        selectedLocation?.let { locationsViewModel.toggleFavorite(it) }
+    }
+
     // the connect screen's arrangement for the window (AdaptiveLayout.kt):
     // the phone layout at compact width; from medium width up the drawer
     // becomes a pane, always open, beside or below the connect graphic
@@ -475,6 +487,8 @@ fun ConnectScreen(
                 selectedPeerName = selectedPeerName,
                 selectedProviderCount = selectedProviderCount,
                 presentSelectProvider = presentSelectProvider,
+                selectedFavorite = selectedFavorite,
+                toggleSelectedFavorite = toggleSelectedFavorite,
                 getLocationColor = locationsViewModel.getLocationColor,
                 minHeight = minHeight,
                 currentPlan = currentPlan,
@@ -659,6 +673,8 @@ fun ConnectScreen(
                                     getLocationColor = locationsViewModel.getLocationColor,
                                     onClick = { presentSelectProvider(true) },
                                     modifier = locationRowModifier,
+                                    favorite = selectedFavorite,
+                                    toggleFavorite = toggleSelectedFavorite,
                                 )
                             }
 
@@ -858,6 +874,9 @@ fun ConnectScreen(
                         connectViewModel.disconnect()
                         setLocationPickerOpen(false)
                     },
+                    favorites = locationsViewModel.favoriteLocations,
+                    isFavorite = locationsViewModel.isFavorite,
+                    toggleFavorite = locationsViewModel.toggleFavorite,
                 )
             }
         }

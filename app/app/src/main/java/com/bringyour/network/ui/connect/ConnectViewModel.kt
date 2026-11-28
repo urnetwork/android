@@ -644,6 +644,34 @@ internal constructor(
     }
 
     /**
+     * The user changed the excluded exit locations (Settings): the sdk
+     * connects again a connection the change affects, now with the new list,
+     * and does nothing otherwise (ConnectViewController.excludedExitLocationsChanged).
+     * On the connect command queue after the commands made so far, as its
+     * connect is a command's work, on the presented controller or one opened
+     * for it; not shown as pending, since most changes change nothing. Main
+     * thread.
+     */
+    val excludedExitLocationsChanged: () -> Unit = {
+        val presented = connectVc
+        val device = (if (presented != null) viewControllerDevice else null) ?: currentDevice
+        if (device != null) {
+            connectCommands.afterCommands(device.identity) {
+                if (presented != null) {
+                    presented.excludedExitLocationsChanged()
+                } else {
+                    val vc = device.openConnectViewController()
+                    try {
+                        vc.excludedExitLocationsChanged()
+                    } finally {
+                        device.closeViewController(vc)
+                    }
+                }
+            }
+        }
+    }
+
+    /**
      * Queues `command`, a connect (`connect`) or a disconnect, on the connect
      * command queue, off the main thread ([ConnectCommands]). It runs on the
      * presented controller or, without one, on a controller opened for it on

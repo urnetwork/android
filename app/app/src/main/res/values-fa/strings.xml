@@ -17,6 +17,7 @@
     <string name="add_sign_in_method">افزودن روش ورود</string>
     <string name="add_sign_in_method_2">افزودن روش ورود</string>
     <string name="add_tao_for_gas">برای کارمزد گس، TAO اضافه کنید</string>
+    <string name="add_to_favorites">افزودن به علاقه‌مندی‌ها</string>
     <string name="advanced">پیشرفته</string>
     <string name="allow_local_connections">اجازهٔ اتصال‌های محلی</string>
     <string name="allow_providing_cell">اجازهٔ ارائه در شبکهٔ تلفن همراه</string>
@@ -687,7 +688,10 @@
     <string name="error_updating_device_name">هنگام به‌روزرسانی نام دستگاه خطایی رخ داد.</string>
     <string name="exclude_app">مستثنا کردن از VPN</string>
     <string name="exclude_app_description">این برنامه تونل را دور می‌زند.</string>
+    <string name="exclude_exit_location">مستثنا کردن</string>
     <string name="excluded">مستثناشده</string>
+    <string name="excluded_exit_locations">مکان‌های خروجی مستثناشده</string>
+    <string name="excluded_exit_locations_description">اتصال‌ها از خروجی‌های این مکان‌ها استفاده نمی‌کنند، مگر اینکه یکی از آن‌ها را مستقیماً انتخاب کنید.</string>
     <string name="expanded">باز شده</string>
     <string name="expires">انقضا</string>
     <string name="expiry_time">زمان انقضا</string>
@@ -706,6 +710,8 @@
     <string name="extenders_reset_done">گسترش‌دهنده‌ها بازنشانی شدند</string>
     <string name="fast_dns_on_connect">DNS سریع هنگام اتصال</string>
     <string name="fast_dns_on_connect_description">در مدتی که DNS تونل راه‌اندازی می‌شود، به درخواست‌های DNS از طریق شبکهٔ محلی پاسخ می‌دهد. این کار ممکن است درخواست‌های شما را برای شبکهٔ محلی آشکار کند و پاسخ‌هایی برگرداند که با مکان خروجی شما همخوانی ندارند. وقتی خاموش باشد، درخواست‌های DNS فقط از طریق تونل پاسخ داده می‌شوند.</string>
+    <string name="favorite_exit_note">دستگاه یکی از اعضا. ممکن است هر لحظه آفلاین شود یا از شبکه خارج شود.</string>
+    <string name="favorites">علاقه‌مندی‌ها</string>
     <string name="feedback_header">با ما در تماس باشید</string>
     <string name="feedback_include_logs">پیوست کردن لاگ‌ها به بازخورد (اختیاری)</string>
     <string name="feedback_label">کادر بازخورد</string>
@@ -957,6 +963,7 @@
     <string name="no_blocked_locations">هیچ مکان مسدودشده‌ای وجود ندارد</string>
     <string name="no_compatible_wallet_app_found">هیچ برنامهٔ کیف پول سازگاری روی این دستگاه یافت نشد.</string>
     <string name="no_ethos_wallet_found">هیچ کیف پول EthOs یافت نشد</string>
+    <string name="no_excluded_exit_locations">هنوز مکانی مستثنا نشده است. برای مستثنا کردن، یک کشور، منطقه یا شهر را جست‌وجو کنید.</string>
     <string name="no_locations_found">هیچ مکانی یافت نشد</string>
     <string name="no_locations_found_detail">متأسفیم، هیچ مکانی مرتبط با %1$s پیدا نکردیم.</string>
     <string name="no_log_files_found">هیچ فایل لاگی یافت نشد</string>
@@ -1189,6 +1196,7 @@
     <string name="remote_doh_urls">آدرس‌های DoH راه دور</string>
     <string name="remote_lowercase">راه دور</string>
     <string name="remove">حذف</string>
+    <string name="remove_from_favorites">حذف از علاقه‌مندی‌ها</string>
     <string name="remove_rule">حذف قانون</string>
     <string name="remove_this_sign_in_method">این روش ورود حذف شود؟</string>
     <string name="resend_reset_link">ارسال دوبارهٔ لینک</string>
@@ -1214,6 +1222,7 @@
     <string name="saved_as">به‌صورت %1$s ذخیره می‌شود</string>
     <string name="scan_qr_code">اسکن کد QR</string>
     <string name="search_apps_placeholder">جست‌وجوی برنامه‌ها</string>
+    <string name="search_exit_locations_placeholder">جست‌وجوی کشورها، مناطق و شهرها</string>
     <string name="search_placeholder">جست‌وجو در همهٔ مکان‌ها</string>
     <string name="secure_your_account">حساب خود را ایمن کنید</string>
     <string name="see_world_content">همهٔ محتوای\nجهان را ببینید</string>

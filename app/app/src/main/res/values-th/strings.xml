@@ -17,6 +17,7 @@
     <string name="add_sign_in_method">เพิ่มวิธีลงชื่อเข้าใช้</string>
     <string name="add_sign_in_method_2">เพิ่มวิธีลงชื่อเข้าใช้</string>
     <string name="add_tao_for_gas">เพิ่ม TAO สำหรับค่า gas</string>
+    <string name="add_to_favorites">เพิ่มในรายการโปรด</string>
     <string name="advanced">ขั้นสูง</string>
     <string name="allow_local_connections">เปิดให้เชื่อมต่อจากอุปกรณ์ในเครือข่ายเดียวกัน</string>
     <string name="allow_providing_cell">อนุญาตให้ให้บริการบนเครือข่ายมือถือ</string>
@@ -687,7 +688,10 @@
     <string name="error_updating_device_name">เกิดข้อผิดพลาดในการอัปเดตชื่ออุปกรณ์</string>
     <string name="exclude_app">ยกเว้นจาก VPN</string>
     <string name="exclude_app_description">แอปนี้จะไม่ผ่านอุโมงค์</string>
+    <string name="exclude_exit_location">ยกเว้น</string>
     <string name="excluded">ยกเว้น</string>
+    <string name="excluded_exit_locations">ตำแหน่งทางออกที่ยกเว้น</string>
+    <string name="excluded_exit_locations_description">การเชื่อมต่อจะไม่ใช้ทางออกในสถานที่เหล่านี้ เว้นแต่คุณเลือกที่ใดที่หนึ่งโดยตรง</string>
     <string name="expanded">ขยายแล้ว</string>
     <string name="expires">หมดอายุ</string>
     <string name="expiry_time">เวลาหมดอายุ</string>
@@ -706,6 +710,8 @@
     <string name="extenders_reset_done">รีเซ็ตตัวขยายแล้ว</string>
     <string name="fast_dns_on_connect">DNS ที่รวดเร็วขณะเชื่อมต่อ</string>
     <string name="fast_dns_on_connect_description">ตอบ DNS ผ่านเครือข่ายภายในขณะที่ DNS ของอุโมงค์กำลังเริ่มทำงาน ซึ่งอาจเปิดเผยการค้นหาของคุณให้เครือข่ายภายในเห็น และอาจได้คำตอบที่ไม่ตรงกับตำแหน่งทางออกของคุณ เมื่อปิดอยู่ DNS จะทำงานผ่านอุโมงค์เท่านั้น</string>
+    <string name="favorite_exit_note">อุปกรณ์ของสมาชิก อาจออฟไลน์หรือออกจากเครือข่ายได้ทุกเมื่อ</string>
+    <string name="favorites">รายการโปรด</string>
     <string name="feedback_header">ติดต่อเรา</string>
     <string name="feedback_include_logs">แนบไฟล์บันทึกกับข้อเสนอแนะ (ไม่บังคับ)</string>
     <string name="feedback_label">กล่องแสดงความเห็น</string>
@@ -957,6 +963,7 @@
     <string name="no_blocked_locations">ไม่มีตำแหน่งที่ถูกบล็อก</string>
     <string name="no_compatible_wallet_app_found">ไม่พบแอปกระเป๋าที่รองรับบนอุปกรณ์นี้</string>
     <string name="no_ethos_wallet_found">ไม่พบกระเป๋า EthOs</string>
+    <string name="no_excluded_exit_locations">ยังไม่มีตำแหน่งที่ยกเว้น ค้นหาประเทศ ภูมิภาค หรือเมืองเพื่อยกเว้น</string>
     <string name="no_locations_found">ไม่พบที่อยู่ดังกล่าว</string>
     <string name="no_locations_found_detail">ขออภัยด้วย เราไม่พบที่อยู่ใดๆที่เกี่ยวข้องกับ %1$s เลย</string>
     <string name="no_log_files_found">ไม่พบไฟล์บันทึก</string>
@@ -1189,6 +1196,7 @@
     <string name="remote_doh_urls">DoH URL ระยะไกล</string>
     <string name="remote_lowercase">ระยะไกล</string>
     <string name="remove">ลบ</string>
+    <string name="remove_from_favorites">นำออกจากรายการโปรด</string>
     <string name="remove_rule">ลบกฎ</string>
     <string name="remove_this_sign_in_method">ลบวิธีลงชื่อเข้าใช้นี้หรือไม่</string>
     <string name="resend_reset_link">ส่งลิงก์ใหม่อีกครั้ง</string>
@@ -1214,6 +1222,7 @@
     <string name="saved_as">บันทึกเป็น %1$s</string>
     <string name="scan_qr_code">สแกนรหัส QR</string>
     <string name="search_apps_placeholder">ค้นหาแอป</string>
+    <string name="search_exit_locations_placeholder">ค้นหาประเทศ ภูมิภาค และเมือง</string>
     <string name="search_placeholder">ค้นหาทุกประเทศ</string>
     <string name="secure_your_account">ปกป้องบัญชีของคุณ</string>
     <string name="see_world_content">เข้าถึงทุกคอนเทนต์\nจากทั่วทุกมุมโลก</string>

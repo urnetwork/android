@@ -17,6 +17,7 @@
     <string name="add_sign_in_method">Giriş yöntemi ekle</string>
     <string name="add_sign_in_method_2">Giriş yöntemi ekle</string>
     <string name="add_tao_for_gas">Gas ücreti için TAO ekleyin</string>
+    <string name="add_to_favorites">Favorilere ekle</string>
     <string name="advanced">Gelişmiş</string>
     <string name="allow_local_connections">Yerel bağlantılara izin ver</string>
     <string name="allow_providing_cell">Hücresel ağda sağlamaya izin ver</string>
@@ -687,7 +688,10 @@
     <string name="error_updating_device_name">Cihaz adı güncellenirken bir hata oluştu.</string>
     <string name="exclude_app">VPN\'den hariç tut</string>
     <string name="exclude_app_description">Bu uygulama tünelin dışında kalır.</string>
+    <string name="exclude_exit_location">Hariç tut</string>
     <string name="excluded">Hariç tutulanlar</string>
+    <string name="excluded_exit_locations">Hariç tutulan çıkış konumları</string>
+    <string name="excluded_exit_locations_description">Bağlantılar, birini doğrudan seçmediğiniz sürece bu yerlerdeki çıkışları kullanmaz.</string>
     <string name="expanded">Genişletildi</string>
     <string name="expires">Sona erme</string>
     <string name="expiry_time">Sona erme zamanı</string>
@@ -706,6 +710,8 @@
     <string name="extenders_reset_done">Genişleticiler sıfırlandı</string>
     <string name="fast_dns_on_connect">Bağlanırken hızlı DNS</string>
     <string name="fast_dns_on_connect_description">Tünelin DNS\'i başlarken DNS sorgularını yerel ağ üzerinden yanıtlar. Bu, sorgularınızın yerel ağ tarafından görülmesine ve çıkış konumunuzla uyuşmayan yanıtlar alınmasına yol açabilir. Kapalıyken DNS yalnızca tünel üzerinden çözümlenir.</string>
+    <string name="favorite_exit_note">Bir üyenin cihazı. Her an çevrimdışı olabilir veya ağdan ayrılabilir.</string>
+    <string name="favorites">Favoriler</string>
     <string name="feedback_header">Bize ulaşın</string>
     <string name="feedback_include_logs">Günlükleri geri bildirime ekle (isteğe bağlı)</string>
     <string name="feedback_label">Geri bildirim alanı</string>
@@ -957,6 +963,7 @@
     <string name="no_blocked_locations">Engellenen konum yok</string>
     <string name="no_compatible_wallet_app_found">Bu cihazda uyumlu bir cüzdan uygulaması bulunamadı.</string>
     <string name="no_ethos_wallet_found">EthOs cüzdanı bulunamadı</string>
+    <string name="no_excluded_exit_locations">Henüz hariç tutulan konum yok. Hariç tutmak için bir ülke, bölge veya şehir arayın.</string>
     <string name="no_locations_found">Konum bulunamadı</string>
     <string name="no_locations_found_detail">Üzgünüz, %1$s ile ilgili hiçbir konum bulamadık.</string>
     <string name="no_log_files_found">Günlük dosyası bulunamadı</string>
@@ -1189,6 +1196,7 @@
     <string name="remote_doh_urls">Uzak DoH URL\'leri</string>
     <string name="remote_lowercase">uzak</string>
     <string name="remove">Kaldır</string>
+    <string name="remove_from_favorites">Favorilerden kaldır</string>
     <string name="remove_rule">Kuralı kaldır</string>
     <string name="remove_this_sign_in_method">Bu giriş yöntemi kaldırılsın mı?</string>
     <string name="resend_reset_link">Bağlantıyı yeniden gönder</string>
@@ -1214,6 +1222,7 @@
     <string name="saved_as">%1$s olarak kaydedilir</string>
     <string name="scan_qr_code">QR kodu tara</string>
     <string name="search_apps_placeholder">Uygulama ara</string>
+    <string name="search_exit_locations_placeholder">Ülke, bölge ve şehir ara</string>
     <string name="search_placeholder">Tüm konumlarda ara</string>
     <string name="secure_your_account">Hesabınızı güvence altına alın</string>
     <string name="see_world_content">Dünyanın tüm\niçeriğine erişin</string>

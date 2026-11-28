@@ -17,6 +17,7 @@
     <string name="add_sign_in_method">Anmeldemethode hinzufügen</string>
     <string name="add_sign_in_method_2">Anmeldemethode hinzufügen</string>
     <string name="add_tao_for_gas">TAO für Gas hinzufügen</string>
+    <string name="add_to_favorites">Zu Favoriten hinzufügen</string>
     <string name="advanced">Erweitert</string>
     <string name="allow_local_connections">Lokale Verbindungen zulassen</string>
     <string name="allow_providing_cell">Bereitstellung über das Mobilfunknetz erlauben</string>
@@ -687,7 +688,10 @@
     <string name="error_updating_device_name">Beim Aktualisieren des Gerätenamens ist ein Fehler aufgetreten.</string>
     <string name="exclude_app">Vom VPN ausschließen</string>
     <string name="exclude_app_description">Diese App umgeht den Tunnel.</string>
+    <string name="exclude_exit_location">Ausschließen</string>
     <string name="excluded">Ausgeschlossen</string>
+    <string name="excluded_exit_locations">Ausgeschlossene Exit-Standorte</string>
+    <string name="excluded_exit_locations_description">Verbindungen nutzen keine Exits an diesen Orten, außer du wählst einen davon direkt.</string>
     <string name="expanded">Ausgeklappt</string>
     <string name="expires">Läuft ab</string>
     <string name="expiry_time">Ablaufzeit</string>
@@ -706,6 +710,8 @@
     <string name="extenders_reset_done">Extender zurückgesetzt</string>
     <string name="fast_dns_on_connect">Schnelles DNS beim Verbinden</string>
     <string name="fast_dns_on_connect_description">Beantwortet DNS-Anfragen über das lokale Netzwerk, während das DNS des Tunnels startet. Dadurch können deine Abfragen im lokalen Netzwerk sichtbar werden, und die Antworten passen möglicherweise nicht zu deinem Exit-Standort. Wenn aus, wird DNS nur über den Tunnel aufgelöst.</string>
+    <string name="favorite_exit_note">Das Gerät eines Mitglieds. Es kann jederzeit offline gehen oder das Netzwerk verlassen.</string>
+    <string name="favorites">Favoriten</string>
     <string name="feedback_header">Kontakt aufnehmen</string>
     <string name="feedback_include_logs">Protokolle dem Feedback anhängen (optional)</string>
     <string name="feedback_label">Feedback-Feld</string>
@@ -957,6 +963,7 @@
     <string name="no_blocked_locations">Keine blockierten Standorte</string>
     <string name="no_compatible_wallet_app_found">Auf diesem Gerät wurde keine kompatible Wallet-App gefunden.</string>
     <string name="no_ethos_wallet_found">Keine EthOs-Wallet gefunden</string>
+    <string name="no_excluded_exit_locations">Noch keine ausgeschlossenen Orte. Suche nach einem Land, einer Region oder einer Stadt, um sie auszuschließen.</string>
     <string name="no_locations_found">Keine Standorte gefunden</string>
     <string name="no_locations_found_detail">Leider konnten wir keine Standorte finden, die mit %1$s in Verbindung stehen.</string>
     <string name="no_log_files_found">Keine Protokolldatei gefunden</string>
@@ -1189,6 +1196,7 @@
     <string name="remote_doh_urls">Externe DoH-URLs</string>
     <string name="remote_lowercase">extern</string>
     <string name="remove">Entferne</string>
+    <string name="remove_from_favorites">Aus Favoriten entfernen</string>
     <string name="remove_rule">Regel entfernen</string>
     <string name="remove_this_sign_in_method">Diese Anmeldemethode entfernen?</string>
     <string name="resend_reset_link">Link erneut senden</string>
@@ -1214,6 +1222,7 @@
     <string name="saved_as">Gespeichert als %1$s</string>
     <string name="scan_qr_code">QR-Code scannen</string>
     <string name="search_apps_placeholder">Apps suchen</string>
+    <string name="search_exit_locations_placeholder">Länder, Regionen und Städte suchen</string>
     <string name="search_placeholder">Alle Standorte durchsuchen</string>
     <string name="secure_your_account">Sichere dein Konto</string>
     <string name="see_world_content">Sieh alle\nInhalte\nder Welt</string>

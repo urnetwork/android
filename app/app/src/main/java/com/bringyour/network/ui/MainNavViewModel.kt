@@ -132,6 +132,8 @@ sealed class Route {
     @Serializable object Referrals : Route()
     @Serializable object Widgets : Route()
     @Serializable object BlockedRegions: Route()
+    // Settings -> Excluded exit locations: the places picks avoid, and their search
+    @Serializable object ExcludedExitLocations: Route()
     @Serializable object Vless: Route()
     @Serializable object Developer: Route()
     @Serializable object Licenses: Route()

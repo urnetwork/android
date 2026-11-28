@@ -17,6 +17,7 @@
     <string name="add_sign_in_method">Thêm phương thức đăng nhập</string>
     <string name="add_sign_in_method_2">Thêm phương thức đăng nhập</string>
     <string name="add_tao_for_gas">Thêm TAO để trả gas</string>
+    <string name="add_to_favorites">Thêm vào yêu thích</string>
     <string name="advanced">Nâng cao</string>
     <string name="allow_local_connections">Cho phép kết nối cục bộ</string>
     <string name="allow_providing_cell">Cho phép cung cấp trên mạng di động</string>
@@ -687,7 +688,10 @@
     <string name="error_updating_device_name">Đã xảy ra lỗi khi cập nhật tên thiết bị.</string>
     <string name="exclude_app">Loại trừ khỏi VPN</string>
     <string name="exclude_app_description">Ứng dụng này bỏ qua đường hầm.</string>
+    <string name="exclude_exit_location">Loại trừ</string>
     <string name="excluded">Đã loại trừ</string>
+    <string name="excluded_exit_locations">Vị trí điểm thoát bị loại trừ</string>
+    <string name="excluded_exit_locations_description">Các kết nối sẽ không dùng điểm thoát ở những nơi này, trừ khi bạn chọn trực tiếp một trong số đó.</string>
     <string name="expanded">Đã mở rộng</string>
     <string name="expires">Hết hạn</string>
     <string name="expiry_time">Thời gian hết hạn</string>
@@ -706,6 +710,8 @@
     <string name="extenders_reset_done">Đã đặt lại bộ mở rộng</string>
     <string name="fast_dns_on_connect">DNS nhanh khi kết nối</string>
     <string name="fast_dns_on_connect_description">Trả lời DNS qua mạng cục bộ trong khi DNS của đường hầm khởi động. Điều này có thể để lộ các truy vấn của bạn cho mạng cục bộ và trả về kết quả không khớp với vị trí thoát của bạn. Khi tắt, DNS chỉ phân giải qua đường hầm.</string>
+    <string name="favorite_exit_note">Thiết bị của một thành viên. Thiết bị có thể ngoại tuyến hoặc rời mạng bất cứ lúc nào.</string>
+    <string name="favorites">Yêu thích</string>
     <string name="feedback_header">Liên hệ với chúng tôi</string>
     <string name="feedback_include_logs">Đính kèm nhật ký vào phản hồi (tùy chọn)</string>
     <string name="feedback_label">Ô phản hồi</string>
@@ -957,6 +963,7 @@
     <string name="no_blocked_locations">Không có vị trí bị chặn</string>
     <string name="no_compatible_wallet_app_found">Không tìm thấy ứng dụng ví tương thích trên thiết bị này.</string>
     <string name="no_ethos_wallet_found">Không tìm thấy ví EthOs</string>
+    <string name="no_excluded_exit_locations">Chưa có vị trí nào bị loại trừ. Tìm một quốc gia, khu vực hoặc thành phố để loại trừ.</string>
     <string name="no_locations_found">Không tìm thấy vị trí nào</string>
     <string name="no_locations_found_detail">Rất tiếc, chúng tôi không tìm thấy vị trí nào liên quan đến %1$s.</string>
     <string name="no_log_files_found">Không tìm thấy tệp nhật ký</string>
@@ -1189,6 +1196,7 @@
     <string name="remote_doh_urls">URL DoH từ xa</string>
     <string name="remote_lowercase">từ xa</string>
     <string name="remove">Gỡ bỏ</string>
+    <string name="remove_from_favorites">Xóa khỏi yêu thích</string>
     <string name="remove_rule">Xóa quy tắc</string>
     <string name="remove_this_sign_in_method">Xóa phương thức đăng nhập này?</string>
     <string name="resend_reset_link">Gửi lại liên kết</string>
@@ -1214,6 +1222,7 @@
     <string name="saved_as">Đã lưu thành %1$s</string>
     <string name="scan_qr_code">Quét mã QR</string>
     <string name="search_apps_placeholder">Tìm ứng dụng</string>
+    <string name="search_exit_locations_placeholder">Tìm quốc gia, khu vực và thành phố</string>
     <string name="search_placeholder">Tìm kiếm tất cả vị trí</string>
     <string name="secure_your_account">Bảo mật tài khoản của bạn</string>
     <string name="see_world_content">Xem tất cả\nnội dung thế giới</string>

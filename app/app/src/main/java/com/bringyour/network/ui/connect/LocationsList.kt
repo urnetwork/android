@@ -13,6 +13,7 @@ import androidx.compose.runtime.Composable
 import com.bringyour.sdk.ConnectLocation
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
@@ -26,6 +27,8 @@ import com.bringyour.network.ui.indexedLazyListKey
 import com.bringyour.network.ui.stats.NetworkPeerUi
 import com.bringyour.network.ui.stats.networkPeersSection
 import com.bringyour.network.ui.theme.Red400
+import com.bringyour.network.ui.theme.TextMuted
+import com.bringyour.sdk.Sdk
 
 /** What a location row's context menu offers (adaptive app quality, Context_Menus). */
 enum class LocationMenuAction { Connect, Disconnect }
@@ -65,6 +68,11 @@ fun LocationsList(
     // connect screen's Disconnect: the menu of the row it is on offers it
     connectRequested: Boolean = false,
     onDisconnect: () -> Unit = {},
+    // the user's favorites, the first section while not searching, and adding
+    // or removing a row's location (its context menu)
+    favorites: List<ConnectLocation> = listOf(),
+    isFavorite: (ConnectLocation) -> Boolean = { false },
+    toggleFavorite: (ConnectLocation) -> Unit = {},
 ) {
 
     // a row's context menu (Context_Menus): Connect, as its click, or
@@ -79,6 +87,22 @@ fun LocationsList(
             }
         }
     }
+    // then Add to or Remove from favorites, where the location can be one
+    val addToFavoritesLabel = stringResource(id = R.string.add_to_favorites)
+    val removeFromFavoritesLabel = stringResource(id = R.string.remove_from_favorites)
+    val favoriteMenu: (ConnectLocation) -> List<ContextMenuItem> = { location ->
+        if (Sdk.canFavoriteLocation(location)) {
+            listOf(
+                ContextMenuItem(
+                    label = if (isFavorite(location)) removeFromFavoritesLabel else addToFavoritesLabel,
+                    onClick = { toggleFavorite(location) },
+                )
+            )
+        } else {
+            listOf()
+        }
+    }
+    val favoriteExitNote = stringResource(id = R.string.favorite_exit_note)
 
     if (
         connectCountries.isEmpty() &&
@@ -122,7 +146,57 @@ fun LocationsList(
                 // verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
 
-                // network peers pinned at the top
+                // the user's favorites first: a tap connects, as on every row,
+                // and an exit, one member's device, says it can go away
+                if (favorites.isNotEmpty() && searchQuery.isEmpty()) {
+                    item {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp, vertical = 12.dp),
+                            horizontalArrangement = Arrangement.Start
+                        ) {
+                            Text(stringResource(id = R.string.favorites))
+                        }
+                    }
+
+                    itemsIndexed(
+                        favorites,
+                        key = { index, location ->
+                            indexedLazyListKey("favorite", index, location.connectLocationId)
+                        }
+                    ) { _, location ->
+                        val selected = selectedLocation?.connectLocationId == location.connectLocationId
+                        Column {
+                            ProviderRow(
+                                location = locationDisplayName(location),
+                                onClick = {
+                                    onLocationSelect(location)
+                                },
+                                isSelected = selected,
+                                contextMenuItems = locationMenu(selected) { onLocationSelect(location) } + favoriteMenu(location),
+                                color = getLocationColor(
+                                    if (location.locationType == Sdk.LocationTypeCountry) location.countryCode
+                                    else location.connectLocationId.toString()
+                                ),
+                                onFocusChanged = onFocusChanged,
+                                isStable = location.stable,
+                                isStrongPrivacy = location.strongPrivacy
+                            )
+                            if (Sdk.isFavoriteExit(location)) {
+                                // under the name, past the row's circle
+                                Text(
+                                    favoriteExitNote,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = TextMuted,
+                                    modifier = Modifier.padding(start = 72.dp, end = 16.dp, bottom = 12.dp)
+                                )
+                            }
+                        }
+                    }
+                }
+
+                // then the network peers
                 networkPeersSection(
                     peers = networkPeers,
                     selectedLocation = selectedLocation,
@@ -158,7 +232,7 @@ fun LocationsList(
                                 onLocationSelect(location)
                             },
                             isSelected = selected,
-                            contextMenuItems = locationMenu(selected) { onLocationSelect(location) },
+                            contextMenuItems = locationMenu(selected) { onLocationSelect(location) } + favoriteMenu(location),
                             color = getLocationColor(location.connectLocationId.toString()),
                             onFocusChanged = onFocusChanged,
                             isStable = location.stable,
@@ -227,7 +301,7 @@ fun LocationsList(
                                 onLocationSelect(location)
                             },
                             isSelected = selected,
-                            contextMenuItems = locationMenu(selected) { onLocationSelect(location) },
+                            contextMenuItems = locationMenu(selected) { onLocationSelect(location) } + favoriteMenu(location),
                             color = getLocationColor(location.countryCode),
                             onFocusChanged = onFocusChanged,
                             isStable = location.stable,
@@ -262,7 +336,7 @@ fun LocationsList(
                                 onLocationSelect(location)
                             },
                             isSelected = selected,
-                            contextMenuItems = locationMenu(selected) { onLocationSelect(location) },
+                            contextMenuItems = locationMenu(selected) { onLocationSelect(location) } + favoriteMenu(location),
                             color = getLocationColor(location.connectLocationId.toString()),
                             onFocusChanged = onFocusChanged,
                             isStable = location.stable,
@@ -297,7 +371,7 @@ fun LocationsList(
                                 onLocationSelect(location)
                             },
                             isSelected = selected,
-                            contextMenuItems = locationMenu(selected) { onLocationSelect(location) },
+                            contextMenuItems = locationMenu(selected) { onLocationSelect(location) } + favoriteMenu(location),
                             color = getLocationColor(location.connectLocationId.toString()),
                             onFocusChanged = onFocusChanged,
                             isStable = location.stable,
@@ -333,7 +407,7 @@ fun LocationsList(
                                 onLocationSelect(location)
                             },
                             isSelected = selected,
-                            contextMenuItems = locationMenu(selected) { onLocationSelect(location) },
+                            contextMenuItems = locationMenu(selected) { onLocationSelect(location) } + favoriteMenu(location),
                             color = getLocationColor(location.connectLocationId.toString()),
                             onFocusChanged = onFocusChanged,
                             isStable = location.stable,
