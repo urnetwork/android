@@ -702,6 +702,7 @@
     <string name="expanded">Expanded</string>
     <string name="expires">Expires</string>
     <string name="expiry_time">Expiry time</string>
+    <string name="export_logs">Export Logs</string>
     <string name="extender_address_copied">Extender address copied</string>
     <string name="extender_address_label">Extender %1$s</string>
     <string name="extender_default_value">Default: %1$s</string>
@@ -1573,6 +1574,7 @@
     <string name="verify_send_error">Error</string>
     <string name="version_info">Version and build info</string>
     <string name="via_exit">via %1$s</string>
+    <string name="view_logs">View Logs</string>
     <string name="vless" translatable="false">VLESS</string>
     <string name="vless_allow_insecure">Allow an insecure certificate</string>
     <string name="vless_alpn" translatable="false">ALPN</string>

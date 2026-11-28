@@ -132,8 +132,12 @@ sealed class Route {
     @Serializable object Referrals : Route()
     @Serializable object Widgets : Route()
     @Serializable object BlockedRegions: Route()
+    // Settings -> Excluded exit locations: the places picks avoid, and their search
+    @Serializable object ExcludedExitLocations: Route()
     @Serializable object Vless: Route()
     @Serializable object Developer: Route()
+    // Settings -> View Logs: the last lines of the app's logs (LogViewerScreen)
+    @Serializable object LogViewer: Route()
     @Serializable object Licenses: Route()
     @Serializable data class LicenseDetail(val index: Int): Route()
     @Serializable object BalanceCodes: Route()

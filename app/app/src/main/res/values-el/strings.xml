@@ -695,6 +695,7 @@
     <string name="expanded">Αναπτυγμένο</string>
     <string name="expires">Λήγει</string>
     <string name="expiry_time">Χρόνος λήξης</string>
+    <string name="export_logs">Εξαγωγή αρχείων καταγραφής</string>
     <string name="extender_address_copied">Η διεύθυνση του επεκτατή αντιγράφηκε</string>
     <string name="extender_address_label">Επεκτατής %1$s</string>
     <string name="extender_default_value">Προεπιλογή: %1$s</string>
@@ -1554,6 +1555,7 @@
     <string name="verify_send_error">Σφάλμα</string>
     <string name="version_info">Πληροφορίες έκδοσης και κατασκευής</string>
     <string name="via_exit">μέσω %1$s</string>
+    <string name="view_logs">Προβολή αρχείων καταγραφής</string>
     <string name="vless_allow_insecure">Να επιτρέπεται μη ασφαλές πιστοποιητικό</string>
     <string name="vless_copy_link">Αντιγραφή συνδέσμου</string>
     <string name="vless_enabled">Χρήση VLESS</string>

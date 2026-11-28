@@ -1,5 +1,6 @@
 package com.bringyour.network.ui.connect
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -15,15 +16,22 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bringyour.network.DeviceManager
 import com.bringyour.network.ForegroundDeviceControllerOwner
+import com.bringyour.network.TAG
 import com.bringyour.sdk.ConnectLocation
 import com.bringyour.sdk.ConnectLocationList
 import com.bringyour.sdk.DeviceLocal
+import com.bringyour.sdk.LocalState
 import com.bringyour.sdk.LocationsViewController
+import com.bringyour.sdk.Sdk
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
@@ -64,6 +72,66 @@ class LocationsListViewModel @Inject constructor(
 
     // when searching, items with matchDistance of 0
     val bestSearchMatches = mutableStateListOf<ConnectLocation>()
+
+    /**
+     * The user's favorites (LocalState.getFavoriteLocations): places,
+     * collections and exits, the newest first, the location list's first
+     * section and the connect screen's star. Read for each device, and again
+     * after each change; reads and changes run off the main thread, one at a
+     * time, in order.
+     */
+    var favoriteLocations by mutableStateOf<List<ConnectLocation>>(listOf())
+        private set
+    // their ids (locationKey)
+    private var favoriteKeys by mutableStateOf<Set<String>>(setOf())
+    // the device the favorites are of
+    private var favoritesDevice: DeviceLocal? = null
+    private val favoritesLock = Mutex()
+
+    /** Whether the location is one of the favorites. */
+    val isFavorite: (ConnectLocation) -> Boolean = { location ->
+        locationKey(location) in favoriteKeys
+    }
+
+    /**
+     * Adds the location to the favorites, at the front, or removes it when it
+     * is one. A location that cannot be one (best available) is left alone.
+     */
+    val toggleFavorite: (ConnectLocation) -> Unit = { location ->
+        val device = favoritesDevice
+        if (device != null && Sdk.canFavoriteLocation(location)) {
+            val remove = isFavorite(location)
+            updateFavorites(device) { localState ->
+                if (remove) {
+                    localState.removeFavoriteLocation(location)
+                } else {
+                    localState.addFavoriteLocation(location)
+                }
+            }
+        }
+    }
+
+    // makes the change in the device's local state, then publishes the
+    // favorites it holds, unless another device came meanwhile. A change the
+    // sdk refuses (past its most) is logged, and the list stays as it is
+    private fun updateFavorites(device: DeviceLocal, change: (LocalState) -> Unit = {}) {
+        val localState = device.networkSpace?.asyncLocalState?.localState ?: return
+        viewModelScope.launch {
+            val (favorites, keys) = favoritesLock.withLock {
+                withContext(Dispatchers.IO) {
+                    runCatching { change(localState) }
+                        .onFailure { Log.i(TAG, "[favorites]could not change the favorites: ${it.message}") }
+                    val list = localState.favoriteLocations
+                    val loaded = if (list == null) listOf<ConnectLocation>() else (0 until list.len()).mapNotNull { list.get(it) }
+                    loaded to loaded.map { locationKey(it) }.toSet()
+                }
+            }
+            if (favoritesDevice === device) {
+                favoriteLocations = favorites
+                favoriteKeys = keys
+            }
+        }
+    }
 
     val refreshLocations: () -> Unit = {
         locationsVc?.filterLocations(currentSearchQuery)
@@ -169,6 +237,13 @@ class LocationsListViewModel @Inject constructor(
             viewModelScope.launch {
                 clearLocations()
                 controllerOwner.setDevice(device)
+                // the favorites are the signed-in space's
+                if (favoritesDevice !== device) {
+                    favoritesDevice = device
+                    favoriteLocations = listOf()
+                    favoriteKeys = setOf()
+                    device?.let { updateFavorites(it) }
+                }
             }
         }
     }
@@ -244,3 +319,11 @@ enum class FilterLocationsState {
 
 // one GET /network/provider-locations a minute while the home screen shows
 const val LOCATIONS_REFRESH_INTERVAL_MILLIS = 60_000L
+
+/**
+ * A location's identity as text, its id: what the favorites and the excluded
+ * exit locations are matched by, as the selected location's provider count is
+ * (selectedProviderCount).
+ */
+fun locationKey(location: ConnectLocation): String =
+    location.connectLocationId?.toString().orEmpty()

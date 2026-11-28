@@ -69,6 +69,13 @@ internal interface ConnectController {
     fun connect(location: ConnectLocation)
     fun connectBestAvailable()
     fun disconnect()
+
+    /**
+     * The user's excluded exit locations changed: the sdk connects again a
+     * connection the change affects, and does nothing otherwise. Nothing by
+     * default, for a fake with no connection to change.
+     */
+    fun excludedExitLocationsChanged() {}
 }
 
 /** The sdk device the device manager publishes. */
@@ -144,4 +151,5 @@ internal class SdkConnectController(val controller: ConnectViewController) : Con
     override fun connect(location: ConnectLocation) = controller.connect(location)
     override fun connectBestAvailable() = controller.connectBestAvailable()
     override fun disconnect() = controller.disconnect()
+    override fun excludedExitLocationsChanged() = controller.excludedExitLocationsChanged()
 }

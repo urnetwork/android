@@ -695,6 +695,7 @@
     <string name="expanded">Imepanuliwa</string>
     <string name="expires">Inaisha</string>
     <string name="expiry_time">Muda wa kumalizika</string>
+    <string name="export_logs">Hamisha kumbukumbu</string>
     <string name="extender_address_copied">Anwani ya kipanuzi imenakiliwa</string>
     <string name="extender_address_label">Kipanuzi %1$s</string>
     <string name="extender_default_value">Chaguomsingi: %1$s</string>
@@ -1554,6 +1555,7 @@
     <string name="verify_send_error">Hitilafu</string>
     <string name="version_info">Taarifa za toleo na ujenzi</string>
     <string name="via_exit">kupitia %1$s</string>
+    <string name="view_logs">Tazama kumbukumbu</string>
     <string name="vless_allow_insecure">Ruhusu cheti kisicho salama</string>
     <string name="vless_copy_link">Nakili kiungo</string>
     <string name="vless_enabled">Tumia VLESS</string>

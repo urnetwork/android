@@ -695,6 +695,7 @@
     <string name="expanded">विस्तृत</string>
     <string name="expires">समाप्त होता है</string>
     <string name="expiry_time">समाप्ति समय</string>
+    <string name="export_logs">लॉग्स एक्सपोर्ट करें</string>
     <string name="extender_address_copied">एक्सटेंडर का पता कॉपी किया गया</string>
     <string name="extender_address_label">एक्सटेंडर %1$s</string>
     <string name="extender_default_value">डिफ़ॉल्ट: %1$s</string>
@@ -1554,6 +1555,7 @@
     <string name="verify_send_error">त्रुटि</string>
     <string name="version_info">संस्करण और बिल्ड जानकारी</string>
     <string name="via_exit">%1$s के ज़रिए</string>
+    <string name="view_logs">लॉग्स देखें</string>
     <string name="vless_allow_insecure">असुरक्षित प्रमाणपत्र की अनुमति दें</string>
     <string name="vless_copy_link">लिंक कॉपी करें</string>
     <string name="vless_enabled">VLESS का उपयोग करें</string>

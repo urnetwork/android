@@ -181,6 +181,20 @@ internal class ConnectCommands(
         })
     }
 
+    /**
+     * Runs `work` on the queue's thread after the commands made so far, unless
+     * a sign out started for `device` (its identity) by then, and without
+     * showing as pending: a change that connects again only when it affects
+     * the connection, which most do not (the excluded exit locations).
+     */
+    fun afterCommands(device: Any, work: () -> Unit) {
+        afterCommands {
+            if (!signedOut(device)) {
+                work()
+            }
+        }
+    }
+
     private fun changed() {
         listeners.toList().forEach { it() }
     }

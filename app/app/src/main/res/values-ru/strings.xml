@@ -695,6 +695,7 @@
     <string name="expanded">Развёрнуто</string>
     <string name="expires">Истекает</string>
     <string name="expiry_time">Время истечения</string>
+    <string name="export_logs">Экспорт логов</string>
     <string name="extender_address_copied">Адрес экстендера скопирован</string>
     <string name="extender_address_label">Экстендер %1$s</string>
     <string name="extender_default_value">По умолчанию: %1$s</string>
@@ -1554,6 +1555,7 @@
     <string name="verify_send_error">Ошибка</string>
     <string name="version_info">Информация о версии и сборке</string>
     <string name="via_exit">через %1$s</string>
+    <string name="view_logs">Просмотр логов</string>
     <string name="vless_allow_insecure">Разрешить небезопасный сертификат</string>
     <string name="vless_copy_link">Копировать ссылку</string>
     <string name="vless_enabled">Использовать VLESS</string>

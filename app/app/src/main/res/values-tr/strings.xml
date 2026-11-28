@@ -695,6 +695,7 @@
     <string name="expanded">Genişletildi</string>
     <string name="expires">Sona erme</string>
     <string name="expiry_time">Sona erme zamanı</string>
+    <string name="export_logs">Günlükleri dışa aktar</string>
     <string name="extender_address_copied">Genişletici adresi kopyalandı</string>
     <string name="extender_address_label">Genişletici %1$s</string>
     <string name="extender_default_value">Varsayılan: %1$s</string>
@@ -1554,6 +1555,7 @@
     <string name="verify_send_error">Hata</string>
     <string name="version_info">Sürüm ve derleme bilgileri</string>
     <string name="via_exit">%1$s üzerinden</string>
+    <string name="view_logs">Günlükleri görüntüle</string>
     <string name="vless_allow_insecure">Güvenli olmayan sertifikaya izin ver</string>
     <string name="vless_copy_link">Bağlantıyı kopyala</string>
     <string name="vless_enabled">VLESS kullan</string>

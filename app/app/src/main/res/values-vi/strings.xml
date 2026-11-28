@@ -695,6 +695,7 @@
     <string name="expanded">Đã mở rộng</string>
     <string name="expires">Hết hạn</string>
     <string name="expiry_time">Thời gian hết hạn</string>
+    <string name="export_logs">Xuất nhật ký</string>
     <string name="extender_address_copied">Đã sao chép địa chỉ bộ mở rộng</string>
     <string name="extender_address_label">Bộ mở rộng %1$s</string>
     <string name="extender_default_value">Mặc định: %1$s</string>
@@ -1554,6 +1555,7 @@
     <string name="verify_send_error">Lỗi</string>
     <string name="version_info">Thông tin phiên bản và bản dựng</string>
     <string name="via_exit">qua %1$s</string>
+    <string name="view_logs">Xem nhật ký</string>
     <string name="vless_allow_insecure">Cho phép chứng chỉ không an toàn</string>
     <string name="vless_copy_link">Sao chép liên kết</string>
     <string name="vless_enabled">Sử dụng VLESS</string>

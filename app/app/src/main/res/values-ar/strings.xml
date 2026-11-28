@@ -695,6 +695,7 @@
     <string name="expanded">تم التوسيع</string>
     <string name="expires">ينتهي</string>
     <string name="expiry_time">وقت الانتهاء</string>
+    <string name="export_logs">تصدير السجلات</string>
     <string name="extender_address_copied">تم نسخ عنوان الموسّع</string>
     <string name="extender_address_label">الموسّع %1$s</string>
     <string name="extender_default_value">الافتراضي: %1$s</string>
@@ -1554,6 +1555,7 @@
     <string name="verify_send_error">خطأ</string>
     <string name="version_info">معلومات الإصدار والبناء</string>
     <string name="via_exit">عبر %1$s</string>
+    <string name="view_logs">عرض السجلات</string>
     <string name="vless_allow_insecure">السماح بشهادة غير آمنة</string>
     <string name="vless_copy_link">نسخ الرابط</string>
     <string name="vless_enabled">استخدام VLESS</string>

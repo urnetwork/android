@@ -120,6 +120,7 @@ import com.bringyour.network.ui.account.AccountScreen
 import com.bringyour.network.ui.settings.DeveloperScreen
 import com.bringyour.network.ui.settings.LicenseDetailScreen
 import com.bringyour.network.ui.settings.LicensesScreen
+import com.bringyour.network.ui.settings.LogViewerScreen
 import com.bringyour.network.ui.account.ExtendersScreen
 import com.bringyour.network.ui.account.ImportExtendersScreen
 import com.bringyour.network.ui.account.ProviderIdentitiesScreen
@@ -175,6 +176,7 @@ import com.bringyour.network.TAG
 import com.bringyour.network.ui.api_error.ApiErrorScreen
 import com.bringyour.network.ui.balance_codes.BalanceCodesScreen
 import com.bringyour.network.ui.blocked_regions.BlockedRegionsScreen
+import com.bringyour.network.ui.excluded_exit_locations.ExcludedExitLocationsScreen
 import com.bringyour.network.ui.components.overlays.OverlayMode
 import com.bringyour.network.ui.introduction.IntroductionInitial
 import com.bringyour.network.ui.introduction.IntroductionReferral
@@ -1882,6 +1884,15 @@ fun MainNavContent(
                     DeveloperScreen(navController = navController)
                 }
 
+                composable<Route.LogViewer>(
+                    enterTransition = NavigationAnimations.enterTransition(),
+                    exitTransition = NavigationAnimations.exitTransition(),
+                    popEnterTransition = NavigationAnimations.popEnterTransition(),
+                    popExitTransition = NavigationAnimations.popExitTransition()
+                ) {
+                    LogViewerScreen(navController = navController)
+                }
+
                 composable<Route.Licenses>(
                     enterTransition = NavigationAnimations.enterTransition(),
                     exitTransition = NavigationAnimations.exitTransition(),
@@ -1911,6 +1922,20 @@ fun MainNavContent(
                         navController = navController,
                         countries = locationsListViewModel.connectCountries,
                         getLocationColor = locationsListViewModel.getLocationColor
+                    )
+                }
+
+                composable<Route.ExcludedExitLocations>(
+                    enterTransition = NavigationAnimations.enterTransition(),
+                    exitTransition = NavigationAnimations.exitTransition(),
+                    popEnterTransition = NavigationAnimations.popEnterTransition(),
+                    popExitTransition = NavigationAnimations.popExitTransition()
+                ) {
+                    ExcludedExitLocationsScreen(
+                        navController = navController,
+                        getLocationColor = locationsListViewModel.getLocationColor,
+                        // a connection the change affects connects again
+                        excludedExitLocationsChanged = connectViewModel.excludedExitLocationsChanged,
                     )
                 }
 

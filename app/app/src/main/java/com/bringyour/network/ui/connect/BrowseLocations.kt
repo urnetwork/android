@@ -63,6 +63,11 @@ fun BrowseLocations(
     // it is on (LocationsList)
     connectRequested: Boolean = false,
     disconnect: () -> Unit = {},
+    // the user's favorites, the list's first section, and their add and
+    // remove (LocationsListViewModel)
+    favorites: List<ConnectLocation> = listOf(),
+    isFavorite: (ConnectLocation) -> Boolean = { false },
+    toggleFavorite: (ConnectLocation) -> Unit = {},
 ) {
 
     val scope = rememberCoroutineScope()
@@ -156,6 +161,9 @@ fun BrowseLocations(
                 onConnectPeer = onConnectPeer,
                 connectRequested = connectRequested,
                 onDisconnect = disconnect,
+                favorites = favorites,
+                isFavorite = isFavorite,
+                toggleFavorite = toggleFavorite,
             )
         }
     }

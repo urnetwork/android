@@ -695,6 +695,7 @@
     <string name="expanded">已展开</string>
     <string name="expires">到期</string>
     <string name="expiry_time">到期时间</string>
+    <string name="export_logs">导出日志</string>
     <string name="extender_address_copied">扩展器地址已复制</string>
     <string name="extender_address_label">扩展器 %1$s</string>
     <string name="extender_default_value">默认：%1$s</string>
@@ -1554,6 +1555,7 @@
     <string name="verify_send_error">错误</string>
     <string name="version_info">版本和构建信息</string>
     <string name="via_exit">经由 %1$s</string>
+    <string name="view_logs">查看日志</string>
     <string name="vless_allow_insecure">允许不安全的证书</string>
     <string name="vless_copy_link">复制链接</string>
     <string name="vless_enabled">使用 VLESS</string>
