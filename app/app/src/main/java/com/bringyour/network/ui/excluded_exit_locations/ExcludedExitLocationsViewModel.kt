@@ -146,11 +146,17 @@ class ExcludedExitLocationsViewModel @Inject constructor(
         val vc = device.openLocationsViewController()
         locationsVc = vc
         filteredLocationsSub = vc.addFilteredLocationsListener { filteredLocations, state ->
-            // only what can be excluded: countries, regions and cities
+            // only what can be excluded: countries, regions and cities. A
+            // place the query names exactly is a best match rather than in
+            // its type's list, so it joins its type's list first.
+            val bestMatches = toList(filteredLocations?.bestMatches)
+            fun places(type: String, list: ConnectLocationList?): List<ConnectLocation> =
+                (bestMatches.filter { it.locationType == type } + toList(list))
+                    .filter { Sdk.canExcludeExitLocation(it) }
             val search = ExcludedExitLocationSearch(
-                countries = toList(filteredLocations?.countries).filter { Sdk.canExcludeExitLocation(it) },
-                regions = toList(filteredLocations?.regions).filter { Sdk.canExcludeExitLocation(it) },
-                cities = toList(filteredLocations?.cities).filter { Sdk.canExcludeExitLocation(it) },
+                countries = places(Sdk.LocationTypeCountry, filteredLocations?.countries),
+                regions = places(Sdk.LocationTypeRegion, filteredLocations?.regions),
+                cities = places(Sdk.LocationTypeCity, filteredLocations?.cities),
                 loaded = FilterLocationsState.fromString(state) == FilterLocationsState.Loaded,
             )
             viewModelScope.launch {
