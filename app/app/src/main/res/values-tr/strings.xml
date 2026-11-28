@@ -741,6 +741,12 @@
     <string name="got_it">Anladım</string>
     <string name="guest">Misafir</string>
     <string name="guest_mode">Misafir modu</string>
+    <string name="help_extender_body">Genişletici, bağlantınızın engellendiği yerlerde onu URnetwork\'e aktarır. Trafiğiniz genişletici üzerinden geçerken şifreli kalır ve genişletici onu okuyamaz.</string>
+    <string name="help_extender_title">Genişletici nedir?</string>
+    <string name="help_pending_body">“Beklemede”, açık bağlantılarınız için ayrılmış veridir. Bağlantıların kullanmadığı kısım, kapandıklarında kullanılabilir verinize geri döner.</string>
+    <string name="help_pending_title">“Beklemede” ne demek?</string>
+    <string name="help_provide_body">Sağlama, internetinizin bir kısmını diğer URnetwork üyeleriyle paylaşır: onların trafiği sizin bağlantınız üzerinden dışarı çıkabilir. Sağlayıcılar paylaştıkları veri için ödül kazanabilir. Sağlama modu, bu cihazın ne zaman sağlama yapacağını belirler ve istediğiniz zaman durdurabilirsiniz.</string>
+    <string name="help_provide_title">Sağlama nedir?</string>
     <string name="how_are_we_doing">Bizi nasıl buluyorsunuz?</string>
     <string name="i_ve_saved_my_seedphrase">Kurtarma ifademi kaydettim</string>
     <string name="identity_key_hash_copied">Sağlayıcı kimlik anahtarının hash değeri kopyalandı</string>

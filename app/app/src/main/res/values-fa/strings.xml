@@ -741,6 +741,12 @@
     <string name="got_it">متوجه شدم</string>
     <string name="guest">مهمان</string>
     <string name="guest_mode">حالت مهمان</string>
+    <string name="help_extender_body">گسترش‌دهنده در جاهایی که اتصال شما مسدود است، آن را به URnetwork رله می‌کند. ترافیک شما در این مسیر رمزگذاری‌شده می‌ماند و گسترش‌دهنده نمی‌تواند آن را بخواند.</string>
+    <string name="help_extender_title">گسترش‌دهنده چیست؟</string>
+    <string name="help_pending_body">«در انتظار» داده‌ای است که برای اتصال‌های باز شما کنار گذاشته شده است. آنچه این اتصال‌ها استفاده نکنند، پس از بسته شدن به دادهٔ موجود شما برمی‌گردد.</string>
+    <string name="help_pending_title">«در انتظار» یعنی چه؟</string>
+    <string name="help_provide_body">با ارائه، بخشی از اینترنت خود را با دیگر اعضای URnetwork به اشتراک می‌گذارید: ترافیک آن‌ها می‌تواند از طریق اتصال شما خارج شود. ارائه‌دهندگان می‌توانند برای داده‌ای که به اشتراک می‌گذارند پاداش بگیرند. «حالت ارائه» تعیین می‌کند این دستگاه چه زمانی ارائه کند، و هر زمان که بخواهید می‌توانید آن را متوقف کنید.</string>
+    <string name="help_provide_title">ارائه چیست؟</string>
     <string name="how_are_we_doing">عملکرد ما چطور است؟</string>
     <string name="i_ve_saved_my_seedphrase">عبارت بازیابی‌ام را ذخیره کرده‌ام</string>
     <string name="identity_key_hash_copied">هش کلید هویت ارائه‌دهنده کپی شد</string>
