@@ -100,6 +100,8 @@ const val EARNINGS_SN_PAYOUT_CLAIM_TAG = "earnings-sn-payout-claim"
 const val EARNINGS_SET_COLDKEY_TAG = "earnings-set-coldkey"
 // the wallet card while the payout key on this device stands in for a wallet
 const val EARNINGS_WALLET_LOCAL_KEY_TAG = "earnings-wallet-local-key"
+// the connected wallet card's Disconnect wallet
+const val EARNINGS_WALLET_DISCONNECT_TAG = "earnings-wallet-disconnect"
 
 /**
  * The Earnings screen: points first, always. The UR protocol layer (wallet,
@@ -129,6 +131,8 @@ fun EarningsScreen(
     val walletLoaded by earningsViewModel.walletLoaded.collectAsState()
     val walletFailed by earningsViewModel.walletFailed.collectAsState()
     val connectState by earningsViewModel.connectState.collectAsState()
+    val walletDisconnectRead by earningsViewModel.walletDisconnectRead.collectAsState()
+    val walletDisconnectDialog by earningsViewModel.walletDisconnectDialog.collectAsState()
     val claims by earningsViewModel.claims.collectAsState()
     val totalClaimableRao by earningsViewModel.totalClaimableRao.collectAsState()
     val claimsError by earningsViewModel.claimsError.collectAsState()
@@ -235,6 +239,8 @@ fun EarningsScreen(
         onEnterManually = { earningsViewModel.openManualSheet() },
         onContinueLooksNew = { earningsViewModel.continueAfterLooksNew() },
         onDismissConnectState = { earningsViewModel.dismissConnectState() },
+        walletDisconnectRead = walletDisconnectRead,
+        onDisconnectWallet = { earningsViewModel.openWalletDisconnect() },
         claims = claims,
         totalClaimableRao = totalClaimableRao,
         claimsError = claimsError,
@@ -384,6 +390,16 @@ fun EarningsScreen(
         )
     }
 
+    // the wallet card's Disconnect wallet: the confirmation, then the emailed code
+    walletDisconnectDialog?.let { dialog ->
+        WalletDisconnectDialog(
+            state = dialog,
+            onSendCode = { earningsViewModel.sendWalletDisconnectCode() },
+            onDisconnect = { code -> earningsViewModel.disconnectWallet(code) },
+            onDismiss = { earningsViewModel.closeWalletDisconnect() },
+        )
+    }
+
     // the payout key's screen, in a secure window of its own
     BittensorKeyScreenDialog(
         model = keyModel,
@@ -421,6 +437,9 @@ fun EarningsScreenContent(
     onEnterManually: () -> Unit,
     onContinueLooksNew: () -> Unit,
     onDismissConnectState: () -> Unit,
+    // what the wallet read says of the payout wallet's disconnect, null before one answered
+    walletDisconnectRead: SnWalletDisconnectRead? = null,
+    onDisconnectWallet: () -> Unit = {},
     claims: List<EpochClaim>,
     totalClaimableRao: Long,
     claimsError: String?,
@@ -571,6 +590,9 @@ fun EarningsScreenContent(
                     shortSs58 = shortSs58,
                     // the payout key on this device takes the connect call's place
                     localKey = BittensorWalletCardLocalKey.of(keyCard),
+                    disconnectable = walletDisconnectRead?.disconnectable == true,
+                    onDisconnectWallet = onDisconnectWallet,
+                    noPayoutWallet = walletDisconnectRead?.hasWallet == false,
                 )
 
                 // the first claim tile carries the claim card's disclaimer
@@ -885,6 +907,13 @@ internal fun WalletSection(
     // the payout key on this device, while no wallet is read: shown in place of
     // the connect call, which would invite a second wallet
     localKey: BittensorWalletCardLocalKey? = null,
+    // the wallet read says the wallet can be disconnected (SnGetWalletResult.Disconnectable):
+    // a wallet connected without a payout consent, while no signed consent pays the network
+    disconnectable: Boolean = false,
+    onDisconnectWallet: () -> Unit = {},
+    // the wallet read says no wallet is attached (SnGetWalletResult.HasWallet false):
+    // the earnings can't be paid out
+    noPayoutWallet: Boolean = false,
 ) {
     if (walletLoaded && wallet == null && walletFailed) {
         // a failed read is an error, not the "connect wallet" offer
@@ -950,6 +979,19 @@ internal fun WalletSection(
                 style = MaterialTheme.typography.bodyMedium,
                 color = TextMuted
             )
+            // a secondary, destructive action: its dialog says what it means first
+            if (disconnectable) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    stringResource(id = R.string.wallet_disconnect),
+                    modifier = Modifier
+                        .clickable { onDisconnectWallet() }
+                        .padding(vertical = 4.dp)
+                        .testTag(EARNINGS_WALLET_DISCONNECT_TAG),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Red
+                )
+            }
         }
         return
     }
@@ -1019,6 +1061,17 @@ internal fun WalletSection(
             fontSize = 14.sp
         )
 
+        // no wallet at all: the earnings can't be paid out (a disconnect just
+        // said so in its line below the connect call)
+        if (noPayoutWallet && connectState !is WalletConnectState.Disconnected) {
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                stringResource(id = R.string.wallet_none_no_payout),
+                style = MaterialTheme.typography.bodyMedium,
+                color = Amber
+            )
+        }
+
         Spacer(modifier = Modifier.height(16.dp))
 
         when (connectState) {
@@ -1080,6 +1133,7 @@ internal fun WalletSection(
                         bittensorWalletDisplayName(connectState.walletId),
                     ) to Red
                     is WalletConnectState.Connected -> stringResource(id = R.string.wallet_connected_to_protocol) to Green
+                    WalletConnectState.Disconnected -> stringResource(id = R.string.wallet_disconnected) to Amber
                     else -> null to TextMuted
                 }
                 if (status != null) {
