@@ -17,6 +17,7 @@
     <string name="add_sign_in_method">Inlogmethode toevoegen</string>
     <string name="add_sign_in_method_2">Inlogmethode toevoegen</string>
     <string name="add_tao_for_gas">Voeg TAO toe voor gas</string>
+    <string name="add_to_favorites">Toevoegen aan favorieten</string>
     <string name="advanced">Geavanceerd</string>
     <string name="allow_local_connections">Sta lokale verbindingen toe</string>
     <string name="allow_providing_cell">Toestaan op mobiel netwerk</string>
@@ -687,7 +688,10 @@
     <string name="error_updating_device_name">Er is een fout opgetreden bij het bijwerken van de apparaatnaam.</string>
     <string name="exclude_app">Uitsluiten van VPN</string>
     <string name="exclude_app_description">Deze app omzeilt de tunnel.</string>
+    <string name="exclude_exit_location">Uitsluiten</string>
     <string name="excluded">Uitgesloten</string>
+    <string name="excluded_exit_locations">Uitgesloten exitlocaties</string>
+    <string name="excluded_exit_locations_description">Verbindingen gebruiken geen exits op deze plaatsen, tenzij je er een rechtstreeks kiest.</string>
     <string name="expanded">Uitgevouwen</string>
     <string name="expires">Vervalt</string>
     <string name="expiry_time">Vervaltijd</string>
@@ -706,6 +710,8 @@
     <string name="extenders_reset_done">Extenders gereset</string>
     <string name="fast_dns_on_connect">Snelle DNS bij verbinden</string>
     <string name="fast_dns_on_connect_description">Beantwoordt DNS via het lokale netwerk terwijl de DNS van de tunnel opstart. Hierdoor kan het lokale netwerk je zoekopdrachten zien en kun je antwoorden krijgen die niet bij je exitlocatie passen. Als dit uitstaat, wordt DNS alleen via de tunnel opgelost.</string>
+    <string name="favorite_exit_note">Het apparaat van een lid. Het kan op elk moment offline gaan of het netwerk verlaten.</string>
+    <string name="favorites">Favorieten</string>
     <string name="feedback_header">Neem contact op</string>
     <string name="feedback_include_logs">Logs toevoegen aan feedback (optioneel)</string>
     <string name="feedback_label">Vak voor feedback</string>
@@ -969,6 +975,7 @@
     <string name="no_blocked_locations">Geen geblokkeerde locaties</string>
     <string name="no_compatible_wallet_app_found">Geen compatibele wallet-app gevonden op dit apparaat.</string>
     <string name="no_ethos_wallet_found">Geen EthOs-wallet gevonden</string>
+    <string name="no_excluded_exit_locations">Nog geen uitgesloten locaties. Zoek een land, regio of stad om die uit te sluiten.</string>
     <string name="no_locations_found">Geen locaties gevonden</string>
     <string name="no_locations_found_detail">Helaas, we hebben geen locaties gevonden gerelateerd aan %1$s.</string>
     <string name="no_log_files_found">Geen logbestand gevonden</string>
@@ -1201,6 +1208,7 @@
     <string name="remote_doh_urls">Externe DoH-URL\'s</string>
     <string name="remote_lowercase">extern</string>
     <string name="remove">Verwijderen</string>
+    <string name="remove_from_favorites">Verwijderen uit favorieten</string>
     <string name="remove_rule">Regel verwijderen</string>
     <string name="remove_this_sign_in_method">Deze inlogmethode verwijderen?</string>
     <string name="resend_reset_link">Link opnieuw versturen</string>
@@ -1226,6 +1234,7 @@
     <string name="saved_as">Opgeslagen als %1$s</string>
     <string name="scan_qr_code">QR-code scannen</string>
     <string name="search_apps_placeholder">Zoek apps</string>
+    <string name="search_exit_locations_placeholder">Zoek landen, regio’s en steden</string>
     <string name="search_placeholder">Zoek naar alle locaties</string>
     <string name="secure_your_account">Beveilig je account</string>
     <string name="see_world_content">Bekijk alle\ninhoud van de wereld</string>

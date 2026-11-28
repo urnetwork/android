@@ -17,6 +17,7 @@
     <string name="add_sign_in_method">Add sign-in method</string>
     <string name="add_sign_in_method_2">Add Sign-In Method</string>
     <string name="add_tao_for_gas">Add TAO for gas</string>
+    <string name="add_to_favorites">Add to favorites</string>
     <string name="advanced">Advanced</string>
     <string name="allow_local_connections">Allow local connections</string>
     <string name="allow_providing_cell">Allow providing on cellular network</string>
@@ -694,7 +695,10 @@
     <string name="error_updating_device_name">There was an error updating the device name.</string>
     <string name="exclude_app">Exclude from VPN</string>
     <string name="exclude_app_description">This app bypasses the tunnel.</string>
+    <string name="exclude_exit_location">Exclude</string>
     <string name="excluded">Excluded</string>
+    <string name="excluded_exit_locations">Excluded exit locations</string>
+    <string name="excluded_exit_locations_description">Connections won\'t use exits in these places, unless you pick one of them directly.</string>
     <string name="expanded">Expanded</string>
     <string name="expires">Expires</string>
     <string name="expiry_time">Expiry time</string>
@@ -713,6 +717,8 @@
     <string name="extenders_reset_done">Extenders reset</string>
     <string name="fast_dns_on_connect">Fast DNS on connect</string>
     <string name="fast_dns_on_connect_description">Answers DNS over the local network while the tunnel\'s DNS starts. This can reveal your lookups to the local network and return answers that don\'t match your exit location. When off, DNS only resolves through the tunnel.</string>
+    <string name="favorite_exit_note">A member\'s device. It can go offline or leave the network at any time.</string>
+    <string name="favorites">Favorites</string>
     <string name="feedback_header">Get in touch</string>
     <string name="feedback_include_logs">Attach logs to feedback (optional)</string>
     <string name="feedback_label">Feedback box</string>
@@ -977,6 +983,7 @@
     <string name="no_blocked_locations">No blocked locations</string>
     <string name="no_compatible_wallet_app_found">No compatible wallet app found on this device.</string>
     <string name="no_ethos_wallet_found">No EthOs wallet found</string>
+    <string name="no_excluded_exit_locations">No excluded locations yet. Search for a country, region or city to exclude it.</string>
     <string name="no_locations_found">No locations found</string>
     <string name="no_locations_found_detail">Sorry, we couldn\'t find any locations related to %1$s.</string>
     <string name="no_log_files_found">No log file found</string>
@@ -1216,6 +1223,7 @@
     <string name="remote_doh_urls">Remote DoH URLs</string>
     <string name="remote_lowercase">remote</string>
     <string name="remove">Remove</string>
+    <string name="remove_from_favorites">Remove from favorites</string>
     <string name="remove_rule">Remove rule</string>
     <string name="remove_this_sign_in_method">Remove this sign-in method?</string>
     <string name="resend_reset_link">Resend link</string>
@@ -1241,6 +1249,7 @@
     <string name="saved_as">Saved as %1$s</string>
     <string name="scan_qr_code">Scan QR code</string>
     <string name="search_apps_placeholder">Search apps</string>
+    <string name="search_exit_locations_placeholder">Search countries, regions and cities</string>
     <string name="search_placeholder">Search for all locations</string>
     <string name="secure_your_account">Secure Your Account</string>
     <string name="see_world_content">See all the\nworld\'s content</string>

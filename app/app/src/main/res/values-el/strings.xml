@@ -17,6 +17,7 @@
     <string name="add_sign_in_method">Προσθήκη μεθόδου σύνδεσης</string>
     <string name="add_sign_in_method_2">Προσθήκη μεθόδου σύνδεσης</string>
     <string name="add_tao_for_gas">Προσθέστε TAO για gas</string>
+    <string name="add_to_favorites">Προσθήκη στα αγαπημένα</string>
     <string name="advanced">Για προχωρημένους</string>
     <string name="allow_local_connections">Να επιτρέπονται οι τοπικές συνδέσεις</string>
     <string name="allow_providing_cell">Να επιτρέπεται η παροχή στο κυψελοειδές δίκτυο</string>
@@ -687,7 +688,10 @@
     <string name="error_updating_device_name">Παρουσιάστηκε σφάλμα κατά την ενημέρωση του ονόματος της συσκευής.</string>
     <string name="exclude_app">Εξαίρεση από το VPN</string>
     <string name="exclude_app_description">Αυτή η εφαρμογή παρακάμπτει το τούνελ.</string>
+    <string name="exclude_exit_location">Εξαίρεση</string>
     <string name="excluded">Εξαίρεση</string>
+    <string name="excluded_exit_locations">Εξαιρεμένες τοποθεσίες εξόδου</string>
+    <string name="excluded_exit_locations_description">Οι συνδέσεις δεν θα χρησιμοποιούν εξόδους σε αυτά τα μέρη, εκτός αν επιλέξετε κάποιο από αυτά απευθείας.</string>
     <string name="expanded">Αναπτυγμένο</string>
     <string name="expires">Λήγει</string>
     <string name="expiry_time">Χρόνος λήξης</string>
@@ -706,6 +710,8 @@
     <string name="extenders_reset_done">Έγινε επαναφορά των επεκτατών</string>
     <string name="fast_dns_on_connect">Γρήγορο DNS κατά τη σύνδεση</string>
     <string name="fast_dns_on_connect_description">Απαντά σε ερωτήματα DNS μέσω του τοπικού δικτύου όσο ξεκινά το DNS του τούνελ. Αυτό μπορεί να αποκαλύψει τις αναζητήσεις σας στο τοπικό δίκτυο και να επιστρέψει απαντήσεις που δεν ταιριάζουν με την τοποθεσία εξόδου σας. Όταν είναι ανενεργό, το DNS επιλύεται μόνο μέσω του τούνελ.</string>
+    <string name="favorite_exit_note">Συσκευή ενός μέλους. Μπορεί να αποσυνδεθεί ή να αποχωρήσει από το δίκτυο οποιαδήποτε στιγμή.</string>
+    <string name="favorites">Αγαπημένα</string>
     <string name="feedback_header">Επικοινωνήστε</string>
     <string name="feedback_include_logs">Επισυνάψτε τα αρχεία καταγραφής στα σχόλια (προαιρετικό)</string>
     <string name="feedback_label">Κουτί σχολίων</string>
@@ -969,6 +975,7 @@
     <string name="no_blocked_locations">Δεν υπάρχουν αποκλεισμένες τοποθεσίες</string>
     <string name="no_compatible_wallet_app_found">Δεν βρέθηκε συμβατή εφαρμογή πορτοφολιού σε αυτή τη συσκευή.</string>
     <string name="no_ethos_wallet_found">Δεν βρέθηκε πορτοφόλι EthOs</string>
+    <string name="no_excluded_exit_locations">Δεν υπάρχουν ακόμη εξαιρεμένες τοποθεσίες. Αναζητήστε μια χώρα, περιοχή ή πόλη για να την εξαιρέσετε.</string>
     <string name="no_locations_found">Δεν βρέθηκαν τοποθεσίες</string>
     <string name="no_locations_found_detail">Λυπούμαστε, δεν μπορέσαμε να βρούμε τοποθεσίες που σχετίζονται με %1$s.</string>
     <string name="no_log_files_found">Δεν βρέθηκε αρχείο καταγραφής</string>
@@ -1201,6 +1208,7 @@
     <string name="remote_doh_urls">Απομακρυσμένα URL DoH</string>
     <string name="remote_lowercase">απομακρυσμένο</string>
     <string name="remove">Αφαίρεση</string>
+    <string name="remove_from_favorites">Αφαίρεση από τα αγαπημένα</string>
     <string name="remove_rule">Αφαίρεση κανόνα</string>
     <string name="remove_this_sign_in_method">Αφαίρεση αυτής της μεθόδου σύνδεσης;</string>
     <string name="resend_reset_link">Επανάληψη αποστολής συνδέσμου</string>
@@ -1226,6 +1234,7 @@
     <string name="saved_as">Αποθηκεύεται ως %1$s</string>
     <string name="scan_qr_code">Σάρωση κωδικού QR</string>
     <string name="search_apps_placeholder">Αναζήτηση εφαρμογών</string>
+    <string name="search_exit_locations_placeholder">Αναζήτηση χωρών, περιοχών και πόλεων</string>
     <string name="search_placeholder">Αναζήτηση σε όλες τις τοποθεσίες</string>
     <string name="secure_your_account">Ασφαλίστε τον λογαριασμό σας</string>
     <string name="see_world_content">Δείτε όλο\nτο περιεχόμενο\nτου κόσμου</string>

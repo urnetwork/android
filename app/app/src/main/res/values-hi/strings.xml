@@ -17,6 +17,7 @@
     <string name="add_sign_in_method">साइन-इन विधि जोड़ें</string>
     <string name="add_sign_in_method_2">साइन-इन विधि जोड़ें</string>
     <string name="add_tao_for_gas">गैस के लिए TAO जोड़ें</string>
+    <string name="add_to_favorites">पसंदीदा में जोड़ें</string>
     <string name="advanced">उन्नत</string>
     <string name="allow_local_connections">स्थानीय कनेक्शन की अनुमति दें</string>
     <string name="allow_providing_cell">सेलुलर नेटवर्क पर प्रदान करने की अनुमति दें</string>
@@ -687,7 +688,10 @@
     <string name="error_updating_device_name">डिवाइस का नाम अपडेट करते समय त्रुटि हुई।</string>
     <string name="exclude_app">VPN से बाहर रखें</string>
     <string name="exclude_app_description">यह ऐप टनल को बायपास करता है।</string>
+    <string name="exclude_exit_location">बाहर रखें</string>
     <string name="excluded">बाहर रखे गए</string>
+    <string name="excluded_exit_locations">बाहर रखे गए एग्ज़िट स्थान</string>
+    <string name="excluded_exit_locations_description">कनेक्शन इन जगहों के एग्ज़िट का उपयोग नहीं करेंगे, जब तक आप इनमें से किसी को सीधे न चुनें।</string>
     <string name="expanded">विस्तृत</string>
     <string name="expires">समाप्त होता है</string>
     <string name="expiry_time">समाप्ति समय</string>
@@ -706,6 +710,8 @@
     <string name="extenders_reset_done">एक्सटेंडर रीसेट हो गए</string>
     <string name="fast_dns_on_connect">कनेक्ट करते समय तेज़ DNS</string>
     <string name="fast_dns_on_connect_description">टनल का DNS शुरू होने तक स्थानीय नेटवर्क से DNS का जवाब देता है। इससे आपके लुकअप स्थानीय नेटवर्क को दिख सकते हैं और ऐसे जवाब मिल सकते हैं जो आपके एग्ज़िट स्थान से मेल नहीं खाते। बंद होने पर DNS केवल टनल से ही रिज़ॉल्व होता है।</string>
+    <string name="favorite_exit_note">किसी सदस्य का डिवाइस। यह कभी भी ऑफ़लाइन हो सकता है या नेटवर्क छोड़ सकता है।</string>
+    <string name="favorites">पसंदीदा</string>
     <string name="feedback_header">संपर्क करें</string>
     <string name="feedback_include_logs">फीडबैक में लॉग संलग्न करें (वैकल्पिक)</string>
     <string name="feedback_label">प्रतिक्रिया बॉक्स</string>
@@ -969,6 +975,7 @@
     <string name="no_blocked_locations">कोई अवरुद्ध स्थान नहीं</string>
     <string name="no_compatible_wallet_app_found">इस डिवाइस पर कोई संगत वॉलेट ऐप नहीं मिला।</string>
     <string name="no_ethos_wallet_found">कोई EthOs वॉलेट नहीं मिला</string>
+    <string name="no_excluded_exit_locations">अभी कोई स्थान बाहर नहीं रखा गया है। किसी देश, क्षेत्र या शहर को बाहर रखने के लिए उसे खोजें।</string>
     <string name="no_locations_found">कोई स्थान नहीं मिला</string>
     <string name="no_locations_found_detail">क्षमा करें, हमें %1$s से संबंधित कोई स्थान नहीं मिला.</string>
     <string name="no_log_files_found">कोई लॉग फ़ाइल नहीं मिली</string>
@@ -1201,6 +1208,7 @@
     <string name="remote_doh_urls">रिमोट DoH URLs</string>
     <string name="remote_lowercase">रिमोट</string>
     <string name="remove">हटाएं</string>
+    <string name="remove_from_favorites">पसंदीदा से हटाएँ</string>
     <string name="remove_rule">नियम हटाएं</string>
     <string name="remove_this_sign_in_method">इस साइन-इन विधि को हटाएं?</string>
     <string name="resend_reset_link">लिंक फिर से भेजें</string>
@@ -1226,6 +1234,7 @@
     <string name="saved_as">%1$s के रूप में सहेजा जाएगा</string>
     <string name="scan_qr_code">QR कोड स्कैन करें</string>
     <string name="search_apps_placeholder">ऐप्स खोजें</string>
+    <string name="search_exit_locations_placeholder">देश, क्षेत्र और शहर खोजें</string>
     <string name="search_placeholder">सभी स्थानों पर खोजें</string>
     <string name="secure_your_account">अपना खाता सुरक्षित करें</string>
     <string name="see_world_content">दुनिया की सभी\nसामग्री देखें</string>

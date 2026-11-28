@@ -17,6 +17,7 @@
     <string name="add_sign_in_method">Añadir método de inicio de sesión</string>
     <string name="add_sign_in_method_2">Añadir método de inicio de sesión</string>
     <string name="add_tao_for_gas">Añade TAO para el gas</string>
+    <string name="add_to_favorites">Añadir a favoritos</string>
     <string name="advanced">Avanzado</string>
     <string name="allow_local_connections">Permitir conexiones locales</string>
     <string name="allow_providing_cell">Permitir proporcionar en la red celular</string>
@@ -687,7 +688,10 @@
     <string name="error_updating_device_name">Se ha producido un error al actualizar el nombre del dispositivo.</string>
     <string name="exclude_app">Excluir de la VPN</string>
     <string name="exclude_app_description">Esta app evita el túnel.</string>
+    <string name="exclude_exit_location">Excluir</string>
     <string name="excluded">Excluidas</string>
+    <string name="excluded_exit_locations">Ubicaciones de salida excluidas</string>
+    <string name="excluded_exit_locations_description">Las conexiones no usarán salidas en estos lugares, salvo que elijas uno de ellos directamente.</string>
     <string name="expanded">Desplegado</string>
     <string name="expires">Expira</string>
     <string name="expiry_time">Hora de expiración</string>
@@ -706,6 +710,8 @@
     <string name="extenders_reset_done">Extensores restablecidos</string>
     <string name="fast_dns_on_connect">DNS rápido al conectar</string>
     <string name="fast_dns_on_connect_description">Responde al DNS a través de la red local mientras se inicia el DNS del túnel. Esto puede revelar tus búsquedas a la red local y devolver respuestas que no coinciden con tu ubicación de salida. Si está desactivado, el DNS solo se resuelve a través del túnel.</string>
+    <string name="favorite_exit_note">Es el dispositivo de un miembro. Puede desconectarse o dejar la red en cualquier momento.</string>
+    <string name="favorites">Favoritos</string>
     <string name="feedback_header">Ponte en contacto</string>
     <string name="feedback_include_logs">Adjuntar registros al comentario (opcional)</string>
     <string name="feedback_label">Cuadro de comentarios</string>
@@ -969,6 +975,7 @@
     <string name="no_blocked_locations">No hay ubicaciones bloqueadas</string>
     <string name="no_compatible_wallet_app_found">No se encontró ninguna app de billetera compatible en este dispositivo.</string>
     <string name="no_ethos_wallet_found">No se encontró ninguna billetera EthOs</string>
+    <string name="no_excluded_exit_locations">Aún no hay ubicaciones excluidas. Busca un país, región o ciudad para excluirlo.</string>
     <string name="no_locations_found">No se encontraron ubicaciones</string>
     <string name="no_locations_found_detail">Lo sentimos, no pudimos encontrar ninguna ubicación relacionada con %1$s.</string>
     <string name="no_log_files_found">No se encontró el archivo de registro</string>
@@ -1201,6 +1208,7 @@
     <string name="remote_doh_urls">URLs DoH remotas</string>
     <string name="remote_lowercase">remoto</string>
     <string name="remove">Elimina</string>
+    <string name="remove_from_favorites">Quitar de favoritos</string>
     <string name="remove_rule">Eliminar regla</string>
     <string name="remove_this_sign_in_method">¿Eliminar este método de inicio de sesión?</string>
     <string name="resend_reset_link">Reenviar enlace</string>
@@ -1226,6 +1234,7 @@
     <string name="saved_as">Se guarda como %1$s</string>
     <string name="scan_qr_code">Escanear código QR</string>
     <string name="search_apps_placeholder">Buscar aplicaciones</string>
+    <string name="search_exit_locations_placeholder">Buscar países, regiones y ciudades</string>
     <string name="search_placeholder">Buscar en todas las ubicaciones</string>
     <string name="secure_your_account">Protege tu cuenta</string>
     <string name="see_world_content">Ver todo\nel contenido\ndel mundo</string>

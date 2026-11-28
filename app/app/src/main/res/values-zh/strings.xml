@@ -17,6 +17,7 @@
     <string name="add_sign_in_method">添加登录方式</string>
     <string name="add_sign_in_method_2">添加登录方式</string>
     <string name="add_tao_for_gas">添加 TAO 以支付 Gas 费</string>
+    <string name="add_to_favorites">加入收藏</string>
     <string name="advanced">高级</string>
     <string name="allow_local_connections">允许本地连接</string>
     <string name="allow_providing_cell">允许在蜂窝网络上提供</string>
@@ -687,7 +688,10 @@
     <string name="error_updating_device_name">更新设备名称时出错。</string>
     <string name="exclude_app">从 VPN 排除</string>
     <string name="exclude_app_description">此应用将绕过隧道。</string>
+    <string name="exclude_exit_location">排除</string>
     <string name="excluded">已排除</string>
+    <string name="excluded_exit_locations">排除的出口位置</string>
+    <string name="excluded_exit_locations_description">连接不会使用这些地方的出口，除非你直接选择其中之一。</string>
     <string name="expanded">已展开</string>
     <string name="expires">到期</string>
     <string name="expiry_time">到期时间</string>
@@ -706,6 +710,8 @@
     <string name="extenders_reset_done">扩展器已重置</string>
     <string name="fast_dns_on_connect">连接时快速 DNS</string>
     <string name="fast_dns_on_connect_description">在隧道 DNS 启动期间通过本地网络应答 DNS。这可能会向本地网络暴露你的查询，并返回与你的出口位置不符的结果。关闭后，DNS 仅通过隧道解析。</string>
+    <string name="favorite_exit_note">这是某位成员的设备，可能随时离线或离开网络。</string>
+    <string name="favorites">收藏</string>
     <string name="feedback_header">保持联系</string>
     <string name="feedback_include_logs">附加日志到反馈（可选）</string>
     <string name="feedback_label">反馈框</string>
@@ -969,6 +975,7 @@
     <string name="no_blocked_locations">没有被屏蔽的位置</string>
     <string name="no_compatible_wallet_app_found">此设备上未找到兼容的钱包应用。</string>
     <string name="no_ethos_wallet_found">未找到 EthOs 钱包</string>
+    <string name="no_excluded_exit_locations">还没有排除的位置。搜索国家、地区或城市即可排除。</string>
     <string name="no_locations_found">未找到任何位置</string>
     <string name="no_locations_found_detail">抱歉，我们找不到与 %1$s 相关的任何位置。</string>
     <string name="no_log_files_found">未找到日志文件</string>
@@ -1201,6 +1208,7 @@
     <string name="remote_doh_urls">远程 DoH URLs</string>
     <string name="remote_lowercase">远程</string>
     <string name="remove">移除</string>
+    <string name="remove_from_favorites">取消收藏</string>
     <string name="remove_rule">移除规则</string>
     <string name="remove_this_sign_in_method">移除此登录方式？</string>
     <string name="resend_reset_link">重新发送链接</string>
@@ -1226,6 +1234,7 @@
     <string name="saved_as">已保存为 %1$s</string>
     <string name="scan_qr_code">扫描二维码</string>
     <string name="search_apps_placeholder">搜索应用</string>
+    <string name="search_exit_locations_placeholder">搜索国家、地区和城市</string>
     <string name="search_placeholder">搜索所有地点</string>
     <string name="secure_your_account">保护你的账户</string>
     <string name="see_world_content">查看所有\n世界内容</string>

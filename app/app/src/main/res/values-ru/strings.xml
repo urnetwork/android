@@ -17,6 +17,7 @@
     <string name="add_sign_in_method">Добавить способ входа</string>
     <string name="add_sign_in_method_2">Добавить способ входа</string>
     <string name="add_tao_for_gas">Пополните TAO для оплаты газа</string>
+    <string name="add_to_favorites">Добавить в избранное</string>
     <string name="advanced">Дополнительно</string>
     <string name="allow_local_connections">Разрешить локальные подключения</string>
     <string name="allow_providing_cell">Разрешить предоставление в сотовой сети</string>
@@ -687,7 +688,10 @@
     <string name="error_updating_device_name">Произошла ошибка при обновлении имени устройства.</string>
     <string name="exclude_app">Исключить из VPN</string>
     <string name="exclude_app_description">Это приложение обходит туннель.</string>
+    <string name="exclude_exit_location">Исключить</string>
     <string name="excluded">Исключённые</string>
+    <string name="excluded_exit_locations">Исключённые места выхода</string>
+    <string name="excluded_exit_locations_description">Подключения не будут использовать выходы в этих местах, если вы не выберете одно из них напрямую.</string>
     <string name="expanded">Развёрнуто</string>
     <string name="expires">Истекает</string>
     <string name="expiry_time">Время истечения</string>
@@ -706,6 +710,8 @@
     <string name="extenders_reset_done">Экстендеры сброшены</string>
     <string name="fast_dns_on_connect">Быстрый DNS при подключении</string>
     <string name="fast_dns_on_connect_description">Отвечает на DNS-запросы через локальную сеть, пока запускается DNS туннеля. Это может раскрыть ваши запросы локальной сети и вернуть ответы, не соответствующие вашему местоположению выхода. Если выключено, DNS разрешается только через туннель.</string>
+    <string name="favorite_exit_note">Устройство участника. Оно может в любой момент отключиться или покинуть сеть.</string>
+    <string name="favorites">Избранное</string>
     <string name="feedback_header">Свяжитесь с нами</string>
     <string name="feedback_include_logs">Приложить логи к отзыву (необязательно)</string>
     <string name="feedback_label">Поле для отзыва</string>
@@ -969,6 +975,7 @@
     <string name="no_blocked_locations">Нет заблокированных локаций</string>
     <string name="no_compatible_wallet_app_found">На этом устройстве не найдено совместимое приложение кошелька.</string>
     <string name="no_ethos_wallet_found">Кошелек EthOs не найден</string>
+    <string name="no_excluded_exit_locations">Исключённых мест пока нет. Найдите страну, регион или город, чтобы исключить их.</string>
     <string name="no_locations_found">Локации не найдены</string>
     <string name="no_locations_found_detail">К сожалению, нам не удалось найти локации, связанные с %1$s.</string>
     <string name="no_log_files_found">Файл логов не найден</string>
@@ -1201,6 +1208,7 @@
     <string name="remote_doh_urls">Удалённые DoH URL</string>
     <string name="remote_lowercase">удалённо</string>
     <string name="remove">Удалить</string>
+    <string name="remove_from_favorites">Удалить из избранного</string>
     <string name="remove_rule">Удалить правило</string>
     <string name="remove_this_sign_in_method">Удалить этот способ входа?</string>
     <string name="resend_reset_link">Отправить ссылку повторно</string>
@@ -1226,6 +1234,7 @@
     <string name="saved_as">Сохранено как %1$s</string>
     <string name="scan_qr_code">Сканировать QR-код</string>
     <string name="search_apps_placeholder">Поиск приложений</string>
+    <string name="search_exit_locations_placeholder">Поиск стран, регионов и городов</string>
     <string name="search_placeholder">Поиск по всем локациям</string>
     <string name="secure_your_account">Защитите свой аккаунт</string>
     <string name="see_world_content">Смотрите контент\nсо всего мира</string>
