@@ -1563,6 +1563,7 @@
     <string name="use_wireguard_socks_https_proxy_note">Opens ur.io in your browser. SOCKS and WireGuard need Pro.</string>
     <string name="used_data_key">Used</string>
     <string name="user_auth_label">Email or phone</string>
+    <string name="user_auth_phone_format">Check the phone number format. Use the country code and digits only, as in +15551234567.</string>
     <string name="user_auth_placeholder">Enter your phone number or email</string>
     <string name="uses_ur_protocol">Uses the UR Protocol</string>
     <string name="verification_code_sent_2">Verification code sent.</string>

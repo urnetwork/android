@@ -1544,6 +1544,7 @@
     <string name="use_wireguard_socks_https_proxy_note">Otwiera ur.io w przeglądarce. SOCKS i WireGuard wymagają Pro.</string>
     <string name="used_data_key">Wykorzystane</string>
     <string name="user_auth_label">E-mail lub telefon</string>
+    <string name="user_auth_phone_format">Sprawdź format numeru telefonu. Użyj numeru kierunkowego kraju i samych cyfr, na przykład +15551234567.</string>
     <string name="user_auth_placeholder">Wprowadź numer telefonu lub adres e-mail</string>
     <string name="uses_ur_protocol">Korzysta z UR Protocol</string>
     <string name="verification_code_sent_2">Kod weryfikacyjny został wysłany.</string>

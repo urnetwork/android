@@ -1544,6 +1544,7 @@
     <string name="use_wireguard_socks_https_proxy_note">在浏览器中打开 ur.io。SOCKS 和 WireGuard 需要 Pro。</string>
     <string name="used_data_key">已用</string>
     <string name="user_auth_label">电子邮件或电话</string>
+    <string name="user_auth_phone_format">请检查手机号码格式。请使用国家代码，并且只输入数字，例如 +15551234567。</string>
     <string name="user_auth_placeholder">输入您的电话号码或电子邮件</string>
     <string name="uses_ur_protocol">使用 UR Protocol</string>
     <string name="verification_code_sent_2">验证码已发送。</string>

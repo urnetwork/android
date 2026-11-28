@@ -1544,6 +1544,7 @@
     <string name="use_wireguard_socks_https_proxy_note">Öffnet ur.io in deinem Browser. SOCKS und WireGuard erfordern Pro.</string>
     <string name="used_data_key">Verbraucht</string>
     <string name="user_auth_label">E-Mail oder Telefon</string>
+    <string name="user_auth_phone_format">Prüfe das Format der Telefonnummer. Verwende die Ländervorwahl und nur Ziffern, zum Beispiel +15551234567.</string>
     <string name="user_auth_placeholder">Gib deine Telefonnummer oder E-Mail-Adresse ein</string>
     <string name="uses_ur_protocol">Nutzt das UR Protocol</string>
     <string name="verification_code_sent_2">Bestätigungscode gesendet.</string>

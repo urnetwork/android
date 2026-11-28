@@ -1544,6 +1544,7 @@
     <string name="use_wireguard_socks_https_proxy_note">ur.io\'yu tarayıcınızda açar. SOCKS ve WireGuard için Pro gerekir.</string>
     <string name="used_data_key">Kullanılan</string>
     <string name="user_auth_label">E-posta veya telefon</string>
+    <string name="user_auth_phone_format">Telefon numarasının biçimini kontrol edin. Ülke kodunu ve yalnızca rakam kullanın, örneğin +15551234567.</string>
     <string name="user_auth_placeholder">Telefon numaranızı veya e-posta adresinizi girin</string>
     <string name="uses_ur_protocol">UR protokolünü kullanır</string>
     <string name="verification_code_sent_2">Doğrulama kodu gönderildi.</string>

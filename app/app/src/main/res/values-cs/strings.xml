@@ -1544,6 +1544,7 @@
     <string name="use_wireguard_socks_https_proxy_note">Otevře ur.io v prohlížeči. SOCKS a WireGuard vyžadují Pro.</string>
     <string name="used_data_key">Použité</string>
     <string name="user_auth_label">Email nebo telefon</string>
+    <string name="user_auth_phone_format">Zkontrolujte formát telefonního čísla. Použijte předvolbu země a pouze číslice, například +15551234567.</string>
     <string name="user_auth_placeholder">Zadejte své telefonní číslo nebo e-mail</string>
     <string name="uses_ur_protocol">Používá UR Protocol</string>
     <string name="verification_code_sent_2">Ověřovací kód byl odeslán.</string>

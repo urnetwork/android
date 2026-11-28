@@ -1544,6 +1544,7 @@
     <string name="use_wireguard_socks_https_proxy_note">Opent ur.io in je browser. Voor SOCKS en WireGuard heb je Pro nodig.</string>
     <string name="used_data_key">Gebruikt</string>
     <string name="user_auth_label">E-mail of telefoon</string>
+    <string name="user_auth_phone_format">Controleer de notatie van het telefoonnummer. Gebruik de landcode en alleen cijfers, bijvoorbeeld +15551234567.</string>
     <string name="user_auth_placeholder">Voer je telefoonnummer of e-mailadres in</string>
     <string name="uses_ur_protocol">Gebruikt het UR Protocol</string>
     <string name="verification_code_sent_2">Verificatiecode verzonden.</string>
