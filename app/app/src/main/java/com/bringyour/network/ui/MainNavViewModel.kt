@@ -135,6 +135,8 @@ sealed class Route {
     // Settings -> Excluded exit locations: the places picks avoid, and their search
     @Serializable object ExcludedExitLocations: Route()
     @Serializable object Vless: Route()
+    // Settings -> Hotspot proxy: share the tunnel with hotspot devices (HotspotProxyScreen)
+    @Serializable object HotspotProxy: Route()
     @Serializable object Developer: Route()
     // Settings -> View Logs: the last lines of the app's logs (LogViewerScreen)
     @Serializable object LogViewer: Route()

@@ -1381,6 +1381,43 @@ private fun SettingsScreen(
                 )
             }
 
+            Spacer(modifier = Modifier.height(18.dp))
+
+            /**
+             * Hotspot proxy: devices on this phone's hotspot or USB tethering
+             * use URnetwork through a proxy on the phone (HotspotProxyScreen)
+             */
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable {
+                        navController.navigate(Route.HotspotProxy)
+                    }
+                    .padding(vertical = 6.dp),
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        stringResource(id = R.string.hotspot_proxy),
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
+
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                        contentDescription = null,
+                        tint = TextMuted
+                    )
+                }
+
+                Text(
+                    stringResource(id = R.string.hotspot_proxy_row_note),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = TextMuted
+                )
+            }
+
             // Run URnetwork as a cloud proxy instead of the VPN (P150): opens
             // ur.io/app/proxies, where the HTTPS proxy is always on and SOCKS and
             // WireGuard are available on Pro. Hidden for guests (no account). The
