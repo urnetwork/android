@@ -75,6 +75,7 @@ import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.NavigationDrawerItemDefaults
 import androidx.compose.material3.NavigationRailItemDefaults
 import com.bringyour.network.ui.connect.InsufficientBalanceNoticeEffect
+import com.bringyour.network.ui.connect.LowDataWarningAlert
 import com.bringyour.network.ui.connect.upgradeShowsFreeRefresh
 import com.bringyour.network.ui.components.LocalUpgradeWaitForRefresh
 import com.bringyour.network.ui.connect.ConnectDrawerState
@@ -535,6 +536,20 @@ private fun MainNavHostContent(
         isPro = isPro,
         isPollingSubscriptionBalance = subscriptionBalanceViewModel.isPollingSubscriptionBalance,
     )
+
+    // little data left before the balance runs out (MainApplication.lowDataWarning).
+    // Not over the intro funnel, which stands in for the main screens: it waits
+    // until the funnel closes
+    if (!displayIntroFunnel) {
+        LowDataWarningAlert(
+            isPro = isPro,
+            onUpgrade = {
+                if (navController.currentDestination?.hasRoute<Route.Upgrade>() != true) {
+                    navController.navigate(Route.Upgrade)
+                }
+            },
+        )
+    }
 
     /**
      * For initial intro funnel prompting

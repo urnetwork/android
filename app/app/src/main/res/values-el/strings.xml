@@ -869,6 +869,9 @@
     <string name="login_verify_details">Πες μας ποιος είσαι πραγματικά. Εισαγάγετε τον κωδικό που σας\nστείλαμε για να επαληθεύσετε την ταυτότητά σας.</string>
     <string name="login_verify_header">Έχετε ένα email</string>
     <string name="longest_streak">Μεγαλύτερο σερί</string>
+    <string name="low_data_warning_byte_count">Απομένουν μόνο %1$s δεδομένων.</string>
+    <string name="low_data_warning_percent">Απομένει μόνο το %1$d%% των δεδομένων σας (%2$s).</string>
+    <string name="low_data_warning_title">Τα δεδομένα σας τελειώνουν</string>
     <string name="manage_devices">Διαχείριση συσκευών</string>
     <string name="manage_devices_connecting">Σύνδεση αυτής της συσκευής…</string>
     <string name="manage_devices_help">Κάθε συνδεδεμένη συσκευή ή διακομιστής μεσολάβησης καταλαμβάνει μία θέση του προγράμματός σας. Αφαιρέστε όποιο δεν χρησιμοποιείτε πια για να ελευθερώσετε τη θέση του.</string>

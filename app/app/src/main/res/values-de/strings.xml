@@ -869,6 +869,9 @@
     <string name="login_verify_details">Sag uns, wer du wirklich bist. Gib den Code ein, den wir dir\ngesendet haben, um deine Identität zu überprüfen.</string>
     <string name="login_verify_header">Du hast eine E-Mail</string>
     <string name="longest_streak">Längste Serie</string>
+    <string name="low_data_warning_byte_count">Nur noch %1$s Daten übrig.</string>
+    <string name="low_data_warning_percent">Nur noch %1$d %% deiner Daten übrig (%2$s).</string>
+    <string name="low_data_warning_title">Deine Daten werden knapp</string>
     <string name="manage_devices">Geräte verwalten</string>
     <string name="manage_devices_connecting">Dieses Gerät wird verbunden …</string>
     <string name="manage_devices_help">Jedes verbundene Gerät und jeder Proxy belegt einen Platz deines Tarifs. Entferne eines, das du nicht mehr nutzt, um seinen Platz freizugeben.</string>

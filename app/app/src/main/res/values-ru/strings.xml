@@ -869,6 +869,9 @@
     <string name="login_verify_details">Подтвердите, что это вы. Введите код,\nкоторый мы отправили, для проверки вашей личности.</string>
     <string name="login_verify_header">Вам письмо</string>
     <string name="longest_streak">Самая длинная серия</string>
+    <string name="low_data_warning_byte_count">Осталось всего %1$s данных.</string>
+    <string name="low_data_warning_percent">Осталось всего %1$d%% данных (%2$s).</string>
+    <string name="low_data_warning_title">Данные заканчиваются</string>
     <string name="manage_devices">Управление устройствами</string>
     <string name="manage_devices_connecting">Подключение этого устройства…</string>
     <string name="manage_devices_help">Каждое подключённое устройство или прокси занимает одно место в тарифе. Удалите то, которым больше не пользуетесь, чтобы освободить место.</string>
