@@ -1126,6 +1126,7 @@ private fun MainNavHostContent(
         onReferralCelebrationDismissed = {
             referralCodeViewModel.clearCelebration()
         },
+        proFlightClock = proFlightClock,
     )
 
     } // pixelation layer
