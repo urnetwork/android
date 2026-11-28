@@ -739,6 +739,12 @@
     <string name="got_it">Κατάλαβα</string>
     <string name="guest">Επισκέπτης</string>
     <string name="guest_mode">Λειτουργία επισκέπτη</string>
+    <string name="help_extender_body">Ένας επεκτατής αναμεταδίδει τη σύνδεσή σας προς το URnetwork όπου αυτή είναι αποκλεισμένη. Η κίνησή σας παραμένει κρυπτογραφημένη μέσα από αυτόν και ο επεκτατής δεν μπορεί να τη διαβάσει.</string>
+    <string name="help_extender_title">Τι είναι ένας επεκτατής;</string>
+    <string name="help_pending_body">«Σε εκκρεμότητα» είναι δεδομένα δεσμευμένα για τις ανοιχτές συνδέσεις σας. Ό,τι δεν χρησιμοποιήσουν επιστρέφει στα διαθέσιμα δεδομένα σας όταν κλείσουν.</string>
+    <string name="help_pending_title">Τι σημαίνει «Σε εκκρεμότητα»;</string>
+    <string name="help_provide_body">Η παροχή μοιράζεται μέρος του διαδικτύου σας με άλλα μέλη του URnetwork: η κίνησή τους μπορεί να βγαίνει μέσω της σύνδεσής σας. Οι πάροχοι μπορούν να κερδίζουν ανταμοιβές για τα δεδομένα που μοιράζονται. Η λειτουργία παροχής ορίζει πότε παρέχει αυτή η συσκευή και μπορείτε να σταματήσετε οποιαδήποτε στιγμή.</string>
+    <string name="help_provide_title">Τι είναι η παροχή;</string>
     <string name="hotspot_proxy">Διακομιστής μεσολάβησης hotspot</string>
     <string name="hotspot_proxy_copy_details">Αντιγραφή στοιχείων σύνδεσης</string>
     <string name="hotspot_proxy_description">Οι συσκευές στο hotspot Wi-Fi ή στη σύνδεση USB μπορούν να χρησιμοποιούν το URnetwork μέσω ενός διακομιστή μεσολάβησης HTTP ή SOCKS5 σε αυτό το τηλέφωνο. Η κίνησή τους περνά μόνο μέσω του URnetwork, οπότε τίποτα δεν μοιράζεται όσο είστε αποσυνδεδεμένοι.</string>
@@ -881,6 +887,9 @@
     <string name="login_verify_details">Πες μας ποιος είσαι πραγματικά. Εισαγάγετε τον κωδικό που σας\nστείλαμε για να επαληθεύσετε την ταυτότητά σας.</string>
     <string name="login_verify_header">Έχετε ένα email</string>
     <string name="longest_streak">Μεγαλύτερο σερί</string>
+    <string name="low_data_warning_byte_count">Απομένουν μόνο %1$s δεδομένων.</string>
+    <string name="low_data_warning_percent">Απομένει μόνο το %1$d%% των δεδομένων σας (%2$s).</string>
+    <string name="low_data_warning_title">Τα δεδομένα σας τελειώνουν</string>
     <string name="manage_devices">Διαχείριση συσκευών</string>
     <string name="manage_devices_connecting">Σύνδεση αυτής της συσκευής…</string>
     <string name="manage_devices_help">Κάθε συνδεδεμένη συσκευή ή διακομιστής μεσολάβησης καταλαμβάνει μία θέση του προγράμματός σας. Αφαιρέστε όποιο δεν χρησιμοποιείτε πια για να ελευθερώσετε τη θέση του.</string>

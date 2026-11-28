@@ -739,6 +739,12 @@
     <string name="got_it">Nimeelewa</string>
     <string name="guest">Mgeni</string>
     <string name="guest_mode">Hali ya mgeni</string>
+    <string name="help_extender_body">Kipanuzi hupitisha muunganisho wako kwa URnetwork mahali ambapo umezuiwa. Trafiki yako inabaki imesimbwa kupitia kipanuzi, na kipanuzi hakiwezi kuisoma.</string>
+    <string name="help_extender_title">Kipanuzi ni nini?</string>
+    <string name="help_pending_body">“Inasubiri” ni data iliyotengwa kwa miunganisho yako iliyo wazi. Isiyotumika hurudi kwenye data yako inayopatikana miunganisho inapofungwa.</string>
+    <string name="help_pending_title">“Inasubiri” inamaanisha nini?</string>
+    <string name="help_provide_body">Utoaji hushiriki sehemu ya intaneti yako na wanachama wengine wa URnetwork: trafiki yao inaweza kutoka kupitia muunganisho wako. Watoaji wanaweza kupata zawadi kwa data wanayoshiriki. Hali ya utoaji huamua lini kifaa hiki kinatoa, na unaweza kuacha wakati wowote.</string>
+    <string name="help_provide_title">Utoaji ni nini?</string>
     <string name="hotspot_proxy">Proksi ya hotspot</string>
     <string name="hotspot_proxy_copy_details">Nakili maelezo ya muunganisho</string>
     <string name="hotspot_proxy_description">Vifaa vilivyo kwenye hotspot yako ya Wi-Fi au vilivyounganishwa kwa USB vinaweza kutumia URnetwork kupitia proksi ya HTTP au SOCKS5 kwenye simu hii. Trafiki yao hupita kwenye URnetwork pekee, kwa hivyo hakuna kinachoshirikiwa ukiwa hujaunganishwa.</string>
@@ -881,6 +887,9 @@
     <string name="login_verify_details">Tuambie wewe ni nani hasa. Weka msimbo ambao tume\nkutumia ili kuthibitisha utambulisho wako.</string>
     <string name="login_verify_header">Umepata barua</string>
     <string name="longest_streak">Mfululizo mrefu zaidi</string>
+    <string name="low_data_warning_byte_count">Imebaki data ya %1$s tu.</string>
+    <string name="low_data_warning_percent">Imebaki %1$d%% tu ya data yako (%2$s).</string>
+    <string name="low_data_warning_title">Data yako inakaribia kuisha</string>
     <string name="manage_devices">Dhibiti vifaa</string>
     <string name="manage_devices_connecting">Inaunganisha kifaa hiki…</string>
     <string name="manage_devices_help">Kila kifaa au proksi iliyounganishwa hutumia nafasi moja ya mpango wako. Ondoa usichokitumia tena ili kuachilia nafasi yake.</string>

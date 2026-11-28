@@ -739,6 +739,12 @@
     <string name="got_it">Entendido</string>
     <string name="guest">Convidado</string>
     <string name="guest_mode">Modo convidado</string>
+    <string name="help_extender_body">Um extensor retransmite sua conexão com a URnetwork onde ela está bloqueada. Seu tráfego continua criptografado ao passar por ele, e o extensor não consegue lê-lo.</string>
+    <string name="help_extender_title">O que é um extensor?</string>
+    <string name="help_pending_body">“Pendente” são dados reservados para suas conexões abertas. O que elas não usarem volta para seus dados disponíveis quando forem fechadas.</string>
+    <string name="help_pending_title">O que significa “Pendente”?</string>
+    <string name="help_provide_body">O fornecimento compartilha parte da sua internet com outros membros da URnetwork: o tráfego deles pode sair pela sua conexão. Os fornecedores podem ganhar recompensas pelos dados que compartilham. O modo de fornecimento define quando este dispositivo fornece, e você pode parar a qualquer momento.</string>
+    <string name="help_provide_title">O que é o fornecimento?</string>
     <string name="hotspot_proxy">Proxy do ponto de acesso</string>
     <string name="hotspot_proxy_copy_details">Copiar dados de ligação</string>
     <string name="hotspot_proxy_description">Os dispositivos ligados ao seu ponto de acesso Wi-Fi ou por USB podem usar a URnetwork através de um proxy HTTP ou SOCKS5 neste telefone. O tráfego deles passa apenas pela URnetwork, por isso nada é partilhado enquanto estiver desligado.</string>
@@ -881,6 +887,9 @@
     <string name="login_verify_details">Diga-nos quem você realmente é. Digite o código que\nenviamos para você verificar sua identidade.</string>
     <string name="login_verify_header">Você tem um e-mail</string>
     <string name="longest_streak">Maior sequência</string>
+    <string name="low_data_warning_byte_count">Restam apenas %1$s de dados.</string>
+    <string name="low_data_warning_percent">Restam apenas %1$d%% dos seus dados (%2$s).</string>
+    <string name="low_data_warning_title">Seus dados estão acabando</string>
     <string name="manage_devices">Gerenciar dispositivos</string>
     <string name="manage_devices_connecting">Conectando este dispositivo…</string>
     <string name="manage_devices_help">Cada dispositivo ou proxy conectado ocupa uma vaga do seu plano. Remova o que você não usa mais para liberar a vaga.</string>

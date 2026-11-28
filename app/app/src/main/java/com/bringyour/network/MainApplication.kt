@@ -91,6 +91,8 @@ class MainApplication : Application() {
         const val INSUFFICIENT_BALANCE_NOTIFICATION_ID = 102
         // the client limit hold's notice (ClientLimitNotice), distinct from both
         const val CLIENT_LIMIT_NOTIFICATION_ID = 103
+        // the low-data warning's notice (LowDataWarningNotice), distinct from the others
+        const val LOW_DATA_WARNING_NOTIFICATION_ID = 104
         // a return to the foreground after this long starts a new product-event session
         const val CLIENT_EVENT_SESSION_GAP_MILLIS = 30L * 60L * 1000L
         // how long logout waits for the pending product events to send
@@ -259,6 +261,13 @@ class MainApplication : Application() {
     // controller per sign-in (openProFeatures), and its listener
     private var proFeaturesController: com.bringyour.sdk.ProFeaturesViewController? = null
     private var proFeaturesSub: Sub? = null
+
+    /**
+     * The low-data warning the main screens' alert shows (LowDataWarningAlert):
+     * one the sdk returned while the app was in front, until the user closes
+     * it or the sign-in ends. Null otherwise. Set on the main thread.
+     */
+    val lowDataWarning = kotlinx.coroutines.flow.MutableStateFlow<com.bringyour.sdk.LowDataWarning?>(null)
 
     var networkCallback: ConnectivityManager.NetworkCallback? = null
     var offlineCallback: ConnectivityManager.NetworkCallback? = null
@@ -698,6 +707,11 @@ class MainApplication : Application() {
                         ?: com.bringyour.network.widgets.WidgetSnapshotStore.save(this, balance)
                 }
                 first.offer(balance)
+            }
+            // little data left: the sdk decides, on the callback's thread, as
+            // it reads and writes its local state
+            if (err == null && result != null) {
+                showLowDataWarningForBalance(result)
             }
         })
     }
@@ -2603,6 +2617,9 @@ class MainApplication : Application() {
         device?.let { connectCommands.signOutStarted(it) }
         stop()
         widgetSnapshotWriter?.clear()
+        // the low-data warning was about the signed-out account's data: its
+        // notification goes too (stop closed the alert)
+        dismissLowDataWarning()
         // a connect the signed-out account asked for must not start later
         clearBalanceRecovery()
         // nor a quick connect start still waiting on its balance: the gate
@@ -2691,6 +2708,9 @@ class MainApplication : Application() {
         // the sign-in ends (sign out, account switch, another network space):
         // its Pro features notice, and the user's close of it, end with it
         closeProFeatures()
+        // and its low-data warning's alert. Not the notification: this also
+        // runs as the process starts, before the user may have read it
+        lowDataWarning.value = null
 
 //        provideEnabled = false
 //        connectEnabled = false
@@ -3372,6 +3392,96 @@ class MainApplication : Application() {
             notificationManager.notify(INSUFFICIENT_BALANCE_NOTIFICATION_ID, builder.build())
         }.onFailure {
             Log.i(TAG, "Insufficient balance notice failed: ${it.message}")
+        }
+    }
+
+    /**
+     * Hands a subscription balance the app loaded to the sdk's low-data warning
+     * (Sdk.lowDataWarningForBalance) and shows the warning it returns. Every
+     * balance load calls this: the balance view model's fetch, the start
+     * connect fetch and the widget writer's refresh. The sdk decides, once per
+     * threshold per balance period, and remembers it in the signed-in space's
+     * local state, so nothing here holds a warning back; signed out it returns
+     * none. Call off the main thread: the sdk reads and writes that state.
+     */
+    fun showLowDataWarningForBalance(result: com.bringyour.sdk.SubscriptionBalanceResult) {
+        val signedInDevice = device ?: return
+        val warning = Sdk.lowDataWarningForBalance(deviceManager.asyncLocalState?.localState, result) ?: return
+        mainHandler.post {
+            // a warning for a sign-in that has ended since says nothing
+            if (device === signedInDevice) {
+                showLowDataWarning(warning)
+            }
+        }
+    }
+
+    /**
+     * Shows a warning as the out-of-balance notice is shown: a local
+     * notification, and the main screens' alert while the app is in front. One
+     * that comes while the app is away is the notification's alone, so the
+     * alert never shows an old balance's warning later. It only informs:
+     * nothing here disconnects or changes the connection. Main thread.
+     */
+    private fun showLowDataWarning(warning: com.bringyour.sdk.LowDataWarning) {
+        postLowDataWarningNotice(warning)
+        if (ProcessLifecycleOwner.get().lifecycle.currentState.isAtLeast(androidx.lifecycle.Lifecycle.State.STARTED)) {
+            lowDataWarning.value = warning
+        }
+    }
+
+    /**
+     * The user closed the alert, or signed out: the alert and the warning's
+     * notification are gone. Main thread.
+     */
+    fun dismissLowDataWarning() {
+        lowDataWarning.value = null
+        runCatching {
+            (getSystemService(NOTIFICATION_SERVICE) as android.app.NotificationManager)
+                .cancel(LOW_DATA_WARNING_NOTIFICATION_ID)
+        }
+    }
+
+    /**
+     * Tells the user little data is left, as the insufficient balance notice
+     * tells them it ran out, without its disconnect action: the warning only
+     * informs. A tap opens the app. Without notification permission the usage
+     * bar still shows it, and the alert while the app is in front.
+     */
+    @android.annotation.SuppressLint("NotificationPermission")
+    private fun postLowDataWarningNotice(warning: com.bringyour.sdk.LowDataWarning) {
+        runCatching {
+            val notificationManager =
+                getSystemService(NOTIFICATION_SERVICE) as android.app.NotificationManager
+            // same channel as the service notification; creating it again is a no-op
+            notificationManager.createNotificationChannel(
+                android.app.NotificationChannel(
+                    MainService.NOTIFICATION_CHANNEL_ID,
+                    getString(R.string.app_name),
+                    android.app.NotificationManager.IMPORTANCE_LOW,
+                ).apply {
+                    setShowBadge(false)
+                }
+            )
+            val contentIntent = android.app.PendingIntent.getActivity(
+                this,
+                0,
+                android.content.Intent(this, MainActivity::class.java),
+                android.app.PendingIntent.FLAG_IMMUTABLE or android.app.PendingIntent.FLAG_UPDATE_CURRENT,
+            )
+            val message = com.bringyour.network.ui.connect.lowDataWarningMessage(this, warning)
+            val builder = androidx.core.app.NotificationCompat.Builder(
+                this,
+                MainService.NOTIFICATION_CHANNEL_ID,
+            )
+                .setSmallIcon(R.drawable.ic_status)
+                .setContentTitle(getString(R.string.low_data_warning_title))
+                .setContentText(message)
+                .setStyle(androidx.core.app.NotificationCompat.BigTextStyle().bigText(message))
+                .setContentIntent(contentIntent)
+                .setAutoCancel(true)
+            notificationManager.notify(LOW_DATA_WARNING_NOTIFICATION_ID, builder.build())
+        }.onFailure {
+            Log.i(TAG, "Low data warning notice failed: ${it.message}")
         }
     }
 

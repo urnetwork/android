@@ -739,6 +739,12 @@
     <string name="got_it">Begrepen</string>
     <string name="guest">Gast</string>
     <string name="guest_mode">Gastmodus</string>
+    <string name="help_extender_body">Een extender stuurt je verbinding met URnetwork door waar die geblokkeerd is. Je verkeer blijft versleuteld terwijl het erdoorheen gaat, en de extender kan het niet lezen.</string>
+    <string name="help_extender_title">Wat is een extender?</string>
+    <string name="help_pending_body">‘In behandeling’ is data die is gereserveerd voor je open verbindingen. Wat ze niet gebruiken, gaat terug naar je beschikbare data wanneer ze sluiten.</string>
+    <string name="help_pending_title">Wat betekent ‘In behandeling’?</string>
+    <string name="help_provide_body">Bij leveren deel je een deel van je internet met andere URnetwork-leden: hun verkeer kan via jouw verbinding naar buiten gaan. Leveranciers kunnen beloningen verdienen voor de data die ze delen. De leveringsmodus bepaalt wanneer dit apparaat levert, en je kunt op elk moment stoppen.</string>
+    <string name="help_provide_title">Wat is leveren?</string>
     <string name="hotspot_proxy">Hotspotproxy</string>
     <string name="hotspot_proxy_copy_details">Verbindingsgegevens kopiëren</string>
     <string name="hotspot_proxy_description">Apparaten op je wifi-hotspot of via USB-tethering kunnen URnetwork gebruiken via een HTTP- of SOCKS5-proxy op deze telefoon. Hun verkeer gaat alleen via URnetwork, dus er wordt niets gedeeld zolang je niet verbonden bent.</string>
@@ -881,6 +887,9 @@
     <string name="login_verify_details">Vertel ons wie je echt bent. Voer de code in die we\nnaar je hebben gestuurd om je identiteit te verifiëren.</string>
     <string name="login_verify_header">Je hebt mail</string>
     <string name="longest_streak">Langste reeks</string>
+    <string name="low_data_warning_byte_count">Er is nog maar %1$s data over.</string>
+    <string name="low_data_warning_percent">Je hebt nog maar %1$d%% van je data over (%2$s).</string>
+    <string name="low_data_warning_title">Je data raakt bijna op</string>
     <string name="manage_devices">Apparaten beheren</string>
     <string name="manage_devices_connecting">Dit apparaat wordt verbonden…</string>
     <string name="manage_devices_help">Elk verbonden apparaat of elke proxy gebruikt een plek van je abonnement. Verwijder er een die je niet meer gebruikt om de plek vrij te maken.</string>

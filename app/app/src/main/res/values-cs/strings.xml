@@ -739,6 +739,12 @@
     <string name="got_it">Rozumím</string>
     <string name="guest">Host</string>
     <string name="guest_mode">Režim pro hosty</string>
+    <string name="help_extender_body">Extender přenáší vaše připojení k URnetwork tam, kde je blokované. Váš provoz přes něj zůstává šifrovaný a extender ho nemůže číst.</string>
+    <string name="help_extender_title">Co je extender?</string>
+    <string name="help_pending_body">„Čekající“ jsou data vyhrazená pro vaše otevřená připojení. Co nevyužijí, se po jejich ukončení vrátí do vašich dostupných dat.</string>
+    <string name="help_pending_title">Co znamená „Čekající“?</string>
+    <string name="help_provide_body">Poskytování sdílí část vašeho internetu s ostatními členy URnetwork: jejich provoz může odcházet přes vaše připojení. Poskytovatelé mohou za sdílená data získávat odměny. Režim poskytování určuje, kdy toto zařízení poskytuje, a kdykoli můžete přestat.</string>
+    <string name="help_provide_title">Co je poskytování?</string>
     <string name="hotspot_proxy">Proxy pro hotspot</string>
     <string name="hotspot_proxy_copy_details">Kopírovat údaje pro připojení</string>
     <string name="hotspot_proxy_description">Zařízení na vašem Wi-Fi hotspotu nebo připojená přes USB tethering mohou používat URnetwork přes proxy HTTP nebo SOCKS5 v tomto telefonu. Jejich provoz jde pouze přes URnetwork, takže když jste odpojeni, nic se nesdílí.</string>
@@ -881,6 +887,9 @@
     <string name="login_verify_details">"Řekněte nám, kdo doopravdy jste.\n Zadejte kód, který jsme vám zaslali, abyste ověřili svou totožnost."</string>
     <string name="login_verify_header">Máš poštu</string>
     <string name="longest_streak">Nejdelší série</string>
+    <string name="low_data_warning_byte_count">Zbývá jen %1$s dat.</string>
+    <string name="low_data_warning_percent">Zbývá vám jen %1$d %% dat (%2$s).</string>
+    <string name="low_data_warning_title">Docházejí vám data</string>
     <string name="manage_devices">Spravovat zařízení</string>
     <string name="manage_devices_connecting">Připojování tohoto zařízení…</string>
     <string name="manage_devices_help">Každé připojené zařízení nebo proxy zabírá jedno místo vašeho tarifu. Odeberte to, které už nepoužíváte, a uvolněte jeho místo.</string>

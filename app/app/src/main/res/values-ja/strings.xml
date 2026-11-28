@@ -739,6 +739,12 @@
     <string name="got_it">了解</string>
     <string name="guest">ゲスト</string>
     <string name="guest_mode">ゲストモード</string>
+    <string name="help_extender_body">エクステンダーは、URnetwork への接続がブロックされている場所で、その接続を中継します。通信は暗号化されたまま通過するため、エクステンダーが内容を読むことはできません。</string>
+    <string name="help_extender_title">エクステンダーとは？</string>
+    <string name="help_pending_body">「保留中」は、開いている接続のために確保されたデータです。使われなかった分は、接続が閉じると利用可能なデータに戻ります。</string>
+    <string name="help_pending_title">「保留中」とは？</string>
+    <string name="help_provide_body">提供とは、インターネット回線の一部を他の URnetwork メンバーと共有することです。メンバーの通信があなたの回線から外部へ出ることがあります。提供者は共有したデータに応じて報酬を得られます。提供モードでこのデバイスが提供するタイミングを設定でき、いつでも停止できます。</string>
+    <string name="help_provide_title">提供とは？</string>
     <string name="hotspot_proxy">テザリング プロキシ</string>
     <string name="hotspot_proxy_copy_details">接続情報をコピー</string>
     <string name="hotspot_proxy_description">Wi-Fi テザリングや USB テザリングでつないだデバイスは、このスマートフォンの HTTP または SOCKS5 プロキシを通じて URnetwork を使えます。通信は URnetwork だけを通るため、接続していない間は何も共有されません。</string>
@@ -881,6 +887,9 @@
     <string name="login_verify_details">本人確認のために、送信したコードを入力してください。</string>
     <string name="login_verify_header">メールが届いています</string>
     <string name="longest_streak">最長連続</string>
+    <string name="low_data_warning_byte_count">データの残りはあと%1$sです。</string>
+    <string name="low_data_warning_percent">データの残りはあと%1$d%%です（%2$s）。</string>
+    <string name="low_data_warning_title">データの残りが少なくなっています</string>
     <string name="manage_devices">デバイスを管理</string>
     <string name="manage_devices_connecting">このデバイスを接続しています…</string>
     <string name="manage_devices_help">接続中のデバイスやプロキシは、それぞれプランの枠を 1 つ使います。使わなくなったものを削除すると、その枠が空きます。</string>

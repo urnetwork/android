@@ -739,6 +739,12 @@
     <string name="got_it">فهمت</string>
     <string name="guest">ضيف</string>
     <string name="guest_mode">وضع الضيف</string>
+    <string name="help_extender_body">يمرّر الموسّع اتصالك إلى URnetwork حيث يكون محظورًا. تبقى حركة مرورك مشفّرة عبره، ولا يستطيع الموسّع قراءتها.</string>
+    <string name="help_extender_title">ما هو الموسّع؟</string>
+    <string name="help_pending_body">«معلّق» هو بيانات محجوزة لاتصالاتك المفتوحة. ما لا تستخدمه منها يعود إلى بياناتك المتاحة عند إغلاقها.</string>
+    <string name="help_pending_title">ما معنى «معلّق»؟</string>
+    <string name="help_provide_body">التوفير يشارك جزءًا من اتصالك بالإنترنت مع أعضاء URnetwork الآخرين: يمكن أن تخرج حركة مرورهم عبر اتصالك. يمكن للموفّرين كسب مكافآت مقابل البيانات التي يشاركونها. يحدد وضع التوفير متى يوفّر هذا الجهاز، ويمكنك التوقف في أي وقت.</string>
+    <string name="help_provide_title">ما هو التوفير؟</string>
     <string name="hotspot_proxy">وكيل نقطة الاتصال</string>
     <string name="hotspot_proxy_copy_details">نسخ تفاصيل الاتصال</string>
     <string name="hotspot_proxy_description">يمكن للأجهزة المتصلة بنقطة اتصال Wi-Fi أو بالربط عبر USB استخدام URnetwork من خلال وكيل HTTP أو SOCKS5 على هذا الهاتف. تمر حركة بياناتها عبر URnetwork فقط، لذلك لا تتم مشاركة أي شيء أثناء قطع الاتصال.</string>
@@ -881,6 +887,9 @@
     <string name="login_verify_details">أخبرنا من أنت حقًا. أدخل الرمز الذي أرسلناه إليك للتحقق من هويتك.</string>
     <string name="login_verify_header">لديك بريد إلكتروني</string>
     <string name="longest_streak">أطول سلسلة</string>
+    <string name="low_data_warning_byte_count">تبقّى %1$s فقط من البيانات.</string>
+    <string name="low_data_warning_percent">تبقّى %1$d%% فقط من بياناتك (%2$s).</string>
+    <string name="low_data_warning_title">بياناتك على وشك النفاد</string>
     <string name="manage_devices">إدارة الأجهزة</string>
     <string name="manage_devices_connecting">جارٍ توصيل هذا الجهاز…</string>
     <string name="manage_devices_help">يستخدم كل جهاز أو وكيل متصل مكانًا من خطتك. أزل ما لم تعد تستخدمه لتحرير مكانه.</string>

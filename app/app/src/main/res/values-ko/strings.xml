@@ -739,6 +739,12 @@
     <string name="got_it">확인</string>
     <string name="guest">게스트</string>
     <string name="guest_mode">게스트 모드</string>
+    <string name="help_extender_body">익스텐더는 URnetwork 연결이 차단된 곳에서 연결을 중계합니다. 트래픽은 암호화된 상태로 통과하므로 익스텐더가 내용을 읽을 수 없습니다.</string>
+    <string name="help_extender_title">익스텐더란 무엇인가요?</string>
+    <string name="help_pending_body">‘대기 중’은 열려 있는 연결을 위해 확보된 데이터입니다. 사용되지 않은 부분은 연결이 닫히면 사용 가능한 데이터로 돌아갑니다.</string>
+    <string name="help_pending_title">‘대기 중’이란 무엇인가요?</string>
+    <string name="help_provide_body">제공은 인터넷의 일부를 다른 URnetwork 회원과 공유하는 것입니다. 회원의 트래픽이 사용자의 연결을 통해 나갈 수 있습니다. 제공자는 공유한 데이터에 대해 보상을 받을 수 있습니다. 제공 모드로 이 기기가 제공하는 시점을 정하며, 언제든지 중단할 수 있습니다.</string>
+    <string name="help_provide_title">제공이란 무엇인가요?</string>
     <string name="hotspot_proxy">핫스팟 프록시</string>
     <string name="hotspot_proxy_copy_details">연결 정보 복사</string>
     <string name="hotspot_proxy_description">Wi-Fi 핫스팟이나 USB 테더링에 연결된 기기는 이 휴대폰의 HTTP 또는 SOCKS5 프록시를 통해 URnetwork를 사용할 수 있습니다. 트래픽은 URnetwork로만 전달되므로 연결이 끊긴 동안에는 아무것도 공유되지 않습니다.</string>
@@ -881,6 +887,9 @@
     <string name="login_verify_details">본인 확인을 위해 보내드린 코드를\n입력해주세요.</string>
     <string name="login_verify_header">메일을 확인해주세요</string>
     <string name="longest_streak">최장 연속</string>
+    <string name="low_data_warning_byte_count">데이터가 %1$s만 남았습니다.</string>
+    <string name="low_data_warning_percent">데이터가 %1$d%%만 남았습니다(%2$s).</string>
+    <string name="low_data_warning_title">데이터가 얼마 남지 않았습니다</string>
     <string name="manage_devices">기기 관리</string>
     <string name="manage_devices_connecting">이 기기를 연결하는 중…</string>
     <string name="manage_devices_help">연결된 기기나 프록시는 각각 요금제의 자리를 하나씩 사용합니다. 더 이상 사용하지 않는 것을 제거하면 자리가 비워집니다.</string>

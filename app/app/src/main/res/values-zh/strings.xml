@@ -739,6 +739,12 @@
     <string name="got_it">知道了</string>
     <string name="guest">访客</string>
     <string name="guest_mode">访客模式</string>
+    <string name="help_extender_body">在连接 URnetwork 受阻的地方，扩展器会中继你的连接。你的流量经过它时依然是加密的，扩展器无法读取。</string>
+    <string name="help_extender_title">什么是扩展器？</string>
+    <string name="help_pending_body">“待处理”是为你打开的连接预留的数据。连接关闭时，未用完的部分会退回你的可用数据。</string>
+    <string name="help_pending_title">“待处理”是什么意思？</string>
+    <string name="help_provide_body">提供是指与其他 URnetwork 成员共享你的一部分网络：他们的流量可以通过你的连接出去。提供者可以凭共享的数据获得奖励。提供模式决定此设备何时提供，你可以随时停止。</string>
+    <string name="help_provide_title">什么是提供？</string>
     <string name="hotspot_proxy">热点代理</string>
     <string name="hotspot_proxy_copy_details">复制连接信息</string>
     <string name="hotspot_proxy_description">连接到你的 Wi-Fi 热点或 USB 网络共享的设备，可以通过这部手机上的 HTTP 或 SOCKS5 代理使用 URnetwork。它们的流量只经过 URnetwork，因此在你断开连接时不会共享任何内容。</string>
@@ -881,6 +887,9 @@
     <string name="login_verify_details">告诉我们您是谁。输入我们\n发送给您的代码以验证您的身份。</string>
     <string name="login_verify_header">您有邮件</string>
     <string name="longest_streak">最长连续</string>
+    <string name="low_data_warning_byte_count">仅剩 %1$s 数据。</string>
+    <string name="low_data_warning_percent">你的数据仅剩 %1$d%%（%2$s）。</string>
+    <string name="low_data_warning_title">数据即将用完</string>
     <string name="manage_devices">管理设备</string>
     <string name="manage_devices_connecting">正在连接此设备…</string>
     <string name="manage_devices_help">每个已连接的设备或代理都会占用您套餐的一个名额。移除不再使用的设备或代理即可释放名额。</string>

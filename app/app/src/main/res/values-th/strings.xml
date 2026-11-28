@@ -739,6 +739,12 @@
     <string name="got_it">รับทราบ</string>
     <string name="guest">ผู้เยี่ยมชม</string>
     <string name="guest_mode">โหมดผู้เยี่ยมชม</string>
+    <string name="help_extender_body">ตัวขยายส่งต่อการเชื่อมต่อของคุณไปยัง URnetwork ในที่ที่ถูกบล็อก ทราฟฟิกของคุณยังคงเข้ารหัสขณะผ่านตัวขยาย และตัวขยายอ่านไม่ได้</string>
+    <string name="help_extender_title">ตัวขยายคืออะไร</string>
+    <string name="help_pending_body">“รอดำเนินการ” คือข้อมูลที่กันไว้สำหรับการเชื่อมต่อที่เปิดอยู่ ส่วนที่ไม่ได้ใช้จะกลับไปเป็นข้อมูลที่ใช้ได้เมื่อการเชื่อมต่อปิดลง</string>
+    <string name="help_pending_title">“รอดำเนินการ” หมายถึงอะไร</string>
+    <string name="help_provide_body">การให้บริการคือการแบ่งปันอินเทอร์เน็ตบางส่วนของคุณกับสมาชิก URnetwork คนอื่น ทราฟฟิกของพวกเขาอาจออกผ่านการเชื่อมต่อของคุณ ผู้ให้บริการสามารถรับรางวัลจากข้อมูลที่แบ่งปัน โหมดการให้บริการกำหนดว่าอุปกรณ์นี้จะให้บริการเมื่อใด และคุณหยุดได้ทุกเมื่อ</string>
+    <string name="help_provide_title">การให้บริการคืออะไร</string>
     <string name="hotspot_proxy">พร็อกซีฮอตสปอต</string>
     <string name="hotspot_proxy_copy_details">คัดลอกรายละเอียดการเชื่อมต่อ</string>
     <string name="hotspot_proxy_description">อุปกรณ์ที่เชื่อมต่อฮอตสปอต Wi-Fi หรือการปล่อยสัญญาณผ่าน USB ของคุณสามารถใช้ URnetwork ผ่านพร็อกซี HTTP หรือ SOCKS5 บนโทรศัพท์เครื่องนี้ได้ การรับส่งข้อมูลของอุปกรณ์เหล่านั้นผ่าน URnetwork เท่านั้น จึงไม่มีการแชร์ใดๆ ขณะที่คุณไม่ได้เชื่อมต่อ</string>
@@ -881,6 +887,9 @@
     <string name="login_verify_details">บอกเราหน่อยสิว่านี้คือคุณจริงๆ กรอกโค้ดทางเรา\nส่งให้เพื่อยืนยันตัวตน</string>
     <string name="login_verify_header">คุณได้รับอีเมลใหม่</string>
     <string name="longest_streak">ต่อเนื่องยาวนานที่สุด</string>
+    <string name="low_data_warning_byte_count">เหลือข้อมูลเพียง %1$s</string>
+    <string name="low_data_warning_percent">ข้อมูลของคุณเหลือเพียง %1$d%% (%2$s)</string>
+    <string name="low_data_warning_title">ข้อมูลของคุณใกล้หมดแล้ว</string>
     <string name="manage_devices">จัดการอุปกรณ์</string>
     <string name="manage_devices_connecting">กำลังเชื่อมต่ออุปกรณ์นี้…</string>
     <string name="manage_devices_help">อุปกรณ์หรือพร็อกซีที่เชื่อมต่ออยู่แต่ละรายการใช้ช่องหนึ่งในแพ็กเกจของคุณ นำรายการที่ไม่ได้ใช้แล้วออกเพื่อเพิ่มช่องว่าง</string>

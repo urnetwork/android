@@ -739,6 +739,12 @@
     <string name="got_it">समझ गया</string>
     <string name="guest">अतिथि</string>
     <string name="guest_mode">गेस्ट मोड</string>
+    <string name="help_extender_body">एक्सटेंडर आपके कनेक्शन को वहाँ URnetwork तक पहुँचाता है जहाँ वह ब्लॉक है। आपका ट्रैफ़िक उससे होकर भी एन्क्रिप्टेड रहता है, और एक्सटेंडर उसे पढ़ नहीं सकता।</string>
+    <string name="help_extender_title">एक्सटेंडर क्या है?</string>
+    <string name="help_pending_body">“लंबित” आपके खुले कनेक्शनों के लिए आरक्षित डेटा है। जो वे इस्तेमाल नहीं करते, वह कनेक्शन बंद होने पर आपके उपलब्ध डेटा में लौट आता है।</string>
+    <string name="help_pending_title">“लंबित” का क्या मतलब है?</string>
+    <string name="help_provide_body">प्रदान करने से आपका कुछ इंटरनेट URnetwork के अन्य सदस्यों के साथ साझा होता है: उनका ट्रैफ़िक आपके कनेक्शन से बाहर जा सकता है। प्रदाता साझा किए गए डेटा के लिए पुरस्कार कमा सकते हैं। प्रदान मोड तय करता है कि यह डिवाइस कब प्रदान करे, और आप कभी भी रोक सकते हैं।</string>
+    <string name="help_provide_title">प्रदान करना क्या है?</string>
     <string name="hotspot_proxy">हॉटस्पॉट प्रॉक्सी</string>
     <string name="hotspot_proxy_copy_details">कनेक्शन विवरण कॉपी करें</string>
     <string name="hotspot_proxy_description">आपके Wi-Fi हॉटस्पॉट या USB टेदरिंग से जुड़े डिवाइस इस फ़ोन पर HTTP या SOCKS5 प्रॉक्सी के ज़रिए URnetwork का उपयोग कर सकते हैं। उनका ट्रैफ़िक सिर्फ़ URnetwork से होकर जाता है, इसलिए डिस्कनेक्ट रहने पर कुछ भी शेयर नहीं होता।</string>
@@ -881,6 +887,9 @@
     <string name="login_verify_details">हमें बताएं कि आप वास्तव में कौन हैं। अपनी पहचान सत्यापित करने के लिए हमने आपको जो कोड भेजा है उसे दर्ज करें।</string>
     <string name="login_verify_header">आपके पास एक ईमेल है</string>
     <string name="longest_streak">सबसे लंबी स्ट्रीक</string>
+    <string name="low_data_warning_byte_count">केवल %1$s डेटा बचा है।</string>
+    <string name="low_data_warning_percent">आपका केवल %1$d%% डेटा बचा है (%2$s)।</string>
+    <string name="low_data_warning_title">आपका डेटा कम हो रहा है</string>
     <string name="manage_devices">डिवाइस प्रबंधित करें</string>
     <string name="manage_devices_connecting">यह डिवाइस कनेक्ट हो रहा है…</string>
     <string name="manage_devices_help">हर कनेक्ट डिवाइस या प्रॉक्सी आपके प्लान की एक जगह लेता है। जिसका अब इस्तेमाल नहीं करते, उसे हटाकर उसकी जगह खाली करें।</string>

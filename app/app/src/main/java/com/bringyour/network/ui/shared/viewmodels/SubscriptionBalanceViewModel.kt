@@ -690,6 +690,14 @@ class SubscriptionBalanceViewModel @Inject constructor(
 
                     }
 
+                    // little data left: the sdk decides and MainApplication shows
+                    // it, after the balance above. Here on the callback's thread,
+                    // as the sdk reads and writes its local state
+                    if (err == null && result != null) {
+                        (appContext.applicationContext as? com.bringyour.network.MainApplication)
+                            ?.showLowDataWarningForBalance(result)
+                    }
+
                 })
 
             }

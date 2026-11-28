@@ -739,6 +739,12 @@
     <string name="got_it">Entendido</string>
     <string name="guest">Invitado</string>
     <string name="guest_mode">Modo invitado</string>
+    <string name="help_extender_body">Un extensor retransmite tu conexión a URnetwork donde está bloqueada. Tu tráfico sigue cifrado a través de él y el extensor no puede leerlo.</string>
+    <string name="help_extender_title">¿Qué es un extensor?</string>
+    <string name="help_pending_body">“Pendiente” son datos reservados para tus conexiones abiertas. Lo que no usen vuelve a tus datos disponibles cuando se cierran.</string>
+    <string name="help_pending_title">¿Qué significa “Pendiente”?</string>
+    <string name="help_provide_body">La provisión comparte parte de tu internet con otros miembros de URnetwork: su tráfico puede salir a través de tu conexión. Los proveedores pueden ganar recompensas por los datos que comparten. El modo de provisión define cuándo provee este dispositivo, y puedes dejar de hacerlo en cualquier momento.</string>
+    <string name="help_provide_title">¿Qué es la provisión?</string>
     <string name="hotspot_proxy">Proxy del punto de acceso</string>
     <string name="hotspot_proxy_copy_details">Copiar datos de conexión</string>
     <string name="hotspot_proxy_description">Los dispositivos de tu punto de acceso Wi-Fi o conectados por USB pueden usar URnetwork a través de un proxy HTTP o SOCKS5 en este teléfono. Su tráfico solo pasa por URnetwork, así que no se comparte nada mientras estés desconectado.</string>
@@ -881,6 +887,9 @@
     <string name="login_verify_details">Dinos quién eres en realidad. Introduce el código que te\nenviamos para verificar tu identidad.</string>
     <string name="login_verify_header">Tienes un correo</string>
     <string name="longest_streak">Racha más larga</string>
+    <string name="low_data_warning_byte_count">Solo te quedan %1$s de datos.</string>
+    <string name="low_data_warning_percent">Solo te queda el %1$d%% de tus datos (%2$s).</string>
+    <string name="low_data_warning_title">Te quedan pocos datos</string>
     <string name="manage_devices">Administrar dispositivos</string>
     <string name="manage_devices_connecting">Conectando este dispositivo…</string>
     <string name="manage_devices_help">Cada dispositivo o proxy conectado ocupa un lugar de tu plan. Quita el que ya no uses para liberar su lugar.</string>
