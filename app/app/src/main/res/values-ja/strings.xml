@@ -695,6 +695,7 @@
     <string name="expanded">展開</string>
     <string name="expires">有効期限</string>
     <string name="expiry_time">有効期限</string>
+    <string name="export_logs">ログをエクスポート</string>
     <string name="extender_address_copied">エクステンダーのアドレスをコピーしました</string>
     <string name="extender_address_label">エクステンダー %1$s</string>
     <string name="extender_default_value">デフォルト：%1$s</string>
@@ -1553,6 +1554,7 @@
     <string name="verify_send_error">エラー</string>
     <string name="version_info">バージョンおよびビルド情報</string>
     <string name="via_exit">%1$s 経由</string>
+    <string name="view_logs">ログを表示</string>
     <string name="vless_allow_insecure">安全でない証明書を許可</string>
     <string name="vless_copy_link">リンクをコピー</string>
     <string name="vless_enabled">VLESS を使用</string>

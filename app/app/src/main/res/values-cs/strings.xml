@@ -695,6 +695,7 @@
     <string name="expanded">Rozbaleno</string>
     <string name="expires">Vyprší</string>
     <string name="expiry_time">Čas vypršení</string>
+    <string name="export_logs">Exportovat logy</string>
     <string name="extender_address_copied">Adresa extenderu zkopírována</string>
     <string name="extender_address_label">Extender %1$s</string>
     <string name="extender_default_value">Výchozí: %1$s</string>
@@ -1553,6 +1554,7 @@
     <string name="verify_send_error">Chyba</string>
     <string name="version_info">Informace o verzi a sestavení</string>
     <string name="via_exit">přes %1$s</string>
+    <string name="view_logs">Zobrazit logy</string>
     <string name="vless_allow_insecure">Povolit nezabezpečený certifikát</string>
     <string name="vless_copy_link">Kopírovat odkaz</string>
     <string name="vless_enabled">Používat VLESS</string>

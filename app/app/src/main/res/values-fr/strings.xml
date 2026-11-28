@@ -695,6 +695,7 @@
     <string name="expanded">Développé</string>
     <string name="expires">Expire</string>
     <string name="expiry_time">Heure d’expiration</string>
+    <string name="export_logs">Exporter les journaux</string>
     <string name="extender_address_copied">Adresse de l’extendeur copiée</string>
     <string name="extender_address_label">Extendeur %1$s</string>
     <string name="extender_default_value">Par défaut : %1$s</string>
@@ -1553,6 +1554,7 @@
     <string name="verify_send_error">Erreur</string>
     <string name="version_info">Informations sur la version et la build</string>
     <string name="via_exit">via %1$s</string>
+    <string name="view_logs">Afficher les journaux</string>
     <string name="vless_allow_insecure">Autoriser un certificat non sécurisé</string>
     <string name="vless_copy_link">Copier le lien</string>
     <string name="vless_enabled">Utiliser VLESS</string>

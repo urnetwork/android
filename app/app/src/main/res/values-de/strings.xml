@@ -695,6 +695,7 @@
     <string name="expanded">Ausgeklappt</string>
     <string name="expires">Läuft ab</string>
     <string name="expiry_time">Ablaufzeit</string>
+    <string name="export_logs">Logs exportieren</string>
     <string name="extender_address_copied">Extender-Adresse kopiert</string>
     <string name="extender_address_label">Extender %1$s</string>
     <string name="extender_default_value">Standard: %1$s</string>
@@ -1553,6 +1554,7 @@
     <string name="verify_send_error">Fehler</string>
     <string name="version_info">Versions- und Build-Informationen</string>
     <string name="via_exit">über %1$s</string>
+    <string name="view_logs">Logs anzeigen</string>
     <string name="vless_allow_insecure">Unsicheres Zertifikat erlauben</string>
     <string name="vless_copy_link">Link kopieren</string>
     <string name="vless_enabled">VLESS verwenden</string>

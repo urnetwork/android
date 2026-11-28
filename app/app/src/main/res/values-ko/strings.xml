@@ -695,6 +695,7 @@
     <string name="expanded">펼쳐짐</string>
     <string name="expires">만료</string>
     <string name="expiry_time">만료 시간</string>
+    <string name="export_logs">로그 내보내기</string>
     <string name="extender_address_copied">익스텐더 주소가 복사되었습니다</string>
     <string name="extender_address_label">익스텐더 %1$s</string>
     <string name="extender_default_value">기본값: %1$s</string>
@@ -1553,6 +1554,7 @@
     <string name="verify_send_error">오류</string>
     <string name="version_info">버전 및 빌드 정보</string>
     <string name="via_exit">%1$s 경유</string>
+    <string name="view_logs">로그 보기</string>
     <string name="vless_allow_insecure">안전하지 않은 인증서 허용</string>
     <string name="vless_copy_link">링크 복사</string>
     <string name="vless_enabled">VLESS 사용</string>
