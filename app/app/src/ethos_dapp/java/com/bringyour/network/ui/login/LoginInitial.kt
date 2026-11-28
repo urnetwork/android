@@ -43,8 +43,6 @@ import com.bringyour.network.ui.login.NetworkServerSelector
 import com.bringyour.network.ui.theme.URNetworkTheme
 import androidx.compose.ui.res.painterResource
 import com.bringyour.network.ui.theme.TextMuted
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.fadeOut
@@ -62,9 +60,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.compose.LifecycleResumeEffect
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount
-import com.google.android.gms.common.api.ApiException
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -86,7 +81,6 @@ import com.bringyour.network.R
 import com.bringyour.network.TAG
 import com.bringyour.network.ui.components.URInlineErrorText
 import com.bringyour.network.ui.components.overlays.WelcomeAnimatedOverlayLogin
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.solana.mobilewalletadapter.clientlib.ActivityResultSender
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -471,7 +465,7 @@ fun LoginInitial(
     googleLogin: (
         context: Context,
         api: Api?,
-        account: GoogleSignInAccount,
+        token: GoogleIdToken,
         onLogin: (LoginRequest, AuthLoginResult) -> Unit,
         onCreateNetwork: (email: String?, authJwt: String?, userName: String) -> Unit,
     ) -> Unit,
@@ -522,15 +516,11 @@ fun LoginInitial(
     val googleClientId = stringResource(id = R.string.google_client_id)
     val createNetworkLoginError = stringResource(id = R.string.create_network_error)
 
-    val googleSignInOpts = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-        .requestIdToken(googleClientId)
-        .requestEmail()
-        .build()
-    val googleSignInClient = GoogleSignIn.getClient(context, googleSignInOpts)
 
     LaunchedEffect(Unit) {
-        googleSignInClient.signOut()
         setGoogleAuthInProgress(false)
+        // the picker asks again on every sign-in
+        forgetGoogleSignIn(context)
     }
 
     val onNetworkCreateGoogle: (
@@ -541,25 +531,22 @@ fun LoginInitial(
         navController.navigate("create-network-jwt/google/${Uri.encode(email)}/${Uri.encode(authJwt)}/${Uri.encode(userName)}")
     }
 
-    val googleSignInLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
-        try {
-            val account = task.getResult(ApiException::class.java)
-
-            googleLogin(
-                context,
-                application?.api,
-                account,
-                { request, result ->
-                    onLogin(request, result.network.byJwt)
-                },
-                onNetworkCreateGoogle
-            )
-
-        } catch (e: ApiException) {
-            googleSignInFailureMessage(context, e.statusCode)?.let { setLoginError(it) }
+    // Google's account picker through Credential Manager (GoogleIdSignIn.kt),
+    // then the sign-in with the account's ID token
+    val googleSignIn: () -> Unit = {
+        scope.launch {
+            when (val signIn = signInWithGoogle(context, googleClientId)) {
+                is GoogleIdSignIn.Signed -> googleLogin(
+                    context,
+                    application?.api,
+                    signIn.token,
+                    { request, result ->
+                        onLogin(request, result.network.byJwt)
+                    },
+                    onNetworkCreateGoogle
+                )
+                is GoogleIdSignIn.Failed -> signIn.message?.let { setLoginError(it) }
+            }
         }
     }
 
@@ -616,7 +603,7 @@ fun LoginInitial(
                             )
                         },
                         onGoogleLogin = {
-                            googleSignInLauncher.launch(googleSignInClient.signInIntent)
+                            googleSignIn()
                         },
                         allowGoogleSso = allowGoogleSso,
                         onSolanaLogin = solanaLogin,
@@ -802,7 +789,7 @@ private fun LoginInitialPreview() {
     val googleLogin : (
         Context,
         Api?,
-        GoogleSignInAccount,
+        GoogleIdToken,
         (LoginRequest, AuthLoginResult) -> Unit,
         (email: String?, authJwt: String?, userName: String) -> Unit,
     ) -> Unit = { context, api, account, onLogin, onNewNetwork ->
@@ -871,7 +858,7 @@ private fun LoginInitialLandscapePreview() {
     val googleLogin : (
         Context,
         Api?,
-        GoogleSignInAccount,
+        GoogleIdToken,
         (LoginRequest, AuthLoginResult) -> Unit,
         (email: String?, authJwt: String?, userName: String) -> Unit,
     ) -> Unit = { context, api, account, onLogin, onNewNetwork ->
