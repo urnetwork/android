@@ -162,6 +162,7 @@ import com.bringyour.network.ui.profile.ProfileScreen
 import com.bringyour.network.ui.profile.ProfileViewModel
 import com.bringyour.network.ui.settings.SettingsScreen
 import com.bringyour.network.ui.settings.VlessSettingsScreen
+import com.bringyour.network.ui.settings.HotspotProxyScreen
 import com.bringyour.network.ui.shared.viewmodels.SubscriptionBalanceViewModel
 import com.bringyour.network.ui.wallet.BittensorKeyScreenRequests
 import com.bringyour.network.ui.wallet.EarningsViewModel
@@ -1812,6 +1813,15 @@ fun MainNavContent(
                     popExitTransition = NavigationAnimations.popExitTransition()
                 ) {
                     VlessSettingsScreen(navController = navController)
+                }
+
+                composable<Route.HotspotProxy>(
+                    enterTransition = NavigationAnimations.enterTransition(),
+                    exitTransition = NavigationAnimations.exitTransition(),
+                    popEnterTransition = NavigationAnimations.popEnterTransition(),
+                    popExitTransition = NavigationAnimations.popExitTransition()
+                ) {
+                    HotspotProxyScreen(navController = navController)
                 }
 
                 composable<Route.ProviderIdentities>(

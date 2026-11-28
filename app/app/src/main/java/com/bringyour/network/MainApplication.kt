@@ -497,6 +497,9 @@ class MainApplication : Application() {
     @Inject
     lateinit var providePauseState: ProvidePauseState
 
+    @Inject
+    lateinit var hotspotProxyManager: HotspotProxyManager
+
     var vpnRequestStart: Boolean = false
         private set
 
@@ -1261,6 +1264,11 @@ class MainApplication : Application() {
         // even when the user never opens the provider locations sheet.
         mockLocationController.start()
         mockLocationFeeder.start()
+
+        // The hotspot proxy follows the device and the tethering state from
+        // here, not from its screen, so a proxy the user turned on resumes
+        // after a restart. It listens only once on and with a hotspot.
+        hotspotProxyManager.start()
 
         // The mobile network's country, before the network space manager
         // builds its spaces: their extender dials front with that country's

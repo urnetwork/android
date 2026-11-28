@@ -133,6 +133,8 @@ sealed class Route {
     @Serializable object Widgets : Route()
     @Serializable object BlockedRegions: Route()
     @Serializable object Vless: Route()
+    // Settings -> Hotspot proxy: share the tunnel with hotspot devices (HotspotProxyScreen)
+    @Serializable object HotspotProxy: Route()
     @Serializable object Developer: Route()
     @Serializable object Licenses: Route()
     @Serializable data class LicenseDetail(val index: Int): Route()
