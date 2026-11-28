@@ -48,6 +48,8 @@
     <string name="api_keys_unnamed">名前のないキー</string>
     <string name="app_excluded_toast">%1$sはVPNを迂回します</string>
     <string name="app_included_toast">%1$sはVPN経由でルーティングされます</string>
+    <string name="app_language">言語</string>
+    <string name="app_language_system_default">システムの言語</string>
     <string name="app_pinned_toast">%1$sは1つのプロバイダーを使用します</string>
     <string name="app_split_active_exclude">除外モードが有効 — 除外したアプリはVPNを迂回</string>
     <string name="app_split_active_include">含めるモードが有効 — 含めたアプリのみVPNを使用</string>

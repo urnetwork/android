@@ -152,7 +152,7 @@ fun LocationsList(
                     ) { _, location ->
                         val selected = selectedLocation?.connectLocationId == location.connectLocationId
                         ProviderRow(
-                            location = location.name,
+                            location = locationDisplayName(location),
                             providerCount = location.providerCount,
                             onClick = {
                                 onLocationSelect(location)
@@ -221,7 +221,7 @@ fun LocationsList(
                     ) { _, location ->
                         val selected = selectedLocation?.connectLocationId == location.connectLocationId
                         ProviderRow(
-                            location = location.name,
+                            location = locationDisplayName(location),
                             providerCount = location.providerCount,
                             onClick = {
                                 onLocationSelect(location)
@@ -256,7 +256,7 @@ fun LocationsList(
                     ) { _, location ->
                         val selected = selectedLocation?.connectLocationId == location.connectLocationId
                         ProviderRow(
-                            location = location.name,
+                            location = locationDisplayName(location),
                             providerCount = location.providerCount,
                             onClick = {
                                 onLocationSelect(location)
@@ -291,7 +291,7 @@ fun LocationsList(
                     ) { _, location ->
                         val selected = selectedLocation?.connectLocationId == location.connectLocationId
                         ProviderRow(
-                            location = location.name,
+                            location = locationDisplayName(location),
                             providerCount = location.providerCount,
                             onClick = {
                                 onLocationSelect(location)
@@ -327,7 +327,7 @@ fun LocationsList(
                     ) { _, location ->
                         val selected = selectedLocation?.connectLocationId == location.connectLocationId
                         ProviderRow(
-                            location = location.name,
+                            location = locationDisplayName(location),
                             providerCount = location.providerCount,
                             onClick = {
                                 onLocationSelect(location)

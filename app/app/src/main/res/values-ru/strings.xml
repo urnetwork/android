@@ -48,6 +48,8 @@
     <string name="api_keys_unnamed">Ключ без названия</string>
     <string name="app_excluded_toast">%1$s будет работать в обход VPN</string>
     <string name="app_included_toast">%1$s будет работать через VPN</string>
+    <string name="app_language">Язык</string>
+    <string name="app_language_system_default">Язык системы</string>
     <string name="app_pinned_toast">%1$s будет использовать одного провайдера</string>
     <string name="app_split_active_exclude">Режим исключения — исключённые приложения обходят VPN</string>
     <string name="app_split_active_include">Режим включения — VPN используют только включённые приложения</string>

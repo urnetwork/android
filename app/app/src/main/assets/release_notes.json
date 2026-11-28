@@ -146,6 +146,24 @@
         }
       ]
     },
+    "fa": {
+      "title": "تازه‌ها",
+      "intro": "نام این نسخه Champion است. این نسخه ویژگی‌های جدید مهم و رفع مداوم اشکالات و بهبودهایی را در این موارد دربر دارد:",
+      "sections": [
+        {
+          "items": [
+            "رمزنگاری پساکوانتومی",
+            "عملکرد جریان بسته‌ها، از جمله بهینه‌سازی برای شرایط گوناگون شبکه",
+            "گسترش‌دهنده‌ها و پشتیبانی از VLESS، برای دسترسی‌پذیرتر کردن شبکه",
+            "بهینه‌سازی حافظه و CPU",
+            "گزینه‌های بیشتر برای DNS",
+            "یکپارچه‌سازی درآمد SN25/ur.xyz",
+            "مدیریت بهتر نشست‌ها",
+            "رفع اشکالات"
+          ]
+        }
+      ]
+    },
     "fr": {
       "title": "Nouveautés",
       "intro": "Cette version s'appelle Champion. Elle apporte d'importantes nouvelles fonctionnalités, ainsi que des corrections de bugs et des améliorations continues dans les domaines suivants :",
@@ -430,6 +448,24 @@
             "การผสานรวมรายได้จาก SN25/ur.xyz",
             "การจัดการเซสชันที่ดีขึ้น",
             "การแก้ไขข้อบกพร่อง"
+          ]
+        }
+      ]
+    },
+    "tr": {
+      "title": "Yenilikler",
+      "intro": "Bu sürümün adı Champion. Önemli yeni özelliklerin yanı sıra sürekli hata düzeltmeleri ve şu alanlarda iyileştirmeler içeriyor:",
+      "sections": [
+        {
+          "items": [
+            "Kuantum sonrası şifreleme",
+            "Farklı ağ koşulları için optimizasyonlar dahil paket akışı performansı",
+            "Ağı daha erişilebilir kılmak için genişleticiler ve VLESS desteği",
+            "Bellek ve CPU optimizasyonları",
+            "Genişletilmiş DNS seçenekleri",
+            "SN25/ur.xyz kazanç entegrasyonu",
+            "Geliştirilmiş oturum yönetimi",
+            "Hata düzeltmeleri"
           ]
         }
       ]

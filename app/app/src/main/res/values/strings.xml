@@ -48,6 +48,8 @@
     <string name="api_keys_unnamed">Unnamed key</string>
     <string name="app_excluded_toast">%1$s will bypass the VPN</string>
     <string name="app_included_toast">%1$s will route through the VPN</string>
+    <string name="app_language">Language</string>
+    <string name="app_language_system_default">System default</string>
     <string name="app_name" translatable="false">URnetwork</string>
     <string name="app_pinned_toast">%1$s will use one provider</string>
     <string name="app_split_active_exclude">Exclude active — excluded apps bypass the VPN</string>

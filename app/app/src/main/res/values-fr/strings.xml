@@ -48,6 +48,8 @@
     <string name="api_keys_unnamed">Clé sans nom</string>
     <string name="app_excluded_toast">%1$s contournera le VPN</string>
     <string name="app_included_toast">%1$s passera par le VPN</string>
+    <string name="app_language">Langue</string>
+    <string name="app_language_system_default">Langue du système</string>
     <string name="app_pinned_toast">%1$s utilisera un seul fournisseur</string>
     <string name="app_split_active_exclude">Exclusion active — les applications exclues contournent le VPN</string>
     <string name="app_split_active_include">Inclusion active — seules les applications incluses utilisent le VPN</string>

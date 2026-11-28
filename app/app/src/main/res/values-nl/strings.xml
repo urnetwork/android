@@ -48,6 +48,8 @@
     <string name="api_keys_unnamed">Naamloze sleutel</string>
     <string name="app_excluded_toast">%1$s omzeilt de VPN</string>
     <string name="app_included_toast">%1$s gaat via de VPN</string>
+    <string name="app_language">Taal</string>
+    <string name="app_language_system_default">Systeemtaal</string>
     <string name="app_pinned_toast">%1$s gebruikt één provider</string>
     <string name="app_split_active_exclude">Uitsluiten actief — uitgesloten apps omzeilen de VPN</string>
     <string name="app_split_active_include">Insluiten actief — alleen inbegrepen apps gebruiken de VPN</string>
