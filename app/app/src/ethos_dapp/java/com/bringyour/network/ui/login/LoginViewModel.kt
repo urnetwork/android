@@ -20,7 +20,6 @@ import com.bringyour.network.R
 import com.bringyour.sdk.Api
 import com.bringyour.sdk.DeviceLocal
 import com.bringyour.sdk.WalletAuthArgs
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -200,10 +199,10 @@ class LoginViewModel @Inject constructor(
     val googleLogin: (
         context: Context,
         api: Api?,
-        account: GoogleSignInAccount,
+        token: GoogleIdToken,
         onLogin: (LoginRequest, AuthLoginResult) -> Unit,
         onCreateNetwork: (email: String?, authJwt: String?, userName: String) -> Unit,
-    ) -> Unit = googleLogin@{ ctx, api, account, onLogin, onCreateNetwork ->
+    ) -> Unit = googleLogin@{ ctx, api, token, onLogin, onCreateNetwork ->
 
         if (googleAuthInProgress) {
             return@googleLogin
@@ -222,7 +221,7 @@ class LoginViewModel @Inject constructor(
         setGoogleAuthInProgress(true)
 
         val args = AuthLoginArgs()
-        args.authJwt = account.idToken
+        args.authJwt = token.idToken
         args.authJwtType = "google"
 
         authApi.authLogin(args) { result, err ->
@@ -258,11 +257,11 @@ class LoginViewModel @Inject constructor(
                     } else {
                         setLoginError(null)
 
-                        val authJwt = account.idToken
+                        val authJwt = token.idToken
                         val userName = result.userName
 
                         onCreateNetwork(
-                            account.email,
+                            token.email,
                             authJwt,
                             userName
                         )
