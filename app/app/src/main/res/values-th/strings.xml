@@ -48,6 +48,8 @@
     <string name="api_keys_unnamed">คีย์ที่ไม่มีชื่อ</string>
     <string name="app_excluded_toast">%1$s จะไม่ใช้ VPN</string>
     <string name="app_included_toast">%1$s จะใช้งานผ่าน VPN</string>
+    <string name="app_language">ภาษา</string>
+    <string name="app_language_system_default">ภาษาของระบบ</string>
     <string name="app_pinned_toast">%1$s จะใช้ผู้ให้บริการรายเดียว</string>
     <string name="app_split_active_exclude">โหมดยกเว้นทำงานอยู่ — แอปที่ยกเว้นจะไม่ใช้ VPN</string>
     <string name="app_split_active_include">โหมดรวมไว้ทำงานอยู่ — เฉพาะแอปที่รวมไว้เท่านั้นที่ใช้ VPN</string>

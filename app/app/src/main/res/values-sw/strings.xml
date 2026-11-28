@@ -48,6 +48,8 @@
     <string name="api_keys_unnamed">Ufunguo usio na jina</string>
     <string name="app_excluded_toast">%1$s itaepuka VPN</string>
     <string name="app_included_toast">%1$s itapitia VPN</string>
+    <string name="app_language">Lugha</string>
+    <string name="app_language_system_default">Lugha ya mfumo</string>
     <string name="app_pinned_toast">%1$s itatumia mtoa huduma mmoja</string>
     <string name="app_split_active_exclude">Utengaji unatumika — programu zilizotengwa zinaepuka VPN</string>
     <string name="app_split_active_include">Ujumuishaji unatumika — programu zilizojumuishwa pekee zinatumia VPN</string>

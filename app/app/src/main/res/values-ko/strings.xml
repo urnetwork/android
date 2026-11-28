@@ -48,6 +48,8 @@
     <string name="api_keys_unnamed">이름 없는 키</string>
     <string name="app_excluded_toast">%1$s은(는) VPN을 우회합니다</string>
     <string name="app_included_toast">%1$s은(는) VPN으로 라우팅됩니다</string>
+    <string name="app_language">언어</string>
+    <string name="app_language_system_default">시스템 언어</string>
     <string name="app_pinned_toast">%1$s은(는) 하나의 제공업체만 사용합니다</string>
     <string name="app_split_active_exclude">제외 모드 활성 — 제외된 앱은 VPN 우회</string>
     <string name="app_split_active_include">포함 모드 활성 — 포함된 앱만 VPN 사용</string>
