@@ -869,6 +869,9 @@
     <string name="login_verify_details">हमें बताएं कि आप वास्तव में कौन हैं। अपनी पहचान सत्यापित करने के लिए हमने आपको जो कोड भेजा है उसे दर्ज करें।</string>
     <string name="login_verify_header">आपके पास एक ईमेल है</string>
     <string name="longest_streak">सबसे लंबी स्ट्रीक</string>
+    <string name="low_data_warning_byte_count">केवल %1$s डेटा बचा है।</string>
+    <string name="low_data_warning_percent">आपका केवल %1$d%% डेटा बचा है (%2$s)।</string>
+    <string name="low_data_warning_title">आपका डेटा कम हो रहा है</string>
     <string name="manage_devices">डिवाइस प्रबंधित करें</string>
     <string name="manage_devices_connecting">यह डिवाइस कनेक्ट हो रहा है…</string>
     <string name="manage_devices_help">हर कनेक्ट डिवाइस या प्रॉक्सी आपके प्लान की एक जगह लेता है। जिसका अब इस्तेमाल नहीं करते, उसे हटाकर उसकी जगह खाली करें।</string>
