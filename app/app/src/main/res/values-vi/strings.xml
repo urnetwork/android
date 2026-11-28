@@ -1543,6 +1543,7 @@
     <string name="use_wireguard_socks_https_proxy_note">Mở ur.io trong trình duyệt của bạn. SOCKS và WireGuard cần gói Pro.</string>
     <string name="used_data_key">Đã dùng</string>
     <string name="user_auth_label">Email hoặc số điện thoại</string>
+    <string name="user_auth_phone_format">Hãy kiểm tra định dạng số điện thoại. Dùng mã quốc gia và chỉ chữ số, ví dụ +15551234567.</string>
     <string name="user_auth_placeholder">Nhập số điện thoại hoặc email của bạn</string>
     <string name="uses_ur_protocol">Sử dụng UR Protocol</string>
     <string name="verification_code_sent_2">Đã gửi mã xác minh.</string>

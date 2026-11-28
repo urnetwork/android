@@ -1543,6 +1543,7 @@
     <string name="use_wireguard_socks_https_proxy_note">Открывает ur.io в браузере. Для SOCKS и WireGuard нужен Pro.</string>
     <string name="used_data_key">Использовано</string>
     <string name="user_auth_label">Email или телефон</string>
+    <string name="user_auth_phone_format">Проверьте формат номера телефона. Укажите код страны и только цифры, например +15551234567.</string>
     <string name="user_auth_placeholder">Введите номер телефона или email</string>
     <string name="uses_ur_protocol">Использует UR Protocol</string>
     <string name="verification_code_sent_2">Код подтверждения отправлен.</string>
