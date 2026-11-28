@@ -4,6 +4,8 @@ import android.content.Intent
 import android.net.Uri
 import android.util.Base64
 import android.util.Log
+import androidx.annotation.StringRes
+import com.bringyour.network.R
 import com.bringyour.network.ui.wallet.BittensorProof
 import com.bringyour.network.ui.wallet.BittensorReturnAction
 import com.bringyour.network.ui.wallet.BittensorWallets
@@ -16,6 +18,7 @@ import com.bringyour.network.MainApplication
 import com.bringyour.network.TAG
 import com.bringyour.sdk.Api
 import com.bringyour.sdk.AuthWalletChallengeArgs
+import com.bringyour.sdk.Sdk
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -524,6 +527,167 @@ fun launchAppleOAuth(context: Context, apiUrl: String?, purpose: String = SSO_OA
 /** Google's sign-in in a Custom Tab, for the build without Play services; see [launchSsoOAuth]. */
 fun launchGoogleOAuth(context: Context, apiUrl: String?, purpose: String = SSO_OAUTH_PURPOSE_LOGIN): Boolean =
     launchSsoOAuth(context, SsoProvider.GOOGLE, apiUrl, purpose)
+
+// ── Sign in with Microsoft: the sdk's browser flow in a Custom Tab, every flavor ──
+// No app carries a Microsoft client. The sdk's attempt (MicrosoftSignInAttempt)
+// makes the state and the nonce; the app opens the attempt's start url on the
+// api in a Custom Tab, the api sends the browser on to Microsoft with its own
+// client and hands the identity token back through
+// `ur://oauth/microsoft?state=…&id_token=…` (or `&error=…`), which the
+// LoginActivity receives like the Apple return. The sdk checks a return
+// against its attempt (Finish): the state, the token's nonce and the attempt's
+// age. The attempt is kept in preferences with the flow it was started for (a
+// login or an add), because the browser round trip can outlive this process.
+private const val MICROSOFT_SIGN_IN_PREFS = "microsoft_oauth"
+
+/** The pending Microsoft attempt as kept: the sdk's encoded attempt and the flow it was started for. */
+data class PendingMicrosoftSignIn(
+    // MicrosoftSignInAttempt.Encode
+    val encodedAttempt: String,
+    // SSO_OAUTH_PURPOSE_LOGIN or SSO_OAUTH_PURPOSE_ADD
+    val purpose: String,
+)
+
+/** Where the one pending Microsoft attempt is kept; a new attempt replaces it. */
+interface MicrosoftSignInStore {
+    fun load(): PendingMicrosoftSignIn?
+    fun save(pending: PendingMicrosoftSignIn)
+    fun clear()
+}
+
+/** The pending Microsoft attempt in preferences, as the Apple and Google attempts are kept. */
+fun microsoftSignInStore(context: Context): MicrosoftSignInStore {
+    val prefs = context.getSharedPreferences(MICROSOFT_SIGN_IN_PREFS, Context.MODE_PRIVATE)
+    return object : MicrosoftSignInStore {
+        override fun load(): PendingMicrosoftSignIn? {
+            val encodedAttempt = prefs.getString("attempt", "") ?: ""
+            if (encodedAttempt.isEmpty()) return null
+            return PendingMicrosoftSignIn(
+                encodedAttempt,
+                prefs.getString("purpose", null) ?: SSO_OAUTH_PURPOSE_LOGIN,
+            )
+        }
+
+        override fun save(pending: PendingMicrosoftSignIn) {
+            prefs.edit()
+                .putString("attempt", pending.encodedAttempt)
+                .putString("purpose", pending.purpose)
+                .apply()
+        }
+
+        override fun clear() {
+            prefs.edit().clear().apply()
+        }
+    }
+}
+
+/**
+ * Starts a Microsoft attempt for `purpose` and opens its start url in a Custom
+ * Tab; false when the api origin is unknown, the sdk made no attempt, or no
+ * browser could be opened.
+ */
+fun launchMicrosoftSignIn(context: Context, apiUrl: String?, purpose: String = SSO_OAUTH_PURPOSE_LOGIN): Boolean {
+    if (apiUrl.isNullOrEmpty()) {
+        Log.i("LoginUtils", "microsoft sign-in: no api url for the callback")
+        return false
+    }
+    val attempt = try {
+        Sdk.newMicrosoftSignInAttempt(Sdk.OAuthPlatformAndroid)
+    } catch (e: Exception) {
+        Log.i("LoginUtils", "microsoft sign-in: ${e.message}")
+        return false
+    }
+    val startUrl = attempt.startUrl(apiUrl)
+    val encodedAttempt = attempt.encode()
+    if (startUrl.isEmpty() || encodedAttempt.isEmpty()) {
+        Log.i("LoginUtils", "microsoft sign-in: the attempt has no start url")
+        return false
+    }
+    microsoftSignInStore(context).save(PendingMicrosoftSignIn(encodedAttempt, purpose))
+    return launchInBrowser(context, Uri.parse(startUrl))
+}
+
+/** `ur://oauth/microsoft?…`: the api's return of a Microsoft attempt (Sdk.IsMicrosoftSignInReturnUrl). */
+fun isMicrosoftOAuthReturn(uri: Uri): Boolean = Sdk.isMicrosoftSignInReturnUrl(uri.toString())
+
+/**
+ * The route of a Microsoft return, as [ssoOAuthReturnRoute] routes the Apple
+ * and Google returns: the add sheet when the pending attempt was started to
+ * add and the return names it, else the login, which the sdk lets take only
+ * its own attempt's return.
+ */
+fun microsoftSignInReturnRoute(store: MicrosoftSignInStore, state: String?): SsoOAuthReturnRoute {
+    val pending = store.load() ?: return SsoOAuthReturnRoute.LOGIN
+    if (pending.purpose != SSO_OAUTH_PURPOSE_ADD || state.isNullOrEmpty()) {
+        return SsoOAuthReturnRoute.LOGIN
+    }
+    val attempt = try {
+        Sdk.decodeMicrosoftSignInAttempt(pending.encodedAttempt)
+    } catch (e: Exception) {
+        return SsoOAuthReturnRoute.LOGIN
+    }
+    return if (attempt.state == state) SsoOAuthReturnRoute.ADD_SIGN_IN else SsoOAuthReturnRoute.LOGIN
+}
+
+/** What a Microsoft return comes to for the flow it reached. */
+sealed class MicrosoftSignInOutcome {
+    // the identity token of the flow's attempt, for /auth/login or /auth/add-auth
+    data class SignIn(val idToken: String) : MicrosoftSignInOutcome()
+    // the sign-in ended without a token: the line to show
+    data class Failed(@StringRes val messageRes: Int) : MicrosoftSignInOutcome()
+    // nothing to show: a cancel, or a return that is not this flow's attempt (which keeps waiting)
+    object Ignored : MicrosoftSignInOutcome()
+}
+
+/**
+ * Finishes the pending attempt started for `purpose` with the url the browser
+ * returned (MicrosoftSignInAttempt.Finish). A return that is not the attempt's
+ * leaves it waiting; any other answer ends it. Only the error's code is
+ * looked at (MicrosoftSignInErrorCodeOf): a cancel shows nothing, a server
+ * without Microsoft sign-in says so, anything else is the sign-in error.
+ */
+fun finishMicrosoftSignIn(store: MicrosoftSignInStore, returnUrl: String, purpose: String): MicrosoftSignInOutcome {
+    val pending = store.load()
+    if (pending == null || pending.purpose != purpose) {
+        Log.i("LoginUtils", "microsoft sign-in: no $purpose attempt is waiting")
+        return MicrosoftSignInOutcome.Ignored
+    }
+    val result = try {
+        Sdk.decodeMicrosoftSignInAttempt(pending.encodedAttempt).finish(returnUrl)
+    } catch (e: Exception) {
+        val message = e.message ?: ""
+        val code = Sdk.microsoftSignInErrorCodeOf(message)
+        Log.i("LoginUtils", "microsoft sign-in: $message")
+        if (code == Sdk.MicrosoftSignInErrorCodeNotThisAttempt) {
+            return MicrosoftSignInOutcome.Ignored
+        }
+        store.clear()
+        return when (code) {
+            Sdk.MicrosoftSignInErrorCodeCancelled -> MicrosoftSignInOutcome.Ignored
+            Sdk.MicrosoftSignInErrorCodeNotConfigured -> MicrosoftSignInOutcome.Failed(R.string.microsoft_sign_in_unavailable)
+            else -> MicrosoftSignInOutcome.Failed(R.string.error_signing_in_with_microsoft)
+        }
+    }
+    store.clear()
+    val idToken = result?.idToken ?: ""
+    if (idToken.isEmpty()) {
+        return MicrosoftSignInOutcome.Failed(R.string.error_signing_in_with_microsoft)
+    }
+    return MicrosoftSignInOutcome.SignIn(idToken)
+}
+
+/**
+ * The address a new Microsoft account's create network screen shows (the
+ * server reads the verified token itself): the token's email, or a work or
+ * school account's preferred username when that is its address.
+ */
+fun microsoftSignInEmail(idToken: String): String {
+    val claims = ssoJwtPayload(idToken) ?: return ""
+    val email = claims.optString("email")
+    if (email.isNotEmpty()) return email
+    val preferredUsername = claims.optString("preferred_username")
+    return if (preferredUsername.contains("@")) preferredUsername else ""
+}
 
 /**
  * The display name from the `user` JSON Apple sends with the first

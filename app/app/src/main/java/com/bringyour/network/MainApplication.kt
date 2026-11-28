@@ -39,6 +39,7 @@ import com.bringyour.network.location.MockLocationController
 import com.bringyour.network.location.MockLocationFeeder
 import com.bringyour.network.ui.login.SignInNotices
 import com.bringyour.network.ui.login.SsoProvider
+import com.bringyour.network.ui.login.microsoftSignInStore
 import com.bringyour.network.ui.login.ssoOAuthAttempts
 import com.bringyour.network.ui.login.toVerifySendError
 import com.bringyour.network.ui.shared.models.ProvideNetworkMode
@@ -2609,6 +2610,7 @@ class MainApplication : Application() {
         // starts fresh (owner decision 2026-10-05)
         clearSignedOutNetworkState(
             ssoAttempts = SsoProvider.entries.map { ssoOAuthAttempts(this, it) },
+            microsoftSignIn = microsoftSignInStore(this),
             pendingSolanaPayment = pendingSolanaPaymentStore(this),
             bittensorBridgeReturns = BittensorBridgeReturns.shared,
         )

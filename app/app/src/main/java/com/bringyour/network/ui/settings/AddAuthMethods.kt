@@ -17,14 +17,15 @@ import kotlinx.coroutines.flow.asStateFlow
 
 /**
  * The add sign-in method sheet's options, the same on every app (ur.io
- * AddSignInSheet, apple AddAuthSheetMethods): Apple, Google, a wallet
- * (Solana or Bittensor), and an email or phone with a code. Apple and Google
- * are offered where the flavor's login offers them (BRINGYOUR_BUNDLE_SSO_GOOGLE):
- * every flavor now. The Play services flavors (play, solana_dapp, ethos_dapp)
- * add Google natively; the ungoogle (github) flavor adds Google in the browser
- * (launchGoogleOAuth), and every flavor adds Apple in the browser.
+ * AddSignInSheet, apple AddAuthSheetMethods): Apple, Google, Microsoft, a
+ * wallet (Solana or Bittensor), and an email or phone with a code. Apple,
+ * Google and Microsoft are offered where the flavor's login offers them
+ * (BRINGYOUR_BUNDLE_SSO_GOOGLE): every flavor now. The Play services flavors
+ * (play, solana_dapp, ethos_dapp) add Google natively; the ungoogle (github)
+ * flavor adds Google in the browser (launchGoogleOAuth), and every flavor adds
+ * Apple and Microsoft in the browser (launchMicrosoftSignIn, the sdk's flow).
  */
-enum class AddAuthMethod { APPLE, GOOGLE, WALLET, EMAIL }
+enum class AddAuthMethod { APPLE, GOOGLE, MICROSOFT, WALLET, EMAIL }
 
 /** The wallet option's chains, in the order ur.io lists them. */
 enum class AddAuthWalletChain { SOLANA, BITTENSOR }
@@ -32,7 +33,7 @@ enum class AddAuthWalletChain { SOLANA, BITTENSOR }
 /** The methods the sheet offers, in picker order. */
 fun addAuthMethods(ssoAvailable: Boolean): List<AddAuthMethod> =
     if (ssoAvailable) {
-        listOf(AddAuthMethod.APPLE, AddAuthMethod.GOOGLE, AddAuthMethod.WALLET, AddAuthMethod.EMAIL)
+        listOf(AddAuthMethod.APPLE, AddAuthMethod.GOOGLE, AddAuthMethod.MICROSOFT, AddAuthMethod.WALLET, AddAuthMethod.EMAIL)
     } else {
         listOf(AddAuthMethod.WALLET, AddAuthMethod.EMAIL)
     }
@@ -133,6 +134,28 @@ object SsoAddSignInReturns {
     }
 }
 
+/**
+ * Hands a Microsoft return for an add attempt (`ur://oauth/microsoft`) from
+ * the LoginActivity to the add sheet, like [SsoAddSignInReturns]: the return
+ * url as it came, which the sheet finishes the pending add attempt with
+ * (finishMicrosoftSignIn).
+ */
+object MicrosoftAddSignInReturns {
+    private val _pending = MutableStateFlow<String?>(null)
+    val pending: StateFlow<String?> = _pending.asStateFlow()
+
+    fun deliver(returnUrl: String) {
+        _pending.value = returnUrl
+    }
+
+    /** The waiting return url, taken once. */
+    fun take(): String? {
+        val returnUrl = _pending.value
+        _pending.value = null
+        return returnUrl
+    }
+}
+
 /** A WalletConnect bridge return for the add sheet's Bittensor wallet. */
 sealed class BittensorAddReturn {
     data class Proven(val proof: BittensorProof) : BittensorAddReturn()
@@ -207,6 +230,12 @@ fun forwardSsoAddSignInReturn(
     mainActivity: Class<*>,
 ) {
     SsoAddSignInReturns.deliver(SsoAddReturn(provider, ssoOAuthReturn(uri)))
+    returnToAddSheet(activity, mainActivity)
+}
+
+/** Hands an add attempt's Microsoft return (`ur://oauth/microsoft`, every flavor) to the add sheet. */
+fun forwardMicrosoftAddSignInReturn(activity: android.app.Activity, uri: android.net.Uri, mainActivity: Class<*>) {
+    MicrosoftAddSignInReturns.deliver(uri.toString())
     returnToAddSheet(activity, mainActivity)
 }
 

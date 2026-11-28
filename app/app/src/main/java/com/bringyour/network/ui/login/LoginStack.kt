@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bolt
+import androidx.compose.material.icons.filled.GridView
 import androidx.compose.material.icons.filled.Key
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -185,6 +186,23 @@ fun appleLoginMethod(onClick: () -> Unit, processing: Boolean = false, tile: Boo
         Image(
             painter = painterResource(id = R.drawable.apple_logo),
             contentDescription = null,
+            modifier = Modifier.size(size)
+        )
+    },
+    onClick = onClick,
+    processing = processing,
+)
+
+// the sdk's browser flow on every flavor (launchMicrosoftSignIn)
+@Composable
+fun microsoftLoginMethod(onClick: () -> Unit, processing: Boolean = false, tile: Boolean = false) = LoginMethod(
+    label = stringResource(id = if (tile) R.string.microsoft else R.string.sign_in_with_microsoft),
+    icon = { size ->
+        // the app carries no Microsoft logo: a plain four squares glyph
+        Icon(
+            imageVector = Icons.Filled.GridView,
+            contentDescription = null,
+            tint = Color.Black,
             modifier = Modifier.size(size)
         )
     },

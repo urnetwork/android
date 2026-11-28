@@ -8,14 +8,16 @@ import com.bringyour.network.ui.login.at
 /**
  * How a sign-in method being added proves it belongs to the user.
  * An email or phone with a password is unproven until the user enters the code
- * sent to it. Google (and Apple) SSO tokens are verified by the provider, and a
- * wallet by its signature, so those count as added as soon as AddAuth succeeds.
+ * sent to it. Google (and Apple and Microsoft) SSO tokens are verified by the
+ * provider, and a wallet by its signature, so those count as added as soon as
+ * AddAuth succeeds.
  */
 enum class AddedSignInMethod {
     // email or phone + password
     PASSWORD,
     GOOGLE,
     APPLE,
+    MICROSOFT,
     WALLET;
 
     val needsVerification: Boolean get() = this == PASSWORD
