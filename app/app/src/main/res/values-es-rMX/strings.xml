@@ -1117,6 +1117,17 @@
     <string name="provide_power_mode_always">Seguir proporcionando</string>
     <string name="provide_power_mode_charging_only">Pausar hasta que se cargue</string>
     <string name="provide_power_mode_pause_in_battery_saver">Pausar con Ahorro de batería</string>
+    <string name="provide_share_limit_reached">Se alcanzó el límite mensual. Compartir con otros se reanuda el %1$s.</string>
+    <string name="provide_share_limits">Límites de uso compartido</string>
+    <string name="provide_share_limits_help">Un límite reduce cuánto comparte este dispositivo, lo que puede bajar su clasificación de confiabilidad y sus ganancias.</string>
+    <string name="provide_share_max_speed">Velocidad máxima de uso compartido</string>
+    <string name="provide_share_monthly_limit">Límite mensual de datos</string>
+    <string name="provide_share_no_limit">Sin límite</string>
+    <string name="provide_share_speed_mbps">%1$d Mbps</string>
+    <string name="provide_share_used">%1$s compartidos este mes</string>
+    <string name="provide_share_used_of_limit">%1$s de %2$s compartidos este mes</string>
+    <string name="provided_in_epoch">Proporcionado en la época %1$d: %2$s</string>
+    <string name="provided_not_paid_no_wallet">No pagado: no hay cartera de pago</string>
     <string name="provider_connected_duration_hours">%1$d h %2$d min</string>
     <string name="provider_connected_duration_minutes">%1$d min</string>
     <string name="provider_connected_duration_seconds">%1$d s</string>
@@ -1560,6 +1571,8 @@
     <string name="unlink_referral_network">Desvincular red de referidos</string>
     <string name="unlock_speed">Desbloquearás velocidades aún más rápidas y tendrás prioridad en las nuevas funciones, como medidas anti-censura robustas y control de datos.</string>
     <string name="unlock_supporter_tooltip">Desbloquea velocidades aún más rápidas y obtén acceso prioritario a nuevas funciones.</string>
+    <string name="unpaid_data_provided">Datos no pagados proporcionados</string>
+    <string name="unpaid_data_provided_help">Datos que SN25 contó en la época %1$d pero no pagó, porque no había una cartera de pago conectada. Son datos, no dinero que se te deba.</string>
     <string name="unstable_connection">Conexión inestable</string>
     <string name="unstable_providers_warning">* (puede ser inestable)</string>
     <string name="update">Actualizar</string>

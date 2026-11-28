@@ -1117,6 +1117,17 @@
     <string name="provide_power_mode_always">Weiter bereitstellen</string>
     <string name="provide_power_mode_charging_only">Bis zum Laden pausieren</string>
     <string name="provide_power_mode_pause_in_battery_saver">Im Energiesparmodus pausieren</string>
+    <string name="provide_share_limit_reached">Monatslimit erreicht. Das Teilen mit anderen geht am %1$s weiter.</string>
+    <string name="provide_share_limits">Freigabelimits</string>
+    <string name="provide_share_limits_help">Ein Limit verringert, wie viel dieses Gerät teilt. Das kann seine Zuverlässigkeitsbewertung und seine Einnahmen senken.</string>
+    <string name="provide_share_max_speed">Max. Freigabegeschwindigkeit</string>
+    <string name="provide_share_monthly_limit">Monatliches Datenlimit</string>
+    <string name="provide_share_no_limit">Kein Limit</string>
+    <string name="provide_share_speed_mbps">%1$d Mbit/s</string>
+    <string name="provide_share_used">%1$s diesen Monat geteilt</string>
+    <string name="provide_share_used_of_limit">%1$s von %2$s diesen Monat geteilt</string>
+    <string name="provided_in_epoch">In Epoche %1$d bereitgestellt: %2$s</string>
+    <string name="provided_not_paid_no_wallet">Nicht ausgezahlt: keine Auszahlungs-Wallet</string>
     <string name="provider_connected_duration_hours">%1$d Std. %2$d Min.</string>
     <string name="provider_connected_duration_minutes">%1$d Min.</string>
     <string name="provider_connected_duration_seconds">%1$d Sek.</string>
@@ -1560,6 +1571,8 @@
     <string name="unlink_referral_network">Empfehlungsnetzwerk trennen</string>
     <string name="unlock_speed">Du schaltest noch schnellere Geschwindigkeiten frei und erhältst vorrangigen Zugriff auf neue Funktionen wie robuste Anti-Zensur-Maßnahmen und Datenkontrolle.</string>
     <string name="unlock_supporter_tooltip">Schalte noch schnellere Geschwindigkeiten frei und erhalte vorrangigen Zugriff auf neue Funktionen.</string>
+    <string name="unpaid_data_provided">Unbezahlte Daten bereitgestellt</string>
+    <string name="unpaid_data_provided_help">Daten, die SN25 in Epoche %1$d gezählt, aber nicht bezahlt hat, weil keine Auszahlungs-Wallet verbunden war. Das sind Daten, kein geschuldetes Geld.</string>
     <string name="unstable_connection">Instabile Verbindung</string>
     <string name="unstable_providers_warning">* (kann instabil sein)</string>
     <string name="update">Aktualisieren</string>

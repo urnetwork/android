@@ -1117,6 +1117,17 @@
     <string name="provide_power_mode_always">Sağlamaya devam et</string>
     <string name="provide_power_mode_charging_only">Şarj başlayana kadar duraklat</string>
     <string name="provide_power_mode_pause_in_battery_saver">Pil Tasarrufu açıkken duraklat</string>
+    <string name="provide_share_limit_reached">Aylık sınıra ulaşıldı. Başkalarıyla paylaşım %1$s tarihinde devam edecek.</string>
+    <string name="provide_share_limits">Paylaşım sınırları</string>
+    <string name="provide_share_limits_help">Bir sınır, bu cihazın ne kadar paylaştığını azaltır; bu da güvenilirlik sıralamasını ve kazançlarını düşürebilir.</string>
+    <string name="provide_share_max_speed">En yüksek paylaşım hızı</string>
+    <string name="provide_share_monthly_limit">Aylık veri sınırı</string>
+    <string name="provide_share_no_limit">Sınır yok</string>
+    <string name="provide_share_speed_mbps">%1$d Mbps</string>
+    <string name="provide_share_used">Bu ay %1$s paylaşıldı</string>
+    <string name="provide_share_used_of_limit">Bu ay %2$s sınırın %1$s kadarı paylaşıldı</string>
+    <string name="provided_in_epoch">%1$d döneminde sağlanan: %2$s</string>
+    <string name="provided_not_paid_no_wallet">Ödenmedi: ödeme cüzdanı yok</string>
     <string name="provider_connected_duration_hours">%1$d sa %2$d dk</string>
     <string name="provider_connected_duration_minutes">%1$d dk</string>
     <string name="provider_connected_duration_seconds">%1$d sn</string>
@@ -1560,6 +1571,8 @@
     <string name="unlink_referral_network">Davet ağının bağlantısını kaldır</string>
     <string name="unlock_speed">Daha da yüksek hızların kilidini açacak ve güçlü sansür karşıtı önlemler ile veri kontrolü gibi yeni özelliklere ilk siz erişeceksiniz.</string>
     <string name="unlock_supporter_tooltip">Daha da yüksek hızların kilidini açın ve yeni özelliklere ilk siz erişin.</string>
+    <string name="unpaid_data_provided">Henüz ödenmemiş sağlanan veri</string>
+    <string name="unpaid_data_provided_help">SN25\'in %1$d döneminde saydığı ancak bağlı bir ödeme cüzdanı olmadığı için ödemediği veri. Bu bir veridir, borçlu olunan para değildir.</string>
     <string name="unstable_connection">Kararsız bağlantı</string>
     <string name="unstable_providers_warning">* (kararsız olabilir)</string>
     <string name="update">Güncelle</string>

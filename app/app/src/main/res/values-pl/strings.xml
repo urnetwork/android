@@ -1117,6 +1117,17 @@
     <string name="provide_power_mode_always">Kontynuuj udostępnianie</string>
     <string name="provide_power_mode_charging_only">Wstrzymaj do czasu ładowania</string>
     <string name="provide_power_mode_pause_in_battery_saver">Wstrzymuj w trybie oszczędzania baterii</string>
+    <string name="provide_share_limit_reached">Osiągnięto miesięczny limit. Udostępnianie innym zostanie wznowione %1$s.</string>
+    <string name="provide_share_limits">Limity udostępniania</string>
+    <string name="provide_share_limits_help">Limit zmniejsza to, ile udostępnia to urządzenie, co może obniżyć jego ranking niezawodności i zarobki.</string>
+    <string name="provide_share_max_speed">Maksymalna prędkość udostępniania</string>
+    <string name="provide_share_monthly_limit">Miesięczny limit danych</string>
+    <string name="provide_share_no_limit">Bez limitu</string>
+    <string name="provide_share_speed_mbps">%1$d Mb/s</string>
+    <string name="provide_share_used">W tym miesiącu udostępniono %1$s</string>
+    <string name="provide_share_used_of_limit">W tym miesiącu udostępniono %1$s z %2$s</string>
+    <string name="provided_in_epoch">Udostępniono w epoce %1$d: %2$s</string>
+    <string name="provided_not_paid_no_wallet">Niewypłacone: brak portfela wypłat</string>
     <string name="provider_connected_duration_hours">%1$d godz. %2$d min</string>
     <string name="provider_connected_duration_minutes">%1$d min</string>
     <string name="provider_connected_duration_seconds">%1$d s</string>
@@ -1560,6 +1571,8 @@
     <string name="unlink_referral_network">Odłącz sieć poleceń</string>
     <string name="unlock_speed">Odblokujesz jeszcze szybsze prędkości i pierwszeństwo do nowych funkcji, takich jak solidne środki przeciw cenzurze i kontrola danych.</string>
     <string name="unlock_supporter_tooltip">Odblokuj jeszcze szybsze prędkości i pierwszeństwo do nowych funkcji.</string>
+    <string name="unpaid_data_provided">Dostarczono nieopłacone dane</string>
+    <string name="unpaid_data_provided_help">Dane, które SN25 policzyła w epoce %1$d, ale za nie nie zapłaciła, bo nie podłączono portfela wypłat. To są dane, a nie należne pieniądze.</string>
     <string name="unstable_connection">Niestabilne połączenie</string>
     <string name="unstable_providers_warning">* (może być niestabilny)</string>
     <string name="update">Aktualizuj</string>

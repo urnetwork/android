@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material3.Icon
@@ -18,6 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -27,15 +29,18 @@ import com.bringyour.network.R
 import com.bringyour.network.ui.Route
 import com.bringyour.network.ui.components.ProvideModeRow
 import com.bringyour.network.ui.shared.models.ProvideControlMode
+import com.bringyour.network.ui.theme.Amber
 import com.bringyour.network.ui.theme.Red
 import com.bringyour.network.ui.theme.MutedCoral
 import com.bringyour.network.ui.theme.TextFaint
 import com.bringyour.network.ui.theme.TextMuted
+import com.bringyour.network.utils.formatByteCountCompact
 
 /**
  * Provider statistics: local and blocked traffic relayed for remote
- * clients, and how often the network offered this device to clients. Tap to
- * open the provider contract details.
+ * clients, how often the network offered this device to clients, and the data
+ * SN25 counted in its newest settled epoch. Tap to open the provider contract
+ * details.
  */
 @Composable
 fun ProviderStatsSection(
@@ -113,6 +118,10 @@ fun ProviderStatsSection(
             }
         }
 
+        // the newest settled SN25 epoch: this device's data, then the
+        // network's unpaid data. Nothing before the server has read an epoch
+        ProviderProvided(status = providerStatusViewModel.status)
+
         Spacer(modifier = Modifier.height(8.dp))
 
         if (throughputViewModel.providerStatsEnabled) {
@@ -168,5 +177,63 @@ fun ProviderStatsSection(
 
         }
 
+    }
+}
+
+/**
+ * The data SN25 counted in its newest settled epoch: this device's, with a
+ * line when it went unpaid for want of a payout wallet, and the network's
+ * unpaid data provided, which is data, never money owed. Each shows only once
+ * the server has read an epoch for it.
+ */
+@Composable
+private fun ProviderProvided(status: ProviderStatusUi) {
+    if (0L < status.providedEpoch) {
+        Text(
+            stringResource(
+                id = R.string.provided_in_epoch,
+                status.providedEpoch,
+                formatByteCountCompact(status.providedByteCount)
+            ),
+            style = MaterialTheme.typography.bodySmall,
+            color = TextMuted,
+            modifier = Modifier.padding(top = 4.dp)
+        )
+        if (status.providedUnpaid) {
+            Text(
+                stringResource(id = R.string.provided_not_paid_no_wallet),
+                style = MaterialTheme.typography.bodySmall,
+                color = Amber
+            )
+        }
+    }
+
+    if (0L < status.unpaidEpoch) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 8.dp, bottom = 4.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                stringResource(id = R.string.unpaid_data_provided),
+                style = MaterialTheme.typography.bodyMedium,
+                color = Color.White,
+                modifier = Modifier.weight(1f)
+            )
+
+            Spacer(modifier = Modifier.width(12.dp))
+
+            Text(
+                formatByteCountCompact(status.unpaidByteCount),
+                style = MaterialTheme.typography.bodyMedium,
+                color = TextMuted
+            )
+        }
+        Text(
+            stringResource(id = R.string.unpaid_data_provided_help, status.unpaidEpoch),
+            style = MaterialTheme.typography.bodySmall,
+            color = TextMuted
+        )
     }
 }

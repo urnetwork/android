@@ -1117,6 +1117,17 @@
     <string name="provide_power_mode_always">继续提供</string>
     <string name="provide_power_mode_charging_only">暂停直到充电</string>
     <string name="provide_power_mode_pause_in_battery_saver">省电模式下暂停</string>
+    <string name="provide_share_limit_reached">已达到每月上限。与他人共享将于 %1$s 恢复。</string>
+    <string name="provide_share_limits">共享限制</string>
+    <string name="provide_share_limits_help">设置上限会减少此设备的共享量，可能降低其可靠性排名和收益。</string>
+    <string name="provide_share_max_speed">最大共享速度</string>
+    <string name="provide_share_monthly_limit">每月数据上限</string>
+    <string name="provide_share_no_limit">无限制</string>
+    <string name="provide_share_speed_mbps">%1$d Mbps</string>
+    <string name="provide_share_used">本月已共享 %1$s</string>
+    <string name="provide_share_used_of_limit">本月已共享 %1$s，上限 %2$s</string>
+    <string name="provided_in_epoch">周期 %1$d 提供：%2$s</string>
+    <string name="provided_not_paid_no_wallet">未支付：没有支付钱包</string>
     <string name="provider_connected_duration_hours">%1$d小时%2$d分钟</string>
     <string name="provider_connected_duration_minutes">%1$d分钟</string>
     <string name="provider_connected_duration_seconds">%1$d秒</string>
@@ -1560,6 +1571,8 @@
     <string name="unlink_referral_network">解除推荐网络关联</string>
     <string name="unlock_speed">您将解锁更快的速度，并首先获得强大的反审查措施和数据控制等新功能。</string>
     <string name="unlock_supporter_tooltip">解锁更快的速度并首先获得新功能。</string>
+    <string name="unpaid_data_provided">提供了未付费数据</string>
+    <string name="unpaid_data_provided_help">SN25 在周期 %1$d 中计入但未支付的数据，因为当时没有连接支付钱包。这是数据，不是应付的钱款。</string>
     <string name="unstable_connection">连接不稳定</string>
     <string name="unstable_providers_warning">*（可能不稳定）</string>
     <string name="update">更新</string>

@@ -1117,6 +1117,17 @@
     <string name="provide_power_mode_always">ادامهٔ ارائه</string>
     <string name="provide_power_mode_charging_only">توقف موقت تا زمان شارژ</string>
     <string name="provide_power_mode_pause_in_battery_saver">توقف موقت در حالت بهینه‌ساز باتری</string>
+    <string name="provide_share_limit_reached">به سقف ماهانه رسیدید. اشتراک‌گذاری با دیگران در %1$s از سر گرفته می‌شود.</string>
+    <string name="provide_share_limits">محدودیت‌های اشتراک‌گذاری</string>
+    <string name="provide_share_limits_help">محدودیت، میزان اشتراک‌گذاری این دستگاه را کم می‌کند و ممکن است رتبهٔ پایداری و درآمد آن را پایین بیاورد.</string>
+    <string name="provide_share_max_speed">حداکثر سرعت اشتراک‌گذاری</string>
+    <string name="provide_share_monthly_limit">سقف دادهٔ ماهانه</string>
+    <string name="provide_share_no_limit">بدون محدودیت</string>
+    <string name="provide_share_speed_mbps">%1$d مگابیت بر ثانیه</string>
+    <string name="provide_share_used">%1$s در این ماه به اشتراک گذاشته شد</string>
+    <string name="provide_share_used_of_limit">%1$s از %2$s در این ماه به اشتراک گذاشته شد</string>
+    <string name="provided_in_epoch">ارائه‌شده در دورهٔ %1$d: %2$s</string>
+    <string name="provided_not_paid_no_wallet">پرداخت نشد: کیف پول دریافت پرداخت ندارید</string>
     <string name="provider_connected_duration_hours">%1$d ساعت %2$d دقیقه</string>
     <string name="provider_connected_duration_minutes">%1$d دقیقه</string>
     <string name="provider_connected_duration_seconds">%1$d ثانیه</string>
@@ -1560,6 +1571,8 @@
     <string name="unlink_referral_network">لغو پیوند شبکهٔ دعوت‌کننده</string>
     <string name="unlock_speed">به سرعت‌های باز هم بالاتر دسترسی پیدا می‌کنید و پیش از همه از ویژگی‌های جدیدی مانند ابزارهای قدرتمند ضدسانسور و کنترل داده بهره‌مند می‌شوید.</string>
     <string name="unlock_supporter_tooltip">به سرعت‌های باز هم بالاتر و دسترسی زودتر از همه به ویژگی‌های جدید دست پیدا کنید.</string>
+    <string name="unpaid_data_provided">دادهٔ ارائه‌شدهٔ پرداخت‌نشده</string>
+    <string name="unpaid_data_provided_help">داده‌ای که SN25 در دورهٔ %1$d حساب کرد اما چون کیف پول دریافت پرداختی متصل نبود، بابت آن پرداختی نکرد. این داده است، نه پولی که به شما بدهکارند.</string>
     <string name="unstable_connection">اتصال ناپایدار</string>
     <string name="unstable_providers_warning">* (ممکن است ناپایدار باشد)</string>
     <string name="update">به‌روزرسانی</string>

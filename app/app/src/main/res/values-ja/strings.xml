@@ -1117,6 +1117,17 @@
     <string name="provide_power_mode_always">提供を続ける</string>
     <string name="provide_power_mode_charging_only">充電するまで一時停止</string>
     <string name="provide_power_mode_pause_in_battery_saver">バッテリー セーバー中は一時停止</string>
+    <string name="provide_share_limit_reached">月間上限に達しました。他のユーザーとの共有は%1$sに再開します。</string>
+    <string name="provide_share_limits">共有の上限</string>
+    <string name="provide_share_limits_help">上限を設けるとこのデバイスの共有量が減り、信頼性のランキングと収益が下がることがあります。</string>
+    <string name="provide_share_max_speed">最大共有速度</string>
+    <string name="provide_share_monthly_limit">月間データ上限</string>
+    <string name="provide_share_no_limit">上限なし</string>
+    <string name="provide_share_speed_mbps">%1$d Mbps</string>
+    <string name="provide_share_used">今月の共有量: %1$s</string>
+    <string name="provide_share_used_of_limit">今月の共有量: %1$s / %2$s</string>
+    <string name="provided_in_epoch">エポック %1$d の提供量: %2$s</string>
+    <string name="provided_not_paid_no_wallet">未払い: 支払いウォレットがありません</string>
     <string name="provider_connected_duration_hours">%1$d時間%2$d分</string>
     <string name="provider_connected_duration_minutes">%1$d分</string>
     <string name="provider_connected_duration_seconds">%1$d秒</string>
@@ -1560,6 +1571,8 @@
     <string name="unlink_referral_network">紹介ネットワークのリンクを解除する</string>
     <string name="unlock_speed">さらに高速な速度と、強力な検閲対策や制御データなどの新機能への優先アクセスがロック解除されます。</string>
     <string name="unlock_supporter_tooltip">さらに高速な速度と新機能への優先アクセスをアンロックします。</string>
+    <string name="unpaid_data_provided">未払いのデータが提供されました</string>
+    <string name="unpaid_data_provided_help">SN25 がエポック %1$d で計上したものの、支払いウォレットが接続されていなかったため支払われなかったデータです。これはデータであり、未払いのお金ではありません。</string>
     <string name="unstable_connection">不安定な接続</string>
     <string name="unstable_providers_warning">*（不安定な場合があります）</string>
     <string name="update">更新</string>
