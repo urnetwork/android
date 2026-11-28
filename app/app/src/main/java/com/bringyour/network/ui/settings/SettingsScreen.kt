@@ -35,6 +35,7 @@ import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.automirrored.outlined.Outbound
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
@@ -188,6 +189,7 @@ fun SettingsScreen(
     shownPlan: ShownPlan = if (isPro) ShownPlan.Pro else ShownPlan.Free,
     retryPlan: () -> Unit = {},
     mockLocationViewModel: MockLocationViewModel = hiltViewModel(),
+    logExportViewModel: LogExportViewModel = hiltViewModel(),
 ) {
     val lifecycleOwner = LocalLifecycleOwner.current
     val mockLocationState by mockLocationViewModel.state.collectAsState()
@@ -344,6 +346,13 @@ fun SettingsScreen(
         }
     }
 
+    // Export Logs hands its zip to the share sheet, and says when there is
+    // none (LogExport.kt)
+    LogExportEffects(
+        logExportViewModel = logExportViewModel,
+        snackbarHostState = snackbarHostState,
+    )
+
     SettingsScreen(
         navController,
         clientId = accountViewModel.clientId,
@@ -424,6 +433,13 @@ fun SettingsScreen(
             runCatching {
                 context.startActivity(Intent(Intent.ACTION_VIEW, proxiesUrl.toUri()))
             }
+        },
+        exportingLogs = logExportViewModel.exporting,
+        onExportLogs = {
+            logExportViewModel.export(context.cacheDir, System.currentTimeMillis())
+        },
+        onViewLogs = {
+            navController.navigate(Route.LogViewer)
         },
     )
 
@@ -688,6 +704,11 @@ private fun SettingsScreen(
     onOpenMockLocationGuide: () -> Unit = {},
     showCloudProxyEntry: Boolean = false,
     onCloudProxyClick: () -> Unit = {},
+    // Export Logs and View Logs, under Developer (LogExport.kt,
+    // LogViewerScreen.kt)
+    exportingLogs: Boolean = false,
+    onExportLogs: () -> Unit = {},
+    onViewLogs: () -> Unit = {},
 ) {
 
     val context = LocalContext.current
@@ -1591,6 +1612,51 @@ private fun SettingsScreen(
             * Version
              */
             URTextInputLabel(stringResource(id = R.string.developer))
+
+            // the logs "send feedback with logs" uploads, to the share sheet
+            // (LogExport.kt), and their last lines (LogViewerScreen.kt)
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable(enabled = !exportingLogs, onClick = onExportLogs)
+                    .padding(vertical = 6.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    stringResource(id = R.string.export_logs),
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+                if (exportingLogs) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(24.dp),
+                        strokeWidth = 2.dp,
+                        color = TextMuted,
+                    )
+                } else {
+                    Icon(
+                        Icons.Filled.Share,
+                        contentDescription = null,
+                    )
+                }
+            }
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable(onClick = onViewLogs)
+                    .padding(vertical = 6.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    stringResource(id = R.string.view_logs),
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+                Icon(
+                    Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                    contentDescription = null,
+                )
+            }
 
             Row(
                 modifier = Modifier

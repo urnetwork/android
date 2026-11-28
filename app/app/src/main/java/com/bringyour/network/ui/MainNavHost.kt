@@ -120,6 +120,7 @@ import com.bringyour.network.ui.account.AccountScreen
 import com.bringyour.network.ui.settings.DeveloperScreen
 import com.bringyour.network.ui.settings.LicenseDetailScreen
 import com.bringyour.network.ui.settings.LicensesScreen
+import com.bringyour.network.ui.settings.LogViewerScreen
 import com.bringyour.network.ui.account.ExtendersScreen
 import com.bringyour.network.ui.account.ImportExtendersScreen
 import com.bringyour.network.ui.account.ProviderIdentitiesScreen
@@ -1880,6 +1881,15 @@ fun MainNavContent(
                     popExitTransition = NavigationAnimations.popExitTransition()
                 ) {
                     DeveloperScreen(navController = navController)
+                }
+
+                composable<Route.LogViewer>(
+                    enterTransition = NavigationAnimations.enterTransition(),
+                    exitTransition = NavigationAnimations.exitTransition(),
+                    popEnterTransition = NavigationAnimations.popEnterTransition(),
+                    popExitTransition = NavigationAnimations.popExitTransition()
+                ) {
+                    LogViewerScreen(navController = navController)
                 }
 
                 composable<Route.Licenses>(
