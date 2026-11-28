@@ -48,6 +48,8 @@
     <string name="api_keys_unnamed">Klíč bez názvu</string>
     <string name="app_excluded_toast">%1$s bude obcházet VPN</string>
     <string name="app_included_toast">%1$s bude používat VPN</string>
+    <string name="app_language">Jazyk</string>
+    <string name="app_language_system_default">Jazyk systému</string>
     <string name="app_pinned_toast">%1$s bude používat jednoho poskytovatele</string>
     <string name="app_split_active_exclude">Vyloučení aktivní — vyloučené aplikace obcházejí VPN</string>
     <string name="app_split_active_include">Zahrnutí aktivní — VPN používají jen zahrnuté aplikace</string>

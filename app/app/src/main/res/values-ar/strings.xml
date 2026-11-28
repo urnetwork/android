@@ -48,6 +48,8 @@
     <string name="api_keys_unnamed">مفتاح بلا اسم</string>
     <string name="app_excluded_toast">سيتجاوز %1$s شبكة VPN</string>
     <string name="app_included_toast">سيتم توجيه %1$s عبر VPN</string>
+    <string name="app_language">اللغة</string>
+    <string name="app_language_system_default">لغة النظام</string>
     <string name="app_pinned_toast">سيستخدم %1$s مزودًا واحدًا</string>
     <string name="app_split_active_exclude">الاستثناء نشط — التطبيقات المستثناة تتجاوز VPN</string>
     <string name="app_split_active_include">التضمين نشط — التطبيقات المشمولة فقط تستخدم VPN</string>

@@ -48,6 +48,8 @@
     <string name="api_keys_unnamed">未命名密钥</string>
     <string name="app_excluded_toast">%1$s 将绕过 VPN</string>
     <string name="app_included_toast">%1$s 将通过 VPN 路由</string>
+    <string name="app_language">语言</string>
+    <string name="app_language_system_default">系统语言</string>
     <string name="app_pinned_toast">%1$s 将使用单个提供商</string>
     <string name="app_split_active_exclude">排除模式已启用 — 已排除的应用绕过 VPN</string>
     <string name="app_split_active_include">包含模式已启用 — 只有已包含的应用使用 VPN</string>

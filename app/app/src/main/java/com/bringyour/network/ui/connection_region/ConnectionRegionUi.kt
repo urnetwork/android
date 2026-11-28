@@ -72,9 +72,18 @@ object SdkConnectionRegionCatalog : ConnectionRegionCatalog {
         sdkStringListToList(Sdk.ingressPlainDnsServers(countryCode))
 }
 
-fun localizedCountryName(countryCode: String): String {
-    val name = Locale("", countryCode.uppercase()).getDisplayCountry(Locale.getDefault())
-    return name.ifEmpty { countryCode.uppercase() }
+fun localizedCountryName(countryCode: String): String =
+    platformCountryName(countryCode).ifEmpty { countryCode.uppercase() }
+
+/**
+ * The platform's name for a country code in the app's language, or "" when it
+ * has none (the platform then echoes the code). The connection region screens
+ * and the location list name a country with this one lookup.
+ */
+fun platformCountryName(countryCode: String): String {
+    val code = countryCode.uppercase()
+    val name = Locale("", code).getDisplayCountry(Locale.getDefault())
+    return if (name.equals(code, ignoreCase = true)) "" else name
 }
 
 @HiltViewModel

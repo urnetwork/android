@@ -967,6 +967,11 @@ private fun SettingsScreen(
                 )
             }
 
+            /**
+             * The app's language (Android 13 and later)
+             */
+            AppLanguageSettingsRow()
+
             Spacer(modifier = Modifier.height(32.dp))
 
             /**
