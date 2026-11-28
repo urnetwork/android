@@ -871,6 +871,9 @@
     <string name="login_verify_details">به ما بگویید واقعاً چه کسی هستید. کدی را که برایتان\nفرستادیم وارد کنید تا هویتتان تأیید شود.</string>
     <string name="login_verify_header">ایمیل جدیدی دارید</string>
     <string name="longest_streak">طولانی‌ترین زنجیره</string>
+    <string name="low_data_warning_byte_count">فقط %1$s داده باقی مانده است.</string>
+    <string name="low_data_warning_percent">فقط %1$d%% از دادهٔ شما باقی مانده است (%2$s).</string>
+    <string name="low_data_warning_title">دادهٔ شما رو به اتمام است</string>
     <string name="manage_devices">مدیریت دستگاه‌ها</string>
     <string name="manage_devices_connecting">در حال اتصال این دستگاه…</string>
     <string name="manage_devices_help">هر دستگاه یا پروکسی متصل، یکی از جایگاه‌های طرح شما را اشغال می‌کند. موردی را که دیگر از آن استفاده نمی‌کنید حذف کنید تا جایگاهش آزاد شود.</string>

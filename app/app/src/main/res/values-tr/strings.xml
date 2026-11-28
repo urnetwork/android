@@ -871,6 +871,9 @@
     <string name="login_verify_details">Bize gerçekten siz olduğunuzu gösterin. Kimliğinizi doğrulamak için\nsize gönderdiğimiz kodu girin.</string>
     <string name="login_verify_header">Yeni bir e-postanız var</string>
     <string name="longest_streak">En uzun seri</string>
+    <string name="low_data_warning_byte_count">Yalnızca %1$s veri kaldı.</string>
+    <string name="low_data_warning_percent">Verinizin yalnızca %%%1$d kadarı kaldı (%2$s).</string>
+    <string name="low_data_warning_title">Veriniz azalıyor</string>
     <string name="manage_devices">Cihazları yönet</string>
     <string name="manage_devices_connecting">Bu cihaz bağlanıyor…</string>
     <string name="manage_devices_help">Bağlı her cihaz veya proxy, planınızdaki bir yeri kullanır. Artık kullanmadığınız birini kaldırarak yerini boşaltın.</string>
