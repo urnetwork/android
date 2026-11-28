@@ -741,6 +741,12 @@
     <string name="got_it">了解</string>
     <string name="guest">ゲスト</string>
     <string name="guest_mode">ゲストモード</string>
+    <string name="help_extender_body">エクステンダーは、URnetwork への接続がブロックされている場所で、その接続を中継します。通信は暗号化されたまま通過するため、エクステンダーが内容を読むことはできません。</string>
+    <string name="help_extender_title">エクステンダーとは？</string>
+    <string name="help_pending_body">「保留中」は、開いている接続のために確保されたデータです。使われなかった分は、接続が閉じると利用可能なデータに戻ります。</string>
+    <string name="help_pending_title">「保留中」とは？</string>
+    <string name="help_provide_body">提供とは、インターネット回線の一部を他の URnetwork メンバーと共有することです。メンバーの通信があなたの回線から外部へ出ることがあります。提供者は共有したデータに応じて報酬を得られます。提供モードでこのデバイスが提供するタイミングを設定でき、いつでも停止できます。</string>
+    <string name="help_provide_title">提供とは？</string>
     <string name="how_are_we_doing">私たちの調子はどうですか？</string>
     <string name="i_ve_saved_my_seedphrase">シードフレーズを保存しました</string>
     <string name="identity_key_hash_copied">プロバイダーIDキーのハッシュをコピーしました</string>

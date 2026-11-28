@@ -741,6 +741,12 @@
     <string name="got_it">Verstanden</string>
     <string name="guest">Gast</string>
     <string name="guest_mode">Gastmodus</string>
+    <string name="help_extender_body">Ein Extender leitet deine Verbindung zu URnetwork weiter, wo sie blockiert ist. Dein Datenverkehr bleibt dabei verschlüsselt, und der Extender kann ihn nicht lesen.</string>
+    <string name="help_extender_title">Was ist ein Extender?</string>
+    <string name="help_pending_body">„Ausstehend“ sind Daten, die für deine offenen Verbindungen reserviert sind. Was sie nicht verbrauchen, geht beim Schließen zurück zu deinen verfügbaren Daten.</string>
+    <string name="help_pending_title">Was bedeutet „Ausstehend“?</string>
+    <string name="help_provide_body">Beim Bereitstellen teilst du einen Teil deines Internets mit anderen URnetwork-Mitgliedern: Ihr Datenverkehr kann über deine Verbindung ins Internet gehen. Anbieter können für die geteilten Daten Belohnungen verdienen. Der Bereitstellungsmodus legt fest, wann dieses Gerät bereitstellt, und du kannst jederzeit aufhören.</string>
+    <string name="help_provide_title">Was ist Bereitstellen?</string>
     <string name="how_are_we_doing">Wie geht es uns?</string>
     <string name="i_ve_saved_my_seedphrase">Ich habe meine Seedphrase gespeichert</string>
     <string name="identity_key_hash_copied">Hash des Anbieter-Identitätsschlüssels kopiert</string>

@@ -741,6 +741,12 @@
     <string name="got_it">Κατάλαβα</string>
     <string name="guest">Επισκέπτης</string>
     <string name="guest_mode">Λειτουργία επισκέπτη</string>
+    <string name="help_extender_body">Ένας επεκτατής αναμεταδίδει τη σύνδεσή σας προς το URnetwork όπου αυτή είναι αποκλεισμένη. Η κίνησή σας παραμένει κρυπτογραφημένη μέσα από αυτόν και ο επεκτατής δεν μπορεί να τη διαβάσει.</string>
+    <string name="help_extender_title">Τι είναι ένας επεκτατής;</string>
+    <string name="help_pending_body">«Σε εκκρεμότητα» είναι δεδομένα δεσμευμένα για τις ανοιχτές συνδέσεις σας. Ό,τι δεν χρησιμοποιήσουν επιστρέφει στα διαθέσιμα δεδομένα σας όταν κλείσουν.</string>
+    <string name="help_pending_title">Τι σημαίνει «Σε εκκρεμότητα»;</string>
+    <string name="help_provide_body">Η παροχή μοιράζεται μέρος του διαδικτύου σας με άλλα μέλη του URnetwork: η κίνησή τους μπορεί να βγαίνει μέσω της σύνδεσής σας. Οι πάροχοι μπορούν να κερδίζουν ανταμοιβές για τα δεδομένα που μοιράζονται. Η λειτουργία παροχής ορίζει πότε παρέχει αυτή η συσκευή και μπορείτε να σταματήσετε οποιαδήποτε στιγμή.</string>
+    <string name="help_provide_title">Τι είναι η παροχή;</string>
     <string name="how_are_we_doing">Πώς τα πάμε;</string>
     <string name="i_ve_saved_my_seedphrase">Αποθήκευσα τη φράση ανάκτησης</string>
     <string name="identity_key_hash_copied">Το hash του κλειδιού ταυτότητας παρόχου αντιγράφηκε</string>

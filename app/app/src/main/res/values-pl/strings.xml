@@ -741,6 +741,12 @@
     <string name="got_it">Rozumiem</string>
     <string name="guest">Gość</string>
     <string name="guest_mode">Tryb gościa</string>
+    <string name="help_extender_body">Extender przekazuje twoje połączenie z URnetwork tam, gdzie jest ono blokowane. Twój ruch pozostaje przy tym zaszyfrowany i extender nie może go odczytać.</string>
+    <string name="help_extender_title">Czym jest extender?</string>
+    <string name="help_pending_body">„Oczekujące” to dane zarezerwowane dla twoich otwartych połączeń. To, czego nie wykorzystają, wraca do dostępnych danych po ich zamknięciu.</string>
+    <string name="help_pending_title">Co oznacza „Oczekujące”?</string>
+    <string name="help_provide_body">Udostępnianie dzieli część twojego internetu z innymi członkami URnetwork: ich ruch może wychodzić przez twoje połączenie. Dostawcy mogą zdobywać nagrody za udostępniane dane. Tryb udostępniania określa, kiedy to urządzenie udostępnia, a przestać możesz w każdej chwili.</string>
+    <string name="help_provide_title">Czym jest udostępnianie?</string>
     <string name="how_are_we_doing">Jak nam idzie?</string>
     <string name="i_ve_saved_my_seedphrase">Mam zapisaną frazę seed</string>
     <string name="identity_key_hash_copied">Skopiowano skrót klucza tożsamości dostawcy</string>

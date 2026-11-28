@@ -52,6 +52,8 @@ fun ProvideControlModePicker(
                 style = MaterialTheme.typography.bodyMedium,
                 color = Color.White
             )
+
+            HelpButton(HelpTopic.Provide)
         }
 
         ProvideControlMode.entries.forEach { mode ->

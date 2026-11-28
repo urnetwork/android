@@ -741,6 +741,12 @@
     <string name="got_it">知道了</string>
     <string name="guest">访客</string>
     <string name="guest_mode">访客模式</string>
+    <string name="help_extender_body">在连接 URnetwork 受阻的地方，扩展器会中继你的连接。你的流量经过它时依然是加密的，扩展器无法读取。</string>
+    <string name="help_extender_title">什么是扩展器？</string>
+    <string name="help_pending_body">“待处理”是为你打开的连接预留的数据。连接关闭时，未用完的部分会退回你的可用数据。</string>
+    <string name="help_pending_title">“待处理”是什么意思？</string>
+    <string name="help_provide_body">提供是指与其他 URnetwork 成员共享你的一部分网络：他们的流量可以通过你的连接出去。提供者可以凭共享的数据获得奖励。提供模式决定此设备何时提供，你可以随时停止。</string>
+    <string name="help_provide_title">什么是提供？</string>
     <string name="how_are_we_doing">我们做得怎么样？</string>
     <string name="i_ve_saved_my_seedphrase">我已保存助记词</string>
     <string name="identity_key_hash_copied">提供商身份密钥哈希已复制</string>

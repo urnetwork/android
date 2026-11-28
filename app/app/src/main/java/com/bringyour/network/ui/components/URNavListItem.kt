@@ -18,10 +18,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
 import com.bringyour.network.R
 import com.bringyour.network.ui.theme.MainTintedBackgroundBase
@@ -37,6 +39,8 @@ fun URNavListItem(
     actionIcon: ImageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
     // the row whose screen is open beside the list (a list-detail layout)
     selected: Boolean = false,
+    // a '?' beside the text that explains its term; it opens no screen
+    helpTopic: HelpTopic? = null,
 ) {
     Row(
         modifier = Modifier.fillMaxWidth()
@@ -63,6 +67,21 @@ fun URNavListItem(
             )
             Spacer(modifier = Modifier.width(16.dp))
             Text(text)
+            if (helpTopic != null) {
+                // it takes the icon's 24 dp of height and reaches into the
+                // row's padding, still inside the row, so this row is as tall
+                // as the others and its 48 dp are its own
+                HelpButton(
+                    helpTopic,
+                    modifier = Modifier.layout { measurable, constraints ->
+                        val placeable = measurable.measure(constraints.copy(minHeight = 0, maxHeight = Constraints.Infinity))
+                        val height = 24.dp.roundToPx()
+                        layout(placeable.width, height) {
+                            placeable.place(0, (height - placeable.height) / 2)
+                        }
+                    }
+                )
+            }
         }
         Icon(
             imageVector = actionIcon,

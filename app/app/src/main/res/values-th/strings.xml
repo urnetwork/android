@@ -741,6 +741,12 @@
     <string name="got_it">รับทราบ</string>
     <string name="guest">ผู้เยี่ยมชม</string>
     <string name="guest_mode">โหมดผู้เยี่ยมชม</string>
+    <string name="help_extender_body">ตัวขยายส่งต่อการเชื่อมต่อของคุณไปยัง URnetwork ในที่ที่ถูกบล็อก ทราฟฟิกของคุณยังคงเข้ารหัสขณะผ่านตัวขยาย และตัวขยายอ่านไม่ได้</string>
+    <string name="help_extender_title">ตัวขยายคืออะไร</string>
+    <string name="help_pending_body">“รอดำเนินการ” คือข้อมูลที่กันไว้สำหรับการเชื่อมต่อที่เปิดอยู่ ส่วนที่ไม่ได้ใช้จะกลับไปเป็นข้อมูลที่ใช้ได้เมื่อการเชื่อมต่อปิดลง</string>
+    <string name="help_pending_title">“รอดำเนินการ” หมายถึงอะไร</string>
+    <string name="help_provide_body">การให้บริการคือการแบ่งปันอินเทอร์เน็ตบางส่วนของคุณกับสมาชิก URnetwork คนอื่น ทราฟฟิกของพวกเขาอาจออกผ่านการเชื่อมต่อของคุณ ผู้ให้บริการสามารถรับรางวัลจากข้อมูลที่แบ่งปัน โหมดการให้บริการกำหนดว่าอุปกรณ์นี้จะให้บริการเมื่อใด และคุณหยุดได้ทุกเมื่อ</string>
+    <string name="help_provide_title">การให้บริการคืออะไร</string>
     <string name="how_are_we_doing">ใช้งานเป็นยังไงบ้าง?</string>
     <string name="i_ve_saved_my_seedphrase">ฉันบันทึกวลีกู้คืนแล้ว</string>
     <string name="identity_key_hash_copied">คัดลอกแฮชของคีย์ระบุตัวตนผู้ให้บริการแล้ว</string>

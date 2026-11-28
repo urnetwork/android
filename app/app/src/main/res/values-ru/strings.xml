@@ -741,6 +741,12 @@
     <string name="got_it">Понятно</string>
     <string name="guest">Гость</string>
     <string name="guest_mode">Гостевой режим</string>
+    <string name="help_extender_body">Экстендер передаёт ваше подключение к URnetwork там, где оно заблокировано. Ваш трафик остаётся зашифрованным, и экстендер не может его прочитать.</string>
+    <string name="help_extender_title">Что такое экстендер?</string>
+    <string name="help_pending_body">«В ожидании» — это данные, зарезервированные для ваших открытых подключений. То, что они не используют, вернётся в доступные данные, когда подключения закроются.</string>
+    <string name="help_pending_title">Что значит «В ожидании»?</string>
+    <string name="help_provide_body">Предоставление делится частью вашего интернета с другими участниками URnetwork: их трафик может выходить через ваше подключение. Поставщики могут получать вознаграждения за переданные данные. Режим предоставления определяет, когда это устройство предоставляет доступ, и вы можете остановиться в любой момент.</string>
+    <string name="help_provide_title">Что такое предоставление?</string>
     <string name="how_are_we_doing">Как мы справляемся?</string>
     <string name="i_ve_saved_my_seedphrase">Я сохранил сид-фразу</string>
     <string name="identity_key_hash_copied">Хеш ключа идентификации провайдера скопирован</string>

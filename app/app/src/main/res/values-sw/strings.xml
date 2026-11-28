@@ -741,6 +741,12 @@
     <string name="got_it">Nimeelewa</string>
     <string name="guest">Mgeni</string>
     <string name="guest_mode">Hali ya mgeni</string>
+    <string name="help_extender_body">Kipanuzi hupitisha muunganisho wako kwa URnetwork mahali ambapo umezuiwa. Trafiki yako inabaki imesimbwa kupitia kipanuzi, na kipanuzi hakiwezi kuisoma.</string>
+    <string name="help_extender_title">Kipanuzi ni nini?</string>
+    <string name="help_pending_body">“Inasubiri” ni data iliyotengwa kwa miunganisho yako iliyo wazi. Isiyotumika hurudi kwenye data yako inayopatikana miunganisho inapofungwa.</string>
+    <string name="help_pending_title">“Inasubiri” inamaanisha nini?</string>
+    <string name="help_provide_body">Utoaji hushiriki sehemu ya intaneti yako na wanachama wengine wa URnetwork: trafiki yao inaweza kutoka kupitia muunganisho wako. Watoaji wanaweza kupata zawadi kwa data wanayoshiriki. Hali ya utoaji huamua lini kifaa hiki kinatoa, na unaweza kuacha wakati wowote.</string>
+    <string name="help_provide_title">Utoaji ni nini?</string>
     <string name="how_are_we_doing">Tunaendaje?</string>
     <string name="i_ve_saved_my_seedphrase">Nimehifadhi kifungu changu cha seed</string>
     <string name="identity_key_hash_copied">Heshi ya ufunguo wa utambulisho wa mtoa huduma imenakiliwa</string>

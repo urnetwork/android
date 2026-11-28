@@ -748,6 +748,12 @@
     <string name="got_it">Got it</string>
     <string name="guest">Guest</string>
     <string name="guest_mode">Guest Mode</string>
+    <string name="help_extender_body">An extender relays your connection to URnetwork where it is blocked. Your traffic stays encrypted through it, and the extender can\'t read it.</string>
+    <string name="help_extender_title">What is an extender?</string>
+    <string name="help_pending_body">Pending is data set aside for your open connections. What they don\'t use goes back to your available data when they close.</string>
+    <string name="help_pending_title">What is Pending?</string>
+    <string name="help_provide_body">Providing shares some of your internet with other URnetwork members: their traffic can go out through your connection. Providers can earn rewards for the data they share. Provide mode sets when this device provides, and you can stop at any time.</string>
+    <string name="help_provide_title">What is providing?</string>
     <string name="how_are_we_doing">How are we doing?</string>
     <string name="i_ve_saved_my_seedphrase">I\'ve Saved My Seedphrase</string>
     <string name="identity_key_hash_copied">Provider identity key hash copied</string>
