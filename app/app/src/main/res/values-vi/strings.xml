@@ -1059,6 +1059,17 @@
     <string name="provide_power_mode_always">Tiếp tục cung cấp</string>
     <string name="provide_power_mode_charging_only">Tạm dừng cho đến khi sạc</string>
     <string name="provide_power_mode_pause_in_battery_saver">Tạm dừng khi bật Trình tiết kiệm pin</string>
+    <string name="provide_share_limit_reached">Đã đạt giới hạn hằng tháng. Việc chia sẻ với người khác sẽ tiếp tục vào %1$s.</string>
+    <string name="provide_share_limits">Giới hạn chia sẻ</string>
+    <string name="provide_share_limits_help">Giới hạn làm giảm lượng chia sẻ của thiết bị này, điều này có thể làm giảm thứ hạng độ tin cậy và thu nhập của thiết bị.</string>
+    <string name="provide_share_max_speed">Tốc độ chia sẻ tối đa</string>
+    <string name="provide_share_monthly_limit">Giới hạn dữ liệu hằng tháng</string>
+    <string name="provide_share_no_limit">Không giới hạn</string>
+    <string name="provide_share_speed_mbps">%1$d Mbps</string>
+    <string name="provide_share_used">Đã chia sẻ %1$s trong tháng này</string>
+    <string name="provide_share_used_of_limit">Đã chia sẻ %1$s trên %2$s trong tháng này</string>
+    <string name="provided_in_epoch">Đã cung cấp trong epoch %1$d: %2$s</string>
+    <string name="provided_not_paid_no_wallet">Chưa thanh toán: không có ví thanh toán</string>
     <string name="provider_connected_duration_hours">%1$d giờ %2$d phút</string>
     <string name="provider_connected_duration_minutes">%1$d phút</string>
     <string name="provider_connected_duration_seconds">%1$d giây</string>
@@ -1497,6 +1508,8 @@
     <string name="unlink_referral_network">Hủy liên kết mạng giới thiệu</string>
     <string name="unlock_speed">Bạn sẽ mở khóa tốc độ nhanh hơn và được ưu tiên trải nghiệm các tính năng mới như biện pháp chống kiểm duyệt mạnh mẽ và kiểm soát dữ liệu.</string>
     <string name="unlock_supporter_tooltip">Mở khóa tốc độ nhanh hơn và ưu tiên trải nghiệm các tính năng mới.</string>
+    <string name="unpaid_data_provided">Dữ liệu đã cung cấp chưa thanh toán</string>
+    <string name="unpaid_data_provided_help">Dữ liệu SN25 đã tính trong epoch %1$d nhưng không trả, vì chưa kết nối ví thanh toán. Đây là dữ liệu, không phải tiền còn nợ.</string>
     <string name="unstable_connection">Kết nối không ổn định</string>
     <string name="unstable_providers_warning">* (có thể không ổn định)</string>
     <string name="update">Cập nhật</string>

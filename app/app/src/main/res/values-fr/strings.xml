@@ -1059,6 +1059,17 @@
     <string name="provide_power_mode_always">Continuer à fournir</string>
     <string name="provide_power_mode_charging_only">Mettre en pause jusqu\'à la recharge</string>
     <string name="provide_power_mode_pause_in_battery_saver">Mettre en pause avec l\'Économiseur de batterie</string>
+    <string name="provide_share_limit_reached">Limite mensuelle atteinte. Le partage avec les autres reprend le %1$s.</string>
+    <string name="provide_share_limits">Limites de partage</string>
+    <string name="provide_share_limits_help">Une limite réduit ce que cet appareil partage, ce qui peut faire baisser son classement de fiabilité et ses gains.</string>
+    <string name="provide_share_max_speed">Vitesse de partage maximale</string>
+    <string name="provide_share_monthly_limit">Limite de données mensuelle</string>
+    <string name="provide_share_no_limit">Aucune limite</string>
+    <string name="provide_share_speed_mbps">%1$d Mbit/s</string>
+    <string name="provide_share_used">%1$s partagés ce mois-ci</string>
+    <string name="provide_share_used_of_limit">%1$s sur %2$s partagés ce mois-ci</string>
+    <string name="provided_in_epoch">Fourni pendant l’époque %1$d : %2$s</string>
+    <string name="provided_not_paid_no_wallet">Non payé : aucun portefeuille de paiement</string>
     <string name="provider_connected_duration_hours">%1$d h %2$d min</string>
     <string name="provider_connected_duration_minutes">%1$d min</string>
     <string name="provider_connected_duration_seconds">%1$d s</string>
@@ -1497,6 +1508,8 @@
     <string name="unlink_referral_network">Dissocier le réseau de parrainage</string>
     <string name="unlock_speed">Vous débloquerez des vitesses encore plus rapides et vous aurez la priorité sur les nouvelles fonctionnalités telles que des mesures anti-censure robustes et le contrôle des données.</string>
     <string name="unlock_supporter_tooltip">Débloquez des vitesses encore plus rapides et soyez le premier à accéder aux nouvelles fonctionnalités.</string>
+    <string name="unpaid_data_provided">Données non payées fournies</string>
+    <string name="unpaid_data_provided_help">Données que SN25 a comptées pendant l’époque %1$d sans les payer, faute de portefeuille de paiement connecté. Il s’agit de données, pas d’argent dû.</string>
     <string name="unstable_connection">Connexion instable</string>
     <string name="unstable_providers_warning">* (peut être instable)</string>
     <string name="update">Mettre à jour</string>

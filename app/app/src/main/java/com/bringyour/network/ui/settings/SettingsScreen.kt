@@ -147,6 +147,9 @@ import com.bringyour.network.TAG
 import com.bringyour.network.ui.components.ProvideCellPicker
 import com.bringyour.network.ui.components.ProvideControlModePicker
 import com.bringyour.network.ui.components.ProvidePowerModePicker
+import com.bringyour.network.ui.components.ProvideShareLimitsPicker
+import com.bringyour.sdk.ProvideShareLimits
+import com.bringyour.sdk.ProvideShareStatus
 import com.bringyour.network.location.MockLocationStatus
 import com.bringyour.network.location.MockLocationTarget
 import com.bringyour.network.ui.connect.providerlocations.MockLocationViewModel
@@ -384,6 +387,9 @@ fun SettingsScreen(
         toggleProvideCell = settingsViewModel.toggleAllowProvideOnCell,
         providePowerMode = settingsViewModel.providePowerMode.collectAsState().value,
         setProvidePowerMode = settingsViewModel.setProvidePowerMode,
+        provideShareLimits = settingsViewModel.provideShareLimits.collectAsState().value,
+        provideShareStatus = settingsViewModel.provideShareStatus.collectAsState().value,
+        setProvideShareLimits = settingsViewModel.setProvideShareLimits,
         authCodeCreate = settingsViewModel.authCodeCreate,
         authCode = authCode,
         isCreatingAuthCode = settingsViewModel.isCreatingAuthCode.collectAsState().value,
@@ -663,6 +669,10 @@ private fun SettingsScreen(
     toggleProvideCell: () -> Unit,
     providePowerMode: ProvidePowerMode = ProvidePowerMode.DEFAULT,
     setProvidePowerMode: (ProvidePowerMode) -> Unit = {},
+    // the sharing limits and this month's sharing (ProvideShareLimitsPicker)
+    provideShareLimits: ProvideShareLimits? = null,
+    provideShareStatus: ProvideShareStatus? = null,
+    setProvideShareLimits: (maxBytesPerSecond: Long, monthlyByteCount: Long) -> Unit = { _, _ -> },
     authCodeCreate: () -> Unit,
     authCode: String?,
     isCreatingAuthCode: Boolean,
@@ -1089,6 +1099,19 @@ private fun SettingsScreen(
             ProvidePowerModePicker(
                 providePowerMode = providePowerMode,
                 setProvidePowerMode = setProvidePowerMode
+            )
+
+            // the radio buttons' 48 dp touch targets fill the rest
+            Spacer(modifier = Modifier.height(4.dp))
+
+            /**
+             * Sharing limits: the most this device shares with others, by
+             * speed and by month, and this month's sharing
+             */
+            ProvideShareLimitsPicker(
+                provideShareLimits = provideShareLimits,
+                provideShareStatus = provideShareStatus,
+                setProvideShareLimits = setProvideShareLimits
             )
 
             // the switch's 48 dp touch target fills the rest

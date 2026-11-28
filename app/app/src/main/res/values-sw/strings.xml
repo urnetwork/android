@@ -1059,6 +1059,17 @@
     <string name="provide_power_mode_always">Endelea kutoa</string>
     <string name="provide_power_mode_charging_only">Sitisha hadi ichaji</string>
     <string name="provide_power_mode_pause_in_battery_saver">Sitisha wakati Kiokoa Betri kimewashwa</string>
+    <string name="provide_share_limit_reached">Kikomo cha mwezi kimefikiwa. Kushiriki na wengine kutaendelea %1$s.</string>
+    <string name="provide_share_limits">Vikomo vya kushiriki</string>
+    <string name="provide_share_limits_help">Kikomo hupunguza kiasi ambacho kifaa hiki kinashiriki, jambo ambalo linaweza kushusha nafasi yake ya kutegemewa na mapato yake.</string>
+    <string name="provide_share_max_speed">Kasi ya juu ya kushiriki</string>
+    <string name="provide_share_monthly_limit">Kikomo cha data cha kila mwezi</string>
+    <string name="provide_share_no_limit">Hakuna kikomo</string>
+    <string name="provide_share_speed_mbps">%1$d Mbps</string>
+    <string name="provide_share_used">%1$s zimeshirikiwa mwezi huu</string>
+    <string name="provide_share_used_of_limit">%1$s kati ya %2$s zimeshirikiwa mwezi huu</string>
+    <string name="provided_in_epoch">Iliyotolewa katika kipindi %1$d: %2$s</string>
+    <string name="provided_not_paid_no_wallet">Haijalipwa: hakuna pochi ya malipo</string>
     <string name="provider_connected_duration_hours">saa %1$d dak %2$d</string>
     <string name="provider_connected_duration_minutes">dak %1$d</string>
     <string name="provider_connected_duration_seconds">sek %1$d</string>
@@ -1497,6 +1508,8 @@
     <string name="unlink_referral_network">Ondoa kiungo cha mtandao wa rufaa</string>
     <string name="unlock_speed">Utafungua kasi ya haraka zaidi, na dibs za kwanza kwenye vipengele vipya kama vile hatua thabiti za kupambana na udhibiti na udhibiti wa data.</string>
     <string name="unlock_supporter_tooltip">Fungua kasi ya haraka zaidi na upate vipengele vipya kwanza.</string>
+    <string name="unpaid_data_provided">Data isiyolipiwa imetolewa</string>
+    <string name="unpaid_data_provided_help">Data ambayo SN25 ilihesabu katika kipindi %1$d lakini haikulipa, kwa sababu hakuna pochi ya malipo iliyounganishwa. Hii ni data, si pesa unazodai.</string>
     <string name="unstable_connection">Muunganisho usio thabiti</string>
     <string name="unstable_providers_warning">* (huenda isiwe imara)</string>
     <string name="update">Sasisha</string>

@@ -1059,6 +1059,17 @@
     <string name="provide_power_mode_always">Продолжать предоставление</string>
     <string name="provide_power_mode_charging_only">Приостанавливать до зарядки</string>
     <string name="provide_power_mode_pause_in_battery_saver">Приостанавливать в режиме энергосбережения</string>
+    <string name="provide_share_limit_reached">Месячный лимит достигнут. Предоставление другим возобновится %1$s.</string>
+    <string name="provide_share_limits">Лимиты предоставления</string>
+    <string name="provide_share_limits_help">Ограничение уменьшает объём предоставления этого устройства, что может снизить его рейтинг надёжности и заработок.</string>
+    <string name="provide_share_max_speed">Макс. скорость предоставления</string>
+    <string name="provide_share_monthly_limit">Месячный лимит данных</string>
+    <string name="provide_share_no_limit">Без ограничений</string>
+    <string name="provide_share_speed_mbps">%1$d Мбит/с</string>
+    <string name="provide_share_used">Предоставлено за этот месяц: %1$s</string>
+    <string name="provide_share_used_of_limit">Предоставлено за этот месяц: %1$s из %2$s</string>
+    <string name="provided_in_epoch">Предоставлено в эпоху %1$d: %2$s</string>
+    <string name="provided_not_paid_no_wallet">Не выплачено: нет кошелька для выплат</string>
     <string name="provider_connected_duration_hours">%1$d ч %2$d мин</string>
     <string name="provider_connected_duration_minutes">%1$d мин</string>
     <string name="provider_connected_duration_seconds">%1$d с</string>
@@ -1497,6 +1508,8 @@
     <string name="unlink_referral_network">Отвязать реферальную сеть</string>
     <string name="unlock_speed">Вы получите доступ к еще более высоким скоростям и первым получите новые функции, такие как надежные меры по борьбе с цензурой и контроль данных.</string>
     <string name="unlock_supporter_tooltip">Получите доступ к еще более высоким скоростям и первым пробуйте новые функции.</string>
+    <string name="unpaid_data_provided">Предоставленные неоплаченные данные</string>
+    <string name="unpaid_data_provided_help">Данные, которые SN25 учла в эпоху %1$d, но не оплатила, потому что не был подключен кошелек для выплат. Это данные, а не причитающиеся деньги.</string>
     <string name="unstable_connection">Нестабильное подключение</string>
     <string name="unstable_providers_warning">* (может быть нестабильным)</string>
     <string name="update">Обновить</string>

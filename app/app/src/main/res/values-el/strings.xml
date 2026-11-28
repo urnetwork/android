@@ -1059,6 +1059,17 @@
     <string name="provide_power_mode_always">Συνέχιση παροχής</string>
     <string name="provide_power_mode_charging_only">Παύση μέχρι τη φόρτιση</string>
     <string name="provide_power_mode_pause_in_battery_saver">Παύση στην Εξοικονόμηση μπαταρίας</string>
+    <string name="provide_share_limit_reached">Συμπληρώθηκε το μηνιαίο όριο. Η κοινή χρήση με άλλους συνεχίζεται στις %1$s.</string>
+    <string name="provide_share_limits">Όρια κοινής χρήσης</string>
+    <string name="provide_share_limits_help">Ένα όριο μειώνει πόσα μοιράζεται αυτή η συσκευή, κάτι που μπορεί να μειώσει την κατάταξη αξιοπιστίας της και τα κέρδη της.</string>
+    <string name="provide_share_max_speed">Μέγιστη ταχύτητα κοινής χρήσης</string>
+    <string name="provide_share_monthly_limit">Μηνιαίο όριο δεδομένων</string>
+    <string name="provide_share_no_limit">Χωρίς όριο</string>
+    <string name="provide_share_speed_mbps">%1$d Mbps</string>
+    <string name="provide_share_used">Μοιράστηκαν %1$s αυτόν τον μήνα</string>
+    <string name="provide_share_used_of_limit">Μοιράστηκαν %1$s από %2$s αυτόν τον μήνα</string>
+    <string name="provided_in_epoch">Παρασχέθηκαν στην εποχή %1$d: %2$s</string>
+    <string name="provided_not_paid_no_wallet">Δεν πληρώθηκε: δεν υπάρχει πορτοφόλι πληρωμής</string>
     <string name="provider_connected_duration_hours">%1$d ώ. %2$d λ.</string>
     <string name="provider_connected_duration_minutes">%1$d λ.</string>
     <string name="provider_connected_duration_seconds">%1$d δ.</string>
@@ -1497,6 +1508,8 @@
     <string name="unlink_referral_network">Αποσύνδεση δικτύου παραπομπών</string>
     <string name="unlock_speed">Θα ξεκλειδώσετε ακόμη πιο γρήγορες ταχύτητες και θα έχετε προτεραιότητα σε νέες δυνατότητες όπως ισχυρά μέτρα κατά της λογοκρισίας και έλεγχο δεδομένων.</string>
     <string name="unlock_supporter_tooltip">Ξεκλειδώστε ακόμη μεγαλύτερες ταχύτητες και αποκτήστε πρώιμη πρόσβαση σε νέες δυνατότητες.</string>
+    <string name="unpaid_data_provided">Παρέχονται μη πληρωμένα δεδομένα</string>
+    <string name="unpaid_data_provided_help">Δεδομένα που μέτρησε το SN25 στην εποχή %1$d αλλά δεν πλήρωσε, επειδή δεν είχε συνδεθεί πορτοφόλι πληρωμής. Πρόκειται για δεδομένα, όχι για οφειλόμενα χρήματα.</string>
     <string name="unstable_connection">Ασταθής σύνδεση</string>
     <string name="unstable_providers_warning">* (μπορεί να είναι ασταθές)</string>
     <string name="update">Ενημέρωση</string>

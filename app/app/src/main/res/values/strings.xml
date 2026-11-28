@@ -1074,6 +1074,17 @@
     <string name="provide_power_mode_always">Keep providing</string>
     <string name="provide_power_mode_charging_only">Pause until charging</string>
     <string name="provide_power_mode_pause_in_battery_saver">Pause in Battery Saver</string>
+    <string name="provide_share_limit_reached">Monthly limit reached. Sharing with others resumes %1$s.</string>
+    <string name="provide_share_limits">Sharing limits</string>
+    <string name="provide_share_limits_help">A limit lowers how much this device shares, which can lower its reliability ranking and its earnings.</string>
+    <string name="provide_share_max_speed">Max sharing speed</string>
+    <string name="provide_share_monthly_limit">Monthly data limit</string>
+    <string name="provide_share_no_limit">No limit</string>
+    <string name="provide_share_speed_mbps">%1$d Mbps</string>
+    <string name="provide_share_used">%1$s shared this month</string>
+    <string name="provide_share_used_of_limit">%1$s of %2$s shared this month</string>
+    <string name="provided_in_epoch">Provided in epoch %1$d: %2$s</string>
+    <string name="provided_not_paid_no_wallet">Not paid: no payout wallet</string>
     <string name="provider_connected_duration_hours">%1$dh %2$dm</string>
     <string name="provider_connected_duration_minutes">%1$dm</string>
     <string name="provider_connected_duration_seconds">%1$ds</string>
@@ -1516,6 +1527,8 @@
     <string name="unlink_referral_network">Unlink referral network</string>
     <string name="unlock_speed">You’ll unlock even faster speeds, and first dibs on new features like robust anti-censorship measures and data control.</string>
     <string name="unlock_supporter_tooltip">Unlock even faster speeds and first dibs on new features.</string>
+    <string name="unpaid_data_provided">Unpaid data provided</string>
+    <string name="unpaid_data_provided_help">Data SN25 counted in epoch %1$d but did not pay, because no payout wallet was connected. This is data, not money owed.</string>
     <string name="unstable_connection">Unstable connection</string>
     <string name="unstable_providers_warning">* (may be unstable)</string>
     <string name="update">Update</string>

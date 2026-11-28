@@ -1059,6 +1059,17 @@
     <string name="provide_power_mode_always">प्रदान करना जारी रखें</string>
     <string name="provide_power_mode_charging_only">चार्ज होने तक रोकें</string>
     <string name="provide_power_mode_pause_in_battery_saver">बैटरी सेवर में रोकें</string>
+    <string name="provide_share_limit_reached">मासिक सीमा पूरी हो गई। दूसरों के साथ साझा करना %1$s को फिर शुरू होगा।</string>
+    <string name="provide_share_limits">साझा करने की सीमाएँ</string>
+    <string name="provide_share_limits_help">सीमा इस डिवाइस के साझा करने की मात्रा घटाती है, जिससे इसकी विश्वसनीयता रैंकिंग और कमाई कम हो सकती है।</string>
+    <string name="provide_share_max_speed">अधिकतम साझा करने की गति</string>
+    <string name="provide_share_monthly_limit">मासिक डेटा सीमा</string>
+    <string name="provide_share_no_limit">कोई सीमा नहीं</string>
+    <string name="provide_share_speed_mbps">%1$d Mbps</string>
+    <string name="provide_share_used">इस महीने %1$s साझा किया गया</string>
+    <string name="provide_share_used_of_limit">इस महीने %2$s में से %1$s साझा किया गया</string>
+    <string name="provided_in_epoch">एपोक %1$d में प्रदान किया गया: %2$s</string>
+    <string name="provided_not_paid_no_wallet">भुगतान नहीं हुआ: कोई पेआउट वॉलेट नहीं</string>
     <string name="provider_connected_duration_hours">%1$d घं. %2$d मि.</string>
     <string name="provider_connected_duration_minutes">%1$d मि.</string>
     <string name="provider_connected_duration_seconds">%1$d से.</string>
@@ -1497,6 +1508,8 @@
     <string name="unlink_referral_network">रेफ़रल नेटवर्क को अनलिंक करें</string>
     <string name="unlock_speed">आप और भी तेज़ गति अनलॉक करेंगे और आपको मजबूत सेंसरशिप विरोधी उपायों और डेटा नियंत्रण जैसी नई सुविधाओं पर प्राथमिकता मिलेगी।</string>
     <string name="unlock_supporter_tooltip">और भी तेज़ गति अनलॉक करें और नई सुविधाओं तक जल्दी पहुंच प्राप्त करें।</string>
+    <string name="unpaid_data_provided">बिना भुगतान का डेटा प्रदान किया गया</string>
+    <string name="unpaid_data_provided_help">वह डेटा जिसे SN25 ने एपोक %1$d में गिना लेकिन भुगतान नहीं किया, क्योंकि कोई पेआउट वॉलेट कनेक्ट नहीं था। यह डेटा है, बकाया पैसा नहीं।</string>
     <string name="unstable_connection">अस्थिर कनेक्शन</string>
     <string name="unstable_providers_warning">* (अस्थिर हो सकता है)</string>
     <string name="update">अपडेट करें</string>

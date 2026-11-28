@@ -1059,6 +1059,17 @@
     <string name="provide_power_mode_always">계속 제공</string>
     <string name="provide_power_mode_charging_only">충전할 때까지 일시 중지</string>
     <string name="provide_power_mode_pause_in_battery_saver">절전 모드에서 일시 중지</string>
+    <string name="provide_share_limit_reached">월간 한도에 도달했습니다. 다른 사람과의 공유는 %1$s에 다시 시작됩니다.</string>
+    <string name="provide_share_limits">공유 한도</string>
+    <string name="provide_share_limits_help">한도를 설정하면 이 기기의 공유량이 줄어 안정성 순위와 수익이 낮아질 수 있습니다.</string>
+    <string name="provide_share_max_speed">최대 공유 속도</string>
+    <string name="provide_share_monthly_limit">월간 데이터 한도</string>
+    <string name="provide_share_no_limit">제한 없음</string>
+    <string name="provide_share_speed_mbps">%1$dMbps</string>
+    <string name="provide_share_used">이번 달 %1$s 공유됨</string>
+    <string name="provide_share_used_of_limit">이번 달 %2$s 중 %1$s 공유됨</string>
+    <string name="provided_in_epoch">에포크 %1$d 제공량: %2$s</string>
+    <string name="provided_not_paid_no_wallet">미지급: 지급 지갑 없음</string>
     <string name="provider_connected_duration_hours">%1$d시간 %2$d분</string>
     <string name="provider_connected_duration_minutes">%1$d분</string>
     <string name="provider_connected_duration_seconds">%1$d초</string>
@@ -1497,6 +1508,8 @@
     <string name="unlink_referral_network">추천 네트워크 연결 해제</string>
     <string name="unlock_speed">더 빠른 속도와 강력한 검열 방지 조치, 데이터 제어와 같은 새로운 기능에 대한 우선권을 얻을 수 있습니다.</string>
     <string name="unlock_supporter_tooltip">더 빠른 속도와 새로운 기능에 대한 우선 접근권을 얻으세요.</string>
+    <string name="unpaid_data_provided">미지급 데이터가 제공됨</string>
+    <string name="unpaid_data_provided_help">SN25가 에포크 %1$d에 집계했지만 지급 지갑이 연결되어 있지 않아 지급하지 않은 데이터입니다. 이는 데이터이며, 받을 돈이 아닙니다.</string>
     <string name="unstable_connection">불안정한 연결</string>
     <string name="unstable_providers_warning">* (불안정할 수 있음)</string>
     <string name="update">업데이트</string>

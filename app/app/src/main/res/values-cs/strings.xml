@@ -1059,6 +1059,17 @@
     <string name="provide_power_mode_always">Pokračovat v poskytování</string>
     <string name="provide_power_mode_charging_only">Pozastavit do nabíjení</string>
     <string name="provide_power_mode_pause_in_battery_saver">Pozastavit při spořiči baterie</string>
+    <string name="provide_share_limit_reached">Měsíční limit byl dosažen. Sdílení s ostatními bude obnoveno %1$s.</string>
+    <string name="provide_share_limits">Limity sdílení</string>
+    <string name="provide_share_limits_help">Limit snižuje, kolik toto zařízení sdílí, což může snížit jeho hodnocení spolehlivosti a výdělky.</string>
+    <string name="provide_share_max_speed">Maximální rychlost sdílení</string>
+    <string name="provide_share_monthly_limit">Měsíční limit dat</string>
+    <string name="provide_share_no_limit">Bez limitu</string>
+    <string name="provide_share_speed_mbps">%1$d Mb/s</string>
+    <string name="provide_share_used">Tento měsíc sdíleno %1$s</string>
+    <string name="provide_share_used_of_limit">Tento měsíc sdíleno %1$s z %2$s</string>
+    <string name="provided_in_epoch">Poskytnuto v epoše %1$d: %2$s</string>
+    <string name="provided_not_paid_no_wallet">Nevyplaceno: žádná výplatní peněženka</string>
     <string name="provider_connected_duration_hours">%1$d h %2$d min</string>
     <string name="provider_connected_duration_minutes">%1$d min</string>
     <string name="provider_connected_duration_seconds">%1$d s</string>
@@ -1497,6 +1508,8 @@
     <string name="unlink_referral_network">Odpojení od referenční sítě</string>
     <string name="unlock_speed">Získáte ještě vyšší rychlosti a jako první budete mít přístup k novým funkcím, jako jsou robustní opatření proti cenzuře a kontrola dat.</string>
     <string name="unlock_supporter_tooltip">Odemkněte si ještě vyšší rychlost a přednostní právo na nové funkce.</string>
+    <string name="unpaid_data_provided">Poskytnuté neplacené data</string>
+    <string name="unpaid_data_provided_help">Data, která SN25 započítala v epoše %1$d, ale nevyplatila, protože nebyla připojena výplatní peněženka. Jde o data, ne o dlužné peníze.</string>
     <string name="unstable_connection">Nestabilní připojení</string>
     <string name="unstable_providers_warning">* (může být nestabilní)</string>
     <string name="update">Aktualizace</string>

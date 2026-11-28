@@ -1059,6 +1059,17 @@
     <string name="provide_power_mode_always">متابعة التوفير</string>
     <string name="provide_power_mode_charging_only">إيقاف مؤقت حتى الشحن</string>
     <string name="provide_power_mode_pause_in_battery_saver">إيقاف مؤقت عند تفعيل توفير شحن البطارية</string>
+    <string name="provide_share_limit_reached">تم بلوغ الحد الشهري. تُستأنف المشاركة مع الآخرين في %1$s.</string>
+    <string name="provide_share_limits">حدود المشاركة</string>
+    <string name="provide_share_limits_help">يقلل الحد من مقدار ما يشاركه هذا الجهاز، وقد يخفض ذلك ترتيب موثوقيته وأرباحه.</string>
+    <string name="provide_share_max_speed">أقصى سرعة للمشاركة</string>
+    <string name="provide_share_monthly_limit">حد البيانات الشهري</string>
+    <string name="provide_share_no_limit">بلا حد</string>
+    <string name="provide_share_speed_mbps">%1$d ميغابت/ث</string>
+    <string name="provide_share_used">تمت مشاركة %1$s هذا الشهر</string>
+    <string name="provide_share_used_of_limit">تمت مشاركة %1$s من %2$s هذا الشهر</string>
+    <string name="provided_in_epoch">المقدَّم في الفترة %1$d: %2$s</string>
+    <string name="provided_not_paid_no_wallet">لم يُدفع: لا توجد محفظة دفع</string>
     <string name="provider_connected_duration_hours">%1$d س %2$d د</string>
     <string name="provider_connected_duration_minutes">%1$d د</string>
     <string name="provider_connected_duration_seconds">%1$d ث</string>
@@ -1497,6 +1508,8 @@
     <string name="unlink_referral_network">فك ارتباط شبكة الإحالة</string>
     <string name="unlock_speed">ستفتح سرعات أعلى وستحصل على أولوية الوصول إلى ميزات جديدة مثل تدابير قوية لمكافحة الرقابة والتحكم في البيانات.</string>
     <string name="unlock_supporter_tooltip">افتح سرعات أعلى واحصل على أولوية الوصول إلى الميزات الجديدة.</string>
+    <string name="unpaid_data_provided">تم توفير بيانات غير مدفوعة</string>
+    <string name="unpaid_data_provided_help">بيانات احتسبتها SN25 في الفترة %1$d لكنها لم تدفع مقابلها، لأنه لم تكن هناك محفظة دفع متصلة. هذه بيانات، وليست أموالًا مستحقة.</string>
     <string name="unstable_connection">اتصال غير مستقر</string>
     <string name="unstable_providers_warning">* (قد يكون غير مستقر)</string>
     <string name="update">تحديث</string>

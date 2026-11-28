@@ -34,6 +34,8 @@ import com.bringyour.sdk.AddAuthArgs
 import com.bringyour.sdk.AuthCodeCreateArgs
 import com.bringyour.sdk.DeviceLocal
 import com.bringyour.sdk.GenerateSeedphraseArgs
+import com.bringyour.sdk.ProvideShareLimits
+import com.bringyour.sdk.ProvideShareStatus
 import com.bringyour.sdk.ReferralNetwork
 import com.bringyour.sdk.RegenerateSeedphraseArgs
 import com.bringyour.sdk.RemoveAuthArgs
@@ -207,6 +209,25 @@ class SettingsViewModel @Inject constructor(
 
     val setProvidePowerMode: (ProvidePowerMode) -> Unit = { mode ->
         providePauseState.setPowerMode(mode)
+    }
+
+    /**
+     * The owner's limits on how much this device shares, which the device
+     * keeps and applies (the sdk's provide share limits), 0 for no limit; and
+     * this month's sharing against them. Null until the device is read
+     */
+    private val _provideShareLimits = MutableStateFlow<ProvideShareLimits?>(null)
+    val provideShareLimits: StateFlow<ProvideShareLimits?> = _provideShareLimits
+
+    private val _provideShareStatus = MutableStateFlow<ProvideShareStatus?>(null)
+    val provideShareStatus: StateFlow<ProvideShareStatus?> = _provideShareStatus
+
+    val setProvideShareLimits: (maxBytesPerSecond: Long, monthlyByteCount: Long) -> Unit = { maxBytesPerSecond, monthlyByteCount ->
+        deviceManager.device?.let { device ->
+            device.provideShareLimits = Sdk.newProvideShareLimits(maxBytesPerSecond, monthlyByteCount)
+            // the limits in force, as the device applied them
+            _provideShareLimits.value = device.provideShareLimits
+        }
     }
 
     private val _isCreatingAuthCode = MutableStateFlow(false)
@@ -602,6 +623,27 @@ class SettingsViewModel @Inject constructor(
         sub?.let { subs.add(it) }
     }
 
+    // the limits and this month's sharing as they stand when the controller
+    // opens, then each change the device reports: at most about once a second
+    // while it shares, and at once when the limits, the month or the budget
+    // state change
+    private fun addProvideShareStatusListener(
+        device: DeviceLocal,
+        vc: AccountPreferencesViewController,
+    ) {
+        _provideShareLimits.value = device.provideShareLimits
+        _provideShareStatus.value = device.provideShareStatus
+        val sub = device.addProvideShareStatusChangeListener { status ->
+            viewModelScope.launch {
+                if (accountPreferencesVc !== vc) {
+                    return@launch
+                }
+                _provideShareStatus.value = status
+            }
+        }
+        sub?.let { subs.add(it) }
+    }
+
     // the indicator encodes the live effective provide tier (apple parity):
     // Network provide (incl. Auto while idle) = solid green dot; Public
     // provide = green dot + outer green ring (yellow while paused, which
@@ -657,6 +699,7 @@ class SettingsViewModel @Inject constructor(
         addAllowProductUpdatesListener(vc)
         addProvideEnabledListener(device, vc)
         addProvidePausedListener(device, vc)
+        addProvideShareStatusListener(device, vc)
         vc.start()
         return vc
     }
