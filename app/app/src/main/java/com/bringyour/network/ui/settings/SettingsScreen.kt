@@ -35,6 +35,7 @@ import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.automirrored.outlined.Outbound
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
@@ -147,6 +148,9 @@ import com.bringyour.network.TAG
 import com.bringyour.network.ui.components.ProvideCellPicker
 import com.bringyour.network.ui.components.ProvideControlModePicker
 import com.bringyour.network.ui.components.ProvidePowerModePicker
+import com.bringyour.network.ui.components.ProvideShareLimitsPicker
+import com.bringyour.sdk.ProvideShareLimits
+import com.bringyour.sdk.ProvideShareStatus
 import com.bringyour.network.location.MockLocationStatus
 import com.bringyour.network.location.MockLocationTarget
 import com.bringyour.network.ui.connect.providerlocations.MockLocationViewModel
@@ -188,6 +192,7 @@ fun SettingsScreen(
     shownPlan: ShownPlan = if (isPro) ShownPlan.Pro else ShownPlan.Free,
     retryPlan: () -> Unit = {},
     mockLocationViewModel: MockLocationViewModel = hiltViewModel(),
+    logExportViewModel: LogExportViewModel = hiltViewModel(),
 ) {
     val lifecycleOwner = LocalLifecycleOwner.current
     val mockLocationState by mockLocationViewModel.state.collectAsState()
@@ -219,10 +224,13 @@ fun SettingsScreen(
         Sdk.planAccountName(planAccountNetworkName, planAccountGuest)
     }
     val authMethods = remember(networkUser) { networkUser?.let { parseAuthMethods(it) } ?: emptyList() }
+    // Change email, while the account has an email sign-in (NetworkUser.EmailSignIn)
+    val emailChangeAvailable = remember(networkUser) { networkUser?.emailSignIn()?.isNotEmpty() == true }
     val isAddingAuth = settingsViewModel.isAddingAuth.collectAsState().value
     val isRemovingAuth = settingsViewModel.isRemovingAuth.collectAsState().value
 
     var presentAddAuthSheet by rememberSaveable { mutableStateOf(false) }
+    var presentEmailChangeSheet by rememberSaveable { mutableStateOf(false) }
     var pendingRemoveMethod by remember { mutableStateOf<String?>(null) }
     var removeAuthError by remember { mutableStateOf<String?>(null) }
 
@@ -344,6 +352,13 @@ fun SettingsScreen(
         }
     }
 
+    // Export Logs hands its zip to the share sheet, and says when there is
+    // none (LogExport.kt)
+    LogExportEffects(
+        logExportViewModel = logExportViewModel,
+        snackbarHostState = snackbarHostState,
+    )
+
     SettingsScreen(
         navController,
         clientId = accountViewModel.clientId,
@@ -384,6 +399,9 @@ fun SettingsScreen(
         toggleProvideCell = settingsViewModel.toggleAllowProvideOnCell,
         providePowerMode = settingsViewModel.providePowerMode.collectAsState().value,
         setProvidePowerMode = settingsViewModel.setProvidePowerMode,
+        provideShareLimits = settingsViewModel.provideShareLimits.collectAsState().value,
+        provideShareStatus = settingsViewModel.provideShareStatus.collectAsState().value,
+        setProvideShareLimits = settingsViewModel.setProvideShareLimits,
         authCodeCreate = settingsViewModel.authCodeCreate,
         authCode = authCode,
         isCreatingAuthCode = settingsViewModel.isCreatingAuthCode.collectAsState().value,
@@ -396,6 +414,8 @@ fun SettingsScreen(
         authMethods = authMethods,
         onRemoveAuthMethod = { method -> pendingRemoveMethod = method },
         onAddAuthMethodClick = { presentAddAuthSheet = true },
+        emailChangeAvailable = emailChangeAvailable,
+        onChangeEmailClick = { presentEmailChangeSheet = true },
         hasSeedphrase = authMethods.contains("seedphrase"),
         isGeneratingSeedphrase = isGeneratingSeedphrase,
         isRegeneratingSeedphrase = isRegeneratingSeedphrase,
@@ -424,6 +444,13 @@ fun SettingsScreen(
             runCatching {
                 context.startActivity(Intent(Intent.ACTION_VIEW, proxiesUrl.toUri()))
             }
+        },
+        exportingLogs = logExportViewModel.exporting,
+        onExportLogs = {
+            logExportViewModel.export(context.cacheDir, System.currentTimeMillis())
+        },
+        onViewLogs = {
+            navController.navigate(Route.LogViewer)
         },
     )
 
@@ -494,6 +521,14 @@ fun SettingsScreen(
             accountViewModel.refreshNetworkUser()
         }
     )
+
+    if (presentEmailChangeSheet) {
+        EmailChangeSheet(
+            onDismiss = { presentEmailChangeSheet = false },
+            // the new email shows once the network user is read again
+            onChanged = { accountViewModel.refreshNetworkUser() },
+        )
+    }
 
     if (isPresentingReleaseNotes && releaseNotes != null && releaseNote != null) {
         ReleaseNotesSheet(
@@ -663,6 +698,10 @@ private fun SettingsScreen(
     toggleProvideCell: () -> Unit,
     providePowerMode: ProvidePowerMode = ProvidePowerMode.DEFAULT,
     setProvidePowerMode: (ProvidePowerMode) -> Unit = {},
+    // the sharing limits and this month's sharing (ProvideShareLimitsPicker)
+    provideShareLimits: ProvideShareLimits? = null,
+    provideShareStatus: ProvideShareStatus? = null,
+    setProvideShareLimits: (maxBytesPerSecond: Long, monthlyByteCount: Long) -> Unit = { _, _ -> },
     authCodeCreate: () -> Unit,
     authCode: String?,
     isCreatingAuthCode: Boolean,
@@ -676,6 +715,9 @@ private fun SettingsScreen(
     authMethods: List<String>,
     onRemoveAuthMethod: (String) -> Unit,
     onAddAuthMethodClick: () -> Unit,
+    // the email row's Change email, while the account has an email sign-in
+    emailChangeAvailable: Boolean = false,
+    onChangeEmailClick: () -> Unit = {},
     hasSeedphrase: Boolean,
     isGeneratingSeedphrase: Boolean,
     isRegeneratingSeedphrase: Boolean,
@@ -688,6 +730,11 @@ private fun SettingsScreen(
     onOpenMockLocationGuide: () -> Unit = {},
     showCloudProxyEntry: Boolean = false,
     onCloudProxyClick: () -> Unit = {},
+    // Export Logs and View Logs, under Developer (LogExport.kt,
+    // LogViewerScreen.kt)
+    exportingLogs: Boolean = false,
+    onExportLogs: () -> Unit = {},
+    onViewLogs: () -> Unit = {},
 ) {
 
     val context = LocalContext.current
@@ -903,14 +950,26 @@ private fun SettingsScreen(
                         color = Color.White
                     )
 
-                    // removing the last method would permanently lock the
-                    // account after logout -- keep at least one way to sign in
-                    if (authMethods.size > 1) {
-                        TextButton(onClick = { onRemoveAuthMethod(method) }) {
-                            Text(
-                                stringResource(id = R.string.remove),
-                                color = TextDanger
-                            )
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        // a verified change of the email sign-in, with a code to each address
+                        if (method == "email" && emailChangeAvailable) {
+                            TextButton(onClick = onChangeEmailClick) {
+                                Text(
+                                    stringResource(id = R.string.email_change),
+                                    color = BlueMedium
+                                )
+                            }
+                        }
+
+                        // removing the last method would permanently lock the
+                        // account after logout -- keep at least one way to sign in
+                        if (authMethods.size > 1) {
+                            TextButton(onClick = { onRemoveAuthMethod(method) }) {
+                                Text(
+                                    stringResource(id = R.string.remove),
+                                    color = TextDanger
+                                )
+                            }
                         }
                     }
                 }
@@ -1096,6 +1155,19 @@ private fun SettingsScreen(
                 setProvidePowerMode = setProvidePowerMode
             )
 
+            // the radio buttons' 48 dp touch targets fill the rest
+            Spacer(modifier = Modifier.height(4.dp))
+
+            /**
+             * Sharing limits: the most this device shares with others, by
+             * speed and by month, and this month's sharing
+             */
+            ProvideShareLimitsPicker(
+                provideShareLimits = provideShareLimits,
+                provideShareStatus = provideShareStatus,
+                setProvideShareLimits = setProvideShareLimits
+            )
+
             // the switch's 48 dp touch target fills the rest
             Spacer(modifier = Modifier.height(4.dp))
 
@@ -1246,6 +1318,33 @@ private fun SettingsScreen(
             ) {
                 Text(
                     stringResource(id = R.string.blocked_locations),
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                    contentDescription = null,
+                    tint = TextMuted
+                )
+            }
+
+            Spacer(modifier = Modifier.height(18.dp))
+
+            /**
+             * Excluded exit locations: places, such as a US state, that
+             * automatic and collection picks avoid
+             */
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable {
+                        navController.navigate(Route.ExcludedExitLocations)
+                    }
+                    .padding(vertical = 6.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    stringResource(id = R.string.excluded_exit_locations),
                     style = MaterialTheme.typography.bodyMedium,
                 )
 
@@ -1628,6 +1727,51 @@ private fun SettingsScreen(
             * Version
              */
             URTextInputLabel(stringResource(id = R.string.developer))
+
+            // the logs "send feedback with logs" uploads, to the share sheet
+            // (LogExport.kt), and their last lines (LogViewerScreen.kt)
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable(enabled = !exportingLogs, onClick = onExportLogs)
+                    .padding(vertical = 6.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    stringResource(id = R.string.export_logs),
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+                if (exportingLogs) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(24.dp),
+                        strokeWidth = 2.dp,
+                        color = TextMuted,
+                    )
+                } else {
+                    Icon(
+                        Icons.Filled.Share,
+                        contentDescription = null,
+                    )
+                }
+            }
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable(onClick = onViewLogs)
+                    .padding(vertical = 6.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    stringResource(id = R.string.view_logs),
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+                Icon(
+                    Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                    contentDescription = null,
+                )
+            }
 
             Row(
                 modifier = Modifier

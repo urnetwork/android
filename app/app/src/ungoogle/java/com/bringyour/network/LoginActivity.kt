@@ -37,7 +37,15 @@ import com.bringyour.network.ui.login.AUTH_JWT_TYPE_APPLE
 import com.bringyour.network.ui.login.AppleOAuthSession
 import com.bringyour.network.ui.login.SsoOAuthReturnRoute
 import com.bringyour.network.ui.login.ssoOAuthReturnRoute
+import com.bringyour.network.ui.login.MicrosoftSignInOutcome
+import com.bringyour.network.ui.login.SSO_OAUTH_PURPOSE_LOGIN
+import com.bringyour.network.ui.login.finishMicrosoftSignIn
+import com.bringyour.network.ui.login.isMicrosoftOAuthReturn
+import com.bringyour.network.ui.login.microsoftSignInEmail
+import com.bringyour.network.ui.login.microsoftSignInReturnRoute
+import com.bringyour.network.ui.login.microsoftSignInStore
 import com.bringyour.network.ui.settings.bittensorAddReturn
+import com.bringyour.network.ui.settings.forwardMicrosoftAddSignInReturn
 import com.bringyour.network.ui.settings.forwardSsoAddSignInReturn
 import com.bringyour.network.ui.login.SsoProvider
 import com.bringyour.network.ui.login.SsoLoginOutcome
@@ -58,6 +66,7 @@ import com.bringyour.network.ui.wallet.forwardTop200SignLink
 import com.bringyour.network.ui.theme.URNetworkTheme
 import com.bringyour.sdk.AuthCodeLoginArgs
 import com.bringyour.sdk.AuthLoginArgs
+import com.bringyour.sdk.Sdk
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -145,6 +154,20 @@ class LoginActivity : AppCompatActivity() {
                     }
                     Log.i(TAG, "googleOAuthLogin")
                     googleOAuthLogin(u)
+                } else if (isMicrosoftOAuthReturn(u)) {
+                    if (app.device != null && microsoftSignInReturnRoute(
+                            microsoftSignInStore(this),
+                            u.getQueryParameter("state"),
+                        ) == SsoOAuthReturnRoute.ADD_SIGN_IN
+                    ) {
+                        // the add sign-in method sheet started this attempt: the sheet adds
+                        // the Microsoft account to the signed-in network; never a login
+                        Log.i(TAG, "forwardMicrosoftAddSignInReturn")
+                        forwardMicrosoftAddSignInReturn(this, u, MainActivity::class.java)
+                        return
+                    }
+                    Log.i(TAG, "microsoftOAuthLogin")
+                    microsoftOAuthLogin(u)
                 } else if (u.scheme == "ur" && u.host == "bittensor-sign-message") {
                     // a WalletConnect bridge return is judged by its waiting session
                     // (message, purpose, address, expiry); with none waiting it is a
@@ -598,6 +621,93 @@ class LoginActivity : AppCompatActivity() {
                             authJwt = authJwt,
                             authJwtType = provider.authJwtType,
                             userName = (result.userName ?: "").ifEmpty { googleUserName },
+                            userAuth = email,
+                            referralCode = referralCode
+                        )
+                    }
+                }
+            }
+        } ?: run {
+            isLoadingAuthCode = false
+        }
+    }
+
+    // handles the return from Sign in with Microsoft (LoginUtils.kt: the sdk's
+    // browser flow in a Custom Tab, through the api's /auth/microsoft/callback,
+    // which redirects here): ur://oauth/microsoft?state=<state>&id_token=<identity token>
+    // or ur://oauth/microsoft?state=<state>&error=<message>
+    private fun microsoftOAuthLogin(uri: Uri) {
+        val app = app ?: return
+
+        // the sdk takes the return only for this login's attempt (its state, the
+        // token's nonce and its age): a stray return leaves the attempt waiting
+        // and shows nothing, nor does a cancel
+        val authJwt = when (val outcome = finishMicrosoftSignIn(microsoftSignInStore(this), uri.toString(), SSO_OAUTH_PURPOSE_LOGIN)) {
+            is MicrosoftSignInOutcome.SignIn -> outcome.idToken
+            is MicrosoftSignInOutcome.Failed -> {
+                loginViewModel.setLoginError(getString(outcome.messageRes))
+                return
+            }
+            MicrosoftSignInOutcome.Ignored -> return
+        }
+        val email = microsoftSignInEmail(authJwt)
+        val microsoftUserName = ssoJwtPayload(authJwt)?.optString("name") ?: ""
+        val provider = Sdk.AuthJwtTypeMicrosoft
+
+        isLoadingAuthCode = true
+
+        val args = AuthLoginArgs()
+        args.authJwt = authJwt
+        args.authJwtType = provider
+
+        val request = app.beginLoginRequest() ?: return
+        request.api.authLogin(args) { result, err ->
+            app.dispatchLoginResult(request) {
+                val resultError = result?.error
+                val networkJwt = if (err == null && resultError == null) {
+                    result?.network?.byJwt?.takeIf(String::isNotEmpty)
+                } else {
+                    null
+                }
+                if (networkJwt != null) {
+                    welcomeThenAuthClientAndFinish(
+                        request = request,
+                        byJwt = networkJwt,
+                        callback = { finishError ->
+                            if (finishError != null) {
+                                Log.i(TAG, "authClientAndFinish error: $finishError")
+                            }
+                            isLoadingAuthCode = false
+                        },
+                    )
+                    return@dispatchLoginResult
+                }
+                lifecycleScope.launch {
+                    if (!app.isCurrentLoginRequest(request)) return@launch
+                    if (err != null) {
+                        isLoadingAuthCode = false
+                        loginViewModel.setLoginError(err.message)
+                    } else if (resultError != null) {
+                        isLoadingAuthCode = false
+                        loginViewModel.setLoginError(signInErrorMessage(this@LoginActivity, resultError.code, resultError.message))
+                    } else if (result == null) {
+                        isLoadingAuthCode = false
+                        loginViewModel.setLoginError(getString(R.string.login_error))
+                    } else if (result.authAllowed != null) {
+                        val authAllowed = mutableListOf<String>()
+                        for (i in 0 until result.authAllowed.len()) {
+                            authAllowed.add(result.authAllowed.get(i))
+                        }
+                        isLoadingAuthCode = false
+                        loginViewModel.setLoginError(getString(R.string.login_error_auth_allowed, authAllowed.joinToString(",")))
+                    } else {
+                        // a new user: continue into create network with the identity token
+                        loginViewModel.setLoginError(null)
+                        isLoadingAuthCode = false
+                        jwtCreateNetworkParams = LoginCreateNetworkParams.LoginCreateAuthJwtParams(
+                            authJwt = authJwt,
+                            authJwtType = provider,
+                            userName = (result.userName ?: "").ifEmpty { microsoftUserName },
                             userAuth = email,
                             referralCode = referralCode
                         )

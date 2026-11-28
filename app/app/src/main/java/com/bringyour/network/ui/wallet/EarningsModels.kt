@@ -34,6 +34,28 @@ data class SnWalletState(
     val setAtMillis: Long,
 )
 
+/**
+ * What a wallet read (GET /sn/wallet) says of disconnecting the payout
+ * wallet: the sdk's SnGetWalletResult.Disconnectable and HasWallet.
+ */
+data class SnWalletDisconnectRead(
+    // a wallet connected without a payout consent is attached and no signed
+    // consent pays the network: the card offers Disconnect wallet
+    val disconnectable: Boolean,
+    // any wallet is attached; with none, the network's earnings can't be paid out
+    val hasWallet: Boolean,
+)
+
+/** The answer to a disconnect step (SnWalletDisconnectCode, SnWalletDisconnect). */
+sealed class SnWalletDisconnectAnswer {
+    // the code was emailed to these masked sign-in addresses
+    data class CodeSent(val sentTo: List<String>) : SnWalletDisconnectAnswer()
+    // the network has no payout wallet now
+    object Disconnected : SnWalletDisconnectAnswer()
+    // the server's refusal: an SnWalletDisconnectErrorCode*, or a newer code, with its message
+    data class Refused(val code: String, val message: String) : SnWalletDisconnectAnswer()
+}
+
 /** The SDK-generated EVM key that only ever pays gas. Fund it by sending TAO to the mirror. */
 data class SnGasKeyState(
     val address: String,
@@ -171,7 +193,25 @@ interface EarningsProtocolSource {
 
     suspend fun fetchWallet(): Result<SnWalletState?>
 
+    /**
+     * what the last wallet read (fetchWallet) said of disconnecting the payout
+     * wallet; null before one answered
+     */
+    fun walletDisconnectRead(): SnWalletDisconnectRead? = null
+
     suspend fun connectWallet(address: String, signature: String, message: String): Result<SnWalletState>
+
+    /**
+     * emails the code that confirms the payout wallet's disconnect to the
+     * account's sign-in addresses (SnWalletDisconnectCode); a refusal is an
+     * answer, a failure the request's
+     */
+    suspend fun walletDisconnectCode(): Result<SnWalletDisconnectAnswer> =
+        Result.failure(EarningsUnavailableException())
+
+    /** disconnects the payout wallet with the emailed code (SnWalletDisconnect) */
+    suspend fun walletDisconnect(code: String): Result<SnWalletDisconnectAnswer> =
+        Result.failure(EarningsUnavailableException())
 
     fun gasKey(): SnGasKeyState?
 

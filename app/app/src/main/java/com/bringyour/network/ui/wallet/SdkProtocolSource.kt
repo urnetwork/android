@@ -2,6 +2,7 @@ package com.bringyour.network.ui.wallet
 
 import com.bringyour.network.ui.leaderboard.ProtocolTopMe
 import com.bringyour.network.ui.leaderboard.protocolTopMeOf
+import com.bringyour.network.utils.sdkStringListToList
 
 import com.bringyour.sdk.DeviceLocal
 import com.bringyour.sdk.Sdk
@@ -119,6 +120,10 @@ class SdkProtocolSource private constructor(
 
     override val available: Boolean = true
 
+    // what the last wallet read said of disconnecting the payout wallet: the
+    // same GET /sn/wallet answer the card shows (fetchWallet)
+    @Volatile private var lastWalletDisconnectRead: SnWalletDisconnectRead? = null
+
     // DefaultSnChainSettings ships without the vault/coordinator/noId; the merged view is
     // filled from GET /sn/epoch once per source before the first vault read
     @Volatile private var chainSettingsSynced = false
@@ -186,6 +191,13 @@ class SdkProtocolSource private constructor(
     override suspend fun fetchWallet(): Result<SnWalletState?> =
         suspendCancellableCoroutine { continuation ->
             device.syncSnWallet { result, err ->
+                // the answer the card shows also says whether its wallet can be disconnected
+                if (err == null && result != null && result.error == null) {
+                    lastWalletDisconnectRead = SnWalletDisconnectRead(
+                        disconnectable = result.disconnectable(),
+                        hasWallet = result.hasWallet(),
+                    )
+                }
                 if (!continuation.isActive) {
                     return@syncSnWallet
                 }
@@ -196,6 +208,8 @@ class SdkProtocolSource private constructor(
                 }
             }
         }
+
+    override fun walletDisconnectRead(): SnWalletDisconnectRead? = lastWalletDisconnectRead
 
     override suspend fun connectWallet(address: String, signature: String, message: String): Result<SnWalletState> =
         suspendCancellableCoroutine { continuation ->
@@ -209,6 +223,55 @@ class SdkProtocolSource private constructor(
                     result.error != null -> continuation.resume(Result.failure(result.error.toException()!!))
                     result.wallet == null -> continuation.resume(Result.failure(IllegalStateException("no wallet")))
                     else -> continuation.resume(Result.success(result.wallet.toState()))
+                }
+            }
+        }
+
+    override suspend fun walletDisconnectCode(): Result<SnWalletDisconnectAnswer> =
+        suspendCancellableCoroutine { continuation ->
+            val api = device.api
+            if (api == null) {
+                continuation.resume(Result.failure(IllegalStateException("no api")))
+                return@suspendCancellableCoroutine
+            }
+            api.snWalletDisconnectCode { result, err ->
+                if (!continuation.isActive) {
+                    return@snWalletDisconnectCode
+                }
+                val refusal = result?.error
+                when {
+                    err != null -> continuation.resume(Result.failure(err))
+                    result == null -> continuation.resume(Result.failure(IllegalStateException("empty disconnect code")))
+                    refusal != null -> continuation.resume(
+                        Result.success(SnWalletDisconnectAnswer.Refused(refusal.code, refusal.message))
+                    )
+                    else -> continuation.resume(
+                        Result.success(SnWalletDisconnectAnswer.CodeSent(sdkStringListToList(result.sentTo)))
+                    )
+                }
+            }
+        }
+
+    override suspend fun walletDisconnect(code: String): Result<SnWalletDisconnectAnswer> =
+        suspendCancellableCoroutine { continuation ->
+            val api = device.api
+            if (api == null) {
+                continuation.resume(Result.failure(IllegalStateException("no api")))
+                return@suspendCancellableCoroutine
+            }
+            api.snWalletDisconnect(code) { result, err ->
+                if (!continuation.isActive) {
+                    return@snWalletDisconnect
+                }
+                val refusal = result?.error
+                when {
+                    err != null -> continuation.resume(Result.failure(err))
+                    result == null -> continuation.resume(Result.failure(IllegalStateException("empty disconnect")))
+                    refusal != null -> continuation.resume(
+                        Result.success(SnWalletDisconnectAnswer.Refused(refusal.code, refusal.message))
+                    )
+                    result.disconnected -> continuation.resume(Result.success(SnWalletDisconnectAnswer.Disconnected))
+                    else -> continuation.resume(Result.failure(IllegalStateException("the wallet was not disconnected")))
                 }
             }
         }

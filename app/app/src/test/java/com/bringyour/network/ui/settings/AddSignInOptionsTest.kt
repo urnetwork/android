@@ -36,14 +36,14 @@ import org.junit.Test
 
 /**
  * The add sign-in method sheet offers the same options on every app (ur.io
- * AddSignInSheet, apple AddAuthSheetMethods): Apple, Google, a Solana or
- * Bittensor wallet, and an email or phone. Android offered Google, a Solana
- * wallet and email only, and the github build (no Play services) neither
- * Apple nor Google, on its login or in the sheet; it now signs in with both
- * through the browser. Adding must never sign in: an Apple or Google return
- * started by the sheet is not taken by the login, and a Bittensor proof
- * signed to add is never a sign-in proof. Stores, clocks and tokens are
- * injected.
+ * AddSignInSheet, apple AddAuthSheetMethods): Apple, Google, Microsoft, a
+ * Solana or Bittensor wallet, and an email or phone. Android offered Google, a
+ * Solana wallet and email only, and the github build (no Play services)
+ * neither Apple nor Google, on its login or in the sheet; it now signs in with
+ * both through the browser, and every build with Microsoft through the sdk's
+ * browser flow. Adding must never sign in: an Apple or Google return started
+ * by the sheet is not taken by the login, and a Bittensor proof signed to add
+ * is never a sign-in proof. Stores, clocks and tokens are injected.
  */
 class AddSignInOptionsTest {
 
@@ -80,7 +80,7 @@ class AddSignInOptionsTest {
     @Test
     fun ssoFlavorsOfferEveryMethodInTheUrIoOrder() {
         assertEquals(
-            listOf(AddAuthMethod.APPLE, AddAuthMethod.GOOGLE, AddAuthMethod.WALLET, AddAuthMethod.EMAIL),
+            listOf(AddAuthMethod.APPLE, AddAuthMethod.GOOGLE, AddAuthMethod.MICROSOFT, AddAuthMethod.WALLET, AddAuthMethod.EMAIL),
             addAuthMethods(ssoAvailable = true),
         )
         // a build that offered neither on its login
@@ -93,7 +93,7 @@ class AddSignInOptionsTest {
     @Test
     fun thisBuildsAddSheetOffersAppleAndGoogleInTheUrIoOrder() {
         assertEquals(
-            listOf(AddAuthMethod.APPLE, AddAuthMethod.GOOGLE, AddAuthMethod.WALLET, AddAuthMethod.EMAIL),
+            listOf(AddAuthMethod.APPLE, AddAuthMethod.GOOGLE, AddAuthMethod.MICROSOFT, AddAuthMethod.WALLET, AddAuthMethod.EMAIL),
             addAuthMethods(BuildConfig.BRINGYOUR_BUNDLE_SSO_GOOGLE),
         )
     }

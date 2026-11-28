@@ -1,5 +1,7 @@
 package com.bringyour.network
 
+import com.bringyour.network.ui.login.MicrosoftSignInStore
+import com.bringyour.network.ui.login.PendingMicrosoftSignIn
 import com.bringyour.network.ui.login.PendingSsoOAuth
 import com.bringyour.network.ui.login.SSO_OAUTH_PURPOSE_ADD
 import com.bringyour.network.ui.login.SSO_OAUTH_PURPOSE_LOGIN
@@ -11,6 +13,7 @@ import com.bringyour.network.ui.login.SsoProvider
 import com.bringyour.network.ui.login.ssoOAuthReturnRoute
 import com.bringyour.network.ui.settings.BittensorAddReturn
 import com.bringyour.network.ui.settings.BittensorAddSignInReturns
+import com.bringyour.network.ui.settings.MicrosoftAddSignInReturns
 import com.bringyour.network.ui.settings.SsoAddOutcome
 import com.bringyour.network.ui.settings.SsoAddReturn
 import com.bringyour.network.ui.settings.SsoAddSignInReturns
@@ -50,6 +53,18 @@ class SignedOutNetworkStateTest {
         }
     }
 
+    // the sdk's Microsoft attempt as the app keeps it, here as opaque text
+    private class MemoryMicrosoftStore : MicrosoftSignInStore {
+        var pending: PendingMicrosoftSignIn? = null
+        override fun load(): PendingMicrosoftSignIn? = pending
+        override fun save(pending: PendingMicrosoftSignIn) {
+            this.pending = pending
+        }
+        override fun clear() {
+            pending = null
+        }
+    }
+
     private class MemoryPrefs : PendingSolanaPaymentStore.Prefs {
         val values = mutableMapOf<String, String>()
         override fun getString(key: String): String? = values[key]
@@ -80,7 +95,8 @@ class SignedOutNetworkStateTest {
         ssoAttempts: List<SsoOAuthAttempts>,
         payments: PendingSolanaPaymentStore,
         bridgeReturns: BittensorBridgeReturns,
-    ) = clearSignedOutNetworkState(ssoAttempts, payments, bridgeReturns)
+        microsoftSignIn: MicrosoftSignInStore = MemoryMicrosoftStore(),
+    ) = clearSignedOutNetworkState(ssoAttempts, microsoftSignIn, payments, bridgeReturns)
 
     // network A started adding a sign-in method in the browser and signed out
     // before the return came back: the return no longer names an add attempt,
@@ -95,11 +111,15 @@ class SignedOutNetworkStateTest {
         val add = apple.begin(SSO_OAUTH_PURPOSE_ADD)
         val login = google.begin(SSO_OAUTH_PURPOSE_LOGIN)
         assertEquals(SsoOAuthReturnRoute.ADD_SIGN_IN, ssoOAuthReturnRoute(apple, add.state))
+        // a Microsoft account being added: the sdk's attempt, kept with its purpose
+        val microsoft = MemoryMicrosoftStore()
+        microsoft.save(PendingMicrosoftSignIn(encodedAttempt = "synthetic-attempt", purpose = SSO_OAUTH_PURPOSE_ADD))
 
-        clear(listOf(apple, google), PendingSolanaPaymentStore(MemoryPrefs()), BittensorBridgeReturns())
+        clear(listOf(apple, google), PendingSolanaPaymentStore(MemoryPrefs()), BittensorBridgeReturns(), microsoft)
 
         assertNull(appleStore.pending)
         assertNull(googleStore.pending)
+        assertNull(microsoft.load())
         assertNull(google.purposeOf(login.state))
         assertEquals(SsoOAuthReturnRoute.LOGIN, ssoOAuthReturnRoute(apple, add.state))
         val lateReturn = SsoOAuthReturn(state = add.state, idToken = "synthetic.id.token", error = null)
@@ -114,6 +134,7 @@ class SignedOutNetworkStateTest {
             SsoAddReturn(SsoProvider.GOOGLE, SsoOAuthReturn(state = "state-a", idToken = "synthetic", error = null))
         )
         BittensorAddSignInReturns.deliver(BittensorAddReturn.Failed(code = "synthetic", detail = null))
+        MicrosoftAddSignInReturns.deliver("ur://oauth/microsoft?state=synthetic&id_token=synthetic")
         val bridgeReturns = BittensorBridgeReturns()
         bridgeReturns.begin(WaitingBridgeSession(BittensorWallets.PURPOSE_CONNECT))
         assertTrue(bridgeReturns.waiting)
@@ -121,6 +142,7 @@ class SignedOutNetworkStateTest {
         clear(listOf(), PendingSolanaPaymentStore(MemoryPrefs()), bridgeReturns)
 
         assertNull(SsoAddSignInReturns.take())
+        assertNull(MicrosoftAddSignInReturns.take())
         assertNull(BittensorAddSignInReturns.take())
         assertFalse(bridgeReturns.waiting)
         assertEquals(
@@ -171,6 +193,7 @@ class SignedOutNetworkStateTest {
             "uiPollingSubscriptionBalance = false",
             "clearSignedOutNetworkState(",
             "SsoProvider.entries.map { ssoOAuthAttempts(this, it) }",
+            "microsoftSignInStore(this)",
             "pendingSolanaPaymentStore(this)",
             "BittensorBridgeReturns.shared",
             "asyncLocalState?.localState?.logout()",

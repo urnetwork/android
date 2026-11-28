@@ -41,13 +41,17 @@ import com.bringyour.network.ui.components.URCodeInput
 import com.bringyour.network.ui.components.URInlineErrorText
 import com.bringyour.network.ui.components.URTextInput
 import com.bringyour.network.ui.login.SSO_OAUTH_PURPOSE_ADD
+import com.bringyour.network.ui.login.MicrosoftSignInOutcome
 import com.bringyour.network.ui.login.SsoProvider
 import com.bringyour.network.ui.login.ResendCode
 import com.bringyour.network.ui.login.SolanaChallengeSignResult
 import com.bringyour.network.ui.login.VerifySendError
 import com.bringyour.network.ui.login.VerifySendNotice
+import com.bringyour.network.ui.login.finishMicrosoftSignIn
 import com.bringyour.network.ui.login.launchAppleOAuth
 import com.bringyour.network.ui.login.launchBittensorBridge
+import com.bringyour.network.ui.login.launchMicrosoftSignIn
+import com.bringyour.network.ui.login.microsoftSignInStore
 import com.bringyour.network.ui.login.requestAndSignSolanaChallenge
 import com.bringyour.network.ui.login.signedInErrorMessage
 import com.bringyour.network.ui.login.solanaWalletFailureText
@@ -64,12 +68,17 @@ import com.bringyour.network.ui.wallet.bittensorWalletDisplayName
 import com.bringyour.sdk.AddAuthArgs
 import com.bringyour.sdk.AuthVerifyArgs
 import com.bringyour.sdk.AuthVerifySendArgs
+import com.bringyour.sdk.Sdk
 import com.bringyour.sdk.WalletAuthArgs
 import com.solana.mobilewalletadapter.clientlib.ActivityResultSender
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 private const val verifyCodeLength = 6
+
+// the method picker's buttons per row: with Microsoft, five labels no longer
+// fit one row's width on a phone
+private const val ADD_AUTH_METHODS_PER_ROW = 3
 
 /**
  * Adds a sign-in method to the current network (Settings, and a legacy guest's
@@ -293,6 +302,35 @@ fun AddAuthMethodSheet(
         }
     }
 
+    // Microsoft's browser flow returns through the LoginActivity too
+    // (ur://oauth/microsoft), which hands an add attempt's return url here; the
+    // sdk finishes the pending add attempt with it, and a login never takes it
+    val microsoftReturn by MicrosoftAddSignInReturns.pending.collectAsState()
+    LaunchedEffect(microsoftReturn) {
+        val returnUrl = MicrosoftAddSignInReturns.take() ?: return@LaunchedEffect
+        when (val outcome = finishMicrosoftSignIn(microsoftSignInStore(context), returnUrl, SSO_OAUTH_PURPOSE_ADD)) {
+            is MicrosoftSignInOutcome.SignIn -> {
+                val args = AddAuthArgs()
+                args.authJwt = outcome.idToken
+                args.authJwtType = Sdk.AuthJwtTypeMicrosoft
+                flow.add(
+                    AddedSignInMethod.MICROSOFT,
+                    args,
+                    "",
+                    {
+                        Toast.makeText(context, context.getString(R.string.microsoft_sign_in_method_added), Toast.LENGTH_SHORT).show()
+                        onAdded()
+                    },
+                    { refusal -> addError = refusal.message }
+                )
+            }
+            is MicrosoftSignInOutcome.Failed -> {
+                addError = context.getString(outcome.messageRes)
+            }
+            MicrosoftSignInOutcome.Ignored -> {}
+        }
+    }
+
     // a full code verifies; a rejected one is cleared so it can be retyped
     LaunchedEffect(code) {
         val codeStr = code.joinToString("")
@@ -381,31 +419,35 @@ fun AddAuthMethodSheet(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    methods.forEach { method ->
-                        // URButton has no `modifier` parameter (checked against its
-                        // real signature in URButton.kt) — wrap it in a weighted Box
-                        // instead of trying to pass modifier through to URButton itself.
-                        androidx.compose.foundation.layout.Box(modifier = Modifier.weight(1f)) {
-                            URButton(
-                                style = if (method == selectedMethod) ButtonStyle.PRIMARY else ButtonStyle.SECONDARY,
-                                onClick = {
-                                    selectedMethod = method
-                                    addError = null
+                methods.chunked(ADD_AUTH_METHODS_PER_ROW).forEachIndexed { rowIndex, rowMethods ->
+                    if (rowIndex > 0) Spacer(modifier = Modifier.height(8.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        rowMethods.forEach { method ->
+                            // URButton has no `modifier` parameter (checked against its
+                            // real signature in URButton.kt) — wrap it in a weighted Box
+                            // instead of trying to pass modifier through to URButton itself.
+                            androidx.compose.foundation.layout.Box(modifier = Modifier.weight(1f)) {
+                                URButton(
+                                    style = if (method == selectedMethod) ButtonStyle.PRIMARY else ButtonStyle.SECONDARY,
+                                    onClick = {
+                                        selectedMethod = method
+                                        addError = null
+                                    }
+                                ) { buttonTextStyle ->
+                                    Text(
+                                        when (method) {
+                                            AddAuthMethod.APPLE -> stringResource(id = R.string.apple)
+                                            AddAuthMethod.GOOGLE -> stringResource(id = R.string.google)
+                                            AddAuthMethod.MICROSOFT -> stringResource(id = R.string.microsoft)
+                                            AddAuthMethod.WALLET -> stringResource(id = R.string.wallet)
+                                            AddAuthMethod.EMAIL -> stringResource(id = R.string.site_app_email)
+                                        },
+                                        style = buttonTextStyle
+                                    )
                                 }
-                            ) { buttonTextStyle ->
-                                Text(
-                                    when (method) {
-                                        AddAuthMethod.APPLE -> stringResource(id = R.string.apple)
-                                        AddAuthMethod.GOOGLE -> stringResource(id = R.string.google)
-                                        AddAuthMethod.WALLET -> stringResource(id = R.string.wallet)
-                                        AddAuthMethod.EMAIL -> stringResource(id = R.string.site_app_email)
-                                    },
-                                    style = buttonTextStyle
-                                )
                             }
                         }
                     }
@@ -454,6 +496,30 @@ fun AddAuthMethodSheet(
                             isProcessing = flow.busy
                         ) { buttonTextStyle ->
                             Text(stringResource(id = R.string.sign_in_with_apple), style = buttonTextStyle)
+                        }
+                    }
+                    AddAuthMethod.MICROSOFT -> {
+                        // the sdk's browser flow in a Custom Tab, started as an add
+                        // attempt; its return arrives through MicrosoftAddSignInReturns above
+                        Text(
+                            stringResource(id = R.string.sign_in_with_microsoft_to_add_it),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = TextMuted
+                        )
+                        Spacer(modifier = Modifier.height(12.dp))
+                        URButton(
+                            onClick = {
+                                addError = null
+                                val apiUrl = (context.applicationContext as? MainApplication)
+                                    ?.networkSpaceManagerProvider?.getNetworkSpace()?.apiUrl
+                                if (!launchMicrosoftSignIn(context, apiUrl, SSO_OAUTH_PURPOSE_ADD)) {
+                                    addError = context.getString(R.string.error_signing_in_with_microsoft)
+                                }
+                            },
+                            enabled = !isAddingAuth && !flow.busy,
+                            isProcessing = flow.busy
+                        ) { buttonTextStyle ->
+                            Text(stringResource(id = R.string.sign_in_with_microsoft), style = buttonTextStyle)
                         }
                     }
                     AddAuthMethod.WALLET -> {

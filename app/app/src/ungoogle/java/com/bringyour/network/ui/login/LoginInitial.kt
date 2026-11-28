@@ -29,6 +29,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
@@ -53,6 +55,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.compose.LifecycleResumeEffect
@@ -102,6 +105,9 @@ fun LoginInitial(
         }
         if (loginViewModel.appleAuthInProgress) {
             loginViewModel.setAppleAuthInProgress(false)
+        }
+        if (loginViewModel.microsoftAuthInProgress) {
+            loginViewModel.setMicrosoftAuthInProgress(false)
         }
         onPauseOrDispose {}
     }
@@ -275,6 +281,18 @@ fun LoginInitial(
         }
     }
 
+    // Microsoft: the sdk's browser flow in a Custom Tab, returned by the api
+    // through ur://oauth/microsoft (handled by the LoginActivity)
+    val connectMicrosoft = {
+        loginViewModel.setLoginError(null)
+        val apiUrl = application?.networkSpaceManagerProvider?.getNetworkSpace()?.apiUrl
+        if (launchMicrosoftSignIn(context, apiUrl)) {
+            loginViewModel.setMicrosoftAuthInProgress(true)
+        } else {
+            loginViewModel.setLoginError(context.getString(R.string.error_signing_in_with_microsoft))
+        }
+    }
+
     // the seed sign-in is a slide-up sheet, like the auth code sign-in
     var seedphraseLoginSheetVisible by rememberSaveable { mutableStateOf(false) }
     val onSeedphraseLogin: () -> Unit = {
@@ -285,12 +303,30 @@ fun LoginInitial(
         navController.navigate("create-network-instant")
     }
 
+    // Continue with a phone number the login does not send says how to write it
+    // (LoginViewModel.isInvalidPhone, apple#193, android#298)
+    val phoneFormatSnackbar = remember { SnackbarHostState() }
+    val phoneFormatMessage = stringResource(id = R.string.user_auth_phone_format)
+    // its own scope: clearing the notice restarts this effect, which would end
+    // a snackbar shown from inside it
+    val phoneFormatScope = rememberCoroutineScope()
+    LaunchedEffect(loginViewModel.phoneFormatNotice) {
+        if (loginViewModel.phoneFormatNotice) {
+            loginViewModel.clearPhoneFormatNotice()
+            phoneFormatScope.launch {
+                phoneFormatSnackbar.showSnackbar(message = phoneFormatMessage, withDismissAction = true)
+            }
+        }
+    }
+
     LoginInitial(
         navController,
         userAuth = loginViewModel.userAuth,
         setUserAuth = loginViewModel.setUserAuth,
         userAuthInProgress = loginViewModel.userAuthInProgress,
         isValidUserAuth = loginViewModel.isValidUserAuth,
+        isInvalidPhone = loginViewModel.isInvalidPhone,
+        snackbarHostState = phoneFormatSnackbar,
         login = loginViewModel.login,
         loginError = loginViewModel.loginError,
         setLoginError = loginViewModel.setLoginError,
@@ -306,6 +342,8 @@ fun LoginInitial(
         googleAuthInProgress = loginViewModel.googleAuthInProgress,
         appleLogin = { connectSso(SsoProvider.APPLE) },
         appleAuthInProgress = loginViewModel.appleAuthInProgress,
+        microsoftLogin = { connectMicrosoft() },
+        microsoftAuthInProgress = loginViewModel.microsoftAuthInProgress,
         onLogin = onLogin,
         contentVisible = contentVisible,
         setContentVisible = {
@@ -373,6 +411,10 @@ fun LoginInitial(
     setUserAuth: (TextFieldValue) -> Unit,
     userAuthInProgress: Boolean,
     isValidUserAuth: Boolean,
+    // a phone number in a format the login does not send: Continue stays open
+    // and says how to write it
+    isInvalidPhone: Boolean = false,
+    snackbarHostState: SnackbarHostState? = null,
     login: (
         ctx: Context,
         api: Api?,
@@ -389,6 +431,8 @@ fun LoginInitial(
     googleAuthInProgress: Boolean = false,
     appleLogin: () -> Unit = {},
     appleAuthInProgress: Boolean = false,
+    microsoftLogin: () -> Unit = {},
+    microsoftAuthInProgress: Boolean = false,
     onLogin: (LoginRequest, String) -> Unit,
     contentVisible: Boolean,
     setContentVisible: (Boolean) -> Unit,
@@ -426,7 +470,11 @@ fun LoginInitial(
         exit = fadeOut()
     ) {
 
-        Scaffold { innerPadding ->
+        Scaffold(
+            snackbarHost = {
+                snackbarHostState?.let { SnackbarHost(hostState = it) }
+            }
+        ) { innerPadding ->
 
             // mobile + tablet
             Column(
@@ -453,6 +501,7 @@ fun LoginInitial(
                         setUserAuth = setUserAuth,
                         userAuthInProgress = userAuthInProgress,
                         isValidUserAuth = isValidUserAuth,
+                        isInvalidPhone = isInvalidPhone,
                         loginError = loginError,
                         onLogin = {
                             login(
@@ -470,6 +519,8 @@ fun LoginInitial(
                         googleAuthInProgress = googleAuthInProgress,
                         onAppleLogin = appleLogin,
                         appleAuthInProgress = appleAuthInProgress,
+                        onMicrosoftLogin = microsoftLogin,
+                        microsoftAuthInProgress = microsoftAuthInProgress,
                         launchAuthCodeLoginSheet = {
                             setAuthCodeLoginSheetVisible(true)
                         },
@@ -511,6 +562,7 @@ fun LoginInitialActions(
     setUserAuth: (TextFieldValue) -> Unit,
     userAuthInProgress: Boolean,
     isValidUserAuth: Boolean,
+    isInvalidPhone: Boolean = false,
     loginError: String?,
     onLogin: () -> Unit,
     onSolanaLogin: () -> Unit,
@@ -521,11 +573,13 @@ fun LoginInitialActions(
     googleAuthInProgress: Boolean = false,
     onAppleLogin: () -> Unit = {},
     appleAuthInProgress: Boolean = false,
+    onMicrosoftLogin: () -> Unit = {},
+    microsoftAuthInProgress: Boolean = false,
     launchAuthCodeLoginSheet: () -> Unit,
     onSeedphraseLogin: () -> Unit,
     onInstantAccountCreate: () -> Unit,
 ) {
-    val isLoginInProgress = userAuthInProgress || googleAuthInProgress || appleAuthInProgress || solanaAuthInProgress || bittensorAuthInProgress
+    val isLoginInProgress = userAuthInProgress || googleAuthInProgress || appleAuthInProgress || microsoftAuthInProgress || solanaAuthInProgress || bittensorAuthInProgress
 
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -547,11 +601,17 @@ fun LoginInitialActions(
                         SsoProvider.APPLE -> appleLoginMethod(onClick = onAppleLogin, processing = appleAuthInProgress)
                     }
                 } + instantAccountLoginMethod(onClick = onInstantAccountCreate),
-                tiles = listOf(
+                tiles = listOfNotNull(
                     secretKeyLoginMethod(onClick = onSeedphraseLogin),
                     authCodeLoginMethod(onClick = launchAuthCodeLoginSheet, tile = true),
                     bittensorLoginMethod(onClick = onBittensorLogin, processing = bittensorAuthInProgress, tile = true),
-                    solanaLoginMethod(onClick = onSolanaLogin, processing = solanaAuthInProgress, tile = true)
+                    solanaLoginMethod(onClick = onSolanaLogin, processing = solanaAuthInProgress, tile = true),
+                    // in the browser beside Google and Apple, where the build offers them
+                    if (BuildConfig.BRINGYOUR_BUNDLE_SSO_GOOGLE) {
+                        microsoftLoginMethod(onClick = onMicrosoftLogin, processing = microsoftAuthInProgress, tile = true)
+                    } else {
+                        null
+                    }
                 ),
                 enabled = !isLoginInProgress
             )
@@ -585,7 +645,7 @@ fun LoginInitialActions(
                     imeAction = ImeAction.Go
                 ),
                 onGo = {
-                    if (!isLoginInProgress && isValidUserAuth) {
+                    if (!isLoginInProgress && (isValidUserAuth || isInvalidPhone)) {
                         onLogin()
                     }
                 },
@@ -600,7 +660,7 @@ fun LoginInitialActions(
                 onClick = {
                     onLogin()
                 },
-                enabled = !isLoginInProgress && isValidUserAuth,
+                enabled = !isLoginInProgress && (isValidUserAuth || isInvalidPhone),
                 isProcessing = userAuthInProgress,
                 modifier = Modifier.testTag("acceptance.password.next")
             ) { buttonTextStyle ->

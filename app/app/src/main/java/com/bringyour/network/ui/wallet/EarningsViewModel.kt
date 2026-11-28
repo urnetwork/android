@@ -13,6 +13,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bringyour.network.DeviceManager
 import com.bringyour.sdk.DeviceLocal
+import com.bringyour.sdk.Sdk
 import com.bringyour.sdk.VerifySeekerNftHolderArgs
 import com.solana.publickey.SolanaPublicKey
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -60,6 +61,9 @@ sealed class WalletConnectState {
     // the server refused a signature pasted from this manual wallet: it is not from
     // the entered address (bittensor_error_signature_mismatch)
     data class SignatureMismatch(val walletId: String) : WalletConnectState()
+    // the payout wallet was just disconnected (wallet_disconnected): the card says
+    // so where it offers to connect one
+    object Disconnected : WalletConnectState()
 
     val busy: Boolean
         get() = this is RequestingChallenge || this is AwaitingSignature || this is Validating || this is Connecting
@@ -142,6 +146,16 @@ class EarningsViewModel @Inject constructor(
 
     private val _connectState = MutableStateFlow<WalletConnectState>(WalletConnectState.Idle)
     val connectState: StateFlow<WalletConnectState> = _connectState.asStateFlow()
+
+    // what the wallet read says of disconnecting the payout wallet: whether the
+    // card offers Disconnect wallet, and whether any wallet is attached; null
+    // until a read answered
+    private val _walletDisconnectRead = MutableStateFlow<SnWalletDisconnectRead?>(null)
+    val walletDisconnectRead: StateFlow<SnWalletDisconnectRead?> = _walletDisconnectRead.asStateFlow()
+
+    // the disconnect's dialog, null while it is closed
+    private val _walletDisconnectDialog = MutableStateFlow<WalletDisconnectDialogState?>(null)
+    val walletDisconnectDialog: StateFlow<WalletDisconnectDialogState?> = _walletDisconnectDialog.asStateFlow()
 
     // set when the bridge returns; the nav host opens the earnings screen and clears it
     private val _pendingEarningsNavigation = MutableStateFlow(false)
@@ -395,11 +409,14 @@ class EarningsViewModel @Inject constructor(
     }
 
     private suspend fun refreshWallet() {
-        val load = loadWallet(source, _wallet.value)
+        val s = source
+        val load = loadWallet(s, _wallet.value)
         load.error?.let { Log.i(TAG, "fetch wallet: ${it.message}") }
         _wallet.value = load.wallet
         _walletFailed.value = load.load == SectionLoad.Failed
         _walletLoaded.value = true
+        // the same read says whether the card offers Disconnect wallet
+        _walletDisconnectRead.value = s.walletDisconnectRead()
     }
 
     private suspend fun refreshEpochs() {
@@ -682,6 +699,99 @@ class EarningsViewModel @Inject constructor(
             }
     }
 
+    // ---- disconnect the payout wallet: one connected without a signed payout
+    // consent, confirmed with a code the server emails to the account (WalletDisconnect.kt)
+
+    /** The card's Disconnect wallet: the confirmation first. */
+    fun openWalletDisconnect() {
+        _walletDisconnectDialog.value = WalletDisconnectDialogState.Confirm()
+    }
+
+    fun closeWalletDisconnect() {
+        _walletDisconnectDialog.value = null
+    }
+
+    /** Email me a code, from the confirmation, or again once the code expired. */
+    fun sendWalletDisconnectCode() {
+        val dialog = _walletDisconnectDialog.value as? WalletDisconnectDialogState.Confirm ?: return
+        if (dialog.sending) {
+            return
+        }
+        _walletDisconnectDialog.value = WalletDisconnectDialogState.Confirm(sending = true)
+        val s = source
+        viewModelScope.launch {
+            val answer = s.walletDisconnectCode()
+            // a dialog closed meanwhile, or another device's, takes no answer
+            if (s !== source || _walletDisconnectDialog.value !is WalletDisconnectDialogState.Confirm) {
+                return@launch
+            }
+            answer
+                .onSuccess { walletDisconnectAnswered(it) }
+                .onFailure {
+                    Log.i(TAG, "wallet disconnect code: ${it.message}")
+                    _walletDisconnectDialog.value = WalletDisconnectDialogState.Confirm(error = WalletDisconnectError.generic)
+                }
+        }
+    }
+
+    /** The dialog's Disconnect wallet, with the emailed code. */
+    fun disconnectWallet(code: String) {
+        val dialog = _walletDisconnectDialog.value as? WalletDisconnectDialogState.EnterCode ?: return
+        if (dialog.disconnecting || code.isBlank()) {
+            return
+        }
+        _walletDisconnectDialog.value = dialog.copy(disconnecting = true, error = null)
+        val s = source
+        viewModelScope.launch {
+            val answer = s.walletDisconnect(code)
+            if (s !== source || _walletDisconnectDialog.value !is WalletDisconnectDialogState.EnterCode) {
+                return@launch
+            }
+            answer
+                .onSuccess { walletDisconnectAnswered(it) }
+                .onFailure {
+                    Log.i(TAG, "wallet disconnect: ${it.message}")
+                    _walletDisconnectDialog.value = dialog.copy(disconnecting = false, error = WalletDisconnectError.generic)
+                }
+        }
+    }
+
+    // a disconnect step's answer: the code's step, the card read again, or the refusal's words
+    private fun walletDisconnectAnswered(answer: SnWalletDisconnectAnswer) {
+        val dialog = _walletDisconnectDialog.value ?: return
+        when (answer) {
+            is SnWalletDisconnectAnswer.CodeSent -> {
+                _walletDisconnectDialog.value = WalletDisconnectDialogState.EnterCode(sentTo = answer.sentTo)
+            }
+            SnWalletDisconnectAnswer.Disconnected -> {
+                _walletDisconnectDialog.value = null
+                _connectState.value = WalletConnectState.Disconnected
+                // the card's wallet, and everything it changes, read again
+                viewModelScope.launch { refreshAll(userInitiated = false) }
+            }
+            is SnWalletDisconnectAnswer.Refused -> when (answer.code) {
+                // no wallet to disconnect: the card reads the wallet again
+                Sdk.SnWalletDisconnectErrorCodeNoWallet -> {
+                    _walletDisconnectDialog.value = null
+                    viewModelScope.launch { refreshAll(userInitiated = false) }
+                }
+                // no code is waiting: ask for a new one
+                Sdk.SnWalletDisconnectErrorCodeCodeExpired -> {
+                    _walletDisconnectDialog.value = WalletDisconnectDialogState.Confirm(error = WalletDisconnectError.of(answer))
+                }
+                // the step stays; a wrong code stays in its field
+                else -> {
+                    _walletDisconnectDialog.value = when (dialog) {
+                        is WalletDisconnectDialogState.Confirm ->
+                            dialog.copy(sending = false, error = WalletDisconnectError.of(answer))
+                        is WalletDisconnectDialogState.EnterCode ->
+                            dialog.copy(disconnecting = false, error = WalletDisconnectError.of(answer))
+                    }
+                }
+            }
+        }
+    }
+
     // ---- manual address entry (validated, then proven by a signature for that address)
 
     fun openManualSheet() {
@@ -952,6 +1062,9 @@ class EarningsViewModel @Inject constructor(
         _wallet.value = null
         _walletLoaded.value = false
         _walletFailed.value = false
+        // the last device's wallet read and its disconnect
+        _walletDisconnectRead.value = null
+        _walletDisconnectDialog.value = null
         _gasKey.value = null
         _gasBalance.value = null
         _claims.value = emptyList()

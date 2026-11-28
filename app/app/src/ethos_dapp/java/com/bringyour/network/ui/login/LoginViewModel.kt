@@ -3,6 +3,7 @@ package com.bringyour.network.ui.login
 import com.bringyour.network.ui.connection_region.CantReachPrompt
 import android.content.Context
 import android.util.Patterns
+import com.bringyour.sdk.Sdk
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -53,8 +54,26 @@ class LoginViewModel @Inject constructor(
     var appleAuthInProgress by mutableStateOf(false)
         private set
 
+    // Microsoft's sign-in round trip is in the browser too (launchMicrosoftSignIn)
+    var microsoftAuthInProgress by mutableStateOf(false)
+        private set
+
     var isValidUserAuth by mutableStateOf(false)
         private set
+
+    // the field holds a phone number in a format the login does not send
+    // (Sdk.isInvalidUserAuthPhone): Continue then says how to write it instead
+    // of sending it (apple#193, android#298)
+    var isInvalidPhone by mutableStateOf(false)
+        private set
+
+    // Continue found such a number: the screen shows it in a snackbar, once
+    var phoneFormatNotice by mutableStateOf(false)
+        private set
+
+    fun clearPhoneFormatNotice() {
+        phoneFormatNotice = false
+    }
 
     var userAuth by mutableStateOf(TextFieldValue(""))
 
@@ -72,7 +91,12 @@ class LoginViewModel @Inject constructor(
     ) -> Unit = login@{ ctx, api, onLogin, onNewNetwork ->
 
         when {
-            !isValidUserAuth || userAuthInProgress -> {}
+            userAuthInProgress -> {}
+            !isValidUserAuth -> {
+                if (isInvalidPhone) {
+                    phoneFormatNotice = true
+                }
+            }
             else -> {
                 val loginApp = ctx.applicationContext as? MainApplication
                 val loginRequest = loginApp?.beginLoginRequest()
@@ -450,6 +474,10 @@ class LoginViewModel @Inject constructor(
         appleAuthInProgress = inProgress
     }
 
+    val setMicrosoftAuthInProgress: (Boolean) -> Unit = { inProgress ->
+        microsoftAuthInProgress = inProgress
+    }
+
     val setUserAuth: (TextFieldValue) -> Unit = { newValue ->
 
         val filteredText = newValue.text.filter { it != ' ' }
@@ -460,7 +488,8 @@ class LoginViewModel @Inject constructor(
 
         isValidUserAuth = userAuth.text.isNotEmpty() &&
                 (Patterns.EMAIL_ADDRESS.matcher(userAuth.text).matches() ||
-                        Patterns.PHONE.matcher(userAuth.text).matches())
+                        Sdk.isValidUserAuthPhone(userAuth.text))
+        isInvalidPhone = !isValidUserAuth && Sdk.isInvalidUserAuthPhone(userAuth.text)
     }
 
     init {

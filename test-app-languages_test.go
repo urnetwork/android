@@ -129,8 +129,8 @@ func TestAppLanguagesLocationListNamesCountriesInTheAppLanguage(t *testing.T) {
 	if strings.Contains(list, "location = location.name") {
 		t.Error("a location row shows the server's name instead of locationDisplayName")
 	}
-	if n := strings.Count(list, "location = locationDisplayName(location)"); n != 5 {
-		t.Errorf("%d location rows use locationDisplayName; the list has 5 (best matches, countries, regions, cities, devices)", n)
+	if n := strings.Count(list, "location = locationDisplayName(location)"); n != 6 {
+		t.Errorf("%d location rows use locationDisplayName; the list has 6 (favorites, best matches, countries, regions, cities, devices)", n)
 	}
 	button := appLanguagesRead(t, filepath.Join(appLanguagesMain, "java/com/bringyour/network/ui/connect/ConnectActions.kt"))
 	if !strings.Contains(button, "else -> locationDisplayName(selectedLocation)") {

@@ -112,6 +112,20 @@ data class ProviderStatusUi(
      */
     val rankingNumbers: List<ProviderRankingNumberUi> = listOf(),
     val country: ProviderStatusCountryUi? = null,
+    /**
+     * the data SN25 counted for this device in the newest settled epoch (the
+     * status's `provided`): the epoch, 0 for none, the bytes, and whether they
+     * went unpaid because no payout wallet was connected
+     */
+    val providedEpoch: Long = 0,
+    val providedByteCount: Long = 0,
+    val providedUnpaid: Boolean = false,
+    /**
+     * the network's unpaid data provided in the newest settled SN25 epoch, over
+     * all its devices, and that epoch, 0 for none
+     */
+    val unpaidEpoch: Long = 0,
+    val unpaidByteCount: Long = 0,
 ) {
     companion object {
         val Empty = ProviderStatusUi()
@@ -120,10 +134,18 @@ data class ProviderStatusUi(
         fun fromSdk(vc: ProviderStatusViewController): ProviderStatusUi {
             val loaded = vc.isLoaded
             val lastFetchError = vc.lastFetchError ?: ""
+            // the network's, with or without a status for this device
+            val unpaidEpoch = vc.providedEpoch
+            val unpaidByteCount = vc.unpaidByteCount
             // read one status object, so the reason, the numbers and the
             // histogram all come from the same poll
             val status = vc.providerStatus
-                ?: return ProviderStatusUi(loaded = loaded, lastFetchError = lastFetchError)
+                ?: return ProviderStatusUi(
+                    loaded = loaded,
+                    lastFetchError = lastFetchError,
+                    unpaidEpoch = unpaidEpoch,
+                    unpaidByteCount = unpaidByteCount,
+                )
 
             val rankingNumbers = mutableListOf<ProviderRankingNumberUi>()
             status.ranking?.let { list ->
@@ -172,6 +194,8 @@ data class ProviderStatusUi(
                 }
             }
 
+            val provided = status.provided
+
             return ProviderStatusUi(
                 loaded = loaded,
                 lastFetchError = lastFetchError,
@@ -187,6 +211,11 @@ data class ProviderStatusUi(
                         country = it.country ?: "",
                     )
                 },
+                providedEpoch = provided?.epoch ?: 0L,
+                providedByteCount = provided?.usageByteCount ?: 0L,
+                providedUnpaid = provided?.payout == Sdk.ProviderStatusProvidedUnpaid,
+                unpaidEpoch = unpaidEpoch,
+                unpaidByteCount = unpaidByteCount,
             )
         }
     }
