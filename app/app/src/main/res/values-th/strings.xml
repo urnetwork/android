@@ -695,6 +695,7 @@
     <string name="expanded">ขยายแล้ว</string>
     <string name="expires">หมดอายุ</string>
     <string name="expiry_time">เวลาหมดอายุ</string>
+    <string name="export_logs">ส่งออกล็อก</string>
     <string name="extender_address_copied">คัดลอกที่อยู่ของตัวขยายแล้ว</string>
     <string name="extender_address_label">ตัวขยาย %1$s</string>
     <string name="extender_default_value">ค่าเริ่มต้น: %1$s</string>
@@ -1553,6 +1554,7 @@
     <string name="verify_send_error">ข้อผิดพลาด</string>
     <string name="version_info">เวอร์ชั่นและข้อมูล build</string>
     <string name="via_exit">ผ่าน %1$s</string>
+    <string name="view_logs">ดูล็อก</string>
     <string name="vless_allow_insecure">อนุญาตใบรับรองที่ไม่ปลอดภัย</string>
     <string name="vless_copy_link">คัดลอกลิงก์</string>
     <string name="vless_enabled">ใช้ VLESS</string>

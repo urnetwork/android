@@ -695,6 +695,7 @@
     <string name="expanded">باز شده</string>
     <string name="expires">انقضا</string>
     <string name="expiry_time">زمان انقضا</string>
+    <string name="export_logs">خروجی گرفتن از لاگ‌ها</string>
     <string name="extender_address_copied">نشانی گسترش‌دهنده کپی شد</string>
     <string name="extender_address_label">گسترش‌دهنده %1$s</string>
     <string name="extender_default_value">پیش‌فرض: %1$s</string>
@@ -1553,6 +1554,7 @@
     <string name="verify_send_error">خطا</string>
     <string name="version_info">اطلاعات نسخه و ساخت</string>
     <string name="via_exit">از طریق %1$s</string>
+    <string name="view_logs">مشاهدهٔ لاگ‌ها</string>
     <string name="vless_allow_insecure">مجاز کردن گواهی ناامن</string>
     <string name="vless_copy_link">کپی لینک</string>
     <string name="vless_enabled">استفاده از VLESS</string>
