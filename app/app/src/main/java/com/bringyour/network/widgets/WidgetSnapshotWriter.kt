@@ -468,6 +468,11 @@ class WidgetSnapshotWriter(
                     isPro = result.currentSubscription != null,
                 )
             )
+            // little data left: the sdk decides and MainApplication shows it.
+            // Here on the callback's thread, as the sdk reads and writes its
+            // local state
+            (context.applicationContext as? com.bringyour.network.MainApplication)
+                ?.showLowDataWarningForBalance(result)
         })
     }
 

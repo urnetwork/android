@@ -871,6 +871,9 @@
     <string name="login_verify_details">Powiedz nam, kim naprawdę jesteś. Wprowadź kod,\nktóry wysłaliśmy, aby zweryfikować twoją tożsamość.</string>
     <string name="login_verify_header">Masz wiadomość</string>
     <string name="longest_streak">Najdłuższa seria</string>
+    <string name="low_data_warning_byte_count">Zostało tylko %1$s danych.</string>
+    <string name="low_data_warning_percent">Zostało Ci tylko %1$d%% danych (%2$s).</string>
+    <string name="low_data_warning_title">Kończą Ci się dane</string>
     <string name="manage_devices">Zarządzaj urządzeniami</string>
     <string name="manage_devices_connecting">Łączenie tego urządzenia…</string>
     <string name="manage_devices_help">Każde połączone urządzenie lub serwer proxy zajmuje jedno miejsce w Twoim planie. Usuń to, którego już nie używasz, aby zwolnić miejsce.</string>

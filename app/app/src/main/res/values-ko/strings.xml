@@ -871,6 +871,9 @@
     <string name="login_verify_details">본인 확인을 위해 보내드린 코드를\n입력해주세요.</string>
     <string name="login_verify_header">메일을 확인해주세요</string>
     <string name="longest_streak">최장 연속</string>
+    <string name="low_data_warning_byte_count">데이터가 %1$s만 남았습니다.</string>
+    <string name="low_data_warning_percent">데이터가 %1$d%%만 남았습니다(%2$s).</string>
+    <string name="low_data_warning_title">데이터가 얼마 남지 않았습니다</string>
     <string name="manage_devices">기기 관리</string>
     <string name="manage_devices_connecting">이 기기를 연결하는 중…</string>
     <string name="manage_devices_help">연결된 기기나 프록시는 각각 요금제의 자리를 하나씩 사용합니다. 더 이상 사용하지 않는 것을 제거하면 자리가 비워집니다.</string>

@@ -871,6 +871,9 @@
     <string name="login_verify_details">"Řekněte nám, kdo doopravdy jste.\n Zadejte kód, který jsme vám zaslali, abyste ověřili svou totožnost."</string>
     <string name="login_verify_header">Máš poštu</string>
     <string name="longest_streak">Nejdelší série</string>
+    <string name="low_data_warning_byte_count">Zbývá jen %1$s dat.</string>
+    <string name="low_data_warning_percent">Zbývá vám jen %1$d %% dat (%2$s).</string>
+    <string name="low_data_warning_title">Docházejí vám data</string>
     <string name="manage_devices">Spravovat zařízení</string>
     <string name="manage_devices_connecting">Připojování tohoto zařízení…</string>
     <string name="manage_devices_help">Každé připojené zařízení nebo proxy zabírá jedno místo vašeho tarifu. Odeberte to, které už nepoužíváte, a uvolněte jeho místo.</string>

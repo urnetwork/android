@@ -871,6 +871,9 @@
     <string name="login_verify_details">أخبرنا من أنت حقًا. أدخل الرمز الذي أرسلناه إليك للتحقق من هويتك.</string>
     <string name="login_verify_header">لديك بريد إلكتروني</string>
     <string name="longest_streak">أطول سلسلة</string>
+    <string name="low_data_warning_byte_count">تبقّى %1$s فقط من البيانات.</string>
+    <string name="low_data_warning_percent">تبقّى %1$d%% فقط من بياناتك (%2$s).</string>
+    <string name="low_data_warning_title">بياناتك على وشك النفاد</string>
     <string name="manage_devices">إدارة الأجهزة</string>
     <string name="manage_devices_connecting">جارٍ توصيل هذا الجهاز…</string>
     <string name="manage_devices_help">يستخدم كل جهاز أو وكيل متصل مكانًا من خطتك. أزل ما لم تعد تستخدمه لتحرير مكانه.</string>

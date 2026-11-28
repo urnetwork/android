@@ -871,6 +871,9 @@
     <string name="login_verify_details">Vertel ons wie je echt bent. Voer de code in die we\nnaar je hebben gestuurd om je identiteit te verifiëren.</string>
     <string name="login_verify_header">Je hebt mail</string>
     <string name="longest_streak">Langste reeks</string>
+    <string name="low_data_warning_byte_count">Er is nog maar %1$s data over.</string>
+    <string name="low_data_warning_percent">Je hebt nog maar %1$d%% van je data over (%2$s).</string>
+    <string name="low_data_warning_title">Je data raakt bijna op</string>
     <string name="manage_devices">Apparaten beheren</string>
     <string name="manage_devices_connecting">Dit apparaat wordt verbonden…</string>
     <string name="manage_devices_help">Elk verbonden apparaat of elke proxy gebruikt een plek van je abonnement. Verwijder er een die je niet meer gebruikt om de plek vrij te maken.</string>

@@ -871,6 +871,9 @@
     <string name="login_verify_details">Hãy cho chúng tôi biết bạn thực sự là ai. Nhập mã chúng tôi\nđã gửi để xác minh danh tính của bạn.</string>
     <string name="login_verify_header">Bạn có email mới</string>
     <string name="longest_streak">Chuỗi dài nhất</string>
+    <string name="low_data_warning_byte_count">Chỉ còn %1$s dữ liệu.</string>
+    <string name="low_data_warning_percent">Bạn chỉ còn %1$d%% dữ liệu (%2$s).</string>
+    <string name="low_data_warning_title">Dữ liệu của bạn sắp hết</string>
     <string name="manage_devices">Quản lý thiết bị</string>
     <string name="manage_devices_connecting">Đang kết nối thiết bị này…</string>
     <string name="manage_devices_help">Mỗi thiết bị hoặc proxy đang kết nối dùng một chỗ trong gói của bạn. Hãy xóa cái bạn không còn dùng để giải phóng chỗ.</string>

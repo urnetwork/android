@@ -871,6 +871,9 @@
     <string name="login_verify_details">Diga-nos quem você realmente é. Digite o código que\nenviamos para você verificar sua identidade.</string>
     <string name="login_verify_header">Você tem um e-mail</string>
     <string name="longest_streak">Maior sequência</string>
+    <string name="low_data_warning_byte_count">Restam apenas %1$s de dados.</string>
+    <string name="low_data_warning_percent">Restam apenas %1$d%% dos seus dados (%2$s).</string>
+    <string name="low_data_warning_title">Seus dados estão acabando</string>
     <string name="manage_devices">Gerenciar dispositivos</string>
     <string name="manage_devices_connecting">Conectando este dispositivo…</string>
     <string name="manage_devices_help">Cada dispositivo ou proxy conectado ocupa uma vaga do seu plano. Remova o que você não usa mais para liberar a vaga.</string>

@@ -871,6 +871,9 @@
     <string name="login_verify_details">Tuambie wewe ni nani hasa. Weka msimbo ambao tume\nkutumia ili kuthibitisha utambulisho wako.</string>
     <string name="login_verify_header">Umepata barua</string>
     <string name="longest_streak">Mfululizo mrefu zaidi</string>
+    <string name="low_data_warning_byte_count">Imebaki data ya %1$s tu.</string>
+    <string name="low_data_warning_percent">Imebaki %1$d%% tu ya data yako (%2$s).</string>
+    <string name="low_data_warning_title">Data yako inakaribia kuisha</string>
     <string name="manage_devices">Dhibiti vifaa</string>
     <string name="manage_devices_connecting">Inaunganisha kifaa hiki…</string>
     <string name="manage_devices_help">Kila kifaa au proksi iliyounganishwa hutumia nafasi moja ya mpango wako. Ondoa usichokitumia tena ili kuachilia nafasi yake.</string>

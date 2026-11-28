@@ -871,6 +871,9 @@
     <string name="login_verify_details">告诉我们您是谁。输入我们\n发送给您的代码以验证您的身份。</string>
     <string name="login_verify_header">您有邮件</string>
     <string name="longest_streak">最长连续</string>
+    <string name="low_data_warning_byte_count">仅剩 %1$s 数据。</string>
+    <string name="low_data_warning_percent">你的数据仅剩 %1$d%%（%2$s）。</string>
+    <string name="low_data_warning_title">数据即将用完</string>
     <string name="manage_devices">管理设备</string>
     <string name="manage_devices_connecting">正在连接此设备…</string>
     <string name="manage_devices_help">每个已连接的设备或代理都会占用您套餐的一个名额。移除不再使用的设备或代理即可释放名额。</string>

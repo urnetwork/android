@@ -871,6 +871,9 @@
     <string name="login_verify_details">Dites-nous qui vous êtes vraiment. Entrez le code que nous\nvous avons envoyé pour vérifier votre identité.</string>
     <string name="login_verify_header">Vous avez un courriel</string>
     <string name="longest_streak">Plus longue série</string>
+    <string name="low_data_warning_byte_count">Il ne vous reste que %1$s de données.</string>
+    <string name="low_data_warning_percent">Il ne vous reste que %1$d %% de vos données (%2$s).</string>
+    <string name="low_data_warning_title">Données bientôt épuisées</string>
     <string name="manage_devices">Gérer les appareils</string>
     <string name="manage_devices_connecting">Connexion de cet appareil…</string>
     <string name="manage_devices_help">Chaque appareil ou proxy connecté occupe une place de votre offre. Retirez celui que vous n’utilisez plus pour libérer sa place.</string>
